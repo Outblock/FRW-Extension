@@ -1,0 +1,1013 @@
+{
+  "appName": {
+    "message": "Flow Reference",
+    "description": "Application Name"
+  },
+  "appDescription": {
+    "message": "すべての人のために作られたデジタルウォレット。",
+    "description": "Application Descrtipion"
+  },
+  "Send": {
+    "message": "送信"
+  },
+  "Swap": {
+    "message": "交換"
+  },
+  "Save": {
+    "message": "保存"
+  },
+  "Settings": {
+    "message": "設定"
+  },
+  "Mnemonic": {
+    "message": "ニーモニック"
+  },
+  "Unlock": {
+    "message": "ロック解除"
+  },
+  "Address": {
+    "message": "アドレス"
+  },
+  "Description": {
+    "message": "説明"
+  },
+  "Next": {
+    "message": "次へ"
+  },
+  "Back": {
+    "message": "戻る"
+  },
+  "Amount": {
+    "message": "金額"
+  },
+  "Edit": {
+    "message": "編集"
+  },
+  "Pending": {
+    "message": "保留中"
+  },
+  "From": {
+    "message": "から"
+  },
+  "To": {
+    "message": "宛先"
+  },
+  "Receive": {
+    "message": "受け取る"
+  },
+  "Buy": {
+    "message": "購入"
+  },
+  "Account": {
+    "message": "アカウント"
+  },
+  "Wallet": {
+    "message": "ウォレット"
+  },
+  "Address__Book": {
+    "message": "アドレス帳"
+  },
+  "Developer__Mode": {
+    "message": "デベロッパーモード"
+  },
+  "About": {
+    "message": "開発について"
+  },
+  "Anonymous": {
+    "message": "匿名"
+  },
+  "Other__Lilico__users__cannot__search__for__your__username": {
+    "message": "他の Flow Reference ユーザーは、あなたのユーザー名を検索できません。"
+  },
+  "Private__Key": {
+    "message": "秘密鍵"
+  },
+  "Free__Gas__Fee": {
+    "message": "手数料無料"
+  },
+  "Storage": {
+    "message": "記憶容量"
+  },
+  "Search": {
+    "message": "検索"
+  },
+  "Add": {
+    "message": "追加"
+  },
+  "Add__Address": {
+    "message": "アドレスの追加"
+  },
+  "Manage__Backups": {
+    "message": "バックアップの管理"
+  },
+  "Sync": {
+    "message": "同期"
+  },
+  "Google__Drive": {
+    "message": "Google ドライブ"
+  },
+  "Developer__Settings": {
+    "message": "デベロッパー設定"
+  },
+  "Version": {
+    "message": "バージョン情報"
+  },
+  "CONTACT__US": {
+    "message": "お問い合わせ"
+  },
+  "Need__Help": {
+    "message": "FAQ"
+  },
+  "Cancel": {
+    "message": "キャンセル"
+  },
+  "Backup": {
+    "message": "バックアップ"
+  },
+  "Claim__for__your": {
+    "message": "請求する "
+  },
+  "FREE": {
+    "message": "無料"
+  },
+  "Lilico__domain": {
+    "message": "Flow Coreドメインを取得する。"
+  },
+  "Edit__Address": {
+    "message": "アドレスの編集"
+  },
+  "Are__you__sure__you__want__to__remove__this__contact": {
+    "message": "この連絡先を本当に削除しますか？"
+  },
+  "You__will__no__longer__find__this__contact__in__your__address__book": {
+    "message": "アドレス帳にこの連絡先が表示されなくなります。"
+  },
+  "Empty__List": {
+    "message": "空リスト"
+  },
+  "No__results__found": {
+    "message": "検索結果がありません！"
+  },
+  "Link": {
+    "message": "リンク"
+  },
+  "Deleting": {
+    "message": "削除中"
+  },
+  "Delete__backup": {
+    "message": "バックアップの削除"
+  },
+  "Network": {
+    "message": "ネットワーク"
+  },
+  "Transaction__Fee": {
+    "message": "取引手数料"
+  },
+  "Connect__Title": {
+    "message": "このウェブサイトは"
+  },
+  "Connect__Body1": {
+    "message": "ウォレットアドレス、残高、アクティビティを表示"
+  },
+  "Connect__Body2": {
+    "message": "トランザクションの承認を要求する"
+  },
+  "Switch__Network": {
+    "message": "ネットワーク切り替え"
+  },
+  "Mainnet": {
+    "message": "Mainnet"
+  },
+  "Selected": {
+    "message": "選択中"
+  },
+  "Testnet": {
+    "message": "Testnet"
+  },
+  "Sandboxnet": {
+    "message": "Sandboxnet"
+  },
+  "Transaction__Monitor": {
+    "message": "トランザクションモニター"
+  },
+  "Flowscan": {
+    "message": "Flowscan"
+  },
+  "Flow__view__source": {
+    "message": "Flow view source"
+  },
+  "Public__Key": {
+    "message": "公開鍵"
+  },
+  "Hash__Algorithm": {
+    "message": "ハッシュアルゴリズム"
+  },
+  "Sign__Algorithm": {
+    "message": "署名アルゴリズム"
+  },
+  "Incorrect__Password": {
+    "message": "パスワードが間違っています"
+  },
+  "Verify__Password": {
+    "message": "パスワードを確認"
+  },
+  "Enter__Your__Password": {
+    "message": "パスワードを入力してください"
+  },
+  "Do__not__share__your__private__key": {
+    "message": "秘密鍵を共有しないでください！"
+  },
+  "If__someone__has__your__private__key": {
+    "message": "もし誰かがあなたの秘密鍵を持っていたら、<br/>その人はあなたのウォレットに完全にアクセスすることができます。 "
+  },
+  "COPY": {
+    "message": "コピー"
+  },
+  "Do__not__share__your__secret__phrase": {
+    "message": "シークレットフレーズは共有してはいけません！"
+  },
+  "If__someone__has__your__secret__phrase": {
+    "message": "もし誰かがあなたのシークレットフレーズを知ったら、<br/>その人はあなたのウォレットを完全にコントロールすることができるのです。"
+  },
+  "Done": {
+    "message": "完了"
+  },
+  "Are__you__sure__you__want__to__reset__your__wallet": {
+    "message": "ウォレットをリセットしてもよろしいですか？"
+  },
+  "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
+    "message": "Flow Coreからウォレットを削除しても、Flowブロックチェーンからウォレットが削除されるわけではありません。リカバリーフレーズまたはGoogleドライブバックアップを使用して、ウォレットを再度インポートすることができます。"
+  },
+  "Reset": {
+    "message": "リセット"
+  },
+  "Recovery__Phrase": {
+    "message": "リカバリーフレーズ"
+  },
+  "Confirm__Password": {
+    "message": "パスワードの確認"
+  },
+  "New__Password": {
+    "message": "新しいパスワード"
+  },
+  "Current__Password": {
+    "message": "現在のパスワード"
+  },
+  "Change__111e__Password": {
+    "message": "111eパスワードの変更"
+  },
+  "Security": {
+    "message": "セキュリティについて"
+  },
+  "Allow__lilico__to__pay__the__gas__fee": {
+    "message": "Flow Coreが私のすべてのトランザクションの手数料を支払うことを許可する。"
+  },
+  "This__feature__has__been__disabled__temporarily": {
+    "message": "この機能は一時的に無効化されています。"
+  },
+  "It__might__increase__the__waiting__time__when__you__approve__a__transaction": {
+    "message": "トランザクションを承認する際の待ち時間が長くなる可能性があります。"
+  },
+  "You__will__need__to__connect__to__your__wallet__again": {
+    "message": "この変更を有効にするには、ウォレットに再度接続する必要があります。"
+  },
+  "Coin": {
+    "message": "コイン"
+  },
+  "Exec_Transaction": {
+    "message": "トランザクション実行"
+  },
+  "View_more_transactions": {
+    "message": "他のトランザクションを見る"
+  },
+  "No_activity_yet": {
+    "message": "まだアクティビティはありません"
+  },
+  "Activity": {
+    "message": "アクティビティ"
+  },
+  "Coins": {
+    "message": "コイン"
+  },
+  "Search_to_find_more_users": {
+    "message": "より多くのユーザーを検索する"
+  },
+  "Search_Address0x_or_Flow_domain": {
+    "message": "検索、アドレス(0x)またはFlowドメイン"
+  },
+  "Search_the_ID": {
+    "message": "ID検索: "
+  },
+  "Sorry_we_could_not_find_any_accounts_Please_try_again": {
+    "message": "申し訳ございませんが、アカウントは見つかりませんでした。もう一度お試しください。"
+  },
+  "Send_to": {
+    "message": "送信先"
+  },
+  "Invalid_address_in": {
+    "message": "のアドレスが無効です"
+  },
+  "Transaction_created": {
+    "message": "トランザクションが作成されました"
+  },
+  "Your_address_is_currently_processing_another_transaction": {
+    "message": "お客様のアドレスは現在、別のトランザクションを処理中です"
+  },
+  "Sending": {
+    "message": " 送信中..."
+  },
+  "Confirmation": {
+    "message": "確認画面"
+  },
+  "Processing": {
+    "message": "処理中"
+  },
+  "Insufficient_balance": {
+    "message": "残高不足"
+  },
+  "on_Flow_the_balance_cant_less_than_0001_FLOW": {
+    "message": "Flow上での残高は0.001FLOW未満にはできません。"
+  },
+  "Approve": {
+    "message": "承認する"
+  },
+  "SCRIPT": {
+    "message": "スクリプト"
+  },
+  "lilico__covers__this__gas__fee__for__you": {
+    "message": "Flow Coreはこの手数料を負担します。 "
+  },
+  "SIGN__MESSAGE": {
+    "message": "メッセージにサインする"
+  },
+  "Unavailable": {
+    "message": "使用不可"
+  },
+  "Pending__Transaction": {
+    "message": "取引保留"
+  },
+  "Import__Wallet": {
+    "message": "ウォレットをインポートする"
+  },
+  "Lock__Wallet": {
+    "message": "ウォレットをロックする"
+  },
+  "Copy__Address": {
+    "message": "アドレスをコピー"
+  },
+  "QR__Code": {
+    "message": "QRコード"
+  },
+  "Choose_provider": {
+    "message": "プロバイダーを選択"
+  },
+  "Shown__your__QR__code__to__receive__transactions": {
+    "message": "トランザクションを受け取るためのQRコードを表示しました。"
+  },
+  "Make__sure__you__are__using__the__correct__network": {
+    "message": "正しいネットワークを使用していることを確認してください。こちらの入金先には、テストネットの資産のみを送ってください。"
+  },
+  "Things__You__should__Know": {
+    "message": "知っておくべきこと"
+  },
+  "Free__lilico__domain__help__you__find__each__other__easier__on__chain": {
+    "message": "無料の Flow Reference ドメインはチェーン上でお互いを簡単に見つけるのに便利です。"
+  },
+  "An__Inbox__system__will__help__you__send__tokens__and__NFT__to__your__friend__without__enable__vault": {
+    "message": "InboxシステムはVaultを有効にすることなく、トークンやNFTを友人に送信するのに便利です。"
+  },
+  "Anonymous__mode__will__be__affected__others__can__find__your__address__by__your__domain": {
+    "message": "匿名モードが影響を受けます。他のユーザーはドメインであなたのアドレスを見つけることができます。"
+  },
+  "Submission_error": {
+    "message": "送信エラー"
+  },
+  "Submitting": {
+    "message": "送信中..."
+  },
+  "Claim": {
+    "message": "請求"
+  },
+  "Domain__already__exist": {
+    "message": ": ドメインはすでに存在しています"
+  },
+  "Domain__creation__complete": {
+    "message": "ドメイン作成完了"
+  },
+  "STEP": {
+    "message": "ステップ"
+  },
+  "No__backup__found": {
+    "message": "バックアップが見つかりません"
+  },
+  "Something__is__wrong": {
+    "message": "何かが間違っている"
+  },
+  "Restore__Backup__from__Google__Drive": {
+    "message": "Googleドライブからバックアップを復元する "
+  },
+  "Recovery__phrase__valid": {
+    "message": "リカバリーフレーズ有効"
+  },
+  "Checking": {
+    "message": "確認中"
+  },
+  "Something__went__wrong__please__try__again": {
+    "message": "何か問題が発生しました。後でもう一度お試しください。"
+  },
+  "Recovery__phrases__word__count__must__be__12__or__24__words": {
+    "message": "リカバリーフレーズは12または24の単語である必要があります。"
+  },
+  "Mnemonic__phrase__is__invalid": {
+    "message": "ニーモニックフレーズが無効です"
+  },
+  "Sign__in__with": {
+    "message": "でサインイン "
+  },
+  "This__is__the__12__or__24__word__phrase__you__were__given": {
+    "message": "これは、最初にウォレットを作成したときに指定された12または24の単語から成るフレーズです。または、あなた自身のものであってもかまいません。"
+  },
+  "Weak": {
+    "message": "弱い"
+  },
+  "Good": {
+    "message": "良い"
+  },
+  "Great": {
+    "message": "とても良い"
+  },
+  "Strong": {
+    "message": "強い"
+  },
+  "Unknown": {
+    "message": "不明"
+  },
+  "At__least__8__characters": {
+    "message": "8文字以上"
+  },
+  "Your__address__is__currently__processing": {
+    "message": "あなたのアドレスは現在、別のトランザクションを処理中です。"
+  },
+  "Transaction__created": {
+    "message": "トランザクションが作成されました"
+  },
+  "Search__Address__or__Flow__domain": {
+    "message": "検索、アドレス(0x) またはFlowドメイン"
+  },
+  "Search__the__ID": {
+    "message": "ID検索: "
+  },
+  "Sorry__we__could__not__find__any__accounts": {
+    "message": "申し訳ございませんが、アカウントは見つかりませんでした。もう一度お試しください。"
+  },
+  "Market": {
+    "message": "マーケット"
+  },
+  "Website": {
+    "message": "ウェブサイト"
+  },
+  "Collections": {
+    "message": "コレクション"
+  },
+  "NFTs": {
+    "message": "NFTs"
+  },
+  "collectibles": {
+    "message": "収集品"
+  },
+  "Add__Collection": {
+    "message": "コレクションを追加する"
+  },
+  "Seach__NFT__Collection": {
+    "message": "NFTコレクションを検索する"
+  },
+  "COLLECTION__LIST": {
+    "message": "コレクションリスト"
+  },
+  "Enable": {
+    "message": "有効化"
+  },
+  "Enable__NFT__Collection": {
+    "message": "NFT コレクションを有効にする"
+  },
+  "Change__Address": {
+    "message": "アドレスの変更"
+  },
+  "We__did__not__find__anything__here": {
+    "message": "こちらでは何も見つかりませんでした。"
+  },
+  "Looking__forward__to__your__new__discovery": {
+    "message": "新しい発見を楽しみにしています。"
+  },
+  "Grid": {
+    "message": "グリッド"
+  },
+  "List": {
+    "message": "リスト"
+  },
+  "For__testing__purpose__only": {
+    "message": "テスト用 (Mainnet)"
+  },
+  "Showing__NFT__under": {
+    "message": "NFT の下に表示 "
+  },
+  "Launch__My__Wallet": {
+    "message": "マイウォレットを起動する"
+  },
+  "Start__exploring__with__Lilico__now": {
+    "message": "今すぐFlow Coreで探検を始めましょう"
+  },
+  "all__set": {
+    "message": "設定完了"
+  },
+  "You__are": {
+    "message": "あなたは"
+  },
+  "Flow_Core": {
+    "message": "Flow Reference"
+  },
+  "Lilico": {
+    "message": "Flow Reference"
+  },
+  "and__Pin": {
+    "message": "とピン"
+  },
+  "Click__Extension": {
+    "message": "拡張機能をクリック"
+  },
+  "Put__your__wallet__within__reach": {
+    "message": "ウォレットを手の届くところに置きましょう！"
+  },
+  "Username": {
+    "message": "ユーザー名"
+  },
+  "Oops__unexpected__error": {
+    "message": "おっと、予期せぬエラーが発生しました。"
+  },
+  "This__name__has__been__taken": {
+    "message": "この名前はすでに使われています。"
+  },
+  "Your__username__can__only__contain__letters__and__numbers": {
+    "message": "ユーザー名には文字と数字のみを使用できます"
+  },
+  "Too__short": {
+    "message": "短すぎます"
+  },
+  "Too__long": {
+    "message": "長すぎます"
+  },
+  "Pick__Your": {
+    "message": "を選ぶ "
+  },
+  "Your__username__will__be__used__to__send__and__receive": {
+    "message": "あなたのユーザーネームはLilicoで友達とトークンを送受信するために使用されます。"
+  },
+  "Okay__I__have__saved__it__properly": {
+    "message": "OK、ちゃんと保存しました"
+  },
+  "Click__here__to__reveal__phrase": {
+    "message": "ここをクリックするとフレーズが表示されます"
+  },
+  "Recovery": {
+    "message": "リカバリー "
+  },
+  "Phrase": {
+    "message": "フレーズ"
+  },
+  "Verify": {
+    "message": "Verify"
+  },
+  "This__recovery__phrase__will__be__used__for__register": {
+    "message": "このリカバリーフレーズは登録時に使用されます。"
+  },
+  "Try__Our__New__App": {
+    "message": "新しいアプリを試す"
+  },
+  "Register": {
+    "message": "登録する"
+  },
+  "Passwords__match": {
+    "message": "パスワードが一致しました"
+  },
+  "Your__passwords__do__not__match": {
+    "message": "あなたのパスワードは一致しません。もう一度ご確認ください。"
+  },
+  "Create": {
+    "message": "作成 "
+  },
+  "Password": {
+    "message": "パスワード"
+  },
+  "Create__a__password": {
+    "message": "パスワードの作成"
+  },
+  "Confirm__your__password": {
+    "message": "パスワードの確認"
+  },
+  "Privacy__Policy": {
+    "message": "個人情報保護方針"
+  },
+  "and": {
+    "message": " および "
+  },
+  "Terms__of__Service": {
+    "message": "利用規約"
+  },
+  "Lilico__uses__this__password__to__protect__your__recovery__phrase": {
+    "message": "Lilicoはこのパスワードを使って、お客様のリカバリーフレーズを保護します。"
+  },
+  "I__agree__to__Lilico": {
+    "message": "私はLilicoのプライバシーポリシーに同意します。"
+  },
+  "Try__again": {
+    "message": "もう一度やり直してください"
+  },
+  "Welcome__Back": {
+    "message": "おかえりなさい、 "
+  },
+  "Use__the__same__Google__Drive__password": {
+    "message": "Lilicoウォレットを保護するために同じGoogleドライブのパスワードを使用します"
+  },
+  "Please__enter__your__password__to__decrypt": {
+    "message": "ウォレットのバックアップを復号するためにパスワードを入力してください。"
+  },
+  "Restore__My__Wallet": {
+    "message": "ウォレットを復元する"
+  },
+  "Incorrect__decrypt__password__please__try__again": {
+    "message": "復号パスワードが正しくありません、もう一度やり直してください。"
+  },
+  "The__decrypt__password__should__be__8__characters__long": {
+    "message": "復号パスワードは8文字以上でなければなりません。"
+  },
+  "We__ve__found": {
+    "message": "一致するアカウントが見つかりました"
+  },
+  "matching__accounts": {
+    "message": "一致するアカウント"
+  },
+  "Select__the__account__which__you__want__to__restore__back": {
+    "message": "復元したいアカウントを選択してください。"
+  },
+  "Review": {
+    "message": "レビュー"
+  },
+  "Write__down__this__phrase__in__this__exact__order__and__keep__them__safe": {
+    "message": "このフレーズをこの順番で書き留め、必ず安全な場所に保管してください。"
+  },
+  "Please_select_the_word_one_by_one_refering_to_its_order": {
+    "message": "単語を順番に選んでください。"
+  },
+  "Please__notice__that__If__you__lose__you__can__not__access": {
+    "message": "リカバリーフレーズを紛失した場合、アカウントに永久にアクセスできなくなりますのでご注意ください。"
+  },
+  "Select_the_word_at": {
+    "message": "で単語を選択します"
+  },
+  "Please_restart_your_browser":{
+    "message": "ブラウザを再起動してください"
+  },
+  "If_you_keep_seeing_this_spinner": {
+    "message": "このスピナーがずっと表示されている場合"
+  },
+  "Incorrect_recovery_phrases_please_try_again": {
+    "message": "リカバリーフレーズが正しくありません、もう一度やり直してください。"
+  },
+  "Recovery_phrases_word_count_must_be_12_or_24_words": {
+    "message": "リカバリーフレーズの単語数は12または24の単語である必要があります。"
+  },
+  "Allset": {
+    "message": " オールセット"
+  },
+  "You_can_start_experiencing_Lilico_now": {
+    "message": "今すぐLilicoを体験できます!"
+  },
+  "Back_up": {
+    "message": "バックアップ"
+  },
+  "Back_up_your_wallet_to_Google_Drive_for_easy_access": {
+    "message": "ウォレットをGoogleドライブにバックアップして、簡単にアクセスできるようにしましょう。 "
+  },
+  "Recommend": {
+    "message": "おすすめ"
+  },
+  "to_back_up_your_wallet": {
+    "message": " ウォレットをバックアップする"
+  },
+  "Backup_failed_you_may_still_conduct_backup_inside_extension": {
+    "message": "バックアップに失敗した場合でも、拡張機能でバックアップを行うことができます。"
+  },
+  "Creating_back_up": {
+    "message": "バックアップを作成中..."
+  },
+  "Connect_and_Back_up": {
+    "message": "接続してバックアップ"
+  },
+  "Maybe_Next_Time": {
+    "message": " また今度"
+  },
+  "Sounds_good": {
+    "message": "良い感じ！"
+  },
+  "Copy": {
+    "message": "コピー"
+  },
+  "I_agree_to_the": {
+    "message": "私は同意します"
+  },
+  "of_Lilico_Wallet": {
+    "message": " Flow Reference Walletの"
+  },
+  "Login": {
+    "message": "ログイン"
+  },
+  "Reset_Your": {
+    "message": "あなたのリセット"
+  },
+  "Enter_the_12_or_24_word_recovery_phrase_given_when_you_first_created_your_wallet": {
+    "message": "最初にウォレットを作成したときに指定した12または24語のリカバリーフレーズを入力してください。 "
+  },
+  "Enter_your_recovery_phrase_using_spaces_to_separate_each_word": {
+    "message": "リカバリーフレーズを入力してください。各単語はスペースで区切ってください。"
+  },
+  "Go_to_flow_faucet_to_get_some_tokens": {
+    "message": "トークンを取得するためにflow faucetに移動します。"
+  },
+  "Claim_Testnet": {
+    "message": "Testnetを請求する "
+  },
+  "tokens": {
+    "message": " トークン"
+  },
+  "Binance": {
+    "message": "Binance"
+  },
+  "Kraken": {
+    "message": "Kraken"
+  },
+  "Coinbase": {
+    "message": "Coinbase"
+  },
+  "Kucoin": {
+    "message": "Kucoin"
+  },
+  "Huobi": {
+    "message": "Huobi"
+  },
+  "Recent_Price": {
+    "message": "最近の価格"
+  },
+  "Data_from": {
+    "message": "データ元"
+  },
+  "1D": {
+    "message": "1日"
+  },
+  "1W": {
+    "message": "1週間"
+  },
+  "1M": {
+    "message": "1ヶ月"
+  },
+  "3M": {
+    "message": "3ヶ月"
+  },
+  "1Y": {
+    "message": "1年"
+  },
+  "All": {
+    "message": "すべて"
+  },
+  "Earn_More_Flow": {
+    "message": "打ち上げ Flow Port"
+  },
+  "Stake_tokens_and_earn_rewards": {
+    "message": "トークンをステークして報酬を得る"
+  },
+  "USD": {
+    "message": "USD"
+  },
+  "Deposit": {
+    "message": "デポジット"
+  },
+  "Enable_token": {
+    "message": "トークンを有効にする"
+  },
+  "Working_on_it": {
+    "message": "作業中..."
+  },
+  "Add_Token": {
+    "message": "トークンを追加する"
+  },
+  "Search_Token": {
+    "message": "トークンの検索"
+  },
+  "unlocked": {
+    "message": "ロック解除"
+  },
+  "Enter": {
+    "message": "入力"
+  },
+  "Unlock_Wallet": {
+    "message": "ウォレットのロックを解除する"
+  },
+  "Forgot_password": {
+    "message": "パスワードを忘れた方はこちら？"
+  },
+  "Welcome_to_lilico": {
+    "message": "lilico へようこそ"
+  },
+  "Flow": {
+    "message": "Flow"
+  },
+  "Import_your_wallet": {
+    "message": "ウォレットをインポートする"
+  },
+  "Create_a_new_wallet": {
+    "message": "新しいウォレットを作成する"
+  },
+  "Feature_Coming_Soon": {
+    "message": "近日公開予定の機能"
+  },
+  "Are_you_sure_you_want_to_delete_your_backup": {
+    "message": "本当にバックアップを削除しますか？"
+  },
+  "This_will_remove_this_google_backup_You_will_not_import_this_wallet_via_Google_backup": {
+    "message": " これでこのGoogleバックアップは削除されます。Googleバックアップを経由してこのウォレットをインポートすることはできません。"
+  },
+  "Your_lilico_domain_will_look_like": {
+    "message": "Flow Reference のドメインは以下のようになります:"
+  },
+  "meow": {
+    "message": ".meow"
+  },
+  "Go": {
+    "message": "進む"
+  },
+  "Sorry": {
+    "message": "申し訳ございません,"
+  },
+  "we_couldnt_find_any_address_linked_to_your_recovery_phrase": {
+    "message": "あなたのリカバリーフレーズにリンクされたアドレスは見つかりませんでした。"
+  },
+  "Please_try_your_recovery_phrase_again_or_create_a_new_account": {
+    "message": "リカバリーフレーズをもう一度試すか、新しいアカウントを作成してください。 "
+  },
+  "with_current_recovery_phrase": {
+    "message": "現在のリカバリーフレーズで"
+  },
+  "This_will_remove_any_existing_wallets_and_replace_them_with_new_wallets_Make_sure_you_have_your_recovery_phrase_backed_up": {
+    "message": "これにより、既存のウォレットが削除され、新しいウォレットに置き換わります。リカバリーフレーズのバックアップをとっていることを確認してください。"
+  },
+  "This__username__is__reserved__Please__contact": {
+    "message": "このユーザー名は予約されています。お問い合わせください "
+  },
+  "This__name__is__taken": {
+    "message": "この名前は使用されています"
+  },
+  "for__any__inquiry": {
+    "message": " どんな問い合わせでも"
+  },
+  "Name": {
+    "message": "名前"
+  },
+  "Change": {
+    "message": "変更"
+  },
+  "Please__enter__your__recovery__phrase__using__spaces": {
+    "message": "各単語を区切るためにスペースを使用して復元フレーズを入力してください"
+  },
+  "Inbox__is__empty": {
+    "message": "受信トレイが空です"
+  },
+  "No__Activity": {
+    "message": "まだアクティビティはありません"
+  },
+  "Learn__more": {
+    "message": "もっと詳しく"
+  },
+  "Validated__address": {
+    "message": "検証済みアドレス"
+  },
+  "Update": {
+    "message": "更新"
+  },
+  "Recent": {
+    "message": "最近のもの"
+  },
+  "Transfer__Amount": {
+    "message": "送金金額"
+  },
+  "Available__Balance": {
+    "message": "利用可能な残高"
+  },
+  "Transaction__failed": {
+    "message": "トランザクションに失敗しました"
+  },
+  "Inbox": {
+    "message": "受信トレイ"
+  },
+  "Enable__Inbox": {
+    "message": "受信トレイを有効にする"
+  },
+  "Copy__username": {
+    "message": "ユーザー名をコピー"
+  },
+  "Refresh": {
+    "message": "リロード"
+  },
+  "Anonymous__mode__on": {
+    "message": "匿名モードオン"
+  },
+  "Nickname": {
+    "message": "ニックネーム"
+  },
+  "Avatar": {
+    "message": "アバター"
+  },
+  "Connect": {
+    "message": "接続する"
+  },
+  "Sign__in__Recovery__Phrase": {
+    "message": "リカバリーフレーズ"
+  },
+  "Max": {
+    "message": "最大値"
+  },
+  "Error": {
+    "message": "エラー"
+  },
+  "PENDING": {
+    "message": "保留中"
+  },
+  "Transaction__Sealed": {
+    "message": "トランザクションが封印されました"
+  },
+  "Made__by": {
+    "message": "製作者: "
+  },
+  "outblock__made": {
+    "message": ""
+  },
+  "Welcome__Back__Unlock": {
+    "message": "お帰りなさい"
+  },
+  "AddressBook": {
+    "message": "アドレス帳"
+  },
+  "Search__PlaceHolder": {
+    "message": "検索、アドレス(0x) またはFlowドメイン"
+  },
+  "Unlink_Confirmation":{
+    "message":"リンク解除の確認"
+  },
+  "Things_you_should_know":{
+    "message":"知っておくべきこと"
+  },
+  "Linked_Account":{
+    "message":"リンクされたアカウント"
+  },
+  "Wallet_List":{
+    "message":"ウォレットリスト"
+  },
+  "Account_Linking":{
+    "message":"アカウントリンク"
+  },
+  "This_App_would_like_to":{
+    "message":"このアプリが望んでいるのは、"
+  },
+  "Linked_Successful":{
+    "message":"リンク成功"
+  },
+  "Linking_Child_Account":{
+    "message":"子アカウントのリンク"
+  },
+  "Try_Our_Mobile_APP":{
+    "message":"モバイルアプリを試す"
+  },
+  "Reset_Wallet": {
+    "message": "ウォレットをリセットする"
+  },
+  "Unlink_Message":{
+    "message": "このアカウントのリンクを解除すると、メインウォレットはこのリンクされたアカウントにアクセスできなくなります。"
+  },
+  "Edit_Linked_Account":{
+    "message": "編集リンクアカウント"
+  },
+  "Accessible":{
+    "message": "アクセス可能"
+  },
+  "Collected":{
+    "message": "収集された"
+  },
+  "Hide_Empty_collection":{
+    "message": "空のコレクションを非表示にする"
+  },
+  "Inaccessible":{
+    "message": "アクセス不可 "
+  },
+  
+  "No_linked": {
+    "message": "リンクされたアカウントなし"
+  }
+}

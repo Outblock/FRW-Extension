@@ -1,0 +1,1013 @@
+{
+  "appName": {
+    "message": "Flow Reference",
+    "description": "Application Name"
+  },
+  "appDescription": {
+    "message": "为每个人打造的数字钱包",
+    "description": "Application Descrtipion"
+  },
+  "Send": {
+    "message": "发送"
+  },
+  "Swap": {
+    "message": "置换"
+  },
+  "Save": {
+    "message": "保存"
+  },
+  "Settings": {
+    "message": "设置"
+  },
+  "Mnemonic": {
+    "message": "助记词"
+  },
+  "Unlock": {
+    "message": "解锁"
+  },
+  "Address": {
+    "message": "地址"
+  },
+  "Description": {
+    "message": "描述"
+  },
+  "Next": {
+    "message": "下一步"
+  },
+  "Back": {
+    "message": "返回"
+  },
+  "Amount": {
+    "message": "数量"
+  },
+  "Edit": {
+    "message": "编辑"
+  },
+  "Pending": {
+    "message": "待定"
+  },
+  "From": {
+    "message": "从"
+  },
+  "To": {
+    "message": "至"
+  },
+  "Receive": {
+    "message": "接收"
+  },
+  "Buy": {
+    "message": "购买"
+  },
+  "Account": {
+    "message": "账户"
+  },
+  "Wallet": {
+    "message": "钱包"
+  },
+  "Address__Book": {
+    "message": "通讯录"
+  },
+  "Developer__Mode": {
+    "message": "开发者模式"
+  },
+  "About": {
+    "message": "关于"
+  },
+  "Anonymous": {
+    "message": "匿名模式"
+  },
+  "Other__Lilico__users__cannot__search__for__your__username": {
+    "message": "其他 Flow Reference 用户无法搜索到你的用户名。"
+  },
+  "Private__Key": {
+    "message": "私钥"
+  },
+  "Free__Gas__Fee": {
+    "message": "免费矿工费"
+  },
+  "Storage": {
+    "message": "存储空间"
+  },
+  "Search": {
+    "message": "搜索"
+  },
+  "Add": {
+    "message": "添加"
+  },
+  "Add__Address": {
+    "message": "添加地址"
+  },
+  "Manage__Backups": {
+    "message": "管理备份"
+  },
+  "Sync": {
+    "message": "同步"
+  },
+  "Google__Drive": {
+    "message": "云端硬盘"
+  },
+  "Developer__Settings": {
+    "message": "开发者设置"
+  },
+  "Version": {
+    "message": "版本"
+  },
+  "CONTACT__US": {
+    "message": "联系我们"
+  },
+  "Need__Help": {
+    "message": "需要帮助？"
+  },
+  "Cancel": {
+    "message": "取消"
+  },
+  "Backup": {
+    "message": "备份"
+  },
+  "Claim__for__your": {
+    "message": "获得您的"
+  },
+  "FREE": {
+    "message": "免费"
+  },
+  "Lilico__domain": {
+    "message": "Flow Reference 域名"
+  },
+  "Edit__Address": {
+    "message": "编辑地址"
+  },
+  "Are__you__sure__you__want__to__remove__this__contact": {
+    "message": "你确定要删除这个联系人吗？"
+  },
+  "You__will__no__longer__find__this__contact__in__your__address__book": {
+    "message": "你将不再在你的通讯录中找到这个联系人。"
+  },
+  "Empty__List": {
+    "message": "列表为空"
+  },
+  "No__results__found": {
+    "message": "没有发现任何结果!"
+  },
+  "Link": {
+    "message": "链接"
+  },
+  "Deleting": {
+    "message": "删除中"
+  },
+  "Delete__backup": {
+    "message": "删除备份"
+  },
+  "Switch__Network": {
+    "message": "切换网络"
+  },
+  "Network": {
+    "message": "网络"
+  },
+  "Transaction__Fee": {
+    "message": "手续费"
+  },
+  "Connect__Title": {
+    "message": "链接该网站将"
+  },
+  "Connect__Body1": {
+    "message": "查看你的钱包地址，余额和活动"
+  },
+  "Connect__Body2": {
+    "message": "请求批准交易"
+  },
+  "Mainnet": {
+    "message": "主网"
+  },
+  "Selected": {
+    "message": "已选中"
+  },
+  "Testnet": {
+    "message": "测试网"
+  },
+  "Sandboxnet": {
+    "message": "沙盒网"
+  },
+  "Transaction__Monitor": {
+    "message": "交易监测"
+  },
+  "Flowscan": {
+    "message": "Flowscan"
+  },
+  "Flow__view__source": {
+    "message": "Flow view source"
+  },
+  "Public__Key": {
+    "message": "公钥"
+  },
+  "Hash__Algorithm": {
+    "message": "哈希算法"
+  },
+  "Sign__Algorithm": {
+    "message": "签名算法"
+  },
+  "Incorrect__Password": {
+    "message": "密码错误"
+  },
+  "Verify__Password": {
+    "message": "确认密码"
+  },
+  "Enter__Your__Password": {
+    "message": "输入您的密码"
+  },
+  "Do__not__share__your__private__key": {
+    "message": "不要分享您的私钥"
+  },
+  "If__someone__has__your__private__key": {
+    "message": "如果有人获得了您的私钥，他们将能够全面控制您的钱包"
+  },
+  "COPY": {
+    "message": "复制"
+  },
+  "Do__not__share__your__secret__phrase": {
+    "message": "不要分享您的助记词"
+  },
+  "If__someone__has__your__secret__phrase": {
+    "message": "如果有人获得了您的，他助记词们将能够全面控制您的钱包"
+  },
+  "Done": {
+    "message": "完成"
+  },
+  "Are__you__sure__you__want__to__reset__your__wallet": {
+    "message": "您确认要重置钱包吗？"
+  },
+  "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
+    "message": "从 Flow Reference 删除钱包并不意味着从Flow区块链上删除钱包。你可以使用你的助记词或云端硬盘备份再次导入你的钱包。"
+  },
+  "Reset": {
+    "message": "重置"
+  },
+  "Recovery__Phrase": {
+    "message": "助记词"
+  },
+  "Confirm__Password": {
+    "message": "确认密码"
+  },
+  "New__Password": {
+    "message": "新密码"
+  },
+  "Current__Password": {
+    "message": "确认密码"
+  },
+  "Change__111e__Password": {
+    "message": "修改111e密码"
+  },
+  "Security": {
+    "message": "安全性"
+  },
+  "Allow__lilico__to__pay__the__gas__fee": {
+    "message": "允许 Flow Reference 为我的所有交易支付矿工费。"
+  },
+  "This__feature__has__been__disabled__temporarily": {
+    "message": "此功能已被暂时禁用"
+  },
+  "It__might__increase__the__waiting__time__when__you__approve__a__transaction": {
+    "message": "它可能会增加你批准交易时的等待时间。"
+  },
+  "You__will__need__to__connect__to__your__wallet__again": {
+    "message": "你需要再次连接到你的钱包，使这一变化产生作用。"
+  },
+  "Coin": {
+    "message": "钱币"
+  },
+  "Exec_Transaction":{
+    "message":"执行交易"
+  },
+  "View_more_transactions":{
+    "message":"查看更多交易"
+  },
+  "No_activity_yet":{
+    "message":"还没有活动"
+  },
+  "Activity":{
+    "message":"活动"
+  },
+  "Coins":{
+    "message":"钱币"
+  },
+  "Search_to_find_more_users":{
+    "message":"搜索查找更多用户"
+  },
+  "Search_Address0x_or_Flow_domain":{
+    "message":"搜索，地址(0x)或Flow域名"
+  },
+  "Search_the_ID":{
+    "message":"搜索ID："
+  },
+  "Sorry_we_could_not_find_any_accounts_Please_try_again":{
+    "message":"对不起，我们无法找到任何账户。请再试一次。"
+  },
+  "Send_to":{
+    "message":"发送至"
+  },
+  "Invalid_address_in":{
+    "message":"无效地址"
+  },
+  "Transaction_created":{
+    "message":"创建交易"
+  },
+  "Your_address_is_currently_processing_another_transaction":{
+    "message":"您的地址目前正在处理另一项交易"
+  },
+  "Sending":{
+    "message":" 正在发送..."
+  },
+  "Confirmation":{
+    "message":"确认"
+  },
+  "Processing":{
+    "message":"处理中"
+  },
+  "Insufficient_balance":{
+    "message":"余额不足"
+  },
+  "on_Flow_the_balance_cant_less_than_0001_FLOW":{
+    "message":"余额不能少于0.001 FLOW"
+  },
+  "Approve": {
+    "message": "通过"
+  },
+  "SCRIPT": {
+    "message": "脚本"
+  },
+  "lilico__covers__this__gas__fee__for__you": {
+    "message": "Flow Reference 为你支付这笔矿工费"
+  },
+  "SIGN__MESSAGE": {
+    "message": "签署信息"
+  },
+  "Unavailable": {
+    "message": "无法使用"
+  },
+  "Pending__Transaction": {
+    "message": "待定交易"
+  },
+  "Import__Wallet": {
+    "message": "导入钱包"
+  },
+  "Lock__Wallet": {
+    "message": "锁定钱包"
+  },
+  "Copy__Address": {
+    "message": "复制地址"
+  },
+  "QR__Code": {
+    "message": "二维码"
+  },
+  "Shown__your__QR__code__to__receive__transactions": {
+    "message": "显示你的二维码以接收交易。"
+  },
+  "Make__sure__you__are__using__the__correct__network": {
+    "message": "确保你使用的是正确的网络。只发送测试网资产到这个存款地址。"
+  },
+  "Things__You__should__Know": {
+    "message": "你应该知道的事情"
+  },
+  "Free__lilico__domain__help__you__find__each__other__easier__on__chain": {
+    "message": "免费的 Flow Reference 域名帮助你在链上更容易找到对方。"
+  },
+  "An__Inbox__system__will__help__you__send__tokens__and__NFT__to__your__friend__without__enable__vault": {
+    "message": "一个收件箱系统将帮助你发送代币和NFT给你的朋友，而不需要初始化资源。"
+  },
+  "Anonymous__mode__will__be__affected__others__can__find__your__address__by__your__domain": {
+    "message": "匿名模式将受到影响，其他人可以通过你的域名找到你的地址。"
+  },
+  "Search__PlaceHolder": {
+    "message": "搜索地址(0x)或者flow域名"
+  },
+  "Submission_error": {
+    "message": "提交错误"
+  },
+  "Submitting": {
+    "message": "正在提交..."
+  },
+  "Claim": {
+    "message": "获取"
+  },
+  "Domain__already__exist": {
+    "message": ": 域名已经存在"
+  },
+  "Domain__creation__complete": {
+    "message": "域名创建完成"
+  },
+  "STEP": {
+    "message": "步骤"
+  },
+  "No__backup__found": {
+    "message": "没有找到备份"
+  },
+  "Something__is__wrong": {
+    "message": "出错了"
+  },
+  "Restore__Backup__from__Google__Drive": {
+    "message": "从云端硬盘恢复备份"
+  },
+  "Recovery__phrase__valid": {
+    "message": "助记词有效"
+  },
+  "Checking": {
+    "message": "检查中"
+  },
+  "Something__went__wrong__please__try__again": {
+    "message": "出错了，请稍后再试"
+  },
+  "Recovery__phrases__word__count__must__be__12__or__24__words": {
+    "message": "恢复短语字数必须是12或24个单词"
+  },
+  "Mnemonic__phrase__is__invalid": {
+    "message": "助记词无效"
+  },
+  "Sign__in__with": {
+    "message": "助记词"
+  },
+  "This__is__the__12__or__24__word__phrase__you__were__given": {
+    "message": "这是你第一次创建钱包时得到的12或24个单词的短语。也可以是您从别处生成的。"
+  },
+  "Weak": {
+    "message": "弱"
+  },
+  "Good": {
+    "message": "好"
+  },
+  "Great": {
+    "message": "很好"
+  },
+  "Strong": {
+    "message": "强"
+  },
+  "Unknown": {
+    "message": "未知"
+  },
+  "At__least__8__characters": {
+    "message": "至少8个字符"
+  },
+  "Your__address__is__currently__processing": {
+    "message": "您的地址目前正在处理另一项交易"
+  },
+  "Transaction__created": {
+    "message": "交易创建"
+  },
+  "Search__Address__or__Flow__domain": {
+    "message": "搜索，地址(0x)或Flow域名"
+  },
+  "Search__the__ID": {
+    "message": "搜索D: "
+  },
+  "Sorry__we__could__not__find__any__accounts": {
+    "message": "对不起，我们无法找到任何账户。请再试一次。"
+  },
+  "Market": {
+    "message": "市场"
+  },
+  "Website": {
+    "message": "网站"
+  },
+  "Collections": {
+    "message": "专辑"
+  },
+  "NFTs": {
+    "message": "NFTs"
+  },
+  "collectibles": {
+    "message": "收藏品"
+  },
+  "Add__Collection": {
+    "message": "添加专辑"
+  },
+  "Seach__NFT__Collection": {
+    "message": "查询NFT专辑"
+  },
+  "COLLECTION__LIST": {
+    "message": "专辑列表"
+  },
+  "Enable": {
+    "message": "启用"
+  },
+  "Enable__NFT__Collection": {
+    "message": "启用NFT专辑"
+  },
+  "Change__Address": {
+    "message": "改变地址"
+  },
+  "We__did__not__find__anything__here": {
+    "message": "我们在这里没有发现任何东西。"
+  },
+  "Looking__forward__to__your__new__discovery": {
+    "message": "期待您的新发现。"
+  },
+  "Grid": {
+    "message": "网格"
+  },
+  "List": {
+    "message": "列表"
+  },
+  "For__testing__purpose__only": {
+    "message": "仅用于测试目的（主网）。"
+  },
+  "Showing__NFT__under": {
+    "message": "显示以下地址的NFT："
+  },
+  "Launch__My__Wallet": {
+    "message": "启动我的钱包"
+  },
+  "Start__exploring__with__Lilico__now": {
+    "message": "现在就开始与 Flow Reference 探索吧"
+  },
+  "all__set": {
+    "message": "一切就绪"
+  },
+  "You__are": {
+    "message": "你已"
+  },
+  "Flow_Core": {
+    "message": "Flow Reference"
+  },
+  "Lilico": {
+    "message": "Flow Reference"
+  },
+  "and__Pin": {
+    "message": "并固定"
+  },
+  "Click__Extension": {
+    "message": "点击扩展程序"
+  },
+  "Put__your__wallet__within__reach": {
+    "message": "让你的钱包唾手可得"
+  },
+  "Username": {
+    "message": "用户名"
+  },
+  "Oops__unexpected__error": {
+    "message": "哎呀，发生了一个意外的错误。"
+  },
+  "This__name__has__been__taken": {
+    "message": "这个名字已经被占用了"
+  },
+  "Your__username__can__only__contain__letters__and__numbers": {
+    "message": "您的用户名只能包含字母和数字"
+  },
+  "Too__short": {
+    "message": "太短"
+  },
+  "Too__long": {
+    "message": "太长"
+  },
+  "Pick__Your": {
+    "message": "选择你的"
+  },
+  "Your__username__will__be__used__to__send__and__receive": {
+    "message": "你的用户名将用于与你在 Flow Reference 的朋友发送和接收代币。"
+  },
+  "Okay__I__have__saved__it__properly": {
+    "message": "好的，我已经妥善保存了"
+  },
+  "Click__here__to__reveal__phrase": {
+    "message": "点击这里显示助记词"
+  },
+  "Recovery": {
+    "message": "助记"
+  },
+  "Phrase": {
+    "message": "词"
+  },
+  "Verify": {
+    "message": "Verify"
+  },
+  "This__recovery__phrase__will__be__used__for__register": {
+    "message": "这句助记词将用于注册。"
+  },
+  "Try__Our__New__App": {
+    "message": "试试我们的新程序"
+  },
+  "Register": {
+    "message": "注册"
+  },
+  "Passwords__match": {
+    "message": "密码匹配"
+  },
+  "Your__passwords__do__not__match": {
+    "message": "您的密码不匹配。请再次检查一次。"
+  },
+  "Create": {
+    "message": "创建"
+  },
+  "Password": {
+    "message": "密码"
+  },
+  "Create__a__password": {
+    "message": "创建密码"
+  },
+  "Confirm__your__password": {
+    "message": "确认密码"
+  },
+  "Privacy__Policy": {
+    "message": "隐私政策"
+  },
+  "and": {
+    "message": "和"
+  },
+  "Terms__of__Service": {
+    "message": "服务条款"
+  },
+  "Lilico__uses__this__password__to__protect__your__recovery__phrase": {
+    "message": "Flow Reference 使用此密码来保护您的助记词。"
+  },
+  "I__agree__to__Lilico": {
+    "message": "我同意 Flow Reference 的"
+  },
+  "Welcome__Back": {
+    "message": "欢迎回来，"
+  },
+  "Use__the__same__Google__Drive__password": {
+    "message": "使用相同的云端硬盘密码来保护 Flow Reference 的钱包"
+  },
+  "Please__enter__your__password__to__decrypt": {
+    "message": "请输入密码，解密你的钱包备份。"
+  },
+  "Restore__My__Wallet": {
+    "message": "恢复我的钱包"
+  },
+  "Incorrect__decrypt__password__please__try__again": {
+    "message": "解密密码不正确，请再试。"
+  },
+  "The__decrypt__password__should__be__8__characters__long": {
+    "message": "解密密码应至少有8个字符长。"
+  },
+  "We__ve__found": {
+    "message": "我们已经找到"
+  },
+  "matching__accounts": {
+    "message": "个匹配的账户"
+  },
+  "Select__the__account__which__you__want__to__restore__back": {
+    "message": "选择你想恢复的账户。"
+  },
+  "Review": {
+    "message": "检查"
+  },
+  "Write__down__this__phrase__in__this__exact__order__and__keep__them__safe": {
+    "message": "按照这个确切的顺序写下这些短语，并确保将它们保存在安全的地方!"
+  },
+  "Please_select_the_word_one_by_one_refering_to_its_order": {
+    "message": "请按照顺序逐一选择正确助记词."
+  },
+  "Please__notice__that__If__you__lose__you__can__not__access": {
+    "message": "请注意，如果你失去了助记词，你将永远无法访问你的账户。"
+  },
+  "Choose_provider": {
+    "message": "选择购买平台"
+  },
+  "Select_the_word_at": {
+    "message": "选择助记词在位置"
+  },
+  "Please_restart_your_browser": {
+    "message": "请重启浏览器"
+  },
+  "If_you_keep_seeing_this_spinner":{
+    "message": "如果加载条不消失的话"
+  },
+  "Incorrect_recovery_phrases_please_try_again": {
+    "message": "助记词不正确，请重试."
+  },
+  "Recovery_phrases_word_count_must_be_12_or_24_words": {
+    "message": "助记词的字数必须是12或24个字"
+  },
+  "Allset":{
+    "message":"一切就绪"
+  },
+  "You_can_start_experiencing_Lilico_now":{
+    "message":"你现在就可以开始体验 Flow Reference 了!"
+  },
+  "Back_up":{
+    "message":"备份"
+  },
+  "Back_up_your_wallet_to_Google_Drive_for_easy_access":{
+    "message":"将你的钱包备份到云端硬盘，方便使用。"
+  },
+  "Recommend":{
+    "message":"推荐"
+  },
+  "to_back_up_your_wallet":{
+    "message":"备份你的钱包"
+  },
+  "Backup_failed_you_may_still_conduct_backup_inside_extension":{
+    "message":"备份失败，你仍然可以在应用中进行备份。"
+  },
+  "Creating_back_up":{
+    "message":"创建..."
+  },
+  "Connect_and_Back_up":{
+    "message":"连接并备份"
+  },
+  "Maybe_Next_Time":{
+    "message":"下次吧"
+  },
+  "Sounds_good":{
+    "message":"听起来不错!"
+  },
+  "Copy":{
+    "message":"复制"
+  },
+  "I_agree_to_the":{
+    "message":"我同意 Flow Reference 钱包的"
+  },
+  "of_Lilico_Wallet":{
+    "message":""
+  },
+  "Login":{
+    "message":"登录"
+  },
+  "Reset_Your":{
+    "message":"重制您的"
+  },
+  "Enter_the_12_or_24_word_recovery_phrase_given_when_you_first_created_your_wallet":{
+    "message":"Enter the 12 or 24 word recovery phrase given when you first created your wallet. "
+  },
+  "Enter_your_recovery_phrase_using_spaces_to_separate_each_word":{
+    "message":"Enter your recovery phrase, using spaces to separate each wordEnter your recovery phrase"
+  },
+  "Go_to_flow_faucet_to_get_some_tokens":{
+    "message":"Go to flow faucet to get some tokens"
+  },
+  "Claim_Testnet":{
+    "message":"Claim Testnet "
+  },
+  "tokens":{
+    "message":" tokens"
+  },
+  "Binance":{
+    "message":"Binance"
+  },
+  "Kraken":{
+    "message":"Kraken"
+  },
+  "Coinbase":{
+    "message":"Coinbase"
+  },
+  "Kucoin":{
+    "message":"Kucoin"
+  },
+  "Huobi":{
+    "message":"火币"
+  },
+  "Recent_Price":{
+    "message":"当前价格"
+  },
+  "Data_from":{
+    "message":"数据来自"
+  },
+  "1D":{
+    "message":"一天"
+  },
+  "1W":{
+    "message":"一周"
+  },
+  "1M":{
+    "message":"一个月"
+  },
+  "3M":{
+    "message":"三个月"
+  },
+  "1Y":{
+    "message":"一年"
+  },
+  "All":{
+    "message":"全部"
+  },
+  "Earn_More_Flow":{
+    "message":"启动 Flow Port"
+  },
+  "Stake_tokens_and_earn_rewards":{
+    "message":"质押代币并获得奖励"
+  },
+  "USD":{
+    "message":"美元"
+  },
+  "Deposit":{
+    "message":"存入"
+  },
+  "Enable_token":{
+    "message":"启用代币"
+  },
+  "Working_on_it":{
+    "message":"正在进行中..."
+  },
+  "Add_Token":{
+    "message":"添加代币"
+  },
+  "Search_Token":{
+    "message":"搜索代币"
+  },
+  "unlocked":{
+    "message":"已解锁"
+  },
+  "Enter":{
+    "message":"输入"
+  },
+  "Unlock_Wallet":{
+    "message":"解锁钱包"
+  },
+  "Forgot_password":{
+    "message":"忘记密码？"
+  },
+  "Welcome_to_lilico":{
+    "message":"欢迎来到 Flow Reference"
+  },
+  "Flow":{
+    "message":"Flow"
+  },
+  "Import_your_wallet":{
+    "message":"导入你的钱包"
+  },
+  "Create_a_new_wallet":{
+    "message":"创建一个新的钱包"
+  },
+  "Feature_Coming_Soon":{
+    "message":"功能即将推出"
+  },
+  "Are_you_sure_you_want_to_delete_your_backup":{
+    "message":"你确定要删除你的备份吗？"
+  },
+  "This_will_remove_this_google_backup_You_will_not_import_this_wallet_via_Google_backup":{
+    "message":"这将删除这个谷歌备份。你将不能通过谷歌备份导入这个钱包。"
+  },
+  "Your_lilico_domain_will_look_like":{
+    "message":"你的 Flow Reference 域名将为："
+  },
+  "Go":{
+    "message":"跳转"
+  },
+  "Sorry":{
+    "message":"抱歉,"
+  },
+  "we_couldnt_find_any_address_linked_to_your_recovery_phrase":{
+    "message":"我们无法找到任何与您的助记词相关的地址。"
+  },
+  "Please_try_your_recovery_phrase_again_or_create_a_new_account":{
+    "message":"请再次尝试你的助记词或创建一个新的帐户"
+  },
+  "with_current_recovery_phrase":{
+    "message":"用当前的助记词"
+  },
+  "Try__again":{
+    "message":"再次尝试"
+  },
+  "Create_a_new_account":{
+    "message":"创建一个新账户"
+  },
+  "This_will_remove_any_existing_wallets_and_replace_them_with_new_wallets_Make_sure_you_have_your_recovery_phrase_backed_up":{
+    "message":"这将删除任何现有的钱包，并以新的钱包取代它们。"
+  },
+  "This__username__is__reserved__Please__contact": {
+    "message": "此用户名已被保留。如有任何疑问，请联系"
+  },
+  "This__name__is__taken": {
+    "message": "这个名字被别人占用了"
+  },
+  "for__any__inquiry": {
+    "message": " "
+  },
+  "Name": {
+    "message": "姓名"
+  },
+  "Change": {
+    "message": "更改"
+  },
+  "Please__enter__your__recovery__phrase__using__spaces": {
+    "message": "请输入你的助记词，每个词之间用空格隔开。"
+  },
+  "Inbox__is__empty": {
+    "message": "收件箱是空的"
+  },
+  "No__Activity": {
+    "message": "近期没有活动"
+  },
+  "Learn__more": {
+    "message": "了解更多"
+  },
+  "Validated__address": {
+    "message": "地址已认证"
+  },
+  "Update": {
+    "message": "更新"
+  },
+  "Recent": {
+    "message": "最近"
+  },
+  "Transfer__Amount": {
+    "message": "转账金额"
+  },
+  "Available__Balance": {
+    "message": "可用余额"
+  },
+  "Transaction__failed": {
+    "message": "交易失败"
+  },
+  "Inbox": {
+    "message": "收件箱"
+  },
+  "Enable__Inbox": {
+    "message": "开启收件箱"
+  },
+  "Copy__username": {
+    "message": "复制用户名"
+  },
+  "Refresh": {
+    "message": "刷新"
+  },
+  "Anonymous__mode__on": {
+    "message": "匿名模式已开启"
+  },
+  "Nickname": {
+    "message": "昵称"
+  },
+  "Avatar": {
+    "message": "头像"
+  },
+  "Connect": {
+    "message": "连接"
+  },
+  "Sign__in__Recovery__Phrase": {
+    "message": "登录"
+  },
+  "Max": {
+    "message": "最大数额"
+  },
+  "Error": {
+    "message": "错误"
+  },
+  "PENDING": {
+    "message": "等待中"
+  },
+  "Transaction__Sealed": {
+    "message": "交易完成"
+  },
+  "Made__by": {
+    "message": "由"
+  },
+  "outblock__made": {
+    "message": "制作"
+  },
+  "Welcome__Back__Unlock": {
+    "message": "欢迎回来"
+  },
+  "AddressBook": {
+    "message": "通讯录"
+  },
+  "Unlink_Confirmation":{
+    "message":"取消链接确认"
+  },
+  "Things_you_should_know":{
+    "message":"你应该知道的事情"
+  },
+  "Linked_Account":{
+    "message":"关联账户"
+  },
+  "Wallet_List":{
+    "message":"钱包列表"
+  },
+  "Account_Linking":{
+    "message":"子账户关联"
+  },
+  "This_App_would_like_to":{
+    "message":"这个应用程序想要"
+  },
+  "Linked_Successful":{
+    "message":"链接成功"
+  },
+  "Linking_Child_Account":{
+    "message":"正在关联子账户"
+  },
+  "Try_Our_Mobile_APP":{
+    "message":"下载手机钱包"
+  },
+  "Reset_Wallet": {
+    "message": "重置钱包"
+  },
+  "Unlink_Message":{
+    "message": "解除这个账户的链接，主钱包将不再有任何对这个链接账户的访问。"
+  },
+  "Edit_Linked_Account":{
+    "message": "编辑关联账户"
+  },
+  "Accessible":{
+    "message": "可访问"
+  },
+  "Collected":{
+    "message": "已收集"
+  },
+  "Hide_Empty_collection":{
+    "message": "隐藏空专辑"
+  },
+  "Inaccessible":{
+    "message": "不可访问"
+  },
+  
+  "No_linked": {
+    "message": "关联账户"
+  }
+}

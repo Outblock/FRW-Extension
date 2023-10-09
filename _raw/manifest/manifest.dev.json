@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "name": "FlowReference-dev",
+  "short_name": "__MSG_appName__",
+  "version": "2.0.0",
+  "default_locale": "en",
+  "description": "__MSG_appDescription__",
+  "icons": {
+    "16": "images/icon-16.png",
+    "19": "images/icon-19.png",
+    "32": "images/icon-32.png",
+    "38": "images/icon-38.png",
+    "48": "images/icon-48.png",
+    "64": "images/icon-64.png",
+    "128": "images/icon-128.png",
+    "512": "images/icon-512.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "images/icon-16.png",
+      "19": "images/icon-19.png",
+      "32": "images/icon-32.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "Flow Reference"
+  },
+  "author": "https://core.flow.com/",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "content-script.js",
+        "script.js"
+      ],
+      "matches": [
+        "file://*/*",
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "notifications",
+    "identity"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "user-media-permission.html" ],
+      "matches": ["<all_urls>"]
+      }, 
+    {
+      "resources": [ "script.js" ],
+      "matches": ["<all_urls>"]
+    },{
+      "resources": ["index.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

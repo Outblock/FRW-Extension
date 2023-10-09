@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "module": "ESNext",
+    "target": "es2019",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "checkJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
+    "resolveJsonModule": true,
+    "paths": {
+      "utils": ["./src/utils"],
+      "@/*": ["./src/*"],
+      "ui/*": ["./src/ui/*"],
+      "background/*": ["./src/background/*"],
+      "consts": ["./src/constant/index"],
+      "consts/*": ["./src/constant/*"],
+      "assets": ["./src/ui/assets"],
+      "changeLogs": ["./changeLogs"],
+      "react": [ "./node_modules/@types/react"]
+    },
+    "lib":[
+      "ES2021.String",
+      "dom"
+    ],
+    "types": ["chrome", "node", "react", "react-dom", "jest"],
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "plugins": [{ "transform": "typescript-transform-paths", "afterDeclarations": true }],
+    "outDir": "./dist"
+  },
+  "exclude": ["./node_modules"],
+  "include": ["src", "__tests__"]
+}

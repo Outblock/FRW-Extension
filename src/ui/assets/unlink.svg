@@ -1,0 +1,24 @@
+<svg width="110" height="16" viewBox="0 0 110 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group 47372">
+<rect id="Rectangle 285" x="2" y="7" width="104" height="2" rx="1" fill="url(#paint0_linear_9240_1467)"/>
+<rect id="Rectangle 290" y="4" width="8" height="8" rx="4" fill="#5A5A5A"/>
+<rect id="Rectangle 291" x="102" y="4" width="8" height="8" rx="4" fill="#5A5A5A"/>
+<g id="Group 47463">
+<g id="Group 47462">
+<rect id="Rectangle 294" x="45" y="7" width="4" height="1.99997" fill="#292929"/>
+<rect id="Rectangle 295" x="37" y="7" width="4" height="1.99997" fill="#292929"/>
+<rect id="Rectangle 296" x="48" y="7" width="14" height="2" fill="#292929"/>
+<rect id="Rectangle 297" x="61" y="7" width="4" height="1.99997" fill="#292929"/>
+<rect id="Rectangle 298" x="69" y="7" width="4" height="1.99997" fill="#292929"/>
+</g>
+<rect id="Rectangle 299" x="57" width="2" height="16" rx="1" transform="rotate(24.2927 57 0)" fill="#4F4F4F"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_9240_1467" x1="113.5" y1="8" x2="-7" y2="8" gradientUnits="userSpaceOnUse">
+<stop offset="0.104167" stop-color="#5F5F5F" stop-opacity="0"/>
+<stop offset="0.479167" stop-color="#5A5A5A"/>
+<stop offset="0.895833" stop-color="#5A5A5A" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>
