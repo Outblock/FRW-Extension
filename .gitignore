@@ -15,4 +15,4 @@ dist.zip
 _raw/manifest.json
 yarn-error.log
 dist2
-src/background/utils/*.json
+src/background/utils/firebase.config.json
