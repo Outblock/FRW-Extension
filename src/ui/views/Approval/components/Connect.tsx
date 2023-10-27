@@ -237,7 +237,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '12px',
-          height: '100%',
+          height: '506px',
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
@@ -285,7 +285,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '12px',
-          height: '100%',
+          height: '506px',
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
@@ -296,7 +296,6 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
             </Stack>
           </Box>
           <Stack direction="column" spacing="18px" sx={{ justifyContent: 'space-between', width: '100%' }}>
-            <Typography sx={{ textAlign: 'center', fontSize: '20px', color: '#E6E6E6', fontWeight: 'bold', width: '100%' }}>{chrome.i18n.getMessage('Account_Linking')}</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={currentNetwork === 'testnet' ? testnetsvg : mainnetsvg} />

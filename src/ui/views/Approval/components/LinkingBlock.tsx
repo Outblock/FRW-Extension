@@ -31,7 +31,7 @@ export const LinkingBlock = ({ image, accountTitle, userInfo }) => {
               <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={image} />
               <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{accountTitle}</Typography>
             </Box>
-            <img src={Link}/>
+            <img style={{width:'108px'}} src={Link}/>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {userInfo && <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={userInfo.avatar} />}
               <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{userInfo?.nickname}</Typography>
