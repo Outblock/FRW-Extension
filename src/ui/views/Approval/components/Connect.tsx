@@ -152,6 +152,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
       if (!msg.host) {
         setHost(msg.config.client.hostname)
       }
+      console.log(' msg.config.client.network ', msg.config.client)
       setMsgNetwork(msg.config.client.network);
       setAppIdentifier(msg.body?.appIdentifier)
       setNonce(msg.body?.nonce)
@@ -166,8 +167,9 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   const checkNetwork = async () => {
 
     const network = await wallet.getNetwork();
+    console.log(' msgNetwork ', msgNetwork, network, showSwitch)
     setCurrent(network);
-    if (msgNetwork !== network) {
+    if (msgNetwork !== network && msgNetwork) {
       setShowSwitch(true);
     } else {
       setShowSwitch(false);
