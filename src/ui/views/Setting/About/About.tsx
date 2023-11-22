@@ -97,7 +97,7 @@ const About = () => {
             component="div"
             sx={{ textAlign: 'center', fontWeight: 600, mt: '5px' }}
           >
-            Flow Reference
+            Flow Reference Wallet
           </Typography>
         </a>
         <Typography

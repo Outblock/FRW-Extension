@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Flow Reference",
+    "message": "Flow Reference Wallet",
     "description": "Application Name"
   },
   "appDescription": {
@@ -236,7 +236,7 @@
     "message": "您确认要重置钱包吗？"
   },
   "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
-    "message": "从 Flow Reference 删除钱包并不意味着从Flow区块链上删除钱包。你可以使用你的助记词或云端硬盘备份再次导入你的钱包。"
+    "message": "从 Flow Reference Wallet 删除钱包并不意味着从Flow区块链上删除钱包。你可以使用你的助记词或云端硬盘备份再次导入你的钱包。"
   },
   "Reset": {
     "message": "重置"
@@ -260,7 +260,7 @@
     "message": "安全性"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "允许 Flow Reference 为我的所有交易支付矿工费。"
+    "message": "允许 Flow Reference Wallet 为我的所有交易支付矿工费。"
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "此功能已被暂时禁用"
@@ -515,7 +515,7 @@
     "message": "启动我的钱包"
   },
   "Start__exploring__with__Lilico__now": {
-    "message": "现在就开始与 Flow Reference 探索吧"
+    "message": "现在就开始与 Flow Reference Wallet 探索吧"
   },
   "all__set": {
     "message": "一切就绪"
@@ -524,10 +524,10 @@
     "message": "你已"
   },
   "Flow_Core": {
-    "message": "Flow Reference"
+    "message": "Flow Reference Wallet"
   },
   "Lilico": {
-    "message": "Flow Reference"
+    "message": "Flow Reference Wallet"
   },
   "and__Pin": {
     "message": "并固定"
@@ -815,7 +815,7 @@
     "message":"忘记密码？"
   },
   "Welcome_to_lilico":{
-    "message":"欢迎来到 Flow Reference"
+    "message":"欢迎来到 Flow Reference Wallet"
   },
   "Flow":{
     "message":"Flow"
