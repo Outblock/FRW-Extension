@@ -99,36 +99,36 @@ const Header = ({ loading }) => {
   const putDeviceInfo = async (walletData) => {
     if (initialStart) {
       try {
-        const testnetId = walletData.find(item => item.chain_id === "testnet")?.id;
-        const mainnetId = walletData.find(item => item.chain_id === "mainnet")?.id;
+        const testnetId = walletData.find(item => item.chain_id === 'testnet')?.id;
+        const mainnetId = walletData.find(item => item.chain_id === 'mainnet')?.id;
         const result = await usewallet.openapi.getLocation();
         const installationId = await usewallet.openapi.getInstallationId();
         // console.log('location ', userlocation);
         const userlocation = result.data
         await usewallet.openapi.addDevice({
           wallet_id: mainnetId.toString(), wallettest_id: testnetId.toString(), device_info: {
-            "city": userlocation.city,
-            "continent": userlocation.country,
-            "continentCode": userlocation.countryCode,
-            "country": userlocation.country,
-            "countryCode": userlocation.countryCode,
-            "currency": userlocation.countryCode,
+            'city': userlocation.city,
+            'continent': userlocation.country,
+            'continentCode': userlocation.countryCode,
+            'country': userlocation.country,
+            'countryCode': userlocation.countryCode,
+            'currency': userlocation.countryCode,
             device_id: installationId,
-            "district": "",
-            "ip": userlocation.query,
-            "isp": userlocation.as,
-            "lat": userlocation.lat,
-            "lon": userlocation.lon,
-            "name": "FRW Chrome Extension",
-            "org": userlocation.org,
-            "regionName": userlocation.regionName,
-            "type": "1",
-            "user_agent": "Chrome",
-            "zip": userlocation.zip,
+            'district': '',
+            'ip': userlocation.query,
+            'isp': userlocation.as,
+            'lat': userlocation.lat,
+            'lon': userlocation.lon,
+            'name': 'FRW Chrome Extension',
+            'org': userlocation.org,
+            'regionName': userlocation.regionName,
+            'type': '1',
+            'user_agent': 'Chrome',
+            'zip': userlocation.zip,
           }
         });
       } catch (error) {
-        console.error("Error while adding device:", error);
+        console.error('Error while adding device:', error);
         return;
       }
       setInitial(false);
@@ -397,7 +397,7 @@ const Header = ({ loading }) => {
               <Typography
                 variant="body1"
                 component="span"
-                fontWeight={"semi-bold"}
+                fontWeight={'semi-bold'}
                 display="flex"
                 color={
                   props.props_id == currentWallet

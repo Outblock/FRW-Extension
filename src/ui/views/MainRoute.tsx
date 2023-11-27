@@ -1,5 +1,6 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
+import Synce from './Sync';
 import RegisterPager from './Register/RegisterPager';
 import RecoverRegister from './RecoverRegister';
 import ImportPager from './Import/ImportPager';
@@ -66,6 +67,7 @@ const Main = () => {
         <Switch>
           <Route exact path="/welcome" component={WelcomePage} />
           <Route exact path="/register" component={RegisterPager} />
+          <Route exact path="/sync" component={Synce} />
           <Route exact path="/recover" component={RecoverRegister} />
           <Route exact path="/import" component={ImportPager} />
           <Route exact path="/reset" component={Reset} />

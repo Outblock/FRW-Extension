@@ -2152,7 +2152,7 @@ class OpenApiService {
   };
 
   nftCatalog = async () => {
-    const { data } = await this.sendRequest('GET', `api/nft/collections`, {}, {}, 'https://lilico.app/')
+    const { data } = await this.sendRequest('GET', 'api/nft/collections', {}, {}, 'https://lilico.app/')
     return data
   };
 
@@ -2195,12 +2195,12 @@ class OpenApiService {
   };
 
   nftCollectionApiPaging = async (address: string, contractName: string, limit: any, offset: any, network: string) => {
-    const { data } = await this.sendRequest('GET', `/api/storage/${network}/nft?address=${address}&limit=${limit}&offset=${offset}&path=${contractName}`, {}, {}, "https://lilico.app")
+    const { data } = await this.sendRequest('GET', `/api/storage/${network}/nft?address=${address}&limit=${limit}&offset=${offset}&path=${contractName}`, {}, {}, 'https://lilico.app')
     return data
   };
 
   nftCollectionInfo = async (address: string, contractName: string, limit: any, offset: any, network: string) => {
-    const { data } = await this.sendRequest('GET', `/api/storage/${network}/nft/collection?address=${address}&path=${contractName}`, {}, {}, "https://lilico.app")
+    const { data } = await this.sendRequest('GET', `/api/storage/${network}/nft/collection?address=${address}&path=${contractName}`, {}, {}, 'https://lilico.app')
     return data
   };
 

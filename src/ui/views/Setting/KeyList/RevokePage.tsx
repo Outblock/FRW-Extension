@@ -58,7 +58,7 @@ const RevokePage = (props: RevokePageProps) => {
   const onSubmit = async () => {
     setIsLoading(true);
     wallet.revokeKey(props.keyIndex).then(async (txID)=> {
-      wallet.listenTransaction(txID, true, `Revoke request submit`, `You have submitted an revoke request for key index 2. \nClick to view this transaction.`);
+      wallet.listenTransaction(txID, true, 'Revoke request submit', 'You have submitted an revoke request for key index 2. \nClick to view this transaction.');
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
       setIsLoading(false);
@@ -87,12 +87,6 @@ const RevokePage = (props: RevokePageProps) => {
         textAlign: 'center',
       }}
     >
-      <Box
-        sx={{ float: 'right', margin: '18px 0' }}
-        onClick={props.handleCloseIconClicked}
-      >
-        <img src={closeCircle} style={{ width: '20px', height: '20px', }} />
-      </Box>
 
       <img src={warning} style={{ width: '48px', height: '48px', marginTop: '36px', }} />
       <Typography sx={{ margin: '16px auto 0', fontSize: '24px', fontWeight: 700, color: '#FFFFFF', width: '267px' }}>

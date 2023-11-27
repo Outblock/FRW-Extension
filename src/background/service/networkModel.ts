@@ -96,7 +96,8 @@ export interface Contact {
 export enum FlowDomain {
   find = 0,
   flowns = 1,
-  meow = 2
+  meow = 2,
+  none = 999,
 }
 
 export interface NFTData {

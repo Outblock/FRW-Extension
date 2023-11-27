@@ -40,8 +40,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [count, setCount] = useState(0);
   const colorArray = ['#FCE9E1', '#FCC7AE', '#FCA47C', '#FCA47C', '#41CC5D', '#41CC5D', '#41CC5D'];
   
-  console.log('SendNFTConfirmation ==>', props)
-
   const startCount = () => {
     let count = 0;
     let intervalId;
@@ -88,6 +86,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     setSending(true);
     try {
       let txID = ''
+      console.log('props.data ', props.data)
       if (props.data.contract.contract_name.trim() == 'TopShot'){
         txID = await wallet.sendNBANFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
       } else {

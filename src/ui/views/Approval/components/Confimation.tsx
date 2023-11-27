@@ -7,7 +7,6 @@ import { Stack, Box, Typography, Divider, Accordion, AccordionSummary, Accordion
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import theme from 'ui/style/LLTheme';
 import * as fcl from '@onflow/fcl';
-import * as sdk from '@onflow/sdk'
 import {
   LLPrimaryButton,
   LLSecondaryButton,

@@ -210,7 +210,10 @@ const SendToAddress = () => {
     setMedia(media);
    
     const contractList = await wallet.openapi.getAllNft();
+    console.log('contractList ', contractList)
+    console.log('NFT ', NFT)
     const filteredCollections = returnFilteredCollections(contractList, NFT)
+    console.log('filteredCollections ', filteredCollections)
     if (filteredCollections.length > 0) {
       setContractInfo(filteredCollections[0])
     }

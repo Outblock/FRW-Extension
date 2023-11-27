@@ -64,6 +64,7 @@ const theme: SystemTheme = createTheme({
     primary: {
       // light: will be calculated from palette.primary.main,
       main: '#41CC5D',
+      light:'#FFFFFF',
       // dark: will be calculated from palette.primary.main,
       // contrastText: will be calculated to contrast with palette.primary.main
       contrastText: '#000000CC',

@@ -183,7 +183,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
 
                   {
                     (!accesibleArray.some(item => {
-                      const parts = item.id.split(".");
+                      const parts = item.id.split('.');
                       const thirdString = parts[2];
                       return data.contract_name === thirdString;
                     }) && !props.isActive) ?
