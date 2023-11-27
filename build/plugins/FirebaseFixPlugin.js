@@ -28,6 +28,11 @@ class FirebaseFixPlugin {
             '_loadJS(`${$1}`)'
           );
 
+          content = content.replace(
+            /\(`https:\/\/apis\.google\.com\/js\/api\.js\?onload=\$\{t\}`\)/g,
+            '(`${t}`)'
+          );
+          
           compilation.assets[asset] = {
             source: () => content,
             size: () => content.length,
