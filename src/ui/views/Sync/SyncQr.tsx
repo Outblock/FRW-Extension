@@ -21,7 +21,6 @@ import { Core } from '@walletconnect/core';
 import { Web3Wallet, IWeb3Wallet } from '@walletconnect/web3wallet';
 import QRCode from "react-qr-code";
 
-export let web3wallet: IWeb3Wallet;
 
 const useStyles = makeStyles((theme) => ({
   customInputLabel: {
@@ -47,55 +46,48 @@ const useStyles = makeStyles((theme) => ({
 
 const SyncQr = ({ handleClick, savedUsername, getUsername }) => {
   const classes = useStyles();
-  const wallet = useWallet();
   const [Uri, setUri] = useState('');
   const [pairUri, setPairUri] = useState('');
-
-
+  const [web3wallet, setWeb3Wallet] = useState<any>(null);
 
   useEffect(() => {
+    const createWeb3Wallet = async () => {
+      try {
+        const wallet = await Web3Wallet.init({
+          core: new Core({
+            projectId: '29b38ec12be4bd19bf03d7ccef29aaa6',
+          }),
+          metadata: {
+            name: 'Flow Reference Walllet',
+            description: 'Digital wallet created for everyone.',
+            url: 'https://fcw-link.lilico.app',
+            icons: ['https://fcw-link.lilico.app/logo.png']
+          },
+        });
+        console.log('web3walletadress', wallet);
+        const { topic, uri } = await wallet.core.pairing.create();
+        console.log('uri', uri);
+        setWeb3Wallet(wallet);
+        setUri(uri);
+      } catch (e) {
+        console.error(e);
+      }
+    };
     createWeb3Wallet();
   }, []);
 
-  const handleFilterAndSearch = async (
-    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
+  const handleFilterAndSearch = async (e) => {
     const keyword = e.target.value;
-    await setPairUri(keyword);
-    web3wallet.pair({ uri: keyword }).then((res) => {
-      console.log(' paire ', res)
-    }).catch((err) => {
-      console.log(' err ', err)
-    })
-  };
+    console.log('keyword', keyword);
 
-  const createWeb3Wallet = async () => {
-    try {
-      const metadata = {
-        name: 'Flow Reference Walllet',
-        description: 'Digital wallet created for everyone.',
-        url: 'https://fcw-link.lilico.app',
-        icons: ['https://fcw-link.lilico.app/logo.png']
-      };
-      const web3wallet = await Web3Wallet.init({
-        core: new Core({
-          projectId: '29b38ec12be4bd19bf03d7ccef29aaa6',
-        }),
-        metadata: metadata,
-      });
-      console.log('web3walletadress', web3wallet)
-      const { topic, uri } = await web3wallet.core.pairing.create()
-      console.log('uri', uri)
-      setUri(uri);
-      web3wallet.pair({ uri: 'wc:d13f4e8d33fb1373ca5747bba7afb5f9d2857e993f88de04727267f5f79c196e@2?relay-protocol=irn&symKey=84a9e8af89e0dae006a81cec556837007ee284182141f2a8c23dbdea363aeb26' }).then((res) => {
-        console.log(' paire ', res)
-      }).catch((err) => {
-        console.log(' err ', err)
-      })
-    } catch (e) {
-      console.log(e);
+    if (web3wallet) {
+      const pairResponse = await web3wallet.core.pairing.pair({ uri: keyword });
+      console.log('pairResponse', pairResponse);
+    } else {
+      console.log('Web3Wallet is not initialized');
     }
   };
+
 
 
 

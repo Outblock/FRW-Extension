@@ -145,7 +145,6 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
   const [isCheck, setCheck] = useState(false);
   const [isLoading, setLoading] = useState(false);
   // TODO: FIX ME
-  // Disable recaptcha for now
   const [notBot, setNotBot] = useState(true);
 
   const [errMessage, setErrorMessage] = useState('Something wrong, please try again');
