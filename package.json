@@ -1,6 +1,6 @@
 {
-  "name": "FlowReference",
-  "version": "2.0.2",
+  "name": "FlowReferenceWallet",
+  "version": "2.0.3",
   "description": "Digital wallet created for everyone.",
   "scripts": {
     "prepare:dev": "node ./build/prepareManifest.js dev",
@@ -160,7 +160,7 @@
     "postcss-nested": "^5.0.5",
     "prettier": "^2.2.1",
     "react-i18next": "^11.11.0",
-    "react-iconfont-cli": "^2.0.2",
+    "react-iconfont-cli": "^2.0.3",
     "shelljs": "^0.8.4",
     "sinon-chrome": "^3.0.1",
     "style-loader": "^2.0.0",
