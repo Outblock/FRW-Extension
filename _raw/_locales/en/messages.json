@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Flow Reference",
+    "message": "Flow Reference Wallet",
     "description": "Application Name"
   },
   "appDescription": {
@@ -266,7 +266,7 @@
     "message": "Security"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "Allow Flow Reference to pay the gas fee for all my transactions."
+    "message": "Allow Flow Reference Wallet to pay the gas fee for all my transactions."
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "This feature has been disabled temporarily"
@@ -521,7 +521,7 @@
     "message": "Launch My Wallet"
   },
   "Start__exploring__with__Lilico__now": {
-    "message": "Start exploring with Flow Reference now!"
+    "message": "Start exploring with Flow Reference Wallet now!"
   },
   "all__set": {
     "message": "all set"
@@ -530,10 +530,10 @@
     "message": "You're"
   },
   "Flow_Core": {
-    "message": "Flow Reference"
+    "message": "Flow Reference Wallet"
   },
   "Lilico": {
-    "message": "Flow Reference"
+    "message": "Flow Reference Wallet"
   },
   "and__Pin": {
     "message": "and Pin"
@@ -680,7 +680,7 @@
     "message":" all set"
   },
   "You_can_start_experiencing_Lilico_now":{
-    "message":"You can start experiencing Flow Reference now!"
+    "message":"You can start experiencing Flow Reference Wallet now!"
   },
   "Back_up":{
     "message":"Back Up"
@@ -815,7 +815,7 @@
     "message":"Forgot password?"
   },
   "Welcome_to_lilico":{
-    "message":"Welcome to Flow Reference"
+    "message":"Welcome to Flow Reference Wallet"
   },
   "Flow":{
     "message":"Flow"

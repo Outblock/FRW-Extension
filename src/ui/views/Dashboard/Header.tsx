@@ -93,6 +93,47 @@ const Header = ({ loading }) => {
 
   const [isPending, setIsPending] = useState(false);
 
+  const [initialStart, setInitial] = useState(true);
+
+
+  const putDeviceInfo = async (walletData) => {
+    if (initialStart) {
+      try {
+        const testnetId = walletData.find(item => item.chain_id === "testnet")?.id;
+        const mainnetId = walletData.find(item => item.chain_id === "mainnet")?.id;
+        const result = await usewallet.openapi.getLocation();
+        const installationId = await usewallet.openapi.getInstallationId();
+        // console.log('location ', userlocation);
+        const userlocation = result.data
+        await usewallet.openapi.addDevice({
+          wallet_id: mainnetId.toString(), wallettest_id: testnetId.toString(), device_info: {
+            "city": userlocation.city,
+            "continent": userlocation.country,
+            "continentCode": userlocation.countryCode,
+            "country": userlocation.country,
+            "countryCode": userlocation.countryCode,
+            "currency": userlocation.countryCode,
+            device_id: installationId,
+            "district": "",
+            "ip": userlocation.query,
+            "isp": userlocation.as,
+            "lat": userlocation.lat,
+            "lon": userlocation.lon,
+            "name": "FRW Chrome Extension",
+            "org": userlocation.org,
+            "regionName": userlocation.regionName,
+            "type": "1",
+            "user_agent": "Chrome",
+            "zip": userlocation.zip,
+          }
+        });
+      } catch (error) {
+        console.error("Error while adding device:", error);
+        return;
+      }
+      setInitial(false);
+    }
+  }
 
   const toggleDrawer = () => {
     setDrawer(!drawer);
@@ -155,7 +196,9 @@ const Header = ({ loading }) => {
   };
 
   const freshUserWallet = async () => {
-    const wallet = await usewallet.refreshUserWallets()
+    const wallet = await usewallet.refreshUserWallets();
+    console.log(wallet);
+    putDeviceInfo(wallet);
     await setWallet(wallet);
   }
 
@@ -512,7 +555,7 @@ const Header = ({ loading }) => {
                     fontSize: '10px',
                     marginLeft: '10px',
                     marginRight: '10px',
-                    fontFamily:'Inter,sans-serif',
+                    fontFamily: 'Inter,sans-serif',
                     opacity: currentNetwork == 'testnet' ? '1' : '0.1',
                   }}
                 />
@@ -718,9 +761,9 @@ const Header = ({ loading }) => {
           <ListItemButton onClick={() => setAlertOpen(true)}>
             <ListItemIcon
               sx={{
-                width:'24px',
-                minWidth:'24px',
-                marginRight:'12px',
+                width: '24px',
+                minWidth: '24px',
+                marginRight: '12px',
               }}
             >
               <AddIcon style={{
@@ -745,9 +788,9 @@ const Header = ({ loading }) => {
           <ListItemButton>
             <ListItemIcon
               sx={{
-                width:'24px',
-                minWidth:'24px',
-                marginRight:'12px',
+                width: '24px',
+                minWidth: '24px',
+                marginRight: '12px',
               }}>
               <IconLock style={{
                 marginLeft: '8px',

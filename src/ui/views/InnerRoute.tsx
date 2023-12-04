@@ -5,6 +5,7 @@ import Switchaccount from './Setting/Switchaccount';
 import Security from './Setting/Security';
 import PrivateKeyPassword from './Setting/privatekey/Privatekeypassword';
 import Recoveryphrasepassword from './Setting/recoveryphase/Recoveryphrasepassword';
+import KeyList from './Setting/KeyList/KeyList';
 import Keydetail from './Setting/privatekey/Keydetail';
 import RecoveryPhasesDetail from './Setting/recoveryphase/Recoveryphasedetail';
 import Resetpwd from './Setting/Resetpwd';
@@ -34,6 +35,8 @@ import Linked from './Setting/Linked';
 import LinkedDetail from './Setting/Linked/LinkedDetail';
 import Account from './Setting/Account';
 import DeveloperMode from './Setting/DeveloperMode/DeveloperMode';
+import Devices from './Setting/Devices/Devices';
+import DeviceInfo from './Setting/Devices/DeviceInfo';
 import WalletDetail from './Setting/Wallet/WalletDetail';
 import RemoveWallet from './Setting/Wallet/RemoveWallet';
 import ManageBackups from './Setting/Backups';
@@ -145,6 +148,11 @@ const Inner = (props) => {
             <PrivateKeyPassword />
           </PrivateRoute>
 
+
+          <PrivateRoute path={`${props.match.url}/nested/keylist`}>
+            <KeyList />
+          </PrivateRoute>
+
           <PrivateRoute path={`${props.match.url}/nested/keydetail`}>
             <Keydetail />
           </PrivateRoute>
@@ -216,7 +224,13 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/setting/developerMode`}>
             <DeveloperMode />
           </PrivateRoute>
-
+          <PrivateRoute path={`${props.match.url}/setting/devices`}>
+            <Devices />
+          </PrivateRoute>
+          <PrivateRoute path={`${props.match.url}/setting/deviceinfo`}>
+            <DeviceInfo />
+          </PrivateRoute>
+          
           <PrivateRoute path={`${props.match.url}/setting/wallet`}>
             <WalletDetail />
           </PrivateRoute>

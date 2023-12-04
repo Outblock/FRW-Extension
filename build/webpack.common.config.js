@@ -4,6 +4,7 @@ const TSConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const ESLintWebpackPlugin = require('eslint-webpack-plugin');
 // const tsImportPluginFactory = require('ts-import-plugin');
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin');
+const FirebaseFixPlugin = require('./plugins/FirebaseFixPlugin');
 const { version } = require('../_raw/manifest.json');
 
 const paths = require('./paths');
@@ -107,6 +108,7 @@ const config = {
     ],
   },
   plugins: [
+    new FirebaseFixPlugin(),
     new ESLintWebpackPlugin({
       extensions: ['ts', 'tsx', 'js', 'jsx'],
     }),

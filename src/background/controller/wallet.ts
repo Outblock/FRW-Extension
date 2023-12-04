@@ -1177,6 +1177,23 @@ export class WalletController extends BaseController {
     );
   };
 
+  revokeKey = async (
+    index: string
+  ): Promise<string> => {
+    return await userWalletService.sendTransaction(
+      `
+      transaction(index: Int) {
+        prepare(signer: AuthAccount) {
+            // Get a key from an auth account.
+            let keyA = signer.keys.revoke(keyIndex: index)
+        }
+      }
+      `
+      ,
+      [fcl.arg(index, t.Int)]
+    );
+  };
+
   // TODO: Replace with generic token
   claimFTFromInbox = async (
     domain: string,
@@ -2295,6 +2312,17 @@ export class WalletController extends BaseController {
     const result = await userWalletService.checkSandBoxnet();
     return result;
   };
+
+
+
+  getAccount = async () => {
+
+    const address = await this.getCurrentAddress();
+    const account = await fcl.send([fcl.getAccount(address)]).then(fcl.decode);
+    return account
+  };
+
+
 }
 
 export default new WalletController();

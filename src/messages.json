@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Flow Reference",
+    "message": "Flow Reference Wallet",
     "description": "Application Name"
   },
   "appDescription": {
@@ -74,7 +74,7 @@
     "message": "Anonymous"
   },
   "Other__Lilico__users__cannot__search__for__your__username": {
-    "message": "Other Flow Reference users cannot search for your username."
+    "message": "Other Flow Reference Wallet users cannot search for your username."
   },
   "Private__Key": {
     "message": "Private Key"
@@ -233,7 +233,7 @@
     "message": "Are you sure you want to reset your wallet?"
   },
   "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
-    "message": "Removing the wallet from Flow Reference does not remove the wallet from Flow blockchain. You can import your wallet again using your Recovery Phrase or Google Drive Backup."
+    "message": "Removing the wallet from Flow Reference Wallet does not remove the wallet from Flow blockchain. You can import your wallet again using your Recovery Phrase or Google Drive Backup."
   },
   "Reset": {
     "message": "Reset"
@@ -611,7 +611,7 @@
     "message": "Flow Reference uses this password to protect your recovery phrase."
   },
   "I__agree__to__Lilico": {
-    "message": "I agree to Flow Reference's"
+    "message": "I agree to Flow Reference Wallet's"
   },
   "Try__again":{
     "message":"Try again"
@@ -800,7 +800,7 @@
     "message":"Forgot password?"
   },
   "Welcome_to_lilico":{
-    "message":"Welcome to Flow Reference"
+    "message":"Welcome to Flow Reference Wallet"
   },
   "Flow":{
     "message":"Flow"

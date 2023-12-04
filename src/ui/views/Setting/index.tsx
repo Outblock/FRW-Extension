@@ -22,6 +22,7 @@ import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import AppleIcon from '@mui/icons-material/Apple';
 import AndroidIcon from '@mui/icons-material/Android';
 import IconLink from 'ui/FRWAssets/svg/iconlink.svg';
+import Device from 'ui/FRWAssets/svg/device.svg';
 import { useWallet } from '@/ui/utils';
 import IconDeveloper from '../../../components/iconfont/IconDeveloper';
 
@@ -226,6 +227,27 @@ const SettingTab = () => {
                 <IconDeveloper className={classes.iconOthers} color='#59A1DB' />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Developer__Mode')} />
+              <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                <IconEnd size={12} />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+          
+          <Divider sx={{ width: '90%' }} variant="middle"/>
+          
+          <ListItem 
+            button 
+            component={Link} 
+            to="/dashboard/setting/devices"
+            disablePadding 
+            className={classes.listItem}
+          >
+            <ListItemButton className={classes.itemButton}>
+              <ListItemIcon sx={{ minWidth: '25px' }}>
+                {/* <IconSecurity className={classes.iconOthers} color='#59A1DB' /> */}
+                <CardMedia className={classes.icon} sx={{height:'16px',width:'19px', marginRight:'13px'}} image={Device} />
+              </ListItemIcon>
+              <ListItemText primary={'Devices'} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
                 <IconEnd size={12} />
               </ListItemIcon>

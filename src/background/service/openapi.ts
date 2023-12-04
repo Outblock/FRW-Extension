@@ -13,6 +13,7 @@ import {
   onAuthStateChanged,
 } from '@firebase/auth';
 import { initializeApp, getApp } from 'firebase/app';
+import { getInstallations, getId } from 'firebase/installations';
 import { Unsubscribe } from '@firebase/util';
 import {
   AccountKey,
@@ -290,6 +291,26 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
   },
   manual_address: {
     path: '/v1/user/manualaddress',
+    method: 'get',
+    params: [],
+  },
+  device_list: {
+    path: '/v1/user/device',
+    method: 'get',
+    params: [],
+  },
+  key_list: {
+    path: '/v1/user/keys',
+    method: 'get',
+    params: [],
+  },
+  add_device: {
+    path: '/v1/user/device',
+    method: 'put',
+    params: ['device_info', 'wallet_id', 'wallettest_id '],
+  },
+  get_location: {
+    path: '/v1/user/location',
     method: 'get',
     params: [],
   },
@@ -1407,6 +1428,43 @@ class OpenApiService {
 
     return data;
   };
+
+  deviceList = async () => {
+    const config = this.store.config.device_list;
+    const data = await this.sendRequest(config.method, config.path, {});
+
+    return data;
+  };
+
+
+  keyList = async () => {
+    const config = this.store.config.key_list;
+    const data = await this.sendRequest(config.method, config.path, {});
+
+    return data;
+  };
+
+
+  getLocation = async () => {
+    const config = this.store.config.get_location;
+    const data = await this.sendRequest(config.method, config.path, {});
+
+    return data;
+  };
+
+  addDevice = async (params) => {
+    const config = this.store.config.add_device;
+    const data = await this.sendRequest(config.method, config.path,{}, params);
+
+    return data;
+  };
+
+  getInstallationId = async () => {
+    const installations  = await getInstallations(app);
+    const id = await getId(installations);
+    return id;
+  };
+  
   searchUser = async (keyword: string) => {
     const config = this.store.config.search_user;
     const data = await this.sendRequest(config.method, config.path, {
