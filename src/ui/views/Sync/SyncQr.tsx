@@ -55,7 +55,7 @@ const SyncQr = ({ handleClick, savedUsername, getUsername }) => {
       try {
         const wallet = await Web3Wallet.init({
           core: new Core({
-            projectId: '29b38ec12be4bd19bf03d7ccef29aaa6',
+            projectId: process.env.WC_PROJECTID,
           }),
           metadata: {
             name: 'Flow Reference Walllet',
@@ -76,17 +76,6 @@ const SyncQr = ({ handleClick, savedUsername, getUsername }) => {
     createWeb3Wallet();
   }, []);
 
-  const handleFilterAndSearch = async (e) => {
-    const keyword = e.target.value;
-    console.log('keyword', keyword);
-
-    if (web3wallet) {
-      const pairResponse = await web3wallet.core.pairing.pair({ uri: keyword });
-      console.log('pairResponse', pairResponse);
-    } else {
-      console.log('Web3Wallet is not initialized');
-    }
-  };
 
 
 
@@ -161,24 +150,6 @@ const SyncQr = ({ handleClick, savedUsername, getUsername }) => {
               viewBox={`0 0 256 256`}
             />
           }
-          <Box>
-            <Input
-              type="search"
-              className={classes.inputBox}
-              placeholder={'Pair wc uri'}
-              autoFocus
-              disableUnderline
-              endAdornment={
-                <InputAdornment position="end">
-                  <SearchIcon
-                    color="primary"
-                    sx={{ ml: '10px', my: '5px', fontSize: '24px' }}
-                  />
-                </InputAdornment>
-              }
-              onChange={handleFilterAndSearch}
-            />
-          </Box>
         </Box>
       </Box>
 
