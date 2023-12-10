@@ -3,14 +3,14 @@ import { Core } from '@walletconnect/core'
 import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils'
 import SignClient from '@walletconnect/sign-client'
-
+import { QrReader } from 'react-qr-reader';
 
 import {
   Typography,
   Box,
   Drawer,
   Grid,
-  Stack,
+  Button,
   InputBase,
   Input,
   InputAdornment,
@@ -146,41 +146,40 @@ const WalletConnect = (props: RevokePageProps) => {
       console.log('Web3Wallet is not initialized');
     }
 
+    web3wallet.on(FCLWalletConnectMethod.addDeviceInfo, async event => {
+      const { topic, params, id } = event;
+      const requestParamsMessage = params.request.params[0];
 
+      // Assuming the structure of requestParamsMessage is similar to what's expected in Swift code
+      // You might need to adjust this part based on the actual structure of requestParamsMessage
+      const status = requestParamsMessage.status;
+      const jsonData = requestParamsMessage.data;
+
+      try {
+        if (status === "3") {
+          // Respond with an empty message
+          const response = { id, result: '', jsonrpc: '2.0' };
+          await web3wallet.respondSessionRequest({ topic, response });
+          return;
+        }
+
+        const register = JSON.parse(jsonData);
+
+        // Respond with an empty message
+        const response = { id, result: '', jsonrpc: '2.0' };
+        await web3wallet.respondSessionRequest({ topic, response });
+
+
+        // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
+      } catch (error) {
+        console.error("[WALLET] Respond Error: [addDeviceInfo]", error);
+
+      }
+    });
 
   };
 
 
-  web3wallet.on(FCLWalletConnectMethod.addDeviceInfo, async event => {
-    const { topic, params, id } = event;
-    const requestParamsMessage = params.request.params[0];
-
-    // Assuming the structure of requestParamsMessage is similar to what's expected in Swift code
-    // You might need to adjust this part based on the actual structure of requestParamsMessage
-    let status = requestParamsMessage.status;
-    let jsonData = requestParamsMessage.data;
-
-    try {
-      if (status === "3") {
-        // Respond with an empty message
-        const response = { id, result: '', jsonrpc: '2.0' };
-        await web3wallet.respondSessionRequest({ topic, response });
-        return;
-      }
-
-      const register = JSON.parse(jsonData);
-
-      // Respond with an empty message
-      const response = { id, result: '', jsonrpc: '2.0' };
-      await web3wallet.respondSessionRequest({ topic, response });
-
-
-      // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
-    } catch (error) {
-      console.error("[WALLET] Respond Error: [addDeviceInfo]", error);
-
-    }
-  });
 
 
 
@@ -223,10 +222,24 @@ const WalletConnect = (props: RevokePageProps) => {
 
       </Box>
       <Box sx={{ marginTop: '24px', width: '339px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}></Box>
-      <Box
-        onClick={() => setScan(false)}>Qr</Box>
-      <Box
-        onClick={() => setScan(true)}>Scan</Box>
+      <Box sx={{
+        display: 'flex',
+        gap: '8px',
+        height: '32px',
+        width:'100%'
+      }}>
+        <Button
+          color="info3"
+          variant="contained"
+          sx={{ width: '100%' }}
+          onClick={() => setScan(false)}>Qr</Button>
+        <Button
+          color="info3"
+          variant="contained"
+          sx={{ width: '100%' }}
+          onClick={() => setScan(true)}>Scan</Button>
+
+      </Box>
 
       {!isScan &&
         <Box sx={{ marginTop: '40px', display: 'block', width: '144px', height: '144px' }}>
@@ -262,6 +275,21 @@ const WalletConnect = (props: RevokePageProps) => {
             }
             onChange={handleFilterAndSearch}
           />
+          {/* <QrReader
+            onResult={(result, error) => {
+              if (result) {
+                const uri = (result as any).text;
+
+                setUri(uri);
+              }
+
+              if (error) {
+                console.info(error);
+              }
+            }}
+            constraints={{ facingMode: 'user' }}
+          /> */}
+          <p>{Uri}</p>
         </Box>
       }
       <Typography sx={{ margin: '16px auto 0', fontSize: '14px', fontWeight: 400, color: 'rgba(255, 255, 255, 0.80)', width: '267px' }}>

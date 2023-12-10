@@ -100,6 +100,7 @@
     "react-number-format": "^4.9.1",
     "react-placeholder-image": "^0.1.8",
     "react-qr-code": "^2.0.12",
+    "react-qr-reader": "^3.0.0-beta-1",
     "react-router-dom": "^5.2.0",
     "react-router-transition": "^2.1.0",
     "react-spring": "^8.0.27",
