@@ -190,8 +190,8 @@
   "Transaction__Monitor": {
     "message": "交易监测"
   },
-  "Flowscan": {
-    "message": "Flowscan"
+  "Flowdiver": {
+    "message": "Flowdiver"
   },
   "Flow__view__source": {
     "message": "f.dnz.dev"

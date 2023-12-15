@@ -1851,16 +1851,16 @@ export class WalletController extends BaseController {
 
   getViewSourceUrl = async (): Promise<string> => {
     const network = await this.getNetwork();
-    let baseURL = 'https://flow-view-source.com/mainnet';
+    let baseURL = 'https://f.dnz.dev';
     switch (network) {
       case 'mainnet':
-        baseURL = 'https://flow-view-source.com/mainnet';
+        baseURL = 'https://f.dnz.dev';
         break;
       case 'testnet':
-        baseURL = 'https://flow-view-source.com/testnet';
+        baseURL = 'https://f.dnz.dev';
         break;
       case 'sandboxnet':
-        baseURL = 'https://flow-view-source.vercel.app/sandboxnet';
+        baseURL = 'https://f.dnz.dev';
         break;
     }
     return baseURL;

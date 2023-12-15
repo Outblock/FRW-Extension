@@ -345,7 +345,7 @@ const DeveloperMode = () => {
             <CardActionArea className={classes.modeSelection} onClick={()=>switchMonitor('flowscan')}>
               <Box className={classes.checkboxRow}>
                 <FormControlLabel
-                  label={chrome.i18n.getMessage('Flowscan')}
+                  label={chrome.i18n.getMessage('Flowdiver')}
                   control={
                     <Checkbox
                       size='small'

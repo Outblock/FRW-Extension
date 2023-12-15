@@ -190,8 +190,8 @@
   "Transaction__Monitor": {
     "message": "Монитор транзакций"
   },
-  "Flowscan": {
-    "message": "Сканирование"
+  "Flowdiver": {
+    "message": "Flowdiver"
   },
   "Flow__view__source": {
     "message": "f.dnz.dev"
