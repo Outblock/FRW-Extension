@@ -15,12 +15,12 @@ interface NoStakeProps {
   hasSetup: boolean;
   loading: boolean;
   handleClick: () => void;
+  amount: number;
 }
 
 const NoStake = (props: NoStakeProps) => {
   const usewallet = useWallet();
   const [apr, setApr] = useState<any>(0);
-
   const getApy = async () => {
     const result = await usewallet.getApr();
     console.log('apr: ', result);
@@ -29,16 +29,16 @@ const NoStake = (props: NoStakeProps) => {
 
   useEffect(() => {
     getApy();
-    console.log(nodeList);
+    console.log(props.amount);
   }, []);
 
   return (
     <Box className="page"
       sx={{
-        position:'relative',
-        width:'100%',
-        overflow:'hidden',
-        height:'487px',
+        position: 'relative',
+        width: '100%',
+        overflow: 'hidden',
+        height: '487px',
         background: '#121212'
       }}
     >
@@ -49,8 +49,8 @@ const NoStake = (props: NoStakeProps) => {
             flexDirection: 'column',
             width: '100%',
             height: '490px',
-            paddingBottom:'20px',
-            overflow:'auto',
+            paddingBottom: '20px',
+            overflow: 'auto',
           }}
         >
           <LLHeader title="Stakes" help={false}></LLHeader>
@@ -426,9 +426,17 @@ const NoStake = (props: NoStakeProps) => {
                 />
               ) : (
                 <LLPrimaryButton
-                  label= {props.hasSetup ? "Let's Stake" : ( props.loading ? 'Setting up ...': 'Setup Stake') }
+                  label={
+                    props.amount < 50
+                      ? "Require 50 Flow to start staking"
+                      : props.hasSetup
+                        ? "Let's Stake"
+                        : props.loading
+                          ? 'Setting up ...'
+                          : 'Setup Stake'
+                  }
                   onClick={props.handleClick}
-                  disabled={props.loading}
+                  disabled={props.loading || props.amount < 50}
                   sx={{
                     borderRadius: '14px',
                     height: '50px',
@@ -438,6 +446,7 @@ const NoStake = (props: NoStakeProps) => {
                     textTransform: 'none !important',
                   }}
                 />
+
               )}
             </Box>
           </Box>
