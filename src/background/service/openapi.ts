@@ -27,6 +27,7 @@ import {
   TokenModel,
   NFTModel,
   StorageInfo,
+  DeviceInfo,
 } from './networkModel';
 import fetchConfig from 'background/utils/remoteConfig';
 // import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
@@ -133,6 +134,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     path: '/v2/login',
     method: 'post',
     params: ['public_key', 'signature'],
+  },
+  loginv3: {
+    path: '/v3/login',
+    method: 'post',
+    params: ['signature','account_key', 'device_info'],
   },
   coin_map: {
     path: '/v1/coin/map',
@@ -313,6 +319,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     path: '/v1/user/location',
     method: 'get',
     params: [],
+  },
+  sync_device: {
+    path: '/v3/sync',
+    method: 'post',
+    params: ['account_key','device_info '],
   },
 };
 
@@ -603,6 +614,28 @@ class OpenApiService {
       config.path,
       {},
       { public_key, signature }
+    );
+    if (!result.data) {
+      throw new Error('NoUserFound');
+    }
+    if (replaceUser) {
+      await this._signWithCustom(result.data.custom_token);
+    }
+    return result;
+  };
+
+  loginV3 = async (
+    account_key: any,
+    device_info: any,
+    signature: string,
+    replaceUser = true
+  ): Promise<SignInResponse> => {
+    const config = this.store.config.loginv3;
+    const result = await this.sendRequest(
+      config.method,
+      config.path,
+      {},
+      { account_key, device_info, signature }
     );
     if (!result.data) {
       throw new Error('NoUserFound');
@@ -1454,6 +1487,14 @@ class OpenApiService {
 
   addDevice = async (params) => {
     const config = this.store.config.add_device;
+    const data = await this.sendRequest(config.method, config.path,{}, params);
+
+    return data;
+  };
+
+
+  synceDevice = async (params) => {
+    const config = this.store.config.sync_device;
     const data = await this.sendRequest(config.method, config.path,{}, params);
 
     return data;

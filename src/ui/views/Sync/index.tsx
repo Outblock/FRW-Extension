@@ -1,28 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
-import {
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
+import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 import theme from '../../style/LLTheme';
-import RegisterHeader from './RegisterHeader';
-import SyncQr from './SyncQr';
-import RecoveryPhrase from './RecoveryPhrase';
-import RepeatPhrase from './RepeatPhrase';
-import GoogleBackup from './GoogleBackup';
-import AllSet from './AllSet';
+import RegisterHeader from '../Register/RegisterHeader';
+import AllSet from '../Register/AllSet';
 import SetPassword from './SetPassword';
+import SyncQr from './SyncQr'
 import Particles from 'react-tsparticles';
-import * as bip39 from 'bip39';
+import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
   ComponentTransition,
   AnimationTypes,
 } from 'react-component-transition';
-import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../Import/options'
-import { useWallet } from 'ui/utils';
+import { useWallet, Options } from 'ui/utils';
 
 enum Direction {
   Right,
@@ -32,11 +25,13 @@ enum Direction {
 const Sync = () => {
   const history = useHistory();
   const wallet = useWallet();
-  const [activeIndex, onChange] = useState(0);
-  const [direction, setDirection] = useState(Direction.Right);
+  const [activeIndex, onChange] = useState(1);
+  const [mnemonic, setMnemonic] = useState('');
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState(null);
-  const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
+  const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
+  const [showError, setShowError] = useState(false);
+  const [direction, setDirection] = useState(Direction.Right);
+  const [loading, setLoading] = useState(false);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
@@ -52,10 +47,9 @@ const Sync = () => {
       return;
     });
   };
-
   const goNext = () => {
     setDirection(Direction.Right);
-    if (activeIndex < 5) {
+    if (activeIndex < 2) {
       onChange(activeIndex + 1);
     } else {
       window.close();
@@ -71,32 +65,25 @@ const Sync = () => {
     }
   };
 
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowError(false);
+  };
+
   const page = (index) => {
     switch (index) {
       case 0:
-        return (
-          <SyncQr
-            handleClick={goNext}
-            savedUsername={username}
-            getUsername={getUsername}
-          />
-        );
+        return <SyncQr
+          handleClick={goNext}
+          savedUsername={username}
+          confirmMnemonic={setMnemonic}
+          setUsername={getUsername}
+        />;
       case 1:
-        return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
+        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
       case 2:
-        return <RepeatPhrase handleClick={goNext} mnemonic={mnemonic} />;
-      case 3:
-        return (
-          <SetPassword
-            handleClick={goNext}
-            setExPassword={setPassword}
-            mnemonic={mnemonic}
-            username={username}
-          />
-        );
-      case 4:
-        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />
-      case 5:
         return <AllSet handleClick={goNext} />;
       default:
         return <div />;
@@ -108,7 +95,6 @@ const Sync = () => {
     loadView();
   }, []);
 
-  const height = [480, 600, 640, 620, 480, 480]
 
   return (
     <ThemeProvider theme={theme}>
@@ -123,15 +109,15 @@ const Sync = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 5 && (
+        {activeIndex == 2 && (
           <Particles
             //@ts-expect-error customized option
-            options={options}
+            options={Options}
           />
         )}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 5} />
+        <LLPinAlert open={activeIndex == 2} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
@@ -145,35 +131,21 @@ const Sync = () => {
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'flex-end',
+              alignItems: 'flex-start',
               px: '60px',
-              backgroundColor: '#222',
-              height: '380px',
-              width: '620px',
+              height: 'auto',
+              width: 'auto',
               position: 'relative',
               borderRadius: '24px'
             }}
           >
 
 
-            <Box
-              sx={{
-                display: 'flex',
-                // height: '56px',
-                // backgroundColor: '#404040',
-                padding: '  0px 0',
-                position: 'absolute',
-                left: '-95px',
-                top:'0px'
-              }}
-            >
-              {(activeIndex !== 4 && activeIndex !== 5) &&
-                <IconButton onClick={goBack} size="small">
-                  <BackButtonIcon color="#5E5E5E" size={27} />
-                </IconButton>
-              }
-
-            </Box>
+            {(activeIndex !== 4 && activeIndex !== 5) &&
+              <IconButton onClick={goBack} size="small" sx={{marginLeft:'-95px'}}>
+                <BackButtonIcon color="#5E5E5E" size={27} />
+              </IconButton>
+            }
 
             <ComponentTransition
               enterAnimation={

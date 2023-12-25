@@ -16,12 +16,10 @@ const theme: SystemTheme = createTheme({
         '.welcomeBox': {
           display: 'flex',
           flexDirection: 'column',
-          width: 720,
+          width: '625px',
           height: 'auto',
           borderRadius: '24px',
           marginTop:'80px',
-          boxShadow: '0px 24px 24px rgba(0,0,0,0.36)',
-          background: '#222222',
         },
         // ... other global classes or element selectors
       },

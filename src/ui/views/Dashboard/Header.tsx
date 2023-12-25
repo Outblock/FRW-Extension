@@ -197,9 +197,9 @@ const Header = ({ loading }) => {
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.refreshUserWallets();
-    console.log(wallet);
-    putDeviceInfo(wallet);
-    await setWallet(wallet);
+    const fData = wallet.filter(item => item.blockchain !== null);
+    putDeviceInfo(fData);
+    await setWallet(fData);
   }
 
   const freshUserInfo = async () => {

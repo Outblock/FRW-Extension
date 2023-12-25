@@ -17,6 +17,8 @@ export * from './time';
 
 export * from './number';
 
+export * from './options';
+
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',

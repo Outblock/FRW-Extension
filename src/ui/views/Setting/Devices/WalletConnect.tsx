@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Core } from '@walletconnect/core'
 import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
-import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils'
-import SignClient from '@walletconnect/sign-client'
+import { formatJsonRpcResult } from '@walletconnect/jsonrpc-utils'
+import { getSdkError } from '@walletconnect/utils'
+import { DeviceInfo, DeviceInfoRequest, AccountKey } from 'background/service/networkModel';
 import { QrReader } from 'react-qr-reader';
+import {
+  FRWHoldButton,
+} from 'ui/FRWComponent';
 
 import {
   Typography,
   Box,
   Drawer,
-  Grid,
+  Link,
   Button,
   InputBase,
   Input,
@@ -50,7 +54,7 @@ interface RevokePageProps {
 
 const WalletConnect = (props: RevokePageProps) => {
 
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const history = useHistory();
   const {
@@ -61,14 +65,22 @@ const WalletConnect = (props: RevokePageProps) => {
   } = useForm({
     mode: 'all',
   });
-  const [isScan, setScan] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [Uri, setUri] = useState('');
+  const [showApprove, setShowApprove] = useState<boolean>(false);
+
+  const [namespaceObject, setNamespace] = useState<any>();
+
+  const [proposer, setProposer] = useState<any>();
+
+  const [ID, setId] = useState<any>();
 
   const [web3wallet, setWeb3Wallet] = useState<any>(null);
-
+  const [showSyncing, setSyncPage] = useState<boolean>(false);
 
 
   useEffect(() => {
+
     const createWeb3Wallet = async () => {
       try {
         const wallet = await Web3Wallet.init({
@@ -83,10 +95,7 @@ const WalletConnect = (props: RevokePageProps) => {
           },
         });
         console.log('web3walletadress', wallet);
-        const { topic, uri } = await wallet.core.pairing.create();
-        console.log('uri', uri);
         setWeb3Wallet(wallet);
-        setUri(uri);
       } catch (e) {
         console.error(e);
       }
@@ -95,14 +104,13 @@ const WalletConnect = (props: RevokePageProps) => {
   }, []);
 
   async function onSessionProposal({ id, params }: Web3WalletTypes.SessionProposal) {
+    console.log('params ', params)
     try {
       // ------- namespaces builder util ------------ //
-
       const namespaces = Object.entries(params.requiredNamespaces).map(([key, namespace]) => {
         const caip2Namespace = key;
         const proposalNamespace = namespace;
         const accounts = proposalNamespace.chains?.map(chain => `${chain}:0x7e5d2312899dcf9f`) || [];
-
         return {
           [caip2Namespace]: {
             chains: proposalNamespace.chains,
@@ -114,60 +122,50 @@ const WalletConnect = (props: RevokePageProps) => {
       })
         .reduce((acc, current) => ({ ...acc, ...current }), {});
 
-      console.log('approveSession:', namespaces);
 
       // ------- end namespaces builder util ------------ //
-
-      const session = await web3wallet.approveSession({
-        id,
-        namespaces: namespaces
-      })
-
-      console.log('session ', session)
+      setNamespace(namespaces);
     } catch (error) {
       console.log('error ', error)
     }
+    console.log(' id ', id)
+    setProposer(params.proposer.metadata);
+    setId(id);
+    showApproveWindow();
+
   }
 
-  const handleFilterAndSearch = async (e) => {
-    const keyword = e.target.value;
-    console.log('keyword', keyword);
-
-    if (web3wallet) {
-      const pairResponse = await web3wallet.core.pairing.pair({ uri: keyword });
-      console.log('pairResponse', pairResponse);
-      await web3wallet.core.pairing.ping({ topic: pairResponse.topic })
-      web3wallet.on('session_proposal', onSessionProposal)
-
-      await web3wallet.core.pairing.ping({ topic: pairResponse.topic })
-      const pairings = web3wallet.core.pairing.getPairings();
-      console.log('pairings', pairings);
-    } else {
-      console.log('Web3Wallet is not initialized');
-    }
-
-    web3wallet.on(FCLWalletConnectMethod.addDeviceInfo, async event => {
-      const { topic, params, id } = event;
-      const requestParamsMessage = params.request.params[0];
-
-      // Assuming the structure of requestParamsMessage is similar to what's expected in Swift code
-      // You might need to adjust this part based on the actual structure of requestParamsMessage
-      const status = requestParamsMessage.status;
-      const jsonData = requestParamsMessage.data;
+  async function onSessionRequest({ topic, params, id }: Web3WalletTypes.SessionRequest) {
+    console.log('session request ', params)
+    if (params.request.method === FCLWalletConnectMethod.accountInfo) {
 
       try {
-        if (status === "3") {
-          // Respond with an empty message
-          const response = { id, result: '', jsonrpc: '2.0' };
-          await web3wallet.respondSessionRequest({ topic, response });
-          return;
-        }
 
-        const register = JSON.parse(jsonData);
+        const userInfo = await usewallet.getUserInfo(false);
+        const wallet = await usewallet.getUserWallets();
+        const address = wallet[0].blockchain[0].address;
+
 
         // Respond with an empty message
-        const response = { id, result: '', jsonrpc: '2.0' };
-        await web3wallet.respondSessionRequest({ topic, response });
+        const jsonString = {
+          "userId": userInfo.user_id,
+          "userAvatar": userInfo.avatar,
+          "userName": userInfo.username,
+          "walletAddress": address
+        }
+        const response = {
+          "method": FCLWalletConnectMethod.accountInfo,
+          "data": jsonString,
+          status: "",
+          message: "",
+        };
+
+
+        const result = JSON.stringify(response);
+        console.log('send back account response ', response)
+        await web3wallet.respondSessionRequest({ topic, requestId: id, response: formatJsonRpcResult(id, result) });
+
+
 
 
         // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
@@ -175,10 +173,130 @@ const WalletConnect = (props: RevokePageProps) => {
         console.error("[WALLET] Respond Error: [addDeviceInfo]", error);
 
       }
-    });
+
+    }
+    if (params.request.method === FCLWalletConnectMethod.addDeviceInfo) {
+
+      try {
+        const accountKeyData = params.request.params.data.accountKey;
+
+        console.log('response ', accountKeyData)
+        const publicKey = accountKeyData.publicKey || accountKeyData.public_key;
+        const signAlgo = accountKeyData.signAlgo || accountKeyData.sign_algo;
+        const hashAlgo = accountKeyData.hashAlgo || accountKeyData.hash_algo;
+
+        await usewallet.addKeyToAccount(publicKey, signAlgo, hashAlgo, accountKeyData.weight)
+
+        console.log('response ', params)
+
+        // Extracting and mapping the deviceInfo
+        const deviceInfoData = params.request.params.data.deviceInfo;
+        const deviceInfo: DeviceInfoRequest = {
+          device_id: deviceInfoData.deviceId || deviceInfoData.device_id,
+          ip: deviceInfoData.ip,
+          name: deviceInfoData.name,
+          type: deviceInfoData.type,
+          user_agent: deviceInfoData.userAgent || deviceInfoData.user_agent,
+          country: deviceInfoData.country,
+          countryCode: deviceInfoData.countryCode,
+          city: deviceInfoData.city,
+          lat: deviceInfoData.lat,
+          lon: deviceInfoData.lon,
+          timezone: deviceInfoData.timezone,
+          zip: deviceInfoData.zip
+        };
+
+        // Extracting and mapping the accountKey
+        const accountKey: AccountKey = {
+          sign_algo: signAlgo,
+          public_key: publicKey,
+          weight: accountKeyData.weight,
+          hash_algo: hashAlgo
+        };
+        const requestParams: DeviceInfo = {
+          account_key: accountKey,
+          device_info: deviceInfo
+        }
+        usewallet.openapi.synceDevice(requestParams)
+          .then((res) => {
+            console.log('sync response ', res);
+            if (res.status === 200) {
+              // Wait for 5 seconds before sending the response
+              setTimeout(async () => {
+                try {
+                  const response = formatJsonRpcResult(id, "");
+                  await web3wallet.respondSessionRequest({ topic, requestId: id, response });
+                  setSyncing(false);
+                  setSyncPage(false);
+                  setShowApprove(false);
+
+                  props.handleCloseIconClicked();
+                } catch (error) {
+                  console.error('Error in sending session response:', error);
+                }
+              }, 5000); // 5000 milliseconds = 5 seconds
+            }
+          })
+          .catch((err) => {
+            console.log('Error in syncDevice:', err);
+          });
+
+
+
+        // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
+      } catch (error) {
+        console.error("[WALLET] Respond Error: [addDeviceInfo]", error);
+
+      }
+
+    }
+
+
+  }
+
+  const handleFilterAndSearch = async (e) => {
+    const keyword = e.target.value;
+    console.log('keyword', keyword);
+    console.log('web3wallet ', web3wallet);
+
+    if (web3wallet) {
+
+      web3wallet.on('session_proposal', onSessionProposal)
+
+      web3wallet.on('session_request', onSessionRequest)
+      await web3wallet.pair({ uri: keyword })
+
+
+    } else {
+      console.log('Web3Wallet is not initialized');
+    }
+
 
   };
 
+  const showApproveWindow = async () => {
+    setShowApprove(true)
+
+  };
+
+  const approveProposal = async () => {
+    console.log('ID ', ID)
+    setSyncing(true);
+    await web3wallet.approveSession({
+      id: ID,
+      namespaces: namespaceObject
+    });
+  };
+
+
+  const cancelProposal = async () => {
+    console.log('ID ', ID)
+    await web3wallet.rejectSession({
+      id: ID,
+      reason: getSdkError('USER_REJECTED_METHODS')
+    })
+    props.handleCloseIconClicked();
+  };
 
 
 
@@ -222,60 +340,24 @@ const WalletConnect = (props: RevokePageProps) => {
 
       </Box>
       <Box sx={{ marginTop: '24px', width: '339px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}></Box>
-      <Box sx={{
-        display: 'flex',
-        gap: '8px',
-        height: '32px',
-        width:'100%'
-      }}>
-        <Button
-          color="info3"
-          variant="contained"
-          sx={{ width: '100%' }}
-          onClick={() => setScan(false)}>Qr</Button>
-        <Button
-          color="info3"
-          variant="contained"
-          sx={{ width: '100%' }}
-          onClick={() => setScan(true)}>Scan</Button>
 
-      </Box>
-
-      {!isScan &&
-        <Box sx={{ marginTop: '40px', display: 'block', width: '144px', height: '144px' }}>
-
-          {Uri &&
-            <QRCode
-              size={144}
-              style={{ height: "auto", maxWidth: "100%", width: "100%", borderRadius: '24px' }}
-              value={Uri}
-              viewBox={`0 0 144 144`}
-            />
+      <Box sx={{ marginTop: '24px' }}>
+        <Input
+          type="search"
+          placeholder={'Pair wc uri'}
+          autoFocus
+          disableUnderline
+          endAdornment={
+            <InputAdornment position="end">
+              <SearchIcon
+                color="primary"
+                sx={{ ml: '10px', my: '5px', fontSize: '24px' }}
+              />
+            </InputAdornment>
           }
-
-        </Box>
-
-      }
-
-
-      {isScan &&
-        <Box>
-          <Input
-            type="search"
-            placeholder={'Pair wc uri'}
-            autoFocus
-            disableUnderline
-            endAdornment={
-              <InputAdornment position="end">
-                <SearchIcon
-                  color="primary"
-                  sx={{ ml: '10px', my: '5px', fontSize: '24px' }}
-                />
-              </InputAdornment>
-            }
-            onChange={handleFilterAndSearch}
-          />
-          {/* <QrReader
+          onChange={handleFilterAndSearch}
+        />
+        {/* <QrReader
             onResult={(result, error) => {
               if (result) {
                 const uri = (result as any).text;
@@ -289,18 +371,86 @@ const WalletConnect = (props: RevokePageProps) => {
             }}
             constraints={{ facingMode: 'user' }}
           /> */}
-          <p>{Uri}</p>
-        </Box>
-      }
-      <Typography sx={{ margin: '16px auto 0', fontSize: '14px', fontWeight: 400, color: 'rgba(255, 255, 255, 0.80)', width: '267px' }}>
-        Scan with Flow Reference
-      </Typography>
+        <p>{Uri}</p>
+      </Box>
       <Typography color='error.main' sx={{ margin: '8px auto 60px', color: 'rgba(255, 255, 255, 0.40)', fontSize: '12px', fontWeight: 400, width: '250px' }}>
         Scan QR code to active your mobile device
       </Typography>
 
     </Box>
   );
+
+
+
+
+
+  const approveWindow = () => (
+    <Box
+      px="18px"
+      sx={{
+        width: 'auto',
+        height: '100%',
+        background: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        position: 'relative'
+      }}
+    >
+      <Box
+        sx={{ position: 'absolute', right: '18px', top: '18px' }}
+        onClick={props.handleCloseIconClicked}
+      >
+        <img src={closeCircle} style={{ width: '20px', height: '20px', }} />
+      </Box>
+      <Box
+        sx={{ margin: '20px 0' }}
+      >
+        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>Wallet Confirmation</Typography>
+      </Box>
+      {proposer &&
+        <Box sx={{
+          display: 'flex',
+          gap: '8px',
+          width: '100%',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <Typography sx={{ fontWeight: '700', fontSize: '16px' }}>{proposer.name} </Typography>
+          <Typography sx={{ fontWeight: '400', fontSize: '12px' }}>wants to connect</Typography>
+          <Link href={proposer.url} target="_blank" color="success.main" underline="none" sx={{ fontWeight: '400', fontSize: '12px', alignItems: 'center', display: 'flex' }}><img src={proposer.icons ? proposer.icons[0] : ''} style={{ width: '20px', marginRight: '10px', height: '20px', }} />{proposer.url}</Link>
+          <Typography sx={{ fontWeight: '400', fontSize: '12px' }}>{proposer.description}</Typography>
+
+        </Box>
+
+      }
+
+      <Box sx={{ marginTop: '24px', width: '339px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}></Box>
+      <Box sx={{
+        display: 'flex',
+        gap: '8px',
+        height: '32px',
+        width: '100%',
+        flexDirection: 'column'
+      }}>
+        <Button
+          color="primary"
+          variant="contained"
+          sx={{ width: '100%', height: '48px', borderRadius: '16px', fontSize: '16px', textTransform: 'capitalize', fontWeight: '600' }}
+          onClick={() => approveProposal()}>{syncing ? 'Approving...' : 'Approve'}</Button>
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: 'transparent', borderRadius: '16px', boxShadow: 'none', color: '#fff', textTransform: 'capitalize', width: '100%', height: '48px', fontSize: '16px', fontWeight: '400' }}
+          onClick={() => cancelProposal()}>Maybe Later</Button>
+
+      </Box>
+
+
+    </Box>
+  );
+
 
   return (
     <Drawer
@@ -314,7 +464,8 @@ const WalletConnect = (props: RevokePageProps) => {
         },
       }}
     >
-      {renderContent()}
+      {showApprove ? approveWindow() : renderContent()}
+
     </Drawer>
   );
 };

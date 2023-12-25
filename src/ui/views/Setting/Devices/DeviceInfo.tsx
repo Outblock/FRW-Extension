@@ -34,7 +34,6 @@ const DeviceInfo = () => {
   const getDevice = async () => {
 
     const deviceItem = location.state?.deviceItem;
-    console.log(deviceItem)
     setDevices(deviceItem)
   }
 

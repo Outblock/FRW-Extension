@@ -915,11 +915,14 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const active = await userWalletService.getActiveWallet();
     const v2data = await openapiService.userWalletV2();
+    const filteredData = v2data.data.wallets.filter(item => item.blockchain !== null);
+
     if (!active) {
-      userWalletService.setUserWallets(v2data.data.wallets, network);
+      userInfoService.addUserId(v2data.data.id);
+      userWalletService.setUserWallets(filteredData, network);
     }
 
-    return v2data.data.wallets;
+    return filteredData;
   };
 
   getUserWallets = async () => {
@@ -1191,6 +1194,36 @@ export class WalletController extends BaseController {
       `
       ,
       [fcl.arg(index, t.Int)]
+    );
+  };
+
+  addKeyToAccount = async (
+    publicKey: string,
+    signatureAlgorithm: number,
+    hashAlgorithm: number,
+    weight: number,
+  ): Promise<string> => {
+
+    console.log('this is weight ', weight)
+    return await userWalletService.sendTransaction(
+      `
+      import Crypto
+      transaction(publicKey: String, signatureAlgorithm: UInt8, hashAlgorithm: UInt8, weight: UFix64) {
+          prepare(signer: AuthAccount) {
+              let key = PublicKey(
+                  publicKey: publicKey.decodeHex(),
+                  signatureAlgorithm: SignatureAlgorithm(rawValue: signatureAlgorithm)!
+              )
+              signer.keys.add(
+                  publicKey: key,
+                  hashAlgorithm: HashAlgorithm(rawValue: hashAlgorithm)!,
+                  weight: weight
+              )
+          }
+      }
+      `
+      ,
+      [fcl.arg(publicKey, t.String), fcl.arg(signatureAlgorithm, t.UInt8), fcl.arg(hashAlgorithm, t.UInt8), fcl.arg(weight.toFixed(1), t.UFix64)]
     );
   };
 
@@ -1778,6 +1811,10 @@ export class WalletController extends BaseController {
 
   signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
     return userWalletService.signInWithMnemonic(mnemonic, replaceUser);
+  };
+
+  signInV3 = async (mnemonic: string, accountKey:any, deviceInfo:any,  replaceUser = true) => {
+    return userWalletService.signInv3(mnemonic, accountKey, deviceInfo, replaceUser);
   };
 
   signMessage = async (message: string): Promise<string> => {

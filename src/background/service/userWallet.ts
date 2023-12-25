@@ -34,7 +34,7 @@ class UserWallet {
         currentWallet: {
           name: '',
           address: '',
-          chain_id:  process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
           id: 1,
           coins: ['flow'],
         },
@@ -56,7 +56,7 @@ class UserWallet {
       currentWallet: {
         name: '',
         address: '',
-        chain_id:  process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
         id: 1,
         coins: ['flow'],
       },
@@ -66,12 +66,14 @@ class UserWallet {
     };
   };
 
-  setUserWallets = (data: Array<WalletResponse>, network: string) => {
-    for (const x in data) {
-      const chainid = data[x].chain_id;
-      const singleWallet = data[x];
+  setUserWallets = async (filteredData: Array<WalletResponse>, network: string) => {
+    for (const x in filteredData) {
+      const chainid = filteredData[x].chain_id;
+      const singleWallet = filteredData[x];
       this.store.wallets[chainid] = [singleWallet];
     }
+
+    console.log('this.store.wallets data:', this.store.wallets);
     const current = this.store.wallets[network][0].blockchain[0];
     this.store.currentWallet = current;
   };
@@ -276,6 +278,40 @@ class UserWallet {
     const signature = await secp.sign(messageHash, privateKey);
     const realSignature = secp.Signature.fromHex(signature).toCompactHex();
     return wallet.openapi.loginV2(publicKey, realSignature, replaceUser);
+  };
+
+  signInv3 = async (mnemonic: string, accountKey: any, deviceInfo: any, replaceUser = true) => {
+    const app = getApp(process.env.NODE_ENV!);
+    const auth = getAuth(app);
+    const idToken = await getAuth(app).currentUser?.getIdToken();
+    if (idToken === null || !idToken) {
+      signInAnonymously(auth);
+      return;
+    }
+
+    const rightPaddedHexBuffer = (value, pad) =>
+      Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
+      Buffer.from('FLOW-V0.0-user').toString('hex'),
+      32
+    );
+
+    const hex = secp.utils.bytesToHex;
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+
+    const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
+    const hdwallet = HDWallet.fromMnemonic(mnemonic);
+    const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+
+    const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
+    if (accountKey.public_key === publicKey ){
+      const signature = await secp.sign(messageHash, privateKey);
+      const realSignature = secp.Signature.fromHex(signature).toCompactHex();
+      return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
+
+    } else {
+      return false
+    }
   };
 }
 

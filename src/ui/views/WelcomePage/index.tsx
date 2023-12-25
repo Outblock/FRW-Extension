@@ -35,7 +35,7 @@ const WelcomePage = () => {
           sx={{
             height: '460px',
             backgroundColor: 'transparent',
-            marginBottom: '80px'
+            marginBottom: '80px',
           }}
         >
           <Box
@@ -46,14 +46,14 @@ const WelcomePage = () => {
               px: '60px',
               backgroundColor: '#222',
               height: '380px',
-              width: '620px',
+              width: '625px',
               position: 'relative',
               borderRadius: '24px'
             }}
           >
             <img
               src={appicon}
-              style={{ margin: '0', width: '368px', position: 'absolute', right: '0px', top: '0px' }}
+              style={{ borderRadius:'24px', margin: '0', width: '368px', position: 'absolute', right: '0px', top: '0px' }}
             />
 
             <Box
@@ -64,7 +64,7 @@ const WelcomePage = () => {
                 position: 'absolute',
                 left: '-95px',
                 top: '18px',
-                width: '353px',
+                width: '389px',
               }}
             >
               <Typography
