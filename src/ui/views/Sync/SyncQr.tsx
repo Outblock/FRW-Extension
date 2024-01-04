@@ -56,6 +56,16 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
   const [loading, setShowLoading] = useState<boolean>(false);
   const [session, setSession] = useState<SessionTypes.Struct>();
   const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
+  const [copySuccess, setCopySuccess] = useState('');
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(Uri);
+      setCopySuccess('Copied!');
+    } catch (err) {
+      setCopySuccess('Failed to copy!');
+    }
+  };
 
   useEffect(() => {
     const createWeb3Wallet = async () => {
@@ -322,12 +332,26 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
               Note: Your recovery phrase will go through Flow Reference's server. It is end-to-end encrypted and we can never read it.
             </Typography>
           </Box>
+
           <Box
             sx={{
               padding: '0 60px 0 70px',
-              borderRadius: '24px'
+              borderRadius: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              width: '347px'
             }}
           >
+            <Box>
+              <Typography sx={{
+                width: '347px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis'
+              }}>{Uri}</Typography>
+              <button onClick={copyToClipboard}>Copy Uri</button>
+              {copySuccess && <Box>{copySuccess}</Box>}
+            </Box>
             {Uri &&
               <Box>
                 <Box sx={{ position: 'relative' }}>
@@ -363,7 +387,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
                         }}
                       >
                         Scan Successfully
-                        Sync in Processing...
+                        Sync in Process...
                       </Typography>
 
                     </Box>

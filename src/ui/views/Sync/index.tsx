@@ -25,7 +25,7 @@ enum Direction {
 const Sync = () => {
   const history = useHistory();
   const wallet = useWallet();
-  const [activeIndex, onChange] = useState(1);
+  const [activeIndex, onChange] = useState(0);
   const [mnemonic, setMnemonic] = useState('');
   const [username, setUsername] = useState('');
   const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));

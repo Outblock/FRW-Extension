@@ -4,10 +4,11 @@ import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import { formatJsonRpcResult } from '@walletconnect/jsonrpc-utils'
 import { getSdkError } from '@walletconnect/utils'
 import { DeviceInfo, DeviceInfoRequest, AccountKey } from 'background/service/networkModel';
-import { QrReader } from 'react-qr-reader';
 import {
-  FRWHoldButton,
+  LLPrimaryButton,
+  LLSecondaryButton,
 } from 'ui/FRWComponent';
+import { QrScanner } from '@yudiel/react-qr-scanner';
 
 import {
   Typography,
@@ -18,6 +19,8 @@ import {
   InputBase,
   Input,
   InputAdornment,
+  Stack,
+  Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled } from '@mui/material/styles';
@@ -29,7 +32,6 @@ import licon from '../../../FRWAssets/image/licon.png';
 import dicon from '../../../FRWAssets/image/dicon.png';
 import closeCircle from '../../../FRWAssets/image/closeCircle.png';
 import { useHistory } from 'react-router-dom';
-import QRCode from "react-qr-code";
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -357,21 +359,17 @@ const WalletConnect = (props: RevokePageProps) => {
           }
           onChange={handleFilterAndSearch}
         />
-        {/* <QrReader
-            onResult={(result, error) => {
-              if (result) {
-                const uri = (result as any).text;
+        <QrScanner
+          onDecode={(result) => {
+            if (result) {
+              const uri = (result as any).text;
 
-                setUri(uri);
-              }
+              setUri(uri);
+            }
+          }}
+          onError={(error) => console.log(error?.message)}
+        />
 
-              if (error) {
-                console.info(error);
-              }
-            }}
-            constraints={{ facingMode: 'user' }}
-          /> */}
-        <p>{Uri}</p>
       </Box>
       <Typography color='error.main' sx={{ margin: '8px auto 60px', color: 'rgba(255, 255, 255, 0.40)', fontSize: '12px', fontWeight: 400, width: '250px' }}>
         Scan QR code to active your mobile device
@@ -390,7 +388,7 @@ const WalletConnect = (props: RevokePageProps) => {
       sx={{
         width: 'auto',
         height: '100%',
-        background: 'rgba(0, 0, 0, 0.5)',
+        background: 'linear-gradient(0deg, #121212, #11271D)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -410,45 +408,45 @@ const WalletConnect = (props: RevokePageProps) => {
         <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>Wallet Confirmation</Typography>
       </Box>
       {proposer &&
+
+
+
         <Box sx={{
+          margin: '18px 18px 0px 18px',
           display: 'flex',
-          gap: '8px',
-          width: '100%',
           flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center'
+          borderRadius: '12px',
+          height: '100%'
         }}>
-          <Typography sx={{ fontWeight: '700', fontSize: '16px' }}>{proposer.name} </Typography>
-          <Typography sx={{ fontWeight: '400', fontSize: '12px' }}>wants to connect</Typography>
-          <Link href={proposer.url} target="_blank" color="success.main" underline="none" sx={{ fontWeight: '400', fontSize: '12px', alignItems: 'center', display: 'flex' }}><img src={proposer.icons ? proposer.icons[0] : ''} style={{ width: '20px', marginRight: '10px', height: '20px', }} />{proposer.url}</Link>
-          <Typography sx={{ fontWeight: '400', fontSize: '12px' }}>{proposer.description}</Typography>
-
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', margin: '0 18px 18px', gap: '18px' }}>
+            <Divider />
+            <Typography sx={{ textAlign: 'center', fontWeight: '700', fontSize: '16px', color: '#E6E6E6' }} >Allow {proposer.name} to connect?</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={proposer.icons} />
+              <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>{proposer.description}</Typography>
+            </Box>
+          </Box>
+          <Box sx={{ flexGrow: 1 }} />
+          <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
+            <LLSecondaryButton
+              label={chrome.i18n.getMessage('Cancel')}
+              fullWidth
+              onClick={() => cancelProposal()}
+            />
+            <LLPrimaryButton
+              label={syncing ? 'Approving...' : 'Approve'}
+              fullWidth
+              type="submit"
+              onClick={() => approveProposal()}
+            />
+          </Stack>
         </Box>
-
       }
-
-      <Box sx={{ marginTop: '24px', width: '339px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}></Box>
-      <Box sx={{
-        display: 'flex',
-        gap: '8px',
-        height: '32px',
-        width: '100%',
-        flexDirection: 'column'
-      }}>
-        <Button
-          color="primary"
-          variant="contained"
-          sx={{ width: '100%', height: '48px', borderRadius: '16px', fontSize: '16px', textTransform: 'capitalize', fontWeight: '600' }}
-          onClick={() => approveProposal()}>{syncing ? 'Approving...' : 'Approve'}</Button>
-        <Button
-          variant="contained"
-          sx={{ backgroundColor: 'transparent', borderRadius: '16px', boxShadow: 'none', color: '#fff', textTransform: 'capitalize', width: '100%', height: '48px', fontSize: '16px', fontWeight: '400' }}
-          onClick={() => cancelProposal()}>Maybe Later</Button>
-
-      </Box>
 
 
     </Box>
+
+
   );
 
 
