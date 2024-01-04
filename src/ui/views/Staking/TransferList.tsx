@@ -29,7 +29,7 @@ const TransferList = ({setCount}) => {
   const [transaction, setTx] = useState([]);
   const [monitor, setMonitor] = useState('flowscan');
   const [flowscanURL, setFlowscanURL] = useState('https://flowdiver.io')
-  const [viewSource, setViewSourceUrl] = useState('https://flow-view-source.com/mainnet')
+  const [viewSource, setViewSourceUrl] = useState('https://f.dnz.dev')
   const [address, setAddress] = useState<string | null>('0x')
   const [showButton, setShowButton] = useState(false)
 
@@ -193,7 +193,7 @@ const TransferList = ({setCount}) => {
                     <ListItemButton sx={{paddingRight:'0px'}} dense={true} onClick={() => {
                       {monitor === 'flowscan' ?
                         window.open(`${flowscanURL}/tx/${tx.hash}`):
-                        window.open(`${viewSource}/tx/${tx.hash}`)
+                        window.open(`${viewSource}/${tx.hash}`)
                       }
                     }}>
                       <ListItemIcon sx={{borderRadius: '20px', marginRight: '12px', minWidth: '20px'}}>

@@ -190,11 +190,11 @@
   "Transaction__Monitor": {
     "message": "トランザクションモニター"
   },
-  "Flowscan": {
-    "message": "Flowscan"
+  "Flowdiver": {
+    "message": "Flowdiver"
   },
   "Flow__view__source": {
-    "message": "Flow view source"
+    "message": "f.dnz.dev"
   },
   "Public__Key": {
     "message": "公開鍵"
