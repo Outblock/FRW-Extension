@@ -32,6 +32,7 @@ import licon from '../../../FRWAssets/image/licon.png';
 import dicon from '../../../FRWAssets/image/dicon.png';
 import closeCircle from '../../../FRWAssets/image/closeCircle.png';
 import { useHistory } from 'react-router-dom';
+import QrScannerComponent from './QrScannerComponent'
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -359,7 +360,7 @@ const WalletConnect = (props: RevokePageProps) => {
           }
           onChange={handleFilterAndSearch}
         />
-        <QrScanner
+        {/* <QrScanner
           onDecode={(result) => {
             if (result) {
               const uri = (result as any).text;
@@ -368,7 +369,8 @@ const WalletConnect = (props: RevokePageProps) => {
             }
           }}
           onError={(error) => console.log(error?.message)}
-        />
+        /> */}
+        <QrScannerComponent />
 
       </Box>
       <Typography color='error.main' sx={{ margin: '8px auto 60px', color: 'rgba(255, 255, 255, 0.40)', fontSize: '12px', fontWeight: 400, width: '250px' }}>
