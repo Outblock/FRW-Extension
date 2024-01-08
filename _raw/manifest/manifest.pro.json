@@ -51,7 +51,8 @@
     "activeTab",
     "tabs",
     "notifications",
-    "identity"
+    "identity",
+    "camera"
   ],
   "web_accessible_resources": [
     {
