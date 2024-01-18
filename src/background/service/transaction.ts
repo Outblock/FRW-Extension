@@ -39,12 +39,12 @@ class Transaction {
         total: 0,
         transactionItem: {
           mainnet:[],
-          sandboxnet: [],
+          crescendo: [],
           testnet:[],
         },
         pendingItem: {
           mainnet:[],
-          sandboxnet: [],
+          crescendo: [],
           testnet:[],
         },
       },
@@ -56,13 +56,13 @@ class Transaction {
         total: 0,
         transactionItem: {
           mainnet:[],
-          sandboxnet: [],
+          crescendo: [],
           testnet:[],
         },
         pendingItem: {
           mainnet:[],
           testnet:[],
-          sandboxnet: [],
+          crescendo: [],
         },
       },
     });
@@ -74,13 +74,13 @@ class Transaction {
       total: 0,
       transactionItem: {
         mainnet:[],
-        sandboxnet: [],
+        crescendo: [],
         testnet:[],
       },
       pendingItem: {
         mainnet:[],
         testnet:[],
-        sandboxnet: [],
+        crescendo: [],
       }
     }
     this.session = {
@@ -89,12 +89,12 @@ class Transaction {
       transactionItem: {
         mainnet:[],
         testnet:[],
-        sandboxnet: [],
+        crescendo: [],
       },
       pendingItem: {
         mainnet:[],
         testnet:[],
-        sandboxnet: [],
+        crescendo: [],
       }
     }
   }

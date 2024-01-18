@@ -121,9 +121,14 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     params: [],
   },
   create_flow_sandbox_address: {
-    path: '/v1/user/address/sandboxnet',
+    path: '/v1/user/address/crescendo',
     method: 'post',
     params: [],
+  },
+  create_flow_network_address: {
+    path: '/v1/user/address/network',
+    method: 'post',
+    params: ['account_key', 'network'],
   },
   login: {
     path: '/v1/login',
@@ -678,6 +683,17 @@ class OpenApiService {
   createFlowSandboxAddress = async () => {
     const config = this.store.config.create_flow_sandbox_address;
     const data = await this.sendRequest(config.method, config.path);
+    return data;
+  };
+
+  createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
+    const config = this.store.config.create_flow_network_address;
+    const data = await this.sendRequest(config.method, config.path,
+      {},
+      {
+        account_key,
+        network,
+      });
     return data;
   };
 
@@ -1660,8 +1676,12 @@ class OpenApiService {
     const tokenList = await remoteFetch.flowCoins();
     const address = await userWalletService.getCurrentAddress();
     const network = await userWalletService.getNetwork();
+    console.log('network is ', network)
+    console.log('tokenList is ', tokenList)
     const tokens = tokenList.filter((token) => token.address[network]);
+    console.log('tokens ', tokens)
     const values = await this.isTokenListEnabled(address, tokens, network);
+    console.log('values ', values)
     // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))
     return values
       .map((value, index) => {
@@ -1706,6 +1726,7 @@ class OpenApiService {
     allTokens: TokenModel[],
     network
   ) => {
+    console.log('allTokens ', allTokens);
     const tokens = allTokens;
 
     const tokenImports = tokens

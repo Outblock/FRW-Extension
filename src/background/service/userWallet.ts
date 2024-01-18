@@ -28,7 +28,7 @@ class UserWallet {
         wallets: {
           mainnet: [],
           testnet: [],
-          sandboxnet: [],
+          crescendo: [],
         },
         childAccount: {},
         currentWallet: {
@@ -50,7 +50,7 @@ class UserWallet {
       wallets: {
         mainnet: [],
         testnet: [],
-        sandboxnet: [],
+        crescendo: [],
       },
       childAccount: {},
       currentWallet: {
@@ -103,8 +103,8 @@ class UserWallet {
     return this.store.wallets[network];
   };
 
-  checkSandBoxnet = () => {
-    return this.store.wallets['sandboxnet'];
+  checkCrescendo = () => {
+    return this.store.wallets['crescendo'];
   };
 
   setNetwork = async (network: string) => {
@@ -165,6 +165,8 @@ class UserWallet {
   };
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
+
+    console.log('this is cadence ', cadence)
     const allowed = await wallet.allowLilicoPay();
     const txID = await fcl.mutate({
       cadence: cadence,
@@ -178,6 +180,7 @@ class UserWallet {
   };
 
   sign = async (signableMessage: string): Promise<string> => {
+    console.log('signableMessage ', signableMessage)
     const messageHash = await secp.utils.sha256(Buffer.from(signableMessage, 'hex'));
     const password = keyringService.password;
     const mnemonic = await wallet.getMnemonics(password || '');
@@ -198,6 +201,7 @@ class UserWallet {
     // authorization function need to return an account
     const address = fcl.withPrefix(await wallet.getCurrentAddress());
     const ADDRESS = fcl.withPrefix(address);
+    console.log('this is current ADDRESS ',  fcl.sansPrefix(ADDRESS))
     // TODO: FIX THIS
     const KEY_ID = 0;
     return {
@@ -218,6 +222,7 @@ class UserWallet {
   };
 
   signPayer = async (signable: any): Promise<string> => {
+    console.log('signable ->', signable);
     const tx = signable.voucher;
     const message = signable.message;
     const envelope = await openapiService.signPayer(tx, message);
@@ -227,10 +232,14 @@ class UserWallet {
   };
 
   payerAuthFunction = async (account: any = {}) => {
+    console.log('payer ', account);
     // authorization function need to return an account
     const payer = await wallet.getPayerAddressAndKeyId();
     const address = fcl.withPrefix(payer.address);
     const ADDRESS = fcl.withPrefix(address);
+    console.log('payer ', payer);
+    console.log('Address ', ADDRESS)
+    console.log('account ', account)
     // TODO: FIX THIS
     const KEY_ID = payer.keyId;
     return {

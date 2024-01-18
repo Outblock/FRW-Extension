@@ -85,7 +85,7 @@ const Header = ({ loading }) => {
 
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
-  const [sandboxnetAvailable, setSandboxnetAvailable] = useState(true);
+  const [crescendoAvailable, setSandboxnetAvailable] = useState(true);
 
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
@@ -183,8 +183,8 @@ const Header = ({ loading }) => {
     if (domain) {
       loadInbox();
     }
-    const sandboxnet = await usewallet.checkSandBoxnet();
-    if (sandboxnet.length > 0) {
+    const crescendo = await usewallet.checkCrescendo();
+    if (crescendo.length > 0) {
       setSandboxEnabled(true);
     }
     freshUserWallet();
@@ -211,7 +211,7 @@ const Header = ({ loading }) => {
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
     setIsSandbox(false);
-    if (network === 'sandboxnet') {
+    if (network === 'crescendo') {
       setIsSandbox(true);
     }
     setNetwork(network);
@@ -313,7 +313,7 @@ const Header = ({ loading }) => {
         return '#41CC5D'
       case 'testnet':
         return '#FF8A00'
-      case 'sandboxnet':
+      case 'crescendo':
         return '#CCAF21'
     }
   }
@@ -363,8 +363,8 @@ const Header = ({ loading }) => {
     setMainnetAvailable(mainnetAvailable)
     const testnetAvailable = await usewallet.openapi.pingNetwork('testnet')
     setTestnetAvailable(testnetAvailable)
-    const sandboxnetAvailable = await usewallet.openapi.pingNetwork('sandboxnet')
-    setSandboxnetAvailable(sandboxnetAvailable)
+    const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
+    setSandboxnetAvailable(crescendoAvailable)
   }
 
   useEffect(() => {
@@ -575,9 +575,9 @@ const Header = ({ loading }) => {
 
           {isSandboxEnabled && <ListItem
             disablePadding
-            key='sandboxnet'
+            key='crescendo'
             secondaryAction={
-              !sandboxnetAvailable && (<ListItemText>
+              !crescendoAvailable && (<ListItemText>
                 <Typography
                   variant="caption"
                   component="span"
@@ -589,17 +589,17 @@ const Header = ({ loading }) => {
               </ListItemText>)
             }
             onClick={() => {
-              switchNetwork('sandboxnet');
+              switchNetwork('crescendo');
             }}>
             <ListItemButton>
               <ListItemIcon>
                 <FiberManualRecordIcon
                   style={{
-                    color: networkColor('sandboxnet'),
+                    color: networkColor('crescendo'),
                     fontSize: '10px',
                     marginLeft: '10px',
                     marginRight: '10px',
-                    opacity: currentNetwork == 'sandboxnet' ? '1' : '0.1',
+                    opacity: currentNetwork == 'crescendo' ? '1' : '0.1',
                   }}
                 />
               </ListItemIcon>
@@ -610,7 +610,7 @@ const Header = ({ loading }) => {
                   display="inline"
                   color='text'
                 >
-                  {chrome.i18n.getMessage('Sandboxnet')}
+                  {chrome.i18n.getMessage('Crescendo')}
                 </Typography>
               </ListItemText>
             </ListItemButton>
