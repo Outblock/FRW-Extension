@@ -47,6 +47,7 @@
     "@sentry/browser": "^6.7.2",
     "@sentry/react": "^6.7.2",
     "@sentry/tracing": "^6.7.2",
+    "@trustwallet/wallet-core": "^4.0.17",
     "@types/bignumber.js": "^5.0.0",
     "@types/lodash": "^4.14.172",
     "@walletconnect/client": "^1.5.5",

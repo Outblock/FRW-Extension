@@ -63,7 +63,7 @@ export interface CollectionItem {
   address?: {
     mainnet?: string;
     testnet?: string;
-    sandboxnet?: string;
+    crescendo?: string;
   };
   contract_name?: string;
   banner?: string;
