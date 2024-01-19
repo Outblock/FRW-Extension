@@ -44,6 +44,7 @@ class fetchRemoteConfig {
         const result = await openapi.sendRequest('GET', '/fetchFTList', {}, {}, baseURL)
         // fetch(`${baseURL}/fetchFTList`);
         // const result = await coins.json();
+        console.log(result,'result coins')
         this.coinState.result = result;
         this.coinState.expireTime = exp;
         return result

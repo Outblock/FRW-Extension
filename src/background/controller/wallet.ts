@@ -34,7 +34,7 @@ import { CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import provider from './provider';
 import eventBus from '@/eventBus';
-import { setPageStateCacheWhenPopupClose } from 'background/utils';
+import { setPageStateCacheWhenPopupClose, getScripts } from 'background/utils';
 import { withPrefix } from 'ui/utils/address';
 import * as t from '@onflow/types';
 import * as fcl from '@onflow/fcl';
@@ -272,7 +272,6 @@ export class WalletController extends BaseController {
 
   clearKeyrings = () => keyringService.clearKeyrings();
 
-
   getPrivateKey = async (
     password: string,
     { address, type }: { address: string; type: string }
@@ -307,7 +306,6 @@ export class WalletController extends BaseController {
     const keyring = await keyringService.importPrivateKey(privateKey);
     return this._setCurrentAccountFromKeyring(keyring);
   };
-
 
   getPreMnemonics = () => keyringService.getPreMnemonics();
   generatePreMnemonic = () => keyringService.generatePreMnemonic();
@@ -353,7 +351,6 @@ export class WalletController extends BaseController {
       preferenceService.setCurrentAccount(null);
     }
   };
-
 
   addKeyring = async (keyringId) => {
     const keyring = stashKeyrings[keyringId];
@@ -663,9 +660,7 @@ export class WalletController extends BaseController {
 
     const address = await userWalletService.getMainWallet(network);
     // const res = await openapiService.checkChildAccount(address);
-    const meta = await openapiService.checkChildAccountMeta(
-      address
-    );
+    const meta = await openapiService.checkChildAccountMeta(address);
     // openapiService.checkChildAccountNFT(address).then((res) => {
     //   console.log(res)
     // }).catch((err) => {
@@ -685,10 +680,7 @@ export class WalletController extends BaseController {
     //   '0x84221fe0294044d7',
     //   '0x16c41a2b76dee69b'
     // );
-    const nfts = await openapiService.queryAccessible(
-      address,
-      childAccount
-    );
+    const nfts = await openapiService.queryAccessible(address, childAccount);
     // openapiService.checkChildAccountNFT(address).then((res) => {
     //   console.log(res)
     // }).catch((err) => {
@@ -800,29 +792,32 @@ export class WalletController extends BaseController {
       address || '0x',
       tokenList
     );
-    const prices = tokenList.map((token) => this.tokenPrice(token.symbol));
-    const allBalance = await Promise.all(balances);
-    const allPrice = await Promise.all(prices);
+    const pricesMap = {}
+    tokenList.map((token) => {
+      pricesMap[token.name] = this.tokenPrice(token.symbol)
+    });
+    const allBalanceMap = await Promise.all(balances);
+    // const allPrice = await Promise.all(prices);
 
     const coins: CoinItem[] = tokenList.map((token, index) => ({
       coin: token.name,
       unit: token.symbol,
       icon: token.icon,
-      balance: parseFloat(parseFloat(allBalance[index]).toFixed(3)),
+      balance: parseFloat(parseFloat(allBalanceMap[token.name]).toFixed(3)),
       price:
-        allPrice[index] === null
-          ? 0
-          : new BN(allPrice[index].price.last).toNumber(),
+      pricesMap[token.name] === null
+        ? 0
+        : new BN(pricesMap[token.name].price.last).toNumber(),
       change24h:
-        allPrice[index] === null
-          ? 0
-          : new BN(allPrice[index].price.change.percentage)
-            .multipliedBy(100)
-            .toNumber(),
+      pricesMap[token.name]  === null
+        ? 0
+        : new BN(pricesMap[token.name].price.change.percentage)
+          .multipliedBy(100)
+          .toNumber(),
       total:
-        allPrice[index] === null
-          ? 0
-          : this.currencyBalance(allBalance[index], allPrice[index].price.last),
+      pricesMap[token.name] === null
+        ? 0
+        : this.currencyBalance(allBalanceMap[token.name], pricesMap[token.name].price.last),
     }));
 
     const network = await this.getNetwork();
@@ -990,18 +985,10 @@ export class WalletController extends BaseController {
 
   unlinkChildAccount = async (address: string): Promise<string> => {
     const network = await this.getNetwork();
-    return await userWalletService.sendTransaction(
-      `
-      import HybridCustody from 0xHybridCustody
+    const script = await getScripts('hybridCustody', 'getChildAccountMeta');
 
-      transaction(child: Address) {
-          prepare (acct: AuthAccount) {
-              let manager = acct.borrow<&HybridCustody.Manager>(from: HybridCustody.ManagerStoragePath)
-                  ?? panic("manager not found")
-              manager.removeChild(addr: child)
-          }
-      }
-      `,
+    return await userWalletService.sendTransaction(
+      script,
       [fcl.arg(address, t.Address)]
     );
   };
@@ -1013,26 +1000,10 @@ export class WalletController extends BaseController {
     thumbnail: string
   ): Promise<string> => {
     const network = await this.getNetwork();
+    const script = await getScripts('hybridCustody', 'editChildAccount');
+
     return await userWalletService.sendTransaction(
-      `
-      import HybridCustody from 0xHybridCustody
-      import MetadataViews from 0xMetadataViews
-
-      transaction(childAddress: Address, name: String, description: String, thumbnail: String) {
-          prepare(acct: AuthAccount) {
-              let m = acct.borrow<&HybridCustody.Manager>(from: HybridCustody.ManagerStoragePath)
-                  ?? panic("manager not found")
-              
-              let d = MetadataViews.Display(
-                  name: name,
-                  description: description,
-                  thumbnail: MetadataViews.HTTPFile(url: thumbnail)
-              )
-
-              m.setChildAccountDisplay(address: childAddress, d)
-          }
-      }
-      `,
+      script,
       [
         fcl.arg(address, t.Address),
         fcl.arg(name, t.String),
@@ -1053,39 +1024,10 @@ export class WalletController extends BaseController {
       throw new Error(`Invaild token name - ${symbol}`);
     }
     const network = await this.getNetwork();
+    const script = await getScripts('ft', 'transferTokens');
+
     return await userWalletService.sendTransaction(
-      `
-        import FungibleToken from 0xFungibleToken
-        import <Token> from <TokenAddress>
-
-        transaction(amount: UFix64, recipient: Address) {
-
-          // The Vault resource that holds the tokens that are being transfered
-          let sentVault: @FungibleToken.Vault
-
-          prepare(signer: AuthAccount) {
-            // Get a reference to the signer's stored vault
-            let vaultRef = signer.borrow<&<Token>.Vault>(from: <TokenStoragePath>)
-              ?? panic("Could not borrow reference to the owner's Vault!")
-
-            // Withdraw tokens from the signer's stored vault
-            self.sentVault <- vaultRef.withdraw(amount: amount)
-          }
-
-          execute {
-            // Get the recipient's public account object
-            let recipientAccount = getAccount(recipient)
-
-            // Get a reference to the recipient's Receiver
-            let receiverRef = recipientAccount.getCapability(<TokenReceiverPath>)!
-              .borrow<&{FungibleToken.Receiver}>()
-              ?? panic("Could not borrow receiver reference to the recipient's Vault")
-
-            // Deposit the withdrawn tokens in the recipient's receiver
-            receiverRef.deposit(from: <-self.sentVault)
-          }
-        }
-      `
+      script
         .replaceAll('<Token>', token.contract_name)
         .replaceAll('<TokenBalancePath>', token.storage_path.balance)
         .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
@@ -1103,71 +1045,14 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     console.log('inbox');
     const token = await openapiService.getTokenInfo(symbol);
+    const script = await getScripts('domain', 'transferInboxTokens');
+
     if (!token) {
       throw new Error(`Invaild token name - ${symbol}`);
     }
     const network = await this.getNetwork();
     return await userWalletService.sendTransaction(
-      `
-      import FungibleToken from 0xFungibleToken
-      import Domains from 0xFlowns
-      import <Token> from <TokenAddress>
-
-      transaction(amount: UFix64, recipient: Address) {
-        let senderRef: &{FungibleToken.Receiver}
-        // The Vault resource that holds the tokens that are being transfered
-        let sentVault: @FungibleToken.Vault
-        let sender: Address
-
-        prepare(signer: AuthAccount) {
-          // Get a reference to the signer's stored vault
-          let vaultRef = signer.borrow<&<Token>.Vault>(from: <TokenStoragePath>)
-            ?? panic("Could not borrow reference to the owner's Vault!")
-          self.senderRef = signer.getCapability(<TokenReceiverPath>)
-            .borrow<&{FungibleToken.Receiver}>()!
-          self.sender = vaultRef.owner!.address
-          // Withdraw tokens from the signer's stored vault
-          self.sentVault <- vaultRef.withdraw(amount: amount)
-        }
-
-        execute {
-          // Get the recipient's public account object
-          let recipientAccount = getAccount(recipient)
-
-          // Get a reference to the recipient's Receiver
-          let receiverRef = recipientAccount.getCapability(<TokenReceiverPath>)
-            .borrow<&{FungibleToken.Receiver}>()
-          
-          if receiverRef == nil {
-              let collectionCap = recipientAccount.getCapability<&{Domains.CollectionPublic}>(Domains.CollectionPublicPath)
-              let collection = collectionCap.borrow()!
-              var defaultDomain: &{Domains.DomainPublic}? = nil
-
-              let ids = collection.getIDs()
-
-              if ids.length == 0 {
-                  panic("Recipient have no domain ")
-              }
-              
-              defaultDomain = collection.borrowDomain(id: ids[0])!
-                  // check defualt domain 
-              for id in ids {
-                let domain = collection.borrowDomain(id: id)!
-                let isDefault = domain.getText(key: "isDefault")
-                if isDefault == "true" {
-                  defaultDomain = domain
-                }
-              }
-              // Deposit the withdrawn tokens in the recipient's domain inbox
-              defaultDomain!.depositVault(from: <- self.sentVault, senderRef: self.senderRef)
-
-          } else {
-              // Deposit the withdrawn tokens in the recipient's receiver
-              receiverRef!.deposit(from: <- self.sentVault)
-          }
-        }
-      }
-      `
+      script
         .replaceAll('<Token>', token.contract_name)
         .replaceAll('<TokenBalancePath>', token.storage_path.balance)
         .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
@@ -1177,19 +1062,11 @@ export class WalletController extends BaseController {
     );
   };
 
-  revokeKey = async (
-    index: string
-  ): Promise<string> => {
+  revokeKey = async (index: string): Promise<string> => {
+    const script = await getScripts('basic', 'revokeKey');
+
     return await userWalletService.sendTransaction(
-      `
-      transaction(index: Int) {
-        prepare(signer: AuthAccount) {
-            // Get a key from an auth account.
-            let keyA = signer.keys.revoke(keyIndex: index)
-        }
-      }
-      `
-      ,
+      script,
       [fcl.arg(index, t.Int)]
     );
   };
@@ -1203,6 +1080,8 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const domainName = domain.split('.')[0];
     const token = await openapiService.getTokenInfoByContract(symbol);
+    const script = await getScripts('domain', 'claimFTFromInbox');
+
     if (!token) {
       throw new Error(`Invaild token name - ${symbol}`);
     }
@@ -1210,58 +1089,7 @@ export class WalletController extends BaseController {
     const address = fcl.sansPrefix(token.address[network]);
     const key = `A.${address}.${symbol}.Vault`;
     return await userWalletService.sendTransaction(
-      `
-      import Domains from 0xDomains
-      import FungibleToken from 0xFungibleToken
-      import Flowns from 0xFlowns
-      import <Token> from <TokenAddress>
-
-      transaction(name: String, root:String, key:String, amount: UFix64) {
-        var domain: &{Domains.DomainPrivate}
-        var vaultRef: &<Token>.Vault
-        prepare(account: AuthAccount) {
-          let prefix = "0x"
-          let rootHahsh = Flowns.hash(node: "", lable: root)
-          let nameHash = prefix.concat(Flowns.hash(node: rootHahsh, lable: name))
-
-          let collectionCap = account.getCapability<&{Domains.CollectionPublic}>(Domains.CollectionPublicPath) 
-          let collection = collectionCap.borrow()!
-          var domain: &{Domains.DomainPrivate}? = nil
-          let collectionPrivate = account.borrow<&{Domains.CollectionPrivate}>(from: Domains.CollectionStoragePath) ?? panic("Could not find your domain collection cap")
-          
-          let ids = collection.getIDs()
-
-          let id = Domains.getDomainId(nameHash)
-          if id != nil && !Domains.isDeprecated(nameHash: nameHash, domainId: id!) {
-            domain = collectionPrivate.borrowDomainPrivate(id!)
-          }
-
-          self.domain = domain!
-          let vaultRef = account.borrow<&<Token>.Vault>(from: <TokenStoragePath>)
-          if vaultRef == nil {
-            account.save(<- <Token>.createEmptyVault(), to: <TokenStoragePath>)
-
-            account.link<&<Token>.Vault{FungibleToken.Receiver}>(
-              <TokenReceiverPath>,
-              target: <TokenStoragePath>
-            )
-
-            account.link<&<Token>.Vault{FungibleToken.Balance}>(
-              <TokenBalancePath>,
-              target: <TokenStoragePath>
-            )
-            self.vaultRef = account.borrow<&<Token>.Vault>(from: <TokenStoragePath>)
-          ?? panic("Could not borrow reference to the owner's Vault!")
-
-          } else {
-            self.vaultRef = vaultRef!
-          }
-        }
-        execute {
-          self.vaultRef.deposit(from: <- self.domain.withdrawVault(key: key, amount: amount))
-        }
-      }
-      `
+      script
         .replaceAll('<Token>', token.contract_name)
         .replaceAll('<TokenBalancePath>', token.storage_path.balance)
         .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
@@ -1289,46 +1117,10 @@ export class WalletController extends BaseController {
     }
     const address = fcl.sansPrefix(token.address);
     const key = `A.${address}.${symbol}.Collection`;
+    const script = await getScripts('domain', 'claimNFTFromInbox');
+
     return await userWalletService.sendTransaction(
-      `
-      import Domains from 0xDomains
-      import Flowns from 0xFlowns
-      import NonFungibleToken from 0xNonFungibleToken
-      import MetadataViews from 0xMetadataViews
-      import <NFT> from <NFTAddress>
-
-      // key will be 'A.f8d6e0586b0a20c7.Domains.Collection' of a NFT collection
-      transaction(name: String, root: String, key: String, itemId: UInt64) {
-        var domain: &{Domains.DomainPrivate}
-        var collectionRef: &<NFT>.Collection
-        prepare(account: AuthAccount) {
-          let prefix = "0x"
-          let rootHahsh = Flowns.hash(node: "", lable: root)
-          let nameHash = prefix.concat(Flowns.hash(node: rootHahsh, lable: name))
-          var domain: &{Domains.DomainPrivate}? = nil
-          let collectionPrivate = account.borrow<&{Domains.CollectionPrivate}>(from: Domains.CollectionStoragePath) ?? panic("Could not find your domain collection cap")
-
-          let id = Domains.getDomainId(nameHash)
-          if id !=nil {
-            domain = collectionPrivate.borrowDomainPrivate(id!)
-          }
-          self.domain = domain!
-
-          let collectionRef = account.borrow<&<NFT>.Collection>(from: <CollectionStoragePath>)
-          if collectionRef == nil {
-            account.save(<- <NFT>.createEmptyCollection(), to: <CollectionStoragePath>)
-            account.link<&<CollectionPublicType>>(<CollectionPublicPath>, target: <CollectionStoragePath>)
-            self.collectionRef = account.borrow<&<NFT>.Collection>(from: <CollectionStoragePath>)?? panic("Can not borrow collection")
-          } else {
-            self.collectionRef = collectionRef!
-          }
-        
-        }
-        execute {
-          self.collectionRef.deposit(token: <- self.domain.withdrawNFT(key: key, itemId: itemId))
-        }
-      }
-      `
+      script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
         .replaceAll('<CollectionStoragePath>', token.path.storage_path)
@@ -1349,38 +1141,10 @@ export class WalletController extends BaseController {
       return;
     }
     const network = await this.getNetwork();
+    const script = await getScripts('storage', 'enableTokenStorage');
+
     return await userWalletService.sendTransaction(
-      `
-      import FungibleToken from 0xFungibleToken
-      import <Token> from <TokenAddress>
-      
-      transaction {
-      
-        prepare(signer: AuthAccount) {
-          if(signer.borrow<&<Token>.Vault>(from: <TokenStoragePath>) == nil) {
-            signer.save(<-<Token>.createEmptyVault(), to: <TokenStoragePath>)
-          }
-
-          signer.unlink(
-            <TokenReceiverPath>
-          )
-      
-          signer.link<&<Token>.Vault{FungibleToken.Receiver}>(
-            <TokenReceiverPath>,
-            target: <TokenStoragePath>
-          )
-
-          signer.unlink(
-            <TokenBalancePath>
-          )
-
-          signer.link<&<Token>.Vault{FungibleToken.Balance}>(
-            <TokenBalancePath>,
-            target: <TokenStoragePath>
-          )
-        }
-      }
-      `
+      script
         .replaceAll('<Token>', token.contract_name)
         .replaceAll('<TokenBalancePath>', token.storage_path.balance)
         .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
@@ -1400,25 +1164,9 @@ export class WalletController extends BaseController {
   };
 
   enableNFTStorageLocal = async (token: NFTModel) => {
-    const cadence = `
-    import NonFungibleToken from 0xNonFungibleToken
-    import MetadataViews from 0xMetadataViews
-    import <NFT> from <NFTAddress>
+    const script = await getScripts('collection', 'enableNFTStorage');
 
-    transaction {
-
-      prepare(signer: AuthAccount) {
-        if signer.borrow<&<NFT>.Collection>(from: <CollectionStoragePath>) == nil {
-          let collection <- <NFT>.createEmptyCollection()
-          signer.save(<-collection, to: <CollectionStoragePath>)
-        }
-        if (signer.getCapability<&<CollectionPublicType>>(<CollectionPublicPath>).borrow() == nil) {
-          signer.unlink(<CollectionPublicPath>)
-          signer.link<&<CollectionPublicType>>(<CollectionPublicPath>, target: <CollectionStoragePath>)
-        }
-      }
-    }
-    `
+    const cadence = script
       .replaceAll('<NFT>', token.contract_name)
       .replaceAll('<NFTAddress>', token.address)
       .replaceAll('<CollectionStoragePath>', token.path.storage_path)
@@ -1433,40 +1181,10 @@ export class WalletController extends BaseController {
     token: NFTModel
   ): Promise<string> => {
     const network = await this.getNetwork();
+    const script = await getScripts('collection', 'sendNFT');
 
     return await userWalletService.sendTransaction(
-      `
-      import NonFungibleToken from 0xNonFungibleToken
-      import <NFT> from <NFTAddress>
-
-      // This transaction is for transferring and NFT from
-      // one account to another
-
-      transaction(recipient: Address, withdrawID: UInt64) {
-
-          prepare(signer: AuthAccount) {
-              // get the recipients public account object
-              let recipient = getAccount(recipient)
-
-              // borrow a reference to the signer's NFT collection
-              let collectionRef = signer
-                  .borrow<&NonFungibleToken.Collection>(from: <CollectionStoragePath>)
-                  ?? panic("Could not borrow a reference to the owner's collection")
-
-              // borrow a public reference to the receivers collection
-              let depositRef = recipient
-                  .getCapability(<CollectionPublicPath>)
-                  .borrow<&{NonFungibleToken.Collection>}>()
-                  ?? panic("Could not borrow a reference to the receiver's collection")
-
-              // withdraw the NFT from the owner's collection
-              let nft <- collectionRef.withdraw(withdrawID: withdrawID)
-
-              // Deposit the NFT in the recipient's collection
-              depositRef.deposit(token: <-nft)
-          }
-      }
-      `
+      script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
         .replaceAll('<CollectionStoragePath>', token.path.storage_path)
@@ -1481,67 +1199,10 @@ export class WalletController extends BaseController {
     token: NFTModel
   ): Promise<string> => {
     const network = await this.getNetwork();
+    const script = await getScripts('collection', 'sendNbaNFT');
 
     return await userWalletService.sendTransaction(
-      `
-      import NonFungibleToken from 0xNonFungibleToken
-        import Domains from 0xDomains
-        import <NFT> from <NFTAddress>
-      // This transaction is for transferring and NFT from
-      // one account to another
-      transaction(recipient: Address, withdrawID: UInt64) {
-        prepare(signer: AuthAccount) {
-          // get the recipients public account object
-          let recipient = getAccount(recipient)
-          // borrow a reference to the signer''s NFT collection
-          let collectionRef = signer
-            .borrow<&NonFungibleToken.Collection>(from: /storage/MomentCollection)
-            ?? panic("Could not borrow a reference to the owner''s collection")
-          let senderRef = signer
-            .getCapability(/public/MomentCollection)
-            .borrow<&{NonFungibleToken.CollectionPublic}>()
-          // borrow a public reference to the receivers collection
-          let recipientRef = recipient
-            .getCapability(/public/MomentCollection)
-            .borrow<&{TopShot.MomentCollectionPublic}>()
-          
-          if recipientRef == nil {
-            let collectionCap = recipient.getCapability<&{Domains.CollectionPublic}>(Domains.CollectionPublicPath)
-            let collection = collectionCap.borrow()!
-            var defaultDomain: &{Domains.DomainPublic}? = nil
-          
-            let ids = collection.getIDs()
-            if ids.length == 0 {
-              panic("Recipient have no domain ")
-            }
-            
-            // check defualt domain
-            defaultDomain = collection.borrowDomain(id: ids[0])!
-            // check defualt domain
-            for id in ids {
-              let domain = collection.borrowDomain(id: id)!
-              let isDefault = domain.getText(key: "isDefault")
-              if isDefault == "true" {
-                defaultDomain = domain
-              }
-            }
-            let typeKey = collectionRef.getType().identifier
-            // withdraw the NFT from the owner''s collection
-            let nft <- collectionRef.withdraw(withdrawID: withdrawID)
-            if defaultDomain!.checkCollection(key: typeKey) == false {
-              let collection <- TopShot.createEmptyCollection()
-              defaultDomain!.addCollection(collection: <- collection)
-            }
-            defaultDomain!.depositNFT(key: typeKey, token: <- nft, senderRef: senderRef )
-          } else {
-            // withdraw the NFT from the owner''s collection
-            let nft <- collectionRef.withdraw(withdrawID: withdrawID)
-            // Deposit the NFT in the recipient''s collection
-            recipientRef!.deposit(token: <-nft)
-          }
-        }
-      }
-      `
+      script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
         .replaceAll('<CollectionStoragePath>', token.path.storage_path)
@@ -1556,74 +1217,10 @@ export class WalletController extends BaseController {
     token: NFTModel
   ): Promise<string> => {
     console.log(token, id);
+    const script = await getScripts('domain', 'sendInboxNFT');
+
     return await userWalletService.sendTransaction(
-      `
-      import NonFungibleToken from 0xNonFungibleToken
-      import Domains from 0xDomains
-      import <NFT> from <NFTAddress>
-
-
-      // This transaction is for transferring and NFT from
-      // one account to another
-
-      transaction(recipient: Address, withdrawID: UInt64) {
-
-        prepare(signer: AuthAccount) {
-          // get the recipients public account object
-          let recipient = getAccount(recipient)
-
-          // borrow a reference to the signer's NFT collection
-          let collectionRef = signer
-            .borrow<&NonFungibleToken.Collection>(from: <CollectionStoragePath>)
-            ?? panic("Could not borrow a reference to the owner's collection")
-
-          let senderRef = signer
-            .getCapability(<CollectionPublicPath>)
-            .borrow<&{NonFungibleToken.CollectionPublic}>()
-
-          // borrow a public reference to the receivers collection
-          let recipientRef = recipient
-            .getCapability(<CollectionPublicPath>)
-            .borrow<&{NonFungibleToken.CollectionPublic}>()
-          
-          if recipientRef == nil {
-            let collectionCap = recipient.getCapability<&{Domains.CollectionPublic}>(Domains.CollectionPublicPath)
-            let collection = collectionCap.borrow()!
-            var defaultDomain: &{Domains.DomainPublic}? = nil
-          
-            let ids = collection.getIDs()
-
-            if ids.length == 0 {
-              panic("Recipient have no domain ")
-            }
-            
-            // check defualt domain 
-            defaultDomain = collection.borrowDomain(id: ids[0])!
-            // check defualt domain 
-            for id in ids {
-              let domain = collection.borrowDomain(id: id)!
-              let isDefault = domain.getText(key: "isDefault")
-              if isDefault == "true" {
-                defaultDomain = domain
-              }
-            }
-            let typeKey = collectionRef.getType().identifier
-            // withdraw the NFT from the owner's collection
-            let nft <- collectionRef.withdraw(withdrawID: withdrawID)
-            if defaultDomain!.checkCollection(key: typeKey) == false {
-              let collection <- <NFT>.createEmptyCollection()
-              defaultDomain!.addCollection(collection: <- collection)
-            }
-            defaultDomain!.depositNFT(key: typeKey, token: <- nft, senderRef: senderRef )
-          } else {
-            // withdraw the NFT from the owner's collection
-            let nft <- collectionRef.withdraw(withdrawID: withdrawID)
-            // Deposit the NFT in the recipient's collection
-            recipientRef!.deposit(token: <-nft)
-          }
-        }
-      }
-      `
+      script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
         .replaceAll('<CollectionStoragePath>', token.path.storage_path)
@@ -1644,11 +1241,14 @@ export class WalletController extends BaseController {
     deadline
   ): Promise<string> => {
     const network = await this.getNetwork();
-    let SwapConfig = testnetCodes;
-    if (network == 'mainnet') {
-      SwapConfig = mainnetCodes;
-    }
-    const CODE = SwapConfig.Codes.Transactions.SwapTokensForExactTokens;
+    // let SwapConfig = testnetCodes;
+
+    // if (network == 'mainnet') {
+    //   SwapConfig = mainnetCodes;
+    // }
+
+    // const CODE = SwapConfig.Codes.Transactions.SwapTokensForExactTokens;
+    const CODE = await getScripts('swap', 'SwapTokensForExactTokens')
     const tokenInKey = swapPaths[0];
     const tokenOutKey = swapPaths[swapPaths.length - 1];
     const arr = tokenOutKey.split('.');
@@ -1689,11 +1289,13 @@ export class WalletController extends BaseController {
     deadline
   ): Promise<string> => {
     const network = await this.getNetwork();
-    let SwapConfig = testnetCodes;
-    if (network == 'mainnet') {
-      SwapConfig = mainnetCodes;
-    }
-    const CODE = SwapConfig.Codes.Transactions.SwapExactTokensForTokens;
+    // let SwapConfig = testnetCodes;
+    // if (network == 'mainnet') {
+    //   SwapConfig = mainnetCodes;
+    // }
+    // const CODE = SwapConfig.Codes.Transactions.SwapExactTokensForTokens;
+    const CODE = await getScripts('swap', 'SwapExactTokensForTokens')
+
     const tokenOutKey = swapPaths[swapPaths.length - 1];
     const arr = tokenOutKey.split('.');
     if (arr.length != 3) {
@@ -1821,6 +1423,7 @@ export class WalletController extends BaseController {
   refreshAll = async () => {
     const wallets = await this.refreshUserWallets();
     this.refreshAddressBook();
+    this.getCadenceScripts();
     const address = await this.getCurrentAddress();
     if (address) {
       this.refreshTransaction(address, 15, 0);
@@ -2080,6 +1683,57 @@ export class WalletController extends BaseController {
     return data;
   };
 
+  getCadenceScripts = async () => {
+    try {
+      const cadenceScrpts = await storage.get('cadenceScripts');
+      const now = new Date();
+      const exp = 1000 * 60 * 60 * 1 + now.getTime();
+      const network = await userWalletService.getNetwork();
+
+      if (
+        cadenceScrpts &&
+        cadenceScrpts['expiry'] &&
+        now.getTime() <= cadenceScrpts['expiry'] && cadenceScrpts.network == network
+      ) {
+        console.log('use cache data')
+        console.log(cadenceScrpts)
+        return cadenceScrpts['data'];
+      }
+  
+      const data = (await openapiService.cadenceScripts(network)) ?? {};
+  
+  
+      console.log(data, 'data---===');
+      const { cadence, networks } = data;
+  
+      const cadenceVersion = networks[network];
+  
+      let script = {};
+  
+      console.log(cadenceVersion);
+  
+      for (const item of cadence) {
+        if (item && item.version == cadenceVersion) {
+          script = item;
+        }
+      }
+  
+      const scripts = {
+        data: script,
+        expiry: exp,
+        network
+      };
+  
+      console.log(script, 'cadenceScripts');
+      storage.set('cadenceScripts', scripts);
+  
+      return script;
+    } catch (error) {
+      console.log(error, '===')
+    }
+   
+  };
+
   getSwapConfig = async () => {
     const swapStorage = await storage.get('swapConfig');
 
@@ -2313,16 +1967,11 @@ export class WalletController extends BaseController {
     return result;
   };
 
-
-
   getAccount = async () => {
-
     const address = await this.getCurrentAddress();
     const account = await fcl.send([fcl.getAccount(address)]).then(fcl.decode);
-    return account
+    return account;
   };
-
-
 }
 
 export default new WalletController();
