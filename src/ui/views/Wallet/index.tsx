@@ -279,7 +279,7 @@ const WalletTab = ({ network }) => {
                 }
               }}
             >
-              Swap
+              {chrome.i18n.getMessage('Swap')}
             </Button>
 
           )}
