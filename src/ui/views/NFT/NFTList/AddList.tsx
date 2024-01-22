@@ -91,6 +91,7 @@ const AddList = () => {
       if (enabledList.length > 0) {
         data.map(item => { item.added = (enabledList.filter(enabled => enabled.contract_name === item.contract_name && enabled.address === item.address).length > 0)})
       }
+      
       setCollections(data);
     } finally {
       setStatusLoading(false);

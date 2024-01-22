@@ -766,6 +766,7 @@ export class WalletController extends BaseController {
   };
 
   private tokenPrice = async (tokenSymbol: string) => {
+
     const token = tokenSymbol.toLowerCase();
     switch (token) {
       case 'flow':
@@ -788,36 +789,35 @@ export class WalletController extends BaseController {
 
     const address = await this.getCurrentAddress();
     const tokenList = await openapiService.getEnabledTokenList();
-    const balances = await openapiService.getTokenListBalance(
+    const allBalanceMap = await openapiService.getTokenListBalance(
       address || '0x',
       tokenList
     );
-    const pricesMap = {}
-    tokenList.map((token) => {
-      pricesMap[token.name] = this.tokenPrice(token.symbol)
-    });
-    const allBalanceMap = await Promise.all(balances);
-    // const allPrice = await Promise.all(prices);
+    const prices = tokenList.map((token) => this.tokenPrice(token.symbol));
+    
+    const allPrice = await Promise.all(prices);
 
+    // const allBalanceMap = await Promise.all(balances);
+    // const allPrice = await Promise.all(prices);
     const coins: CoinItem[] = tokenList.map((token, index) => ({
       coin: token.name,
       unit: token.symbol,
-      icon: token.icon,
+      icon: token['logoURI'],
       balance: parseFloat(parseFloat(allBalanceMap[token.name]).toFixed(3)),
       price:
-      pricesMap[token.name] === null
+      allPrice[index] === null
         ? 0
-        : new BN(pricesMap[token.name].price.last).toNumber(),
+        : new BN(allPrice[index].price.last).toNumber(),
       change24h:
-      pricesMap[token.name]  === null
+      allPrice[index] === null
         ? 0
-        : new BN(pricesMap[token.name].price.change.percentage)
+        : new BN(allPrice[index].price.change.percentage)
           .multipliedBy(100)
           .toNumber(),
       total:
-      pricesMap[token.name] === null
+      allPrice[index] === null
         ? 0
-        : this.currencyBalance(allBalanceMap[token.name], pricesMap[token.name].price.last),
+        : this.currencyBalance(allBalanceMap[token.name], allPrice[index].price.last),
     }));
 
     const network = await this.getNetwork();

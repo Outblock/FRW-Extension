@@ -3,6 +3,7 @@ import { createPersistStore, getScripts } from 'background/utils';
 import { getPeriodFrequency } from '../../utils';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 import dayjs from 'dayjs';
+import { TokenListProvider, Strategy, ENV } from 'flow-native-token-registry';
 
 import {
   getAuth,
@@ -472,10 +473,7 @@ class OpenApiService {
     }
   };
 
-  getTokenPrice = async (
-    token: string,
-    provider = PriceProvider.binance
-  ) => {
+  getTokenPrice = async (token: string, provider = PriceProvider.binance) => {
     const config = this.store.config.crypto_flow;
     const pair = this.getTokenPair(token, provider);
     if (!pair) {
@@ -1171,21 +1169,29 @@ class OpenApiService {
   };
 
   getEnabledTokenList = async () => {
-    const tokenList = await remoteFetch.flowCoins();
-    const address = await userWalletService.getCurrentAddress();
+    // const tokenList = await remoteFetch.flowCoins();
     const network = await userWalletService.getNetwork();
-    const tokens = tokenList.filter((token) => token.address[network]);
-    
-    const values = await this.isTokenListEnabled(address, tokens, network);
+
+    const tokenProvider = new TokenListProvider();
+    const tokens = await tokenProvider.resolve(
+      Strategy.CDN,
+      network == 'testnet' ? ENV.Testnet : ENV.Mainnet
+    );
+    const tokenList = tokens.getList();
+    const address = await userWalletService.getCurrentAddress();
+    // const tokens = tokenList.filter((token) => token.address[network]);
+
+    const values = await this.isTokenListEnabled(address);
 
     const tokenItems: TokenModel[] = [];
     const tokenMap = {};
 
-    tokenList.forEach((token:TokenModel) => {
-      if (token.address[network]) {
+    tokenList.forEach((token) => {
+      if (values[token.name] == true) {
         tokenMap[token.name] = token;
       }
     });
+
     // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))
     // return values
     //   .map((value, index) => {
@@ -1195,7 +1201,7 @@ class OpenApiService {
     //   })
     //   .filter((item) => item);
 
-    Object.keys(values).map((key, idx) => {
+    Object.keys(tokenMap).map((key, idx) => {
       const item = tokenMap[key];
       tokenItems.push(item);
     });
@@ -1222,15 +1228,8 @@ class OpenApiService {
     return isEnabled;
   };
 
-  isTokenListEnabled = async (
-    address: string,
-    allTokens: TokenModel[],
-    network
-  ) => {
-    const tokens = allTokens;
-
+  isTokenListEnabled = async (address: string) => {
     const script = await getScripts('ft', 'isTokenListEnabled');
-
     const isEnabledList = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
@@ -1259,15 +1258,18 @@ class OpenApiService {
   };
 
   getEnabledNFTList = async (nftData) => {
+    console.log('get nft list new =========')
     const address = await userWalletService.getCurrentAddress();
     const requestLength = 50;
     const promises: any[] = [];
+    console.log('get nfts ', nftData , 'data====')
     for (let i = 0; i < nftData.length; i += requestLength) {
       const requestList = nftData.slice(i, i + requestLength);
       promises.push(this.checkNFTListEnabledNew(address, requestList));
     }
 
     const promiseResult = await Promise.all(promises);
+    console.log(promiseResult, 'promiseResult');
     const values: any[] = promiseResult.flat();
 
     // const network = await userWalletService.getNetwork();
@@ -1626,10 +1628,10 @@ class OpenApiService {
     return data;
   };
 
-  cadenceScripts = async () => {
+  cadenceScripts = async (network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/scripts`,
+      `/api/scripts?network=${network}`,
       {},
       {},
       'https://test.lilico.app'
