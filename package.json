@@ -1,6 +1,6 @@
 {
   "name": "FlowReferenceWallet",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Digital wallet created for everyone.",
   "scripts": {
     "prepare:dev": "node ./build/prepareManifest.js dev",
@@ -47,6 +47,7 @@
     "@sentry/browser": "^6.7.2",
     "@sentry/react": "^6.7.2",
     "@sentry/tracing": "^6.7.2",
+    "@trustwallet/wallet-core": "^4.0.17",
     "@types/bignumber.js": "^5.0.0",
     "@types/lodash": "^4.14.172",
     "@walletconnect/client": "^1.5.5",

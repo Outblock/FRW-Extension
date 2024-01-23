@@ -180,8 +180,8 @@ const DeveloperMode = () => {
 
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
-    const sandboxnet = await usewallet.checkSandBoxnet();
-    if (sandboxnet.length > 0) {
+    const crescendo = await usewallet.checkCrescendo();
+    if (crescendo.length > 0) {
       setSandboxEnabled(true);
     }
     setNetwork(network);
@@ -206,7 +206,7 @@ const DeveloperMode = () => {
 
   const switchNetwork = async (network: string) => {
 
-    if (network === 'sandboxnet' && !isSandboxEnabled) {
+    if (network === 'crescendo' && !isSandboxEnabled) {
       return
     }
 
@@ -236,8 +236,7 @@ const DeveloperMode = () => {
   }
 
   const enableSandbox = async () => {
-
-    const data =  await usewallet.createFlowSandboxAddress();
+    const data =  await usewallet.createFlowSandboxAddress('crescendo');
     await usewallet.setDashIndex(0);
     history.push('/dashboard?activity=1');
     
@@ -313,24 +312,24 @@ const DeveloperMode = () => {
 
             <Divider sx={{width: '90%', margin: '0 auto'}} />
             
-            <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('sandboxnet')}>
+            <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('crescendo')}>
               <Box className={classes.checkboxRow}>
                 <FormControlLabel
-                  label={chrome.i18n.getMessage('Sandboxnet')}
+                  label={chrome.i18n.getMessage('Crescendo')}
                   control={
                     <Checkbox
                       size='small'
                       icon={<CircleOutlinedIcon />}
                       checkedIcon={<CheckCircleIcon sx={{color:'#CCAF21'}} />}
-                      value='sandboxnet'
-                      checked={currentNetwork==='sandboxnet'}
-                      onChange={()=>switchNetwork('sandboxnet')}
+                      value='crescendo'
+                      checked={currentNetwork==='crescendo'}
+                      onChange={()=>switchNetwork('crescendo')}
                     />
                   }
                   disabled={!isSandboxEnabled}
                 />
 
-                {isSandboxEnabled && currentNetwork==='sandboxnet' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
+                {isSandboxEnabled && currentNetwork==='crescendo' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
                 {!isSandboxEnabled && <LLPrimaryButton onClick={enableSandbox} sx={{backgroundColor: '#CCAF21', padding: '2px 3px', fontSize: '12px', color: '#000', fontWeight: '600', borderRadius: '30px', textTransform: 'initial'}} label={chrome.i18n.getMessage('Enable')}/> }
               </Box>
             </CardActionArea>

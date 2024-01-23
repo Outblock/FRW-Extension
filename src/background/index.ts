@@ -39,7 +39,7 @@ import {
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclSanboxnetConfig,
+  fclCrescendoConfig,
 } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
@@ -94,7 +94,7 @@ async function firebaseSetup() {
 }
 
 async function fclSetup() {
-  // TODO: Testnet config, need mainnet config
+
   const network = await userWalletService.getNetwork();
   switch (network) {
     case 'mainnet':
@@ -103,8 +103,8 @@ async function fclSetup() {
     case 'testnet':
       await fclTestnetConfig();
       break;
-    case 'sandboxnet':
-      await fclSanboxnetConfig();
+    case 'crescendo':
+      await fclCrescendoConfig();
       break;
   }
 }

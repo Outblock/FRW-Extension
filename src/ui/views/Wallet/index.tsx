@@ -287,7 +287,7 @@ const WalletTab = ({ network }) => {
                 }
               }}
             >
-              Swap
+              {chrome.i18n.getMessage('Swap')}
             </Button>
           )}
           {/* <Button color="info" variant="contained" sx={{ width: '100%' }}>

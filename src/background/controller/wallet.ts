@@ -35,13 +35,13 @@ import DisplayKeyring from '../service/keyring/display';
 import provider from './provider';
 import eventBus from '@/eventBus';
 import { setPageStateCacheWhenPopupClose, getScripts } from 'background/utils';
-import { withPrefix } from 'ui/utils/address';
+import { withPrefix, getAccountKey } from 'ui/utils/address';
 import * as t from '@onflow/types';
 import * as fcl from '@onflow/fcl';
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclSanboxnetConfig,
+  fclCrescendoConfig,
 } from '../fclConfig';
 import { notification, storage } from 'background/webapi';
 import { NFTData, NFTModel } from '../service/networkModel';
@@ -656,19 +656,25 @@ export class WalletController extends BaseController {
   };
 
   checkUserChildAccount = async () => {
-    const network = await this.getNetwork();
+    try {
+      const network = await this.getNetwork();
+      let meta: any = {};
+      let result: any = {};
+      const address = await userWalletService.getMainWallet(network);
+      if (network !== 'crescendo') {
+        result = await openapiService.checkChildAccountMeta(address);
+      }
 
-    const address = await userWalletService.getMainWallet(network);
-    // const res = await openapiService.checkChildAccount(address);
-    const meta = await openapiService.checkChildAccountMeta(address);
-    // openapiService.checkChildAccountNFT(address).then((res) => {
-    //   console.log(res)
-    // }).catch((err) => {
-    //   console.log(err)
-    // })
-    console.log('res ', meta);
+      console.log('checkUserChildAccount result', result);
 
-    return meta;
+      if (result) {
+        meta = result;
+      }
+      return meta;
+    } catch (error) {
+      console.error('Error occurred:', error);
+      return {}; // Return an empty object in case of an error
+    }
   };
 
   checkAccessibleNft = async (childAccount) => {
@@ -788,6 +794,7 @@ export class WalletController extends BaseController {
     coinListService.setExpiry(exp);
 
     const address = await this.getCurrentAddress();
+    console.log('getCurrentAddress ', address)
     const tokenList = await openapiService.getEnabledTokenList();
     const allBalanceMap = await openapiService.getTokenListBalance(
       address || '0x',
@@ -1044,6 +1051,10 @@ export class WalletController extends BaseController {
     amount: string
   ): Promise<string> => {
     console.log('inbox');
+
+    console.log('this is address ', address)
+
+    console.log('this is symbol ', symbol)
     const token = await openapiService.getTokenInfo(symbol);
     const script = await getScripts('domain', 'transferInboxTokens');
 
@@ -1051,6 +1062,8 @@ export class WalletController extends BaseController {
       throw new Error(`Invaild token name - ${symbol}`);
     }
     const network = await this.getNetwork();
+
+    console.log('this is network ', network)
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contract_name)
@@ -1393,7 +1406,7 @@ export class WalletController extends BaseController {
     } else if (network == 'mainnet') {
       await fclMainnetConfig();
     } else {
-      await fclSanboxnetConfig();
+      await fclCrescendoConfig();
     }
     this.refreshAll();
     eventBus.emit('switchNetwork', network);
@@ -1445,8 +1458,8 @@ export class WalletController extends BaseController {
       case 'mainnet':
         baseURL = 'https://flowdiver.io';
         break;
-      case 'sandboxnet':
-        baseURL = 'https://sandboxnet.flowscan.org';
+      case 'crescendo':
+        baseURL = 'https://flow-view-source.vercel.app/crescendo';
         break;
     }
     return baseURL;
@@ -1462,7 +1475,7 @@ export class WalletController extends BaseController {
       case 'testnet':
         baseURL = 'https://f.dnz.dev';
         break;
-      case 'sandboxnet':
+      case 'crescendo':
         baseURL = 'https://f.dnz.dev';
         break;
     }
@@ -1827,8 +1840,10 @@ export class WalletController extends BaseController {
   };
 
   getPayerAddressAndKeyId = async () => {
+    console.log('getPayerAddressAndKeyId 111111',);
     try {
       const config = await fetchConfig.remoteConfig();
+      console.log('config config', config);
       const network = await this.getNetwork();
       return config.payer[network];
     } catch {
@@ -1954,13 +1969,16 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  createFlowSandboxAddress = async () => {
-    const result = await openapiService.createFlowSandboxAddress();
+  createFlowSandboxAddress = async (network) => {
+    const password = keyringService.password;
+    const mnemonic = await this.getMnemonics(password || '');
+    const accountKey = await getAccountKey(mnemonic);
+    const result = await openapiService.createFlowNetworkAddress(accountKey, network);
     return result;
   };
 
-  checkSandBoxnet = async () => {
-    const result = await userWalletService.checkSandBoxnet();
+  checkCrescendo = async () => {
+    const result = await userWalletService.checkCrescendo();
     return result;
   };
 

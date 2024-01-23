@@ -61,7 +61,7 @@ export interface FlowTokenStoragePath {
 export enum FlowNetwork {
   mainnet = 'mainnet',
   testnet = 'testnet',
-  sandboxnet = 'sandboxnet',
+  crescendo = 'crescendo',
 }
 
 export enum Period {

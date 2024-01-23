@@ -181,8 +181,8 @@
   "Testnet": {
     "message": "Testnet"
   },
-  "Sandboxnet": {
-    "message": "Sandboxnet"
+  "Crescendo": {
+    "message": "Crescendo"
   },
   "Transaction__Monitor": {
     "message": "Transaction Monitor"

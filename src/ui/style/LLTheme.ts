@@ -44,7 +44,7 @@ const theme: SystemTheme = createTheme({
       main:'#FF8A00',
       light:'#FF8A0029',
     },
-    sandboxnet:{
+    crescendo:{
       main:'#CCAF21',
       light:'#CCAF2129'
     },
