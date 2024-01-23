@@ -96,7 +96,7 @@ export const getScripts = async (folder: string, scriptName: string) => {
   const files = data[folder];
 
   const script = files[scriptName];
-  // console.log(script, 'script ====');
+  // console.log(script, 'script ============');
 
   return Buffer.from(script, 'base64').toString('utf-8');
 };

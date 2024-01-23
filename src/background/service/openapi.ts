@@ -1258,11 +1258,9 @@ class OpenApiService {
   };
 
   getEnabledNFTList = async (nftData) => {
-    console.log('get nft list new =========')
     const address = await userWalletService.getCurrentAddress();
     const requestLength = 50;
     const promises: any[] = [];
-    console.log('get nfts ', nftData , 'data====')
     for (let i = 0; i < nftData.length; i += requestLength) {
       const requestList = nftData.slice(i, i + requestLength);
       promises.push(this.checkNFTListEnabledNew(address, requestList));

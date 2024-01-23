@@ -1703,14 +1703,12 @@ export class WalletController extends BaseController {
       const data = (await openapiService.cadenceScripts(network)) ?? {};
   
   
-      console.log(data, 'data---===');
       const { cadence, networks } = data;
   
       const cadenceVersion = networks[network];
   
       let script = {};
   
-      console.log(cadenceVersion);
   
       for (const item of cadence) {
         if (item && item.version == cadenceVersion) {
@@ -1724,12 +1722,11 @@ export class WalletController extends BaseController {
         network
       };
   
-      console.log(script, 'cadenceScripts');
       storage.set('cadenceScripts', scripts);
   
       return script;
     } catch (error) {
-      console.log(error, '===')
+      console.log(error, '=== get scripts error ===')
     }
    
   };
