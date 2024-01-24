@@ -1190,7 +1190,7 @@ class OpenApiService {
 
     const tokenProvider = new TokenListProvider();
     const tokens = await tokenProvider.resolve(
-      Strategy.CDN,
+      Strategy.GitHub,
       network == 'testnet' ? ENV.Testnet : ENV.Mainnet
     );
     const tokenList = tokens.getList();
