@@ -75,8 +75,8 @@ const JsonImport = ({ onOpen, onImport }) => {
       setLoading(true)
       e.preventDefault();
       const keystore = e.target[0].value
-      const password = e.target[1].value
-      const address = e.target[3].value
+      const password = e.target[2].value
+      const address = e.target[5].value
       const pk = await jsonToKey(keystore, password)
       const pkHex = Buffer.from(pk.data()).toString('hex')
       const result = await findAddressWithPK(pkHex, address)
