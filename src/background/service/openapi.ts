@@ -145,6 +145,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'post',
     params: ['signature','account_key', 'device_info'],
   },
+  importKey: {
+    path: '/v3/import',
+    method: 'post',
+    params: ['username','account_key', 'device_info', 'backup_info', 'address'],
+  },
   coin_map: {
     path: '/v1/coin/map',
     method: 'get',
@@ -329,6 +334,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     path: '/v3/sync',
     method: 'post',
     params: ['account_key','device_info '],
+  },
+  check_import: {
+    path: '/v3/checkimport',
+    method: 'get',
+    params: ['key'],
   },
 };
 
@@ -641,6 +651,30 @@ class OpenApiService {
       config.path,
       {},
       { account_key, device_info, signature }
+    );
+    if (!result.data) {
+      throw new Error('NoUserFound');
+    }
+    if (replaceUser) {
+      await this._signWithCustom(result.data.custom_token);
+    }
+    return result;
+  };
+
+  importKey = async (
+    account_key: any,
+    device_info: any,
+    username: string,
+    backup_info: any,
+    address: string,
+    replaceUser = true
+  ): Promise<SignInResponse> => {
+    const config = this.store.config.importKey;
+    const result = await this.sendRequest(
+      config.method,
+      config.path,
+      {},
+      { username, address, account_key, device_info, backup_info, }
     );
     if (!result.data) {
       throw new Error('NoUserFound');
@@ -1530,6 +1564,15 @@ class OpenApiService {
 
     return data;
   };
+  
+  checkImport = async (key: string) => {
+    const config = this.store.config.check_import;
+    const data = await this.sendRequest(config.method, config.path, {
+      key,
+    });
+
+    return data;
+  };
 
   getTokenInfo = async (name: string): Promise<TokenModel | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
@@ -2308,6 +2351,7 @@ class OpenApiService {
 
     return response.json();
   };
+  
 }
 
 export default new OpenApiService();

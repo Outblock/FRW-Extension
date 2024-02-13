@@ -171,6 +171,7 @@ const WelcomePage = () => {
                   justifyContent: 'center',
                   textTransform: 'capitalize',
                   border: '1px solid #E5E5E5',
+                  marginBottom: '16px',
                   backgroundColor: 'transparent'
                 }}
               >
@@ -187,6 +188,40 @@ const WelcomePage = () => {
                   }}
                 >
                   Sync with Mobile App
+                </Typography>
+              </Button>
+
+              <Button
+                variant="contained"
+                color="secondary"
+                component={Link}
+                to="/addressimport"
+                size="large"
+                sx={{
+                  display: 'flex',
+                  width: '308px',
+                  height: '48px',
+                  borderRadius: '24px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textTransform: 'capitalize',
+                  border: '1px solid #E5E5E5',
+                  backgroundColor: 'transparent'
+                }}
+              >
+                <img src={qr} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: '#FFF',
+                    '&:hover': {
+                      color: 'background.paper'
+                    }
+                  }}
+                >
+                  Import
                 </Typography>
               </Button>
             </Box>

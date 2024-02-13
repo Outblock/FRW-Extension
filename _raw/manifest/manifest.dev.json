@@ -44,7 +44,7 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self' 'wasm-unsafe-eval';"
   },
   "permissions": [
     "storage",
@@ -57,6 +57,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm",
         "user-media-permission.html"
       ],
       "matches": [

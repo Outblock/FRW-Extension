@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 import Synce from './Sync';
 import RegisterPager from './Register/RegisterPager';
 import RecoverRegister from './RecoverRegister';
+import AddressImport from './AddressImport';
 import ImportPager from './Import/ImportPager';
 import GoogleImport from './Import/GoogleImport';
 import Reset from './Reset';
@@ -68,6 +69,7 @@ const Main = () => {
           <Route exact path="/welcome" component={WelcomePage} />
           <Route exact path="/register" component={RegisterPager} />
           <Route exact path="/sync" component={Synce} />
+          <Route exact path="/addressimport" component={AddressImport} />
           <Route exact path="/recover" component={RecoverRegister} />
           <Route exact path="/import" component={ImportPager} />
           <Route exact path="/reset" component={Reset} />

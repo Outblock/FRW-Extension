@@ -7,8 +7,10 @@ import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 import theme from '../../style/LLTheme';
 import RegisterHeader from '../Register/RegisterHeader';
 import AllSet from '../Register/AllSet';
+import SeedPhrase from './importComponent/SeedPhrase';
+import PickUsername from './PickUsername';
 import SetPassword from './SetPassword';
-import SyncQr from './SyncQr'
+import GoogleBackup from './GoogleBackup';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
@@ -16,13 +18,14 @@ import {
   AnimationTypes,
 } from 'react-component-transition';
 import { useWallet, Options } from 'ui/utils';
+import ImportPager from './ImportPager';
 
 enum Direction {
   Right,
   Left,
 }
 
-const Sync = () => {
+const AddressImport = () => {
   const history = useHistory();
   const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
@@ -32,6 +35,9 @@ const Sync = () => {
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
   const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState(null);
+  const [accounts, setAccounts] = useState<any>([]);
+  const [isImport, setImport] = useState<any>(false);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
@@ -49,7 +55,7 @@ const Sync = () => {
   };
   const goNext = () => {
     setDirection(Direction.Right);
-    if (activeIndex < 2) {
+    if (activeIndex < 4) {
       onChange(activeIndex + 1);
     } else {
       window.close();
@@ -65,25 +71,35 @@ const Sync = () => {
     }
   };
 
-  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setShowError(false);
-  };
-
   const page = (index) => {
     switch (index) {
       case 0:
-        return <SyncQr
-          handleClick={goNext}
-          savedUsername={username}
-          confirmMnemonic={setMnemonic}
-          setUsername={getUsername}
-        />;
+        return <ImportPager
+          setMnemonic={setMnemonic}
+          setAccounts={setAccounts}
+          accounts={accounts}
+          handleClick={goNext} />;
       case 1:
-        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
+        return (
+          <PickUsername
+            handleClick={goNext}
+            savedUsername={username}
+            getUsername={getUsername}
+          />
+        );
       case 2:
+        return (
+          <SetPassword
+            handleClick={goNext}
+            setExPassword={setPassword}
+            mnemonic={mnemonic}
+            username={username}
+            accounts={accounts}
+          />
+        );
+      case 3:
+        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />
+      case 4:
         return <AllSet handleClick={goNext} />;
       default:
         return <div />;
@@ -109,7 +125,7 @@ const Sync = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 2 && (
+        {activeIndex == 4 && (
           <Particles
             //@ts-expect-error customized option
             options={Options}
@@ -117,56 +133,66 @@ const Sync = () => {
         )}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 2} />
+        <LLPinAlert open={activeIndex == 4} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
         <Box
           sx={{
-            height: '460px',
-            backgroundColor: 'transparent'
+            display: 'flex',
+            flexDirection: 'column',
+            width: 720,
+            marginTop: '80px',
+            height: 'auto',
+            transition: 'all .3s ease-in-out',
+            borderRadius: '24px',
+            boxShadow: '0px 24px 24px rgba(0,0,0,0.36)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            backgroundColor: 'background.paper',
           }}
         >
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              px: '60px',
-              height: 'auto',
-              width: 'auto',
-              position: 'relative',
-              borderRadius: '24px'
+              // height: '56px',
+              // backgroundColor: '#404040',
+              padding: '24px 24px 0px 24px',
             }}
           >
+            <IconButton onClick={goBack} size="small">
+              <BackButtonIcon color="#5E5E5E" size={27} />
+            </IconButton>
 
+            <div style={{ flexGrow: 1 }}></div>
 
-            {(activeIndex !== 4 && activeIndex !== 5) &&
-              <IconButton onClick={goBack} size="small" sx={{ marginLeft: '-95px' }}>
-                <BackButtonIcon color="#5E5E5E" size={27} />
-              </IconButton>
-            }
-
-            <ComponentTransition
-              enterAnimation={
-                direction === Direction.Left
-                  ? AnimationTypes.slideLeft.enter
-                  : AnimationTypes.slideRight.enter
-              }
-              exitAnimation={
-                direction === Direction.Left
-                  ? AnimationTypes.slideRight.exit
-                  : AnimationTypes.slideLeft.exit
-              }
-              animateContainer={true}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
+            <Typography
+              variant="body1"
+              sx={{ color: '#5E5E5E', alignSelf: 'end', lineHeight: '37px', fontWeight: '700', fontSize: '16px' }}
             >
-              {page(activeIndex)}
-            </ComponentTransition>
+              {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/5
+            </Typography>
           </Box>
+
+          <ComponentTransition
+            enterAnimation={
+              direction === Direction.Left
+                ? AnimationTypes.slideLeft.enter
+                : AnimationTypes.slideRight.enter
+            }
+            exitAnimation={
+              direction === Direction.Left
+                ? AnimationTypes.slideRight.exit
+                : AnimationTypes.slideLeft.exit
+            }
+            animateContainer={true}
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            {page(activeIndex)}
+          </ComponentTransition>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
@@ -175,4 +201,4 @@ const Sync = () => {
   );
 };
 
-export default Sync;
+export default AddressImport;

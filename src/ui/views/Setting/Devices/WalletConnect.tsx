@@ -8,7 +8,6 @@ import {
   LLPrimaryButton,
   LLSecondaryButton,
 } from 'ui/FRWComponent';
-import { QrScanner } from '@yudiel/react-qr-scanner';
 
 import {
   Typography,

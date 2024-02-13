@@ -1841,8 +1841,10 @@ export class WalletController extends BaseController {
       await fclTestnetConfig();
     } else if (network == 'mainnet') {
       await fclMainnetConfig();
-    } else {
+    } else if (network == 'crescendo') {
       await fclCrescendoConfig();
+    } else {
+      await fclTestnetConfig();
     }
     this.refreshAll();
     eventBus.emit('switchNetwork', network);

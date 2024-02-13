@@ -6,6 +6,8 @@ const ESLintWebpackPlugin = require('eslint-webpack-plugin');
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin');
 const FirebaseFixPlugin = require('./plugins/FirebaseFixPlugin');
 const { version } = require('../_raw/manifest.json');
+const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const paths = require('./paths');
 
@@ -29,6 +31,8 @@ const config = {
   },
   experiments: {
     topLevelAwait: true,
+    asyncWebAssembly: true,
+    syncWebAssembly: true
   },
   module: {
     rules: [
@@ -89,6 +93,24 @@ const config = {
           name: '[name].[ext]',
         },
       },
+      // {
+      //   test: /\.wasm$/,
+      //   include: path.resolve(__dirname, 'node_modules/@trustwallet/wallet-core/dist/lib'),
+      //   use: [{
+      //     loader: 'file-loader',
+      //     options: {
+      //       name: '[name].[ext]',
+      //       outputPath: '/',
+      //     },
+      //   }],
+      //   type: 'javascript/auto',
+
+      // },
+      {
+        test: /\.wasm$/,
+        type: 'webassembly/async',
+        include: /node_modules/,
+      },
       {
         test: /\.md$/,
         use: 'raw-loader',
@@ -111,6 +133,11 @@ const config = {
     new FirebaseFixPlugin(),
     new ESLintWebpackPlugin({
       extensions: ['ts', 'tsx', 'js', 'jsx'],
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: 'node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm', to: 'wallet-core.wasm' }
+      ],
     }),
     new HtmlWebpackPlugin({
       inject: true,
