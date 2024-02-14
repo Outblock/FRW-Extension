@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SeedPhraseImport = ({ onOpen, onImport }) => {
+const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
 
@@ -38,12 +38,13 @@ const SeedPhraseImport = ({ onOpen, onImport }) => {
       setLoading(true);
       e.preventDefault();
       const seed = e.target[0].value.trim().split(/\s+/g).join(' ');
+      setmnemonic(seed);
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[1].value;
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
       const result = await findAddressWithSeed(seed, address)
       if (!result) {
-        onOpen(seed);
+        onOpen();
         return;
       }
       const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }))

@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
   },
 }));
-const KeyImport = ({ onOpen, onImport }) => {
+const KeyImport = ({ onOpen, onImport, setPk }) => {
   // const classes = useStyles();
   const classes = useStyles();
 
@@ -43,12 +43,13 @@ const KeyImport = ({ onOpen, onImport }) => {
       const pk = e.target[0].value.replace(/^0x/, "");
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[1].value;
+      setPk(pk);
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
       const result = await findAddressWithPK(pk, address);
-      // if (!result) {
-      //   onOpen();
-      //   return;
-      // }
+      if (!result) {
+        onOpen();
+        return;
+      }
       const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.PRIVATE_KEY }))
       console.log("accounts ==>", accounts)
       onImport(accounts);

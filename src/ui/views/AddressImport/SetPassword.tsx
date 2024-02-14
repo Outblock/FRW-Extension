@@ -131,7 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username, setExPassword, accounts }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -157,21 +157,6 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, accounts 
     setShowError(false);
   };
 
-  const getAccountKey = (mnemonic) => {
-    console.log('mnemonic ==== ', mnemonic)
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const publicKey = hdwallet
-      .derive("m/44'/539'/0'/0/0")
-      .getPublicKey()
-      .toString('hex');
-    const key: AccountKey = {
-      hash_algo: 1,
-      sign_algo: 2,
-      weight: 1000,
-      public_key: publicKey,
-    };
-    return key;
-  };
 
   const successInfo = (message) => {
     return (
@@ -222,38 +207,6 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, accounts 
   const [helperText, setHelperText] = useState(<div />);
   const [helperMatch, setHelperMatch] = useState(<div />);
 
-  const register = async () => {
-    setLoading(true);
-    console.log('accounts ', accounts);
-    if (accounts.length > 0) {
-      handleImport();
-    } else {
-      const accountKey = getAccountKey(mnemonic);
-      wallet.openapi
-        .register(accountKey, username)
-        .then((response) => {
-          return wallet.boot(password);
-        })
-        .then((response) => {
-          setExPassword(password);
-          storage.remove('premnemonic');
-          return wallet.createKeyringWithMnemonics(mnemonic);
-        })
-        .then((accounts) => {
-          handleClick();
-          return wallet.openapi.createFlowAddress();
-        })
-        .then((address) => {
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.log('error', error);
-          setShowError(true)
-          setLoading(false);
-        });
-    }
-  };
-
   const handleImport = async () => {
     console.log('account key ', accounts)
     setLoading(true);
@@ -299,7 +252,11 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, accounts 
         .then((response) => {
           setExPassword(password);
           storage.remove('premnemonic');
-          return wallet.createKeyringWithMnemonics(mnemonic);
+          if (pk) {
+            return wallet.importPrivateKey(pk);
+          } else {
+            return wallet.createKeyringWithMnemonics(mnemonic);
+          }
         })
         .then((address) => {
           setLoading(false);
@@ -463,7 +420,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, accounts 
           className="registerButton"
           variant="contained"
           color="secondary"
-          onClick={register}
+          onClick={handleImport}
           size="large"
           sx={{
             height: '56px',

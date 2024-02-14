@@ -30,6 +30,7 @@ const AddressImport = () => {
   const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
   const [mnemonic, setMnemonic] = useState('');
+  const [pk, setPk] = useState(null);
   const [username, setUsername] = useState('');
   const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
@@ -76,6 +77,7 @@ const AddressImport = () => {
       case 0:
         return <ImportPager
           setMnemonic={setMnemonic}
+          setPk={setPk}
           setAccounts={setAccounts}
           accounts={accounts}
           handleClick={goNext} />;
@@ -93,6 +95,7 @@ const AddressImport = () => {
             handleClick={goNext}
             setExPassword={setPassword}
             mnemonic={mnemonic}
+            pk={pk}
             username={username}
             accounts={accounts}
           />

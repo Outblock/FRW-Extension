@@ -7,12 +7,15 @@ import SeedPhraseImport from "./importComponent/SeedPhrase";
 import KeyImport from "./importComponent/KeyImport";
 import JsonImport from "./importComponent/JsonImport";
 
-import ImportAddressModel from "./import/importAddressModal";
+import ImportAddressModel from "./modal/importAddressModal";
+
+import NoAddressModal from "./modal/noAddressModal";
 import { useWallet } from 'ui/utils';
 import * as bip39 from 'bip39';
 import { storage } from '@/background/webapi';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import { Presets } from 'react-component-transition';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -34,13 +37,15 @@ function TabPanel(props) {
   );
 }
 
-const ImportPager = ({ setMnemonic, setAccounts, accounts, handleClick }) => {
+const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [isImport, setImport] = useState<any>(false);
 
   const [helperText, setHelperText] = useState(<div />);
 
   const [mnemonicValid, setMnemonicValid] = useState(true);
+
+  const [addressFound, setAddressFound] = useState(true);
   const [isLoading, setLoading] = useState(false);
   const wallet = useWallet();
 
@@ -58,14 +63,15 @@ const ImportPager = ({ setMnemonic, setAccounts, accounts, handleClick }) => {
 
     }
   };
-  const handleShowModel = (show) => {
-    setImport(show)
+  const setmnemonic = (mnemonic) => {
+    setMnemonic(mnemonic);
+    const formatted = mnemonic.trim().split(/\s+/g).join(' ');
+    setMnemonicValid(true);
+    storage.set('premnemonic', formatted);
   };
 
-  const setErrorMessage = (message: string) => {
-    setLoading(false);
-    setMnemonicValid(false);
-    setHelperText(mnemonicError(message));
+  const handleShowModel = (show) => {
+    setImport(show)
   };
 
   const handleAddressSelection = async (address) => {
@@ -81,62 +87,16 @@ const ImportPager = ({ setMnemonic, setAccounts, accounts, handleClick }) => {
     console.log("handleAddressSelection ==>", account);
     const result = await wallet.openapi.checkImport(account.pubK);
     setAccounts(account);
+    handleClick();
     console.log("result ==>", result);
   };
 
 
-  const handleRegister = async (mnemonic) => {
-    console.log('123123', mnemonic)
-    setmnemonic(mnemonic);
-    setAccounts([]);
-    console.log('123123')
-    handleClick();
+  const handleRegister = async () => {
+    setAddressFound(!addressFound)
   }
 
-  const setmnemonic = (mnemonic) => {
-    setMnemonic(mnemonic);
-    const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-    if (!bip39.validateMnemonic(formatted)) {
-      setErrorMessage(chrome.i18n.getMessage('Mnemonic__phrase__is__invalid'));
-      return;
-    }
 
-    setMnemonicValid(true);
-    setHelperText(mnemonicCorrect);
-    storage.set('premnemonic', formatted);
-  };
-
-
-
-  const mnemonicError = (errorMsg) => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="text.error">
-        {errorMsg}
-      </Typography>
-    </Box>
-  );
-
-  const mnemonicCorrect = (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="success.main">
-        {chrome.i18n.getMessage('Recovery__phrase__valid')}
-      </Typography>
-    </Box>
-  );
   const sxStyles = {
     fontFamily: 'Inter',
     fontSize: '18px',
@@ -167,11 +127,20 @@ const ImportPager = ({ setMnemonic, setAccounts, accounts, handleClick }) => {
         <JsonImport onOpen={handleRegister} onImport={handleImport} />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} />
+        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} />
       </TabPanel>
       <TabPanel value={selectedTab} index={2}>
-        <KeyImport onOpen={handleRegister} onImport={handleImport} />
+        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />
       </TabPanel>
+      {!addressFound &&
+        <NoAddressModal
+          isOpen={setAddressFound}
+          onOpenChange={setAddressFound}
+
+        />
+
+      }
+
       {isImport &&
         <ImportAddressModel
           accounts={accounts}
