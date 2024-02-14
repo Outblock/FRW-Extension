@@ -56,6 +56,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
   const handleImport = async (accountKey?: any) => {
     console.log('account key ', accountKey)
     if (accountKey.length > 1) {
+      setAccounts(accountKey);
       setImport(true);
     } else {
       setAccounts(accountKey);
@@ -86,7 +87,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
     )[0];
     console.log("handleAddressSelection ==>", account);
     const result = await wallet.openapi.checkImport(account.pubK);
-    setAccounts(account);
+    setAccounts([account]);
     handleClick();
     console.log("result ==>", result);
   };
