@@ -157,6 +157,36 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
     setShowError(false);
   };
 
+  function getHashAlgo(value: string): number {
+    switch (value) {
+      case "unknown":
+        return 0;
+      case "SHA2_256":
+        return 1;
+      case "SHA2_384":
+        return 2;
+      case "SHA3_256":
+        return 3;
+      case "SHA3_384":
+        return 4;
+      default:
+        return -1; // Handle unknown values
+    }
+  }
+
+  function getSignAlgo(value: string): number {
+    switch (value) {
+        case "unknown":
+            return 0;
+        case "ECDSA_P256":
+            return 1;
+        case "ECDSA_SECP256k1":
+            return 2;
+        default:
+            return -1; // Handle unknown values
+    }
+}
+
 
   const successInfo = (message) => {
     return (
@@ -213,11 +243,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
     if (accounts.length > 1) {
       setLoading(true);
     } else {
-      console.log('account key ', accounts)
+      console.log('account key ', getHashAlgo(accounts[0].hashAlgo))
+      console.log('account key ', accounts[0].signAlgo)
       const accountKeyStruct = {
         public_key: accounts[0].pubK,
-        sign_algo: 2,
-        hash_algo: 1,
+        sign_algo: getSignAlgo(accounts[0].signAlgo),
+        hash_algo: getHashAlgo(accounts[0].hashAlgo),
         weight: 1000
       }
       const result = await wallet.openapi.getLocation();
