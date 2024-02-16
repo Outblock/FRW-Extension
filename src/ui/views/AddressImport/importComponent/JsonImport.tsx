@@ -109,7 +109,7 @@ const JsonImport = ({ onOpen, onImport }) => {
     <Box sx={{ padding: '0' }}>
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
-          minRows={3}
+          minRows={5}
           placeholder="You can import the json file from other wallet (eg. Blocto)"
           className={classes.textarea}
           required

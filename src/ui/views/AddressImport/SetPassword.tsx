@@ -176,16 +176,20 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
 
   function getSignAlgo(value: string): number {
     switch (value) {
-        case "unknown":
-            return 0;
-        case "ECDSA_P256":
-            return 1;
-        case "ECDSA_SECP256k1":
-            return 2;
-        default:
-            return -1; // Handle unknown values
+      case "unknown":
+        return 0;
+      case "ECDSA_P256":
+        return 1;
+      case "ECDSA_p256":
+        return 1;
+      case "ECDSA_SECP256k1":
+        return 2;
+      case "ECDSA_secp256k1":
+        return 2;
+      default:
+        return -1; // Handle unknown values
     }
-}
+  }
 
 
   const successInfo = (message) => {

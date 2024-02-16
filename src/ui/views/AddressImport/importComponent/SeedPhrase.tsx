@@ -58,7 +58,7 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
     <Box sx={{padding:'0'}}>
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
-          minRows={3}
+          minRows={6}
           placeholder="Import 12 or 24 words split with whitespace"
           className={classes.textarea}
           required

@@ -64,6 +64,7 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
         <TextareaAutosize
           placeholder="Enter your Private key"
           className={classes.textarea}
+          aria-label="Private Key"
           required
         />
         <TextareaAutosize
