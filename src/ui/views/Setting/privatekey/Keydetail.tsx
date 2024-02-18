@@ -22,18 +22,14 @@ const Keydetail = () => {
 
   const verify = async () => {
     const pwd = location.state.password;
-    const result = await wallet.getMnemonics(pwd);
-    const hdwallet = HDWallet.fromMnemonic(result);
-    const privateKey = hdwallet
-      .derive("m/44'/539'/0'/0/0")
-      .getPrivateKey()
-      .toString('hex');
-    setKey(privateKey);
-    const publicKey = hdwallet
-      .derive("m/44'/539'/0'/0/0")
-      .getPublicKey()
-      .toString('hex');
-    setPublicKey(publicKey);
+    const address = await wallet.getCurrentAddress();
+    console.log('address', address)
+    if (address !== null) {
+      const result = await wallet.getPrivateKey(pwd, address);
+      console.log('result', result)
+    }
+    // setKey(privateKey);
+    // setPublicKey(publicKey);
   }
 
   const setTab = async () => {

@@ -9,7 +9,7 @@ import JsonImport from "./importComponent/JsonImport";
 
 import ImportAddressModel from "./modal/importAddressModal";
 
-import NoAddressModal from "./modal/noAddressModal";
+import ErrorModel from "./modal/errorModel";
 import { useWallet } from 'ui/utils';
 import * as bip39 from 'bip39';
 import { storage } from '@/background/webapi';
@@ -46,7 +46,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
   const [mnemonicValid, setMnemonicValid] = useState(true);
 
   const [addressFound, setAddressFound] = useState(true);
-  const [isLoading, setLoading] = useState(false);
+  const [newKey, setKeyNew] = useState(true);
   const wallet = useWallet();
 
   const handleTabChange = (event, newValue) => {
@@ -59,8 +59,15 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
       setAccounts(accountKey);
       setImport(true);
     } else {
-      setAccounts(accountKey);
-      handleClick();
+      const result = await wallet.openapi.checkImport(accountKey[0].pubK);
+      console.log('result ', result)
+      if (result.status === 409) {
+        setKeyNew(false);
+      } else {
+        setAccounts(accountKey);
+        handleClick();
+
+      }
 
     }
   };
@@ -87,9 +94,14 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
     )[0];
     console.log("handleAddressSelection ==>", account);
     const result = await wallet.openapi.checkImport(account.pubK);
-    setAccounts([account]);
-    handleClick();
-    console.log("result ==>", result);
+    if (result.status === 409) {
+      setKeyNew(false);
+      setImport(false);
+    } else {
+      setAccounts([account]);
+      handleClick();
+
+    }
   };
 
 
@@ -134,10 +146,20 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
         <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />
       </TabPanel>
       {!addressFound &&
-        <NoAddressModal
+        <ErrorModel
           isOpen={setAddressFound}
           onOpenChange={setAddressFound}
+          errorName={'No Account found'}
+          errorMessage={'Do you wish to go back and register an account?'}
+        />
 
+      }
+      {!newKey &&
+        <ErrorModel
+          isOpen={setKeyNew}
+          onOpenChange={setKeyNew}
+          errorName={'Publickey already exist'}
+          errorMessage={'Please import or register a new key.'}
         />
 
       }

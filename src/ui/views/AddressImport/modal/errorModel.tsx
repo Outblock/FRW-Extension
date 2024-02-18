@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, FormControl, Select } from '@mui/material';
 import { useHistory } from 'react-router-dom';
 
-const noAddressModal = ({ isOpen, onOpenChange }) => {
+const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage }) => {
   const history = useHistory();
 
 
@@ -12,9 +12,9 @@ const noAddressModal = ({ isOpen, onOpenChange }) => {
 
   return (
     <Dialog open={isOpen} onClose={() => onOpenChange(true)}>
-      <DialogTitle>No Account found</DialogTitle>
+      <DialogTitle>{errorName}</DialogTitle>
       <DialogContent>
-        <h2>Do you wish to go back and register an account?</h2>
+        <h2>{errorMessage}</h2>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => onOpenChange(true)}>
@@ -34,4 +34,4 @@ const noAddressModal = ({ isOpen, onOpenChange }) => {
 };
 
 
-export default noAddressModal;
+export default ErrorModel;
