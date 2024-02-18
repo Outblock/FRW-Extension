@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const JsonImport = ({ onOpen, onImport }) => {
+const JsonImport = ({ onOpen, onImport, setPk }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
@@ -81,6 +81,7 @@ const JsonImport = ({ onOpen, onImport }) => {
       const pkHex = Buffer.from(pk.data()).toString('hex')
       const result = await findAddressWithPK(pkHex, address)
       console.log(result)
+      setPk(pk);
       if (!result) {
         onOpen();
         return;

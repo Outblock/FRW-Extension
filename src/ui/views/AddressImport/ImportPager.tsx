@@ -125,7 +125,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
         <Tab sx={sxStyles} label="Private Key" />
       </Tabs>
       <TabPanel value={selectedTab} index={0}>
-        <JsonImport onOpen={handleRegister} onImport={handleImport} />
+        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
         <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} />
