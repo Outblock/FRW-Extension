@@ -81,7 +81,7 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
       const pkHex = Buffer.from(pk.data()).toString('hex')
       const result = await findAddressWithPK(pkHex, address)
       console.log(result)
-      setPk(pk);
+      setPk(pkHex);
       if (!result) {
         onOpen();
         return;
