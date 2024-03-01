@@ -9,6 +9,7 @@ import TokenInfoCard from './TokenInfoCard';
 import StackingCard from './StackingCard';
 import PriceCard from './PriceCard';
 import ClaimTokenCard from './ClaimTokenCard';
+import Move from '../Move';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { PriceProvider } from '@/background/service/networkModel';
@@ -41,8 +42,9 @@ const TokenDetail = () => {
   const [accessible, setAccessible] = useState(true);
   const token = useParams<{ id: string }>().id.toLowerCase();
   const [network, setNetwork] = useState('mainnet');
-  const [walletName, setCurrentWallet] = useState({name:''});
+  const [walletName, setCurrentWallet] = useState({ name: '' });
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [moveOpen, setMoveOpen] = useState<boolean>(false);
   const [providers, setProviders] = useState<PriceProvider[]>([])
 
   const Header = () => {
@@ -82,16 +84,16 @@ const TokenDetail = () => {
         <div className={classes.container}>
           <Header />
           {!accessible &&
-            < Box sx={{ display: 'flex', marginBottom: '12px', borderRadius: '8px', padding:'8px 11px',backgroundColor: 'error.light' }}>
+            < Box sx={{ display: 'flex', marginBottom: '12px', borderRadius: '8px', padding: '8px 11px', backgroundColor: 'error.light' }}>
               <img style={{ height: '16px', width: '16px', borderRadius: '16px' }} src={tips}></img>
-              <Typography sx={{ fontSize: '12px',marginLeft:'5px', color:'error.main' }}>
+              <Typography sx={{ fontSize: '12px', marginLeft: '5px', color: 'error.main' }}>
                 Flow Reference wallet doesn’t have access to {`${token}`} in
                 {`${walletName.name}`} Account, please check your linked
                 account settings.
               </Typography>
             </Box>
           }
-          <TokenInfoCard price={price} token={token} setAccessible={setAccessible} accessible={accessible} />
+          <TokenInfoCard price={price} token={token} setAccessible={setAccessible} accessible={accessible} setMoveOpen={() => setMoveOpen(true)}/>
           {token === 'flow' &&
             <StackingCard network={network} />
           }
@@ -103,6 +105,15 @@ const TokenDetail = () => {
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           }
+          <Move
+            isConfirmationOpen={moveOpen}
+            data={{ amount: 0, }}
+            handleCloseIconClicked={() => setMoveOpen(false)}
+            handleCancelBtnClicked={() => setMoveOpen(false)}
+            handleAddBtnClicked={() => {
+              setMoveOpen(false);
+            }}
+          />
         </div>
       </div>
     </StyledEngineProvider >

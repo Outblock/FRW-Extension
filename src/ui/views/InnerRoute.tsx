@@ -17,6 +17,7 @@ import CollectionDetail from './NFT/CollectionDetail';
 import Detail from './NFT/Detail';
 import { PrivateRoute } from 'ui/component';
 import { useWallet } from 'ui/utils';
+import Enable from '../views/Enable';
 import Send from '../views/Send';
 import Swap from '../views/Swap';
 import Deposit from '../views/Deposit';
@@ -230,7 +231,7 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/setting/deviceinfo`}>
             <DeviceInfo />
           </PrivateRoute>
-          
+
           <PrivateRoute path={`${props.match.url}/setting/wallet`}>
             <WalletDetail />
           </PrivateRoute>
@@ -249,6 +250,10 @@ const Inner = (props) => {
 
           <PrivateRoute path={`${props.match.url}/flowns`}>
             <Flowns />
+          </PrivateRoute>
+
+          <PrivateRoute path={`${props.match.url}/enable`}>
+            <Enable />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/inbox`}>

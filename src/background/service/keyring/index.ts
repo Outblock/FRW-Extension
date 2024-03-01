@@ -781,6 +781,7 @@ class KeyringService extends EventEmitter {
   ): Promise<any> {
     const hexed = normalizeAddress(address).toLowerCase();
     log.debug(`KeyringController - getKeyringForAccount: ${hexed}`);
+    console.log('this.keyrings ', this.keyrings)
     let keyrings = type
       ? this.keyrings.filter((keyring) => keyring.type === type)
       : this.keyrings;
@@ -789,17 +790,21 @@ class KeyringService extends EventEmitter {
         (keyring) => keyring.type !== KEYRING_TYPE.WatchAddressKeyring
       );
     }
+    console.log('keyrings.keyrings ', keyrings)
     return Promise.all(
       keyrings.map((keyring) => {
         return Promise.all([keyring, keyring.getAccounts()]);
       })
     ).then((candidates) => {
+      console.log('keyrings.candidates ', candidates)
       const winners = candidates.filter((candidate) => {
+        console.log('candidate.candidate ', candidate[1])
         const accounts = candidate[1].map((addr) => {
           return normalizeAddress(addr).toLowerCase();
         });
         return accounts.includes(hexed);
       });
+      console.log('winners ', winners)
       if (winners && winners.length > 0) {
         return winners[0][0];
       }

@@ -19,6 +19,7 @@ import { saveAs } from 'file-saver'
 import SendIcon from 'ui/FRWAssets/svg/send.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
 import { Link } from 'react-router-dom';
+import Move from '../Move';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {
@@ -28,7 +29,7 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'space-between',
     padding: 0,
     margin: 0,
-    display: 'flex', 
+    display: 'flex',
     flexDirection: 'column'
   },
   detailContainer: {
@@ -79,10 +80,10 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface NFTDetailState {
-    nft: any;
-    media: PostMedia;
-    index: number;
-    ownerAddress: any
+  nft: any;
+  media: PostMedia;
+  index: number;
+  ownerAddress: any
 }
 
 const Detail = () => {
@@ -97,6 +98,7 @@ const Detail = () => {
   const [ownerAddress, setOwnerAddress] = useState<any>(null);
   const [media, setMedia] = useState<PostMedia | null>(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [moveOpen, setMoveOpen] = useState<boolean>(true);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -175,7 +177,7 @@ const Detail = () => {
           width: '100%',
           maxWidth: '100%',
         }}>
-          <Typography color="text.secondary" variant="body1" sx={{width: '100%', maxWidth: '100%'}}>
+          <Typography color="text.secondary" variant="body1" sx={{ width: '100%', maxWidth: '100%' }}>
             {props.value}
           </Typography>
         </Box>
@@ -185,17 +187,17 @@ const Detail = () => {
 
   const createMetaBoxes = (props, index) => {
     if (props.value && typeof props.value === 'string')
-      return <MetaBox meta_id={props.name} name={props.name} value={props.value} key={props.name + index}/>;
+      return <MetaBox meta_id={props.name} name={props.name} value={props.value} key={props.name + index} />;
   };
 
 
   const getUri = () => {
     return (
       <>
-        {mediaLoading ? <div/> : (
+        {mediaLoading ? <div /> : (
           <div
             style={{
-              background:'#222222',
+              background: '#222222',
               height: '100%',
               width: '100%',
               borderRadius: '8px'
@@ -203,12 +205,12 @@ const Detail = () => {
           />
         )}
 
-        { media && (
+        {media && (
           media.image ?
             <img
               src={replaceIPFS(media.image)}
               className={classes.media}
-              onLoad={()=>setMediaLoading(true)}
+              onLoad={() => setMediaLoading(true)}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null; // prevents looping
                 currentTarget.src = fallback;
@@ -216,8 +218,8 @@ const Detail = () => {
             />
             :
             <>
-              <video loop autoPlay controls muted preload="auto" controlsList='noremoteplayback nofullscreen' onLoadedData={() => setMediaLoading(true)} 
-                style={{ margin: '0 auto', width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px'}}>
+              <video loop autoPlay controls muted preload="auto" controlsList='noremoteplayback nofullscreen' onLoadedData={() => setMediaLoading(true)}
+                style={{ margin: '0 auto', width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}>
                 <source src={media.video} type="video/mp4" className={classes.media} />
               </video>
             </>)
@@ -230,10 +232,10 @@ const Detail = () => {
     return (
       <>
         {mediaLoading && <img src={replaceIPFS(media?.image || null)} className={classes.media} />}
-        <video loop autoPlay controls muted playsInline preload="auto" 
+        <video loop autoPlay controls muted playsInline preload="auto"
           controlsList='noremoteplayback nofullscreen'
           onLoadedData={() => setMediaLoading(false)}
-          style={{ visibility: mediaLoading ? 'hidden' : 'visible', width:'100%' }}
+          style={{ visibility: mediaLoading ? 'hidden' : 'visible', width: '100%' }}
         >
           <source src={media?.video || undefined} type="video/mp4" className={classes.media} />
         </video>
@@ -243,9 +245,9 @@ const Detail = () => {
 
   return (
     <StyledEngineProvider injectFirst>
-      <div className='page' style={{display: 'flex', flexDirection: 'column'}}>
+      <div className='page' style={{ display: 'flex', flexDirection: 'column' }}>
         <Box className={classes.iconbox}>
-          <IconButton onClick={()=> history.goBack()} className={classes.arrowback}>
+          <IconButton onClick={() => history.goBack()} className={classes.arrowback}>
             <ArrowBackIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
           {/* {
@@ -273,88 +275,97 @@ const Detail = () => {
           } */}
         </Box>
 
-        {nftDetail && 
-      <Container className={classes.pageContainer} sx={{width: '100%'}}>
-        <Box sx={{ padding: '10px 18px', justifyContent: 'center', backgroundColor: '#121212', display: 'flex', flexDirection: 'column', flexGrow: 1}}>
-          <Box className={classes.mediabox}>
-            { (media && media?.video != null) ? 
-              getMedia():
-              getUri()
-            }
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-            <Box sx={{ flex: '1 0 auto' }}>
-              <Typography component="div" color="text.primary" variant="h6" sx={{maxWidth: '270px'}}>
-                { media?.title }
-              </Typography>
-
-              { contractInfo &&
-                <a href={contractInfo.official_website} target='_blank' >
-                  <Typography
-                    component="div"
-                    color="text.secondary"
-                    variant="body1"
-                    display='flex'
-                    flexDirection='row'
-                    alignItems='center'
-                  >
-                    <img src={contractInfo.logo} width='20px' style={{marginRight: '6px', borderRadius: '50%'}} />
-                    {contractInfo.name}
-                    <ArrowForwardOutlinedIcon sx={{ color: 'icon.navi', marginLeft: '6px', mt: 0, fontSize: '20px', padding: 0 }} />
+        {nftDetail &&
+          <Container className={classes.pageContainer} sx={{ width: '100%' }}>
+            <Box sx={{ padding: '10px 18px', justifyContent: 'center', backgroundColor: '#121212', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+              <Box className={classes.mediabox}>
+                {(media && media?.video != null) ?
+                  getMedia() :
+                  getUri()
+                }
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                <Box sx={{ flex: '1 0 auto' }}>
+                  <Typography component="div" color="text.primary" variant="h6" sx={{ maxWidth: '270px' }}>
+                    {media?.title}
                   </Typography>
-                </a>
-              }
+
+                  {contractInfo &&
+                    <a href={contractInfo.official_website} target='_blank' >
+                      <Typography
+                        component="div"
+                        color="text.secondary"
+                        variant="body1"
+                        display='flex'
+                        flexDirection='row'
+                        alignItems='center'
+                      >
+                        <img src={contractInfo.logo} width='20px' style={{ marginRight: '6px', borderRadius: '50%' }} />
+                        {contractInfo.name}
+                        <ArrowForwardOutlinedIcon sx={{ color: 'icon.navi', marginLeft: '6px', mt: 0, fontSize: '20px', padding: 0 }} />
+                      </Typography>
+                    </a>
+                  }
+                </Box>
+                <Box sx={{ mt: 0, mr: 0, pr: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <IconButton
+                    sx={{
+                      backgroundColor: 'neutral2.main',
+                      p: '8px',
+                      aspectRatio: '1 / 1'
+                      // mr: '10px',
+                    }}
+                    onClick={() => downloadImage(media?.image || media?.video, media?.title || 'NFT')}
+                  >
+                    <SaveAltIcon color="primary" />
+                  </IconButton>
+
+                  {!(contractInfo?.contract_name === 'Domains' && media?.title?.includes('.meow')) &&
+                    <IconButton
+                      sx={{ backgroundColor: 'neutral2.main', p: '12px', aspectRatio: '1 / 1' }}
+                      onClick={() => history.push({
+                        pathname: '/dashboard/nft/send',
+                        state: { nft: nftDetail, media: media, contract: contractInfo }
+                      })}
+                    >
+                      {/* <IosShareOutlinedIcon color="primary" /> */}
+                      <img src={SendIcon} style={{ width: '20px', height: '20px' }} />
+                    </IconButton>
+                  }
+                </Box>
+              </Box>
             </Box>
-            <Box sx={{ mt: 0, mr: 0, pr: 0, display: 'flex', gap: '8px', alignItems: 'center'}}>
-              <IconButton
+
+            <Container className={classes.detailContainer}>
+              <Box
                 sx={{
-                  backgroundColor: 'neutral2.main',
-                  p: '8px',
-                  aspectRatio: '1 / 1'
-                  // mr: '10px',
+                  display: 'inline-flex',
+                  gap: '10px',
+                  flexDirection: 'row',
+                  p: '10px 0',
+                  flexWrap: 'wrap',
+                  justifyContent: 'flex-start',
+                  maxWidth: '400px'
                 }}
-                onClick={() => downloadImage(media?.image || media?.video, media?.title || 'NFT')}
               >
-                <SaveAltIcon color="primary" />
-              </IconButton>
+                {(metadata && metadata.traits) && metadata.traits.map(createMetaBoxes)}
+              </Box>
 
-              { !(contractInfo?.contract_name === 'Domains' && media?.title?.includes('.meow')) &&
-                <IconButton 
-                  sx={{ backgroundColor: 'neutral2.main', p: '12px', aspectRatio: '1 / 1' }}
-                  onClick={() => history.push({
-                    pathname: '/dashboard/nft/send',
-                    state: {nft: nftDetail, media: media, contract: contractInfo}
-                  })}
-                >
-                  {/* <IosShareOutlinedIcon color="primary" /> */}
-                  <img src={SendIcon} style={{width: '20px', height: '20px'}}/>
-                </IconButton>
-              }
-            </Box>
-          </Box>
-        </Box>
-
-        <Container className={classes.detailContainer}>
-          <Box
-            sx={{
-              display: 'inline-flex',
-              gap: '10px',
-              flexDirection: 'row',
-              p: '10px 0',
-              flexWrap: 'wrap',
-              justifyContent: 'flex-start',
-              maxWidth: '400px'
-            }}
-          >
-            {(metadata && metadata.traits) && metadata.traits.map(createMetaBoxes)}
-          </Box>
-
-          <Typography variant="body1" color="text.secondary" component="div" sx={{mb: '90px'}}>
-            {media && media.description}
-          </Typography>
-        </Container>
-      </Container>
+              <Typography variant="body1" color="text.secondary" component="div" sx={{ mb: '90px' }}>
+                {media && media.description}
+              </Typography>
+            </Container>
+          </Container>
         }
+        <Move
+          isConfirmationOpen={moveOpen}
+          data={{ amount: 0, }}
+          handleCloseIconClicked={() => setMoveOpen(false)}
+          handleCancelBtnClicked={() => setMoveOpen(false)}
+          handleAddBtnClicked={() => {
+            setMoveOpen(false);
+          }}
+        />
       </div>
     </StyledEngineProvider>
   );

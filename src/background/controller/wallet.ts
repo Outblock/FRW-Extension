@@ -275,10 +275,10 @@ export class WalletController extends BaseController {
 
   getPrivateKey = async (
     password: string,
-    { address, type }: { address: string; type: string }
+    address: string
   ) => {
     await this.verifyPassword(password);
-    const keyring = await keyringService.getKeyringForAccount(address, type);
+    const keyring = await keyringService.getKeyringForAccount(address);
     if (!keyring) return null;
     return await keyring.exportAccount(address);
   };
