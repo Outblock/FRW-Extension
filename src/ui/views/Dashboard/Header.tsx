@@ -36,6 +36,8 @@ import eventBus from '@/eventBus';
 import IconLock from '../../../components/iconfont/IconLock';
 import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg'
+import sideMore from '../../FRWAssets/svg/sideMore.svg'
+import Popup from './Components/Popup';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -93,6 +95,8 @@ const Header = ({ loading }) => {
 
   const [isPending, setIsPending] = useState(false);
 
+  const [ispop, setPop] = useState(false);
+
   const [initialStart, setInitial] = useState(true);
 
 
@@ -137,6 +141,10 @@ const Header = ({ loading }) => {
 
   const toggleDrawer = () => {
     setDrawer(!drawer);
+  };
+
+  const togglePop = () => {
+    setPop(!ispop);
   };
 
   const toggleUnread = () => {
@@ -657,8 +665,8 @@ const Header = ({ loading }) => {
       <List component="nav" sx={{ backgroundColor: '#282828' }}>
         <ListItem
           secondaryAction={
-            <IconButton edge="end" aria-label="close" onClick={toggleDrawer}>
-              <CloseRoundedIcon color="secondary" />
+            <IconButton edge="end" aria-label="close" onClick={togglePop}>
+              <img style={{ display: 'inline-block', width: '20px' }} src={sideMore} />
             </IconButton>
           }
         >
@@ -927,6 +935,20 @@ const Header = ({ loading }) => {
           {menuDrawer}
           {appBarLabel(current)}
           {usernameSelect()}
+          {userInfo &&
+            <Popup
+              isConfirmationOpen={ispop}
+              data={{ amount: 0, }}
+              handleCloseIconClicked={() => setPop(false)}
+              handleCancelBtnClicked={() => setPop(false)}
+              handleAddBtnClicked={() => {
+                setPop(false);
+              }}
+              userInfo={userInfo!}
+              current={current!}
+            />
+
+          }
         </Toolbar>
       </AppBar>
     </StyledEngineProvider>
