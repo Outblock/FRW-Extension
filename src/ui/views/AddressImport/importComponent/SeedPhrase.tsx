@@ -1,7 +1,7 @@
-import { useEffect, useState, useContext } from "react";
-import { findAddressWithSeed } from "../findAddressWithPK";
-import { KEY_TYPE } from "../constants";
-import React from "react";
+import { useEffect, useState, useContext } from 'react';
+import { findAddressWithSeed } from '../findAddressWithPK';
+import { KEY_TYPE } from '../constants';
+import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -40,8 +40,12 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
       const seed = e.target[0].value.trim().split(/\s+/g).join(' ');
       setmnemonic(seed);
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
-      const inputValue = e.target[1].value;
+      const inputValue = e.target[2].value;
+
+      console.log('inputValue ', inputValue)
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
+
+      console.log('address ', address)
       const result = await findAddressWithSeed(seed, address)
       if (!result) {
         onOpen();
@@ -66,7 +70,7 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
         <TextareaAutosize
           placeholder="Enter your flow address (Optional)"
           className={classes.textarea}
-          defaultValue={""}
+          defaultValue={''}
 
         />
 

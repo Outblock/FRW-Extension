@@ -162,6 +162,22 @@ export class WalletController extends BaseController {
     // }
   };
 
+  switchUnlock = async (password: string) => {
+    // const alianNameInited = await preferenceService.getInitAlianNameStatus();
+    // const alianNames = await preferenceService.getAllAlianName();
+    await keyringService.submitPassword(password);
+
+    // only password is correct then we store it
+    await passwordService.setPassword(password);
+
+    sessionService.broadcastEvent('unlock');
+    const keyring = await keyringService.getKeyring();
+    await this.signInWithMnemonic(keyring[0].mnemonic);
+    // if (!alianNameInited && Object.values(alianNames).length === 0) {
+    //   this.initAlianNames();
+    // }
+  };
+
   isUnlocked = async () => {
     const isUnlocked = keyringService.memStore.getState().isUnlocked;
     if (!isUnlocked) {
@@ -321,7 +337,7 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyring);
   };
 
-  loginWithMnemonics = async (mnemonic) => {
+  addAccounts = async (mnemonic) => {
     // TODO: NEED REVISIT HERE:
 
     const keyring = await keyringService.createKeyringWithMnemonics(mnemonic);
@@ -396,6 +412,11 @@ export class WalletController extends BaseController {
   getAccountsCount = async () => {
     const accounts = await keyringService.getAccounts();
     return accounts.filter((x) => x).length;
+  };
+
+  getKeyrings = async () => {
+    const accounts = await keyringService.getKeyring();
+    return accounts;
   };
 
   getTypedAccounts = async (type) => {
@@ -810,7 +831,6 @@ export class WalletController extends BaseController {
     const address = await this.getCurrentAddress();
     console.log('getCurrentAddress ', address)
     const tokenList = await openapiService.getEnabledTokenList();
-    console.log('tokenList ', tokenList)
     const balances = await openapiService.getTokenListBalance(
       address || '0x',
       tokenList

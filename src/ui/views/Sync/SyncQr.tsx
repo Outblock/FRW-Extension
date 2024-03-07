@@ -19,11 +19,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Core } from '@walletconnect/core';
 import { FCLWalletConnectMethod } from '@/ui/utils/type';
 import SignClient from '@walletconnect/sign-client';
-import { PairingTypes, SessionTypes } from "@walletconnect/types";
+import { PairingTypes, SessionTypes } from '@walletconnect/types';
 import * as bip39 from 'bip39';
 import HDWallet from 'ethereum-hdwallet';
 
-import QRCode from "react-qr-code";
+import QRCode from 'react-qr-code';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -143,18 +143,18 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
 
   const _subscribeToEvents = useCallback(
     async (_client: SignClient) => {
-      if (typeof _client === "undefined") {
-        throw new Error("WalletConnect is not initialized");
+      if (typeof _client === 'undefined') {
+        throw new Error('WalletConnect is not initialized');
       }
 
-      _client.on("session_update", ({ topic, params }) => {
-        console.log("EVENT", "session_update", { topic, params });
+      _client.on('session_update', ({ topic, params }) => {
+        console.log('EVENT', 'session_update', { topic, params });
         const { namespaces } = params;
         const _session = _client.session.get(topic);
         const updatedSession = { ..._session, namespaces };
         onSessionConnected(updatedSession);
       });
-      console.log("EVENT _client ", _client)
+      console.log('EVENT _client ', _client)
 
     },
     [onSessionConnected]
@@ -179,7 +179,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
 
         const requestParam = {
           data: {
-            username: "",
+            username: '',
             accountKey: accountKey,
             deviceInfo: deviceInfo
           }
@@ -357,9 +357,9 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
                 <Box sx={{ position: 'relative' }}>
                   <QRCode
                     size={256}
-                    style={{ height: "auto", maxWidth: "100%", width: "100%", borderRadius: '24px' }}
+                    style={{ height: 'auto', maxWidth: '100%', width: '100%', borderRadius: '24px' }}
                     value={Uri}
-                    viewBox={`0 0 256 256`}
+                    viewBox={'0 0 256 256'}
                   />
                   {loading &&
                     <Box

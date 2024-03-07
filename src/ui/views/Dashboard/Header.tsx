@@ -79,6 +79,7 @@ const Header = ({ loading }) => {
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [isSandbox, setIsSandbox] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
+  const [otherAccounts, setOtherAccounts] = useState<any>(null);
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [modeOn, setModeOn] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -212,8 +213,34 @@ const Header = ({ loading }) => {
 
   const freshUserInfo = async () => {
     const wallet = await usewallet.getUserInfo(true);
+    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    console.log('loggedInAccounts:', loggedInAccounts);
+
+    if (!loggedInAccounts.some(account => account.username === wallet.username)) {
+      loggedInAccounts.push(wallet);
+
+      // Update 'loggedInAccounts' in storage with the new array including the 'wallet'
+      await storage.set('loggedInAccounts', loggedInAccounts);
+    }
+    console.log('Updated loggedInAccounts:', loggedInAccounts);
+
+    const otherAccounts = loggedInAccounts
+      .filter(account => account.username !== wallet.username)
+      .map(account => {
+        const indexInLoggedInAccounts = loggedInAccounts.findIndex(loggedInAccount => loggedInAccount.username === account.username);
+        return { ...account, indexInLoggedInAccounts };
+      });
+
+    console.log('otherAccounts with index:', otherAccounts);
+    await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     usewallet.checkUserDomain(wallet.username);
+  }
+  const switchAccount = async (account) => {
+    console.log('switch account ', account )
+    await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+    await usewallet.lockWallet();
+    history.push('/switchunlock');
   }
 
   const loadNetwork = async () => {
@@ -663,17 +690,25 @@ const Header = ({ loading }) => {
       PaperProps={{ sx: { width: '75%' } }}
     >
       <List component="nav" sx={{ backgroundColor: '#282828' }}>
-        <ListItem
-          secondaryAction={
+        <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          {userInfo &&
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <ListItemIcon>
+                <img src={userInfo!.avatar} width="48px" />
+              </ListItemIcon>
+              <ListItemText primary={userInfo!.username} />
+            </Box>
+          }
+          <Box sx={{ paddingTop: '4px' }}>
+            {otherAccounts && otherAccounts.map((account, index) => (
+              <IconButton key={index} edge="end" aria-label="account" onClick={() => switchAccount(account)}>
+                <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
+              </IconButton>
+            ))}
             <IconButton edge="end" aria-label="close" onClick={togglePop}>
               <img style={{ display: 'inline-block', width: '20px' }} src={sideMore} />
             </IconButton>
-          }
-        >
-          <ListItemIcon>
-            <img src={logo} width="30px" />
-          </ListItemIcon>
-          <ListItemText primary={chrome.i18n.getMessage('Flow_Core')} />
+          </Box>
         </ListItem>
         <Box sx={{ px: '16px' }}>
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />

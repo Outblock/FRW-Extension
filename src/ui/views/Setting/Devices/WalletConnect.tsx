@@ -150,16 +150,16 @@ const WalletConnect = (props: RevokePageProps) => {
 
         // Respond with an empty message
         const jsonString = {
-          "userId": userInfo.user_id,
-          "userAvatar": userInfo.avatar,
-          "userName": userInfo.username,
-          "walletAddress": address
+          'userId': userInfo.user_id,
+          'userAvatar': userInfo.avatar,
+          'userName': userInfo.username,
+          'walletAddress': address
         }
         const response = {
-          "method": FCLWalletConnectMethod.accountInfo,
-          "data": jsonString,
-          status: "",
-          message: "",
+          'method': FCLWalletConnectMethod.accountInfo,
+          'data': jsonString,
+          status: '',
+          message: '',
         };
 
 
@@ -172,7 +172,7 @@ const WalletConnect = (props: RevokePageProps) => {
 
         // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
       } catch (error) {
-        console.error("[WALLET] Respond Error: [addDeviceInfo]", error);
+        console.error('[WALLET] Respond Error: [addDeviceInfo]', error);
 
       }
 
@@ -226,7 +226,7 @@ const WalletConnect = (props: RevokePageProps) => {
               // Wait for 5 seconds before sending the response
               setTimeout(async () => {
                 try {
-                  const response = formatJsonRpcResult(id, "");
+                  const response = formatJsonRpcResult(id, '');
                   await web3wallet.respondSessionRequest({ topic, requestId: id, response });
                   setSyncing(false);
                   setSyncPage(false);
@@ -247,7 +247,7 @@ const WalletConnect = (props: RevokePageProps) => {
 
         // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
       } catch (error) {
-        console.error("[WALLET] Respond Error: [addDeviceInfo]", error);
+        console.error('[WALLET] Respond Error: [addDeviceInfo]', error);
 
       }
 

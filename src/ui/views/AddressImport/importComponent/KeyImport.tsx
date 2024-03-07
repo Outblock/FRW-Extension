@@ -1,7 +1,7 @@
-import { useEffect, useState, useContext } from "react";
-import { findAddressWithPK } from "../findAddressWithPK";
-import { KEY_TYPE } from "../constants";
-import React from "react";
+import { useEffect, useState, useContext } from 'react';
+import { findAddressWithPK } from '../findAddressWithPK';
+import { KEY_TYPE } from '../constants';
+import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -40,9 +40,10 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
     try {
       setLoading(true);
       e.preventDefault();
-      const pk = e.target[0].value.replace(/^0x/, "");
+      const pk = e.target[0].value.replace(/^0x/, '');
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
-      const inputValue = e.target[1].value;
+      const inputValue = e.target[2].value;
+      console.log('inputValue ', inputValue)
       setPk(pk);
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
       const result = await findAddressWithPK(pk, address);
@@ -51,7 +52,7 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
         return;
       }
       const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.PRIVATE_KEY }))
-      console.log("accounts ==>", accounts)
+      console.log('accounts ==>', accounts)
       onImport(accounts);
     } finally {
       setLoading(false);
@@ -70,7 +71,7 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
         <TextareaAutosize
           placeholder="Enter your flow address (Optional)"
           className={classes.textarea}
-          defaultValue={""}
+          defaultValue={''}
 
         />
         <Button

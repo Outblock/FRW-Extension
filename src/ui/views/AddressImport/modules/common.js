@@ -1,10 +1,12 @@
-export const invalidArgument = () => { throw new Error("invalid argument"); }
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+export const invalidArgument = () => { throw new Error('invalid argument'); }
 export const isNull = value => value === null || value === undefined;
 export const notNull = value => value !== null && value !== undefined;
-export const isEmpty = value => isNull(value) || value === "";
-export const notEmpty = value => notNull(value) && value !== "";
-export const isString = value => notNull(value) && (typeof value === "string");
-export const isFunction = value => notNull(value) && (typeof value === "function");
+export const isEmpty = value => isNull(value) || value === '';
+export const notEmpty = value => notNull(value) && value !== '';
+export const isString = value => notNull(value) && (typeof value === 'string');
+export const isFunction = value => notNull(value) && (typeof value === 'function');
 
 export const assertNotNull = value => notNull(value) || invalidArgument();
 export const assertString = value => isString(value) || invalidArgument();

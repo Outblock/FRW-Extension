@@ -1,5 +1,5 @@
-import { pk2PubKey, seed2PubKey } from "./passkey";
-import { findAddressWithKey } from "./findAddressWithPubKey";
+import { pk2PubKey, seed2PubKey } from './passkey';
+import { findAddressWithKey } from './findAddressWithPubKey';
 
 const findAddress = async (pubKTuple, address) => {
   const { P256, SECP256K1 } = pubKTuple;
@@ -11,15 +11,15 @@ const findAddress = async (pubKTuple, address) => {
 
   console.log('accounts 222 ==>', accounts);
   if (!accounts || accounts.length === 0) {
-      return null
+    return null
   }
   return accounts
 }
 
 export const findAddressWithPK = async (pk, address) => {
-    const pubKTuple = await pk2PubKey(pk);
-    console.log('pubKTuple ==>', pk, pubKTuple)
-    return await findAddress(pubKTuple, address);
+  const pubKTuple = await pk2PubKey(pk);
+  console.log('pubKTuple ==>', pk, pubKTuple)
+  return await findAddress(pubKTuple, address);
 }
 
 export const findAddressWithSeed = async (seed, address) => {

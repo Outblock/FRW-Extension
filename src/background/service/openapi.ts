@@ -1719,12 +1719,8 @@ class OpenApiService {
     const tokenList = await remoteFetch.flowCoins();
     const address = await userWalletService.getCurrentAddress();
     const network = await userWalletService.getNetwork();
-    console.log('network is ', network)
-    console.log('tokenList is ', tokenList)
     const tokens = tokenList.filter((token) => token.address[network]);
-    console.log('tokens ', tokens)
     const values = await this.isTokenListEnabled(address, tokens, network);
-    console.log('values ', values)
     // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))
     return values
       .map((value, index) => {
@@ -1769,7 +1765,6 @@ class OpenApiService {
     allTokens: TokenModel[],
     network
   ) => {
-    console.log('allTokens ', allTokens);
     const tokens = allTokens;
 
     const tokenImports = tokens

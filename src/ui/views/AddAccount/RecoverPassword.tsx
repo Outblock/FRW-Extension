@@ -13,19 +13,16 @@ import {
   Snackbar,
   CssBaseline
 } from '@mui/material';
-
 import { LLSpinner } from 'ui/FRWComponent';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
-import theme from '../../../style/LLTheme';
+import theme from '../../style/LLTheme';
 import { useWallet } from 'ui/utils';
-import { LLNotFound } from 'ui/FRWComponent';
+import { storage } from '@/background/webapi';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -135,18 +132,19 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
+const SetPassword = ({ handleClick, mnemonic, username }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-  const [password, setPassword] = useState(lastPassword);
-  const [confirmPassword, setConfirmPassword] = useState(lastPassword);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isCharacters, setCharacters] = useState(false);
   const [isMatch, setMatch] = useState(false);
   const [isLoading, setLoading] = useState(false);
+
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
 
@@ -154,6 +152,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
     if (reason === 'clickaway') {
       return;
     }
+
     setShowError(false);
   };
 
@@ -162,7 +161,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
       <Box
         sx={{
           width: '95%',
-          backgroundColor: 'success.light',
+          backgroundColor: '#38B00014',
           mx: 'auto',
           borderRadius: '0 0 12px 12px',
           display: 'flex',
@@ -175,7 +174,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
           color={'#41CC5D'}
           style={{ margin: '8px' }}
         />
-        <Typography variant="body1" color="success.main">
+        <Typography variant="body1" color="text.secondary">
           {message}
         </Typography>
       </Box>
@@ -196,7 +195,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
         }}
       >
         <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-        <Typography variant="body1" color="error.main">
+        <Typography variant="body1" color="text.secondary">
           {message}
         </Typography>
       </Box>
@@ -205,26 +204,24 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
 
   const [helperText, setHelperText] = useState(<div />);
   const [helperMatch, setHelperMatch] = useState(<div />);
-  const [showDialog, setShowDialog] = useState(false);
-  const [isCheck, setCheck] = useState(true);
 
-  const login = async () => {
+  const register = async () => {
     setLoading(true);
+    
+    const loggedInAccount = await storage.get('loggedInAccounts');
+    const lastIndex = loggedInAccount.length;
+    console.log(' loggedInAccount ', lastIndex, loggedInAccount);
+    await storage.set('currentAccountIndex', lastIndex);
     try {
-      await wallet.signInWithMnemonic(mnemonic);
       await wallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.createKeyringWithMnemonics(formatted);
+      await wallet.addAccounts(formatted);
       setLoading(false);
       handleClick();
     } catch (e) {
       setLoading(false);
       setErrorMessage(e.message);
-      if (e.message === 'NoUserFound') {
-        setShowDialog(true)
-      } else {
-        setShowError(true);
-      }
+      setShowError(true);
     }
   };
 
@@ -250,160 +247,157 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
     }
   }, [confirmPassword, password]);
 
-
-  useEffect(() => {
-    if (isCheck) {
-      setPassword(lastPassword)
-      setConfirmPassword(lastPassword)
-    } else {
-      setPassword('')
-      setConfirmPassword('')
-    }
-  }, [isCheck])
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {!showDialog ?
-        <Box
-          className="registerBox"
-        >
-          <Typography variant="h4">
-            {chrome.i18n.getMessage('Welcome__Back')}
-            <Box display="inline" color="primary.main">
-              {username}
-            </Box>{' '}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
-          </Typography>
+      <Box
+        className="registerBox"
+      >
+        <Typography variant="h4">
+          {chrome.i18n.getMessage('Welcome__Back')}
+          <Box display="inline" color="primary.main">
+            {username}
+          </Box>{' '}
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
+        </Typography>
 
-          <Box
+        <Box
+          sx={{
+            flexGrow: 1,
+            width: 640,
+            maxWidth: '100%',
+            my: '32px',
+            display: 'flex',
+          }}
+        >
+          <FormGroup sx={{ width: '100%' }}>
+            <Input
+              id="pass"
+              type={isPasswordVisible ? 'text' : 'password'}
+              name="password"
+              placeholder={chrome.i18n.getMessage('Create__a__password')}
+              value={password}
+              className={classes.inputBox}
+              fullWidth
+              autoFocus
+              disableUnderline
+              autoComplete="new-password"
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
+              endAdornment={
+                <InputAdornment position="end">
+                  {password && <PasswordIndicator value={password} />}
+                  <IconButton
+                    onClick={() => setPasswordVisible(!isPasswordVisible)}
+                  >
+                    {isPasswordVisible ? (
+                      <VisibilityOffIcon />
+                    ) : (
+                      <VisibilityIcon />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+            <Presets.TransitionSlideUp>
+              {password && helperText}
+            </Presets.TransitionSlideUp>
+            <Input
+              sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
+              id="pass2"
+              type={isConfirmPasswordVisible ? 'text' : 'password'}
+              name="password2"
+              placeholder={chrome.i18n.getMessage('Confirm__your__password')}
+              value={confirmPassword}
+              className={classes.inputBox2}
+              autoComplete="new-password"
+              fullWidth
+              disableUnderline
+              onChange={(event) => {
+                setConfirmPassword(event.target.value);
+              }}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() =>
+                      setConfirmPasswordVisible(!isConfirmPasswordVisible)
+                    }
+                  >
+                    {isConfirmPasswordVisible ? (
+                      <VisibilityOffIcon />
+                    ) : (
+                      <VisibilityIcon />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+            <Presets.TransitionSlideUp
+              style={{ height: '40px', display: 'flex' }}
+            >
+              {confirmPassword && helperMatch}
+            </Presets.TransitionSlideUp>
+          </FormGroup>
+        </Box>
+
+        {/* <FormControlLabel
+          control={
+            <Checkbox
+              icon={<BpIcon />}
+              checkedIcon={<BpCheckedIcon />}
+              onChange={(event) => setCheck(event.target.checked)}
+            />
+          }
+          label={
+            <Typography variant="body1" color="text.secondary">
+              I agree to the{' '}
+              <a href="https://lilico.app/privacy-policy.html" target="_blank">
+                Privacy Policy
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://lilico.app/terms-of-conditions.html"
+                target="_blank"
+              >
+                Terms of Service
+              </a>{' '}
+              of Lilico Wallet.
+            </Typography>
+          }
+        /> */}
+        <Box>
+          <Button
+            className="registerButton"
+            onClick={() => register()}
+            disabled={!(isMatch && isCharacters)}
+            variant="contained"
+            color="secondary"
+            size="large"
             sx={{
-              flexGrow: 1,
-              width: 640,
-              maxWidth: '100%',
-              my: '32px',
+              height: '56px',
+              borderRadius: '12px',
+              width: '640px',
+              textTransform: 'capitalize',
               display: 'flex',
+              gap: '12px',
             }}
           >
-            <FormGroup sx={{ width: '100%' }}>
-              <Input
-                id="pass"
-                type={isPasswordVisible ? 'text' : 'password'}
-                name="password"
-                placeholder={chrome.i18n.getMessage('Create__a__password')}
-                value={password}
-                className={classes.inputBox}
-                fullWidth
-                autoFocus
-                disableUnderline
-                autoComplete="new-password"
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                }}
-                endAdornment={
-                  <InputAdornment position="end">
-                    {password && <PasswordIndicator value={password} />}
-                    <IconButton
-                      onClick={() => setPasswordVisible(!isPasswordVisible)}
-                    >
-                      {isPasswordVisible ? (
-                        <VisibilityOffIcon />
-                      ) : (
-                        <VisibilityIcon />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-              <Presets.TransitionSlideUp>
-                {password && helperText}
-              </Presets.TransitionSlideUp>
-              <Input
-                sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
-                id="pass2"
-                type={isConfirmPasswordVisible ? 'text' : 'password'}
-                name="password2"
-                placeholder={chrome.i18n.getMessage('Confirm__your__password')}
-                value={confirmPassword}
-                className={classes.inputBox2}
-                autoComplete="new-password"
-                fullWidth
-                disableUnderline
-                onChange={(event) => {
-                  setConfirmPassword(event.target.value);
-                }}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() =>
-                        setConfirmPasswordVisible(!isConfirmPasswordVisible)
-                      }
-                    >
-                      {isConfirmPasswordVisible ? (
-                        <VisibilityOffIcon />
-                      ) : (
-                        <VisibilityIcon />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-              <Presets.TransitionSlideUp
-                style={{ height: '40px', display: 'flex' }}
-              >
-                {confirmPassword && helperMatch}
-              </Presets.TransitionSlideUp>
-            </FormGroup>
-          </Box>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isCheck}
-                icon={<BpIcon />}
-                checkedIcon={<BpCheckedIcon />}
-                onChange={(event) => setCheck(event.target.checked)}
-              />
-            }
-            label={
-              <Typography variant="body1" color="text.secondary">
-                {chrome.i18n.getMessage('Use__the__same__Google__Drive__password')}
-              </Typography>
-            }
-          />
-          <Box>
-            <Button
-              className="registerButton"
-              onClick={login}
-              disabled={isLoading ? true : !(isMatch && isCharacters)}
-              variant="contained"
-              color="secondary"
-              size="large"
-              sx={{
-                height: '56px',
-                borderRadius: '12px',
-                width: '640px',
-                textTransform: 'capitalize',
-                display: 'flex',
-                gap: '12px',
-              }}
+            {isLoading && <LLSpinner color="secondary" size={28} />}
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 'bold' }}
+              color="background.paper"
             >
-              {isLoading && <LLSpinner color="secondary" size={28} />}
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 'bold' }}
-                color="background.paper"
-              >
-                {chrome.i18n.getMessage('Login')}
-              </Typography>
-            </Button>
-          </Box>
+              {chrome.i18n.getMessage('Login')}
+            </Typography>
+          </Button>
         </Box>
-        : <LLNotFound setShowDialog={setShowDialog} />}
+      </Box>
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+        <Alert onClose={handleErrorClose} variant="filled" severity="success" sx={{ width: '100%' }}>
           {errorMessage}
         </Alert>
       </Snackbar>

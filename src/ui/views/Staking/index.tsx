@@ -33,7 +33,7 @@ const Staking = () => {
       setNoStake(true);
     } else if (amount < 50) {
       notification.create(
-        `/`,
+        '/',
         'Not enough Flow',
         'A minimum of 50 Flow is required for staking',
       );
@@ -56,7 +56,7 @@ const Staking = () => {
 
     const storageData = await wallet.getCoinList();
     console.log(storageData, 'storage');
-    const flowObject = storageData.find(coin => coin.unit === "flow");
+    const flowObject = storageData.find(coin => coin.unit === 'flow');
     setAmount(flowObject!.balance);
   }
 

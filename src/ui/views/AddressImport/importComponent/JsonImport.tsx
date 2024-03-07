@@ -1,7 +1,7 @@
-import { useEffect, useState, useContext } from "react";
-import { findAddressWithPK } from "../findAddressWithPK";
-import { KEY_TYPE } from "../constants";
-import React from "react";
+import { useEffect, useState, useContext } from 'react';
+import { findAddressWithPK } from '../findAddressWithPK';
+import { KEY_TYPE } from '../constants';
+import React from 'react';
 import { Box, Button, Typography, TextField, IconButton, TextareaAutosize, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
@@ -54,17 +54,17 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
-  const [json, setJson] = useState("")
-  const [errorMesssage, setErrorMessage] = useState("");
+  const [json, setJson] = useState('')
+  const [errorMesssage, setErrorMessage] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const hasJsonStructure = (str) => {
-    if (typeof str !== "string") return false;
+    if (typeof str !== 'string') return false;
     try {
       const result = JSON.parse(str);
       const type = Object.prototype.toString.call(result);
-      return type === "[object Object]" || type === "[object Array]";
+      return type === '[object Object]' || type === '[object Array]';
     } catch (err) {
       return false;
     }
@@ -97,12 +97,12 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
     setJson(event);
     if (event.length === 0) {
       setIsInvalid(false);
-      setErrorMessage("");
+      setErrorMessage('');
       return false;
     }
     const result = hasJsonStructure(event);
     setIsInvalid(!result);
-    setErrorMessage(!result ? "Not a valid json input" : "");
+    setErrorMessage(!result ? 'Not a valid json input' : '');
     return result;
   };
 
@@ -135,7 +135,7 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
         <TextareaAutosize
           placeholder="Enter your flow address (Optional)"
           className={classes.textarea}
-          defaultValue={""}
+          defaultValue={''}
 
         />
 

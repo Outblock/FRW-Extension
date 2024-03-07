@@ -26,6 +26,7 @@ import zxcvbn from 'zxcvbn';
 import theme from '../../../style/LLTheme';
 import { useWallet } from 'ui/utils';
 import { LLNotFound } from 'ui/FRWComponent';
+import { storage } from '@/background/webapi';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -210,11 +211,16 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
 
   const login = async () => {
     setLoading(true);
+    
+    const loggedInAccount = await storage.get('loggedInAccounts');
+    const lastIndex = loggedInAccount.length;
+    console.log(' loggedInAccount ', lastIndex, loggedInAccount);
+    await storage.set('currentAccountIndex', lastIndex);
     try {
       await wallet.signInWithMnemonic(mnemonic);
       await wallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.createKeyringWithMnemonics(formatted);
+      await wallet.addAccounts(formatted);
       setLoading(false);
       handleClick();
     } catch (e) {

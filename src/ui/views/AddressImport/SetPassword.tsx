@@ -159,15 +159,15 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
 
   function getHashAlgo(value: string): number {
     switch (value) {
-      case "unknown":
+      case 'unknown':
         return 0;
-      case "SHA2_256":
+      case 'SHA2_256':
         return 1;
-      case "SHA2_384":
+      case 'SHA2_384':
         return 2;
-      case "SHA3_256":
+      case 'SHA3_256':
         return 3;
-      case "SHA3_384":
+      case 'SHA3_384':
         return 4;
       default:
         return -1; // Handle unknown values
@@ -176,15 +176,15 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
 
   function getSignAlgo(value: string): number {
     switch (value) {
-      case "unknown":
+      case 'unknown':
         return 0;
-      case "ECDSA_P256":
+      case 'ECDSA_P256':
         return 1;
-      case "ECDSA_p256":
+      case 'ECDSA_p256':
         return 1;
-      case "ECDSA_SECP256k1":
+      case 'ECDSA_SECP256k1':
         return 2;
-      case "ECDSA_secp256k1":
+      case 'ECDSA_secp256k1':
         return 2;
       default:
         return -1; // Handle unknown values

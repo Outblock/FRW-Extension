@@ -19,6 +19,7 @@ import i18n from '../i18n';
 import { KEYRING_TYPE } from 'consts';
 import DisplayKeyring from './display';
 import eventBus from '@/eventBus';
+import { storage } from '../../webapi';
 
 export const KEYRING_SDK_TYPES = {
   SimpleKeyring,
@@ -653,8 +654,27 @@ class KeyringService extends EventEmitter {
           serializedKeyrings as unknown as Buffer
         );
       })
-      .then((encryptedString) => {
-        this.store.updateState({ vault: encryptedString });
+      .then(async (encryptedString) => {
+        const accountIndex = await storage.get('currentAccountIndex');
+        console.log('1 this.store.getState().vault', this.store.getState().vault);
+        console.log('1 this.accountIndex', accountIndex);
+
+        const oldVault = this.store.getState().vault;
+
+        const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
+
+        // Check if the specified index exists in the array.
+        if (accountIndex <= vaultArray.length) {
+          vaultArray[accountIndex] = encryptedString; // Update the element at the specified index
+        } else {
+          vaultArray[0] = encryptedString
+        }
+
+        // Update the store's state with the new vault array
+        this.store.updateState({ vault: vaultArray });
+
+        console.log('1 encryptedString', encryptedString);
+        console.log('2 this.store.getState().vault', this.store.getState().vault);
         return true;
       });
   }
@@ -669,7 +689,11 @@ class KeyringService extends EventEmitter {
    * @returns {Promise<Array<Keyring>>} The keyrings.
    */
   async unlockKeyrings(password: string): Promise<any[]> {
-    const encryptedVault = this.store.getState().vault;
+    const accountIndex = await storage.get('currentAccountIndex');
+    const vaultArray = this.store.getState().vault;
+    console.log('vaultArray ', vaultArray)
+    console.log('accountIndex ', accountIndex)
+    const encryptedVault = vaultArray[accountIndex];
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
@@ -765,6 +789,19 @@ class KeyringService extends EventEmitter {
       }, []);
     });
     return addrs.map(normalizeAddress);
+  }
+
+  /**
+   * Get Keyring
+   *
+   * Returns the key ring of current storage
+   * managed by all currently unlocked keyrings.
+   *
+   * @returns {Promise<Array<string>>} The array of accounts.
+   */
+  async getKeyring(): Promise<any[]> {
+    const keyrings = this.keyrings || [];
+    return keyrings;
   }
 
   /**

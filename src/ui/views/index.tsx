@@ -5,6 +5,7 @@ import { createMemoryHistory } from 'history';
 import { WalletProvider } from 'ui/utils';
 import SortHat from './SortHat';
 import Unlock from './Unlock';
+import SwitchUnlock from './SwitchUnlock'
 import InnerRoute from './InnerRoute';
 const AsyncMainRoute = lazy(() => import('./MainRoute'));
 import theme from '../style/LLTheme';
@@ -24,6 +25,7 @@ function Main() {
       </Route>
       {/* <Route exact path="/reset" component={Reset} /> */}
       <Route exact path="/unlock" component={Unlock} />
+      <Route exact path="/switchunlock" component={SwitchUnlock} />
       <Suspense fallback={null}>
         <AsyncMainRoute />
       </Suspense>

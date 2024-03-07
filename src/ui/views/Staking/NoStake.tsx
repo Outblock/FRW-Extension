@@ -428,7 +428,7 @@ const NoStake = (props: NoStakeProps) => {
                 <LLPrimaryButton
                   label={
                     props.amount < 50
-                      ? "Require 50 Flow to start staking"
+                      ? 'Require 50 Flow to start staking'
                       : props.hasSetup
                         ? "Let's Stake"
                         : props.loading

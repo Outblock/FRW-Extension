@@ -1,15 +1,15 @@
-import { useEffect, useState, useContext } from "react";
-import { findAddressWithSeed } from "../AddressImport/findAddressWithPK";
-import { KEY_TYPE } from "./constants";
-import React from "react";
+import { useEffect, useState, useContext } from 'react';
+import { findAddressWithSeed } from '../AddressImport/findAddressWithPK';
+import { KEY_TYPE } from './constants';
+import React from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
-import SeedPhraseImport from "./importComponent/SeedPhrase";
-import KeyImport from "./importComponent/KeyImport";
-import JsonImport from "./importComponent/JsonImport";
+import SeedPhraseImport from './importComponent/SeedPhrase';
+import KeyImport from './importComponent/KeyImport';
+import JsonImport from './importComponent/JsonImport';
 
-import ImportAddressModel from "./modal/importAddressModal";
+import ImportAddressModel from './modal/importAddressModal';
 
-import ErrorModel from "./modal/errorModel";
+import ErrorModel from './modal/errorModel';
 import { useWallet } from 'ui/utils';
 import * as bip39 from 'bip39';
 import { storage } from '@/background/webapi';
@@ -83,16 +83,16 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
   };
 
   const handleAddressSelection = async (address) => {
-    console.log("handleAddressSelection ==>", address);
+    console.log('handleAddressSelection ==>', address);
     console.log(
-      "handleAddressSelection ==>",
+      'handleAddressSelection ==>',
       accounts.filter((account) => account.address === address)[0],
       accounts
     );
     const account = accounts.filter(
       (account) => account.address === address
     )[0];
-    console.log("handleAddressSelection ==>", account);
+    console.log('handleAddressSelection ==>', account);
     const result = await wallet.openapi.checkImport(account.pubK);
     if (result.status === 409) {
       setKeyNew(false);
@@ -121,7 +121,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
   };
 
   return (
-    <Box sx={{ padding: "0 16px 16px" }}>
+    <Box sx={{ padding: '0 16px 16px' }}>
       <Box sx={{ padding: '20px 24px' }}>
         <Typography variant="h4">
           Import Address
