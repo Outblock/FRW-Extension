@@ -6,7 +6,10 @@ import { withPrefix } from 'ui/utils/address';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
+import {
+  keyringService,
+} from 'background/service';
+import { storage } from 'background/webapi';
 
 
 
@@ -28,6 +31,16 @@ const Popup = (props: TransferConfirmationProps) => {
 
   const usewallet = useWallet();
 
+  const getKeyring = async () => {
+    const keyringState = await storage.get('keyringState');
+    const keyring = await  keyringService.loadStore(keyringState);
+    console.log('keyring', keyring)
+    console.log('keyringState', keyringState)
+  }
+
+  useEffect(() => {
+    getKeyring();
+  }, [])
   // const [validated, setValidated] = useState<any>(null);
 
 

@@ -209,7 +209,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
     try {
       await wallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.createKeyringWithMnemonics(formatted);
+      await wallet.loginWithMnemonics(formatted);
       setLoading(false);
       handleClick();
     } catch (e) {

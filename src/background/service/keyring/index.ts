@@ -78,10 +78,13 @@ class KeyringService extends EventEmitter {
   }
 
   async boot(password: string) {
+    console.log('this.store ', this.store)
+    console.log('this.memStore ', this.memStore)
     this.password = password;
     const encryptBooted = await this.encryptor.encrypt(password, 'true');
     this.store.updateState({ booted: encryptBooted });
     this.memStore.updateState({ isUnlocked: true });
+    console.log('this.memStore encryptBooted ', this.memStore)
   }
 
   async update(password: string) {
@@ -215,7 +218,8 @@ class KeyringService extends EventEmitter {
       .then(() => keyring);
   }
 
-  addKeyring(keyring) {
+  async addKeyring(keyring) {
+    console.log('this.persistAllKeyrings() ', this.keyrings)
     return keyring
       .getAccounts()
       .then((accounts) => {
@@ -629,7 +633,7 @@ class KeyringService extends EventEmitter {
         new Error('KeyringController - password is not a string')
       );
     }
-
+    console.log('this.keyrings ', this.keyrings)
     return Promise.all(
       this.keyrings.map((keyring) => {
         return Promise.all([keyring.type, keyring.serialize()]).then(

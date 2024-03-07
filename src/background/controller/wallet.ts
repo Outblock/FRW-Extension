@@ -321,6 +321,15 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyring);
   };
 
+  loginWithMnemonics = async (mnemonic) => {
+    // TODO: NEED REVISIT HERE:
+
+    const keyring = await keyringService.createKeyringWithMnemonics(mnemonic);
+    console.log('current key ring ', keyring)
+    keyringService.removePreMnemonics();
+    return this._setCurrentAccountFromKeyring(keyring);
+  };
+
   getHiddenAddresses = () => preferenceService.getHiddenAddresses();
   showAddress = (type: string, address: string) =>
     preferenceService.showAddress(type, address);
