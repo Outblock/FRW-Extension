@@ -20,7 +20,7 @@ interface TransferConfirmationProps {
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
   userInfo: UserInfoResponse;
-  current: {};
+  current: any;
 }
 
 

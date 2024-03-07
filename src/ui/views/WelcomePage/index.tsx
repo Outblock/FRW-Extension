@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, ThemeProvider } from '@mui/system';
-import { Typography, Button, CssBaseline } from '@mui/material';
+import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
 import theme from '../../style/LLTheme';
 import RegisterHeader from '../Register/RegisterHeader';
 import appicon from '../../FRWAssets/image/appicon.png';
-import create from '../../FRWAssets/image/create.png';
-import importPng from '../../FRWAssets/image/import.png';
-import qr from '../../FRWAssets/image/scanIcon.png';
-import outside from '../../FRWAssets/image/importoutside.png';
+import create from '../../FRWAssets/svg/create.svg';
+import importPng from '../../FRWAssets/svg/import.svg';
+import qr from '../../FRWAssets/svg/scanIcon.svg';
+import outside from '../../FRWAssets/svg/importoutside.svg';
 import { Link } from 'react-router-dom';
 import IconFlow from '../../../components/iconfont/IconFlow';
 import QRCode from 'react-qr-code';
@@ -109,10 +109,10 @@ const WelcomePage = () => {
                   borderRadius: '24px',
                   textTransform: 'capitalize',
                   marginBottom: '16px',
-                  paddingLeft:'32px'
+                  paddingLeft: '32px'
                 }}
               >
-                <img src={create} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={create} />
                 <Typography
                   variant="subtitle1"
                   sx={{ fontWeight: '600', fontSize: '14px' }}
@@ -140,10 +140,10 @@ const WelcomePage = () => {
                   marginBottom: '16px',
                   border: '1px solid #E5E5E5',
                   backgroundColor: 'transparent',
-                  paddingLeft:'32px'
+                  paddingLeft: '32px'
                 }}
               >
-                <img src={importPng} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -176,10 +176,10 @@ const WelcomePage = () => {
                   border: '1px solid #E5E5E5',
                   marginBottom: '16px',
                   backgroundColor: 'transparent',
-                  paddingLeft:'32px'
+                  paddingLeft: '32px'
                 }}
               >
-                <img src={qr} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={qr} />
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -211,15 +211,15 @@ const WelcomePage = () => {
                   textTransform: 'capitalize',
                   border: '1px solid #E5E5E5',
                   backgroundColor: 'transparent',
-                  flexDirection:'column',
-                  paddingLeft:'32px',
+                  flexDirection: 'column',
+                  paddingLeft: '32px',
                   '&:hover': {
                     color: 'background.paper'
                   }
                 }}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start',width:'100%' }}>
-                  <img src={outside} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
+                  <CardMedia component="img" sx={{ marginRight: '8px', width: '42px', height: '18px' }} image={outside} />
                   <Typography
                     variant="subtitle1"
                     sx={{
@@ -237,7 +237,7 @@ const WelcomePage = () => {
                     fontWeight: '400',
                     fontSize: '12px',
                     color: 'rgba(255, 255, 255, 0.40)',
-                    
+
                   }}
                 >
                   Support Flow Wallet, Blocto, json and raw key
