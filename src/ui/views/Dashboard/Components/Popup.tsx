@@ -95,8 +95,8 @@ const Popup = (props: TransferConfirmationProps) => {
           }}
         >
           <ListItem disablePadding onClick={async () => {
-            await usewallet.lockWallet();
-            history.push('/add');
+            await usewallet.lockAndSwitch();
+            // history.push('/add');
           }}>
             <ListItemIcon
               sx={{

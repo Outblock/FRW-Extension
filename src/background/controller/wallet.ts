@@ -24,7 +24,7 @@ import { openIndexPage } from 'background/webapi/tab';
 import { CacheState } from 'background/service/pageStateCache';
 import i18n from 'background/service/i18n';
 import { KEYRING_CLASS, DisplayedKeryring } from 'background/service/keyring';
-import providerController from './provider/controller';
+import { openInternalPageInTab } from 'ui/utils/webapi';
 import BaseController from './base';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 import { Account } from '../service/preference';
@@ -207,6 +207,13 @@ export class WalletController extends BaseController {
     sessionService.broadcastEvent('lock');
   };
 
+  lockAndSwitch = async () => {
+    await keyringService.setLocked();
+    await passwordService.clear();
+    sessionService.broadcastEvent('accountsChanged', []);
+    sessionService.broadcastEvent('lock');
+    openInternalPageInTab('add', true)
+  };
   setPopupOpen = (isOpen) => {
     preferenceService.setPopupOpen(isOpen);
   };
@@ -1856,7 +1863,7 @@ export class WalletController extends BaseController {
     return userWalletService.signInWithMnemonic(mnemonic, replaceUser);
   };
 
-  signInV3 = async (mnemonic: string, accountKey:any, deviceInfo:any,  replaceUser = true) => {
+  signInV3 = async (mnemonic: string, accountKey: any, deviceInfo: any, replaceUser = true) => {
     return userWalletService.signInv3(mnemonic, accountKey, deviceInfo, replaceUser);
   };
 
