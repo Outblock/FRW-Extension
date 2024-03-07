@@ -131,7 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts, goEnd }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -295,7 +295,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         })
         .then((address) => {
           setLoading(false);
-          handleClick();
+          if(pk) {
+            goEnd();
+          } else {
+            handleClick();
+
+          }
         })
         .catch((error) => {
           console.log('error', error);

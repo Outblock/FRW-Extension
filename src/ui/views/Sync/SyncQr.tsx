@@ -342,7 +342,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
               width: '347px'
             }}
           >
-            <Box>
+            {/* <Box>
               <Typography sx={{
                 width: '347px',
                 overflow: 'hidden',
@@ -351,7 +351,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
               }}>{Uri}</Typography>
               <button onClick={copyToClipboard}>Copy Uri</button>
               {copySuccess && <Box>{copySuccess}</Box>}
-            </Box>
+            </Box> */}
             {Uri &&
               <Box>
                 <Box sx={{ position: 'relative' }}>
