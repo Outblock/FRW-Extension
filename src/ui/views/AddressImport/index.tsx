@@ -62,6 +62,10 @@ const AddressImport = () => {
       window.close();
     }
   };
+  const goEnd = () => {
+    setDirection(Direction.Right);
+    onChange(4);
+  };
 
   const goBack = () => {
     setDirection(Direction.Left);
@@ -98,6 +102,7 @@ const AddressImport = () => {
             pk={pk}
             username={username}
             accounts={accounts}
+            goEnd={goEnd}
           />
         );
       case 3:

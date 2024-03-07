@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, FormControl, Select } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, FormControl, Select, Typography } from '@mui/material';
 import { useHistory } from 'react-router-dom';
 
 const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage }) => {
@@ -12,11 +12,11 @@ const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage }) => {
 
   return (
     <Dialog open={isOpen} onClose={() => onOpenChange(true)}>
-      <DialogTitle>{errorName}</DialogTitle>
+      <DialogTitle><Typography>{errorName}</Typography></DialogTitle>
       <DialogContent>
-        <h2>{errorMessage}</h2>
+        <Typography>{errorMessage}</Typography>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{padding:'16px 24px'}}>
         <Button onClick={() => onOpenChange(true)}>
           Cancel
         </Button>

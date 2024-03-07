@@ -7,6 +7,7 @@ import appicon from '../../FRWAssets/image/appicon.png';
 import create from '../../FRWAssets/image/create.png';
 import importPng from '../../FRWAssets/image/import.png';
 import qr from '../../FRWAssets/image/scanIcon.png';
+import outside from '../../FRWAssets/image/importoutside.png';
 import { Link } from 'react-router-dom';
 import IconFlow from '../../../components/iconfont/IconFlow';
 import QRCode from 'react-qr-code';
@@ -53,7 +54,7 @@ const WelcomePage = () => {
           >
             <img
               src={appicon}
-              style={{ borderRadius:'24px', margin: '0', width: '368px', position: 'absolute', right: '0px', top: '0px' }}
+              style={{ borderRadius: '24px', margin: '0', width: '368px', position: 'absolute', right: '0px', top: '0px' }}
             />
 
             <Box
@@ -102,12 +103,13 @@ const WelcomePage = () => {
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '308px',
+                  justifyContent: 'flex-start',
+                  width: '332px',
                   height: '48px',
                   borderRadius: '24px',
                   textTransform: 'capitalize',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  paddingLeft:'32px'
                 }}
               >
                 <img src={create} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
@@ -129,15 +131,16 @@ const WelcomePage = () => {
                 size="large"
                 sx={{
                   display: 'flex',
-                  width: '308px',
+                  width: '332px',
                   height: '48px',
                   borderRadius: '24px',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   textTransform: 'capitalize',
                   marginBottom: '16px',
                   border: '1px solid #E5E5E5',
-                  backgroundColor: 'transparent'
+                  backgroundColor: 'transparent',
+                  paddingLeft:'32px'
                 }}
               >
                 <img src={importPng} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
@@ -164,15 +167,16 @@ const WelcomePage = () => {
                 size="large"
                 sx={{
                   display: 'flex',
-                  width: '308px',
+                  width: '332px',
                   height: '48px',
                   borderRadius: '24px',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   textTransform: 'capitalize',
                   border: '1px solid #E5E5E5',
                   marginBottom: '16px',
-                  backgroundColor: 'transparent'
+                  backgroundColor: 'transparent',
+                  paddingLeft:'32px'
                 }}
               >
                 <img src={qr} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
@@ -199,29 +203,44 @@ const WelcomePage = () => {
                 size="large"
                 sx={{
                   display: 'flex',
-                  width: '308px',
-                  height: '48px',
-                  borderRadius: '24px',
+                  width: '332px',
+                  height: '69px',
+                  borderRadius: '120px',
                   alignItems: 'center',
                   justifyContent: 'center',
                   textTransform: 'capitalize',
                   border: '1px solid #E5E5E5',
-                  backgroundColor: 'transparent'
+                  backgroundColor: 'transparent',
+                  flexDirection:'column',
+                  paddingLeft:'32px',
+                  '&:hover': {
+                    color: 'background.paper'
+                  }
                 }}
               >
-                <img src={qr} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start',width:'100%' }}>
+                  <img src={outside} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: '#FFF',
+                    }}
+                  >
+                    Import Other Wallets
+                  </Typography>
+                </Box>
                 <Typography
                   variant="subtitle1"
                   sx={{
-                    fontWeight: '600',
-                    fontSize: '14px',
-                    color: '#FFF',
-                    '&:hover': {
-                      color: 'background.paper'
-                    }
+                    fontWeight: '400',
+                    fontSize: '12px',
+                    color: 'rgba(255, 255, 255, 0.40)',
+                    
                   }}
                 >
-                  Import
+                  Support Flow Wallet, Blocto, json and raw key
                 </Typography>
               </Button>
             </Box>
