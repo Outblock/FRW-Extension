@@ -11,6 +11,7 @@ import {
   indexedDBLocalPersistence,
   signInAnonymously,
   onAuthStateChanged,
+  updateProfile,
 } from '@firebase/auth';
 import { initializeApp, getApp } from 'firebase/app';
 import { getInstallations, getId } from 'firebase/installations';
@@ -47,6 +48,9 @@ import {
 } from './index';
 import * as fcl from '@onflow/fcl';
 import { storage } from '@/background/webapi';
+import { userInfo } from 'os';
+import { fclMainnetConfig, fclTestnetConfig, fclCrescendoConfig } from '../fclConfig';
+import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
 
 export interface OpenApiConfigValue {
@@ -59,8 +63,6 @@ export interface OpenApiStore {
   host: string;
   config: Record<string, OpenApiConfigValue>;
 }
-
-const maxRPS = 100;
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -97,7 +99,25 @@ onAuthStateChanged(auth, (user) => {
     // User is signed out
     console.log('User is signed out');
   }
+
+  fclSetup();
 });
+
+const fclSetup = async () => {
+  const network = await userWalletService.getNetwork();
+  console.log('network is ', network);
+  switch (network) {
+    case 'mainnet':
+      await fclMainnetConfig();
+      break;
+    case 'testnet':
+      await fclTestnetConfig();
+      break;
+    case 'crescendo':
+      await fclCrescendoConfig();
+      break;
+  }
+}
 
 const dataConfig: Record<string, OpenApiConfigValue> = {
   check_username: {
@@ -365,6 +385,8 @@ class OpenApiService {
       },
       fromStorage: false, // Debug only
     });
+
+    await fclSetup();
   };
 
   checkAuthStatus = async () => {

@@ -94,7 +94,6 @@ async function firebaseSetup() {
 }
 
 async function fclSetup() {
-
   const network = await userWalletService.getNetwork();
   console.log('network is ', network);
   switch (network) {
