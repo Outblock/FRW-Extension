@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Box, ListItemButton, Typography, Drawer, IconButton, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { Box, ListItemButton, Typography, Drawer, IconButton, ListItem, ListItemIcon, ListItemText, Avatar, CardMedia } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
-import IconLock from '../../../../components/iconfont/IconLock';
+import popLock from 'ui/FRWAssets/svg/popLock.svg';
+import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 
-import { storage } from 'background/webapi';
 
 
 
@@ -41,15 +40,15 @@ const Popup = (props: TransferConfirmationProps) => {
         sx: { width: '100%', height: 'auto', background: '#222', borderRadius: '18px 18px 0px 0px', },
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px'}}>
-        <Box sx={{display:'flex', justifyContent:'space-between',width:'100%',height:'24px', margin:'20px 0', alignItems: 'center', }}>
-          <Box sx={{width:'40px'}}></Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', height: '24px', margin: '20px 0', alignItems: 'center', }}>
+          <Box sx={{ width: '40px' }}></Box>
           <Typography
             variant="body1"
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '18px',textAlign:'center', lineHeight:'24px',fontWeight: '700' }}
+            sx={{ fontSize: '18px', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
           >
             Accounts
           </Typography>
@@ -97,7 +96,7 @@ const Popup = (props: TransferConfirmationProps) => {
             </ListItemText>
           </ListItem>
         </Box>
-        <Box sx={{height:'1px',width:'100%',margin:'16px 0',backgroundColor:'rgba(255, 255, 255, 0.12)'}}></Box>
+        <Box sx={{ height: '1px', width: '100%', margin: '16px 0', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}></Box>
 
         <Box
           sx={{
@@ -116,16 +115,26 @@ const Popup = (props: TransferConfirmationProps) => {
                 sx={{
                   width: '24px',
                   minWidth: '24px',
-                  marginRight: '12px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px'
                 }}>
-                <AddIcon style={{
-                  marginLeft: '0px', width: '20px'
-                }} />
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popAdd} />
               </ListItemIcon>
-              <ListItemText primary={'Add Account'} />
+              <Typography
+                variant="body1"
+                component="div"
+                display="inline"
+                color='text'
+                sx={{ fontSize: '12px' }}
+              >
+                {'Add Account'}
+              </Typography>
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding onClick={async () => {
+          <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
             await usewallet.lockWallet();
             history.push('/unlock');
           }}>
@@ -134,13 +143,23 @@ const Popup = (props: TransferConfirmationProps) => {
                 sx={{
                   width: '24px',
                   minWidth: '24px',
-                  marginRight: '12px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px'
                 }}>
-                <IconLock style={{
-                  marginLeft: '0px', width: '18px'
-                }} />
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popLock} />
               </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Lock__Wallet')} />
+              <Typography
+                variant="body1"
+                component="div"
+                display="inline"
+                color='text'
+                sx={{ fontSize: '12px' }}
+              >
+                {chrome.i18n.getMessage('Lock__Wallet')}
+              </Typography>
             </ListItemButton>
           </ListItem>
         </Box>
