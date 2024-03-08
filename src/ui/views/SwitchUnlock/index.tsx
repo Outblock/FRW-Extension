@@ -39,6 +39,7 @@ const SwitchUnlock = () => {
   const inputEl = useRef<any>(null);
   // const { t } = useTranslation();
   const [showError, setShowError] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [resetPop, setResetPop] = useState<boolean>(false);
 
@@ -55,18 +56,26 @@ const SwitchUnlock = () => {
 
   const [run] = useWalletRequest(wallet.switchUnlock, {
     onSuccess() {
+      setLoading(false);
       resolveApproval('unlocked');
     },
     onError() {
+      setLoading(false);
       setShowError(true)
     },
   });
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
+      setLoading(true);
       run(password)
     }
-  }
+  };
+
+  const handleClick = () => {
+    setLoading(true);
+    run(password);
+  };
 
   const usernameError = () => (
     <Box
@@ -150,9 +159,9 @@ const SwitchUnlock = () => {
           // className="w-full block"\
           color="success"
           type="submit"
-          onClick={()=> run(password)}
+          onClick={handleClick}          
           fullWidth
-          label= {chrome.i18n.getMessage('Unlock_Wallet')}
+          label= {isLoading ? 'Unlocking...' :chrome.i18n.getMessage('Unlock_Wallet')}
           // sx={{marginTop: '40px', height: '48px'}}
           // type="primary"
           // size="large"

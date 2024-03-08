@@ -212,7 +212,8 @@ export class WalletController extends BaseController {
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openInternalPageInTab('add', true)
+    openInternalPageInTab('add', true);
+    window.close();
   };
   setPopupOpen = (isOpen) => {
     preferenceService.setPopupOpen(isOpen);

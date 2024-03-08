@@ -691,9 +691,15 @@ class KeyringService extends EventEmitter {
   async unlockKeyrings(password: string): Promise<any[]> {
     const accountIndex = await storage.get('currentAccountIndex');
     const vaultArray = this.store.getState().vault;
-    console.log('vaultArray ', vaultArray)
-    console.log('accountIndex ', accountIndex)
-    const encryptedVault = vaultArray[accountIndex];
+    let encryptedVault;
+
+    if (vaultArray[accountIndex] === undefined) {
+      encryptedVault = vaultArray[0];
+    } else if (vaultArray[0] === undefined) {
+      encryptedVault = vaultArray;
+    } else {
+      encryptedVault = vaultArray[accountIndex];
+    }
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
@@ -860,8 +866,8 @@ class KeyringService extends EventEmitter {
     const accounts: Promise<
       ({ address: string; brandName: string } | string)[]
     > = keyring.getAccountsWithBrand
-      ? keyring.getAccountsWithBrand()
-      : keyring.getAccounts();
+        ? keyring.getAccountsWithBrand()
+        : keyring.getAccounts();
 
     return accounts.then((accounts) => {
       const allAccounts = accounts.map((account) => ({
