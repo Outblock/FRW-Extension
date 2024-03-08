@@ -5,6 +5,7 @@ import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
 import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
+import popImport from 'ui/FRWAssets/svg/popImport.svg';
 
 
 
@@ -107,7 +108,7 @@ const Popup = (props: TransferConfirmationProps) => {
           }}
         >
           <ListItem disablePadding onClick={async () => {
-            await usewallet.lockAndSwitch();
+            await usewallet.lockAdd();
             // history.push('/add');
           }}>
             <ListItemButton sx={{ padding: '0', margin: '0' }}>
@@ -130,10 +131,39 @@ const Popup = (props: TransferConfirmationProps) => {
                 color='text'
                 sx={{ fontSize: '12px' }}
               >
-                {'Add Account'}
+                {'Create New Account'}
               </Typography>
             </ListItemButton>
           </ListItem>
+          <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
+            await usewallet.lockImport();
+            // history.push('/add');
+          }}>
+            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+              <ListItemIcon
+                sx={{
+                  width: '24px',
+                  minWidth: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px'
+                }}>
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popImport} />
+              </ListItemIcon>
+              <Typography
+                variant="body1"
+                component="div"
+                display="inline"
+                color='text'
+                sx={{ fontSize: '12px' }}
+              >
+                {'Import Existing Account'}
+              </Typography>
+            </ListItemButton>
+          </ListItem>
+          
           <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
             await usewallet.lockWallet();
             history.push('/unlock');

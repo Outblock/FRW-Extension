@@ -223,6 +223,17 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
 
   const register = async () => {
     setLoading(true);
+
+    const loggedInAccounts = await storage.get('loggedInAccounts');
+    let lastIndex;
+
+    if (!loggedInAccounts || loggedInAccounts.length === 0) {
+      lastIndex = 0;
+    } else {
+      lastIndex = loggedInAccounts.length;
+    }
+    console.log(' loggedInAccount ', lastIndex, loggedInAccounts);
+    await storage.set('currentAccountIndex', lastIndex);
     const accountKey = getAccountKey(mnemonic);
     wallet.openapi
       .register(accountKey, username)

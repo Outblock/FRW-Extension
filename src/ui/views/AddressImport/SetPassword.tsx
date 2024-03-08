@@ -284,9 +284,20 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         .then((response) => {
           return wallet.boot(password);
         })
-        .then((response) => {
+        .then(async (response) => {
           setExPassword(password);
           storage.remove('premnemonic');
+
+          const loggedInAccounts = await storage.get('loggedInAccounts');
+          let lastIndex;
+      
+          if (!loggedInAccounts || loggedInAccounts.length === 0) {
+            lastIndex = 0;
+          } else {
+            lastIndex = loggedInAccounts.length;
+          }
+          console.log(' loggedInAccount ', lastIndex, loggedInAccounts);
+          await storage.set('currentAccountIndex', lastIndex);
           if (pk) {
             return wallet.importPrivateKey(pk);
           } else {
@@ -295,7 +306,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         })
         .then((address) => {
           setLoading(false);
-          if(pk) {
+          if (pk) {
             goEnd();
           } else {
             handleClick();

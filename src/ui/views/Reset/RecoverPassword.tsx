@@ -24,7 +24,8 @@ import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../style/LLTheme';
 import { useWallet } from 'ui/utils';
-import { LLSpinner } from 'ui/FRWComponent'
+import { LLSpinner } from 'ui/FRWComponent';
+import { storage } from '@/background/webapi';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -197,6 +198,16 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
 
   const signIn = async () => {
     setLoading(true);
+
+    const loggedInAccounts = await storage.get('loggedInAccounts');
+    let lastIndex;
+
+    if (!loggedInAccounts || loggedInAccounts.length === 0) {
+      lastIndex = 0;
+    } else {
+      lastIndex = loggedInAccounts.length;
+    }
+    await storage.set('currentAccountIndex', lastIndex);
     try {
       await wallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');

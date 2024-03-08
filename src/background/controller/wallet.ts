@@ -207,7 +207,16 @@ export class WalletController extends BaseController {
     sessionService.broadcastEvent('lock');
   };
 
-  lockAndSwitch = async () => {
+  lockAdd = async () => {
+    await keyringService.setLocked();
+    await passwordService.clear();
+    sessionService.broadcastEvent('accountsChanged', []);
+    sessionService.broadcastEvent('lock');
+    openInternalPageInTab('register', true);
+    window.close();
+  };
+
+  lockImport = async () => {
     await keyringService.setLocked();
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
