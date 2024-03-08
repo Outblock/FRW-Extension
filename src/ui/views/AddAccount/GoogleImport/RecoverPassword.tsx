@@ -308,12 +308,8 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                 value={password}
                 className={classes.inputBox}
                 fullWidth
-                autoFocus
                 disableUnderline
-                autoComplete="new-password"
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                }}
+                readOnly
                 endAdornment={
                   <InputAdornment position="end">
                     {password && <PasswordIndicator value={password} />}
@@ -340,12 +336,9 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                 placeholder={chrome.i18n.getMessage('Confirm__your__password')}
                 value={confirmPassword}
                 className={classes.inputBox2}
-                autoComplete="new-password"
                 fullWidth
                 disableUnderline
-                onChange={(event) => {
-                  setConfirmPassword(event.target.value);
-                }}
+                readOnly
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton

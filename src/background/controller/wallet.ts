@@ -208,15 +208,19 @@ export class WalletController extends BaseController {
   };
 
   lockAdd = async () => {
+    const tempPass = keyringService.getPassword();
+    await storage.set('tempPassword', tempPass);
     await keyringService.setLocked();
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openInternalPageInTab('register', true);
+    openInternalPageInTab('addregister', true);
     window.close();
   };
 
   lockImport = async () => {
+    const tempPass = keyringService.getPassword();
+    await storage.set('tempPassword', tempPass);
     await keyringService.setLocked();
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);

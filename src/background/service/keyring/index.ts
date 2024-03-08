@@ -255,6 +255,10 @@ class KeyringService extends EventEmitter {
     return this.fullUpdate();
   }
 
+  getPassword(): string | null {
+    return this.password;
+  }
+
   /**
    * Submit Password
    *

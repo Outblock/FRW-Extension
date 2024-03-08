@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography } from '@mui/material';
-import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import theme from '../../../style/LLTheme';
-import RegisterHeader from '../../Register/RegisterHeader';
-import AllSet from '../../Register/AllSet';
-import DecryptWallet from './DecryptWallet';
+import {
+  IconButton,
+  Typography,
+} from '@mui/material';
+import BackButtonIcon from '../../../components/iconfont/IconBackButton';
+import theme from '../../style/LLTheme';
+import RegisterHeader from './RegisterHeader';
+import PickUsername from './PickUsername';
 import RecoveryPhrase from './RecoveryPhrase';
-import GoogleAccounts from './GoogleAccounts';
-import RecoveryPassword from './RecoverPassword';
+import RepeatPhrase from './RepeatPhrase';
+import GoogleBackup from './GoogleBackup';
+import AllSet from './AllSet';
+import SetPassword from './SetPassword';
 import Particles from 'react-tsparticles';
+import * as bip39 from 'bip39';
 import {
   ComponentTransition,
   AnimationTypes,
 } from 'react-component-transition';
 import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../options';
+import options from '../Import/options'
+import { useWallet } from 'ui/utils';
 import { storage } from 'background/webapi';
 
 enum Direction {
@@ -24,23 +30,40 @@ enum Direction {
   Left,
 }
 
-interface AccountsState {
-  accounts: string[]
-}
-
-const GoogleImport = () => {
-  const location = useLocation<AccountsState>();
+const AddRegister = () => {
   const history = useHistory();
+  const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
-  const [mnemonic, setMnemonic] = useState('');
-  const [accounts, setAccounts] = useState<string[]>([]);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [direction, setDirection] = useState(Direction.Right);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState(null);
+  const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
+
+  const getUsername = (username: string) => {
+    setUsername(username.toLowerCase());
+  };
+
+  const loadView = async () => {
+    // console.log(wallet);
+    wallet.getCurrentAccount().then((res) => {
+      if (res) {
+        history.push('/');
+      }
+    }).catch(() => {
+      return;
+    });
+  };
+
+  const loadTempPassword = async () => {
+    const temp = await storage.get('tempPassword');
+    if (temp) {
+      setPassword(temp);
+    }
+  };
 
   const goNext = () => {
     setDirection(Direction.Right);
-    if (activeIndex < 4) {
+    if (activeIndex < 5) {
       onChange(activeIndex + 1);
     } else {
       window.close();
@@ -56,43 +79,45 @@ const GoogleImport = () => {
     }
   };
 
-  const loadTempPassword = async () => {
-    const temp = await storage.get('tempPassword');
-    if (temp) {
-      setPassword(temp);
-    }
-  };
-
-  const getGoogleAccounts = async () => {
-    // const backupFile = await storage.get('googleBackup');
-    // await setBackup(backupFile);
-    const users = location.state.accounts;
-    setAccounts(users)
-  };
-
-  useEffect(() => {
-    getGoogleAccounts();
-    loadTempPassword();
-  }, []);
-
   const page = (index) => {
     switch (index) {
       case 0:
-        return <GoogleAccounts handleClick={goNext} accounts={accounts} setUsername={setUsername}/>
+        return (
+          <PickUsername
+            handleClick={goNext}
+            savedUsername={username}
+            getUsername={getUsername}
+          />
+        );
       case 1:
-        return <DecryptWallet handleClick={goNext} setMnemonic={setMnemonic} username={username} />;
-      case 2:
         return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
+      case 2:
+        return <RepeatPhrase handleClick={goNext} mnemonic={mnemonic} />;
       case 3:
-        return <RecoveryPassword handleClick={goNext} mnemonic={mnemonic} username={username} lastPassword={password}/>
+        return (
+          <SetPassword
+            handleClick={goNext}
+            setExPassword={setPassword}
+            tempPassword={password}
+            mnemonic={mnemonic}
+            username={username}
+          />
+        );
       case 4:
+        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
+      case 5:
         return <AllSet handleClick={goNext} />;
       default:
-        return <div />;
+        return <div />; 
     }
   };
 
-  const heights = [500, 500, 600, 600, 500]
+  useEffect(() => {
+    loadView();
+    loadTempPassword();
+  }, []);
+
+  const height = [480, 600, 640, 620, 480, 480]
 
   return (
     <ThemeProvider theme={theme}>
@@ -107,26 +132,30 @@ const GoogleImport = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 4 && (
+        {activeIndex == 5 && (
           <Particles
-            // @ts-expect-error customized options
+            //@ts-expect-error customized option
             options={options}
           />
         )}
-        <LLPinAlert open={activeIndex == 4} />
         <RegisterHeader />
+
+        <LLPinAlert open={activeIndex == 5} />
+
         <Box sx={{ flexGrow: 0.7 }} />
+        {/* height why not use auto */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'column',
             width: 720,
-            marginTop:'80px',
+            marginTop: '80px',
             height: 'auto',
             transition: 'all .3s ease-in-out',
             borderRadius: '24px',
             boxShadow: '0px 24px 24px rgba(0,0,0,0.36)',
-            overflow: 'hidden',
+            overflowY: 'auto',
+            overflowX: 'hidden',
             backgroundColor: 'background.paper',
           }}
         >
@@ -138,17 +167,19 @@ const GoogleImport = () => {
               padding: '24px 24px 0px 24px',
             }}
           >
-            <IconButton onClick={goBack} size="small">
-              <BackButtonIcon color="#5E5E5E" size={27} />
-            </IconButton>
+            {(activeIndex !== 4 && activeIndex !== 5) &&
+              <IconButton onClick={goBack} size="small">
+                <BackButtonIcon color="#5E5E5E" size={27} />
+              </IconButton>
+            }
 
             <div style={{ flexGrow: 1 }}></div>
 
             <Typography
               variant="body1"
-              sx={{ color: '#5E5E5E', alignSelf: 'end',lineHeight:'37px', fontWeight: '700',fontSize:'16px' }}
+              sx={{ color: '#5E5E5E', alignSelf: 'end', lineHeight: '37px', fontWeight: '700', fontSize: '16px' }}
             >
-              {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/5
+              {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/6
             </Typography>
           </Box>
 
@@ -179,4 +210,4 @@ const GoogleImport = () => {
   );
 };
 
-export default GoogleImport;
+export default AddRegister;

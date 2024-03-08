@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
@@ -7,16 +7,17 @@ import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 import theme from '../../style/LLTheme';
 import RegisterHeader from '../Register/RegisterHeader';
 import ImportRecoveryPhrase from './ImportRecoveryPhrase';
-import AllSet from '../Register/AllSet';
+import AllSet from '../AddRegister/AllSet';
 import RecoverPassword from './RecoverPassword';
 import Particles from 'react-tsparticles';
-import {LLPinAlert, LLSpinner} from 'ui/FRWComponent';
+import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
   ComponentTransition,
   AnimationTypes,
 } from 'react-component-transition';
 import { useWallet } from 'ui/utils';
 import options from './options';
+import { storage } from 'background/webapi';
 
 enum Direction {
   Right,
@@ -33,6 +34,14 @@ const AddAccount = () => {
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
   const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState(null);
+
+  const loadTempPassword = async () => {
+    const temp = await storage.get('tempPassword');
+    if (temp) {
+      setPassword(temp);
+    }
+  };
 
   const goNext = () => {
     setDirection(Direction.Right);
@@ -55,14 +64,15 @@ const AddAccount = () => {
   const getGoogle = async () => {
     setLoading(true);
 
-    try { 
+    try {
       const accounts = await wallets.loadBackupAccounts();
       if (accounts.length > 0) {
         history.push({
-          pathname: '/import/google',         
+          pathname: '/add/google',
           state: {
             accounts: accounts,
-          },});
+          },
+        });
       } else {
         setShowError(true)
         setErrorMessage(chrome.i18n.getMessage('No__backup__found'))
@@ -83,12 +93,16 @@ const AddAccount = () => {
     setShowError(false);
   };
 
+  useEffect(() => {
+    loadTempPassword();
+  }, []);
+
   const page = (index) => {
     switch (index) {
       case 0:
         return <ImportRecoveryPhrase handleClick={goNext} confirmMnemonic={setMnemonic} setUsername={setUsername} />;
       case 1:
-        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
+        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} username={username} tempPassword={password} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:
@@ -124,7 +138,7 @@ const AddAccount = () => {
             display: 'flex',
             flexDirection: 'column',
             width: 720,
-            marginTop:'80px',
+            marginTop: '80px',
             height: 'auto',
             transition: 'all .3s ease-in-out',
             borderRadius: '24px',
@@ -149,7 +163,7 @@ const AddAccount = () => {
 
             <Typography
               variant="body1"
-              sx={{ color: '#5E5E5E', alignSelf: 'end',lineHeight:'37px', fontWeight: '700',fontSize:'16px' }}
+              sx={{ color: '#5E5E5E', alignSelf: 'end', lineHeight: '37px', fontWeight: '700', fontSize: '16px' }}
             >
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/3
             </Typography>
@@ -193,7 +207,7 @@ const AddAccount = () => {
             }}
             onClick={getGoogle}
             startIcon={
-              loading ? <LLSpinner size={20}/> : <IconGoogleDrive />
+              loading ? <LLSpinner size={20} /> : <IconGoogleDrive />
             }
           >
             <Typography

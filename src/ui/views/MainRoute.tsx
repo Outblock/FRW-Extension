@@ -6,7 +6,9 @@ import RecoverRegister from './RecoverRegister';
 import AddressImport from './AddressImport';
 import ImportPager from './Import/ImportPager';
 import AddAccount from './AddAccount';
+import AddRegister from './AddRegister';
 import GoogleImport from './Import/GoogleImport';
+import AddGoogle from './AddAccount/GoogleImport';
 import Reset from './Reset';
 import WelcomePage from './WelcomePage';
 import './MainRoute.css';
@@ -74,8 +76,10 @@ const Main = () => {
           <Route exact path="/recover" component={RecoverRegister} />
           <Route exact path="/import" component={ImportPager} />
           <Route exact path="/add" component={AddAccount} />
+          <Route exact path="/addregister" component={AddRegister} />
           <Route exact path="/reset" component={Reset} />
           <Route exact path="/import/google" component={GoogleImport} />
+          <Route exact path="/add/google" component={AddGoogle} />
           <Route exact path="/import/accounts" component={GoogleImport} />
         </Switch>
       </AnimatedSwitch>

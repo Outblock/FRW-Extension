@@ -58,7 +58,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const DecryptWallet = ({ handleClick, setMnemonic, username, setNextPassword }) => {
+const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -101,7 +101,6 @@ const DecryptWallet = ({ handleClick, setMnemonic, username, setNextPassword }) 
       // console.log('mnemonic ->', mnemonic);
       setLoading(false);
       setMnemonic(mnemonic);
-      setNextPassword(password);
       handleClick();
     } catch (e) {
       setLoading(false);
