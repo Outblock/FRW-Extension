@@ -258,7 +258,7 @@ const SetPassword = ({ handleClick, mnemonic, username, tempPassword }) => {
               id="pass"
               type={isPasswordVisible ? 'text' : 'password'}
               name="password"
-              placeholder={chrome.i18n.getMessage('Create__a__password')}
+              placeholder={chrome.i18n.getMessage('Confirm__Password')}
               value={password}
               className={classes.inputBox}
               fullWidth

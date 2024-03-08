@@ -264,10 +264,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
         className="registerBox"
       >
         <Typography variant="h4">
-          {chrome.i18n.getMessage('Create')}
-          <Box display="inline" color="primary.main">
-            {chrome.i18n.getMessage('Password')}
-          </Box>{' '}
+          {chrome.i18n.getMessage('Confirm__Password')}{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
           {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}

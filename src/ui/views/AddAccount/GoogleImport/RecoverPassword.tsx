@@ -145,8 +145,6 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
 
   const [password, setPassword] = useState(lastPassword);
   const [confirmPassword, setConfirmPassword] = useState(lastPassword);
-  const [isCharacters, setCharacters] = useState(false);
-  const [isMatch, setMatch] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
@@ -239,28 +237,6 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
       }
     }
   };
-
-  useEffect(() => {
-    if (password.length > 7) {
-      setHelperText(successInfo(chrome.i18n.getMessage('At__least__8__characters')));
-      setCharacters(true);
-    } else {
-      setHelperText(errorInfo(chrome.i18n.getMessage('At__least__8__characters')));
-      setCharacters(false);
-    }
-  }, [password]);
-
-  useEffect(() => {
-    if (confirmPassword === password) {
-      setHelperMatch(successInfo(chrome.i18n.getMessage('Passwords__match')));
-      setMatch(true);
-    } else {
-      setMatch(false);
-      setHelperMatch(
-        errorInfo(chrome.i18n.getMessage('Your__passwords__do__not__match'))
-      );
-    }
-  }, [confirmPassword, password]);
 
 
   useEffect(() => {
@@ -382,7 +358,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
             <Button
               className="registerButton"
               onClick={login}
-              disabled={isLoading ? true : !(isMatch && isCharacters)}
+              disabled={isLoading}
               variant="contained"
               color="secondary"
               size="large"
