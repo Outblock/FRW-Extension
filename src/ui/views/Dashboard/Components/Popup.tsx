@@ -4,9 +4,8 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
-import {
-  keyringService,
-} from 'background/service';
+import IconLock from '../../../../components/iconfont/IconLock';
+
 import { storage } from 'background/webapi';
 
 
@@ -42,14 +41,26 @@ const Popup = (props: TransferConfirmationProps) => {
         sx: { width: '100%', height: 'auto', background: '#222', borderRadius: '18px 18px 0px 0px', },
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>
-        <Box onClick={props.handleCancelBtnClicked}>
-          <IconButton>
-            <CloseIcon
-              fontSize="medium"
-              sx={{ color: 'icon.navi', cursor: 'pointer' }}
-            />
-          </IconButton>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px'}}>
+        <Box sx={{display:'flex', justifyContent:'space-between',width:'100%',height:'24px', margin:'20px 0', alignItems: 'center', }}>
+          <Box sx={{width:'40px'}}></Box>
+          <Typography
+            variant="body1"
+            component="div"
+            display="inline"
+            color='text'
+            sx={{ fontSize: '18px',textAlign:'center', lineHeight:'24px',fontWeight: '700' }}
+          >
+            Accounts
+          </Typography>
+          <Box onClick={props.handleCancelBtnClicked}>
+            <IconButton>
+              <CloseIcon
+                fontSize="medium"
+                sx={{ color: 'icon.navi', cursor: 'pointer' }}
+              />
+            </IconButton>
+          </Box>
         </Box>
         <Box component="nav" key={props.userInfo.username}>
           <ListItem
@@ -86,11 +97,13 @@ const Popup = (props: TransferConfirmationProps) => {
             </ListItemText>
           </ListItem>
         </Box>
+        <Box sx={{height:'1px',width:'100%',margin:'16px 0',backgroundColor:'rgba(255, 255, 255, 0.12)'}}></Box>
+
         <Box
           sx={{
             justifyContent: 'space-between',
             alignItems: 'center',
-            flexDirection: 'row',
+            flexDirection: 'column',
             display: 'flex'
           }}
         >
@@ -98,16 +111,37 @@ const Popup = (props: TransferConfirmationProps) => {
             await usewallet.lockAndSwitch();
             // history.push('/add');
           }}>
-            <ListItemIcon
-              sx={{
-                width: '24px',
-                minWidth: '24px',
-                marginRight: '12px',
-              }}>
-              <AddIcon style={{
-              }} />
-            </ListItemIcon>
-            <ListItemText primary={'Add Account'} />
+            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+              <ListItemIcon
+                sx={{
+                  width: '24px',
+                  minWidth: '24px',
+                  marginRight: '12px',
+                }}>
+                <AddIcon style={{
+                  marginLeft: '0px', width: '20px'
+                }} />
+              </ListItemIcon>
+              <ListItemText primary={'Add Account'} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding onClick={async () => {
+            await usewallet.lockWallet();
+            history.push('/unlock');
+          }}>
+            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+              <ListItemIcon
+                sx={{
+                  width: '24px',
+                  minWidth: '24px',
+                  marginRight: '12px',
+                }}>
+                <IconLock style={{
+                  marginLeft: '0px', width: '18px'
+                }} />
+              </ListItemIcon>
+              <ListItemText primary={chrome.i18n.getMessage('Lock__Wallet')} />
+            </ListItemButton>
           </ListItem>
         </Box>
       </Box>

@@ -33,7 +33,6 @@ import { withPrefix } from '@/ui/utils/address';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { StyledEngineProvider } from '@mui/material/styles';
 import eventBus from '@/eventBus';
-import IconLock from '../../../components/iconfont/IconLock';
 import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg'
 import sideMore from '../../FRWAssets/svg/sideMore.svg'
@@ -706,7 +705,7 @@ const Header = ({ loading }) => {
               </IconButton>
             ))}
             <IconButton edge="end" aria-label="close" onClick={togglePop}>
-              <img style={{ display: 'inline-block', width: '20px' }} src={sideMore} />
+              <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
             </IconButton>
           </Box>
         </ListItem>
@@ -800,7 +799,7 @@ const Header = ({ loading }) => {
             }
           </ListItemButton>
         </ListItem> */}
-        <ListItem disablePadding>
+        {/* <ListItem disablePadding>
           <ListItemButton onClick={() => setAlertOpen(true)}>
             <ListItemIcon
               sx={{
@@ -815,7 +814,7 @@ const Header = ({ loading }) => {
             </ListItemIcon>
             <ListItemText primary={chrome.i18n.getMessage('Import__Wallet')} />
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
         {/* <ListItem disablePadding>
           <ListItemButton component="a" href="/">
             <ListItemIcon>
@@ -824,24 +823,6 @@ const Header = ({ loading }) => {
             <ListItemText primary="Import wallet" />
           </ListItemButton>
         </ListItem> */}
-        <ListItem disablePadding onClick={async () => {
-          await usewallet.lockWallet();
-          history.push('/unlock');
-        }}>
-          <ListItemButton>
-            <ListItemIcon
-              sx={{
-                width: '24px',
-                minWidth: '24px',
-                marginRight: '12px',
-              }}>
-              <IconLock style={{
-                marginLeft: '8px',
-              }} />
-            </ListItemIcon>
-            <ListItemText primary={chrome.i18n.getMessage('Lock__Wallet')} />
-          </ListItemButton>
-        </ListItem>
       </List>
       <LLComingSoon
         alertOpen={alertOpen}
