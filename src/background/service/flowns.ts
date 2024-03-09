@@ -142,12 +142,7 @@ class Flowns {
     );
 
     const password = keyringService.password;
-    const mnemonic = await wallet.getMnemonics(password || '');
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const privateKey = hdwallet
-      .derive("m/44'/539'/0'/0/0")
-      .getPrivateKey()
-      .toString('hex');
+    const privateKey = await wallet.getKey(password);
     const signature = await secp.sign(messageHash, privateKey);
     const realSignature = secp.Signature.fromHex(signature).toCompactHex();
     return realSignature;

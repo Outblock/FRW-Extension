@@ -220,7 +220,6 @@ class KeyringService extends EventEmitter {
   }
 
   async addKeyring(keyring) {
-    console.log('this.persistAllKeyrings() ', this.keyrings)
     return keyring
       .getAccounts()
       .then((accounts) => {

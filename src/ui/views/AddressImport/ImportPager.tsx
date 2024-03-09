@@ -41,8 +41,6 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
   const [selectedTab, setSelectedTab] = useState(0);
   const [isImport, setImport] = useState<any>(false);
 
-  const [helperText, setHelperText] = useState(<div />);
-
   const [mnemonicValid, setMnemonicValid] = useState(true);
 
   const [addressFound, setAddressFound] = useState(true);

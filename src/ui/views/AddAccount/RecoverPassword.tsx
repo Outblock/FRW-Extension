@@ -132,7 +132,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username, tempPassword }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -154,52 +154,6 @@ const SetPassword = ({ handleClick, mnemonic, username, tempPassword }) => {
     setShowError(false);
   };
 
-  const successInfo = (message) => {
-    return (
-      <Box
-        sx={{
-          width: '95%',
-          backgroundColor: '#38B00014',
-          mx: 'auto',
-          borderRadius: '0 0 12px 12px',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <CheckCircleIcon
-          size={24}
-          color={'#41CC5D'}
-          style={{ margin: '8px' }}
-        />
-        <Typography variant="body1" color="text.secondary">
-          {message}
-        </Typography>
-      </Box>
-    );
-  };
-
-  const errorInfo = (message) => {
-    return (
-      <Box
-        sx={{
-          width: '95%',
-          backgroundColor: 'error.light',
-          mx: 'auto',
-          borderRadius: '0 0 12px 12px',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-        <Typography variant="body1" color="text.secondary">
-          {message}
-        </Typography>
-      </Box>
-    );
-  };
-
   const [helperText, setHelperText] = useState(<div />);
   const [helperMatch, setHelperMatch] = useState(<div />);
 
@@ -217,8 +171,12 @@ const SetPassword = ({ handleClick, mnemonic, username, tempPassword }) => {
     await storage.set('currentAccountIndex', lastIndex);
     try {
       await wallet.boot(password);
-      const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.addAccounts(formatted);
+      if (pk) {
+        await wallet.importPrivateKey(pk);
+      } else {
+        const formatted = mnemonic.trim().split(/\s+/g).join(' ');
+        await wallet.addAccounts(formatted);
+      }
       setLoading(false);
       handleClick();
     } catch (e) {

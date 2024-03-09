@@ -3,8 +3,8 @@ import { Box, ThemeProvider } from '@mui/system';
 import { makeStyles } from '@mui/styles';
 import {
   Typography,
-  FormControl,
-  Input,
+  Tabs,
+  Tab,
   CircularProgress,
   Button,
   Snackbar,
@@ -19,7 +19,29 @@ import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import * as bip39 from 'bip39';
 import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
+import SeedPhrase from './ImportComponent/SeedPhrase'
+import PrivateKey from './ImportComponent/PrivateKey'
 
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={0}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
 
 const useStyles = makeStyles((theme) => ({
   customInputLabel: {
@@ -27,24 +49,18 @@ const useStyles = makeStyles((theme) => ({
       visibility: 'visible',
     },
   },
-  inputBox: {
-    height: '128px',
-    padding: '16px',
-    paddingTop: '0px',
-    zIndex: '999',
-    overflow: 'scroll',
-    backgroundColor: '#282828',
-    border: '2px solid #4C4C4C',
-    borderRadius: '12px',
-    boxSizing: 'border-box',
-    '&.Mui-focused': {
-      border: '2px solid #FAFAFA',
-      boxShadow: '0px 8px 12px 4px rgba(76, 76, 76, 0.24)',
-    },
+  sxStyles: {
+    fontFamily: 'Inter',
+    fontSize: '18px',
+    fontStyle: 'normal',
+    fontWeight: 700,
+    lineHeight: '24px',
+    letterSpacing: '-0.252px',
+    textTransform: 'capitalize'
   },
 }));
 
-const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
+const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUsername }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -52,15 +68,26 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => 
 
   const [mnemonic, setMnemonic] = useState('');
 
+  const [pk, setPk] = useState('');
+
   const [isSignLoading, setSignLoading] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [selectedTab, setSelectedTab] = useState(0);
 
   const [helperText, setHelperText] = useState(<div />);
 
   const signIn = async () => {
     setSignLoading(true);
+    if (mnemonic) {
+      signMnemonic();
+    } else {
+      signPk();
+    }
+  };
+
+  const signMnemonic= async () => {
     try {
       const result = await wallet.signInWithMnemonic(mnemonic);
       console.log('result ->', result)
@@ -78,7 +105,28 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => 
         setShowError(true);
       }
     }
-  };
+  }
+
+  const signPk= async () => {
+    const privateKey = pk.replace(/^0x/, '');
+    try {
+      const result = await wallet.signInWithPrivatekey(privateKey);
+      console.log('result ->', result)
+      setSignLoading(false);
+      confirmPk(privateKey);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username)
+      handleClick();
+    } catch (error) {
+      console.log(error);
+      setSignLoading(false);
+      if (error.message === 'NoUserFound') {
+        setShowDialog(true)
+      } else {
+        setShowError(true);
+      }
+    }
+  }
 
   const mnemonicError = (errorMsg) => (
     <Box
@@ -139,6 +187,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => 
   }
 
   useEffect(() => {
+    console.log('mnemonic')
     setMnemonicValid(false);
     setHelperText(mnemonicLoading);
     setLoading(true);
@@ -155,7 +204,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => 
         setErrorMessage(chrome.i18n.getMessage('Mnemonic__phrase__is__invalid'));
         return;
       }
-
+    
       setMnemonicValid(true);
       setHelperText(mnemonicCorrect);
       storage.set('premnemonic', formatted);
@@ -165,10 +214,38 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => 
     return () => clearTimeout(delayDebounceFn);
   }, [mnemonic]);
 
+  useEffect(() => {
+    console.log('mnemonic')
+    setMnemonicValid(false);
+    setHelperText(mnemonicLoading);
+    setLoading(true);
+    const delayDebounceFn = setTimeout(() => {
+      setLoading(false);
+      const hexRegex = /^[0-9a-fA-F]{64}$/; 
+      const isvalid = hexRegex.test(pk);
+      if (isvalid) {
+        setMnemonicValid(true);
+        setHelperText(mnemonicCorrect);
+        return;
+      } else {
+        setErrorMessage(chrome.i18n.getMessage('Mnemonic__phrase__is__invalid'));
+        return;
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [pk]);
+
+
   const setErrorMessage = (message: string) => {
+    console.log('setErrorMessage ', mnemonic)
     setLoading(false);
     setMnemonicValid(false);
     setHelperText(mnemonicError(message));
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
   };
 
   const msgBgColor = () => {
@@ -191,43 +268,17 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => 
               {chrome.i18n.getMessage('Sign__in__Recovery__Phrase')}
             </Box>
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {chrome.i18n.getMessage('This__is__the__12__or__24__word__phrase__you__were__given')}
-          </Typography>
 
-          <Box sx={{ flexGrow: 1, width: 640, maxWidth: '100%', my: '16px' }}>
-            <FormControl sx={{ width: '100%' }}>
-              <Input
-                id="textfield"
-                className={classes.inputBox}
-                placeholder={chrome.i18n.getMessage('Please__enter__your__recovery__phrase__using__spaces')}
-                autoFocus
-                fullWidth
-                multiline
-                minRows={3}
-                disableUnderline
-                value={mnemonic}
-                onChange={(event) => {
-                  setMnemonic(event.target.value);
-                }}
-              />
-              <Presets.TransitionSlideUp>
-                {mnemonic && (
-                  <Box
-                    sx={{
-                      width: '95%',
-                      backgroundColor: msgBgColor(),
-                      mx: 'auto',
-                      borderRadius: '0 0 12px 12px',
-                    }}
-                  >
-                    <Box sx={{ p: '4px' }}>{helperText}</Box>
-                  </Box>
-                )}
-              </Presets.TransitionSlideUp>
-            </FormControl>
-          </Box>
-
+          <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example" sx={{ padding: '0' }}>
+            <Tab className={classes.sxStyles} label="Seed Phrase" />
+            <Tab className={classes.sxStyles} label="Private Key" />
+          </Tabs>
+          <TabPanel sx={{padding:'0'}} value={selectedTab} index={0}>
+            <SeedPhrase helperText={helperText} msgBgColor={msgBgColor} mnemonic={mnemonic} setmnemonic={setMnemonic} />
+          </TabPanel>
+          <TabPanel sx={{padding:'0'}} value={selectedTab} index={1}>
+            <PrivateKey helperText={helperText} msgBgColor={msgBgColor} pk={pk} setpk={setPk} />
+          </TabPanel>
           <Button
             className="registerButton"
             onClick={signIn}

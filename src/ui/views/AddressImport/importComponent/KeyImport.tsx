@@ -43,7 +43,6 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
       const pk = e.target[0].value.replace(/^0x/, '');
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[2].value;
-      console.log('inputValue ', inputValue)
       setPk(pk);
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
       const result = await findAddressWithPK(pk, address);

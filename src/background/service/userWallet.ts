@@ -183,9 +183,7 @@ class UserWallet {
     console.log('signableMessage ', signableMessage)
     const messageHash = await secp.utils.sha256(Buffer.from(signableMessage, 'hex'));
     const password = keyringService.password;
-    const mnemonic = await wallet.getMnemonics(password || '');
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+    const privateKey = await wallet.getKey(password);
     const signature = await secp.sign(messageHash, privateKey);
     const realSignature = secp.Signature.fromHex(signature).toCompactHex();
     return realSignature;
@@ -193,8 +191,8 @@ class UserWallet {
 
   reSign = async () => {
     const password = keyringService.password;
-    const mnemonic = await wallet.getMnemonics(password || '');
-    return await this.signInWithMnemonic(mnemonic);
+    const privateKey = await wallet.getKey(password);
+    return await this.sigInWithPk(privateKey);
   };
 
   authorizationFunction = async (account: any = {}) => {
@@ -282,6 +280,33 @@ class UserWallet {
     const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
     const hdwallet = HDWallet.fromMnemonic(mnemonic);
     const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+
+    const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
+    const signature = await secp.sign(messageHash, privateKey);
+    const realSignature = secp.Signature.fromHex(signature).toCompactHex();
+    return wallet.openapi.loginV2(publicKey, realSignature, replaceUser);
+  };
+
+  sigInWithPk = async (privateKey: string, replaceUser = true) => {
+    const app = getApp(process.env.NODE_ENV!);
+    const auth = getAuth(app);
+    const idToken = await getAuth(app).currentUser?.getIdToken();
+    if (idToken === null || !idToken) {
+      signInAnonymously(auth);
+      return;
+    }
+
+    const rightPaddedHexBuffer = (value, pad) =>
+      Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
+      Buffer.from('FLOW-V0.0-user').toString('hex'),
+      32
+    );
+
+    const hex = secp.utils.bytesToHex;
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+
+    const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
 
     const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
     const signature = await secp.sign(messageHash, privateKey);

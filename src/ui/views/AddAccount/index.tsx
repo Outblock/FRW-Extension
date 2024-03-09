@@ -29,6 +29,7 @@ const AddAccount = () => {
   const wallets = useWallet();
   const [activeIndex, onChange] = useState(0);
   const [mnemonic, setMnemonic] = useState('');
+  const [pk, setPk] = useState('');
   const [username, setUsername] = useState('');
   const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
@@ -100,9 +101,9 @@ const AddAccount = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <ImportRecoveryPhrase handleClick={goNext} confirmMnemonic={setMnemonic} setUsername={setUsername} />;
+        return <ImportRecoveryPhrase handleClick={goNext} confirmMnemonic={setMnemonic} confirmPk={setPk} setUsername={setUsername} />;
       case 1:
-        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} username={username} tempPassword={password} />;
+        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} pk={pk} username={username} tempPassword={password} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:

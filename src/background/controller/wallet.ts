@@ -34,7 +34,7 @@ import { CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import provider from './provider';
 import eventBus from '@/eventBus';
-import { setPageStateCacheWhenPopupClose } from 'background/utils';
+import HDWallet from 'ethereum-hdwallet';
 import { withPrefix, getAccountKey } from 'ui/utils/address';
 import * as t from '@onflow/types';
 import * as fcl from '@onflow/fcl';
@@ -328,6 +328,21 @@ export class WalletController extends BaseController {
     return seedWords;
   };
 
+  getKey = async (password) => {
+    let privateKey;
+    const keyrings = await this.getKeyrings(password || '');
+    if (keyrings[0].wallets[0].privateKey) {
+      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+      console.log('privateKey ', privateKey)
+    } else {
+      const mnemonic = await this.getMnemonics(password || '');
+      const hdwallet = HDWallet.fromMnemonic(mnemonic);
+      privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+
+    }
+    return privateKey;
+  };
+
   importPrivateKey = async (data) => {
     const privateKey = ethUtil.stripHexPrefix(data);
     const buffer = Buffer.from(privateKey, 'hex');
@@ -435,7 +450,8 @@ export class WalletController extends BaseController {
     return accounts.filter((x) => x).length;
   };
 
-  getKeyrings = async () => {
+  getKeyrings = async (password) => {
+    await this.verifyPassword(password);
     const accounts = await keyringService.getKeyring();
     return accounts;
   };
@@ -1875,6 +1891,10 @@ export class WalletController extends BaseController {
 
   signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
     return userWalletService.signInWithMnemonic(mnemonic, replaceUser);
+  };
+
+  signInWithPrivatekey = async (pk: string, replaceUser = true) => {
+    return userWalletService.sigInWithPk(pk, replaceUser);
   };
 
   signInV3 = async (mnemonic: string, accountKey: any, deviceInfo: any, replaceUser = true) => {
