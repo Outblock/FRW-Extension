@@ -94,7 +94,7 @@ const TransferList = ({setCount}) => {
               variant="body1"
               sx={{ fontSize: 14, fontWeight: '500', textAlign: 'end', color: isReceive && isFT ? 'success.main' : 'text.primary' }}
             >
-              {props.type == 1 ? ( (isReceive ? '+' : '') + `${props.amount}`) : `${props.token.split('.')[2]}`}
+              {props.type == 1 ? ( (isReceive ? '+' : '-') + `${props.amount}`) : `${props.token.split('.')[2]}`}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
