@@ -136,7 +136,6 @@ class Flowns {
   };
 
   sign = async (signableMessage: string): Promise<string> => {
-    console.log(signableMessage)
     const messageHash = await secp.utils.sha256(
       Buffer.from(signableMessage, 'hex')
     );

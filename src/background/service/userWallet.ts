@@ -166,7 +166,6 @@ class UserWallet {
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
 
-    console.log('this is cadence ', cadence)
     const allowed = await wallet.allowLilicoPay();
     const txID = await fcl.mutate({
       cadence: cadence,
@@ -180,7 +179,6 @@ class UserWallet {
   };
 
   sign = async (signableMessage: string): Promise<string> => {
-    console.log('signableMessage ', signableMessage)
     const messageHash = await secp.utils.sha256(Buffer.from(signableMessage, 'hex'));
     const password = keyringService.password;
     const privateKey = await wallet.getKey(password);

@@ -171,8 +171,8 @@ export class WalletController extends BaseController {
     await passwordService.setPassword(password);
 
     sessionService.broadcastEvent('unlock');
-    const keyring = await keyringService.getKeyring();
-    await this.signInWithMnemonic(keyring[0].mnemonic);
+    const key = await this.getKey(password);
+    await this.signInWithPrivatekey(key);
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
     // }
@@ -331,13 +331,15 @@ export class WalletController extends BaseController {
   getKey = async (password) => {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');
-    if (keyrings[0].wallets[0].privateKey) {
-      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
-      console.log('privateKey ', privateKey)
-    } else {
+    
+    if (keyrings[0].mnemonic) {
+      
       const mnemonic = await this.getMnemonics(password || '');
       const hdwallet = HDWallet.fromMnemonic(mnemonic);
       privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+    } else {
+      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+      console.log('privateKey ', privateKey)
 
     }
     return privateKey;
