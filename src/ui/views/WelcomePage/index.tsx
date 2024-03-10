@@ -86,11 +86,11 @@ const WelcomePage = () => {
                 sx={{ color: 'text.secondary', pt: '16px', fontSize: '16px', margin: '24px 0 44px' }}
               >
                 {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
-                A crypto wallet on Flow built for
+                {chrome.i18n.getMessage('A_crypto_wallet_on_Flow')}
                 <Typography sx={{ color: 'primary.light', display: 'inline' }}>
-                  <span> Explorers, Collectors and Gamers</span>
+                  <span> {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}</span>
                 </Typography>
-
+                
               </Typography>
 
 
@@ -191,7 +191,7 @@ const WelcomePage = () => {
                     }
                   }}
                 >
-                  Sync with Mobile App
+                  {chrome.i18n.getMessage('Sync_with_Mobile_App')}
                 </Typography>
               </Button>
 
@@ -228,7 +228,7 @@ const WelcomePage = () => {
                       color: '#FFF',
                     }}
                   >
-                    Import Other Wallets
+                    {chrome.i18n.getMessage('Import_Other_Wallets')}
                   </Typography>
                 </Box>
                 <Typography
@@ -240,7 +240,7 @@ const WelcomePage = () => {
 
                   }}
                 >
-                  Support Flow Wallet, Blocto, json and raw key
+                  {chrome.i18n.getMessage('Support_Flow_Wallet_Blocto')}
                 </Typography>
               </Button>
             </Box>

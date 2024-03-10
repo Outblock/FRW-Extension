@@ -664,7 +664,7 @@
   "Select_the_word_at": {
     "message": "で単語を選択します"
   },
-  "Please_restart_your_browser":{
+  "Please_restart_your_browser": {
     "message": "ブラウザを再起動してください"
   },
   "If_you_keep_seeing_this_spinner": {
@@ -958,56 +958,133 @@
   "Search__PlaceHolder": {
     "message": "検索、アドレス(0x) またはFlowドメイン"
   },
-  "Unlink_Confirmation":{
-    "message":"リンク解除の確認"
+  "Unlink_Confirmation": {
+    "message": "リンク解除の確認"
   },
-  "Things_you_should_know":{
-    "message":"知っておくべきこと"
+  "Things_you_should_know": {
+    "message": "知っておくべきこと"
   },
-  "Linked_Account":{
-    "message":"リンクされたアカウント"
+  "Linked_Account": {
+    "message": "リンクされたアカウント"
   },
-  "Wallet_List":{
-    "message":"ウォレットリスト"
+  "Wallet_List": {
+    "message": "ウォレットリスト"
   },
-  "Account_Linking":{
-    "message":"アカウントリンク"
+  "Account_Linking": {
+    "message": "アカウントリンク"
   },
-  "This_App_would_like_to":{
-    "message":"このアプリが望んでいるのは、"
+  "This_App_would_like_to": {
+    "message": "このアプリが望んでいるのは、"
   },
-  "Linked_Successful":{
-    "message":"リンク成功"
+  "Linked_Successful": {
+    "message": "リンク成功"
   },
-  "Linking_Child_Account":{
-    "message":"子アカウントのリンク"
+  "Linking_Child_Account": {
+    "message": "子アカウントのリンク"
   },
-  "Try_Our_Mobile_APP":{
-    "message":"モバイルアプリを試す"
+  "Try_Our_Mobile_APP": {
+    "message": "モバイルアプリを試す"
   },
   "Reset_Wallet": {
     "message": "ウォレットをリセットする"
   },
-  "Unlink_Message":{
+  "Unlink_Message": {
     "message": "このアカウントのリンクを解除すると、メインウォレットはこのリンクされたアカウントにアクセスできなくなります。"
   },
-  "Edit_Linked_Account":{
+  "Edit_Linked_Account": {
     "message": "編集リンクアカウント"
   },
-  "Accessible":{
+  "Accessible": {
     "message": "アクセス可能"
   },
-  "Collected":{
+  "Collected": {
     "message": "収集された"
   },
-  "Hide_Empty_collection":{
+  "Hide_Empty_collection": {
     "message": "空のコレクションを非表示にする"
   },
-  "Inaccessible":{
+  "Inaccessible": {
     "message": "アクセス不可 "
   },
-  
   "No_linked": {
     "message": "リンクされたアカウントなし"
+  },
+  "Import_Existing": {
+    "message": "既存のアカウントをインポートする"
+  },
+  "Create_New_Account": {
+    "message": "新しいアカウントを作成する"
+  },
+  "Accounts": {
+    "message": "アカウント"
+  },
+  "Import": {
+    "message": "インポート"
+  },
+  "Choose_an_account_you_want_to_import": {
+    "message": "インポートしたいアカウントを選択"
+  },
+  "Accounts_Found_on_Chain": {
+    "message": "チェーン上のアカウント発見"
+  },
+  "Support_Flow_Wallet_and_private_key": {
+    "message": "Flowウォレット、Blocto、シードフレーズ、キーストア、プライベートキーをサポート"
+  },
+  "Import_Address": {
+    "message": "アドレスをインポートする"
+  },
+  "Please_import_or_register_a_new_key": {
+    "message": "新しいキーをインポートまたは登録してください。"
+  },
+  "Publickey_already_exist": {
+    "message": "公開鍵は既に存在します"
+  },
+  "Do_you_wish_to_go": {
+    "message": "戻ってアカウントを登録しますか？"
+  },
+  "No_Account_found": {
+    "message": "アカウントが見つかりません"
+  },
+  "Please_enter_your_private_key": {
+    "message": "プライベートキーを入力してください"
+  },
+  "This_is_the_private_key_you": {
+    "message": "これはあなたに与えられたプライベートキーです"
+  },
+  "Private__is__invalid": {
+    "message": "プライベートキーが無効です"
+  },
+  "Open_your_Flow_Reference_on_Mobil": {
+    "message": "モバイルアプリでFlowリファレンスを開き、QRコードをスキャンしてウォレットを同期します。"
+  },
+  "Sync_": {
+    "message": "同期"
+  },
+  "Note_Your_recovery_phrase_will_not": {
+    "message": "注意: あなたのリカバリーフレーズはFlowリファレンスのサーバーを通過しません。エンドツーエンドで暗号化されており、私たちは読むことができません。"
+  },
+  "Scan_Successfully": {
+    "message": "スキャン成功"
+  },
+  "Sync_in_Process": {
+    "message": "同期中..."
+  },
+  "Scan_QR_Code_with_Mobile": {
+    "message": "モバイルアプリでQRコードをスキャンする"
+  },
+  "Sync_with_Mobile_App": {
+    "message": "モバイルアプリと同期する"
+  },
+  "Import_Other_Wallets": {
+    "message": "他のウォレットをインポートする"
+  },
+  "Support_Flow_Wallet_Blocto": {
+    "message": "Flowウォレット、Blocto、jsonおよびrawキーをサポート"
+  },
+  "A_crypto_wallet_on_Flow": {
+    "message": "探検家、コレクター、ゲーマー向けのFlow上の暗号ウォレット"
+  },
+  "Explorers_Collectors_and_Gamers": {
+    "message": "探検家、コレクター、ゲーマー"
   }
 }

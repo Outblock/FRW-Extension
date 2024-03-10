@@ -664,7 +664,7 @@
   "Choose_provider": {
     "message": "Выберите провайдера"
   },
-  "If_you_keep_seeing_this_spinner":{
+  "If_you_keep_seeing_this_spinner": {
     "message": "Если вы продолжаете видеть этот спиннер"
   },
   "Select_the_word_at": {
@@ -958,56 +958,133 @@
   "Search__PlaceHolder": {
     "message": "Адрес поиска (0x) или домен потока"
   },
-  "Unlink_Confirmation":{
-    "message":"Unlink Confirmation"
+  "Unlink_Confirmation": {
+    "message": "Unlink Confirmation"
   },
-  "Things_you_should_know":{
-    "message":"Вещи, которые вы должны знать"
+  "Things_you_should_know": {
+    "message": "Вещи, которые вы должны знать"
   },
-  "Linked_Account":{
-    "message":"Связанный аккаунт"
+  "Linked_Account": {
+    "message": "Связанный аккаунт"
   },
-  "Wallet_List":{
-    "message":"Список кошельков"
+  "Wallet_List": {
+    "message": "Список кошельков"
   },
-  "Account_Linking":{
-    "message":"Связывание аккаунта"
+  "Account_Linking": {
+    "message": "Связывание аккаунта"
   },
-  "This_App_would_like_to":{
-    "message":"Это приложение хотело бы"
+  "This_App_would_like_to": {
+    "message": "Это приложение хотело бы"
   },
-  "Linked_Successful":{
-    "message":"Связано успешно"
+  "Linked_Successful": {
+    "message": "Связано успешно"
   },
-  "Linking_Child_Account":{
-    "message":"Привязка дочерней учетной записи"
+  "Linking_Child_Account": {
+    "message": "Привязка дочерней учетной записи"
   },
-  "Try_Our_Mobile_APP":{
-    "message":"Попробуйте мобильное приложение"
+  "Try_Our_Mobile_APP": {
+    "message": "Попробуйте мобильное приложение"
   },
   "Reset_Wallet": {
     "message": "сбросить кошелек"
   },
-  "Unlink_Message":{
+  "Unlink_Message": {
     "message": "Отвяжите этот счет, и основной кошелек больше не будет иметь доступа к этому связанному счету."
   },
-  "Edit_Linked_Account":{
+  "Edit_Linked_Account": {
     "message": "Редактировать связанный аккаунт"
   },
-  "Accessible":{
+  "Accessible": {
     "message": "Доступный"
   },
-  "Collected":{
+  "Collected": {
     "message": "Собрано"
   },
-  "Hide_Empty_collection":{
+  "Hide_Empty_collection": {
     "message": "Скрыть Пустые Коллекции"
   },
-  "Inaccessible":{
+  "Inaccessible": {
     "message": "Недоступный "
   },
-  
   "No_linked": {
     "message": "Нет привязанного аккаунта"
+  },
+  "Import_Existing": {
+    "message": "Импортировать существующий аккаунт"
+  },
+  "Create_New_Account": {
+    "message": "Создать новый аккаунт"
+  },
+  "Accounts": {
+    "message": "Аккаунты"
+  },
+  "Import": {
+    "message": "Импорт"
+  },
+  "Choose_an_account_you_want_to_import": {
+    "message": "Выберите аккаунт для импорта"
+  },
+  "Accounts_Found_on_Chain": {
+    "message": "Аккаунты, найденные в блокчейне"
+  },
+  "Support_Flow_Wallet_and_private_key": {
+    "message": "Поддержка Flow Wallet, Blocto, секретной фразы, ключевого хранилища и приватного ключа"
+  },
+  "Import_Address": {
+    "message": "Импортировать адрес"
+  },
+  "Please_import_or_register_a_new_key": {
+    "message": "Пожалуйста, импортируйте или зарегистрируйте новый ключ."
+  },
+  "Publickey_already_exist": {
+    "message": "Публичный ключ уже существует"
+  },
+  "Do_you_wish_to_go": {
+    "message": "Желаете вернуться и зарегистрировать аккаунт?"
+  },
+  "No_Account_found": {
+    "message": "Аккаунт не найден"
+  },
+  "Please_enter_your_private_key": {
+    "message": "Пожалуйста, введите ваш приватный ключ"
+  },
+  "This_is_the_private_key_you": {
+    "message": "Это приватный ключ, который вам был дан"
+  },
+  "Private__is__invalid": {
+    "message": "Приватный ключ недействителен"
+  },
+  "Open_your_Flow_Reference_on_Mobil": {
+    "message": "Откройте ваше мобильное приложение Flow Reference и отсканируйте QR-код для синхронизации вашего кошелька."
+  },
+  "Sync_": {
+    "message": "Синхронизация"
+  },
+  "Note_Your_recovery_phrase_will_not": {
+    "message": "Примечание: Ваша фраза восстановления НИКОГДА не проходит через сервер Flow Reference. Она зашифрована с конца в конец, и мы никогда не сможем ее прочитать."
+  },
+  "Scan_Successfully": {
+    "message": "Сканирование успешно"
+  },
+  "Sync_in_Process": {
+    "message": "Синхронизация в процессе..."
+  },
+  "Scan_QR_Code_with_Mobile": {
+    "message": "Сканировать QR-код с помощью мобильного приложения"
+  },
+  "Sync_with_Mobile_App": {
+    "message": "Синхронизировать с мобильным приложением"
+  },
+  "Import_Other_Wallets": {
+    "message": "Импортировать другие кошельки"
+  },
+  "Support_Flow_Wallet_Blocto": {
+    "message": "Поддержка Flow Wallet, Blocto, json и raw ключа"
+  },
+  "A_crypto_wallet_on_Flow": {
+    "message": "Криптокошелек на Flow для исследователей, коллекционеров и геймеров"
+  },
+  "Explorers_Collectors_and_Gamers": {
+    "message": "Исследователи, коллекционеры и геймеры"
   }
 }

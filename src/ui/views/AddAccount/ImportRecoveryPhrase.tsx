@@ -228,7 +228,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
         setHelperText(mnemonicCorrect);
         return;
       } else {
-        setErrorMessage(chrome.i18n.getMessage('Mnemonic__phrase__is__invalid'));
+        setErrorMessage(chrome.i18n.getMessage('Private__is__invalid'));
         return;
       }
     }, 500);

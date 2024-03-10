@@ -13,14 +13,13 @@ const PrivateKey = ({ helperText, msgBgColor, pk, setpk }) => {
   return (
     <Box sx={{ padding: '0' }}>
       <Typography variant="body1" color="text.secondary">
-        {'This is the private key you were given'}
+        {chrome.i18n.getMessage('This_is_the_private_key_you')}
       </Typography>
-
       <Box sx={{ flexGrow: 1, maxWidth: '100%', my: '16px', padding:'0' }}>
         <FormControl sx={{ width: '100%' }}>
           <Input
             id="textfield"
-            placeholder={'Please enter your private key'}
+            placeholder={chrome.i18n.getMessage('Please_enter_your_private_key')}
             autoFocus
             fullWidth
             multiline

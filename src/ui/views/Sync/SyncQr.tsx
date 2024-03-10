@@ -311,8 +311,8 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
                 lineHeight: '56px'
               }}
             >
-              Sync <span style={{ display: 'inline-block', width: '353px' }}>
-                Flow Reference</span>
+              {chrome.i18n.getMessage('Sync_')} <span style={{ display: 'inline-block', width: '353px' }}>
+                {chrome.i18n.getMessage('Flow_Core')}</span>
             </Typography>
 
             <Typography
@@ -320,7 +320,8 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
               sx={{ color: 'primary.light', pt: '16px', fontSize: '16px', margin: '24px 0 32px' }}
             >
               {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
-              Open your Flow Reference on Mobile app and Scan the QR Code to Sync your Wallet.
+
+              {chrome.i18n.getMessage('Open_your_Flow_Reference_on_Mobil')}
             </Typography>
 
 
@@ -329,7 +330,8 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
               sx={{ color: '#8C9BAB', pt: '12px', fontSize: '12px' }}
             >
               {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
-              Note: Your recovery phrase will go through Flow Reference's server. It is end-to-end encrypted and we can never read it.
+
+              {chrome.i18n.getMessage(' Note_Your_recovery_phrase_will_not')}
             </Typography>
           </Box>
 
@@ -386,8 +388,9 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
                           textAlign: 'center'
                         }}
                       >
-                        Scan Successfully
-                        Sync in Process...
+
+                        {chrome.i18n.getMessage(' Scan_Successfully')}
+                        {chrome.i18n.getMessage(' Sync_in_Process')}
                       </Typography>
 
                     </Box>
@@ -401,7 +404,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
                   }}
                 >
                   {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
-                  Scan QR Code with Mobile App
+                  {chrome.i18n.getMessage('Scan_QR_Code_with_Mobile')}
                 </Typography>
               </Box>
             }

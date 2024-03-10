@@ -51,7 +51,7 @@ const Popup = (props: TransferConfirmationProps) => {
             color='text'
             sx={{ fontSize: '18px', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
           >
-            Accounts
+            {chrome.i18n.getMessage('Accounts')}
           </Typography>
           <Box onClick={props.handleCancelBtnClicked}>
             <IconButton>
@@ -131,7 +131,7 @@ const Popup = (props: TransferConfirmationProps) => {
                 color='text'
                 sx={{ fontSize: '12px' }}
               >
-                {'Create New Account'}
+                {chrome.i18n.getMessage('Create_New_Account')}
               </Typography>
             </ListItemButton>
           </ListItem>
@@ -159,11 +159,10 @@ const Popup = (props: TransferConfirmationProps) => {
                 color='text'
                 sx={{ fontSize: '12px' }}
               >
-                {'Import Existing Account'}
+                {chrome.i18n.getMessage('Import_Existing')}
               </Typography>
             </ListItemButton>
           </ListItem>
-          
           <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
             await usewallet.lockWallet();
             history.push('/unlock');

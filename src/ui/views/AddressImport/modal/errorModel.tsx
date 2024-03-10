@@ -16,9 +16,9 @@ const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage }) => {
       <DialogContent>
         <Typography>{errorMessage}</Typography>
       </DialogContent>
-      <DialogActions sx={{padding:'16px 24px'}}>
+      <DialogActions sx={{ padding: '16px 24px' }}>
         <Button onClick={() => onOpenChange(true)}>
-          Cancel
+          {chrome.i18n.getMessage('Cancel')}
         </Button>
         <Button
           form="address"
@@ -26,7 +26,7 @@ const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage }) => {
           variant="contained"
           onClick={() => handleSubmit()}
         >
-          Go Back
+          {chrome.i18n.getMessage('Back')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -40,8 +40,8 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     '& .MuiInputBase-input': {
-      padding:'0 20px',
-      fontWeight:400
+      padding: '0 20px',
+      fontWeight: 400
     },
   },
   button: {
@@ -123,7 +123,7 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
           InputProps={{
             className: classes.inputChild,
             endAdornment: (
-              <InputAdornment position="end" sx={{paddingRight:'20px'}}>
+              <InputAdornment position="end" sx={{ paddingRight: '20px' }}>
                 <IconButton onClick={toggleVisibility} edge="end">
                   {isVisible ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
@@ -164,7 +164,7 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
             sx={{ fontWeight: 'bold' }}
             color="background.paper"
           >
-            Import
+            {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>
       </form>

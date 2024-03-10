@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
     marginBottom: '16px',
     resize: 'none',
-    fontSize:'16px',
+    fontSize: '16px',
     fontFamily: 'Inter',
   },
   button: {
@@ -59,7 +59,7 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
   };
 
   return (
-    <Box sx={{padding:'0'}}>
+    <Box sx={{ padding: '0' }}>
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
           minRows={6}
@@ -99,7 +99,7 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
             sx={{ fontWeight: 'bold' }}
             color="background.paper"
           >
-            Import
+            {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>
       </form>

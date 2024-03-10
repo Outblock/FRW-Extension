@@ -97,7 +97,7 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
             sx={{ fontWeight: 'bold' }}
             color="background.paper"
           >
-            Import
+            {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>
       </form>

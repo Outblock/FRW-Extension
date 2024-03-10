@@ -122,10 +122,10 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
     <Box sx={{ padding: '0 16px 16px' }}>
       <Box sx={{ padding: '20px 24px' }}>
         <Typography variant="h4">
-          Import Address
+          {chrome.i18n.getMessage('Import_Address')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Support Flow Wallet, Blocto, seed phrase, keystore and private key
+          {chrome.i18n.getMessage('Support_Flow_Wallet_and_private_key')}
         </Typography>
       </Box>
 
@@ -147,19 +147,17 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
         <ErrorModel
           isOpen={setAddressFound}
           onOpenChange={setAddressFound}
-          errorName={'No Account found'}
-          errorMessage={'Do you wish to go back and register an account?'}
+          errorName={chrome.i18n.getMessage('No_Account_found')}
+          errorMessage={chrome.i18n.getMessage('Do_you_wish_to_go')}
         />
-
       }
       {!newKey &&
         <ErrorModel
           isOpen={setKeyNew}
           onOpenChange={setKeyNew}
-          errorName={'Publickey already exist'}
-          errorMessage={'Please import or register a new key.'}
+          errorName={chrome.i18n.getMessage('Publickey_already_exist')}
+          errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
         />
-
       }
 
       {isImport &&

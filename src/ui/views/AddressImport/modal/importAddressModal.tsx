@@ -15,9 +15,9 @@ const ImportAddressModal = ({ isOpen, onOpenChange, accounts, handleAddressSelec
 
   return (
     <Dialog open={isOpen} onClose={() => onOpenChange(false)}>
-      <DialogTitle>Account Found on Chain</DialogTitle>
+      <DialogTitle>{chrome.i18n.getMessage('Accounts_Found_on_Chain')}</DialogTitle>
       <DialogContent>
-        <h2>Choose an account you want to import</h2>
+        <h2>{chrome.i18n.getMessage('Choose_an_account_you_want_to_import')}</h2>
         <form id="address" onSubmit={handleSubmit}>
           <FormControl fullWidth>
             <Select
@@ -37,7 +37,7 @@ const ImportAddressModal = ({ isOpen, onOpenChange, accounts, handleAddressSelec
       </DialogContent>
       <DialogActions>
         <Button onClick={() => onOpenChange(false)}>
-          Cancel
+          {chrome.i18n.getMessage('Cancel')}
         </Button>
         <Button
           form="address"
@@ -45,7 +45,7 @@ const ImportAddressModal = ({ isOpen, onOpenChange, accounts, handleAddressSelec
           variant="contained"
           type="submit"
         >
-          Import
+          {chrome.i18n.getMessage('Import')}
         </Button>
       </DialogActions>
     </Dialog>

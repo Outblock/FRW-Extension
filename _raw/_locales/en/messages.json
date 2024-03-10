@@ -1009,5 +1009,83 @@
   
   "No_linked": {
     "message": "No linked account"
+  },
+  "Import_Existing": {
+    "message": "Import Existing Account"
+  },
+  "Create_New_Account": {
+    "message": "Create New Account"
+  },
+  "Accounts": {
+    "message": "Accounts"
+  },
+  "Import": {
+    "message": "Import"
+  },
+  "Choose_an_account_you_want_to_import": {
+    "message": "Choose an account you want to import"
+  },
+  "Accounts_Found_on_Chain": {
+    "message": "Accounts Found on Chain"
+  },
+  "Support_Flow_Wallet_and_private_key": {
+    "message": "Support Flow Wallet, Blocto, seed phrase, keystore and private key"
+  },
+  "Import_Address": {
+    "message": "Import Address"
+  },
+  "Please_import_or_register_a_new_key": {
+    "message": "Please import or register a new key."
+  },
+  "Publickey_already_exist": {
+    "message": "Publickey already exist"
+  },
+  "Do_you_wish_to_go": {
+    "message": "Do you wish to go back and register an account?"
+  },
+  "No_Account_found": {
+    "message": "No Account Found"
+  },
+  "Please_enter_your_private_key": {
+    "message": "Please enter your private key"
+  },
+  "This_is_the_private_key_you": {
+    "message": "This is the private key you were given"
+  },
+  "Private__is__invalid": {
+    "message": "Private key is invalid"
+  },
+  "Open_your_Flow_Reference_on_Mobil": {
+    "message": "Open your Flow Reference on Mobile app and Scan the QR Code to Sync your Wallet."
+  },
+  "Sync_": {
+    "message": "Sync"
+  },
+  "Note_Your_recovery_phrase_will_not": {
+    "message": "Note: Your recovery phrase will NEVER go through Flow Reference's server. It is end-to-end encrypted and we can never read it."
+  },
+  "Scan_Successfully": {
+    "message": "Scan Successfully"
+  },
+  "Sync_in_Process": {
+    "message": "Sync in Process..."
+  },
+  "Scan_QR_Code_with_Mobile": {
+    "message": "Scan QR Code with Mobile App"
+  },
+  "Sync_with_Mobile_App": {
+    "message": "Sync with Mobile App"
+  },
+  "Import_Other_Wallets": {
+    "message": "Import Other Wallets"
+  },
+  "Support_Flow_Wallet_Blocto": {
+    "message": "Support Flow Wallet, Blocto, json and raw key"
+  },
+  "A_crypto_wallet_on_Flow": {
+    "message": "A crypto wallet on Flow built for"
+  },
+  "Explorers_Collectors_and_Gamers": {
+    "message": "Explorers, Collectors and Gamers"
   }
 }
