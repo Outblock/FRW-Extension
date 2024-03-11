@@ -36,7 +36,6 @@ import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg'
 import sideMore from '../../FRWAssets/svg/sideMore.svg'
 import Popup from './Components/Popup';
-import { pk2PubKey } from '../AddressImport/passkey';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -201,20 +200,21 @@ const Header = ({ loading }) => {
     console.log('childresp :', childresp);
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
-    
+
     await storage.set('keyIndex', '');
     const keys = await usewallet.getAccount();
 
     const pubKTuple = await usewallet.getPubKey();
-    const { SECP256K1 } = pubKTuple;
-    const pubKey = SECP256K1.pubK;
+    const { P256, SECP256K1 } = pubKTuple;
 
-    const keyIndex = findPublicKeyIndex(keys, pubKey);
-    
+    const keyIndexA = findPublicKeyIndex(keys, P256.pubK);
+    const keyIndexB = findPublicKeyIndex(keys, SECP256K1.pubK);
+    const keyIndex = keyIndexA >= 0 ? keyIndexA : (keyIndexB >= 0 ? keyIndexB : 0);
+
     await storage.set('keyIndex', keyIndex);
   };
 
-  const findPublicKeyIndex = (data, publicKey) =>{
+  const findPublicKeyIndex = (data, publicKey) => {
     return data.keys.findIndex(key => key.publicKey === publicKey);
   }
 
@@ -251,7 +251,7 @@ const Header = ({ loading }) => {
     usewallet.checkUserDomain(wallet.username);
   }
   const switchAccount = async (account) => {
-    console.log('switch account ', account )
+    console.log('switch account ', account)
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
     await usewallet.lockWallet();
     history.push('/switchunlock');
