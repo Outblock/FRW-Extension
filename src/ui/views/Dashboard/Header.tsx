@@ -125,7 +125,7 @@ const Header = ({ loading }) => {
             'name': 'FRW Chrome Extension',
             'org': userlocation.org,
             'regionName': userlocation.regionName,
-            'type': '1',
+            'type': '2',
             'user_agent': 'Chrome',
             'zip': userlocation.zip,
           }
