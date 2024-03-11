@@ -128,7 +128,7 @@ const TransferList = ({setCount}) => {
                 variant="body1"
                 sx={{ fontSize: 14, fontWeight: '500', textAlign: 'start' }}
               >
-                {props.type == 1 ? `${props.token}` : `${props.token.split('.')[2]}`}
+                {props.type == 1 ? `${props.token}` : `${props.token}`}
               </Typography>
             </Box>
 

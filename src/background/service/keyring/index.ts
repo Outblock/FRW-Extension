@@ -868,9 +868,7 @@ class KeyringService extends EventEmitter {
     const hiddenAddresses = preference.getHiddenAddresses();
     const accounts: Promise<
       ({ address: string; brandName: string } | string)[]
-    > = keyring.getAccountsWithBrand
-        ? keyring.getAccountsWithBrand()
-        : keyring.getAccounts();
+    > = keyring.getAccountsWithBrand ? keyring.getAccountsWithBrand() : keyring.getAccounts();
 
     return accounts.then((accounts) => {
       const allAccounts = accounts.map((account) => ({
