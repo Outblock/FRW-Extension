@@ -310,9 +310,12 @@ const handlePreAuthz = async (id) => {
   const payer = await walletController.getPayerAddressAndKeyId();
   const address = await userWalletService.getCurrentAddress();
   const network = await userWalletService.getNetwork();
+    
+  const ki = await storage.get('keyIndex');
+  const keyIndex = Number(ki);
   const services = preAuthzServiceDefinition(
     address,
-    0,
+    keyIndex,
     payer.address,
     payer.keyId,
     network

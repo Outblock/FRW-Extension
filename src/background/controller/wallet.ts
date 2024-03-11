@@ -340,8 +340,6 @@ export class WalletController extends BaseController {
       privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
     } else {
       privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
-      console.log('privateKey ', privateKey)
-
     }
     return privateKey;
   };
@@ -359,10 +357,7 @@ export class WalletController extends BaseController {
       privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
     } else {
       privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
-      console.log('privateKey ', privateKey)
-
     }
-    console.log('privateKey ', keyrings)
     const pubKTuple = await pk2PubKey(privateKey);
     return pubKTuple;
   };

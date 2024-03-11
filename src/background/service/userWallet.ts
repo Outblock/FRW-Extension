@@ -233,9 +233,6 @@ class UserWallet {
     const payer = await wallet.getPayerAddressAndKeyId();
     const address = fcl.withPrefix(payer.address);
     const ADDRESS = fcl.withPrefix(address);
-    console.log('payer ', payer);
-    console.log('Address ', ADDRESS)
-    console.log('account ', account)
     // TODO: FIX THIS
     const KEY_ID = payer.keyId;
     return {
