@@ -8,6 +8,7 @@ import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
 import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
+import { storage } from '../webapi';
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -197,9 +198,8 @@ class UserWallet {
     // authorization function need to return an account
     const address = fcl.withPrefix(await wallet.getCurrentAddress());
     const ADDRESS = fcl.withPrefix(address);
-    console.log('this is current ADDRESS ',  fcl.sansPrefix(ADDRESS))
     // TODO: FIX THIS
-    const KEY_ID = 0;
+    const KEY_ID = await storage.get('keyIndex');
     return {
       ...account, // bunch of defaults in here, we want to overload some of them though
       tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId

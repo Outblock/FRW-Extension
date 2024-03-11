@@ -51,6 +51,7 @@ import { getApp } from 'firebase/app';
 import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
+import { pk2PubKey } from '../../ui/views/AddressImport/passkey';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -331,9 +332,9 @@ export class WalletController extends BaseController {
   getKey = async (password) => {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');
-    
+
     if (keyrings[0].mnemonic) {
-      
+
       const mnemonic = await this.getMnemonics(password || '');
       const hdwallet = HDWallet.fromMnemonic(mnemonic);
       privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
@@ -343,6 +344,27 @@ export class WalletController extends BaseController {
 
     }
     return privateKey;
+  };
+
+  getPubKey = async () => {
+    let privateKey;
+    const keyrings = await keyringService.getKeyring();
+
+    if (keyrings[0].mnemonic) {
+
+      const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
+      const serialized = await keyring.serialize();
+      const seedWords = serialized.mnemonic;
+      const hdwallet = HDWallet.fromMnemonic(seedWords);
+      privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+    } else {
+      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+      console.log('privateKey ', privateKey)
+
+    }
+    console.log('privateKey ', keyrings)
+    const pubKTuple = await pk2PubKey(privateKey);
+    return pubKTuple;
   };
 
   importPrivateKey = async (data) => {

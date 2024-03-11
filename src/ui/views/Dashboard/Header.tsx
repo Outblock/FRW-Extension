@@ -30,13 +30,13 @@ import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
 import { withPrefix } from '@/ui/utils/address';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { StyledEngineProvider } from '@mui/material/styles';
 import eventBus from '@/eventBus';
 import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg'
 import sideMore from '../../FRWAssets/svg/sideMore.svg'
 import Popup from './Components/Popup';
+import { pk2PubKey } from '../AddressImport/passkey';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -201,7 +201,22 @@ const Header = ({ loading }) => {
     console.log('childresp :', childresp);
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
+    
+    await storage.set('keyIndex', '');
+    const keys = await usewallet.getAccount();
+
+    const pubKTuple = await usewallet.getPubKey();
+    const { SECP256K1 } = pubKTuple;
+    const pubKey = SECP256K1.pubK;
+
+    const keyIndex = findPublicKeyIndex(keys, pubKey);
+    
+    await storage.set('keyIndex', keyIndex);
   };
+
+  const findPublicKeyIndex = (data, publicKey) =>{
+    return data.keys.findIndex(key => key.publicKey === publicKey);
+  }
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.refreshUserWallets();

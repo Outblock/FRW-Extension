@@ -117,7 +117,6 @@ const TransferList = ({setCount}) => {
   };
 
   const StartListItemText = (props) => {
-    console.log('start list props ', props)
     return (
       <ListItemText
         disableTypography={true}

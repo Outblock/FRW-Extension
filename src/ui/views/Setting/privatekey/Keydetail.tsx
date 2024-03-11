@@ -23,16 +23,14 @@ const Keydetail = () => {
   const verify = async () => {
     const pwd = location.state.password;
     const result = await wallet.getKey(pwd);
-    console.log('result ', result)
     // const privateKey = hdwallet
     //   .derive("m/44'/539'/0'/0/0")
     //   .getPrivateKey()
     //   .toString('hex');
     setKey(result);
     const pubKTuple = await pk2PubKey(result);
-    console.log('pubKTuple ', pubKTuple)
-    const { P256 } = pubKTuple;
-    setPublicKey(P256.pubK);
+    const { SECP256K1 } = pubKTuple;
+    setPublicKey(SECP256K1.pubK);
   }
 
   const setTab = async () => {

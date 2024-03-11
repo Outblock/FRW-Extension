@@ -17,6 +17,9 @@ import { WalletUtils } from '@onflow/fcl'
 import Link from 'ui/FRWAssets/svg/link.svg';
 import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
 import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
+
+import { storage } from '@/background/webapi';
+
 interface ConnectProps {
   params: any;
   // onChainChange(chain: CHAINS_ENUM): void;
@@ -87,7 +90,8 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     const network = await wallet.getNetwork();
 
     // TODO: FIXME Dynamic keyIndex
-    const keyIndex = 0
+    const ki = await storage.get('keyIndex');
+    const keyIndex = Number(ki);
     const services = await authnServiceDefinition(address, keyIndex, payer.address, payer.keyId, isEnabled, network)
 
     if (appIdentifier && nonce) {
