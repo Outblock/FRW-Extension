@@ -63,12 +63,12 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
           minRows={6}
-          placeholder="Import 12 or 24 words split with whitespace"
+          placeholder={chrome.i18n.getMessage('Import_12_or_24_words')}
           className={classes.textarea}
           required
         />
         <TextareaAutosize
-          placeholder="Enter your flow address (Optional)"
+          placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
           defaultValue={''}
 

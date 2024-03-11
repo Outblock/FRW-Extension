@@ -130,9 +130,9 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
       </Box>
 
       <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example" sx={{ padding: '0 24px' }}>
-        <Tab sx={sxStyles} label="Keystore" />
-        <Tab sx={sxStyles} label="Seed Phrase" />
-        <Tab sx={sxStyles} label="Private Key" />
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Keystore')} />
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Seed_Phrase')} />
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Private_Key')} />
       </Tabs>
       <TabPanel value={selectedTab} index={0}>
         <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />

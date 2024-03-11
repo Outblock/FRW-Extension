@@ -1086,5 +1086,29 @@
   },
   "Explorers_Collectors_and_Gamers": {
     "message": "探検家、コレクター、ゲーマー"
+  },
+  "Keystore": {
+    "message": "キーストア"
+  },
+  "Seed_Phrase": {
+    "message": "シードフレーズ"
+  },
+  "Private_Key": {
+    "message": "プライベートキー"
+  },
+  "You_can_import_the": {
+    "message": "他のウォレット（例：Blocto）からjsonファイルをインポートできます"
+  },
+  "Enter_password_for_json_file": {
+    "message": "jsonファイルのパスワードを入力してください"
+  },
+  "Enter_your_flow_address": {
+    "message": "Flowアドレスを入力してください（オプション）"
+  },
+  "Enter_your_Private_key": {
+    "message": "プライベートキーを入力してください"
+  },
+  "Import_12_or_24_words": {
+    "message": "12語または24語をスペースで区切ってインポート"
   }
 }

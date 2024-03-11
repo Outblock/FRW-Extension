@@ -111,13 +111,13 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
           minRows={5}
-          placeholder="You can import the json file from other wallet (eg. Blocto)"
+          placeholder={chrome.i18n.getMessage('You_can_import_the')}
           className={classes.textarea}
           required
         />
         <TextField
           required
-          placeholder="Enter password for json file"
+          placeholder={chrome.i18n.getMessage('Enter_password_for_json_file')}
           type={isVisible ? 'text' : 'password'}
           className={classes.input}
           InputProps={{
@@ -133,7 +133,7 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
         />
 
         <TextareaAutosize
-          placeholder="Enter your flow address (Optional)"
+          placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
           defaultValue={''}
 

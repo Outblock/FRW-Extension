@@ -62,13 +62,13 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
     <Box sx={{ padding: '0' }}>
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
-          placeholder="Enter your Private key"
+          placeholder={chrome.i18n.getMessage('Enter_your_Private_key')}
           className={classes.textarea}
           aria-label="Private Key"
           required
         />
         <TextareaAutosize
-          placeholder="Enter your flow address (Optional)"
+          placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
           defaultValue={''}
 

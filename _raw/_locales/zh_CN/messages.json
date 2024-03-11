@@ -1086,5 +1086,29 @@
   },
   "Explorers_Collectors_and_Gamers": {
     "message": "探索者、收藏家和游戏玩家"
+  },
+  "Keystore": {
+    "message": "密钥库"
+  },
+  "Seed_Phrase": {
+    "message": "助记词"
+  },
+  "Private_Key": {
+    "message": "私钥"
+  },
+  "You_can_import_the": {
+    "message": "您可以从其他钱包（例如 Blocto）导入 json 文件"
+  },
+  "Enter_password_for_json_file": {
+    "message": "输入 json 文件的密码"
+  },
+  "Enter_your_flow_address": {
+    "message": "输入您的 Flow 地址（可选）"
+  },
+  "Enter_your_Private_key": {
+    "message": "输入您的私钥"
+  },
+  "Import_12_or_24_words": {
+    "message": "导入 12 或 24 个用空格分隔的单词"
   }
 }
