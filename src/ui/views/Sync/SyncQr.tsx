@@ -361,6 +361,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
                     size={256}
                     style={{ height: 'auto', maxWidth: '100%', width: '100%', borderRadius: '24px' }}
                     value={Uri}
+                    level={'H'}
                     viewBox={'0 0 256 256'}
                   />
                   {loading &&
