@@ -170,6 +170,7 @@ const Devices = () => {
                   overflow: 'hidden',
                   transition: 'max-height 0.3s ease-in-out',
                   flexDirection: 'column',
+                  flex:'1'
                 }}>
 
                   <Typography
