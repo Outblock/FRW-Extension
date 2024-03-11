@@ -128,7 +128,7 @@ const AddressImport = () => {
           flexDirection: 'column',
           backgroundColor: 'background.default',
           width: '100%',
-          height: '100%',
+          height: '100vh',
           justifyContent: 'center',
           alignItems: 'center',
         }}
