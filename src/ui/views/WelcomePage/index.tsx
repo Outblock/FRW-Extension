@@ -10,7 +10,6 @@ import qr from '../../FRWAssets/svg/scanIcon.svg';
 import outside from '../../FRWAssets/svg/importoutside.svg';
 import { Link } from 'react-router-dom';
 import IconFlow from '../../../components/iconfont/IconFlow';
-import QRCode from 'react-qr-code';
 
 const WelcomePage = () => {
   return (
