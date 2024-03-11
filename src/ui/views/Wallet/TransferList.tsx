@@ -94,7 +94,7 @@ const TransferList = ({setCount}) => {
               variant="body1"
               sx={{ fontSize: 14, fontWeight: '500', textAlign: 'end', color: isReceive && isFT ? 'success.main' : 'text.primary' }}
             >
-              {props.type == 1 ? ( (isReceive ? '+' : '-') + `${props.amount}`) : `${props.token.split('.')[2]}`}
+              {props.type == 1 ? ( (isReceive ? '+' : '-') + `${props.amount}`) : `${props.token}`}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -117,6 +117,7 @@ const TransferList = ({setCount}) => {
   };
 
   const StartListItemText = (props) => {
+    console.log('start list props ', props)
     return (
       <ListItemText
         disableTypography={true}
@@ -128,7 +129,7 @@ const TransferList = ({setCount}) => {
                 variant="body1"
                 sx={{ fontSize: 14, fontWeight: '500', textAlign: 'start' }}
               >
-                {props.type == 1 ? `${props.token}` : `${props.token}`}
+                {props.title}
               </Typography>
             </Box>
 
@@ -210,6 +211,7 @@ const TransferList = ({setCount}) => {
                         receiver={tx.receiver}
                         type={tx.type}
                         token={tx.token}
+                        title={tx.interaction}
                         txType={tx.transferType}
                       />
                     </ListItemButton>
