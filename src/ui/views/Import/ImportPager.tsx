@@ -103,7 +103,7 @@ const ImportPager = () => {
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: 'background.default',
-          height: 'auto',
+          height: '100vh',
           justifyContent: 'center',
           alignItems: 'center',
         }}

@@ -76,6 +76,7 @@ export function readSettings() {
     try {
       settings = JSON.parse(s);
     } catch {
+      console.log('Error parsing settings')
     }
     if ('rp' in settings) {
       delete settings.rp;

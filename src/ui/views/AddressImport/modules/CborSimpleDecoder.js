@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 const PositiveInteger = 0;
