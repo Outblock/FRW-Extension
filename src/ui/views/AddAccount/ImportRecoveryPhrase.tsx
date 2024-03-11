@@ -270,8 +270,8 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
           </Typography>
 
           <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example" sx={{ padding: '0' }}>
-            <Tab className={classes.sxStyles} label="Seed Phrase" />
-            <Tab className={classes.sxStyles} label="Private Key" />
+            <Tab className={classes.sxStyles} label={chrome.i18n.getMessage('Seed_Phrase')} />
+            <Tab className={classes.sxStyles} label={chrome.i18n.getMessage('Private_Key')} />
           </Tabs>
           <TabPanel sx={{padding:'0'}} value={selectedTab} index={0}>
             <SeedPhrase helperText={helperText} msgBgColor={msgBgColor} mnemonic={mnemonic} setmnemonic={setMnemonic} />
