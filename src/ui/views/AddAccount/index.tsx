@@ -156,10 +156,11 @@ const AddAccount = () => {
               padding: '24px 24px 0px 24px',
             }}
           >
-            <IconButton onClick={goBack} size="small">
-              <BackButtonIcon color="#5E5E5E" size={27} />
-            </IconButton>
-
+            {activeIndex !== 0 &&
+              <IconButton onClick={goBack} size="small">
+                <BackButtonIcon color="#5E5E5E" size={27} />
+              </IconButton>
+            }
             <div style={{ flexGrow: 1 }}></div>
 
             <Typography
