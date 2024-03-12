@@ -237,10 +237,10 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>
+            {/* <Presets.TransitionSlideUp>
               {password && helperText}
-            </Presets.TransitionSlideUp>
-            <Input
+            </Presets.TransitionSlideUp> */}
+            {/* <Input
               sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
               id="pass2"
               type={isConfirmPasswordVisible ? 'text' : 'password'}
@@ -271,7 +271,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword }) => {
               style={{ height: '40px', display: 'flex' }}
             >
               {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp>
+            </Presets.TransitionSlideUp> */}
           </FormGroup>
         </Box>
 

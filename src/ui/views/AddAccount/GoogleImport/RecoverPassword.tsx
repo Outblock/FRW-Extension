@@ -301,7 +301,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                   </InputAdornment>
                 }
               />
-              <Presets.TransitionSlideUp>
+              {/* <Presets.TransitionSlideUp>
                 {password && helperText}
               </Presets.TransitionSlideUp>
               <Input
@@ -335,7 +335,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                 style={{ height: '40px', display: 'flex' }}
               >
                 {confirmPassword && helperMatch}
-              </Presets.TransitionSlideUp>
+              </Presets.TransitionSlideUp> */}
             </FormGroup>
           </Box>
 

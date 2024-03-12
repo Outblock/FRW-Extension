@@ -1110,5 +1110,11 @@
   },
   "Import_12_or_24_words": {
     "message": "Import 12 or 24 words split with whitespace"
+  },
+  "OK": {
+    "message": "OK"
+  },
+  "We_cant_find": {
+    "message": "We can't find your address on flow with this key. Please check your input and try again."
   }
 }

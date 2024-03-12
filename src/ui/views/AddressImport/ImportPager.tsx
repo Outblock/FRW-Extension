@@ -148,7 +148,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
           isOpen={setAddressFound}
           onOpenChange={setAddressFound}
           errorName={chrome.i18n.getMessage('No_Account_found')}
-          errorMessage={chrome.i18n.getMessage('Do_you_wish_to_go')}
+          errorMessage={chrome.i18n.getMessage('We_cant_find')}
         />
       }
       {!newKey &&

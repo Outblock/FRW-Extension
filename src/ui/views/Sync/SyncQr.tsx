@@ -285,7 +285,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
       'name': 'FRW Chrome Extension',
       'org': userlocation.org,
       'regionName': userlocation.regionName,
-      'type': '1',
+      'type': '2',
       'userAgent': 'Chrome',
       'zip': userlocation.zip,
 
