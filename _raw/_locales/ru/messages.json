@@ -1119,5 +1119,8 @@
   },
   "Add_account": {
     "message": "Добавить аккаунт"
+  },
+  "Private__key_valid": {
+    "message": "Приватный ключ действителен"
   }
 }

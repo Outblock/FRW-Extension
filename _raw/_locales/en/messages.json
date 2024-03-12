@@ -1119,5 +1119,8 @@
   },
   "Add_account": {
     "message": "Add Account"
+  },
+  "Private__key_valid": {
+    "message": "Privatekey is valid"
   }
 }

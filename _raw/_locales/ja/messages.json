@@ -1119,5 +1119,8 @@
   },
   "Add_account": {
     "message": "アカウントを追加"
+  },
+  "Private__key_valid": {
+    "message": "秘密鍵は有効です"
   }
 }

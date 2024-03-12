@@ -1119,5 +1119,9 @@
   },
   "Add_account": {
     "message": "添加账户"
+  },
+  "Private__key_valid": {
+    "message": "私钥有效"
   }
+  
 }

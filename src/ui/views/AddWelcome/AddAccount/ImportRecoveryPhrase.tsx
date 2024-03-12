@@ -158,6 +158,21 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
     </Box>
   );
 
+  const privateCorrect = (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+    >
+      <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
+      <Typography variant="body1" color="success.main">
+        {chrome.i18n.getMessage('Private__key_valid')}
+      </Typography>
+    </Box>
+  );
+
   const mnemonicLoading = () => (
     <Typography
       variant="body1"
@@ -215,7 +230,6 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
   }, [mnemonic]);
 
   useEffect(() => {
-    console.log('mnemonic')
     setMnemonicValid(false);
     setHelperText(mnemonicLoading);
     setLoading(true);
@@ -225,7 +239,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
       const isvalid = hexRegex.test(pk);
       if (isvalid) {
         setMnemonicValid(true);
-        setHelperText(mnemonicCorrect);
+        setHelperText(privateCorrect);
         return;
       } else {
         setErrorMessage(chrome.i18n.getMessage('Private__is__invalid'));
