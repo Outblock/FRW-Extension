@@ -65,7 +65,7 @@
   },
   "exclude": [
     "./node_modules",
-    "./src/ui/views/AddressImport/modules"
+    "src/ui/utils/modules"
   ],
   "include": [
     "src",

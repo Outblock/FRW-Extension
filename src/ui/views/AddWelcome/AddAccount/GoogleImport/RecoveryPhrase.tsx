@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Box, ThemeProvider } from '@mui/system';
 import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
-import theme from '../../../style/LLTheme';
+import theme from '../../../../style/LLTheme';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
-import IconCopy from '../../../../components/iconfont/IconCopy';
+import IconCopy from '../../../../../components/iconfont/IconCopy';
 import { Presets } from 'react-component-transition';
 import InfoIcon from '@mui/icons-material/Info';
 

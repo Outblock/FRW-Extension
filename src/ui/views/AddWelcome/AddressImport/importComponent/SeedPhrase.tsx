@@ -1,12 +1,10 @@
 import { useEffect, useState, useContext } from 'react';
-import { findAddressWithPK } from '../../../utils/modules/findAddressWithPK';
-import { KEY_TYPE } from '../../../utils/modules/constants';
+import { findAddressWithSeed } from '../../../../utils/modules/findAddressWithPK';
+import { KEY_TYPE } from '../../../../utils/modules/constants';
 import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
-import HDWallet from 'ethereum-hdwallet';
-
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -30,28 +28,30 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
   },
 }));
-const KeyImport = ({ onOpen, onImport, setPk }) => {
-  // const classes = useStyles();
-  const classes = useStyles();
 
+const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
+  const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
 
   const handleImport = async (e) => {
     try {
       setLoading(true);
       e.preventDefault();
-      const pk = e.target[0].value.replace(/^0x/, '');
+      const seed = e.target[0].value.trim().split(/\s+/g).join(' ');
+      setmnemonic(seed);
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[2].value;
-      setPk(pk);
+
+      console.log('inputValue ', inputValue)
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
-      const result = await findAddressWithPK(pk, address);
+
+      console.log('address ', address)
+      const result = await findAddressWithSeed(seed, address)
       if (!result) {
         onOpen();
         return;
       }
-      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.PRIVATE_KEY }))
-      console.log('accounts ==>', accounts)
+      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }))
       onImport(accounts);
     } finally {
       setLoading(false);
@@ -62,9 +62,9 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
     <Box sx={{ padding: '0' }}>
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
-          placeholder={chrome.i18n.getMessage('Enter_your_Private_key')}
+          minRows={6}
+          placeholder={chrome.i18n.getMessage('Import_12_or_24_words')}
           className={classes.textarea}
-          aria-label="Private Key"
           required
         />
         <TextareaAutosize
@@ -73,6 +73,8 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
           defaultValue={''}
 
         />
+
+
         <Button
           className="registerButton"
           variant="contained"
@@ -105,4 +107,4 @@ const KeyImport = ({ onOpen, onImport, setPk }) => {
   );
 };
 
-export default KeyImport;
+export default SeedPhraseImport;

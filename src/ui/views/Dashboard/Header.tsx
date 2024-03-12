@@ -18,9 +18,10 @@ import {
   Avatar,
   Skeleton,
   CircularProgress,
+  CardMedia
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import InboxIcon from '@mui/icons-material/Inbox';
+import popLock from 'ui/FRWAssets/svg/popLock.svg';
+import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
 import logo from '../../../../_raw/images/icon-128.png';
@@ -703,7 +704,7 @@ const Header = ({ loading }) => {
       classes={{ paper: classes.paper }}
       PaperProps={{ sx: { width: '75%' } }}
     >
-      <List component="nav" sx={{ backgroundColor: '#282828' }}>
+      <List sx={{ backgroundColor: '#282828', display:'flex', flexDirection:'column',height:'100%' }}>
         <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           {userInfo &&
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -838,6 +839,74 @@ const Header = ({ loading }) => {
             <ListItemText primary="Import wallet" />
           </ListItemButton>
         </ListItem> */}
+        <Box
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexDirection: 'column',
+            display: 'flex',
+            paddingLeft:'16px',
+            marginTop: 'auto' ,
+            marginBottom:'30px' 
+          }}
+        >
+          <ListItem disablePadding onClick={async () => {
+            await usewallet.lockAdd();
+            // history.push('/add');
+          }}>
+            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+              <ListItemIcon
+                sx={{
+                  width: '24px',
+                  minWidth: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px'
+                }}>
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popAdd} />
+              </ListItemIcon>
+              <Typography
+                variant="body1"
+                component="div"
+                display="inline"
+                color='text'
+                sx={{ fontSize: '12px' }}
+              >
+                {chrome.i18n.getMessage('Add_account')}
+              </Typography>
+            </ListItemButton>
+          </ListItem>
+          <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
+            await usewallet.lockWallet();
+            history.push('/unlock');
+          }}>
+            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+              <ListItemIcon
+                sx={{
+                  width: '24px',
+                  minWidth: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px'
+                }}>
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popLock} />
+              </ListItemIcon>
+              <Typography
+                variant="body1"
+                component="div"
+                display="inline"
+                color='text'
+                sx={{ fontSize: '12px' }}
+              >
+                {chrome.i18n.getMessage('Lock__Wallet')}
+              </Typography>
+            </ListItemButton>
+          </ListItem>
+        </Box>
       </List>
       <LLComingSoon
         alertOpen={alertOpen}

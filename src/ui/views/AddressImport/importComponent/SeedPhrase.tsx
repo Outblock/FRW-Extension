@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
-import { findAddressWithSeed } from '../findAddressWithPK';
-import { KEY_TYPE } from '../constants';
+import { findAddressWithSeed } from '../../../utils/modules/findAddressWithPK';
+import { KEY_TYPE } from '../../../utils/modules/constants';
 import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';

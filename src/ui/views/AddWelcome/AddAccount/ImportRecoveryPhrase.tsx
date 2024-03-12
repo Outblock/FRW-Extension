@@ -11,11 +11,11 @@ import {
   Alert,
   CssBaseline
 } from '@mui/material';
-import theme from '../../style/LLTheme';
+import theme from '../../../style/LLTheme';
 import { Presets } from 'react-component-transition';
 import { useWallet } from 'ui/utils';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import * as bip39 from 'bip39';
 import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';

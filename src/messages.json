@@ -1090,5 +1090,8 @@
   },
   "We_cant_find": {
     "message": "We can't find your address on flow with this key. Please check your input and try again."
+  },
+  "Add_account": {
+    "message": "Add Account"
   }
 }

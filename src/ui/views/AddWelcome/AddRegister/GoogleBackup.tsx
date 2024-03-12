@@ -5,9 +5,9 @@ import {
   Typography,
   CssBaseline
 } from '@mui/material';
-import theme from '../../style/LLTheme';
+import theme from '../../../style/LLTheme';
 import { useWallet } from 'ui/utils';
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
+import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
 import { LLSpinner } from 'ui/FRWComponent';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';

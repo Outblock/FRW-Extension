@@ -51,7 +51,7 @@ import { getApp } from 'firebase/app';
 import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
-import { pk2PubKey } from '../../ui/views/AddressImport/passkey';
+import { pk2PubKey } from '../../ui/utils/modules/passkey';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -215,7 +215,7 @@ export class WalletController extends BaseController {
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openInternalPageInTab('addregister', true);
+    openInternalPageInTab('addwelcome', true);
     window.close();
   };
 

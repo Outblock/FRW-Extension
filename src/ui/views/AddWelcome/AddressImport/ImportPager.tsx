@@ -1,18 +1,17 @@
 import { useEffect, useState, useContext } from 'react';
-import { findAddressWithSeed } from '../../utils/modules/findAddressWithPK';
-import { KEY_TYPE } from '../../utils/modules/constants';
 import React from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
 import SeedPhraseImport from './importComponent/SeedPhrase';
 import KeyImport from './importComponent/KeyImport';
 import JsonImport from './importComponent/JsonImport';
 
-import ImportAddressModel from '../../FRWComponent/PopupModal/importAddressModal';
+import ImportAddressModel from '../../../FRWComponent/PopupModal/importAddressModal';
 
-import ErrorModel from '../../FRWComponent/PopupModal/errorModel';
+import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
 import { useWallet } from 'ui/utils';
 import * as bip39 from 'bip39';
 import { storage } from '@/background/webapi';
+import { Presets } from 'react-component-transition';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

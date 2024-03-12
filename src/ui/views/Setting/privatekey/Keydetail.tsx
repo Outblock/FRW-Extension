@@ -8,7 +8,7 @@ import IconCopy from '../../../../components/iconfont/IconCopy';
 import { useWallet } from 'ui/utils';
 import HDWallet from 'ethereum-hdwallet';
 import { LLHeader } from '@/ui/FRWComponent';
-import { pk2PubKey } from '../../AddressImport/passkey';
+import { pk2PubKey } from '../../../utils/modules/passkey';
 interface State {
   password: string;
 }

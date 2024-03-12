@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, ThemeProvider } from '@mui/system';
 import { Button, Typography } from '@mui/material';
-import theme from '../../style/LLTheme';
+import theme from '../../../style/LLTheme';
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 
 const RegisterHeader = () => {

@@ -1,20 +1,10 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { Box, ThemeProvider } from '@mui/system';
 import { Button, Typography, CssBaseline, CardMedia } from '@mui/material';
-import theme from '../../style/LLTheme';
+import theme from '../../../style/LLTheme';
 import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
-import { storage } from 'background/webapi';
 
 const AllSet = ({ handleClick }) => {
-
-  const removeTempPass = () => {
-    storage.set('tempPassword', '');
-    
-  };
-
-  useEffect(() => {
-    removeTempPass();
-  }, []);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

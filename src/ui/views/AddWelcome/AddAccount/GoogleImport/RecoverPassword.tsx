@@ -15,15 +15,15 @@ import {
 } from '@mui/material';
 
 import { LLSpinner } from 'ui/FRWComponent';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
-import theme from '../../../style/LLTheme';
+import theme from '../../../../style/LLTheme';
 import { useWallet } from 'ui/utils';
 import { LLNotFound } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';

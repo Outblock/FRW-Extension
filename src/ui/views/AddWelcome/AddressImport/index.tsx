@@ -1,43 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
-import {
-  IconButton,
-  Typography,
-} from '@mui/material';
-import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import theme from '../../style/LLTheme';
-import RegisterHeader from './RegisterHeader';
+import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
+import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
+import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
+import theme from '../../../style/LLTheme';
+import RegisterHeader from '../../Register/RegisterHeader';
+import AllSet from '../../Register/AllSet';
+import SeedPhrase from './importComponent/SeedPhrase';
 import PickUsername from './PickUsername';
-import RecoveryPhrase from './RecoveryPhrase';
-import RepeatPhrase from './RepeatPhrase';
-import GoogleBackup from './GoogleBackup';
-import AllSet from './AllSet';
 import SetPassword from './SetPassword';
+import GoogleBackup from './GoogleBackup';
 import Particles from 'react-tsparticles';
-import * as bip39 from 'bip39';
+import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
   ComponentTransition,
   AnimationTypes,
 } from 'react-component-transition';
-import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../Import/options'
-import { useWallet } from 'ui/utils';
-import { storage } from 'background/webapi';
+import { useWallet, Options } from 'ui/utils';
+import ImportPager from './ImportPager';
 
 enum Direction {
   Right,
   Left,
 }
 
-const AddRegister = () => {
+const AddressImport = () => {
   const history = useHistory();
   const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
-  const [direction, setDirection] = useState(Direction.Right);
+  const [mnemonic, setMnemonic] = useState('');
+  const [pk, setPk] = useState(null);
   const [username, setUsername] = useState('');
+  const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
+  const [showError, setShowError] = useState(false);
+  const [direction, setDirection] = useState(Direction.Right);
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState(null);
-  const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
+  const [accounts, setAccounts] = useState<any>([]);
+  const [isImport, setImport] = useState<any>(false);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
@@ -53,21 +54,17 @@ const AddRegister = () => {
       return;
     });
   };
-
-  const loadTempPassword = async () => {
-    const temp = await storage.get('tempPassword');
-    if (temp) {
-      setPassword(temp);
-    }
-  };
-
   const goNext = () => {
     setDirection(Direction.Right);
-    if (activeIndex < 5) {
+    if (activeIndex < 4) {
       onChange(activeIndex + 1);
     } else {
       window.close();
     }
+  };
+  const goEnd = () => {
+    setDirection(Direction.Right);
+    onChange(4);
   };
 
   const goBack = () => {
@@ -82,6 +79,13 @@ const AddRegister = () => {
   const page = (index) => {
     switch (index) {
       case 0:
+        return <ImportPager
+          setMnemonic={setMnemonic}
+          setPk={setPk}
+          setAccounts={setAccounts}
+          accounts={accounts}
+          handleClick={goNext} />;
+      case 1:
         return (
           <PickUsername
             handleClick={goNext}
@@ -89,35 +93,32 @@ const AddRegister = () => {
             getUsername={getUsername}
           />
         );
-      case 1:
-        return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
       case 2:
-        return <RepeatPhrase handleClick={goNext} mnemonic={mnemonic} />;
-      case 3:
         return (
           <SetPassword
             handleClick={goNext}
             setExPassword={setPassword}
-            tempPassword={password}
             mnemonic={mnemonic}
+            pk={pk}
             username={username}
+            accounts={accounts}
+            goEnd={goEnd}
           />
         );
+      case 3:
+        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />
       case 4:
-        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
-      case 5:
         return <AllSet handleClick={goNext} />;
       default:
-        return <div />; 
+        return <div />;
     }
   };
 
   useEffect(() => {
+    console.log('wallet');
     loadView();
-    loadTempPassword();
   }, []);
 
-  const height = [480, 600, 640, 620, 480, 480]
 
   return (
     <ThemeProvider theme={theme}>
@@ -127,20 +128,20 @@ const AddRegister = () => {
           flexDirection: 'column',
           backgroundColor: 'background.default',
           width: '100%',
-          height: '100%',
+          height: '100vh',
           justifyContent: 'center',
           alignItems: 'center',
         }}
       >
-        {activeIndex == 5 && (
+        {activeIndex == 4 && (
           <Particles
             //@ts-expect-error customized option
-            options={options}
+            options={Options}
           />
         )}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 5} />
+        <LLPinAlert open={activeIndex == 4} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
@@ -167,11 +168,9 @@ const AddRegister = () => {
               padding: '24px 24px 0px 24px',
             }}
           >
-            {(activeIndex !== 4 && activeIndex !== 5) &&
-              <IconButton onClick={goBack} size="small">
-                <BackButtonIcon color="#5E5E5E" size={27} />
-              </IconButton>
-            }
+            <IconButton onClick={goBack} size="small">
+              <BackButtonIcon color="#5E5E5E" size={27} />
+            </IconButton>
 
             <div style={{ flexGrow: 1 }}></div>
 
@@ -179,7 +178,7 @@ const AddRegister = () => {
               variant="body1"
               sx={{ color: '#5E5E5E', alignSelf: 'end', lineHeight: '37px', fontWeight: '700', fontSize: '16px' }}
             >
-              {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/6
+              {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/5
             </Typography>
           </Box>
 
@@ -210,4 +209,4 @@ const AddRegister = () => {
   );
 };
 
-export default AddRegister;
+export default AddressImport;

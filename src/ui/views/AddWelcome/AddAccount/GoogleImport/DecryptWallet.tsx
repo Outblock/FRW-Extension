@@ -10,11 +10,11 @@ import {
   FormGroup,
   CssBaseline,
 } from '@mui/material';
-import CancelIcon from '../../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Presets } from 'react-component-transition';
-import theme from '../../../style/LLTheme';
+import theme from '../../../../style/LLTheme';
 import { useWallet } from 'ui/utils';
 
 // const helperTextStyles = makeStyles(() => ({

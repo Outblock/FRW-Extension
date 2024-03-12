@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/system';
 import { Typography, Avatar, Box, List, ListItemIcon, ListItemButton, ListItemText, IconButton, ListItem, CssBaseline } from '@mui/material';
-import theme from '../../../style/LLTheme';
+import theme from '../../../../style/LLTheme';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { useWallet } from 'ui/utils';
 

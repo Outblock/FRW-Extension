@@ -4,10 +4,10 @@ import {
   decodeAuthenticatorData,
   decodeClientDataJSON,
   decodeAttestationObject,
-} from './modules/WebAuthnDecoder';
-import { decodeArray, encodeArray } from './modules/base64';
+} from './WebAuthnDecoder';
+import { decodeArray, encodeArray } from './base64';
 import { initWasm } from '@trustwallet/wallet-core';
-import { addCredential, readSettings } from './modules/settings';
+import { addCredential, readSettings } from './settings';
 import { FLOW_BIP44_PATH, HASH_ALGO, KEY_TYPE, SIGN_ALGO } from './constants';
 
 const jsonToKey = async (json, password) => {

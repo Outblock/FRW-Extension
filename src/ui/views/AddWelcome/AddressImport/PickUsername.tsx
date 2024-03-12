@@ -9,10 +9,10 @@ import {
   InputAdornment,
   CssBaseline,
 } from '@mui/material';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import theme from '../../style/LLTheme';
-import EmailIcon from '../../assets/alternate-email.svg';
+import CancelIcon from '../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import theme from '../../../style/LLTheme';
+import EmailIcon from '../../../assets/alternate-email.svg';
 import { Presets } from 'react-component-transition';
 import { useWallet } from 'ui/utils';
 import { CircularProgress, IconButton } from '@mui/material';

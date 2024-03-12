@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
-import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
+import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
+import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
+import theme from '../../../style/LLTheme';
+import RegisterHeader from '../../Register/RegisterHeader';
 import ImportRecoveryPhrase from './ImportRecoveryPhrase';
-import AllSet from '../AddRegister/AllSet';
+import AllSet from '../../AddWelcome/AddRegister/AllSet';
 import RecoverPassword from './RecoverPassword';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
@@ -156,11 +156,9 @@ const AddAccount = () => {
               padding: '24px 24px 0px 24px',
             }}
           >
-            {activeIndex !== 0 &&
-              <IconButton onClick={goBack} size="small">
-                <BackButtonIcon color="#5E5E5E" size={27} />
-              </IconButton>
-            }
+            <IconButton onClick={goBack} size="small">
+              <BackButtonIcon color="#5E5E5E" size={27} />
+            </IconButton>
             <div style={{ flexGrow: 1 }}></div>
 
             <Typography
