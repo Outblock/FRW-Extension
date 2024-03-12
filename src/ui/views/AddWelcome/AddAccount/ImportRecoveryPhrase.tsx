@@ -235,7 +235,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       setLoading(false);
-      const hexRegex = /^[0-9a-fA-F]{64}$/; 
+      const hexRegex = /^(0x)?[0-9a-fA-F]{64}$/;
       const isvalid = hexRegex.test(pk);
       if (isvalid) {
         setMnemonicValid(true);
