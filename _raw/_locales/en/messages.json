@@ -1028,7 +1028,7 @@
     "message": "Accounts Found on Chain"
   },
   "Support_Flow_Wallet_and_private_key": {
-    "message": "Support Seed Phrase, Keystore and raw Private key"
+    "message": "Support Seed Phrase, Keystore and raw key"
   },
   "Import_Address": {
     "message": "Import Address"
@@ -1079,7 +1079,7 @@
     "message": "Import Other Wallets"
   },
   "Support_Flow_Wallet_Blocto": {
-    "message": "Support Seed Phrase, Keystore and raw Private key"
+    "message": "Support Seed Phrase, Keystore and raw key"
   },
   "A_crypto_wallet_on_Flow": {
     "message": "A crypto wallet on Flow built for"

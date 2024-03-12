@@ -89,7 +89,8 @@ const Popup = (props: TransferConfirmationProps) => {
                   variant="body1"
                   component="div"
                   display="inline"
-                  color='text'
+                  color="text.secondary"
+                  sx={{fontSize: '12px'}}
                 >
                   {props.current['address']}
                 </Typography>
