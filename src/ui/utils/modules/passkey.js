@@ -186,6 +186,13 @@ const uint8Array2Hex = (input) => {
   return buffer.toString('hex');
 };
 
+const signMessageHash = async (hashAlgo, messageData) => {
+  // Other key
+  const { Hash } = await initWasm();
+  const messageHash = hashAlgo === HASH_ALGO.SHA3_256 ? Hash.sha3_256(messageData) : Hash.sha256(messageData)
+  return messageHash
+}
+
 export {
   createPasskey,
   getPasskey,
@@ -194,4 +201,5 @@ export {
   jsonToKey,
   pk2PubKey,
   seed2PubKey,
+  signMessageHash
 };

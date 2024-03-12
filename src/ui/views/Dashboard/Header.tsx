@@ -203,17 +203,37 @@ const Header = ({ loading }) => {
     usewallet.setChildWallet(childresp);
 
     await storage.set('keyIndex', '');
-    const keys = await usewallet.getAccount();
+    await storage.set('hashAlgo', '');
+    await storage.set('signAlgo', '');
 
+    const keys = await usewallet.getAccount();
+    console.log('keys ', keys);
     const pubKTuple = await usewallet.getPubKey();
     const { P256, SECP256K1 } = pubKTuple;
 
-    const keyIndexA = findPublicKeyIndex(keys, P256.pubK);
-    const keyIndexB = findPublicKeyIndex(keys, SECP256K1.pubK);
-    const keyIndex = keyIndexA >= 0 ? keyIndexA : (keyIndexB >= 0 ? keyIndexB : 0);
 
-    await storage.set('keyIndex', keyIndex);
+    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+    const keyInfo = keyInfoA || keyInfoB || { index: 0, signAlgo: keys.keys[0].signAlgo, hashAlgo: keys.keys[0].hashAlgo };
+
+    await storage.set('keyIndex', keyInfo.index);
+    await storage.set('signAlgo', keyInfo.signAlgo);
+    await storage.set('hashAlgo', keyInfo.hashAlgo);
   };
+
+  const findKeyAndInfo = (keys, publicKey) => {
+    const index = findPublicKeyIndex(keys, publicKey);
+    if (index >= 0) {
+      const key = keys.keys[index];
+      return {
+        index: index,
+        signAlgo: key.signAlgoString,
+        hashAlgo: key.hashAlgoString
+      };
+    }
+    return null;
+  }
+
 
   const findPublicKeyIndex = (data, publicKey) => {
     return data.keys.findIndex(key => key.publicKey === publicKey);
@@ -704,7 +724,7 @@ const Header = ({ loading }) => {
       classes={{ paper: classes.paper }}
       PaperProps={{ sx: { width: '75%' } }}
     >
-      <List sx={{ backgroundColor: '#282828', display:'flex', flexDirection:'column',height:'100%' }}>
+      <List sx={{ backgroundColor: '#282828', display: 'flex', flexDirection: 'column', height: '100%' }}>
         <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           {userInfo &&
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -845,9 +865,9 @@ const Header = ({ loading }) => {
             alignItems: 'center',
             flexDirection: 'column',
             display: 'flex',
-            paddingLeft:'16px',
-            marginTop: 'auto' ,
-            marginBottom:'30px' 
+            paddingLeft: '16px',
+            marginTop: 'auto',
+            marginBottom: '30px'
           }}
         >
           <ListItem disablePadding onClick={async () => {

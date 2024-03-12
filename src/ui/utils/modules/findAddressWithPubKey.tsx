@@ -1,5 +1,8 @@
 import * as fcl from '@onflow/fcl';
-import { openapiService } from 'background/service';
+import {
+  fclMainnetConfig,
+} from 'background/fclConfig';
+
 export const findAddressWithKey = async (pubKeyHex, address) => {
   if (!address) {
     const data = await getAddressByIndexer(pubKeyHex)
@@ -23,7 +26,8 @@ export default async function getAddressByIndexer(publicKey) {
   
 
 const findAddres = async (address, pubKeyHex) => {
-  const account = await openapiService.getFlowAccount(address);
+  await fclMainnetConfig();
+  const account = await fcl.account(address);
   const keys = account.keys
     .filter(key => key.publicKey === pubKeyHex && !key.revoked)
     .filter(key => key.weight >= 1000 )
