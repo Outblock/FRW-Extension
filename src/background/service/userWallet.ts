@@ -6,7 +6,7 @@ import HDWallet from 'ethereum-hdwallet';
 import { keyringService, openapiService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
-import { signMessageHash } from '@/ui/utils/modules/passkey.js';
+import { signWithKey } from '@/ui/utils/modules/passkey.js';
 import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
 import { storage } from '../webapi';
@@ -182,13 +182,12 @@ class UserWallet {
 
   sign = async (signableMessage: string): Promise<string> => {
     const hashAlgo = await storage.get('hashAlgo');
-
-    const messageHash = await signMessageHash(hashAlgo, Buffer.from(signableMessage, 'hex'));
-
+    const signAlgo = await storage.get('signAlgo');
+    
     const password = keyringService.password;
     const privateKey = await wallet.getKey(password);
-    const signature = await secp.sign(messageHash, privateKey);
-    const realSignature = secp.Signature.fromHex(signature).toCompactHex();
+
+    const realSignature = await signWithKey(Buffer.from(signableMessage, 'hex'), signAlgo, hashAlgo, privateKey);
     return realSignature;
   };
 
@@ -275,9 +274,8 @@ class UserWallet {
 
     const hex = secp.utils.bytesToHex;
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
-    const hashAlgo = await storage.get('hashAlgo');
 
-    const messageHash = await signMessageHash(hashAlgo, Buffer.from(message, 'hex'));
+    const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
     const hdwallet = HDWallet.fromMnemonic(mnemonic);
     const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
 
@@ -305,9 +303,8 @@ class UserWallet {
 
     const hex = secp.utils.bytesToHex;
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
-    const hashAlgo = await storage.get('hashAlgo');
 
-    const messageHash = await signMessageHash(hashAlgo, Buffer.from(message, 'hex'));
+    const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
 
     const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
     const signature = await secp.sign(messageHash, privateKey);
@@ -333,14 +330,13 @@ class UserWallet {
 
     const hex = secp.utils.bytesToHex;
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
-    const hashAlgo = await storage.get('hashAlgo');
 
-    const messageHash = await signMessageHash(hashAlgo, Buffer.from(message, 'hex'));
+    const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
     const hdwallet = HDWallet.fromMnemonic(mnemonic);
     const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
 
     const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
-    if (accountKey.public_key === publicKey) {
+    if (accountKey.public_key === publicKey ){
       const signature = await secp.sign(messageHash, privateKey);
       const realSignature = secp.Signature.fromHex(signature).toCompactHex();
       return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);

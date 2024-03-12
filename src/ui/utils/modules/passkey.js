@@ -193,6 +193,18 @@ const signMessageHash = async (hashAlgo, messageData) => {
   return messageHash
 }
 
+const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
+  
+  // Other key
+  const { HDWallet, Curve, Hash, PrivateKey } = await initWasm();
+  const messageData = Buffer.from(message, 'hex')
+  const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'))
+  const curve = signAlgo === SIGN_ALGO.P256 ? Curve.nist256p1 : Curve.secp256k1
+  const messageHash = hashAlgo === HASH_ALGO.SHA3_256 ? Hash.sha3_256(messageData) : Hash.sha256(messageData)
+  const signature = privateKey.sign(messageHash, curve)
+  return Buffer.from(signature.subarray(0, signature.length - 1)).toString('hex')
+}
+
 export {
   createPasskey,
   getPasskey,
@@ -201,5 +213,6 @@ export {
   jsonToKey,
   pk2PubKey,
   seed2PubKey,
-  signMessageHash
+  signMessageHash,
+  signWithKey
 };

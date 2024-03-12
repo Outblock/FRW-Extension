@@ -205,6 +205,7 @@ const Header = ({ loading }) => {
     await storage.set('keyIndex', '');
     await storage.set('hashAlgo', '');
     await storage.set('signAlgo', '');
+    await storage.set('pubKey', '');
 
     const keys = await usewallet.getAccount();
     console.log('keys ', keys);
@@ -214,11 +215,11 @@ const Header = ({ loading }) => {
 
     const keyInfoA = findKeyAndInfo(keys, P256.pubK);
     const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
-    const keyInfo = keyInfoA || keyInfoB || { index: 0, signAlgo: keys.keys[0].signAlgo, hashAlgo: keys.keys[0].hashAlgo };
-
+    const keyInfo = keyInfoA || keyInfoB || { index: 0, signAlgo: keys.keys[0].signAlgo, hashAlgo: keys.keys[0].hashAlgo, publicKey: keys.keys[0].publicKey };
     await storage.set('keyIndex', keyInfo.index);
     await storage.set('signAlgo', keyInfo.signAlgo);
     await storage.set('hashAlgo', keyInfo.hashAlgo);
+    await storage.set('pubKey', keyInfo.publicKey);
   };
 
   const findKeyAndInfo = (keys, publicKey) => {
@@ -228,7 +229,8 @@ const Header = ({ loading }) => {
       return {
         index: index,
         signAlgo: key.signAlgoString,
-        hashAlgo: key.hashAlgoString
+        hashAlgo: key.hashAlgoString,
+        publicKey: key.publicKey,
       };
     }
     return null;
