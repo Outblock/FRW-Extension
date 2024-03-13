@@ -21,6 +21,7 @@ const jsonToKey = async (json, password) => {
 const pk2PubKey = async (pk) => {
   const { PrivateKey } = await initWasm();
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
+
   const p256PubK = Buffer.from(
     privateKey.getPublicKeyNist256p1().uncompressed().data()
   )

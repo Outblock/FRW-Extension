@@ -166,6 +166,7 @@ export class WalletController extends BaseController {
   switchUnlock = async (password: string) => {
     // const alianNameInited = await preferenceService.getInitAlianNameStatus();
     // const alianNames = await preferenceService.getAllAlianName();
+
     await keyringService.submitPassword(password);
 
     // only password is correct then we store it
@@ -173,7 +174,9 @@ export class WalletController extends BaseController {
 
     sessionService.broadcastEvent('unlock');
     const key = await this.getKey(password);
-    await this.signInWithPrivatekey(key);
+    const keyRing = await this.getKeyrings(password);
+
+    await userWalletService.switchLogin(key);
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
     // }
