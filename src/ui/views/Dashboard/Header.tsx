@@ -79,6 +79,7 @@ const Header = ({ loading }) => {
   const [isSandbox, setIsSandbox] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
   const [otherAccounts, setOtherAccounts] = useState<any>(null);
+  const [loggedInAccounts, setLoggedIn] = useState<any>(null);
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [modeOn, setModeOn] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -178,9 +179,6 @@ const Header = ({ loading }) => {
     await setWallet(wallet);
     const userInfo = await usewallet.getUserInfo(false);
     const domain = await usewallet.fetchUserDomain();
-    const currentWallet = await usewallet.getCurrentWallet();
-    console.log('currentWallet ', currentWallet);
-    setCurrent(currentWallet);
     await setUserInfo(userInfo);
     await setDomain(domain);
     if (userInfo.private == 1) {
@@ -250,8 +248,12 @@ const Header = ({ loading }) => {
 
   const freshUserInfo = async () => {
     const wallet = await usewallet.getUserInfo(true);
+    const currentWallet = await usewallet.getCurrentWallet();
+    await setCurrent(currentWallet);
     const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-    console.log('loggedInAccounts:', loggedInAccounts);
+    console.log('currentWallet ', currentWallet);
+    wallet['address'] = currentWallet.address;
+    console.log('wallet is this:', wallet);
 
     if (!loggedInAccounts.some(account => account.username === wallet.username)) {
       loggedInAccounts.push(wallet);
@@ -260,7 +262,6 @@ const Header = ({ loading }) => {
       await storage.set('loggedInAccounts', loggedInAccounts);
     }
     console.log('Updated loggedInAccounts:', loggedInAccounts);
-
     const otherAccounts = loggedInAccounts
       .filter(account => account.username !== wallet.username)
       .map(account => {
@@ -271,6 +272,7 @@ const Header = ({ loading }) => {
     console.log('otherAccounts with index:', otherAccounts);
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
+    await setLoggedIn(loggedInAccounts);
     usewallet.checkUserDomain(wallet.username);
   }
   const switchAccount = async (account) => {
@@ -1068,6 +1070,8 @@ const Header = ({ loading }) => {
               }}
               userInfo={userInfo!}
               current={current!}
+              switchAccount={switchAccount}
+              loggedInAccounts={loggedInAccounts}
             />
 
           }

@@ -1034,7 +1034,7 @@
     "message": "アドレスをインポートする"
   },
   "Please_import_or_register_a_new_key": {
-    "message": "新しいキーをインポートまたは登録してください。"
+    "message": "新しいキーをインポートするか、戻ってログインしてください。"
   },
   "Publickey_already_exist": {
     "message": "公開鍵は既に存在します"

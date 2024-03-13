@@ -1034,7 +1034,7 @@
     "message": "导入地址"
   },
   "Please_import_or_register_a_new_key": {
-    "message": "请导入或注册新密钥。"
+    "message": "请导入新密钥，或返回并登录。"
   },
   "Publickey_already_exist": {
     "message": "公钥已存在"
@@ -1123,5 +1123,4 @@
   "Private__key_valid": {
     "message": "私钥有效"
   }
-  
 }

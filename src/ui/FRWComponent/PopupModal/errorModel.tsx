@@ -3,7 +3,7 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Fo
 import { useHistory } from 'react-router-dom';
 import { CustomDialog } from './importAddressModal'
 
-const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage }) => {
+const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage, isGoback = false }) => {
   const history = useHistory();
 
 
@@ -40,6 +40,34 @@ const ErrorModel = ({ isOpen, onOpenChange, errorName, errorMessage }) => {
           {chrome.i18n.getMessage('OK')}
         </Typography>
       </Button>
+      {isGoback &&
+        <Button
+          className="registerButton"
+          variant="contained"
+          color="info"
+          form="seed"
+          size="large"
+          onClick={() => handleSubmit()}
+          sx={{
+            height: '56px',
+            width: '100%',
+            borderRadius: '12px',
+            textTransform: 'capitalize',
+            gap: '12px',
+            display: 'flex',
+            marginTop:'8px'
+          }}
+
+        >
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 'bold' }}
+            color="background"
+          >
+            {chrome.i18n.getMessage('Back')}
+          </Typography>
+        </Button>
+      }
     </CustomDialog>
   );
 };

@@ -1034,7 +1034,7 @@
     "message": "Import Address"
   },
   "Please_import_or_register_a_new_key": {
-    "message": "Please import or register a new key."
+    "message": "Please import a new key, or go back and login."
   },
   "Publickey_already_exist": {
     "message": "Publickey already exist"

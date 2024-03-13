@@ -153,6 +153,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
           onOpenChange={setKeyNew}
           errorName={chrome.i18n.getMessage('Publickey_already_exist')}
           errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
+          isGoback={true}
         />
       }
 
