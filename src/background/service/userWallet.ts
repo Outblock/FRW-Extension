@@ -194,18 +194,24 @@ class UserWallet {
   };
 
   switchLogin = async (privateKey: string, replaceUser = true) => {
-    let result = await findAddressWithPK(privateKey, '');
 
-    if (!result) {
+    const accountIndex = await storage.get('currentAccountIndex');
+    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    const account = loggedInAccounts[accountIndex];
+
+    console.log('account ', account);
+    let result = [{
+      hashAlgo: account.hashAlgo,
+      signAlgo: account.signAlgo,
+      pubK: account.pubKey,
+      weight: account.weight
+    }];
+
+
+    if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
-      const pubKTuple = await pk2PubKey(privateKey);
       // Create a new result object with extension default setting
-      result = [{
-        hashAlgo: 'SHA2_256',
-        signAlgo: 'ECDSA_SECP256k1',
-        pubK: pubKTuple.SECP256K1.pubK,
-        weight: 1000
-      }];
+      result = await findAddressWithPK(privateKey, '');
     }
     const app = getApp(process.env.NODE_ENV!);
     const auth = getAuth(app);

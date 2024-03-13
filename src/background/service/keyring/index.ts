@@ -659,8 +659,6 @@ class KeyringService extends EventEmitter {
       })
       .then(async (encryptedString) => {
         const accountIndex = await storage.get('currentAccountIndex');
-        console.log('1 this.store.getState().vault', this.store.getState().vault);
-        console.log('1 this.accountIndex', accountIndex);
 
         const oldVault = this.store.getState().vault;
 

@@ -199,25 +199,6 @@ const Header = ({ loading }) => {
     console.log('childresp :', childresp);
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
-
-    await storage.set('keyIndex', '');
-    await storage.set('hashAlgo', '');
-    await storage.set('signAlgo', '');
-    await storage.set('pubKey', '');
-
-    const keys = await usewallet.getAccount();
-    console.log('keys ', keys);
-    const pubKTuple = await usewallet.getPubKey();
-    const { P256, SECP256K1 } = pubKTuple;
-
-
-    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
-    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
-    const keyInfo = keyInfoA || keyInfoB || { index: 0, signAlgo: keys.keys[0].signAlgo, hashAlgo: keys.keys[0].hashAlgo, publicKey: keys.keys[0].publicKey };
-    await storage.set('keyIndex', keyInfo.index);
-    await storage.set('signAlgo', keyInfo.signAlgo);
-    await storage.set('hashAlgo', keyInfo.hashAlgo);
-    await storage.set('pubKey', keyInfo.publicKey);
   };
 
   const findKeyAndInfo = (keys, publicKey) => {
@@ -247,20 +228,49 @@ const Header = ({ loading }) => {
   }
 
   const freshUserInfo = async () => {
+    await storage.set('keyIndex', '');
+    await storage.set('hashAlgo', '');
+    await storage.set('signAlgo', '');
+    await storage.set('pubKey', '');
+
+    const keys = await usewallet.getAccount();
+    console.log('keys ', keys);
+    const pubKTuple = await usewallet.getPubKey();
+    const { P256, SECP256K1 } = pubKTuple;
+
+
+    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+    const keyInfo = keyInfoA || keyInfoB || { index: 0, signAlgo: keys.keys[0].signAlgo, hashAlgo: keys.keys[0].hashAlgo, publicKey: keys.keys[0].publicKey };
+    await storage.set('keyIndex', keyInfo.index);
+    await storage.set('signAlgo', keyInfo.signAlgo);
+    await storage.set('hashAlgo', keyInfo.hashAlgo);
+    await storage.set('pubKey', keyInfo.publicKey);
+
+
     const wallet = await usewallet.getUserInfo(true);
     const currentWallet = await usewallet.getCurrentWallet();
     await setCurrent(currentWallet);
     const loggedInAccounts = await storage.get('loggedInAccounts') || [];
     console.log('currentWallet ', currentWallet);
+
     wallet['address'] = currentWallet.address;
+    wallet['pubKey'] = keyInfo.publicKey;
+    wallet['hashAlgo'] = keyInfo.hashAlgo;
+    wallet['signAlgo'] = keyInfo.signAlgo;
+    wallet['weight'] = keys.keys[0].weight;
+
     console.log('wallet is this:', wallet);
 
-    if (!loggedInAccounts.some(account => account.username === wallet.username)) {
-      loggedInAccounts.push(wallet);
+    const accountIndex = loggedInAccounts.findIndex(account => account.username === wallet.username);
 
-      // Update 'loggedInAccounts' in storage with the new array including the 'wallet'
-      await storage.set('loggedInAccounts', loggedInAccounts);
+    if (accountIndex === -1) {
+      loggedInAccounts.push(wallet);
+    } else if (!loggedInAccounts[accountIndex].pubKey) {
+      loggedInAccounts[accountIndex] = wallet;
     }
+    await storage.set('loggedInAccounts', loggedInAccounts);
+
     console.log('Updated loggedInAccounts:', loggedInAccounts);
     const otherAccounts = loggedInAccounts
       .filter(account => account.username !== wallet.username)
