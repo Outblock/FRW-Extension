@@ -85,7 +85,7 @@ const TokenDetail = () => {
             < Box sx={{ display: 'flex', marginBottom: '12px', borderRadius: '8px', padding:'8px 11px',backgroundColor: 'error.light' }}>
               <img style={{ height: '16px', width: '16px', borderRadius: '16px' }} src={tips}></img>
               <Typography sx={{ fontSize: '12px',marginLeft:'5px', color:'error.main' }}>
-                Flow Reference wallet doesn’t have access to {`${token}`} in
+                Flow wallet doesn’t have access to {`${token}`} in
                 {`${walletName.name}`} Account, please check your linked
                 account settings.
               </Typography>
