@@ -42,6 +42,7 @@ import {
   fclTestnetConfig,
   fclMainnetConfig,
   fclCrescendoConfig,
+  fclPreviewnetConfig,
 } from '../fclConfig';
 import { notification, storage } from 'background/webapi';
 import { NFTData, NFTModel } from '../service/networkModel';
@@ -772,7 +773,6 @@ export class WalletController extends BaseController {
   };
 
   private tokenPrice = async (tokenSymbol: string) => {
-
     const token = tokenSymbol.toLowerCase();
     switch (token) {
       case 'flow':
@@ -794,38 +794,46 @@ export class WalletController extends BaseController {
     coinListService.setExpiry(exp);
 
     const address = await this.getCurrentAddress();
-    console.log('getCurrentAddress ', address)
+    console.log('getCurrentAddress ', address);
     const tokenList = await openapiService.getEnabledTokenList();
     const allBalanceMap = await openapiService.getTokenListBalance(
       address || '0x',
       tokenList
     );
+    console.log(allBalanceMap, 'allBalanceMap =========')
     const prices = tokenList.map((token) => this.tokenPrice(token.symbol));
-    
+
     const allPrice = await Promise.all(prices);
 
     // const allBalanceMap = await Promise.all(balances);
     // const allPrice = await Promise.all(prices);
-    const coins: CoinItem[] = tokenList.map((token, index) => ({
-      coin: token.name,
-      unit: token.symbol,
-      icon: token['logoURI'],
-      balance: parseFloat(parseFloat(allBalanceMap[token.name]).toFixed(3)),
-      price:
-      allPrice[index] === null
-        ? 0
-        : new BN(allPrice[index].price.last).toNumber(),
-      change24h:
-      allPrice[index] === null
-        ? 0
-        : new BN(allPrice[index].price.change.percentage)
-          .multipliedBy(100)
-          .toNumber(),
-      total:
-      allPrice[index] === null
-        ? 0
-        : this.currencyBalance(allBalanceMap[token.name], allPrice[index].price.last),
-    }));
+    const coins: CoinItem[] = tokenList.map((token, index) => {
+
+      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`
+      return {
+        coin: token.name,
+        unit: token.symbol,
+        icon: token['logoURI'] || '',
+        balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(3)),
+        price:
+          allPrice[index] === null
+            ? 0
+            : new BN(allPrice[index].price.last).toNumber(),
+        change24h:
+          allPrice[index] === null
+            ? 0
+            : new BN(allPrice[index].price.change.percentage)
+              .multipliedBy(100)
+              .toNumber(),
+        total:
+          allPrice[index] === null
+            ? 0
+            : this.currencyBalance(
+              allBalanceMap[tokenId],
+              allPrice[index].price.last
+            ),
+      };
+    });
 
     const network = await this.getNetwork();
     coins
@@ -994,10 +1002,9 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const script = await getScripts('hybridCustody', 'getChildAccountMeta');
 
-    return await userWalletService.sendTransaction(
-      script,
-      [fcl.arg(address, t.Address)]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(address, t.Address),
+    ]);
   };
 
   editChildAccount = async (
@@ -1009,15 +1016,12 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const script = await getScripts('hybridCustody', 'editChildAccount');
 
-    return await userWalletService.sendTransaction(
-      script,
-      [
-        fcl.arg(address, t.Address),
-        fcl.arg(name, t.String),
-        fcl.arg(description, t.String),
-        fcl.arg(thumbnail, t.String),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(address, t.Address),
+      fcl.arg(name, t.String),
+      fcl.arg(description, t.String),
+      fcl.arg(thumbnail, t.String),
+    ]);
   };
 
   // TODO: Replace with generic token
@@ -1052,18 +1056,18 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     console.log('inbox');
 
-    console.log('this is address ', address)
+    console.log('this is address ', address);
 
-    console.log('this is symbol ', symbol)
+    console.log('this is symbol ', symbol);
     const token = await openapiService.getTokenInfo(symbol);
-    const script = await getScripts('domain', 'transferInboxTokens');
+    const script = await getScripts('ft', 'transferTokens');
 
     if (!token) {
       throw new Error(`Invaild token name - ${symbol}`);
     }
     const network = await this.getNetwork();
 
-    console.log('this is network ', network)
+    console.log('this is network ', network);
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contract_name)
@@ -1078,10 +1082,9 @@ export class WalletController extends BaseController {
   revokeKey = async (index: string): Promise<string> => {
     const script = await getScripts('basic', 'revokeKey');
 
-    return await userWalletService.sendTransaction(
-      script,
-      [fcl.arg(index, t.Int)]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(index, t.Int),
+    ]);
   };
 
   // TODO: Replace with generic token
@@ -1261,7 +1264,7 @@ export class WalletController extends BaseController {
     // }
 
     // const CODE = SwapConfig.Codes.Transactions.SwapTokensForExactTokens;
-    const CODE = await getScripts('swap', 'SwapTokensForExactTokens')
+    const CODE = await getScripts('swap', 'SwapTokensForExactTokens');
     const tokenInKey = swapPaths[0];
     const tokenOutKey = swapPaths[swapPaths.length - 1];
     const arr = tokenOutKey.split('.');
@@ -1307,7 +1310,7 @@ export class WalletController extends BaseController {
     //   SwapConfig = mainnetCodes;
     // }
     // const CODE = SwapConfig.Codes.Transactions.SwapExactTokensForTokens;
-    const CODE = await getScripts('swap', 'SwapExactTokensForTokens')
+    const CODE = await getScripts('swap', 'SwapExactTokensForTokens');
 
     const tokenOutKey = swapPaths[swapPaths.length - 1];
     const arr = tokenOutKey.split('.');
@@ -1406,7 +1409,8 @@ export class WalletController extends BaseController {
     } else if (network == 'mainnet') {
       await fclMainnetConfig();
     } else {
-      await fclCrescendoConfig();
+      // await fclCrescendoConfig();
+      await fclPreviewnetConfig();
     }
     this.refreshAll();
     eventBus.emit('switchNetwork', network);
@@ -1436,7 +1440,7 @@ export class WalletController extends BaseController {
   refreshAll = async () => {
     const wallets = await this.refreshUserWallets();
     this.refreshAddressBook();
-    this.getCadenceScripts();
+    await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
     if (address) {
       this.refreshTransaction(address, 15, 0);
@@ -1460,6 +1464,9 @@ export class WalletController extends BaseController {
         break;
       case 'crescendo':
         baseURL = 'https://flow-view-source.vercel.app/crescendo';
+        break;
+      case 'previewnet':
+        baseURL = 'https://previewnet.flowdiver.io';
         break;
     }
     return baseURL;
@@ -1706,42 +1713,41 @@ export class WalletController extends BaseController {
       if (
         cadenceScrpts &&
         cadenceScrpts['expiry'] &&
-        now.getTime() <= cadenceScrpts['expiry'] && cadenceScrpts.network == network
+        now.getTime() <= cadenceScrpts['expiry'] &&
+        cadenceScrpts.network == network
       ) {
-        console.log('use cache data')
-        console.log(cadenceScrpts)
+        console.log('use cache data');
+        console.log(cadenceScrpts);
         return cadenceScrpts['data'];
       }
-  
+
       const data = (await openapiService.cadenceScripts(network)) ?? {};
-  
-  
+
       const { cadence, networks } = data;
-  
+
       const cadenceVersion = networks[network];
-  
+
       let script = {};
-  
-  
+
       for (const item of cadence) {
+        console.log(cadenceVersion, 'cadenceVersion');
         if (item && item.version == cadenceVersion) {
           script = item;
         }
       }
-  
+
       const scripts = {
         data: script,
         expiry: exp,
-        network
+        network,
       };
-  
       storage.set('cadenceScripts', scripts);
-  
+      console.log(scripts, 'scripts ====');
+
       return script;
     } catch (error) {
-      console.log(error, '=== get scripts error ===')
+      console.log(error, '=== get scripts error ===');
     }
-   
   };
 
   getSwapConfig = async () => {
@@ -1840,11 +1846,12 @@ export class WalletController extends BaseController {
   };
 
   getPayerAddressAndKeyId = async () => {
-    console.log('getPayerAddressAndKeyId 111111',);
+    console.log('getPayerAddressAndKeyId 111111');
     try {
       const config = await fetchConfig.remoteConfig();
       console.log('config config', config);
       const network = await this.getNetwork();
+      console.log(network, 'network================', config.payer[network]);
       return config.payer[network];
     } catch {
       const network = await this.getNetwork();
@@ -1973,12 +1980,20 @@ export class WalletController extends BaseController {
     const password = keyringService.password;
     const mnemonic = await this.getMnemonics(password || '');
     const accountKey = await getAccountKey(mnemonic);
-    const result = await openapiService.createFlowNetworkAddress(accountKey, network);
+    const result = await openapiService.createFlowNetworkAddress(
+      accountKey,
+      network
+    );
     return result;
   };
 
   checkCrescendo = async () => {
     const result = await userWalletService.checkCrescendo();
+    return result;
+  };
+
+  checkPreviewnet = async () => {
+    const result = await userWalletService.checkPreviewnet();
     return result;
   };
 

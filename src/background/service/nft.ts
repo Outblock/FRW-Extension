@@ -11,17 +11,20 @@ interface NFTCollectionNetwork {
   mainnet: NFTCollectionData[];
   testnet: NFTCollectionData[];
   crescendo: NFTCollectionData[];
+  previewnet: NFTCollectionData[];
 }
 
 interface NFTCollectionListNetwork{
   mainnet: NFTCollectionList[];
   testnet: NFTCollectionList[];
   crescendo: NFTCollectionData[];
+  previewnet: NFTCollectionData[];
 }
 interface NFTNetwork {
   mainnet: NFTData;
   testnet: NFTData;
   crescendo: NFTData;
+  previewnet: NFTData;
 }
 
 // const empty: Contact = {
@@ -57,16 +60,22 @@ class NFT {
             nfts: [],
             nftCount: 0,
           },
+          previewnet: {
+            nfts: [],
+            nftCount: 0,
+          },
         },
         collectionList: {
           testnet: [],
           mainnet: [],
           crescendo:[],
+          previewnet:[],
         },
         collection: {
           testnet: [],
           mainnet: [],
           crescendo: [],
+          previewnet: [],
         },
         expiry: 2648570077405,
       },
@@ -150,12 +159,17 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
+      previewnet: {
+        nfts: [],
+        nftCount: 0,
+      },
     }
 
     this.store.collection = {
       testnet: [],
       mainnet: [],
-      crescendo: []
+      crescendo: [],
+      previewnet: []
     }
 
     storage.remove('nftv2')
@@ -176,6 +190,10 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
+      previewnet: {
+        nfts: [],
+        nftCount: 0,
+      },
     }
   }
 
@@ -183,7 +201,8 @@ class NFT {
     this.store.collection = {
       testnet: [],
       mainnet: [],
-      crescendo: []
+      crescendo: [],
+      previewnet: []
     }
   }
 

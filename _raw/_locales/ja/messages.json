@@ -131,7 +131,7 @@
     "message": "無料"
   },
   "Lilico__domain": {
-    "message": "Flow Coreドメインを取得する。"
+    "message": "Flow Core ドメインを取得する。"
   },
   "Edit__Address": {
     "message": "アドレスの編集"
@@ -187,6 +187,9 @@
   "Crescendo": {
     "message": "Crescendo"
   },
+  "Previewnet": {
+    "message": "Previewnet"
+  },
   "Transaction__Monitor": {
     "message": "トランザクションモニター"
   },
@@ -236,7 +239,7 @@
     "message": "ウォレットをリセットしてもよろしいですか？"
   },
   "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
-    "message": "Flow Coreからウォレットを削除しても、Flowブロックチェーンからウォレットが削除されるわけではありません。リカバリーフレーズまたはGoogleドライブバックアップを使用して、ウォレットを再度インポートすることができます。"
+    "message": "Flow Core からウォレットを削除しても、Flow ブロックチェーンからウォレットが削除されるわけではありません。リカバリーフレーズまたは Google ドライブバックアップを使用して、ウォレットを再度インポートすることができます。"
   },
   "Reset": {
     "message": "リセット"
@@ -254,13 +257,13 @@
     "message": "現在のパスワード"
   },
   "Change__111e__Password": {
-    "message": "111eパスワードの変更"
+    "message": "111e パスワードの変更"
   },
   "Security": {
     "message": "セキュリティについて"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "Flow Coreが私のすべてのトランザクションの手数料を支払うことを許可する。"
+    "message": "Flow Core が私のすべてのトランザクションの手数料を支払うことを許可する。"
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "この機能は一時的に無効化されています。"
@@ -293,10 +296,10 @@
     "message": "より多くのユーザーを検索する"
   },
   "Search_Address0x_or_Flow_domain": {
-    "message": "検索、アドレス(0x)またはFlowドメイン"
+    "message": "検索、アドレス (0x) または Flow ドメイン"
   },
   "Search_the_ID": {
-    "message": "ID検索: "
+    "message": "ID 検索："
   },
   "Sorry_we_could_not_find_any_accounts_Please_try_again": {
     "message": "申し訳ございませんが、アカウントは見つかりませんでした。もう一度お試しください。"
@@ -326,7 +329,7 @@
     "message": "残高不足"
   },
   "on_Flow_the_balance_cant_less_than_0001_FLOW": {
-    "message": "Flow上での残高は0.001FLOW未満にはできません。"
+    "message": "Flow 上での残高は 0.001FLOW 未満にはできません。"
   },
   "Approve": {
     "message": "承認する"
@@ -335,7 +338,7 @@
     "message": "スクリプト"
   },
   "lilico__covers__this__gas__fee__for__you": {
-    "message": "Flow Coreはこの手数料を負担します。 "
+    "message": "Flow Core はこの手数料を負担します。 "
   },
   "SIGN__MESSAGE": {
     "message": "メッセージにサインする"
@@ -356,13 +359,13 @@
     "message": "アドレスをコピー"
   },
   "QR__Code": {
-    "message": "QRコード"
+    "message": "QR コード"
   },
   "Choose_provider": {
     "message": "プロバイダーを選択"
   },
   "Shown__your__QR__code__to__receive__transactions": {
-    "message": "トランザクションを受け取るためのQRコードを表示しました。"
+    "message": "トランザクションを受け取るための QR コードを表示しました。"
   },
   "Make__sure__you__are__using__the__correct__network": {
     "message": "正しいネットワークを使用していることを確認してください。こちらの入金先には、テストネットの資産のみを送ってください。"
@@ -374,7 +377,7 @@
     "message": "無料の Flow Reference ドメインはチェーン上でお互いを簡単に見つけるのに便利です。"
   },
   "An__Inbox__system__will__help__you__send__tokens__and__NFT__to__your__friend__without__enable__vault": {
-    "message": "InboxシステムはVaultを有効にすることなく、トークンやNFTを友人に送信するのに便利です。"
+    "message": "Inbox システムは Vault を有効にすることなく、トークンや NFT を友人に送信するのに便利です。"
   },
   "Anonymous__mode__will__be__affected__others__can__find__your__address__by__your__domain": {
     "message": "匿名モードが影響を受けます。他のユーザーはドメインであなたのアドレスを見つけることができます。"
@@ -404,7 +407,7 @@
     "message": "何かが間違っている"
   },
   "Restore__Backup__from__Google__Drive": {
-    "message": "Googleドライブからバックアップを復元する "
+    "message": "Google ドライブからバックアップを復元する "
   },
   "Recovery__phrase__valid": {
     "message": "リカバリーフレーズ有効"
@@ -416,7 +419,7 @@
     "message": "何か問題が発生しました。後でもう一度お試しください。"
   },
   "Recovery__phrases__word__count__must__be__12__or__24__words": {
-    "message": "リカバリーフレーズは12または24の単語である必要があります。"
+    "message": "リカバリーフレーズは 12 または 24 の単語である必要があります。"
   },
   "Mnemonic__phrase__is__invalid": {
     "message": "ニーモニックフレーズが無効です"
@@ -425,7 +428,7 @@
     "message": "でサインイン "
   },
   "This__is__the__12__or__24__word__phrase__you__were__given": {
-    "message": "これは、最初にウォレットを作成したときに指定された12または24の単語から成るフレーズです。または、あなた自身のものであってもかまいません。"
+    "message": "これは、最初にウォレットを作成したときに指定された 12 または 24 の単語から成るフレーズです。または、あなた自身のものであってもかまいません。"
   },
   "Weak": {
     "message": "弱い"
@@ -443,7 +446,7 @@
     "message": "不明"
   },
   "At__least__8__characters": {
-    "message": "8文字以上"
+    "message": "8 文字以上"
   },
   "Your__address__is__currently__processing": {
     "message": "あなたのアドレスは現在、別のトランザクションを処理中です。"
@@ -452,10 +455,10 @@
     "message": "トランザクションが作成されました"
   },
   "Search__Address__or__Flow__domain": {
-    "message": "検索、アドレス(0x) またはFlowドメイン"
+    "message": "検索、アドレス (0x) または Flow ドメイン"
   },
   "Search__the__ID": {
-    "message": "ID検索: "
+    "message": "ID 検索："
   },
   "Sorry__we__could__not__find__any__accounts": {
     "message": "申し訳ございませんが、アカウントは見つかりませんでした。もう一度お試しください。"
@@ -479,7 +482,7 @@
     "message": "コレクションを追加する"
   },
   "Seach__NFT__Collection": {
-    "message": "NFTコレクションを検索する"
+    "message": "NFT コレクションを検索する"
   },
   "COLLECTION__LIST": {
     "message": "コレクションリスト"
@@ -515,7 +518,7 @@
     "message": "マイウォレットを起動する"
   },
   "Start__exploring__with__Lilico__now": {
-    "message": "今すぐFlow Coreで探検を始めましょう"
+    "message": "今すぐ Flow Core で探検を始めましょう"
   },
   "all__set": {
     "message": "設定完了"
@@ -560,7 +563,7 @@
     "message": "を選ぶ "
   },
   "Your__username__will__be__used__to__send__and__receive": {
-    "message": "あなたのユーザーネームはLilicoで友達とトークンを送受信するために使用されます。"
+    "message": "あなたのユーザーネームは Lilico で友達とトークンを送受信するために使用されます。"
   },
   "Okay__I__have__saved__it__properly": {
     "message": "OK、ちゃんと保存しました"
@@ -614,10 +617,10 @@
     "message": "利用規約"
   },
   "Lilico__uses__this__password__to__protect__your__recovery__phrase": {
-    "message": "Lilicoはこのパスワードを使って、お客様のリカバリーフレーズを保護します。"
+    "message": "Lilico はこのパスワードを使って、お客様のリカバリーフレーズを保護します。"
   },
   "I__agree__to__Lilico": {
-    "message": "私はLilicoのプライバシーポリシーに同意します。"
+    "message": "私は Lilico のプライバシーポリシーに同意します。"
   },
   "Try__again": {
     "message": "もう一度やり直してください"
@@ -626,7 +629,7 @@
     "message": "おかえりなさい、 "
   },
   "Use__the__same__Google__Drive__password": {
-    "message": "Lilicoウォレットを保護するために同じGoogleドライブのパスワードを使用します"
+    "message": "Lilico ウォレットを保護するために同じ Google ドライブのパスワードを使用します"
   },
   "Please__enter__your__password__to__decrypt": {
     "message": "ウォレットのバックアップを復号するためにパスワードを入力してください。"
@@ -638,7 +641,7 @@
     "message": "復号パスワードが正しくありません、もう一度やり直してください。"
   },
   "The__decrypt__password__should__be__8__characters__long": {
-    "message": "復号パスワードは8文字以上でなければなりません。"
+    "message": "復号パスワードは 8 文字以上でなければなりません。"
   },
   "We__ve__found": {
     "message": "一致するアカウントが見つかりました"
@@ -674,19 +677,19 @@
     "message": "リカバリーフレーズが正しくありません、もう一度やり直してください。"
   },
   "Recovery_phrases_word_count_must_be_12_or_24_words": {
-    "message": "リカバリーフレーズの単語数は12または24の単語である必要があります。"
+    "message": "リカバリーフレーズの単語数は 12 または 24 の単語である必要があります。"
   },
   "Allset": {
     "message": " オールセット"
   },
   "You_can_start_experiencing_Lilico_now": {
-    "message": "今すぐLilicoを体験できます!"
+    "message": "今すぐ Lilico を体験できます！"
   },
   "Back_up": {
     "message": "バックアップ"
   },
   "Back_up_your_wallet_to_Google_Drive_for_easy_access": {
-    "message": "ウォレットをGoogleドライブにバックアップして、簡単にアクセスできるようにしましょう。 "
+    "message": "ウォレットを Google ドライブにバックアップして、簡単にアクセスできるようにしましょう。 "
   },
   "Recommend": {
     "message": "おすすめ"
@@ -716,7 +719,7 @@
     "message": "私は同意します"
   },
   "of_Lilico_Wallet": {
-    "message": " Flow Reference Walletの"
+    "message": " Flow Reference Wallet の"
   },
   "Login": {
     "message": "ログイン"
@@ -725,16 +728,16 @@
     "message": "あなたのリセット"
   },
   "Enter_the_12_or_24_word_recovery_phrase_given_when_you_first_created_your_wallet": {
-    "message": "最初にウォレットを作成したときに指定した12または24語のリカバリーフレーズを入力してください。 "
+    "message": "最初にウォレットを作成したときに指定した 12 または 24 語のリカバリーフレーズを入力してください。 "
   },
   "Enter_your_recovery_phrase_using_spaces_to_separate_each_word": {
     "message": "リカバリーフレーズを入力してください。各単語はスペースで区切ってください。"
   },
   "Go_to_flow_faucet_to_get_some_tokens": {
-    "message": "トークンを取得するためにflow faucetに移動します。"
+    "message": "トークンを取得するために flow faucet に移動します。"
   },
   "Claim_Testnet": {
-    "message": "Testnetを請求する "
+    "message": "Testnet を請求する "
   },
   "tokens": {
     "message": " トークン"
@@ -761,19 +764,19 @@
     "message": "データ元"
   },
   "1D": {
-    "message": "1日"
+    "message": "1 日"
   },
   "1W": {
-    "message": "1週間"
+    "message": "1 週間"
   },
   "1M": {
-    "message": "1ヶ月"
+    "message": "1 ヶ月"
   },
   "3M": {
-    "message": "3ヶ月"
+    "message": "3 ヶ月"
   },
   "1Y": {
-    "message": "1年"
+    "message": "1 年"
   },
   "All": {
     "message": "すべて"
@@ -833,10 +836,10 @@
     "message": "本当にバックアップを削除しますか？"
   },
   "This_will_remove_this_google_backup_You_will_not_import_this_wallet_via_Google_backup": {
-    "message": " これでこのGoogleバックアップは削除されます。Googleバックアップを経由してこのウォレットをインポートすることはできません。"
+    "message": " これでこの Google バックアップは削除されます。Google バックアップを経由してこのウォレットをインポートすることはできません。"
   },
   "Your_lilico_domain_will_look_like": {
-    "message": "Flow Reference のドメインは以下のようになります:"
+    "message": "Flow Reference のドメインは以下のようになります："
   },
   "meow": {
     "message": ".meow"
@@ -845,7 +848,7 @@
     "message": "進む"
   },
   "Sorry": {
-    "message": "申し訳ございません,"
+    "message": "申し訳ございません，"
   },
   "we_couldnt_find_any_address_linked_to_your_recovery_phrase": {
     "message": "あなたのリカバリーフレーズにリンクされたアドレスは見つかりませんでした。"
@@ -944,7 +947,7 @@
     "message": "トランザクションが封印されました"
   },
   "Made__by": {
-    "message": "製作者: "
+    "message": "製作者："
   },
   "outblock__made": {
     "message": ""
@@ -956,7 +959,7 @@
     "message": "アドレス帳"
   },
   "Search__PlaceHolder": {
-    "message": "検索、アドレス(0x) またはFlowドメイン"
+    "message": "検索、アドレス (0x) または Flow ドメイン"
   },
   "Unlink_Confirmation":{
     "message":"リンク解除の確認"

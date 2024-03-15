@@ -3,7 +3,7 @@ import { createPersistStore, getScripts } from 'background/utils';
 import { getPeriodFrequency } from '../../utils';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 import dayjs from 'dayjs';
-import { TokenListProvider, Strategy, ENV } from 'flow-native-token-registry';
+import { TokenListProvider, Strategy, ENV, TokenInfo } from 'flow-native-token-registry';
 
 import {
   getAuth,
@@ -633,6 +633,7 @@ class OpenApiService {
     return data;
   };
 
+  //todo check data
   userWalletV2 = async () => {
     const config = this.store.config.user_wallet_v2;
     const data = await this.sendRequest(config.method, config.path);
@@ -651,14 +652,20 @@ class OpenApiService {
     return data;
   };
 
-  createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
+  createFlowNetworkAddress = async (
+    account_key: AccountKey,
+    network: string
+  ) => {
     const config = this.store.config.create_flow_network_address;
-    const data = await this.sendRequest(config.method, config.path,
+    const data = await this.sendRequest(
+      config.method,
+      config.path,
       {},
       {
         account_key,
         network,
-      });
+      }
+    );
     return data;
   };
 
@@ -1180,30 +1187,48 @@ class OpenApiService {
       cadence: cadence,
       args: (arg, t) => [arg(address, t.Address)],
     });
-
+    
     return balance;
   };
 
   getEnabledTokenList = async () => {
     // const tokenList = await remoteFetch.flowCoins();
     const network = await userWalletService.getNetwork();
-
+   
     const tokenProvider = new TokenListProvider();
     const tokens = await tokenProvider.resolve(
-      Strategy.GitHub,
+      Strategy.Static,
       network == 'testnet' ? ENV.Testnet : ENV.Mainnet
     );
-    const tokenList = tokens.getList();
+    let tokenList = tokens.getList();
     const address = await userWalletService.getCurrentAddress();
     // const tokens = tokenList.filter((token) => token.address[network]);
+    if (network == 'previewnet') {
+      tokenList = [{
+        "name": "Flow",
+        "address": '0x4445e7ad11568276',
+        "contractName": "FlowToken",
+        "path":{
+          "balance": '/public/flowTokenBalance',
+          "receiver": '/public/flowTokenReceiver',
+          "vault": '/storage/flowTokenVault',
+        },
+        decimals:8,
+        symbol:"flow"
 
+      }]
+    } else {
+      console.log(tokenList,'====---==---=-', network)
+    }
     const values = await this.isTokenListEnabled(address);
-
-    const tokenItems: TokenModel[] = [];
+  
+    const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
-
+    console.log(tokenList,'tokenList===')
     tokenList.forEach((token) => {
-      if (values[token.name] == true) {
+      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`
+      // console.log(tokenMap,'tokenMap',values)
+      if (values[tokenId] == true) {
         tokenMap[token.name] = token;
       }
     });
@@ -1221,7 +1246,7 @@ class OpenApiService {
       const item = tokenMap[key];
       tokenItems.push(item);
     });
-    console.log(tokenItems, 'tokenItems');
+    console.log(tokenItems, 'tokenItems======');
     return tokenItems;
   };
 
@@ -1250,10 +1275,11 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
+    console.log(isEnabledList, 'isEnabledList====');
     return isEnabledList;
   };
 
-  getTokenListBalance = async (address: string, allTokens: TokenModel[]) => {
+  getTokenListBalance = async (address: string, allTokens: TokenInfo[]) => {
     const network = await userWalletService.getNetwork();
 
     const tokens = allTokens.filter((token) => token.address[network]);
@@ -1263,6 +1289,8 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
+    
+    
     return balanceList;
   };
 

@@ -187,6 +187,9 @@
   "Crescendo": {
     "message": "Crescendo"
   },
+  "Previewnet": {
+    "message": "Previewnet"
+  },
   "Transaction__Monitor": {
     "message": "Монитор транзакций"
   },
@@ -664,7 +667,7 @@
   "Choose_provider": {
     "message": "Выберите провайдера"
   },
-  "If_you_keep_seeing_this_spinner":{
+  "If_you_keep_seeing_this_spinner": {
     "message": "Если вы продолжаете видеть этот спиннер"
   },
   "Select_the_word_at": {
@@ -958,55 +961,54 @@
   "Search__PlaceHolder": {
     "message": "Адрес поиска (0x) или домен потока"
   },
-  "Unlink_Confirmation":{
-    "message":"Unlink Confirmation"
+  "Unlink_Confirmation": {
+    "message": "Unlink Confirmation"
   },
-  "Things_you_should_know":{
-    "message":"Вещи, которые вы должны знать"
+  "Things_you_should_know": {
+    "message": "Вещи, которые вы должны знать"
   },
-  "Linked_Account":{
-    "message":"Связанный аккаунт"
+  "Linked_Account": {
+    "message": "Связанный аккаунт"
   },
-  "Wallet_List":{
-    "message":"Список кошельков"
+  "Wallet_List": {
+    "message": "Список кошельков"
   },
-  "Account_Linking":{
-    "message":"Связывание аккаунта"
+  "Account_Linking": {
+    "message": "Связывание аккаунта"
   },
-  "This_App_would_like_to":{
-    "message":"Это приложение хотело бы"
+  "This_App_would_like_to": {
+    "message": "Это приложение хотело бы"
   },
-  "Linked_Successful":{
-    "message":"Связано успешно"
+  "Linked_Successful": {
+    "message": "Связано успешно"
   },
-  "Linking_Child_Account":{
-    "message":"Привязка дочерней учетной записи"
+  "Linking_Child_Account": {
+    "message": "Привязка дочерней учетной записи"
   },
-  "Try_Our_Mobile_APP":{
-    "message":"Попробуйте мобильное приложение"
+  "Try_Our_Mobile_APP": {
+    "message": "Попробуйте мобильное приложение"
   },
   "Reset_Wallet": {
     "message": "сбросить кошелек"
   },
-  "Unlink_Message":{
+  "Unlink_Message": {
     "message": "Отвяжите этот счет, и основной кошелек больше не будет иметь доступа к этому связанному счету."
   },
-  "Edit_Linked_Account":{
+  "Edit_Linked_Account": {
     "message": "Редактировать связанный аккаунт"
   },
-  "Accessible":{
+  "Accessible": {
     "message": "Доступный"
   },
-  "Collected":{
+  "Collected": {
     "message": "Собрано"
   },
-  "Hide_Empty_collection":{
+  "Hide_Empty_collection": {
     "message": "Скрыть Пустые Коллекции"
   },
-  "Inaccessible":{
+  "Inaccessible": {
     "message": "Недоступный "
   },
-  
   "No_linked": {
     "message": "Нет привязанного аккаунта"
   }
