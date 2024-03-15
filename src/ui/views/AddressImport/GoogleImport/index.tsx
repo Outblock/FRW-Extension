@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography } from '@mui/material';
-import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
-import theme from '../../../../style/LLTheme';
-import RegisterHeader from '../../../Register/RegisterHeader';
-import AllSet from '../../../Register/AllSet';
+import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
+import theme from '../../../style/LLTheme';
+import RegisterHeader from '../../Register/RegisterHeader';
+import AllSet from '../../Register/AllSet';
 import DecryptWallet from './DecryptWallet';
 import RecoveryPhrase from './RecoveryPhrase';
 import GoogleAccounts from './GoogleAccounts';
@@ -16,8 +16,7 @@ import {
   AnimationTypes,
 } from 'react-component-transition';
 import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../options';
-import { storage } from 'background/webapi';
+import options from '../../Import/options'
 
 enum Direction {
   Right,
@@ -56,13 +55,6 @@ const GoogleImport = () => {
     }
   };
 
-  const loadTempPassword = async () => {
-    const temp = await storage.get('tempPassword');
-    if (temp) {
-      setPassword(temp);
-    }
-  };
-
   const getGoogleAccounts = async () => {
     // const backupFile = await storage.get('googleBackup');
     // await setBackup(backupFile);
@@ -72,7 +64,6 @@ const GoogleImport = () => {
 
   useEffect(() => {
     getGoogleAccounts();
-    loadTempPassword();
   }, []);
 
   const page = (index) => {
@@ -80,7 +71,7 @@ const GoogleImport = () => {
       case 0:
         return <GoogleAccounts handleClick={goNext} accounts={accounts} setUsername={setUsername}/>
       case 1:
-        return <DecryptWallet handleClick={goNext} setMnemonic={setMnemonic} username={username} />;
+        return <DecryptWallet handleClick={goNext} setMnemonic={setMnemonic} username={username} setNextPassword={setPassword}/>;
       case 2:
         return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
       case 3:

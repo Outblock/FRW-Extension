@@ -4,14 +4,13 @@ import Synce from './Sync';
 import RegisterPager from './Register/RegisterPager';
 import RecoverRegister from './RecoverRegister';
 import AddressImport from './AddressImport';
-import ImportPager from './Import/ImportPager';
 import AddAccount from './AddWelcome/AddAccount';
 import AddRegister from './AddWelcome/AddRegister';
 import AddImport from './AddWelcome/AddressImport';
 import AddSync from './AddWelcome/Sync';
 import AddWelcome from './AddWelcome';
-import GoogleImport from './Import/GoogleImport';
-import AddGoogle from './AddWelcome/AddAccount/GoogleImport';
+import GoogleImport from './AddressImport/GoogleImport';
+import AddGoogle from './AddWelcome/AddressImport/GoogleImport';
 import Reset from './Reset';
 import WelcomePage from './WelcomePage';
 import './MainRoute.css';
@@ -77,7 +76,6 @@ const Main = () => {
           <Route exact path="/sync" component={Synce} />
           <Route exact path="/addressimport" component={AddressImport} />
           <Route exact path="/recover" component={RecoverRegister} />
-          <Route exact path="/import" component={ImportPager} />
           <Route exact path="/add" component={AddAccount} />
           <Route exact path="/addregister" component={AddRegister} />
           <Route exact path="/addimport" component={AddImport} />

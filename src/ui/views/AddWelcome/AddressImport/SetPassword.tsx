@@ -131,7 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts, goEnd }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accounts, goEnd }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -157,10 +157,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
   
 
   const loadTempPassword = async () => {
-    const temp = await storage.get('tempPassword');
-    if (temp) {
-      setPassword(temp);
-    }
+    setPassword(tempPassword);
   };
 
   useEffect(() => {
@@ -257,7 +254,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           return wallet.boot(password);
         })
         .then(async (response) => {
-          setExPassword(password);
           storage.remove('premnemonic');
 
           const loggedInAccounts = await storage.get('loggedInAccounts');

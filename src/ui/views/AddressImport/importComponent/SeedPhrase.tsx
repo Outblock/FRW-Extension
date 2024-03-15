@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
+const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
 
@@ -90,10 +90,10 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
             gap: '12px',
             display: 'flex'
           }}
-          disabled={isLoading}
+          disabled={isLoading || isSignLoading}
 
         >
-          {isLoading && <LLSpinner size={28} />}
+          {(isLoading || isSignLoading) && <LLSpinner size={28} />}
           <Typography
             variant="subtitle1"
             sx={{ fontWeight: 'bold' }}

@@ -4,6 +4,7 @@ import { Box, Tabs, Tab, Typography } from '@mui/material';
 import SeedPhraseImport from './importComponent/SeedPhrase';
 import KeyImport from './importComponent/KeyImport';
 import JsonImport from './importComponent/JsonImport';
+import Googledrive from './importComponent/Googledrive';
 
 import ImportAddressModel from '../../../FRWComponent/PopupModal/importAddressModal';
 
@@ -33,15 +34,65 @@ function TabPanel(props) {
   );
 }
 
-const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick }) => {
+const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, setUsername, goPassword, handleClick, setErrorMessage, setShowError }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [isImport, setImport] = useState<any>(false);
 
   const [mnemonicValid, setMnemonicValid] = useState(true);
+  const [isSignLoading, setSignLoading] = useState(false);
 
   const [addressFound, setAddressFound] = useState(true);
   const [newKey, setKeyNew] = useState(true);
   const wallet = useWallet();
+
+
+  const signIn = async (accountKey) => {
+    console.log('accountKey ', accountKey, mnemonic, pk)
+    setSignLoading(true);
+    if (accountKey[0].mnemonic) {
+      signMnemonic(accountKey);
+    } else {
+      signPk(accountKey);
+    }
+  };
+
+  const signMnemonic = async (accountKey) => {
+    try {
+      const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
+      console.log('result ->', result)
+      setSignLoading(false);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username)
+      goPassword();
+    } catch (error) {
+      console.log(error);
+      setSignLoading(false);
+      if (error.message === 'NoUserFound') {
+        setImport(false);
+      } else {
+        setKeyNew(false);
+      }
+    }
+  }
+
+  const signPk = async (accountKey) => {
+    try {
+      const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
+      console.log('result ->', result)
+      setSignLoading(false);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username)
+      goPassword();
+    } catch (error) {
+      console.log(error);
+      setSignLoading(false);
+      if (error.message === 'NoUserFound') {
+        setImport(false);
+      } else {
+        setKeyNew(false);
+      }
+    }
+  }
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -53,14 +104,13 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
       setAccounts(accountKey);
       setImport(true);
     } else {
+      setAccounts(accountKey)
       const result = await wallet.openapi.checkImport(accountKey[0].pubK);
       console.log('result ', result)
       if (result.status === 409) {
-        setKeyNew(false);
+        signIn(accountKey);
       } else {
-        setAccounts(accountKey);
         handleClick();
-
       }
 
     }
@@ -89,8 +139,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
     console.log('handleAddressSelection ==>', account);
     const result = await wallet.openapi.checkImport(account.pubK);
     if (result.status === 409) {
-      setKeyNew(false);
-      setImport(false);
+      signIn([account]);
     } else {
       setAccounts([account]);
       handleClick();
@@ -101,7 +150,8 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
 
   const handleRegister = async () => {
     setAddressFound(!addressFound)
-  }
+  };
+  
 
 
   const sxStyles = {
@@ -126,18 +176,22 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
       </Box>
 
       <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example" sx={{ padding: '0 24px' }}>
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Google__Drive')} />
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Keystore')} />
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Seed_Phrase')} />
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Private_Key')} />
       </Tabs>
       <TabPanel value={selectedTab} index={0}>
-        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />
+        <Googledrive setErrorMessage={setErrorMessage} setShowError={setShowError} />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} />
+        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={2}>
-        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />
+        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
+      </TabPanel>
+      <TabPanel value={selectedTab} index={3}>
+        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       {!addressFound &&
         <ErrorModel

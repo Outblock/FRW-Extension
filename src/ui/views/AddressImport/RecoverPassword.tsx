@@ -5,30 +5,30 @@ import {
   Button,
   Typography,
   IconButton,
-  Alert,
-  Snackbar,
-  Link,
   Input,
   InputAdornment,
   FormGroup,
   LinearProgress,
-  CssBaseline,
+  Alert,
+  Snackbar,
+  CssBaseline
 } from '@mui/material';
+import { LLSpinner } from 'ui/FRWComponent';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../style/LLTheme';
-import { useWallet, getHashAlgo, getSignAlgo } from 'ui/utils';
-import { AccountKey } from 'background/service/networkModel';
-import HDWallet from 'ethereum-hdwallet';
-import { LLSpinner } from 'ui/FRWComponent';
-import { storage } from '@/background/webapi';
+import { useWallet } from 'ui/utils';
 
+// const helperTextStyles = makeStyles(() => ({
+//   root: {
+//     size: '16px',
+//     color: '#BABABA',
+//   },
+// }));
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -131,7 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts, goEnd }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -142,18 +142,16 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isCharacters, setCharacters] = useState(false);
   const [isMatch, setMatch] = useState(false);
-  const [isCheck, setCheck] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  // TODO: FIX ME
-  const [notBot, setNotBot] = useState(true);
 
-  const [errMessage, setErrorMessage] = useState('Something wrong, please try again');
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
+
     setShowError(false);
   };
 
@@ -162,7 +160,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
       <Box
         sx={{
           width: '95%',
-          backgroundColor: 'success.light',
+          backgroundColor: '#38B00014',
           mx: 'auto',
           borderRadius: '0 0 12px 12px',
           display: 'flex',
@@ -175,7 +173,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           color={'#41CC5D'}
           style={{ margin: '8px' }}
         />
-        <Typography variant="body1" color="success.main">
+        <Typography variant="body1" color="text.secondary">
           {message}
         </Typography>
       </Box>
@@ -196,7 +194,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         }}
       >
         <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-        <Typography variant="body1" color="error.main">
+        <Typography variant="body1" color="text.secondary">
           {message}
         </Typography>
       </Box>
@@ -206,66 +204,22 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
   const [helperText, setHelperText] = useState(<div />);
   const [helperMatch, setHelperMatch] = useState(<div />);
 
-  const handleImport = async () => {
-    console.log('account key ', accounts)
+  const register = async () => {
     setLoading(true);
-    if (accounts.length > 1) {
-      setLoading(true);
-    } else {
-      const accountKeyStruct = {
-        public_key: accounts[0].pubK,
-        sign_algo: getSignAlgo(accounts[0].signAlgo),
-        hash_algo: getHashAlgo(accounts[0].hashAlgo),
-        weight: 1000
+    try {
+      await wallet.boot(password);
+      if (pk) {
+        await wallet.importPrivateKey(pk);
+      } else {
+        const formatted = mnemonic.trim().split(/\s+/g).join(' ');
+        await wallet.createKeyringWithMnemonics(formatted);
       }
-      const installationId = await wallet.openapi.getInstallationId();
-      // console.log('location ', userlocation);
-      const device_info = {
-        device_id: installationId,
-        'name': 'FRW Chrome Extension',
-        'type': '2',
-        'user_agent': 'Chrome',
-      }
-      const address = accounts[0].address.replace(/^0x/, '');
-      wallet.openapi.importKey(accountKeyStruct, device_info, username, {}, address)
-        .then((response) => {
-          return wallet.boot(password);
-        })
-        .then(async (response) => {
-          setExPassword(password);
-          storage.remove('premnemonic');
-
-          const loggedInAccounts = await storage.get('loggedInAccounts');
-          let lastIndex;
-      
-          if (!loggedInAccounts || loggedInAccounts.length === 0) {
-            lastIndex = 0;
-          } else {
-            lastIndex = loggedInAccounts.length;
-          }
-          console.log(' loggedInAccount ', lastIndex, loggedInAccounts);
-          await storage.set('currentAccountIndex', lastIndex);
-          if (pk) {
-            return wallet.importPrivateKey(pk);
-          } else {
-            return wallet.createKeyringWithMnemonics(mnemonic);
-          }
-        })
-        .then((address) => {
-          setLoading(false);
-          if (pk) {
-            goEnd();
-          } else {
-            handleClick();
-
-          }
-        })
-        .catch((error) => {
-          console.log('error', error);
-          setShowError(true)
-          setLoading(false);
-        });
-
+      setLoading(false);
+      handleClick();
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e.message);
+      setShowError(true);
     }
   };
 
@@ -298,9 +252,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         className="registerBox"
       >
         <Typography variant="h4">
-          {chrome.i18n.getMessage('Create')}
+          {chrome.i18n.getMessage('Welcome__Back')}
           <Box display="inline" color="primary.main">
-            {chrome.i18n.getMessage('Password')}
+            {username}
           </Box>{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -346,8 +300,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp
-              style={{ marginBottom: '24px' }}>
+            <Presets.TransitionSlideUp>
               {password && helperText}
             </Presets.TransitionSlideUp>
             <Input
@@ -388,7 +341,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           </FormGroup>
         </Box>
 
-        <FormControlLabel
+        {/* <FormControlLabel
           control={
             <Checkbox
               icon={<BpIcon />}
@@ -398,53 +351,52 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           }
           label={
             <Typography variant="body1" color="text.secondary">
-              {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
-              <Link underline="none" href="https://lilico.app/about/privacy-policy" target="_blank" color="success.main">
-                {chrome.i18n.getMessage('Privacy__Policy')}
-              </Link>{' '}
-              {chrome.i18n.getMessage('and') + ' '}
-              <Link
-                href="https://lilico.app/about/terms"
+              I agree to the{' '}
+              <a href="https://lilico.app/privacy-policy.html" target="_blank">
+                Privacy Policy
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://lilico.app/terms-of-conditions.html"
                 target="_blank"
-                color="success.main"
-                underline="none"
               >
-                {chrome.i18n.getMessage('Terms__of__Service')}
-              </Link>{' '}.
+                Terms of Service
+              </a>{' '}
+              of Lilico Wallet.
             </Typography>
           }
-        />
-        <Button
-          className="registerButton"
-          variant="contained"
-          color="secondary"
-          onClick={handleImport}
-          size="large"
-          sx={{
-            height: '56px',
-            width: '640px',
-            borderRadius: '12px',
-            textTransform: 'capitalize',
-            gap: '12px',
-            display: 'flex'
-          }}
-          disabled={
-            isLoading ? true : !(isMatch && isCharacters && isCheck && notBot)
-          }
-        >
-          {isLoading && <LLSpinner size={28} />}
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
+        /> */}
+        <Box>
+          <Button
+            className="registerButton"
+            onClick={() => register()}
+            disabled={!(isMatch && isCharacters)}
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              height: '56px',
+              borderRadius: '12px',
+              width: '640px',
+              textTransform: 'capitalize',
+              display: 'flex',
+              gap: '12px',
+            }}
           >
-            {chrome.i18n.getMessage('Register')}
-          </Typography>
-        </Button>
+            {isLoading && <LLSpinner color="secondary" size={28} />}
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 'bold' }}
+              color="background.paper"
+            >
+              {chrome.i18n.getMessage('Login')}
+            </Typography>
+          </Button>
+        </Box>
       </Box>
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
-          {errMessage}
+        <Alert onClose={handleErrorClose} variant="filled" severity="success" sx={{ width: '100%' }}>
+          {errorMessage}
         </Alert>
       </Snackbar>
     </ThemeProvider>

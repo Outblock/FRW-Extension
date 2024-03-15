@@ -122,7 +122,7 @@ const AddWelcome = () => {
               </Button>
 
 
-              <Button
+              {/* <Button
                 variant="contained"
                 color="secondary"
                 component={Link}
@@ -156,7 +156,7 @@ const AddWelcome = () => {
                 >
                   {chrome.i18n.getMessage('Import_your_wallet')}
                 </Typography>
-              </Button>
+              </Button> */}
 
               <Button
                 variant="contained"

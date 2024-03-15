@@ -11,6 +11,7 @@ import SeedPhrase from './importComponent/SeedPhrase';
 import PickUsername from './PickUsername';
 import SetPassword from './SetPassword';
 import GoogleBackup from './GoogleBackup';
+import { storage } from 'background/webapi';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
@@ -19,6 +20,7 @@ import {
 } from 'react-component-transition';
 import { useWallet, Options } from 'ui/utils';
 import ImportPager from './ImportPager';
+import RecoverPassword from './RecoverPassword';
 
 enum Direction {
   Right,
@@ -44,6 +46,13 @@ const AddressImport = () => {
     setUsername(username.toLowerCase());
   };
 
+  const loadTempPassword = async () => {
+    const temp = await storage.get('tempPassword');
+    if (temp) {
+      setPassword(temp);
+    }
+  };
+
   const loadView = async () => {
     // console.log(wallet);
     wallet.getCurrentAccount().then((res) => {
@@ -56,15 +65,23 @@ const AddressImport = () => {
   };
   const goNext = () => {
     setDirection(Direction.Right);
-    if (activeIndex < 4) {
+    if (activeIndex < 5) {
       onChange(activeIndex + 1);
     } else {
       window.close();
     }
   };
-  const goEnd = () => {
+  const goPassword = () => {
+    setDirection(Direction.Right);
+    onChange(3);
+  };
+  const goGoogle = () => {
     setDirection(Direction.Right);
     onChange(4);
+  };
+  const goEnd = () => {
+    setDirection(Direction.Right);
+    onChange(5);
   };
 
   const goBack = () => {
@@ -76,6 +93,17 @@ const AddressImport = () => {
     }
   };
 
+  useEffect(() => {
+    loadTempPassword();
+  }, []);
+
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowError(false);
+  };
+
   const page = (index) => {
     switch (index) {
       case 0:
@@ -84,7 +112,14 @@ const AddressImport = () => {
           setPk={setPk}
           setAccounts={setAccounts}
           accounts={accounts}
-          handleClick={goNext} />;
+          mnemonic={mnemonic}
+          pk={pk}
+          setUsername={setUsername}
+          goPassword={goPassword}
+          handleClick={goNext}
+          setErrorMessage={setErrorMessage}
+          setShowError={setShowError}
+        />;
       case 1:
         return (
           <PickUsername
@@ -96,8 +131,8 @@ const AddressImport = () => {
       case 2:
         return (
           <SetPassword
-            handleClick={goNext}
-            setExPassword={setPassword}
+            handleClick={goGoogle}
+            tempPassword={password}
             mnemonic={mnemonic}
             pk={pk}
             username={username}
@@ -106,8 +141,10 @@ const AddressImport = () => {
           />
         );
       case 3:
-        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />
+        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} pk={pk} username={username} tempPassword={password} goEnd={goEnd} />;
       case 4:
+        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
+      case 5:
         return <AllSet handleClick={goNext} />;
       default:
         return <div />;
@@ -133,7 +170,7 @@ const AddressImport = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 4 && (
+        {activeIndex == 5 && (
           <Particles
             //@ts-expect-error customized option
             options={Options}
@@ -141,7 +178,7 @@ const AddressImport = () => {
         )}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 4} />
+        <LLPinAlert open={activeIndex == 5} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
@@ -204,6 +241,11 @@ const AddressImport = () => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
+        <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
+          <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+            {errMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     </ThemeProvider>
   );

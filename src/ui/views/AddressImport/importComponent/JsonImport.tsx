@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const JsonImport = ({ onOpen, onImport, setPk }) => {
+const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
@@ -155,10 +155,10 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
             gap: '12px',
             display: 'flex'
           }}
-          disabled={isLoading}
+          disabled={isLoading || isSignLoading}
 
         >
-          {isLoading && <LLSpinner size={28} />}
+          {(isLoading || isSignLoading) && <LLSpinner size={28} />}
           <Typography
             variant="subtitle1"
             sx={{ fontWeight: 'bold' }}

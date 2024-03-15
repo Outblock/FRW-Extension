@@ -61,7 +61,7 @@ const AddAccount = () => {
       history.goBack();
     }
   };
-
+  //google backup
   const getGoogle = async () => {
     setLoading(true);
 
