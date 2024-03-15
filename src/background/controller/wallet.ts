@@ -54,6 +54,7 @@ import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
 import { pk2PubKey } from '../../ui/utils/modules/passkey';
+import { getHashAlgo, getSignAlgo } from 'ui/utils';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -2108,9 +2109,27 @@ export class WalletController extends BaseController {
   };
 
   createFlowSandboxAddress = async (network) => {
-    const password = keyringService.password;
-    const mnemonic = await this.getMnemonics(password || '');
-    const accountKey = await getAccountKey(mnemonic);
+    const accountIndex = await storage.get('currentAccountIndex');
+    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    const account = loggedInAccounts[accountIndex];
+
+    const keyChain = [{
+      hashAlgo: account.hashAlgo,
+      signAlgo: account.signAlgo,
+      pubK: account.pubKey,
+      weight: account.weight
+    }];
+
+    // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
+    const hashAlgo = keyChain[0].hashAlgo;
+    const signAlgo = keyChain[0].signAlgo;
+    const publicKey = keyChain[0].pubK;
+    const accountKey = {
+      public_key: publicKey,
+      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
+      sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      weight: keyChain[0].weight,
+    }
     const result = await openapiService.createFlowNetworkAddress(
       accountKey,
       network

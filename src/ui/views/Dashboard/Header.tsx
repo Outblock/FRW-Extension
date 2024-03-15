@@ -290,10 +290,12 @@ const Header = ({ loading }) => {
     usewallet.checkUserDomain(wallet.username);
   }
   const switchAccount = async (account) => {
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     console.log('switch account ', account)
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
     await usewallet.lockWallet();
     history.push('/switchunlock');
+    await usewallet.switchNetwork(switchingTo);
   }
 
   const loadNetwork = async () => {
