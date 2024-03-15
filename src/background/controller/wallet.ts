@@ -82,7 +82,7 @@ export class WalletController extends BaseController {
     return provider({
       data,
       session: {
-        name: 'Flow Reference',
+        name: 'Flow Wallet',
         origin: INTERNAL_REQUEST_ORIGIN,
         icon: './images/icon-128.png',
       },
