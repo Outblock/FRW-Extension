@@ -29,11 +29,13 @@ class AddressBook {
         addressBook:  {
           testnet:[],
           crescendo:[],
+          previewnet:[],
           mainnet:[],
         },
         recent: {
           testnet:[],
           crescendo:[],
+          previewnet:[],
           mainnet:[],
         }
       },

@@ -189,8 +189,12 @@ const Header = ({ loading }) => {
     if (domain) {
       loadInbox();
     }
-    const crescendo = await usewallet.checkCrescendo();
-    if (crescendo.length > 0) {
+    // const crescendo = await usewallet.checkCrescendo();
+    // if (crescendo.length > 0) {
+    //   setSandboxEnabled(true);
+    // }
+    const previewnet = await usewallet.checkPreviewnet();
+    if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }
     freshUserWallet();
@@ -295,7 +299,10 @@ const Header = ({ loading }) => {
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
     setIsSandbox(false);
-    if (network === 'crescendo') {
+    // if (network === 'crescendo') {
+    //   setIsSandbox(true);
+    // }
+    if (network === 'previewnet') {
       setIsSandbox(true);
     }
     setNetwork(network);
@@ -399,6 +406,8 @@ const Header = ({ loading }) => {
         return '#FF8A00'
       case 'crescendo':
         return '#CCAF21'
+      case 'previewnet':
+        return '#CCAF21'
     }
   }
 
@@ -447,8 +456,10 @@ const Header = ({ loading }) => {
     setMainnetAvailable(mainnetAvailable)
     const testnetAvailable = await usewallet.openapi.pingNetwork('testnet')
     setTestnetAvailable(testnetAvailable)
-    const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
-    setSandboxnetAvailable(crescendoAvailable)
+    // const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
+    // setSandboxnetAvailable(crescendoAvailable)
+    const previewAvailable = await usewallet.openapi.pingNetwork('previewnet')
+    setSandboxnetAvailable(previewAvailable)
   }
 
   useEffect(() => {
@@ -657,7 +668,7 @@ const Header = ({ loading }) => {
             </ListItemButton>
           </ListItem>
 
-          {isSandboxEnabled && <ListItem
+          {/* {isSandboxEnabled && <ListItem
             disablePadding
             key='crescendo'
             secondaryAction={
@@ -695,6 +706,49 @@ const Header = ({ loading }) => {
                   color='text'
                 >
                   {chrome.i18n.getMessage('Crescendo')}
+                </Typography>
+              </ListItemText>
+            </ListItemButton>
+          </ListItem>
+          } */}
+          {isSandboxEnabled && <ListItem
+            disablePadding
+            key='previewnet'
+            secondaryAction={
+              !crescendoAvailable && (<ListItemText>
+                <Typography
+                  variant="caption"
+                  component="span"
+                  display="inline"
+                  color='error.main'
+                >
+                  {chrome.i18n.getMessage('Unavailable')}
+                </Typography>
+              </ListItemText>)
+            }
+            onClick={() => {
+              switchNetwork('previewnet');
+            }}>
+            <ListItemButton>
+              <ListItemIcon>
+                <FiberManualRecordIcon
+                  style={{
+                    color: networkColor('previewnet'),
+                    fontSize: '10px',
+                    marginLeft: '10px',
+                    marginRight: '10px',
+                    opacity: currentNetwork == 'previewnet' ? '1' : '0.1',
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText>
+                <Typography
+                  variant="body1"
+                  component="span"
+                  display="inline"
+                  color='text'
+                >
+                  {chrome.i18n.getMessage('Previewnet')}
                 </Typography>
               </ListItemText>
             </ListItemButton>

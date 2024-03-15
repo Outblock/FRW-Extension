@@ -146,7 +146,7 @@
     "message": "列表为空"
   },
   "No__results__found": {
-    "message": "没有发现任何结果!"
+    "message": "没有发现任何结果！"
   },
   "Link": {
     "message": "链接"
@@ -186,6 +186,9 @@
   },
   "Crescendo": {
     "message": "沙盒网"
+  },
+  "Previewnet": {
+    "message": "预览网"
   },
   "Transaction__Monitor": {
     "message": "交易监测"
@@ -254,7 +257,7 @@
     "message": "确认密码"
   },
   "Change__111e__Password": {
-    "message": "修改111e密码"
+    "message": "修改 111e 密码"
   },
   "Security": {
     "message": "安全性"
@@ -371,13 +374,13 @@
     "message": "免费的 Flow Wallet 域名帮助你在链上更容易找到对方。"
   },
   "An__Inbox__system__will__help__you__send__tokens__and__NFT__to__your__friend__without__enable__vault": {
-    "message": "一个收件箱系统将帮助你发送代币和NFT给你的朋友，而不需要初始化资源。"
+    "message": "一个收件箱系统将帮助你发送代币和 NFT 给你的朋友，而不需要初始化资源。"
   },
   "Anonymous__mode__will__be__affected__others__can__find__your__address__by__your__domain": {
     "message": "匿名模式将受到影响，其他人可以通过你的域名找到你的地址。"
   },
   "Search__PlaceHolder": {
-    "message": "搜索地址(0x)或者flow域名"
+    "message": "搜索地址 (0x) 或者 flow 域名"
   },
   "Submission_error": {
     "message": "提交错误"
@@ -416,7 +419,7 @@
     "message": "出错了，请稍后再试"
   },
   "Recovery__phrases__word__count__must__be__12__or__24__words": {
-    "message": "恢复短语字数必须是12或24个单词"
+    "message": "恢复短语字数必须是 12 或 24 个单词"
   },
   "Mnemonic__phrase__is__invalid": {
     "message": "助记词无效"
@@ -425,7 +428,7 @@
     "message": "助记词"
   },
   "This__is__the__12__or__24__word__phrase__you__were__given": {
-    "message": "这是你第一次创建钱包时得到的12或24个单词的短语。也可以是您从别处生成的。"
+    "message": "这是你第一次创建钱包时得到的 12 或 24 个单词的短语。也可以是您从别处生成的。"
   },
   "Weak": {
     "message": "弱"
@@ -443,7 +446,7 @@
     "message": "未知"
   },
   "At__least__8__characters": {
-    "message": "至少8个字符"
+    "message": "至少 8 个字符"
   },
   "Your__address__is__currently__processing": {
     "message": "您的地址目前正在处理另一项交易"
@@ -452,10 +455,10 @@
     "message": "交易创建"
   },
   "Search__Address__or__Flow__domain": {
-    "message": "搜索，地址(0x)或Flow域名"
+    "message": "搜索，地址 (0x) 或 Flow 域名"
   },
   "Search__the__ID": {
-    "message": "搜索D: "
+    "message": "搜索 D: "
   },
   "Sorry__we__could__not__find__any__accounts": {
     "message": "对不起，我们无法找到任何账户。请再试一次。"
@@ -479,7 +482,7 @@
     "message": "添加专辑"
   },
   "Seach__NFT__Collection": {
-    "message": "查询NFT专辑"
+    "message": "查询 NFT 专辑"
   },
   "COLLECTION__LIST": {
     "message": "专辑列表"
@@ -488,7 +491,7 @@
     "message": "启用"
   },
   "Enable__NFT__Collection": {
-    "message": "启用NFT专辑"
+    "message": "启用 NFT 专辑"
   },
   "Change__Address": {
     "message": "改变地址"
@@ -509,7 +512,7 @@
     "message": "仅用于测试目的（主网）。"
   },
   "Showing__NFT__under": {
-    "message": "显示以下地址的NFT："
+    "message": "显示以下地址的 NFT："
   },
   "Launch__My__Wallet": {
     "message": "启动我的钱包"
@@ -635,7 +638,7 @@
     "message": "解密密码不正确，请再试。"
   },
   "The__decrypt__password__should__be__8__characters__long": {
-    "message": "解密密码应至少有8个字符长。"
+    "message": "解密密码应至少有 8 个字符长。"
   },
   "We__ve__found": {
     "message": "我们已经找到"
@@ -650,10 +653,10 @@
     "message": "检查"
   },
   "Write__down__this__phrase__in__this__exact__order__and__keep__them__safe": {
-    "message": "按照这个确切的顺序写下这些短语，并确保将它们保存在安全的地方!"
+    "message": "按照这个确切的顺序写下这些短语，并确保将它们保存在安全的地方！"
   },
   "Please_select_the_word_one_by_one_refering_to_its_order": {
-    "message": "请按照顺序逐一选择正确助记词."
+    "message": "请按照顺序逐一选择正确助记词。"
   },
   "Please__notice__that__If__you__lose__you__can__not__access": {
     "message": "请注意，如果你失去了助记词，你将永远无法访问你的账户。"
@@ -671,10 +674,10 @@
     "message": "如果加载条不消失的话"
   },
   "Incorrect_recovery_phrases_please_try_again": {
-    "message": "助记词不正确，请重试."
+    "message": "助记词不正确，请重试。"
   },
   "Recovery_phrases_word_count_must_be_12_or_24_words": {
-    "message": "助记词的字数必须是12或24个字"
+    "message": "助记词的字数必须是 12 或 24 个字"
   },
   "Allset": {
     "message": "一切就绪"

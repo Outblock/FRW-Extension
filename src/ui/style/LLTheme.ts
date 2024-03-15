@@ -46,6 +46,10 @@ const theme: SystemTheme = createTheme({
       main:'#CCAF21',
       light:'#CCAF2129'
     },
+    previewnet:{
+      main:'#CCAF21',
+      light:'#CCAF2129'
+    },
     success: {
       main: '#41CC5D',
       light: '#41CC5D29',

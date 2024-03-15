@@ -33,6 +33,7 @@ class UserWallet {
           mainnet: [],
           testnet: [],
           crescendo: [],
+          previewnet: [],
         },
         childAccount: {},
         currentWallet: {
@@ -55,6 +56,7 @@ class UserWallet {
         mainnet: [],
         testnet: [],
         crescendo: [],
+        previewnet: [],
       },
       childAccount: {},
       currentWallet: {
@@ -109,6 +111,10 @@ class UserWallet {
 
   checkCrescendo = () => {
     return this.store.wallets['crescendo'];
+  };
+
+  checkPreviewnet = () => {
+    return this.store.wallets['previewnet'];
   };
 
   setNetwork = async (network: string) => {
