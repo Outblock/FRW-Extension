@@ -62,6 +62,7 @@ export enum FlowNetwork {
   mainnet = 'mainnet',
   testnet = 'testnet',
   crescendo = 'crescendo',
+  previewnet = 'previewnet'
 }
 
 export enum Period {

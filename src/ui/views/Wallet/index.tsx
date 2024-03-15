@@ -55,7 +55,12 @@ const WalletTab = ({ network }) => {
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [swapConfig, setSwapConfig] = useState(false);
-  const [incLink, _] = useState(network === 'mainnet' ? 'https://app.increment.fi/swap' : 'https://demo.increment.fi/swap');
+  const [cadenceScripts, setCadneceScripts] = useState({});
+  const [incLink, _] = useState(
+    network === 'mainnet'
+      ? 'https://app.increment.fi/swap'
+      : 'https://demo.increment.fi/swap'
+  );
 
   const expiry_time = 60000;
 
@@ -127,6 +132,9 @@ const WalletTab = ({ network }) => {
     setSwapConfig(storageSwap);
     const storageData = await wallet.getCoinList(expiry_time);
     sortWallet(storageData);
+    const cadenceScripts = await wallet.getCadenceScripts();
+    console.log('cadenceScripts -> ', cadenceScripts);
+    setCadneceScripts(cadenceScripts);
   };
 
   const handleStorageData = async (storageData) => {
@@ -281,7 +289,6 @@ const WalletTab = ({ network }) => {
             >
               {chrome.i18n.getMessage('Swap')}
             </Button>
-
           )}
           {/* <Button color="info" variant="contained" sx={{ width: '100%' }}>
               Swap

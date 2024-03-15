@@ -95,7 +95,8 @@ const TokenDetail = () => {
           {token === 'flow' &&
             <StackingCard network={network} />
           }
-          {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />}
+          {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
+          {network === 'testnet' || network === 'previewnet' && token === 'flow' && <ClaimTokenCard token={token} />}
           {providers?.length > 0 && <PriceCard token={token} price={price} setPrice={setPrice} providers={providers} />}
           {token === 'flow' && network === 'mainnet' &&
             <LLComingSoon
