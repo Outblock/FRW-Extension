@@ -235,8 +235,8 @@ class UserWallet {
     const publicKey = result[0].pubK;
     const accountKey = {
       public_key: publicKey,
-      hash_algo: getHashAlgo(hashAlgo),
-      sign_algo: getSignAlgo(signAlgo),
+      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
+      sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: result[0].weight,
     }
     const deviceInfo = await this.getDeviceInfo();
