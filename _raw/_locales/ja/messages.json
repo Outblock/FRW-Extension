@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Flow Wallet",
+    "message": "Flow Reference Wallet",
     "description": "Application Name"
   },
   "appDescription": {
@@ -77,7 +77,7 @@
     "message": "匿名"
   },
   "Other__Lilico__users__cannot__search__for__your__username": {
-    "message": "他の Flow Wallet ユーザーは、あなたのユーザー名を検索できません。"
+    "message": "他の Flow Reference Wallet ユーザーは、あなたのユーザー名を検索できません。"
   },
   "Private__Key": {
     "message": "秘密鍵"
@@ -374,7 +374,7 @@
     "message": "知っておくべきこと"
   },
   "Free__lilico__domain__help__you__find__each__other__easier__on__chain": {
-    "message": "無料の Flow Wallet ドメインはチェーン上でお互いを簡単に見つけるのに便利です。"
+    "message": "無料の Flow Reference Wallet ドメインはチェーン上でお互いを簡単に見つけるのに便利です。"
   },
   "An__Inbox__system__will__help__you__send__tokens__and__NFT__to__your__friend__without__enable__vault": {
     "message": "Inbox システムは Vault を有効にすることなく、トークンや NFT を友人に送信するのに便利です。"
@@ -527,10 +527,10 @@
     "message": "あなたは"
   },
   "Flow_Core": {
-    "message": "Flow Wallet"
+    "message": "Flow Reference Wallet"
   },
   "Lilico": {
-    "message": "Flow Wallet"
+    "message": "Flow Reference Wallet"
   },
   "and__Pin": {
     "message": "とピン"
@@ -719,7 +719,7 @@
     "message": "私は同意します"
   },
   "of_Lilico_Wallet": {
-    "message": " Flow Walletの"
+    "message": " Flow Reference Walletの"
   },
   "Login": {
     "message": "ログイン"
@@ -839,7 +839,7 @@
     "message": " これでこの Google バックアップは削除されます。Google バックアップを経由してこのウォレットをインポートすることはできません。"
   },
   "Your_lilico_domain_will_look_like": {
-    "message": "Flow Wallet のドメインは以下のようになります:"
+    "message": "Flow Reference Wallet のドメインは以下のようになります:"
   },
   "meow": {
     "message": ".meow"

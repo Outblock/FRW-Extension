@@ -94,7 +94,7 @@ const Devices = () => {
           letterSpacing: '-0.084px',
         }}
       >
-        Link Flow Wallet Mobile by Scanning the QR code
+        Link Flow Reference Wallet Mobile by Scanning the QR code
       </Typography>
       <Box
         sx={{

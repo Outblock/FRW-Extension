@@ -177,6 +177,8 @@ const DeveloperMode = () => {
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
 
+  const [loading, setLoading] = useState(false);
+
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
   const [showError, setShowError] = useState(false);
@@ -247,9 +249,19 @@ const DeveloperMode = () => {
   };
 
   const enableSandbox = async () => {
-    const data = await usewallet.createFlowSandboxAddress('previewnet');
-    await usewallet.setDashIndex(0);
-    history.push('/dashboard?activity=1');
+    setLoading(true)
+    try {
+      const data = await usewallet.createFlowSandboxAddress('previewnet');
+      console.log('data ====== previewnet', data);
+      await usewallet.listenTransaction(data.transaction)
+
+      await switchNetwork('previewnet')
+      // await usewallet.setDashIndex(0);
+      // history.push('/dashboard?activity=1');
+  
+    } finally {
+      setLoading(false)
+    }
   };
 
   const handleErrorClose = (

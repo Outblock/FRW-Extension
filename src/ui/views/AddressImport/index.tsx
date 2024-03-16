@@ -57,7 +57,7 @@ const AddressImport = () => {
   };
   const goNext = () => {
     setDirection(Direction.Right);
-    if (activeIndex < 5) {
+    if (activeIndex < 4) {
       onChange(activeIndex + 1);
     } else {
       window.close();
@@ -67,13 +67,13 @@ const AddressImport = () => {
     setDirection(Direction.Right);
     onChange(3);
   };
-  const goGoogle = () => {
-    setDirection(Direction.Right);
-    onChange(4);
-  };
+  // const goGoogle = () => {
+  //   setDirection(Direction.Right);
+  //   onChange(4);
+  // };
   const goEnd = () => {
     setDirection(Direction.Right);
-    onChange(5);
+    onChange(4);
   };
   const goBack = () => {
     setDirection(Direction.Left);
@@ -111,7 +111,7 @@ const AddressImport = () => {
       case 2:
         return (
           <SetPassword
-            handleClick={goGoogle}
+            handleClick={goEnd}
             setExPassword={setPassword}
             mnemonic={mnemonic}
             pk={pk}
@@ -122,9 +122,9 @@ const AddressImport = () => {
         );
       case 3:
         return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} pk={pk} username={username} goEnd={goEnd} />;
+      // case 4:
+        // return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
       case 4:
-        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
-      case 5:
         return <AllSet handleClick={goNext} />;
       default:
         return <div />;
@@ -150,7 +150,7 @@ const AddressImport = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 5 && (
+        {activeIndex == 4 && (
           <Particles
             //@ts-expect-error customized option
             options={Options}
@@ -158,7 +158,7 @@ const AddressImport = () => {
         )}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 5} />
+        <LLPinAlert open={activeIndex == 4} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}

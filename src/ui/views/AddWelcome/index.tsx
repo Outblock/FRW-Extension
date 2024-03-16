@@ -158,7 +158,7 @@ const AddWelcome = () => {
                 </Typography>
               </Button> */}
 
-              <Button
+              {/* <Button
                 variant="contained"
                 color="secondary"
                 component={Link}
@@ -192,7 +192,7 @@ const AddWelcome = () => {
                 >
                   {chrome.i18n.getMessage('Sync_with_Mobile_App')}
                 </Typography>
-              </Button>
+              </Button> */}
 
               <Button
                 variant="contained"
@@ -217,8 +217,8 @@ const AddWelcome = () => {
                   }
                 }}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
-                  <CardMedia component="img" sx={{ marginRight: '8px', width: '42px', height: '18px' }} image={outside} />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%', alignItems: 'center'}}>
+                  <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
                   <Typography
                     variant="subtitle1"
                     sx={{

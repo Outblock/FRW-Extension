@@ -12,7 +12,7 @@ declare const channelName;
 const log = (event, ...args) => {
   if (process.env.NODE_ENV !== 'production') {
     console.log(
-      `%c [Flow Wallet] (${new Date().toTimeString().substr(0, 8)}) ${event}`,
+      `%c [Flow Reference Wallet] (${new Date().toTimeString().substr(0, 8)}) ${event}`,
       'font-weight: bold; background-color: #41CC5D; color: white;',
       ...args
     );

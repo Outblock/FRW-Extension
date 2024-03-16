@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_appName__",
   "short_name": "__MSG_appName__",
-  "version": "2.0.4",
+  "version": "2.0.3",
   "default_locale": "en",
   "description": "__MSG_appDescription__",
   "icons": {
@@ -24,9 +24,9 @@
       "128": "images/icon-128.png"
     },
     "default_popup": "popup.html",
-    "default_title": "Flow Wallet"
+    "default_title": "Flow Reference Wallet"
   },
-  "author": "https://core.flow.com/",
+  "author": "https://wallet.flow.com/",
   "background": {
     "service_worker": "sw.js"
   },

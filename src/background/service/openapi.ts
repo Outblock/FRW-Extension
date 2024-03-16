@@ -1303,24 +1303,30 @@ class OpenApiService {
    
     const tokenProvider = new TokenListProvider();
     const tokens = await tokenProvider.resolve(
-      Strategy.Static,
+      Strategy.GitHub,
       network == 'testnet' ? ENV.Testnet : ENV.Mainnet
     );
     let tokenList = tokens.getList();
+
+    // const tokens = await fetch(`'https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json'`)
+    // let tokenList: any[] = await tokens.json()
+
+    console.log("AAAAAA ===>", tokenList)
+
     const address = await userWalletService.getCurrentAddress();
     // const tokens = tokenList.filter((token) => token.address[network]);
     if (network == 'previewnet') {
       tokenList = [{
-        "name": "Flow",
-        "address": '0x4445e7ad11568276',
-        "contractName": "FlowToken",
-        "path":{
-          "balance": '/public/flowTokenBalance',
-          "receiver": '/public/flowTokenReceiver',
-          "vault": '/storage/flowTokenVault',
+        'name': 'Flow',
+        'address': '0x4445e7ad11568276',
+        'contractName': 'FlowToken',
+        'path':{
+          'balance': '/public/flowTokenBalance',
+          'receiver': '/public/flowTokenReceiver',
+          'vault': '/storage/flowTokenVault',
         },
         decimals:8,
-        symbol:"flow"
+        symbol:'flow'
 
       }]
     } else {
@@ -1768,7 +1774,7 @@ class OpenApiService {
   nftCatalog = async () => {
     const { data } = await this.sendRequest(
       'GET',
-      `api/nft/collections`,
+      'api/nft/collections',
       {},
       {},
       'https://lilico.app/'
