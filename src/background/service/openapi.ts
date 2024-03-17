@@ -3,7 +3,12 @@ import { createPersistStore, getScripts } from 'background/utils';
 import { getPeriodFrequency } from '../../utils';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 import dayjs from 'dayjs';
-import { TokenListProvider, Strategy, ENV, TokenInfo } from 'flow-native-token-registry';
+import {
+  TokenListProvider,
+  Strategy,
+  ENV,
+  TokenInfo,
+} from 'flow-native-token-registry';
 
 import {
   getAuth,
@@ -50,7 +55,11 @@ import {
 import * as fcl from '@onflow/fcl';
 import { storage } from '@/background/webapi';
 import { userInfo } from 'os';
-import { fclMainnetConfig, fclTestnetConfig, fclCrescendoConfig } from '../fclConfig';
+import {
+  fclMainnetConfig,
+  fclTestnetConfig,
+  fclCrescendoConfig,
+} from '../fclConfig';
 import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
 
@@ -118,7 +127,7 @@ const fclSetup = async () => {
       await fclCrescendoConfig();
       break;
   }
-}
+};
 
 const dataConfig: Record<string, OpenApiConfigValue> = {
   check_username: {
@@ -164,12 +173,18 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
   loginv3: {
     path: '/v3/login',
     method: 'post',
-    params: ['signature','account_key', 'device_info'],
+    params: ['signature', 'account_key', 'device_info'],
   },
   importKey: {
     path: '/v3/import',
     method: 'post',
-    params: ['username','account_key', 'device_info', 'backup_info', 'address'],
+    params: [
+      'username',
+      'account_key',
+      'device_info',
+      'backup_info',
+      'address',
+    ],
   },
   coin_map: {
     path: '/v1/coin/map',
@@ -354,7 +369,7 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
   sync_device: {
     path: '/v3/sync',
     method: 'post',
-    params: ['account_key','device_info '],
+    params: ['account_key', 'device_info '],
   },
   check_import: {
     path: '/v3/checkimport',
@@ -694,7 +709,7 @@ class OpenApiService {
       config.method,
       config.path,
       {},
-      { username, address, account_key, device_info, backup_info, }
+      { username, address, account_key, device_info, backup_info }
     );
     if (!result.data) {
       throw new Error('NoUserFound');
@@ -1143,10 +1158,9 @@ class OpenApiService {
     return data;
   };
 
-
   synceDevice = async (params) => {
     const config = this.store.config.sync_device;
-    const data = await this.sendRequest(config.method, config.path,{}, params);
+    const data = await this.sendRequest(config.method, config.path, {}, params);
 
     return data;
   };
@@ -1165,7 +1179,7 @@ class OpenApiService {
 
     return data;
   };
-  
+
   checkImport = async (key: string) => {
     const config = this.store.config.check_import;
     const data = await this.sendRequest(config.method, config.path, {
@@ -1293,53 +1307,53 @@ class OpenApiService {
       cadence: cadence,
       args: (arg, t) => [arg(address, t.Address)],
     });
-    
+
     return balance;
+  };
+
+  getTokenListFromGithub = async (network: string) => {
+    if(network == 'previewnet') return []
+    const response = await fetch(
+      `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
+    );
+    const res = await response.json();
+    const { tokens = {} } = res;
+    return tokens;
   };
 
   getEnabledTokenList = async () => {
     // const tokenList = await remoteFetch.flowCoins();
     const network = await userWalletService.getNetwork();
-   
-    const tokenProvider = new TokenListProvider();
-    const tokens = await tokenProvider.resolve(
-      Strategy.GitHub,
-      network == 'testnet' ? ENV.Testnet : ENV.Mainnet
-    );
-    let tokenList = tokens.getList();
 
-    // const tokens = await fetch(`'https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json'`)
-    // let tokenList: any[] = await tokens.json()
-
-    console.log("AAAAAA ===>", tokenList)
+    let tokenList = await this.getTokenListFromGithub(network);
 
     const address = await userWalletService.getCurrentAddress();
-    // const tokens = tokenList.filter((token) => token.address[network]);
-    if (network == 'previewnet') {
-      tokenList = [{
-        'name': 'Flow',
-        'address': '0x4445e7ad11568276',
-        'contractName': 'FlowToken',
-        'path':{
-          'balance': '/public/flowTokenBalance',
-          'receiver': '/public/flowTokenReceiver',
-          'vault': '/storage/flowTokenVault',
-        },
-        "logoURI": "https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg",
-        decimals:8,
-        symbol:'flow'
 
-      }]
-    } else {
-      console.log(tokenList,'====---==---=-', network)
-    }
+    if (network == 'previewnet') {
+      tokenList = [
+        {
+          name: 'Flow',
+          address: '0x4445e7ad11568276',
+          contractName: 'FlowToken',
+          path: {
+            balance: '/public/flowTokenBalance',
+            receiver: '/public/flowTokenReceiver',
+            vault: '/storage/flowTokenVault',
+          },
+          logoURI:
+            'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+          decimals: 8,
+          symbol: 'flow',
+        },
+      ];
+    } 
     const values = await this.isTokenListEnabled(address);
-  
+
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
-    console.log(tokenList,'tokenList===')
+    console.log(tokenList, 'tokenList===');
     tokenList.forEach((token) => {
-      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`
+      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
       // console.log(tokenMap,'tokenMap',values)
       if (values[tokenId] == true) {
         tokenMap[token.name] = token;
@@ -1402,8 +1416,7 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-    
-    
+
     return balanceList;
   };
 
@@ -1908,7 +1921,6 @@ class OpenApiService {
 
     return response.json();
   };
-  
 }
 
 export default new OpenApiService();
