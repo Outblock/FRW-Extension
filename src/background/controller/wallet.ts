@@ -214,7 +214,12 @@ export class WalletController extends BaseController {
     sessionService.broadcastEvent('lock');
   };
 
+  // lockadd here
   lockAdd = async () => {
+
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+
+
     const tempPass = keyringService.getPassword();
     await storage.set('tempPassword', tempPass);
     await keyringService.setLocked();
@@ -222,6 +227,7 @@ export class WalletController extends BaseController {
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
     openInternalPageInTab('addwelcome', true);
+    await this.switchNetwork(switchingTo);
     window.close();
   };
 
