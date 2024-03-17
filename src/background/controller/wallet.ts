@@ -1627,6 +1627,35 @@ export class WalletController extends BaseController {
     return baseURL;
   };
 
+
+  poll = async (fn, fnCondition, ms) => {
+    let result = await fn();
+    while (fnCondition(result)) {
+      await this.wait(ms);
+      result = await fn();
+    }
+    return result;
+  };
+  
+  wait = (ms = 1000) => {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms);
+    });
+  };
+
+  pollingTrnasaction = async (
+    txId: string,
+    network: string
+  ) => {
+    if (!txId || !txId.match(/^0?x?[0-9a-fA-F]{64}/)) {
+      return;
+    }
+
+    const fetchReport = async () => (await fetch(`https://rest-${network}.onflow.org/v1/transaction_results/${txId}`)).json();
+    const validate = result => result.status !== 'Sealed';
+    return await this.poll(fetchReport, validate, 3000);
+  }
+
   listenTransaction = async (
     txId: string,
     sendNotification = true,
@@ -2117,25 +2146,15 @@ export class WalletController extends BaseController {
   createFlowSandboxAddress = async (network) => {
     const accountIndex = await storage.get('currentAccountIndex');
     const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-    const account = loggedInAccounts[accountIndex];
+    const { hashAlgo, signAlgo, pubKey, weight } = loggedInAccounts[accountIndex];
 
-    const keyChain = [{
-      hashAlgo: account.hashAlgo,
-      signAlgo: account.signAlgo,
-      pubK: account.pubKey,
-      weight: account.weight
-    }];
-
-    // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
-    const hashAlgo = keyChain[0].hashAlgo;
-    const signAlgo = keyChain[0].signAlgo;
-    const publicKey = keyChain[0].pubK;
     const accountKey = {
-      public_key: publicKey,
+      public_key: pubKey,
       hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
       sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
-      weight: keyChain[0].weight,
+      weight: weight,
     }
+
     const result = await openapiService.createFlowNetworkAddress(
       accountKey,
       network

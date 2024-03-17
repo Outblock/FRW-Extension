@@ -257,7 +257,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
             goEnd();
           } else {
             handleClick();
-
           }
         })
         .catch((error) => {

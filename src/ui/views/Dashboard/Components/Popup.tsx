@@ -127,7 +127,7 @@ const Popup = (props: TransferConfirmationProps) => {
             await usewallet.lockAdd();
             // history.push('/add');
           }}>
-            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
               <ListItemIcon
                 sx={{
                   width: '24px',
@@ -155,7 +155,7 @@ const Popup = (props: TransferConfirmationProps) => {
             await usewallet.lockWallet();
             history.push('/unlock');
           }}>
-            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
               <ListItemIcon
                 sx={{
                   width: '24px',
