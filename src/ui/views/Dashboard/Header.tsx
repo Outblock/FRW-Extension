@@ -18,9 +18,10 @@ import {
   Avatar,
   Skeleton,
   CircularProgress,
+  CardMedia
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import InboxIcon from '@mui/icons-material/Inbox';
+import popLock from 'ui/FRWAssets/svg/popLock.svg';
+import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
 import logo from '../../../../_raw/images/icon-128.png';
@@ -30,12 +31,12 @@ import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
 import { withPrefix } from '@/ui/utils/address';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { StyledEngineProvider } from '@mui/material/styles';
 import eventBus from '@/eventBus';
-import IconLock from '../../../components/iconfont/IconLock';
 import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg'
+import sideMore from '../../FRWAssets/svg/sideMore.svg'
+import Popup from './Components/Popup';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -77,6 +78,8 @@ const Header = ({ loading }) => {
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [isSandbox, setIsSandbox] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
+  const [otherAccounts, setOtherAccounts] = useState<any>(null);
+  const [loggedInAccounts, setLoggedIn] = useState<any>(null);
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [modeOn, setModeOn] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -92,6 +95,8 @@ const Header = ({ loading }) => {
   const [modeAnonymous, setModeAnonymous] = useState(false);
 
   const [isPending, setIsPending] = useState(false);
+
+  const [ispop, setPop] = useState(false);
 
   const [initialStart, setInitial] = useState(true);
 
@@ -122,7 +127,7 @@ const Header = ({ loading }) => {
             'name': 'FRW Chrome Extension',
             'org': userlocation.org,
             'regionName': userlocation.regionName,
-            'type': '1',
+            'type': '2',
             'user_agent': 'Chrome',
             'zip': userlocation.zip,
           }
@@ -137,6 +142,10 @@ const Header = ({ loading }) => {
 
   const toggleDrawer = () => {
     setDrawer(!drawer);
+  };
+
+  const togglePop = () => {
+    setPop(!ispop);
   };
 
   const toggleUnread = () => {
@@ -170,9 +179,6 @@ const Header = ({ loading }) => {
     await setWallet(wallet);
     const userInfo = await usewallet.getUserInfo(false);
     const domain = await usewallet.fetchUserDomain();
-    const currentWallet = await usewallet.getCurrentWallet();
-    console.log('currentWallet ', currentWallet);
-    setCurrent(currentWallet);
     await setUserInfo(userInfo);
     await setDomain(domain);
     if (userInfo.private == 1) {
@@ -183,8 +189,12 @@ const Header = ({ loading }) => {
     if (domain) {
       loadInbox();
     }
-    const crescendo = await usewallet.checkCrescendo();
-    if (crescendo.length > 0) {
+    // const crescendo = await usewallet.checkCrescendo();
+    // if (crescendo.length > 0) {
+    //   setSandboxEnabled(true);
+    // }
+    const previewnet = await usewallet.checkPreviewnet();
+    if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }
     freshUserWallet();
@@ -195,6 +205,25 @@ const Header = ({ loading }) => {
     usewallet.setChildWallet(childresp);
   };
 
+  const findKeyAndInfo = (keys, publicKey) => {
+    const index = findPublicKeyIndex(keys, publicKey);
+    if (index >= 0) {
+      const key = keys.keys[index];
+      return {
+        index: index,
+        signAlgo: key.signAlgoString,
+        hashAlgo: key.hashAlgoString,
+        publicKey: key.publicKey,
+      };
+    }
+    return null;
+  }
+
+
+  const findPublicKeyIndex = (data, publicKey) => {
+    return data.keys.findIndex(key => key.publicKey === publicKey);
+  }
+
   const freshUserWallet = async () => {
     const wallet = await usewallet.refreshUserWallets();
     const fData = wallet.filter(item => item.blockchain !== null);
@@ -203,15 +232,79 @@ const Header = ({ loading }) => {
   }
 
   const freshUserInfo = async () => {
+    await storage.set('keyIndex', '');
+    await storage.set('hashAlgo', '');
+    await storage.set('signAlgo', '');
+    await storage.set('pubKey', '');
+
+    const keys = await usewallet.getAccount();
+    console.log('keys ', keys);
+    const pubKTuple = await usewallet.getPubKey();
+    const { P256, SECP256K1 } = pubKTuple;
+
+
+    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+    const keyInfo = keyInfoA || keyInfoB || { index: 0, signAlgo: keys.keys[0].signAlgo, hashAlgo: keys.keys[0].hashAlgo, publicKey: keys.keys[0].publicKey };
+    await storage.set('keyIndex', keyInfo.index);
+    await storage.set('signAlgo', keyInfo.signAlgo);
+    await storage.set('hashAlgo', keyInfo.hashAlgo);
+    await storage.set('pubKey', keyInfo.publicKey);
+
+
     const wallet = await usewallet.getUserInfo(true);
+    const currentWallet = await usewallet.getCurrentWallet();
+    await setCurrent(currentWallet);
+    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    console.log('currentWallet ', currentWallet);
+
+    wallet['address'] = currentWallet.address;
+    wallet['pubKey'] = keyInfo.publicKey;
+    wallet['hashAlgo'] = keyInfo.hashAlgo;
+    wallet['signAlgo'] = keyInfo.signAlgo;
+    wallet['weight'] = keys.keys[0].weight;
+
+    console.log('wallet is this:', wallet);
+
+    const accountIndex = loggedInAccounts.findIndex(account => account.username === wallet.username);
+
+    if (accountIndex === -1) {
+      loggedInAccounts.push(wallet);
+    } else if (!loggedInAccounts[accountIndex].pubKey) {
+      loggedInAccounts[accountIndex] = wallet;
+    }
+    await storage.set('loggedInAccounts', loggedInAccounts);
+
+    console.log('Updated loggedInAccounts:', loggedInAccounts);
+    const otherAccounts = loggedInAccounts
+      .filter(account => account.username !== wallet.username)
+      .map(account => {
+        const indexInLoggedInAccounts = loggedInAccounts.findIndex(loggedInAccount => loggedInAccount.username === account.username);
+        return { ...account, indexInLoggedInAccounts };
+      });
+
+    console.log('otherAccounts with index:', otherAccounts);
+    await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
+    await setLoggedIn(loggedInAccounts);
     usewallet.checkUserDomain(wallet.username);
+  }
+  const switchAccount = async (account) => {
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    console.log('switch account ', account)
+    await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+    await usewallet.lockWallet();
+    history.push('/switchunlock');
+    await usewallet.switchNetwork(switchingTo);
   }
 
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
     setIsSandbox(false);
-    if (network === 'crescendo') {
+    // if (network === 'crescendo') {
+    //   setIsSandbox(true);
+    // }
+    if (network === 'previewnet') {
       setIsSandbox(true);
     }
     setNetwork(network);
@@ -315,6 +408,8 @@ const Header = ({ loading }) => {
         return '#FF8A00'
       case 'crescendo':
         return '#CCAF21'
+      case 'previewnet':
+        return '#CCAF21'
     }
   }
 
@@ -363,8 +458,10 @@ const Header = ({ loading }) => {
     setMainnetAvailable(mainnetAvailable)
     const testnetAvailable = await usewallet.openapi.pingNetwork('testnet')
     setTestnetAvailable(testnetAvailable)
-    const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
-    setSandboxnetAvailable(crescendoAvailable)
+    // const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
+    // setSandboxnetAvailable(crescendoAvailable)
+    const previewAvailable = await usewallet.openapi.pingNetwork('previewnet')
+    setSandboxnetAvailable(previewAvailable)
   }
 
   useEffect(() => {
@@ -573,7 +670,7 @@ const Header = ({ loading }) => {
             </ListItemButton>
           </ListItem>
 
-          {isSandboxEnabled && <ListItem
+          {/* {isSandboxEnabled && <ListItem
             disablePadding
             key='crescendo'
             secondaryAction={
@@ -611,6 +708,49 @@ const Header = ({ loading }) => {
                   color='text'
                 >
                   {chrome.i18n.getMessage('Crescendo')}
+                </Typography>
+              </ListItemText>
+            </ListItemButton>
+          </ListItem>
+          } */}
+          {isSandboxEnabled && <ListItem
+            disablePadding
+            key='previewnet'
+            secondaryAction={
+              !crescendoAvailable && (<ListItemText>
+                <Typography
+                  variant="caption"
+                  component="span"
+                  display="inline"
+                  color='error.main'
+                >
+                  {chrome.i18n.getMessage('Unavailable')}
+                </Typography>
+              </ListItemText>)
+            }
+            onClick={() => {
+              switchNetwork('previewnet');
+            }}>
+            <ListItemButton>
+              <ListItemIcon>
+                <FiberManualRecordIcon
+                  style={{
+                    color: networkColor('previewnet'),
+                    fontSize: '10px',
+                    marginLeft: '10px',
+                    marginRight: '10px',
+                    opacity: currentNetwork == 'previewnet' ? '1' : '0.1',
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText>
+                <Typography
+                  variant="body1"
+                  component="span"
+                  display="inline"
+                  color='text'
+                >
+                  {chrome.i18n.getMessage('Previewnet')}
                 </Typography>
               </ListItemText>
             </ListItemButton>
@@ -654,18 +794,26 @@ const Header = ({ loading }) => {
       classes={{ paper: classes.paper }}
       PaperProps={{ sx: { width: '75%' } }}
     >
-      <List component="nav" sx={{ backgroundColor: '#282828' }}>
-        <ListItem
-          secondaryAction={
-            <IconButton edge="end" aria-label="close" onClick={toggleDrawer}>
-              <CloseRoundedIcon color="secondary" />
-            </IconButton>
+      <List sx={{ backgroundColor: '#282828', display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          {userInfo &&
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <ListItemIcon>
+                <img src={userInfo!.avatar} width="48px" />
+              </ListItemIcon>
+              <ListItemText primary={userInfo!.username} />
+            </Box>
           }
-        >
-          <ListItemIcon>
-            <img src={logo} width="30px" />
-          </ListItemIcon>
-          <ListItemText primary={chrome.i18n.getMessage('Flow_Core')} />
+          <Box sx={{ paddingTop: '4px' }}>
+            {otherAccounts && otherAccounts.map((account, index) => (
+              <IconButton key={index} edge="end" aria-label="account" onClick={() => switchAccount(account)}>
+                <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
+              </IconButton>
+            ))}
+            <IconButton edge="end" aria-label="close" onClick={togglePop}>
+              <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
+            </IconButton>
+          </Box>
         </ListItem>
         <Box sx={{ px: '16px' }}>
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
@@ -757,7 +905,7 @@ const Header = ({ loading }) => {
             }
           </ListItemButton>
         </ListItem> */}
-        <ListItem disablePadding>
+        {/* <ListItem disablePadding>
           <ListItemButton onClick={() => setAlertOpen(true)}>
             <ListItemIcon
               sx={{
@@ -772,7 +920,7 @@ const Header = ({ loading }) => {
             </ListItemIcon>
             <ListItemText primary={chrome.i18n.getMessage('Import__Wallet')} />
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
         {/* <ListItem disablePadding>
           <ListItemButton component="a" href="/">
             <ListItemIcon>
@@ -781,24 +929,74 @@ const Header = ({ loading }) => {
             <ListItemText primary="Import wallet" />
           </ListItemButton>
         </ListItem> */}
-        <ListItem disablePadding onClick={async () => {
-          await usewallet.lockWallet();
-          history.push('/unlock');
-        }}>
-          <ListItemButton>
-            <ListItemIcon
-              sx={{
-                width: '24px',
-                minWidth: '24px',
-                marginRight: '12px',
-              }}>
-              <IconLock style={{
-                marginLeft: '8px',
-              }} />
-            </ListItemIcon>
-            <ListItemText primary={chrome.i18n.getMessage('Lock__Wallet')} />
-          </ListItemButton>
-        </ListItem>
+        <Box
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexDirection: 'column',
+            display: 'flex',
+            paddingLeft: '16px',
+            marginTop: 'auto',
+            marginBottom: '30px'
+          }}
+        >
+          <ListItem disablePadding onClick={async () => {
+            await usewallet.lockAdd();
+            // history.push('/add');
+          }}>
+            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+              <ListItemIcon
+                sx={{
+                  width: '24px',
+                  minWidth: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px'
+                }}>
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popAdd} />
+              </ListItemIcon>
+              <Typography
+                variant="body1"
+                component="div"
+                display="inline"
+                color='text'
+                sx={{ fontSize: '12px' }}
+              >
+                {chrome.i18n.getMessage('Add_account')}
+              </Typography>
+            </ListItemButton>
+          </ListItem>
+          <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
+            await usewallet.lockWallet();
+            history.push('/unlock');
+          }}>
+            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+              <ListItemIcon
+                sx={{
+                  width: '24px',
+                  minWidth: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '12px'
+                }}>
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popLock} />
+              </ListItemIcon>
+              <Typography
+                variant="body1"
+                component="div"
+                display="inline"
+                color='text'
+                sx={{ fontSize: '12px' }}
+              >
+                {chrome.i18n.getMessage('Lock__Wallet')}
+              </Typography>
+            </ListItemButton>
+          </ListItem>
+        </Box>
       </List>
       <LLComingSoon
         alertOpen={alertOpen}
@@ -927,6 +1125,22 @@ const Header = ({ loading }) => {
           {menuDrawer}
           {appBarLabel(current)}
           {usernameSelect()}
+          {userInfo &&
+            <Popup
+              isConfirmationOpen={ispop}
+              data={{ amount: 0, }}
+              handleCloseIconClicked={() => setPop(false)}
+              handleCancelBtnClicked={() => setPop(false)}
+              handleAddBtnClicked={() => {
+                setPop(false);
+              }}
+              userInfo={userInfo!}
+              current={current!}
+              switchAccount={switchAccount}
+              loggedInAccounts={loggedInAccounts}
+            />
+
+          }
         </Toolbar>
       </AppBar>
     </StyledEngineProvider>

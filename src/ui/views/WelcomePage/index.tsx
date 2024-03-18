@@ -1,15 +1,15 @@
 import React from 'react';
 import { Box, ThemeProvider } from '@mui/system';
-import { Typography, Button, CssBaseline } from '@mui/material';
+import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
 import theme from '../../style/LLTheme';
 import RegisterHeader from '../Register/RegisterHeader';
 import appicon from '../../FRWAssets/image/appicon.png';
-import create from '../../FRWAssets/image/create.png';
-import importPng from '../../FRWAssets/image/import.png';
-import qr from '../../FRWAssets/image/scanIcon.png';
+import create from '../../FRWAssets/svg/create.svg';
+import importPng from '../../FRWAssets/svg/import.svg';
+import qr from '../../FRWAssets/svg/scanIcon.svg';
+import outside from '../../FRWAssets/svg/importoutside.svg';
 import { Link } from 'react-router-dom';
 import IconFlow from '../../../components/iconfont/IconFlow';
-import QRCode from 'react-qr-code';
 
 const WelcomePage = () => {
   return (
@@ -21,7 +21,7 @@ const WelcomePage = () => {
           flexDirection: 'column',
           backgroundColor: 'info3.default',
           width: '100%',
-          height: '100%',
+          height: '100vh',
           justifyContent: 'center',
           alignItems: 'center',
         }}
@@ -53,7 +53,7 @@ const WelcomePage = () => {
           >
             <img
               src={appicon}
-              style={{ borderRadius:'24px', margin: '0', width: '368px', position: 'absolute', right: '0px', top: '0px' }}
+              style={{ borderRadius: '24px', margin: '0', width: '368px', position: 'absolute', right: '0px', top: '0px' }}
             />
 
             <Box
@@ -85,11 +85,11 @@ const WelcomePage = () => {
                 sx={{ color: 'text.secondary', pt: '16px', fontSize: '16px', margin: '24px 0 44px' }}
               >
                 {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
-                A crypto wallet on Flow built for
+                {chrome.i18n.getMessage('A_crypto_wallet_on_Flow')}
                 <Typography sx={{ color: 'primary.light', display: 'inline' }}>
-                  <span> Explorers, Collectors and Gamers</span>
+                  <span> {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}</span>
                 </Typography>
-
+                
               </Typography>
 
 
@@ -102,15 +102,16 @@ const WelcomePage = () => {
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '308px',
+                  justifyContent: 'flex-start',
+                  width: '332px',
                   height: '48px',
                   borderRadius: '24px',
                   textTransform: 'capitalize',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  paddingLeft: '32px'
                 }}
               >
-                <img src={create} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={create} />
                 <Typography
                   variant="subtitle1"
                   sx={{ fontWeight: '600', fontSize: '14px' }}
@@ -121,7 +122,7 @@ const WelcomePage = () => {
               </Button>
 
 
-              <Button
+              {/* <Button
                 variant="contained"
                 color="secondary"
                 component={Link}
@@ -129,18 +130,19 @@ const WelcomePage = () => {
                 size="large"
                 sx={{
                   display: 'flex',
-                  width: '308px',
+                  width: '332px',
                   height: '48px',
                   borderRadius: '24px',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   textTransform: 'capitalize',
                   marginBottom: '16px',
                   border: '1px solid #E5E5E5',
-                  backgroundColor: 'transparent'
+                  backgroundColor: 'transparent',
+                  paddingLeft: '32px'
                 }}
               >
-                <img src={importPng} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -154,9 +156,9 @@ const WelcomePage = () => {
                 >
                   {chrome.i18n.getMessage('Import_your_wallet')}
                 </Typography>
-              </Button>
+              </Button> */}
 
-              <Button
+              {/* <Button
                 variant="contained"
                 color="secondary"
                 component={Link}
@@ -164,18 +166,19 @@ const WelcomePage = () => {
                 size="large"
                 sx={{
                   display: 'flex',
-                  width: '308px',
+                  width: '332px',
                   height: '48px',
                   borderRadius: '24px',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   textTransform: 'capitalize',
                   border: '1px solid #E5E5E5',
                   marginBottom: '16px',
-                  backgroundColor: 'transparent'
+                  backgroundColor: 'transparent',
+                  paddingLeft: '32px'
                 }}
               >
-                <img src={qr} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={qr} />
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -187,9 +190,9 @@ const WelcomePage = () => {
                     }
                   }}
                 >
-                  Sync with Mobile App
+                  {chrome.i18n.getMessage('Sync_with_Mobile_App')}
                 </Typography>
-              </Button>
+              </Button> */}
 
               <Button
                 variant="contained"
@@ -199,29 +202,44 @@ const WelcomePage = () => {
                 size="large"
                 sx={{
                   display: 'flex',
-                  width: '308px',
-                  height: '48px',
-                  borderRadius: '24px',
+                  width: '332px',
+                  height: '69px',
+                  borderRadius: '120px',
                   alignItems: 'center',
                   justifyContent: 'center',
                   textTransform: 'capitalize',
                   border: '1px solid #E5E5E5',
-                  backgroundColor: 'transparent'
+                  backgroundColor: 'transparent',
+                  flexDirection: 'column',
+                  paddingLeft: '32px',
+                  '&:hover': {
+                    color: 'background.paper'
+                  }
                 }}
               >
-                <img src={qr} alt="Create Icon" style={{ marginRight: '8px', height: '18px' }} />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%', alignItems: 'center'}}>
+                  <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      color: '#FFF',
+                    }}
+                  >
+                    {chrome.i18n.getMessage('Import_Other_Wallets')}
+                  </Typography>
+                </Box>
                 <Typography
                   variant="subtitle1"
                   sx={{
-                    fontWeight: '600',
-                    fontSize: '14px',
-                    color: '#FFF',
-                    '&:hover': {
-                      color: 'background.paper'
-                    }
+                    fontWeight: '400',
+                    fontSize: '12px',
+                    color: 'rgba(255, 255, 255, 0.40)',
+
                   }}
                 >
-                  Import
+                  {chrome.i18n.getMessage('Support_Flow_Wallet_Blocto')}
                 </Typography>
               </Button>
             </Box>

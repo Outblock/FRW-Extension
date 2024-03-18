@@ -1,13 +1,17 @@
 import { createPersistStore } from 'background/utils';
-import { WalletResponse, BlockchainResponse, ChildAccount } from './networkModel';
+import { WalletResponse, BlockchainResponse, ChildAccount, DeviceInfoRequest } from './networkModel';
 import * as fcl from '@onflow/fcl';
 import * as secp from '@noble/secp256k1';
 import HDWallet from 'ethereum-hdwallet';
 import { keyringService, openapiService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
+import { signWithKey, pk2PubKey } from '@/ui/utils/modules/passkey.js';
+import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
 import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
+import { storage } from '../webapi';
+import { getHashAlgo, getSignAlgo } from 'ui/utils';
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -29,6 +33,7 @@ class UserWallet {
           mainnet: [],
           testnet: [],
           crescendo: [],
+          previewnet: [],
         },
         childAccount: {},
         currentWallet: {
@@ -51,6 +56,7 @@ class UserWallet {
         mainnet: [],
         testnet: [],
         crescendo: [],
+        previewnet: [],
       },
       childAccount: {},
       currentWallet: {
@@ -105,6 +111,10 @@ class UserWallet {
 
   checkCrescendo = () => {
     return this.store.wallets['crescendo'];
+  };
+
+  checkPreviewnet = () => {
+    return this.store.wallets['previewnet'];
   };
 
   setNetwork = async (network: string) => {
@@ -166,7 +176,6 @@ class UserWallet {
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
 
-    console.log('this is cadence ', cadence)
     const allowed = await wallet.allowLilicoPay();
     const txID = await fcl.mutate({
       cadence: cadence,
@@ -180,30 +189,80 @@ class UserWallet {
   };
 
   sign = async (signableMessage: string): Promise<string> => {
-    console.log('signableMessage ', signableMessage)
-    const messageHash = await secp.utils.sha256(Buffer.from(signableMessage, 'hex'));
+    const hashAlgo = await storage.get('hashAlgo');
+    const signAlgo = await storage.get('signAlgo');
+
     const password = keyringService.password;
-    const mnemonic = await wallet.getMnemonics(password || '');
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
-    const signature = await secp.sign(messageHash, privateKey);
-    const realSignature = secp.Signature.fromHex(signature).toCompactHex();
+    const privateKey = await wallet.getKey(password);
+
+    const realSignature = await signWithKey(Buffer.from(signableMessage, 'hex'), signAlgo, hashAlgo, privateKey);
     return realSignature;
+  };
+
+  switchLogin = async (privateKey: string, replaceUser = true) => {
+
+    const accountIndex = await storage.get('currentAccountIndex');
+    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    const account = loggedInAccounts[accountIndex];
+
+    console.log('account ', account);
+    let result = [{
+      hashAlgo: account.hashAlgo,
+      signAlgo: account.signAlgo,
+      pubK: account.pubKey,
+      weight: account.weight
+    }];
+
+
+    if (!result[0].pubK) {
+      console.log('No result found, creating a new result object');
+      // Create a new result object with extension default setting
+      result = await findAddressWithPK(privateKey, '');
+    }
+    const app = getApp(process.env.NODE_ENV!);
+    const auth = getAuth(app);
+    const idToken = await getAuth(app).currentUser?.getIdToken();
+    if (idToken === null || !idToken) {
+      signInAnonymously(auth);
+      return;
+    }
+
+    const rightPaddedHexBuffer = (value, pad) =>
+      Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
+      Buffer.from('FLOW-V0.0-user').toString('hex'),
+      32
+    );
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+
+    // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
+    const hashAlgo = result[0].hashAlgo;
+    const signAlgo = result[0].signAlgo;
+    const publicKey = result[0].pubK;
+    const accountKey = {
+      public_key: publicKey,
+      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
+      sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      weight: result[0].weight,
+    }
+    const deviceInfo = await this.getDeviceInfo();
+    // const signature = await secp.sign(messageHash, privateKey);
+    const realSignature = await signWithKey(Buffer.from(message, 'hex'), signAlgo, hashAlgo, privateKey);
+    return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
   };
 
   reSign = async () => {
     const password = keyringService.password;
-    const mnemonic = await wallet.getMnemonics(password || '');
-    return await this.signInWithMnemonic(mnemonic);
+    const privateKey = await wallet.getKey(password);
+    return await this.sigInWithPk(privateKey);
   };
 
   authorizationFunction = async (account: any = {}) => {
     // authorization function need to return an account
     const address = fcl.withPrefix(await wallet.getCurrentAddress());
     const ADDRESS = fcl.withPrefix(address);
-    console.log('this is current ADDRESS ',  fcl.sansPrefix(ADDRESS))
     // TODO: FIX THIS
-    const KEY_ID = 0;
+    const KEY_ID = await storage.get('keyIndex');
     return {
       ...account, // bunch of defaults in here, we want to overload some of them though
       tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
@@ -237,9 +296,6 @@ class UserWallet {
     const payer = await wallet.getPayerAddressAndKeyId();
     const address = fcl.withPrefix(payer.address);
     const ADDRESS = fcl.withPrefix(address);
-    console.log('payer ', payer);
-    console.log('Address ', ADDRESS)
-    console.log('account ', account)
     // TODO: FIX THIS
     const KEY_ID = payer.keyId;
     return {
@@ -261,6 +317,10 @@ class UserWallet {
   };
 
   signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
+    const result = await findAddressWithSeed(mnemonic, '');
+    if (!result) {
+      throw new Error('No Address Found');
+    }
     const app = getApp(process.env.NODE_ENV!);
     const auth = getAuth(app);
     const idToken = await getAuth(app).currentUser?.getIdToken();
@@ -275,18 +335,59 @@ class UserWallet {
       Buffer.from('FLOW-V0.0-user').toString('hex'),
       32
     );
-
-    const hex = secp.utils.bytesToHex;
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
 
-    const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+    const privateKey = result[0].pk
+    const hashAlgo = result[0].hashAlgo;
+    const signAlgo = result[0].signAlgo;
+    const publicKey = result[0].pubK;
+    const accountKey = {
+      public_key: publicKey,
+      hash_algo: getHashAlgo(hashAlgo),
+      sign_algo: getSignAlgo(signAlgo),
+      weight: result[0].weight,
+    }
+    const deviceInfo = await this.getDeviceInfo();
+    // const signature = await secp.sign(messageHash, privateKey);
+    const realSignature = await signWithKey(Buffer.from(message, 'hex'), signAlgo, hashAlgo, privateKey);
+    return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
+  };
 
-    const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
-    const signature = await secp.sign(messageHash, privateKey);
-    const realSignature = secp.Signature.fromHex(signature).toCompactHex();
-    return wallet.openapi.loginV2(publicKey, realSignature, replaceUser);
+  sigInWithPk = async (privateKey: string, replaceUser = true) => {
+    const result = await findAddressWithPK(privateKey, '');
+    if (!result) {
+      throw new Error('No Address Found');
+    }
+    const app = getApp(process.env.NODE_ENV!);
+    const auth = getAuth(app);
+    const idToken = await getAuth(app).currentUser?.getIdToken();
+    if (idToken === null || !idToken) {
+      signInAnonymously(auth);
+      return;
+    }
+
+    const rightPaddedHexBuffer = (value, pad) =>
+      Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
+      Buffer.from('FLOW-V0.0-user').toString('hex'),
+      32
+    );
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+
+    // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
+    const hashAlgo = result[0].hashAlgo;
+    const signAlgo = result[0].signAlgo;
+    const publicKey = result[0].pubK;
+    const accountKey = {
+      public_key: publicKey,
+      hash_algo: getHashAlgo(hashAlgo),
+      sign_algo: getSignAlgo(signAlgo),
+      weight: result[0].weight,
+    }
+    const deviceInfo = await this.getDeviceInfo();
+    // const signature = await secp.sign(messageHash, privateKey);
+    const realSignature = await signWithKey(Buffer.from(message, 'hex'), signAlgo, hashAlgo, privateKey);
+    return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
   };
 
   signInv3 = async (mnemonic: string, accountKey: any, deviceInfo: any, replaceUser = true) => {
@@ -313,7 +414,7 @@ class UserWallet {
     const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
 
     const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
-    if (accountKey.public_key === publicKey ){
+    if (accountKey.public_key === publicKey) {
       const signature = await secp.sign(messageHash, privateKey);
       const realSignature = secp.Signature.fromHex(signature).toCompactHex();
       return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
@@ -322,6 +423,36 @@ class UserWallet {
       return false
     }
   };
+
+  getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
+    const result = await wallet.openapi.getLocation();
+    const installationId = await wallet.openapi.getInstallationId();
+    // console.log('location ', userlocation);
+    const userlocation = result.data
+    const deviceInfo: DeviceInfoRequest = {
+
+      'city': userlocation.city,
+      'continent': userlocation.country,
+      'continentCode': userlocation.countryCode,
+      'country': userlocation.country,
+      'countryCode': userlocation.countryCode,
+      'currency': userlocation.countryCode,
+      device_id: installationId,
+      'district': '',
+      'ip': userlocation.query,
+      'isp': userlocation.as,
+      'lat': userlocation.lat,
+      'lon': userlocation.lon,
+      'name': 'FRW Chrome Extension',
+      'org': userlocation.org,
+      'regionName': userlocation.regionName,
+      'type': '2',
+      'user_agent': 'Chrome',
+      'zip': userlocation.zip,
+
+    };
+    return deviceInfo;
+  }
 }
 
 export default new UserWallet();

@@ -187,6 +187,8 @@ const config = {
       crypto: require.resolve('crypto-browserify'),
       os: require.resolve('os-browserify/browser'),
       path: require.resolve('path-browserify'),
+      "fs": false,
+      "fs/promises": false,
     },
     extensions: ['.js', 'jsx', '.ts', '.tsx'],
   },

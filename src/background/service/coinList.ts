@@ -29,6 +29,7 @@ class CoinList {
         coinItem: {
           testnet: {},
           crescendo: {},
+          previewnet:{},
           mainnet: {},
         },
         currentCoin: 'flow'

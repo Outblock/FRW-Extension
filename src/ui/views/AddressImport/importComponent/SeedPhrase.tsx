@@ -1,7 +1,7 @@
-import { useEffect, useState, useContext } from "react";
-import { findAddressWithSeed } from "../findAddressWithPK";
-import { KEY_TYPE } from "../constants";
-import React from "react";
+import { useEffect, useState, useContext } from 'react';
+import { findAddressWithSeed } from '../../../utils/modules/findAddressWithPK';
+import { KEY_TYPE } from '../../../utils/modules/constants';
+import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
     marginBottom: '16px',
     resize: 'none',
-    fontSize:'16px',
+    fontSize: '16px',
     fontFamily: 'Inter',
   },
   button: {
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
+const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
 
@@ -40,8 +40,12 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
       const seed = e.target[0].value.trim().split(/\s+/g).join(' ');
       setmnemonic(seed);
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
-      const inputValue = e.target[1].value;
+      const inputValue = e.target[2].value;
+
+      console.log('inputValue ', inputValue)
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
+
+      console.log('address ', address)
       const result = await findAddressWithSeed(seed, address)
       if (!result) {
         onOpen();
@@ -55,18 +59,18 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
   };
 
   return (
-    <Box sx={{padding:'0'}}>
+    <Box sx={{ padding: '0' }}>
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
           minRows={6}
-          placeholder="Import 12 or 24 words split with whitespace"
+          placeholder={chrome.i18n.getMessage('Import_12_or_24_words')}
           className={classes.textarea}
           required
         />
         <TextareaAutosize
-          placeholder="Enter your flow address (Optional)"
+          placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
-          defaultValue={""}
+          defaultValue={''}
 
         />
 
@@ -86,16 +90,16 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic }) => {
             gap: '12px',
             display: 'flex'
           }}
-          disabled={isLoading}
+          disabled={isLoading || isSignLoading}
 
         >
-          {isLoading && <LLSpinner size={28} />}
+          {(isLoading || isSignLoading) && <LLSpinner size={28} />}
           <Typography
             variant="subtitle1"
             sx={{ fontWeight: 'bold' }}
             color="background.paper"
           >
-            Import
+            {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>
       </form>

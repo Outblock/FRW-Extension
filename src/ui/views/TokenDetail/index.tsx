@@ -87,17 +87,18 @@ const TokenDetail = () => {
             < Box sx={{ display: 'flex', marginBottom: '12px', borderRadius: '8px', padding: '8px 11px', backgroundColor: 'error.light' }}>
               <img style={{ height: '16px', width: '16px', borderRadius: '16px' }} src={tips}></img>
               <Typography sx={{ fontSize: '12px', marginLeft: '5px', color: 'error.main' }}>
-                Flow Reference wallet doesn’t have access to {`${token}`} in
+                Flow Reference Wallet doesn’t have access to {`${token}`} in
                 {`${walletName.name}`} Account, please check your linked
                 account settings.
               </Typography>
             </Box>
           }
-          <TokenInfoCard price={price} token={token} setAccessible={setAccessible} accessible={accessible} setMoveOpen={() => setMoveOpen(true)}/>
+          <TokenInfoCard price={price} token={token} setAccessible={setAccessible} accessible={accessible} setMoveOpen={() => setMoveOpen(true)} />
           {token === 'flow' &&
             <StackingCard network={network} />
           }
-          {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />}
+          {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
+          {network === 'testnet' || network === 'previewnet' && token === 'flow' && <ClaimTokenCard token={token} />}
           {providers?.length > 0 && <PriceCard token={token} price={price} setPrice={setPrice} providers={providers} />}
           {token === 'flow' && network === 'mainnet' &&
             <LLComingSoon

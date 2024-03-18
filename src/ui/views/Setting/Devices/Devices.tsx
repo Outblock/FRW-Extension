@@ -94,8 +94,7 @@ const Devices = () => {
           letterSpacing: '-0.084px',
         }}
       >
-        Link Flow Reference Desktop or Telegram Web
-        by Scanning the QR code
+        Link Flow Reference Wallet Mobile by Scanning the QR code
       </Typography>
       <Box
         sx={{
@@ -170,6 +169,7 @@ const Devices = () => {
                   overflow: 'hidden',
                   transition: 'max-height 0.3s ease-in-out',
                   flexDirection: 'column',
+                  flex:'1'
                 }}>
 
                   <Typography

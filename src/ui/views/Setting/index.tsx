@@ -235,7 +235,7 @@ const SettingTab = () => {
           
           <Divider sx={{ width: '90%' }} variant="middle"/>
           
-          <ListItem 
+          {/* <ListItem 
             button 
             component={Link} 
             to="/dashboard/setting/devices"
@@ -244,7 +244,6 @@ const SettingTab = () => {
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                {/* <IconSecurity className={classes.iconOthers} color='#59A1DB' /> */}
                 <CardMedia className={classes.icon} sx={{height:'16px',width:'19px', marginRight:'13px'}} image={Device} />
               </ListItemIcon>
               <ListItemText primary={'Devices'} />
@@ -252,7 +251,7 @@ const SettingTab = () => {
                 <IconEnd size={12} />
               </ListItemIcon>
             </ListItemButton>
-          </ListItem>
+          </ListItem> */}
 
           <Divider sx={{ width: '90%' }} variant="middle"/>
           

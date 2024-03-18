@@ -1,21 +1,18 @@
-import { useEffect, useState, useContext } from "react";
-import { findAddressWithSeed } from "../AddressImport/findAddressWithPK";
-import { KEY_TYPE } from "./constants";
-import React from "react";
+import { useEffect, useState, useContext } from 'react';
+import { findAddressWithSeed } from '../../utils/modules/findAddressWithPK';
+import { KEY_TYPE } from '../../utils/modules/constants';
+import React from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
-import SeedPhraseImport from "./importComponent/SeedPhrase";
-import KeyImport from "./importComponent/KeyImport";
-import JsonImport from "./importComponent/JsonImport";
+import SeedPhraseImport from './importComponent/SeedPhrase';
+import KeyImport from './importComponent/KeyImport';
+import JsonImport from './importComponent/JsonImport';
+import Googledrive from './importComponent/Googledrive'
+import ImportAddressModel from '../../FRWComponent/PopupModal/importAddressModal';
 
-import ImportAddressModel from "./modal/importAddressModal";
-
-import ErrorModel from "./modal/errorModel";
+import ErrorModel from '../../FRWComponent/PopupModal/errorModel';
 import { useWallet } from 'ui/utils';
 import * as bip39 from 'bip39';
 import { storage } from '@/background/webapi';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import { Presets } from 'react-component-transition';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -37,17 +34,64 @@ function TabPanel(props) {
   );
 }
 
-const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick }) => {
+const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, setUsername, goPassword, handleClick, setErrorMessage, setShowError }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [isImport, setImport] = useState<any>(false);
 
-  const [helperText, setHelperText] = useState(<div />);
-
   const [mnemonicValid, setMnemonicValid] = useState(true);
+  const [isSignLoading, setSignLoading] = useState(false);
 
   const [addressFound, setAddressFound] = useState(true);
   const [newKey, setKeyNew] = useState(true);
   const wallet = useWallet();
+
+  const signIn = async (accountKey) => {
+    console.log('accountKey ', accountKey, mnemonic, pk)
+    setSignLoading(true);
+    if (accountKey[0].mnemonic) {
+      signMnemonic(accountKey);
+    } else {
+      signPk(accountKey);
+    }
+  };
+
+  const signMnemonic = async (accountKey) => {
+    try {
+      const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
+      console.log('result ->', result)
+      setSignLoading(false);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username)
+      goPassword();
+    } catch (error) {
+      console.log(error);
+      setSignLoading(false);
+      if (error.message === 'NoUserFound') {
+        setImport(false);
+      } else {
+        setKeyNew(false);
+      }
+    }
+  }
+
+  const signPk = async (accountKey) => {
+    try {
+      const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
+      console.log('result ->', result)
+      setSignLoading(false);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username)
+      goPassword();
+    } catch (error) {
+      console.log(error);
+      setSignLoading(false);
+      if (error.message === 'NoUserFound') {
+        setImport(false);
+      } else {
+        setKeyNew(false);
+      }
+    }
+  }
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -59,15 +103,15 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
       setAccounts(accountKey);
       setImport(true);
     } else {
+      setAccounts(accountKey)
       const result = await wallet.openapi.checkImport(accountKey[0].pubK);
       console.log('result ', result)
       if (result.status === 409) {
-        setKeyNew(false);
+        signIn(accountKey);
       } else {
-        setAccounts(accountKey);
         handleClick();
-
       }
+
 
     }
   };
@@ -83,20 +127,19 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
   };
 
   const handleAddressSelection = async (address) => {
-    console.log("handleAddressSelection ==>", address);
+    console.log('handleAddressSelection ==>', address);
     console.log(
-      "handleAddressSelection ==>",
+      'handleAddressSelection ==>',
       accounts.filter((account) => account.address === address)[0],
       accounts
     );
     const account = accounts.filter(
       (account) => account.address === address
     )[0];
-    console.log("handleAddressSelection ==>", account);
+    console.log('handleAddressSelection ==>', account);
     const result = await wallet.openapi.checkImport(account.pubK);
     if (result.status === 409) {
-      setKeyNew(false);
-      setImport(false);
+      signIn([account]);
     } else {
       setAccounts([account]);
       handleClick();
@@ -107,7 +150,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
 
   const handleRegister = async () => {
     setAddressFound(!addressFound)
-  }
+  };
 
 
   const sxStyles = {
@@ -121,47 +164,50 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, handleClick })
   };
 
   return (
-    <Box sx={{ padding: "0 16px 16px" }}>
+    <Box sx={{ padding: '0 16px 16px' }}>
       <Box sx={{ padding: '20px 24px' }}>
         <Typography variant="h4">
-          Import Address
+          {chrome.i18n.getMessage('Import_Address')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Support Flow Wallet, Blocto, seed phrase, keystore and private key
+          {chrome.i18n.getMessage('Support_Flow_Wallet_and_private_key')}
         </Typography>
       </Box>
 
       <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example" sx={{ padding: '0 24px' }}>
-        <Tab sx={sxStyles} label="Keystore" />
-        <Tab sx={sxStyles} label="Seed Phrase" />
-        <Tab sx={sxStyles} label="Private Key" />
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Google__Drive')} />
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Keystore')} />
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Seed_Phrase')} />
+        <Tab sx={sxStyles} label={chrome.i18n.getMessage('Private_Key')} />
       </Tabs>
       <TabPanel value={selectedTab} index={0}>
-        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />
+        <Googledrive setErrorMessage={setErrorMessage} setShowError={setShowError} />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} />
+        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={2}>
-        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} />
+        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
+      </TabPanel>
+      <TabPanel value={selectedTab} index={3}>
+        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       {!addressFound &&
         <ErrorModel
           isOpen={setAddressFound}
           onOpenChange={setAddressFound}
-          errorName={'No Account found'}
-          errorMessage={'Do you wish to go back and register an account?'}
+          errorName={chrome.i18n.getMessage('No_Account_found')}
+          errorMessage={chrome.i18n.getMessage('We_cant_find')}
         />
-
       }
       {!newKey &&
         <ErrorModel
           isOpen={setKeyNew}
           onOpenChange={setKeyNew}
-          errorName={'Publickey already exist'}
-          errorMessage={'Please import or register a new key.'}
+          errorName={chrome.i18n.getMessage('Publickey_already_exist')}
+          errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
+          isGoback={true}
         />
-
       }
 
       {isImport &&

@@ -2,6 +2,7 @@ import * as ethUtil from 'ethereumjs-util';
 import pageStateCache from '../service/pageStateCache';
 export { default as createPersistStore } from './persisitStore';
 export { default as createSessionStore } from './sessionStore';
+import { storage } from '@/background/webapi';
 
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
@@ -88,4 +89,14 @@ export const hasWalletConnectPageStateCache = () => {
 
 export const isSameAddress = (a: string, b: string) => {
   return a.toLowerCase() === b.toLowerCase();
+};
+
+export const getScripts = async (folder: string, scriptName: string) => {
+  const { data } = await storage.get('cadenceScripts');
+  const files = data[folder];
+
+  const script = files[scriptName];
+  // console.log(script, 'script ============');
+
+  return Buffer.from(script, 'base64').toString('utf-8');
 };

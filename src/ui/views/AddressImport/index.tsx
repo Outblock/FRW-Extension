@@ -11,6 +11,7 @@ import SeedPhrase from './importComponent/SeedPhrase';
 import PickUsername from './PickUsername';
 import SetPassword from './SetPassword';
 import GoogleBackup from './GoogleBackup';
+import RecoverPassword from './RecoverPassword';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
@@ -62,7 +63,18 @@ const AddressImport = () => {
       window.close();
     }
   };
-
+  const goPassword = () => {
+    setDirection(Direction.Right);
+    onChange(3);
+  };
+  // const goGoogle = () => {
+  //   setDirection(Direction.Right);
+  //   onChange(4);
+  // };
+  const goEnd = () => {
+    setDirection(Direction.Right);
+    onChange(4);
+  };
   const goBack = () => {
     setDirection(Direction.Left);
     if (activeIndex >= 1) {
@@ -80,7 +92,14 @@ const AddressImport = () => {
           setPk={setPk}
           setAccounts={setAccounts}
           accounts={accounts}
-          handleClick={goNext} />;
+          mnemonic={mnemonic}
+          pk={pk}
+          setUsername={setUsername}
+          goPassword={goPassword}
+          handleClick={goNext}
+          setErrorMessage={setErrorMessage}
+          setShowError={setShowError}
+        />;
       case 1:
         return (
           <PickUsername
@@ -92,16 +111,19 @@ const AddressImport = () => {
       case 2:
         return (
           <SetPassword
-            handleClick={goNext}
+            handleClick={goEnd}
             setExPassword={setPassword}
             mnemonic={mnemonic}
             pk={pk}
             username={username}
             accounts={accounts}
+            goEnd={goEnd}
           />
         );
       case 3:
-        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />
+        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} pk={pk} username={username} goEnd={goEnd} />;
+      // case 4:
+        // return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
       case 4:
         return <AllSet handleClick={goNext} />;
       default:
@@ -123,7 +145,7 @@ const AddressImport = () => {
           flexDirection: 'column',
           backgroundColor: 'background.default',
           width: '100%',
-          height: '100%',
+          height: '100vh',
           justifyContent: 'center',
           alignItems: 'center',
         }}

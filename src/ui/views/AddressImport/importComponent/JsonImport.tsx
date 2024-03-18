@@ -1,12 +1,12 @@
-import { useEffect, useState, useContext } from "react";
-import { findAddressWithPK } from "../findAddressWithPK";
-import { KEY_TYPE } from "../constants";
-import React from "react";
+import { useEffect, useState, useContext } from 'react';
+import { findAddressWithPK } from '../../../utils/modules/findAddressWithPK';
+import { KEY_TYPE } from '../../../utils/modules/constants';
+import React from 'react';
 import { Box, Button, Typography, TextField, IconButton, TextareaAutosize, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
-import { jsonToKey } from '../passkey'
+import { jsonToKey } from '../../../utils/modules/passkey'
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -40,8 +40,8 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     '& .MuiInputBase-input': {
-      padding:'0 20px',
-      fontWeight:400
+      padding: '0 20px',
+      fontWeight: 400
     },
   },
   button: {
@@ -50,21 +50,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const JsonImport = ({ onOpen, onImport, setPk }) => {
+const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
-  const [json, setJson] = useState("")
-  const [errorMesssage, setErrorMessage] = useState("");
+  const [json, setJson] = useState('')
+  const [errorMesssage, setErrorMessage] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const hasJsonStructure = (str) => {
-    if (typeof str !== "string") return false;
+    if (typeof str !== 'string') return false;
     try {
       const result = JSON.parse(str);
       const type = Object.prototype.toString.call(result);
-      return type === "[object Object]" || type === "[object Array]";
+      return type === '[object Object]' || type === '[object Array]';
     } catch (err) {
       return false;
     }
@@ -97,12 +97,12 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
     setJson(event);
     if (event.length === 0) {
       setIsInvalid(false);
-      setErrorMessage("");
+      setErrorMessage('');
       return false;
     }
     const result = hasJsonStructure(event);
     setIsInvalid(!result);
-    setErrorMessage(!result ? "Not a valid json input" : "");
+    setErrorMessage(!result ? 'Not a valid json input' : '');
     return result;
   };
 
@@ -111,19 +111,19 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
       <form id="seed" onSubmit={handleImport} className={classes.form}>
         <TextareaAutosize
           minRows={5}
-          placeholder="You can import the json file from other wallet (eg. Blocto)"
+          placeholder={chrome.i18n.getMessage('You_can_import_the')}
           className={classes.textarea}
           required
         />
         <TextField
           required
-          placeholder="Enter password for json file"
+          placeholder={chrome.i18n.getMessage('Enter_password_for_json_file')}
           type={isVisible ? 'text' : 'password'}
           className={classes.input}
           InputProps={{
             className: classes.inputChild,
             endAdornment: (
-              <InputAdornment position="end" sx={{paddingRight:'20px'}}>
+              <InputAdornment position="end" sx={{ paddingRight: '20px' }}>
                 <IconButton onClick={toggleVisibility} edge="end">
                   {isVisible ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
@@ -133,9 +133,9 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
         />
 
         <TextareaAutosize
-          placeholder="Enter your flow address (Optional)"
+          placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
-          defaultValue={""}
+          defaultValue={''}
 
         />
 
@@ -155,16 +155,16 @@ const JsonImport = ({ onOpen, onImport, setPk }) => {
             gap: '12px',
             display: 'flex'
           }}
-          disabled={isLoading}
+          disabled={isLoading || isSignLoading}
 
         >
-          {isLoading && <LLSpinner size={28} />}
+          {(isLoading || isSignLoading) && <LLSpinner size={28} />}
           <Typography
             variant="subtitle1"
             sx={{ fontWeight: 'bold' }}
             color="background.paper"
           >
-            Import
+            {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>
       </form>

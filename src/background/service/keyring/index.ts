@@ -19,6 +19,7 @@ import i18n from '../i18n';
 import { KEYRING_TYPE } from 'consts';
 import DisplayKeyring from './display';
 import eventBus from '@/eventBus';
+import { storage } from '../../webapi';
 
 export const KEYRING_SDK_TYPES = {
   SimpleKeyring,
@@ -78,10 +79,13 @@ class KeyringService extends EventEmitter {
   }
 
   async boot(password: string) {
+    console.log('this.store ', this.store)
+    console.log('this.memStore ', this.memStore)
     this.password = password;
     const encryptBooted = await this.encryptor.encrypt(password, 'true');
     this.store.updateState({ booted: encryptBooted });
     this.memStore.updateState({ isUnlocked: true });
+    console.log('this.memStore encryptBooted ', this.memStore)
   }
 
   async update(password: string) {
@@ -215,7 +219,7 @@ class KeyringService extends EventEmitter {
       .then(() => keyring);
   }
 
-  addKeyring(keyring) {
+  async addKeyring(keyring) {
     return keyring
       .getAccounts()
       .then((accounts) => {
@@ -248,6 +252,10 @@ class KeyringService extends EventEmitter {
     await this._updateMemStoreKeyrings();
     this.emit('lock');
     return this.fullUpdate();
+  }
+
+  getPassword(): string | null {
+    return this.password;
   }
 
   /**
@@ -629,7 +637,7 @@ class KeyringService extends EventEmitter {
         new Error('KeyringController - password is not a string')
       );
     }
-
+    console.log('this.keyrings ', this.keyrings)
     return Promise.all(
       this.keyrings.map((keyring) => {
         return Promise.all([keyring.type, keyring.serialize()]).then(
@@ -649,8 +657,25 @@ class KeyringService extends EventEmitter {
           serializedKeyrings as unknown as Buffer
         );
       })
-      .then((encryptedString) => {
-        this.store.updateState({ vault: encryptedString });
+      .then(async (encryptedString) => {
+        const accountIndex = await storage.get('currentAccountIndex');
+
+        const oldVault = this.store.getState().vault;
+
+        const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
+
+        // Check if the specified index exists in the array.
+        if (accountIndex <= vaultArray.length) {
+          vaultArray[accountIndex] = encryptedString; // Update the element at the specified index
+        } else {
+          vaultArray[0] = encryptedString
+        }
+
+        // Update the store's state with the new vault array
+        this.store.updateState({ vault: vaultArray });
+
+        console.log('1 encryptedString', encryptedString);
+        console.log('2 this.store.getState().vault', this.store.getState().vault);
         return true;
       });
   }
@@ -665,7 +690,17 @@ class KeyringService extends EventEmitter {
    * @returns {Promise<Array<Keyring>>} The keyrings.
    */
   async unlockKeyrings(password: string): Promise<any[]> {
-    const encryptedVault = this.store.getState().vault;
+    const accountIndex = await storage.get('currentAccountIndex');
+    const vaultArray = this.store.getState().vault;
+    let encryptedVault;
+
+    if (vaultArray[accountIndex] === undefined) {
+      encryptedVault = vaultArray[0];
+    } else if (vaultArray[0] === undefined) {
+      encryptedVault = vaultArray;
+    } else {
+      encryptedVault = vaultArray[accountIndex];
+    }
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
@@ -764,6 +799,19 @@ class KeyringService extends EventEmitter {
   }
 
   /**
+   * Get Keyring
+   *
+   * Returns the key ring of current storage
+   * managed by all currently unlocked keyrings.
+   *
+   * @returns {Promise<Array<string>>} The array of accounts.
+   */
+  async getKeyring(): Promise<any[]> {
+    const keyrings = this.keyrings || [];
+    return keyrings;
+  }
+
+  /**
    * Get Keyring For Account
    *
    * Returns the currently initialized keyring that manages
@@ -823,9 +871,7 @@ class KeyringService extends EventEmitter {
     const hiddenAddresses = preference.getHiddenAddresses();
     const accounts: Promise<
       ({ address: string; brandName: string } | string)[]
-    > = keyring.getAccountsWithBrand
-      ? keyring.getAccountsWithBrand()
-      : keyring.getAccounts();
+    > = keyring.getAccountsWithBrand ? keyring.getAccountsWithBrand() : keyring.getAccounts();
 
     return accounts.then((accounts) => {
       const allAccounts = accounts.map((account) => ({

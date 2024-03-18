@@ -40,6 +40,7 @@ import {
   fclTestnetConfig,
   fclMainnetConfig,
   fclCrescendoConfig,
+  fclPreviewnetConfig,
 } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
@@ -48,7 +49,6 @@ const { PortMessage } = Message;
 const chromeWindow = await chrome.windows.getCurrent();
 
 let appStoreLoaded = false;
-
 
 function initAppMeta() {
   // Initialize Firebase
@@ -94,7 +94,6 @@ async function firebaseSetup() {
 }
 
 async function fclSetup() {
-
   const network = await userWalletService.getNetwork();
   console.log('network is ', network);
   switch (network) {
@@ -106,6 +105,9 @@ async function fclSetup() {
       break;
     case 'crescendo':
       await fclCrescendoConfig();
+      break;
+    case 'previewnet':
+      await fclPreviewnetConfig();
       break;
   }
 }
@@ -311,9 +313,12 @@ const handlePreAuthz = async (id) => {
   const payer = await walletController.getPayerAddressAndKeyId();
   const address = await userWalletService.getCurrentAddress();
   const network = await userWalletService.getNetwork();
+    
+  const ki = await storage.get('keyIndex');
+  const keyIndex = Number(ki);
   const services = preAuthzServiceDefinition(
     address,
-    0,
+    keyIndex,
     payer.address,
     payer.keyId,
     network
@@ -353,17 +358,19 @@ const extMessageHandler = (msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'FCW:CS:LOADED') {
-    chrome.tabs.query({
-      active: true,
-      lastFocusedWindow: true,
-    }).then(tabs =>  {
-      const tabId = tabs[0].id
-      tabId && chrome.tabs.sendMessage(tabId, 
-        {
-          type: 'FCW:NETWORK',
-          network: userWalletService.getNetwork()
-        });  
-    })
+    chrome.tabs
+      .query({
+        active: true,
+        lastFocusedWindow: true,
+      })
+      .then((tabs) => {
+        const tabId = tabs[0].id;
+        tabId &&
+          chrome.tabs.sendMessage(tabId, {
+            type: 'FCW:NETWORK',
+            network: userWalletService.getNetwork(),
+          });
+      });
   }
   // Launches extension popup window
   if (

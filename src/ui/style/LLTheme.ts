@@ -19,7 +19,7 @@ const theme: SystemTheme = createTheme({
           width: '625px',
           height: 'auto',
           borderRadius: '24px',
-          marginTop:'80px',
+          marginTop:'0px',
         },
         // ... other global classes or element selectors
       },
@@ -43,6 +43,10 @@ const theme: SystemTheme = createTheme({
       light:'#FF8A0029',
     },
     crescendo:{
+      main:'#CCAF21',
+      light:'#CCAF2129'
+    },
+    previewnet:{
       main:'#CCAF21',
       light:'#CCAF2129'
     },

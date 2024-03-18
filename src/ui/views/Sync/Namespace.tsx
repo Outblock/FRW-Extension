@@ -19,7 +19,7 @@ class FlowWallet {
   // This assumes currentNetwork is defined and has an isMainnet property.
   // You will need to adapt this based on your actual network handling logic.
   static get blockchain(): Blockchain {
-    return new Blockchain(1 ? "flow:mainnet" : "flow:testnet");
+    return new Blockchain(1 ? 'flow:mainnet' : 'flow:testnet');
   }
 
   static namespaces(methods: Set<string>, events: Set<string> = new Set()): Record<string, ProposalNamespace> {
@@ -32,8 +32,8 @@ class FlowWallet {
 }
 
 // Usage Example
-const methods = new Set<string>(["method1", "method2"]);
-const events = new Set<string>(["event1"]);
+const methods = new Set<string>(['method1', 'method2']);
+const events = new Set<string>(['event1']);
 const namespaces = FlowWallet.namespaces(methods, events);
 
 console.log(namespaces);

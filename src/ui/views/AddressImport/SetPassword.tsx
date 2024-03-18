@@ -23,7 +23,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../style/LLTheme';
-import { useWallet } from 'ui/utils';
+import { useWallet, getHashAlgo, getSignAlgo } from 'ui/utils';
 import { AccountKey } from 'background/service/networkModel';
 import HDWallet from 'ethereum-hdwallet';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -131,7 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts, goEnd }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -156,41 +156,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
     }
     setShowError(false);
   };
-
-  function getHashAlgo(value: string): number {
-    switch (value) {
-      case "unknown":
-        return 0;
-      case "SHA2_256":
-        return 1;
-      case "SHA2_384":
-        return 2;
-      case "SHA3_256":
-        return 3;
-      case "SHA3_384":
-        return 4;
-      default:
-        return -1; // Handle unknown values
-    }
-  }
-
-  function getSignAlgo(value: string): number {
-    switch (value) {
-      case "unknown":
-        return 0;
-      case "ECDSA_P256":
-        return 1;
-      case "ECDSA_p256":
-        return 1;
-      case "ECDSA_SECP256k1":
-        return 2;
-      case "ECDSA_secp256k1":
-        return 2;
-      default:
-        return -1; // Handle unknown values
-    }
-  }
-
 
   const successInfo = (message) => {
     return (
@@ -247,46 +212,39 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
     if (accounts.length > 1) {
       setLoading(true);
     } else {
-      console.log('account key ', getHashAlgo(accounts[0].hashAlgo))
-      console.log('account key ', accounts[0].signAlgo)
       const accountKeyStruct = {
         public_key: accounts[0].pubK,
         sign_algo: getSignAlgo(accounts[0].signAlgo),
         hash_algo: getHashAlgo(accounts[0].hashAlgo),
         weight: 1000
       }
-      const result = await wallet.openapi.getLocation();
       const installationId = await wallet.openapi.getInstallationId();
       // console.log('location ', userlocation);
-      const userlocation = result.data
       const device_info = {
-        'city': userlocation.city,
-        'continent': userlocation.country,
-        'continentCode': userlocation.countryCode,
-        'country': userlocation.country,
-        'countryCode': userlocation.countryCode,
-        'currency': userlocation.countryCode,
         device_id: installationId,
-        'district': '',
-        'ip': userlocation.query,
-        'isp': userlocation.as,
-        'lat': userlocation.lat,
-        'lon': userlocation.lon,
         'name': 'FRW Chrome Extension',
-        'org': userlocation.org,
-        'regionName': userlocation.regionName,
-        'type': '1',
+        'type': '2',
         'user_agent': 'Chrome',
-        'zip': userlocation.zip,
       }
       const address = accounts[0].address.replace(/^0x/, '');
       wallet.openapi.importKey(accountKeyStruct, device_info, username, {}, address)
         .then((response) => {
           return wallet.boot(password);
         })
-        .then((response) => {
+        .then(async (response) => {
           setExPassword(password);
           storage.remove('premnemonic');
+
+          const loggedInAccounts = await storage.get('loggedInAccounts');
+          let lastIndex;
+      
+          if (!loggedInAccounts || loggedInAccounts.length === 0) {
+            lastIndex = 0;
+          } else {
+            lastIndex = loggedInAccounts.length;
+          }
+          console.log(' loggedInAccount ', lastIndex, loggedInAccounts);
+          await storage.set('currentAccountIndex', lastIndex);
           if (pk) {
             return wallet.importPrivateKey(pk);
           } else {
@@ -295,7 +253,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         })
         .then((address) => {
           setLoading(false);
-          handleClick();
+          if (pk) {
+            goEnd();
+          } else {
+            handleClick();
+
+          }
         })
         .catch((error) => {
           console.log('error', error);
