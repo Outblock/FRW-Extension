@@ -191,7 +191,7 @@ const DeveloperMode = () => {
     // if (crescendo.length > 0) {
     //   setSandboxEnabled(true);
     // }
-    const previewnet = await usewallet.checkPreviewnet();
+    const previewnet = await usewallet.checkPreviewnet() || [];
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }
@@ -257,7 +257,7 @@ const DeveloperMode = () => {
       console.log('data ====== previewnet =》', data);
       await usewallet.pollingTrnasaction(data, 'previewnet')
       await usewallet.refreshUserWallets();
-      const previewnet = await usewallet.checkPreviewnet();
+      const previewnet = await usewallet.checkPreviewnet() || [];
       if (previewnet.length > 0) {
         setSandboxEnabled(true);
       }

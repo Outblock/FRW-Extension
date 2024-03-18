@@ -193,7 +193,7 @@ const Header = ({ loading }) => {
     // if (crescendo.length > 0) {
     //   setSandboxEnabled(true);
     // }
-    const previewnet = await usewallet.checkPreviewnet();
+    const previewnet = await usewallet.checkPreviewnet() || [];
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }

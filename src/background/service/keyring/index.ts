@@ -690,9 +690,18 @@ class KeyringService extends EventEmitter {
    * @returns {Promise<Array<Keyring>>} The keyrings.
    */
   async unlockKeyrings(password: string): Promise<any[]> {
-    const accountIndex = await storage.get('currentAccountIndex');
-    const vaultArray = this.store.getState().vault;
+    let accountIndex = await storage.get('currentAccountIndex');
+    let vaultArray = this.store.getState().vault;
     let encryptedVault;
+    if (typeof vaultArray === 'string') {
+      vaultArray = [vaultArray];
+    }
+
+
+    // Check if accountIndex is undefined and handle accordingly
+    if (accountIndex === undefined) {
+      accountIndex = 0; 
+    }
 
     if (vaultArray[accountIndex] === undefined) {
       encryptedVault = vaultArray[0];
@@ -701,6 +710,7 @@ class KeyringService extends EventEmitter {
     } else {
       encryptedVault = vaultArray[accountIndex];
     }
+
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
