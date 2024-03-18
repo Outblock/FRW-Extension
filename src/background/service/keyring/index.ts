@@ -693,14 +693,10 @@ class KeyringService extends EventEmitter {
     let accountIndex = await storage.get('currentAccountIndex');
     let vaultArray = this.store.getState().vault;
     let encryptedVault;
-    console.log('vaultArray ', vaultArray);
-    console.log('this.keyrings ', this.keyrings);
-    console.log('this.accountIndex ', accountIndex);
     if (typeof vaultArray === 'string') {
       vaultArray = [vaultArray];
     }
-    console.log('vaultArray ', typeof vaultArray);
-    console.log('vaultArray ', vaultArray);
+
 
     // Check if accountIndex is undefined and handle accordingly
     if (accountIndex === undefined) {
@@ -714,14 +710,13 @@ class KeyringService extends EventEmitter {
     } else {
       encryptedVault = vaultArray[accountIndex];
     }
-    console.log('this.encryptedVault ', encryptedVault);
+
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
 
     await this.clearKeyrings();
     const vault = await this.encryptor.decrypt(password, encryptedVault);
-    console.log('this.vault ', vault);
     this.password = password;
     // TODO: FIXME
     await Promise.all(Array.from(vault).map(this._restoreKeyring.bind(this)));
