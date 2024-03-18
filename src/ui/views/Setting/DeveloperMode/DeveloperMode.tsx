@@ -14,6 +14,7 @@ import {
   FormControlLabel,
   Alert,
   Snackbar,
+  CircularProgress,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
@@ -78,6 +79,7 @@ const useStyles = makeStyles(() => ({
     alignContent: 'space-between',
     justifyContent: 'space-between',
     padding: '20px 24px',
+    alignItems: 'center'
   },
   modeSelection: {
     width: '100%',
@@ -251,14 +253,17 @@ const DeveloperMode = () => {
   const enableSandbox = async () => {
     setLoading(true)
     try {
-      const data = await usewallet.createFlowSandboxAddress('previewnet');
-      console.log('data ====== previewnet', data);
-      await usewallet.listenTransaction(data.transaction)
-
+      const { data } = await usewallet.createFlowSandboxAddress('previewnet');
+      console.log('data ====== previewnet =》', data);
+      await usewallet.pollingTrnasaction(data, 'previewnet')
+      await usewallet.refreshUserWallets();
+      const previewnet = await usewallet.checkPreviewnet();
+      if (previewnet.length > 0) {
+        setSandboxEnabled(true);
+      }
       await switchNetwork('previewnet')
       // await usewallet.setDashIndex(0);
       // history.push('/dashboard?activity=1');
-  
     } finally {
       setLoading(false)
     }
@@ -273,6 +278,28 @@ const DeveloperMode = () => {
     }
     setShowError(false);
   };
+
+  const enableButton = () => {
+    if (loading) {
+      return (<CircularProgress size={18} color="primary" />)
+    }
+
+    return (
+      <LLPrimaryButton
+        onClick={enableSandbox}
+        sx={{
+          backgroundColor: '#CCAF21',
+          padding: '2px 3px',
+          fontSize: '12px',
+          color: '#000',
+          fontWeight: '600',
+          borderRadius: '30px',
+          textTransform: 'initial',
+        }}
+        label={chrome.i18n.getMessage('Enable')}
+      />
+    )
+  }
 
   return (
     <div className="page">
@@ -436,19 +463,7 @@ const DeveloperMode = () => {
                     </Typography>
                   )}
                   {!isSandboxEnabled && (
-                    <LLPrimaryButton
-                      onClick={enableSandbox}
-                      sx={{
-                        backgroundColor: '#CCAF21',
-                        padding: '2px 3px',
-                        fontSize: '12px',
-                        color: '#000',
-                        fontWeight: '600',
-                        borderRadius: '30px',
-                        textTransform: 'initial',
-                      }}
-                      label={chrome.i18n.getMessage('Enable')}
-                    />
+                    enableButton()
                   )}
                 </Box>
               </CardActionArea>
