@@ -232,6 +232,9 @@ const Header = ({ loading }) => {
   }
 
   const freshUserInfo = async () => {
+    const currentWallet = await usewallet.getCurrentWallet();
+    await setCurrent(currentWallet);
+    
     await storage.set('keyIndex', '');
     await storage.set('hashAlgo', '');
     await storage.set('signAlgo', '');
@@ -253,8 +256,6 @@ const Header = ({ loading }) => {
 
 
     const wallet = await usewallet.getUserInfo(true);
-    const currentWallet = await usewallet.getCurrentWallet();
-    await setCurrent(currentWallet);
     const loggedInAccounts = await storage.get('loggedInAccounts') || [];
     console.log('currentWallet ', currentWallet);
 
@@ -281,7 +282,7 @@ const Header = ({ loading }) => {
       .map(account => {
         const indexInLoggedInAccounts = loggedInAccounts.findIndex(loggedInAccount => loggedInAccount.username === account.username);
         return { ...account, indexInLoggedInAccounts };
-      });
+      }).slice(0, 2);
 
     console.log('otherAccounts with index:', otherAccounts);
     await setOtherAccounts(otherAccounts);
@@ -804,7 +805,7 @@ const Header = ({ loading }) => {
               <ListItemText primary={userInfo!.username} />
             </Box>
           }
-          <Box sx={{ paddingTop: '4px' }}>
+          <Box sx={{ paddingTop: '4px', px: '2px' }}>
             {otherAccounts && otherAccounts.map((account, index) => (
               <IconButton key={index} edge="end" aria-label="account" onClick={() => switchAccount(account)}>
                 <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
@@ -944,7 +945,7 @@ const Header = ({ loading }) => {
             await usewallet.lockAdd();
             // history.push('/add');
           }}>
-            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
               <ListItemIcon
                 sx={{
                   width: '24px',
@@ -972,7 +973,7 @@ const Header = ({ loading }) => {
             await usewallet.lockWallet();
             history.push('/unlock');
           }}>
-            <ListItemButton sx={{ padding: '0', margin: '0' }}>
+            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
               <ListItemIcon
                 sx={{
                   width: '24px',
@@ -1069,7 +1070,7 @@ const Header = ({ loading }) => {
                   display="block"
                   sx={{ lineHeight: '1.5' }}
                 >
-                  {props.name === 'Lilico' ? 'Wallet' : props.name}
+                  {props.name === 'Flow' ? 'Wallet' : props.name}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
