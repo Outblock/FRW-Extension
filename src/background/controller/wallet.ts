@@ -340,6 +340,15 @@ export class WalletController extends BaseController {
     return seedWords;
   };
 
+  checkMnemonics = async () => {
+    const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
+    const serialized = await keyring.serialize();
+    if (serialized) {
+      return true;
+    }
+    return false;
+  };
+
   getKey = async (password) => {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');

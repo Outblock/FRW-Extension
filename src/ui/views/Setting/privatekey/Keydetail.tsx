@@ -9,6 +9,7 @@ import { useWallet } from 'ui/utils';
 import HDWallet from 'ethereum-hdwallet';
 import { LLHeader } from '@/ui/FRWComponent';
 import { pk2PubKey } from '../../../utils/modules/passkey';
+import { storage } from '@/background/webapi';
 interface State {
   password: string;
 }
@@ -18,7 +19,7 @@ const Keydetail = () => {
   const match = useRouteMatch();
   const wallet = useWallet();
   const [privatekey, setKey] = useState('');
-  const [publickey, setPublicKey] = useState('')
+  const [publickey, setPublicKey] = useState('');
 
   const verify = async () => {
     const pwd = location.state.password;
@@ -28,9 +29,8 @@ const Keydetail = () => {
     //   .getPrivateKey()
     //   .toString('hex');
     setKey(result);
-    const pubKTuple = await pk2PubKey(result);
-    const { SECP256K1 } = pubKTuple;
-    setPublicKey(SECP256K1.pubK);
+    const pubKey = await storage.get('pubKey');
+    setPublicKey(pubKey);
   }
 
   const setTab = async () => {
