@@ -53,7 +53,7 @@ import { getApp } from 'firebase/app';
 import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
-import { pk2PubKey } from '../../ui/utils/modules/passkey';
+import { pk2PubKey } from '../../ui/utils/modules/passkey.js';
 import { getHashAlgo, getSignAlgo } from 'ui/utils';
 
 const stashKeyrings: Record<string, any> = {};
@@ -759,12 +759,9 @@ export class WalletController extends BaseController {
       let meta: any = {};
       let result: any = {};
       const address = await userWalletService.getMainWallet(network);
-      if (network !== 'crescendo') {
+      if (network !== 'previewnet') {
         result = await openapiService.checkChildAccountMeta(address);
       }
-
-      console.log('checkUserChildAccount result', result);
-
       if (result) {
         meta = result;
       }
@@ -1096,6 +1093,75 @@ export class WalletController extends BaseController {
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
     return await userWalletService.sendTransaction(cadence, args);
+  };
+
+
+
+  createCOA = async (amount = '0.0'): Promise<string> => {
+    const network = await this.getNetwork();
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+    const script = await getScripts('evm', 'createCoa');
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(amount, t.UFix64),
+      ]
+    );
+  };
+
+
+
+  queryEvmAddress = async (address: string): Promise<string> => {
+    const network = await this.getNetwork();
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+
+    const script = await getScripts('evm', 'getCoaAddr');
+
+    const result = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(address, t.Address)],
+    });
+    return result;
+  };
+
+
+
+  getBalance = async (hexEncodedAddress: string): Promise<string> => {
+    const network = await this.getNetwork();
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+
+    const script = await getScripts('evm', 'getBalance');
+
+    const result = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(hexEncodedAddress, t.String)],
+    });
+    return result;
+  };
+
+
+
+  getNonce = async (hexEncodedAddress: string): Promise<string> => {
+    const network = await this.getNetwork();
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+
+    const script = await getScripts('evm', 'getNonce');
+
+    const result = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(hexEncodedAddress, t.String)],
+    });
+    return result;
   };
 
   unlinkChildAccount = async (address: string): Promise<string> => {
@@ -1636,7 +1702,7 @@ export class WalletController extends BaseController {
     }
     return result;
   };
-  
+
   wait = (ms = 1000) => {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
@@ -2151,7 +2217,7 @@ export class WalletController extends BaseController {
     const accountKey = {
       public_key: pubKey,
       hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: weight,
     }
 

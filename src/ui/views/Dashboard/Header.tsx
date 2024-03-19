@@ -20,11 +20,8 @@ import {
   CircularProgress,
   CardMedia
 } from '@mui/material';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
-import logo from '../../../../_raw/images/icon-128.png';
 import Tooltip from '@mui/material/Tooltip';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
@@ -33,17 +30,13 @@ import { storage } from '@/background/webapi';
 import { withPrefix } from '@/ui/utils/address';
 import { StyledEngineProvider } from '@mui/material/styles';
 import eventBus from '@/eventBus';
-import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg'
-import sideMore from '../../FRWAssets/svg/sideMore.svg'
 import Popup from './Components/Popup';
+import MenuDrawer from './Components/MenuDrawer';
 
 const useStyles = makeStyles(() => ({
   appBar: {
     zIndex: 1399,
-  },
-  menuDrawer: {
-    zIndex: '1400 !important',
   },
   paper: {
     background: '#282828',
@@ -89,6 +82,7 @@ const Header = ({ loading }) => {
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
   const [crescendoAvailable, setSandboxnetAvailable] = useState(true);
+  const [evmAddress, setEvmAddress] = useState('');
 
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
@@ -189,10 +183,6 @@ const Header = ({ loading }) => {
     if (domain) {
       loadInbox();
     }
-    // const crescendo = await usewallet.checkCrescendo();
-    // if (crescendo.length > 0) {
-    //   setSandboxEnabled(true);
-    // }
     const previewnet = await usewallet.checkPreviewnet() || [];
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
@@ -234,7 +224,17 @@ const Header = ({ loading }) => {
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
     await setCurrent(currentWallet);
-    
+    const network = await usewallet.getNetwork();
+    console.log('currentNetwork ', network)
+    if (network === 'previewnet') {
+      usewallet.queryEvmAddress(currentWallet.address).then(async (res) => {
+        console.log('resultresultresult ', res);
+        setEvmAddress(res);
+      }).catch((err) => {
+        console.log('resultresultresult err', err)
+      });
+    }
+
     await storage.set('keyIndex', '');
     await storage.set('hashAlgo', '');
     await storage.set('signAlgo', '');
@@ -301,14 +301,15 @@ const Header = ({ loading }) => {
 
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
+    console.log('network ', network)
     setIsSandbox(false);
     // if (network === 'crescendo') {
     //   setIsSandbox(true);
     // }
     if (network === 'previewnet') {
-      setIsSandbox(true);
+      await setIsSandbox(true);
     }
-    setNetwork(network);
+    await setNetwork(network);
   }
 
   const loadInbox = async () => {
@@ -420,9 +421,9 @@ const Header = ({ loading }) => {
   }
 
   useEffect(() => {
+    loadNetwork();
     fetchUserWallet();
     loadDeveloperMode();
-    loadNetwork();
     checkPendingTx();
     checkAuthStatus();
 
@@ -787,225 +788,6 @@ const Header = ({ loading }) => {
     );
   };
 
-  const menuDrawer = (
-    <Drawer
-      open={drawer}
-      onClose={toggleDrawer}
-      className={classes.menuDrawer}
-      classes={{ paper: classes.paper }}
-      PaperProps={{ sx: { width: '75%' } }}
-    >
-      <List sx={{ backgroundColor: '#282828', display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          {userInfo &&
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <ListItemIcon>
-                <img src={userInfo!.avatar} width="48px" />
-              </ListItemIcon>
-              <ListItemText primary={userInfo!.username} />
-            </Box>
-          }
-          <Box sx={{ paddingTop: '4px', px: '2px' }}>
-            {otherAccounts && otherAccounts.map((account, index) => (
-              <IconButton key={index} edge="end" aria-label="account" onClick={() => switchAccount(account)}>
-                <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
-              </IconButton>
-            ))}
-            <IconButton edge="end" aria-label="close" onClick={togglePop}>
-              <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
-            </IconButton>
-          </Box>
-        </ListItem>
-        <Box sx={{ px: '16px' }}>
-          <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
-        </Box>
-        {walletList.length > 0 && walletList.map(createWalletList)}
-        {Object.keys(childAccounts).map((key) => (
-          <ListItem
-            key={key}
-            disablePadding
-            sx={{ mb: 0, paddingX: '20px' }}
-            onClick={() => setWallets({
-              name: childAccounts[key]?.name ?? key,
-              address: key,
-              chain_id: currentNetwork,
-              coins: ['flow'],
-              id: 1
-            }, key)}
-          >
-            <ListItemButton className={current['address'] === key ? classes.active : ''} sx={{ mb: 0 }}>
-              <ListItemIcon>
-                <img
-                  style={{
-                    borderRadius: '24px',
-                    marginLeft: '28px',
-                    marginRight: '4px',
-                    height: '24px',
-                    width: '24px',
-                    objectFit: 'cover'
-                  }}
-                  src={childAccounts[key]?.thumbnail?.url ?? 'https://lilico.app/placeholder-2.0.png'}
-                  alt={childAccounts[key]?.name ?? chrome.i18n.getMessage('Linked_Account')}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    color="#E6E6E6"
-                    fontSize={'10px'}
-                  >
-                    {childAccounts[key]?.name ?? key}
-                  </Typography>
-                }
-              />
-              {current['address'] === key &&
-                <ListItemIcon>
-                  <FiberManualRecordIcon
-                    style={{
-                      fontSize: '10px',
-                      color: '#40C900',
-                      marginLeft: '10px',
-                    }}
-                  />
-                </ListItemIcon>
-              }
-            </ListItemButton>
-          </ListItem>
-        ))}
-        <Box sx={{ px: '16px' }}>
-          <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
-        </Box>
-        {/* <ListItem disablePadding>
-          <ListItemButton onClick={() => {
-            toggleDrawer();
-            toggleUnread();
-            goToInbox();
-          }}>
-            <ListItemIcon>
-              <InboxIcon style={{
-                marginLeft: '4px',
-              }} />
-            </ListItemIcon>
-            <ListItemText primary={domain ? chrome.i18n.getMessage('Inbox') : chrome.i18n.getMessage('Enable__Inbox')} />
-            {unread ?
-              <Box
-                sx={{
-                  width: '32px',
-                  color: '#fff',
-                  textAlign: 'center',
-                  background: '#41CC5D',
-                  borderRadius: '12px',
-                }}
-              >
-                {unread}
-              </Box>
-              :
-              <Box></Box>
-            }
-          </ListItemButton>
-        </ListItem> */}
-        {/* <ListItem disablePadding>
-          <ListItemButton onClick={() => setAlertOpen(true)}>
-            <ListItemIcon
-              sx={{
-                width: '24px',
-                minWidth: '24px',
-                marginRight: '12px',
-              }}
-            >
-              <AddIcon style={{
-                marginLeft: '4px',
-              }} />
-            </ListItemIcon>
-            <ListItemText primary={chrome.i18n.getMessage('Import__Wallet')} />
-          </ListItemButton>
-        </ListItem> */}
-        {/* <ListItem disablePadding>
-          <ListItemButton component="a" href="/">
-            <ListItemIcon>
-              <LoginIcon />
-            </ListItemIcon>
-            <ListItemText primary="Import wallet" />
-          </ListItemButton>
-        </ListItem> */}
-        <Box
-          sx={{
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'column',
-            display: 'flex',
-            paddingLeft: '16px',
-            marginTop: 'auto',
-            marginBottom: '30px'
-          }}
-        >
-          <ListItem disablePadding onClick={async () => {
-            await usewallet.lockAdd();
-            // history.push('/add');
-          }}>
-            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
-              <ListItemIcon
-                sx={{
-                  width: '24px',
-                  minWidth: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px'
-                }}>
-                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popAdd} />
-              </ListItemIcon>
-              <Typography
-                variant="body1"
-                component="div"
-                display="inline"
-                color='text'
-                sx={{ fontSize: '12px' }}
-              >
-                {chrome.i18n.getMessage('Add_account')}
-              </Typography>
-            </ListItemButton>
-          </ListItem>
-          <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
-            await usewallet.lockWallet();
-            history.push('/unlock');
-          }}>
-            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
-              <ListItemIcon
-                sx={{
-                  width: '24px',
-                  minWidth: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px'
-                }}>
-                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popLock} />
-              </ListItemIcon>
-              <Typography
-                variant="body1"
-                component="div"
-                display="inline"
-                color='text'
-                sx={{ fontSize: '12px' }}
-              >
-                {chrome.i18n.getMessage('Lock__Wallet')}
-              </Typography>
-            </ListItemButton>
-          </ListItem>
-        </Box>
-      </List>
-      <LLComingSoon
-        alertOpen={alertOpen}
-        handleCloseIconClicked={() => setAlertOpen(false)}
-      />
-    </Drawer>
-  );
-
   const usernameSelect = () => {
     return (
       <Drawer
@@ -1123,7 +905,21 @@ const Header = ({ loading }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          {menuDrawer}
+          <MenuDrawer
+            userInfo={userInfo!}
+            drawer={drawer}
+            toggleDrawer={toggleDrawer}
+            otherAccounts={otherAccounts}
+            switchAccount={switchAccount}
+            togglePop={togglePop}
+            walletList={walletList}
+            childAccounts={childAccounts}
+            current={current}
+            createWalletList={createWalletList}
+            setWallets={setWallets}
+            currentNetwork={currentNetwork}
+            evmAddress={evmAddress}
+          />
           {appBarLabel(current)}
           {usernameSelect()}
           {userInfo &&

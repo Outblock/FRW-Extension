@@ -26,43 +26,35 @@ const Enable = () => {
   const [claiming, setClaiming] = useState(false);
   const [failed, setFailed] = useState(false);
   const [error, setError] = useState('');
-  const [username, setUsername] = useState('');
 
   const handleClaiming = async () => {
     setClaiming(true);
-    wallet.flownsPrepare().then(async (res) => {
-      if (res.status == 400) {
-        setFailed(true);
-        setError(chrome.i18n.getMessage('Domain__already__exist'));
-        return;
-      }
-      const script = res.data.cadence;
-      const domain = res.data.domain;
-      const domainArray = domain.split('.')
-      const flownsAddress = res.data.flowns_server_address;
-      const lilicoAddress = res.data.lilico_server_address;
-      wallet.flownsResponse(script, domainArray[0], flownsAddress, lilicoAddress).then(async (res) => {
-        wallet.listenTransaction(res['txId'], true, chrome.i18n.getMessage('Domain__creation__complete'), `Your enable domain ${domain} has been created. \nClick to view this transaction.`);
-        await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
-      }).catch((err) => {
-        console.log(err)
-        setFailed(true);
-      });
+    wallet.createCOA('0.0').then(async (createRes) => {
+      wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your flow EVM address has been created. \nClick to view this transaction.`);
+      await wallet.setDashIndex(0);
+      history.push('/dashboard?activity=1');
+
+      setClaiming(false);
     }).catch((err) => {
-      console.log(err)
+      console.log(err);
+      setClaiming(false);
     });
+
+
   };
 
   const getUsername = async () => {
+    const currentWallet = await wallet.getCurrentWallet();
+    wallet.queryEvmAddress(currentWallet.address).then(async (res) => {
+      console.log('resultresultresult ', res);
+    }).catch((err) => {
+      console.log(err)
+    });
 
-
-    const userInfo = await wallet.getUserInfo(false);
-    setUsername(userInfo.username)
   };
 
   useEffect(() => {
-    getUsername();
+    // getUsername();
   }, []);
 
   return (
@@ -73,7 +65,7 @@ const Enable = () => {
         display: 'flex',
         padding: '20px 0 0',
         marginLeft: '18px',
-        justifyContent:'space-between'
+        justifyContent: 'space-between'
       }}
       >
         <IconButton onClick={history.goBack}>
@@ -86,7 +78,7 @@ const Enable = () => {
             variant="subtitle1"
             sx={{
               fontWeight: 'normal', color: 'rgba(255, 255, 255, 0.80)', textAlign: 'center', fontSize: '12px', borderRadius: '24px',
-              background: ' rgba(255, 255, 255, 0.20)',width:'49px',height:'24px',lineHeight:'24px',
+              background: ' rgba(255, 255, 255, 0.20)', width: '49px', height: '24px', lineHeight: '24px',
             }}
             color="error"
           >
