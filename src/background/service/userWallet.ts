@@ -262,7 +262,7 @@ class UserWallet {
     const address = fcl.withPrefix(await wallet.getCurrentAddress());
     const ADDRESS = fcl.withPrefix(address);
     // TODO: FIX THIS
-    const KEY_ID = await storage.get('keyIndex');
+    const KEY_ID = await storage.get('keyIndex') || 0;
     return {
       ...account, // bunch of defaults in here, we want to overload some of them though
       tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
