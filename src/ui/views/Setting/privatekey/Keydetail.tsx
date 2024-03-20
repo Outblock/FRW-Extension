@@ -6,7 +6,6 @@ import { Typography } from '@mui/material';
 import { useRouteMatch } from 'react-router-dom';
 import IconCopy from '../../../../components/iconfont/IconCopy';
 import { useWallet } from 'ui/utils';
-import HDWallet from 'ethereum-hdwallet';
 import { LLHeader } from '@/ui/FRWComponent';
 import { pk2PubKey } from '../../../utils/modules/passkey';
 import { storage } from '@/background/webapi';

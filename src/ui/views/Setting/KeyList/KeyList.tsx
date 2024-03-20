@@ -5,7 +5,6 @@ import { Box, Grid, IconButton } from '@mui/material';
 import { Typography } from '@mui/material';
 import IconCopy from '../../../../components/iconfont/IconCopy';
 import { useWallet } from 'ui/utils';
-import HDWallet from 'ethereum-hdwallet';
 import { LLHeader } from '@/ui/FRWComponent';
 import sequence from '../../../FRWAssets/image/sequence.png';
 import hash from '../../../FRWAssets/image/hash.png';

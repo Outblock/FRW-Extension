@@ -2,11 +2,10 @@ import { createPersistStore } from 'background/utils';
 import { WalletResponse, BlockchainResponse, ChildAccount, DeviceInfoRequest } from './networkModel';
 import * as fcl from '@onflow/fcl';
 import * as secp from '@noble/secp256k1';
-import HDWallet from 'ethereum-hdwallet';
 import { keyringService, openapiService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
-import { signWithKey, pk2PubKey } from '@/ui/utils/modules/passkey.js';
+import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
 import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
@@ -191,10 +190,8 @@ class UserWallet {
   sign = async (signableMessage: string): Promise<string> => {
     const hashAlgo = await storage.get('hashAlgo');
     const signAlgo = await storage.get('signAlgo');
-
     const password = keyringService.password;
     const privateKey = await wallet.getKey(password);
-
     const realSignature = await signWithKey(Buffer.from(signableMessage, 'hex'), signAlgo, hashAlgo, privateKey);
     return realSignature;
   };
@@ -204,8 +201,6 @@ class UserWallet {
     const accountIndex = await storage.get('currentAccountIndex');
     const loggedInAccounts = await storage.get('loggedInAccounts') || [];
     const account = loggedInAccounts[accountIndex];
-
-    console.log('account ', account);
     let result = [{
       hashAlgo: account.hashAlgo,
       signAlgo: account.signAlgo,
@@ -410,8 +405,12 @@ class UserWallet {
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
 
     const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+
+    const tuple = await seed2PubKey(mnemonic);
+    const PK1 = tuple.P256.pk;
+    const PK2 = tuple.SECP256K1.pk;
+    const signAlgo = typeof accountKey.signAlgo === 'string' ? getSignAlgo(accountKey.signAlgo) : accountKey.signAlgo;
+    const privateKey = (signAlgo === 1) ? PK1 : PK2;
 
     const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
     if (accountKey.public_key === publicKey) {

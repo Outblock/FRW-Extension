@@ -34,7 +34,6 @@ import { CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import provider from './provider';
 import eventBus from '@/eventBus';
-import HDWallet from 'ethereum-hdwallet';
 import { setPageStateCacheWhenPopupClose, getScripts } from 'background/utils';
 import { withPrefix, getAccountKey } from 'ui/utils/address';
 import * as t from '@onflow/types';
@@ -375,19 +374,19 @@ export class WalletController extends BaseController {
 
   getPubKey = async () => {
     let privateKey;
+    let pubKTuple;
     const keyrings = await keyringService.getKeyring();
 
     if (keyrings[0].mnemonic) {
 
       const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
       const serialized = await keyring.serialize();
-      const seedWords = serialized.mnemonic;
-      const hdwallet = HDWallet.fromMnemonic(seedWords);
-      privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+      const mnemonic = serialized.mnemonic;
+      pubKTuple = await seed2PubKey(mnemonic);
     } else {
       privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+      pubKTuple = await pk2PubKey(privateKey);
     }
-    const pubKTuple = await pk2PubKey(privateKey);
     return pubKTuple;
   };
 

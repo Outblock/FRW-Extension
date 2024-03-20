@@ -5,7 +5,6 @@ import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
-import HDWallet from 'ethereum-hdwallet';
 
 
 const useStyles = makeStyles((theme) => ({

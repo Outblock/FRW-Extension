@@ -25,7 +25,6 @@ import zxcvbn from 'zxcvbn';
 import theme from '../../style/LLTheme';
 import { useWallet, getHashAlgo, getSignAlgo } from 'ui/utils';
 import { AccountKey } from 'background/service/networkModel';
-import HDWallet from 'ethereum-hdwallet';
 import { LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
 
