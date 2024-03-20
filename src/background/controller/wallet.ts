@@ -53,7 +53,7 @@ import { getApp } from 'firebase/app';
 import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
-import { pk2PubKey } from '../../ui/utils/modules/passkey';
+import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
 import { getHashAlgo, getSignAlgo } from 'ui/utils';
 
 const stashKeyrings: Record<string, any> = {};
@@ -356,8 +356,17 @@ export class WalletController extends BaseController {
     if (keyrings[0].mnemonic) {
 
       const mnemonic = await this.getMnemonics(password || '');
-      const hdwallet = HDWallet.fromMnemonic(mnemonic);
-      privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+      const seed = await seed2PubKey(mnemonic);
+      const PK1 = seed.P256.pk;
+      const PK2 = seed.SECP256K1.pk;
+      const accountIndex = await storage.get('currentAccountIndex')|| 0;
+      const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+      if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
+        throw new Error("Invalid account index.");
+      }
+      const account = loggedInAccounts[accountIndex];
+      const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+      privateKey = (signAlgo === 1) ? PK1 : PK2;
     } else {
       privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
     }
@@ -1645,7 +1654,7 @@ export class WalletController extends BaseController {
     }
     return result;
   };
-  
+
   wait = (ms = 1000) => {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
@@ -2160,7 +2169,7 @@ export class WalletController extends BaseController {
     const accountKey = {
       public_key: pubKey,
       hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: weight,
     }
 

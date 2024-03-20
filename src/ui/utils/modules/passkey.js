@@ -9,6 +9,7 @@ import { decodeArray, encodeArray } from './base64';
 import { initWasm } from '@trustwallet/wallet-core';
 import { addCredential, readSettings } from './settings';
 import { FLOW_BIP44_PATH, HASH_ALGO, KEY_TYPE, SIGN_ALGO } from './constants';
+import { getStringFromHashAlgo, getStringFromSignAlgo } from 'ui/utils';
 
 const jsonToKey = async (json, password) => {
   const { StoredKey, PrivateKey } = await initWasm();
@@ -197,6 +198,13 @@ const signMessageHash = async (hashAlgo, messageData) => {
 const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
   
   // Other key
+  if (typeof signAlgo === 'number') {
+    signAlgo = getStringFromSignAlgo(signAlgo);
+  }
+  if (typeof hashAlgo === 'number') {
+    hashAlgo = getStringFromHashAlgo(hashAlgo);
+  }
+
   const { HDWallet, Curve, Hash, PrivateKey } = await initWasm();
   const messageData = Buffer.from(message, 'hex')
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'))

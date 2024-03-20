@@ -163,7 +163,8 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword }) => {
     if (!loggedInAccounts || loggedInAccounts.length === 0) {
       lastIndex = 0;
     } else {
-      lastIndex = loggedInAccounts.length;
+      const index = loggedInAccounts.findIndex(account => account.username === username);
+      lastIndex = index !== -1 ? index : loggedInAccounts.length;
     }
     await storage.set('currentAccountIndex', lastIndex);
     try {
