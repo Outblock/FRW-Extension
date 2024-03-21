@@ -215,7 +215,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
       await wallet.signInWithMnemonic(mnemonic);
       await wallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.addAccounts(formatted);
+      await wallet.createKeyringWithMnemonics(formatted);
       setLoading(false);
       handleClick();
     } catch (e) {

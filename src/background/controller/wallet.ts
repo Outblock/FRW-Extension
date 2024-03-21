@@ -219,8 +219,8 @@ export class WalletController extends BaseController {
     const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
 
 
-    const tempPass = keyringService.getPassword();
-    await storage.set('tempPassword', tempPass);
+    const password = keyringService.getPassword();
+    await storage.set('tempPassword', password);
     await keyringService.setLocked();
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
@@ -230,16 +230,6 @@ export class WalletController extends BaseController {
     window.close();
   };
 
-  lockImport = async () => {
-    const tempPass = keyringService.getPassword();
-    await storage.set('tempPassword', tempPass);
-    await keyringService.setLocked();
-    await passwordService.clear();
-    sessionService.broadcastEvent('accountsChanged', []);
-    sessionService.broadcastEvent('lock');
-    openInternalPageInTab('add', true);
-    window.close();
-  };
   setPopupOpen = (isOpen) => {
     preferenceService.setPopupOpen(isOpen);
   };
