@@ -276,11 +276,9 @@ class UserWallet {
   };
 
   signPayer = async (signable: any): Promise<string> => {
-    console.log('signable ->', signable);
     const tx = signable.voucher;
     const message = signable.message;
     const envelope = await openapiService.signPayer(tx, message);
-    console.log('signPayer ->', envelope);
     const signature = envelope.envelopeSigs.sig;
     return signature;
   };
@@ -311,8 +309,8 @@ class UserWallet {
     };
   };
 
-  signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
-    const result = await findAddressWithSeed(mnemonic, '');
+  signInWithMnemonic = async (mnemonic: string, replaceUser = true, isTemp = true) => {
+    const result = await findAddressWithSeed(mnemonic, '', isTemp);
     if (!result) {
       throw new Error('No Address Found');
     }

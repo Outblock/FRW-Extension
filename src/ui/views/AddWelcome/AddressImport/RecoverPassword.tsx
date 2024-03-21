@@ -163,6 +163,13 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
       const index = loggedInAccounts.findIndex(account => account.username === username);
       lastIndex = index !== -1 ? index : loggedInAccounts.length;
     }
+
+    const path = await storage.get('temp_path') || "m/44'/539'/0'/0/0";
+    const passphrase = await storage.get('temp_phrase') || '';
+    await storage.set(`user${lastIndex}_path`, path);
+    await storage.set(`user${lastIndex}_phrase`, passphrase);
+    await storage.remove(`temp_path`);
+    await storage.remove(`temp_phrase`);
     await storage.set('currentAccountIndex', lastIndex);
     try {
       await wallet.boot(password);

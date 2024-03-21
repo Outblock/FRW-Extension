@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext } from 'react';
-import { findAddressWithSeed } from '../../utils/modules/findAddressWithPK';
 import { KEY_TYPE } from '../../utils/modules/constants';
 import React from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
@@ -11,7 +10,6 @@ import ImportAddressModel from '../../FRWComponent/PopupModal/importAddressModal
 
 import ErrorModel from '../../FRWComponent/PopupModal/errorModel';
 import { useWallet } from 'ui/utils';
-import * as bip39 from 'bip39';
 import { storage } from '@/background/webapi';
 
 function TabPanel(props) {
