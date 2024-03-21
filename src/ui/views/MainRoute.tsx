@@ -4,7 +4,6 @@ import Synce from './Sync';
 import RegisterPager from './Register/RegisterPager';
 import RecoverRegister from './RecoverRegister';
 import AddressImport from './AddressImport';
-import AddAccount from './AddWelcome/AddAccount';
 import AddRegister from './AddWelcome/AddRegister';
 import AddImport from './AddWelcome/AddressImport';
 import AddSync from './AddWelcome/Sync';
@@ -76,7 +75,6 @@ const Main = () => {
           <Route exact path="/sync" component={Synce} />
           <Route exact path="/addressimport" component={AddressImport} />
           <Route exact path="/recover" component={RecoverRegister} />
-          <Route exact path="/add" component={AddAccount} />
           <Route exact path="/addregister" component={AddRegister} />
           <Route exact path="/addimport" component={AddImport} />
           <Route exact path="/addsync" component={AddSync} />
