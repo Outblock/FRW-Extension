@@ -161,7 +161,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
         await wallet.importPrivateKey(pk);
       } else {
         const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-        await wallet.addAccounts(formatted);
+        await wallet.createKeyringWithMnemonics(formatted);
       }
       setLoading(false);
       if (pk) {
