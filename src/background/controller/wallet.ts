@@ -2161,9 +2161,12 @@ export class WalletController extends BaseController {
   };
 
   createFlowSandboxAddress = async (network) => {
-    const accountIndex = await storage.get('currentAccountIndex');
+    const accountIndex = await storage.get('currentAccountIndex') || 0;
     const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    console.log('accountIndex ==>', accountIndex)
+    console.log('loggedInAccounts ==>', loggedInAccounts)
     const { hashAlgo, signAlgo, pubKey, weight } = loggedInAccounts[accountIndex];
+    console.log('loggedInAccounts[accountIndex]; ==>', loggedInAccounts[accountIndex])
 
     const accountKey = {
       public_key: pubKey,
