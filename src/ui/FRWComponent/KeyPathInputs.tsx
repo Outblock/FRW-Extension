@@ -80,11 +80,13 @@ const KeyPathInput = (props) => {
   };
 
   const updateStorageWithPath = async (newPath) => {
-    await storage.set('temp_path', newPath);
+    const trimmedPath = newPath.trim();
+    await storage.set('temp_path', trimmedPath);
   };
   
   const updateStorageWithPhrase = async (newPhrase) => {
-    await storage.set('temp_key', newPhrase);
+    const trimmed = newPhrase.trim();
+    await storage.set('temp_key', trimmed);
   };
   
   // Update storage when path changes
