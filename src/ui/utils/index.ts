@@ -19,6 +19,8 @@ export * from './number';
 
 export * from './options';
 
+export * from './saveStorage';
+
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',

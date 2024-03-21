@@ -24,9 +24,8 @@ import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../../style/LLTheme';
-import { useWallet } from 'ui/utils';
+import { useWallet, saveIndex } from 'ui/utils';
 import { LLNotFound } from 'ui/FRWComponent';
-import { storage } from '@/background/webapi';
 
 
 // const helperTextStyles = makeStyles(() => ({
@@ -213,17 +212,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
   const login = async () => {
     setLoading(true);
 
-    const loggedInAccounts = await storage.get('loggedInAccounts');
-    let lastIndex;
-
-    if (!loggedInAccounts || loggedInAccounts.length === 0) {
-      lastIndex = 0;
-    } else {
-      const index = loggedInAccounts.findIndex(account => account.username === username);
-      lastIndex = index !== -1 ? index : loggedInAccounts.length;
-    }
-    console.log(' loggedInAccount ', lastIndex, loggedInAccounts);
-    await storage.set('currentAccountIndex', lastIndex);
+    await saveIndex(username);
     try {
       await wallet.signInWithMnemonic(mnemonic);
       await wallet.boot(password);

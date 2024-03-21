@@ -16,7 +16,7 @@ import {
   AnimationTypes,
 } from 'react-component-transition';
 import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../../AddAccount/options';
+import { Options } from 'ui/utils';
 import { storage } from 'background/webapi';
 
 enum Direction {
@@ -110,7 +110,7 @@ const GoogleImport = () => {
         {activeIndex == 4 && (
           <Particles
             // @ts-expect-error customized options
-            options={options}
+            options={Options}
           />
         )}
         <LLPinAlert open={activeIndex == 4} />
