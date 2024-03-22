@@ -346,6 +346,8 @@ export class WalletController extends BaseController {
 
       const mnemonic = await this.getMnemonics(password || '');
       const seed = await seed2PubKey(mnemonic);
+      console.log('seed ', seed)
+      console.log('mnemonic ', mnemonic)
       const PK1 = seed.P256.pk;
       const PK2 = seed.SECP256K1.pk;
       const accountIndex = await storage.get('currentAccountIndex')|| 0;
@@ -766,7 +768,7 @@ export class WalletController extends BaseController {
       let meta: any = {};
       let result: any = {};
       const address = await userWalletService.getMainWallet(network);
-      if (network !== 'crescendo') {
+      if (network !== 'crescendo' && network !== 'previewnet') {
         result = await openapiService.checkChildAccountMeta(address);
       }
 

@@ -208,6 +208,15 @@ class UserWallet {
       weight: account.weight
     }];
 
+    console.log('result ', result)
+
+    console.log('loggedInAccounts ', loggedInAccounts)
+
+    console.log('accountIndex ', accountIndex)
+
+    console.log('account ', account)
+
+    console.log('account ', privateKey)
 
     if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
@@ -221,7 +230,7 @@ class UserWallet {
       signInAnonymously(auth);
       return;
     }
-
+    console.log('404 idtoken ', idToken);
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(

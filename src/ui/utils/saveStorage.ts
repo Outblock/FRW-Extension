@@ -1,6 +1,6 @@
 import { storage } from 'background/webapi'
 
-export const saveIndex = async (username = '') => {
+export const saveIndex = async (username = '', userId = null) => {
   const loggedInAccounts = await storage.get('loggedInAccounts') || [];
   let currentindex = 0;
 
@@ -15,7 +15,12 @@ export const saveIndex = async (username = '') => {
   const passphrase = await storage.get('temp_phrase') || '';
   await storage.set(`user${currentindex}_path`, path);
   await storage.set(`user${currentindex}_phrase`, passphrase);
+  await storage.set(`user${userId}_path`, path);
+  await storage.set(`user${userId}_phrase`, passphrase);
   await storage.remove(`temp_path`);
   await storage.remove(`temp_phrase`);
   await storage.set('currentAccountIndex', currentindex);
+  if (userId) {
+    await storage.set('currentId', userId);
+  }
 };
