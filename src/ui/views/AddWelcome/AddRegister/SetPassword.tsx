@@ -280,7 +280,10 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              readOnly
+              disabled={!!password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}
@@ -310,7 +313,10 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               className={classes.inputBox2}
               fullWidth
               disableUnderline
-              readOnly
+              disabled={!!password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton

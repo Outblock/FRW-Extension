@@ -212,7 +212,10 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              readOnly
+              disabled={!!password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}
@@ -228,41 +231,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
                 </InputAdornment>
               }
             />
-            {/* <Presets.TransitionSlideUp>
-              {password && helperText}
-            </Presets.TransitionSlideUp> */}
-            {/* <Input
-              sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
-              id="pass2"
-              type={isConfirmPasswordVisible ? 'text' : 'password'}
-              name="password2"
-              placeholder={chrome.i18n.getMessage('Confirm__your__password')}
-              value={confirmPassword}
-              className={classes.inputBox2}
-              fullWidth
-              disableUnderline
-              readOnly
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() =>
-                      setConfirmPasswordVisible(!isConfirmPasswordVisible)
-                    }
-                  >
-                    {isConfirmPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <Presets.TransitionSlideUp
-              style={{ height: '40px', display: 'flex' }}
-            >
-              {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp> */}
           </FormGroup>
         </Box>
 
