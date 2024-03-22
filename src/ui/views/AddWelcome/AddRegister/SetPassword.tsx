@@ -280,7 +280,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              disabled={!!password}
+              
               onChange={(event) => {
                 setPassword(event.target.value);
               }}
@@ -313,7 +313,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               className={classes.inputBox2}
               fullWidth
               disableUnderline
-              disabled={!!password}
+              
               onChange={(event) => {
                 setPassword(event.target.value);
               }}

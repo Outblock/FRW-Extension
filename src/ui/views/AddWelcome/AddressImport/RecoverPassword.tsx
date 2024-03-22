@@ -212,7 +212,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              disabled={!!password}
+              
               onChange={(event) => {
                 setPassword(event.target.value);
               }}

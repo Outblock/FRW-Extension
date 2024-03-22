@@ -293,7 +293,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                 fullWidth
                 autoFocus
                 disableUnderline
-                disabled={!!password}
+                
                 onChange={(event) => {
                   setPassword(event.target.value);
                 }}
