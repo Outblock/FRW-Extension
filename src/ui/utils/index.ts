@@ -19,6 +19,8 @@ export * from './number';
 
 export * from './options';
 
+export * from './saveStorage';
+
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',
@@ -153,5 +155,36 @@ export function getSignAlgo(value: string): number {
       return 2;
     default:
       return -1; // Handle unknown values
+  }
+}
+
+
+export function getStringFromHashAlgo(value: number): string {
+  switch (value) {
+    case 0:
+      return 'unknown';
+    case 1:
+      return 'SHA2_256';
+    case 2:
+      return 'SHA2_384';
+    case 3:
+      return 'SHA3_256';
+    case 4:
+      return 'SHA3_384';
+    default:
+      return 'unknown'; // Handle unknown values
+  }
+}
+
+export function getStringFromSignAlgo(value: number): string {
+  switch (value) {
+    case 0:
+      return 'unknown';
+    case 1:
+      return 'ECDSA_P256';
+    case 2:
+      return 'ECDSA_SECP256k1';
+    default:
+      return 'unknown'; // Handle unknown values
   }
 }

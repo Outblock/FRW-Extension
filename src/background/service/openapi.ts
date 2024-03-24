@@ -625,6 +625,7 @@ class OpenApiService {
       }
     );
     await this._signWithCustom(data.data.custom_token);
+    await storage.set('currentId', data.data.id);
     return data;
   };
 
@@ -649,6 +650,7 @@ class OpenApiService {
     }
     if (replaceUser) {
       await this._signWithCustom(result.data.custom_token);
+      await storage.set('currentId', result.data.id);
     }
     return result;
   };
@@ -670,6 +672,7 @@ class OpenApiService {
     }
     if (replaceUser) {
       await this._signWithCustom(result.data.custom_token);
+      await storage.set('currentId', result.data.id);
     }
     return result;
   };
@@ -692,6 +695,7 @@ class OpenApiService {
     }
     if (replaceUser) {
       await this._signWithCustom(result.data.custom_token);
+      await storage.set('currentId', result.data.id);
     }
     return result;
   };
@@ -716,6 +720,7 @@ class OpenApiService {
     }
     if (replaceUser) {
       await this._signWithCustom(result.data.custom_token);
+      await storage.set('currentId', result.data.id);
     }
     return result;
   };

@@ -23,7 +23,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../../style/LLTheme';
-import { useWallet } from 'ui/utils';
+import { useWallet, saveIndex } from 'ui/utils';
 import { AccountKey } from 'background/service/networkModel';
 import HDWallet from 'ethereum-hdwallet';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -222,16 +222,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
   const register = async () => {
     setLoading(true);
 
-    const loggedInAccounts = await storage.get('loggedInAccounts');
-    let lastIndex;
-
-    if (!loggedInAccounts || loggedInAccounts.length === 0) {
-      lastIndex = 0;
-    } else {
-      lastIndex = loggedInAccounts.length;
-    }
-    console.log(' loggedInAccount ', lastIndex, loggedInAccounts);
-    await storage.set('currentAccountIndex', lastIndex);
+    await saveIndex(username);
     const accountKey = getAccountKey(mnemonic);
     wallet.openapi
       .register(accountKey, username)
@@ -289,7 +280,10 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              readOnly
+              
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}
@@ -319,7 +313,10 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               className={classes.inputBox2}
               fullWidth
               disableUnderline
-              readOnly
+              
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton

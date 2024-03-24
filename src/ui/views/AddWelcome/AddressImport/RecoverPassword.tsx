@@ -18,7 +18,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import zxcvbn from 'zxcvbn';
 import theme from '../../../style/LLTheme';
-import { useWallet } from 'ui/utils';
+import { useWallet, saveIndex } from 'ui/utils';
 import { storage } from '@/background/webapi';
 
 // const helperTextStyles = makeStyles(() => ({
@@ -154,22 +154,14 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
   const register = async () => {
     setLoading(true);
 
-    const loggedInAccounts = await storage.get('loggedInAccounts');
-    let lastIndex;
-
-    if (!loggedInAccounts || loggedInAccounts.length === 0) {
-      lastIndex = 0;
-    } else {
-      lastIndex = loggedInAccounts.length;
-    }
-    await storage.set('currentAccountIndex', lastIndex);
+    await saveIndex(username);
     try {
       await wallet.boot(password);
       if (pk) {
         await wallet.importPrivateKey(pk);
       } else {
         const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-        await wallet.addAccounts(formatted);
+        await wallet.createKeyringWithMnemonics(formatted);
       }
       setLoading(false);
       if (pk) {
@@ -220,7 +212,10 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              readOnly
+              
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}
@@ -236,41 +231,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
                 </InputAdornment>
               }
             />
-            {/* <Presets.TransitionSlideUp>
-              {password && helperText}
-            </Presets.TransitionSlideUp> */}
-            {/* <Input
-              sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
-              id="pass2"
-              type={isConfirmPasswordVisible ? 'text' : 'password'}
-              name="password2"
-              placeholder={chrome.i18n.getMessage('Confirm__your__password')}
-              value={confirmPassword}
-              className={classes.inputBox2}
-              fullWidth
-              disableUnderline
-              readOnly
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() =>
-                      setConfirmPasswordVisible(!isConfirmPasswordVisible)
-                    }
-                  >
-                    {isConfirmPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <Presets.TransitionSlideUp
-              style={{ height: '40px', display: 'flex' }}
-            >
-              {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp> */}
           </FormGroup>
         </Box>
 

@@ -34,7 +34,6 @@ import { CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import provider from './provider';
 import eventBus from '@/eventBus';
-import HDWallet from 'ethereum-hdwallet';
 import { setPageStateCacheWhenPopupClose, getScripts } from 'background/utils';
 import { withPrefix, getAccountKey } from 'ui/utils/address';
 import * as t from '@onflow/types';
@@ -53,8 +52,8 @@ import { getApp } from 'firebase/app';
 import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
-import { pk2PubKey } from '../../ui/utils/modules/passkey.js';
-import { getHashAlgo, getSignAlgo } from 'ui/utils';
+import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
+import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -220,8 +219,8 @@ export class WalletController extends BaseController {
     const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
 
 
-    const tempPass = keyringService.getPassword();
-    await storage.set('tempPassword', tempPass);
+    const password = keyringService.getPassword();
+    await storage.set('tempPassword', password);
     await keyringService.setLocked();
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
@@ -231,16 +230,6 @@ export class WalletController extends BaseController {
     window.close();
   };
 
-  lockImport = async () => {
-    const tempPass = keyringService.getPassword();
-    await storage.set('tempPassword', tempPass);
-    await keyringService.setLocked();
-    await passwordService.clear();
-    sessionService.broadcastEvent('accountsChanged', []);
-    sessionService.broadcastEvent('lock');
-    openInternalPageInTab('add', true);
-    window.close();
-  };
   setPopupOpen = (isOpen) => {
     preferenceService.setPopupOpen(isOpen);
   };
@@ -340,6 +329,15 @@ export class WalletController extends BaseController {
     return seedWords;
   };
 
+  checkMnemonics = async () => {
+    const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
+    const serialized = await keyring.serialize();
+    if (serialized) {
+      return true;
+    }
+    return false;
+  };
+
   getKey = async (password) => {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');
@@ -347,8 +345,19 @@ export class WalletController extends BaseController {
     if (keyrings[0].mnemonic) {
 
       const mnemonic = await this.getMnemonics(password || '');
-      const hdwallet = HDWallet.fromMnemonic(mnemonic);
-      privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+      const seed = await seed2PubKey(mnemonic);
+      console.log('seed ', seed)
+      console.log('mnemonic ', mnemonic)
+      const PK1 = seed.P256.pk;
+      const PK2 = seed.SECP256K1.pk;
+
+      const account = await getStoragedAccount();
+      // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
+      //   throw new Error("Invalid account index.");
+      // }
+      // const account = loggedInAccounts[accountIndex];
+      const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+      privateKey = (signAlgo === 1) ? PK1 : PK2;
     } else {
       privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
     }
@@ -357,19 +366,19 @@ export class WalletController extends BaseController {
 
   getPubKey = async () => {
     let privateKey;
+    let pubKTuple;
     const keyrings = await keyringService.getKeyring();
 
     if (keyrings[0].mnemonic) {
 
       const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
       const serialized = await keyring.serialize();
-      const seedWords = serialized.mnemonic;
-      const hdwallet = HDWallet.fromMnemonic(seedWords);
-      privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+      const mnemonic = serialized.mnemonic;
+      pubKTuple = await seed2PubKey(mnemonic);
     } else {
       privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+      pubKTuple = await pk2PubKey(privateKey);
     }
-    const pubKTuple = await pk2PubKey(privateKey);
     return pubKTuple;
   };
 
@@ -759,7 +768,7 @@ export class WalletController extends BaseController {
       let meta: any = {};
       let result: any = {};
       const address = await userWalletService.getMainWallet(network);
-      if (network !== 'previewnet') {
+      if (network !== 'crescendo' && network !== 'previewnet') {
         result = await openapiService.checkChildAccountMeta(address);
       }
       if (result) {
@@ -2210,9 +2219,10 @@ export class WalletController extends BaseController {
   };
 
   createFlowSandboxAddress = async (network) => {
-    const accountIndex = await storage.get('currentAccountIndex');
-    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-    const { hashAlgo, signAlgo, pubKey, weight } = loggedInAccounts[accountIndex];
+
+    const account = await getStoragedAccount();
+    const { hashAlgo, signAlgo, pubKey, weight } = account;
+    console.log('loggedInAccounts[accountIndex]; ==>', account)
 
     const accountKey = {
       public_key: pubKey,

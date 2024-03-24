@@ -23,9 +23,8 @@ import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../../style/LLTheme';
-import { useWallet, getHashAlgo, getSignAlgo } from 'ui/utils';
+import { useWallet, getHashAlgo, getSignAlgo, saveIndex } from 'ui/utils';
 import { AccountKey } from 'background/service/networkModel';
-import HDWallet from 'ethereum-hdwallet';
 import { LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
 
@@ -256,16 +255,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
         .then(async (response) => {
           storage.remove('premnemonic');
 
-          const loggedInAccounts = await storage.get('loggedInAccounts');
-          let lastIndex;
-      
-          if (!loggedInAccounts || loggedInAccounts.length === 0) {
-            lastIndex = 0;
-          } else {
-            lastIndex = loggedInAccounts.length;
-          }
-          console.log(' loggedInAccount ', lastIndex, loggedInAccounts);
-          await storage.set('currentAccountIndex', lastIndex);
+          await saveIndex(username);
           if (pk) {
             return wallet.importPrivateKey(pk);
           } else {
@@ -335,7 +325,10 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              readOnly
+              
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}

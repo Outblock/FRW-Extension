@@ -216,7 +216,8 @@ const WalletDetail = () => {
   const [modeGas, setGasMode] = useState(false);
   const [showError, setShowError] = useState(false);
   const [walletList, setWalletList] = useState([]);
-  const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null)
+  const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
+  const [isKeyphrase, setIsKeyphrase] = useState(false);
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -284,11 +285,22 @@ const WalletDetail = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
+
+
+
+
+  const checkKeyphrase = async () => {
+    const keyrings = await usewallet.checkMnemonics();
+    await setIsKeyphrase(keyrings);
+  };
+
+
   useEffect(() => {
     setUserWallet();
     loadGasKillSwitch();
     loadGasMode();
     loadStorageInfo();
+    checkKeyphrase();
   }, []);
 
   useEffect(() => {
@@ -326,23 +338,27 @@ const WalletDetail = () => {
                 </ListItemIcon>
               </ListItemButton>
             </ListItem>
+            {
+              isKeyphrase && <Divider sx={{ width: '90%' }} variant="middle" />
+            }
 
-            <Divider sx={{ width: '90%' }} variant="middle" />
-
-            <ListItem
-              button
-              component={Link}
-              to='/dashboard/nested/recoveryphrasepassword'
-              disablePadding
-              className={classes.listItem}
-            >
-              <ListItemButton className={classes.itemButton}>
-                <ListItemText primary={chrome.i18n.getMessage('Recovery__Phrase')} />
-                <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                  <IconEnd size={12} />
-                </ListItemIcon>
-              </ListItemButton>
-            </ListItem>
+            {
+              isKeyphrase &&
+              <ListItem
+                button
+                component={Link}
+                to='/dashboard/nested/recoveryphrasepassword'
+                disablePadding
+                className={classes.listItem}
+              >
+                <ListItemButton className={classes.itemButton}>
+                  <ListItemText primary={chrome.i18n.getMessage('Recovery__Phrase')} />
+                  <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                    <IconEnd size={12} />
+                  </ListItemIcon>
+                </ListItemButton>
+              </ListItem>
+            }
           </List>
 
           <Box>

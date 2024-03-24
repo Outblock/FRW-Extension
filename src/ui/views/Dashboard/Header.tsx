@@ -75,7 +75,7 @@ const Header = ({ loading }) => {
   const [loggedInAccounts, setLoggedIn] = useState<any>(null);
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [modeOn, setModeOn] = useState(false);
-  const [unread, setUnread] = useState(0);
+  // const [unread, setUnread] = useState(0);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [domain, setDomain] = useState('');
 
@@ -142,9 +142,9 @@ const Header = ({ loading }) => {
     setPop(!ispop);
   };
 
-  const toggleUnread = () => {
-    setUnread(0);
-  };
+  // const toggleUnread = () => {
+  //   setUnread(0);
+  // };
 
   const [usernameDrawer, setUsernameDrawer] = useState(false);
   const toggleUsernameDrawer = () => {
@@ -172,17 +172,21 @@ const Header = ({ loading }) => {
     const wallet = await usewallet.getUserWallets();
     await setWallet(wallet);
     const userInfo = await usewallet.getUserInfo(false);
-    const domain = await usewallet.fetchUserDomain();
+    // const domain = await usewallet.fetchUserDomain();
     await setUserInfo(userInfo);
-    await setDomain(domain);
+    // await setDomain(domain);
     if (userInfo.private == 1) {
       setModeAnonymous(false);
     } else {
       setModeAnonymous(true)
     }
-    if (domain) {
-      loadInbox();
-    }
+    // if (domain) {
+    //   loadInbox();
+    // }
+    // const crescendo = await usewallet.checkCrescendo();
+    // if (crescendo.length > 0) {
+    //   setSandboxEnabled(true);
+    // }
     const previewnet = await usewallet.checkPreviewnet() || [];
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
@@ -271,7 +275,7 @@ const Header = ({ loading }) => {
 
     if (accountIndex === -1) {
       loggedInAccounts.push(wallet);
-    } else if (!loggedInAccounts[accountIndex].pubKey) {
+    } else {
       loggedInAccounts[accountIndex] = wallet;
     }
     await storage.set('loggedInAccounts', loggedInAccounts);
@@ -288,12 +292,18 @@ const Header = ({ loading }) => {
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
-    usewallet.checkUserDomain(wallet.username);
+    // usewallet.checkUserDomain(wallet.username);
   }
   const switchAccount = async (account) => {
     const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     console.log('switch account ', account)
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+    if (account.id){
+      await storage.set('currentId', account.id);
+    } else {
+      await storage.set('currentId', '');
+
+    }
     await usewallet.lockWallet();
     history.push('/switchunlock');
     await usewallet.switchNetwork(switchingTo);
@@ -312,51 +322,51 @@ const Header = ({ loading }) => {
     await setNetwork(network);
   }
 
-  const loadInbox = async () => {
+  // const loadInbox = async () => {
 
-    const giftBoxHistory = await usewallet.getHistory();
-    const resp = await usewallet.fetchFlownsInbox();
-    let tempRead = 0;
-    let nftRead = 0;
-    Object.keys(resp.vaultBalances).map(() => {
-      tempRead += 1;
-    });
-    Object.keys(resp.collections).map((k) => {
-      nftRead += resp.collections[k].length;
-    });
+  //   const giftBoxHistory = await usewallet.getHistory();
+  //   const resp = await usewallet.fetchFlownsInbox();
+  //   let tempRead = 0;
+  //   let nftRead = 0;
+  //   Object.keys(resp.vaultBalances).map(() => {
+  //     tempRead += 1;
+  //   });
+  //   Object.keys(resp.collections).map((k) => {
+  //     nftRead += resp.collections[k].length;
+  //   });
 
-    giftBoxHistory.token.map((token) => {
-      const key = Object.keys(token)[0];
-      if (parseFloat(token[key]) === parseFloat(resp.vaultBalances[key])) {
-        tempRead -= 1;
-      }
-    });
+  //   giftBoxHistory.token.map((token) => {
+  //     const key = Object.keys(token)[0];
+  //     if (parseFloat(token[key]) === parseFloat(resp.vaultBalances[key])) {
+  //       tempRead -= 1;
+  //     }
+  //   });
 
-    Object.keys(giftBoxHistory.nft).map((k) => {
-      const arr = giftBoxHistory.nft[k];
-      arr.map((v) => {
-        if (resp.collections[k].includes(v)) {
-          nftRead -= 1;
-        }
-      })
-    });
-    const totalUnread = nftRead + tempRead;
-    setUnread(totalUnread);
+  //   Object.keys(giftBoxHistory.nft).map((k) => {
+  //     const arr = giftBoxHistory.nft[k];
+  //     arr.map((v) => {
+  //       if (resp.collections[k].includes(v)) {
+  //         nftRead -= 1;
+  //       }
+  //     })
+  //   });
+  //   const totalUnread = nftRead + tempRead;
+  //   setUnread(totalUnread);
 
 
-  }
+  // }
   const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
     if (developerMode) { setModeOn(developerMode); }
   }
 
-  const goToInbox = () => {
-    if (domain) {
-      history.push('/dashboard/inbox');
-    } else {
-      history.push('/dashboard/flowns');
-    }
-  }
+  // const goToInbox = () => {
+  //   if (domain) {
+  //     history.push('/dashboard/inbox');
+  //   } else {
+  //     history.push('/dashboard/flowns');
+  //   }
+  // }
 
   const setWallets = async (walletInfo, key) => {
     await usewallet.setActiveWallet(walletInfo, key);
@@ -817,7 +827,7 @@ const Header = ({ loading }) => {
           sx={{ marginLeft: '0px', padding: '3px', position: 'relative' }}
         >
           <MenuIcon />
-          {unread ?
+          {/* {unread ?
             <Box sx={{
               width: '8px',
               height: '8px',
@@ -830,7 +840,7 @@ const Header = ({ loading }) => {
             </Box>
             :
             <Box></Box>
-          }
+          } */}
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
         {!isLoading && props ? (

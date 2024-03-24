@@ -254,7 +254,6 @@ const DeveloperMode = () => {
     setLoading(true)
     try {
       const { data } = await usewallet.createFlowSandboxAddress('previewnet');
-      console.log('data ====== previewnet =》', data);
       await usewallet.pollingTrnasaction(data, 'previewnet')
       await usewallet.refreshUserWallets();
       const previewnet = await usewallet.checkPreviewnet() || [];

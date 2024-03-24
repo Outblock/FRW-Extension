@@ -2,16 +2,15 @@ import { createPersistStore } from 'background/utils';
 import { WalletResponse, BlockchainResponse, ChildAccount, DeviceInfoRequest } from './networkModel';
 import * as fcl from '@onflow/fcl';
 import * as secp from '@noble/secp256k1';
-import HDWallet from 'ethereum-hdwallet';
 import { keyringService, openapiService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
-import { signWithKey, pk2PubKey } from '@/ui/utils/modules/passkey.js';
+import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
 import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
 import { storage } from '../webapi';
-import { getHashAlgo, getSignAlgo } from 'ui/utils';
+import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -191,21 +190,19 @@ class UserWallet {
   sign = async (signableMessage: string): Promise<string> => {
     const hashAlgo = await storage.get('hashAlgo');
     const signAlgo = await storage.get('signAlgo');
-
     const password = keyringService.password;
     const privateKey = await wallet.getKey(password);
-
     const realSignature = await signWithKey(Buffer.from(signableMessage, 'hex'), signAlgo, hashAlgo, privateKey);
     return realSignature;
   };
 
   switchLogin = async (privateKey: string, replaceUser = true) => {
 
-    const accountIndex = await storage.get('currentAccountIndex');
-    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-    const account = loggedInAccounts[accountIndex];
-
-    console.log('account ', account);
+    // const accountIndex = await storage.get('currentAccountIndex') || 0;
+    // const currentId = await storage.get('currentId') || null;
+    // const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    // const account = loggedInAccounts[accountIndex];
+    const account = await getStoragedAccount();
     let result = [{
       hashAlgo: account.hashAlgo,
       signAlgo: account.signAlgo,
@@ -213,6 +210,12 @@ class UserWallet {
       weight: account.weight
     }];
 
+    console.log('result ', result)
+
+
+    console.log('account ', account)
+
+    console.log('account ', privateKey)
 
     if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
@@ -226,7 +229,7 @@ class UserWallet {
       signInAnonymously(auth);
       return;
     }
-
+    console.log('404 idtoken ', idToken);
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(
@@ -242,7 +245,7 @@ class UserWallet {
     const accountKey = {
       public_key: publicKey,
       hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: result[0].weight,
     }
     const deviceInfo = await this.getDeviceInfo();
@@ -262,7 +265,7 @@ class UserWallet {
     const address = fcl.withPrefix(await wallet.getCurrentAddress());
     const ADDRESS = fcl.withPrefix(address);
     // TODO: FIX THIS
-    const KEY_ID = await storage.get('keyIndex');
+    const KEY_ID = await storage.get('keyIndex') || 0;
     return {
       ...account, // bunch of defaults in here, we want to overload some of them though
       tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
@@ -281,11 +284,9 @@ class UserWallet {
   };
 
   signPayer = async (signable: any): Promise<string> => {
-    console.log('signable ->', signable);
     const tx = signable.voucher;
     const message = signable.message;
     const envelope = await openapiService.signPayer(tx, message);
-    console.log('signPayer ->', envelope);
     const signature = envelope.envelopeSigs.sig;
     return signature;
   };
@@ -316,8 +317,8 @@ class UserWallet {
     };
   };
 
-  signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
-    const result = await findAddressWithSeed(mnemonic, '');
+  signInWithMnemonic = async (mnemonic: string, replaceUser = true, isTemp = true) => {
+    const result = await findAddressWithSeed(mnemonic, '', isTemp);
     if (!result) {
       throw new Error('No Address Found');
     }
@@ -410,8 +411,12 @@ class UserWallet {
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
 
     const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const privateKey = hdwallet.derive("m/44'/539'/0'/0/0").getPrivateKey().toString('hex');
+
+    const tuple = await seed2PubKey(mnemonic);
+    const PK1 = tuple.P256.pk;
+    const PK2 = tuple.SECP256K1.pk;
+    const signAlgo = typeof accountKey.signAlgo === 'string' ? getSignAlgo(accountKey.signAlgo) : accountKey.signAlgo;
+    const privateKey = (signAlgo === 1) ? PK1 : PK2;
 
     const publicKey = hex(secp.getPublicKey(privateKey).slice(1));
     if (accountKey.public_key === publicKey) {
