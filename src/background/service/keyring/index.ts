@@ -670,7 +670,11 @@ class KeyringService extends EventEmitter {
         // Handle the case when currentId is available
         if (currentId !== null && currentId !== undefined) {
           // Find if an entry with currentId already exists
-          const existingIndex = vaultArray.findIndex(entry => Object.prototype.hasOwnProperty.call(entry, currentId));
+          const existingIndex = vaultArray.findIndex(entry => 
+            entry !== null && 
+            entry !== undefined && 
+            Object.prototype.hasOwnProperty.call(entry, currentId)
+          );
 
 
           if (existingIndex !== -1) {
