@@ -245,7 +245,8 @@ const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
   if (typeof hashAlgo === 'number') {
     hashAlgo = getStringFromHashAlgo(hashAlgo);
   }
-
+  console.log(' signAlgo ', signAlgo)
+  console.log(' hashAlgo ', hashAlgo)
   const { HDWallet, Curve, Hash, PrivateKey } = await initWasm();
   const messageData = Buffer.from(message, 'hex')
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'))

@@ -10,7 +10,7 @@ import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findA
 import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
 import { storage } from '../webapi';
-import { getHashAlgo, getSignAlgo } from 'ui/utils';
+import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -198,9 +198,11 @@ class UserWallet {
 
   switchLogin = async (privateKey: string, replaceUser = true) => {
 
-    const accountIndex = await storage.get('currentAccountIndex');
-    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-    const account = loggedInAccounts[accountIndex];
+    // const accountIndex = await storage.get('currentAccountIndex') || 0;
+    // const currentId = await storage.get('currentId') || null;
+    // const loggedInAccounts = await storage.get('loggedInAccounts') || [];
+    // const account = loggedInAccounts[accountIndex];
+    const account = await getStoragedAccount();
     let result = [{
       hashAlgo: account.hashAlgo,
       signAlgo: account.signAlgo,
@@ -208,6 +210,12 @@ class UserWallet {
       weight: account.weight
     }];
 
+    console.log('result ', result)
+
+
+    console.log('account ', account)
+
+    console.log('account ', privateKey)
 
     if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
@@ -221,7 +229,7 @@ class UserWallet {
       signInAnonymously(auth);
       return;
     }
-
+    console.log('404 idtoken ', idToken);
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(
@@ -237,7 +245,7 @@ class UserWallet {
     const accountKey = {
       public_key: publicKey,
       hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo:  typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: result[0].weight,
     }
     const deviceInfo = await this.getDeviceInfo();

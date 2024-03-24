@@ -271,7 +271,7 @@ const Header = ({ loading }) => {
 
     if (accountIndex === -1) {
       loggedInAccounts.push(wallet);
-    } else if (!loggedInAccounts[accountIndex].pubKey) {
+    } else {
       loggedInAccounts[accountIndex] = wallet;
     }
     await storage.set('loggedInAccounts', loggedInAccounts);
@@ -294,6 +294,12 @@ const Header = ({ loading }) => {
     const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     console.log('switch account ', account)
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+    if (account.id){
+      await storage.set('currentId', account.id);
+    } else {
+      await storage.set('currentId', '');
+
+    }
     await usewallet.lockWallet();
     history.push('/switchunlock');
     await usewallet.switchNetwork(switchingTo);
