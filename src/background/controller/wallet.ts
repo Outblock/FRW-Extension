@@ -53,7 +53,7 @@ import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
 import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
-import { getHashAlgo, getSignAlgo } from 'ui/utils';
+import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -350,12 +350,12 @@ export class WalletController extends BaseController {
       console.log('mnemonic ', mnemonic)
       const PK1 = seed.P256.pk;
       const PK2 = seed.SECP256K1.pk;
-      const accountIndex = await storage.get('currentAccountIndex')|| 0;
-      const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-      if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
-        throw new Error("Invalid account index.");
-      }
-      const account = loggedInAccounts[accountIndex];
+
+      const account = await getStoragedAccount();
+      // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
+      //   throw new Error("Invalid account index.");
+      // }
+      // const account = loggedInAccounts[accountIndex];
       const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
       privateKey = (signAlgo === 1) ? PK1 : PK2;
     } else {
@@ -2153,12 +2153,10 @@ export class WalletController extends BaseController {
   };
 
   createFlowSandboxAddress = async (network) => {
-    const accountIndex = await storage.get('currentAccountIndex') || 0;
-    const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-    console.log('accountIndex ==>', accountIndex)
-    console.log('loggedInAccounts ==>', loggedInAccounts)
-    const { hashAlgo, signAlgo, pubKey, weight } = loggedInAccounts[accountIndex];
-    console.log('loggedInAccounts[accountIndex]; ==>', loggedInAccounts[accountIndex])
+
+    const account = await getStoragedAccount();
+    const { hashAlgo, signAlgo, pubKey, weight } = account;
+    console.log('loggedInAccounts[accountIndex]; ==>', account)
 
     const accountKey = {
       public_key: pubKey,
