@@ -46,7 +46,6 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   const wallet = useWallet();
 
   const signIn = async (accountKey) => {
-    console.log('accountKey ', accountKey, mnemonic, pk)
     setSignLoading(true);
     if (accountKey[0].mnemonic) {
       signMnemonic(accountKey);

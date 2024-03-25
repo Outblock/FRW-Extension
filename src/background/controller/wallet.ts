@@ -346,8 +346,6 @@ export class WalletController extends BaseController {
 
       const mnemonic = await this.getMnemonics(password || '');
       const seed = await seed2PubKey(mnemonic);
-      console.log('seed ', seed)
-      console.log('mnemonic ', mnemonic)
       const PK1 = seed.P256.pk;
       const PK2 = seed.SECP256K1.pk;
 
@@ -415,7 +413,6 @@ export class WalletController extends BaseController {
     // TODO: NEED REVISIT HERE:
 
     const keyring = await keyringService.createKeyringWithMnemonics(mnemonic);
-    console.log('current key ring ', keyring)
     keyringService.removePreMnemonics();
     return this._setCurrentAccountFromKeyring(keyring);
   };
@@ -771,9 +768,7 @@ export class WalletController extends BaseController {
       if (network !== 'crescendo' && network !== 'previewnet') {
         result = await openapiService.checkChildAccountMeta(address);
       }
-
       console.log('checkUserChildAccount result', result);
-
       if (result) {
         meta = result;
       }
@@ -2022,7 +2017,6 @@ export class WalletController extends BaseController {
   };
 
   getPayerAddressAndKeyId = async () => {
-    console.log('getPayerAddressAndKeyId 111111');
     try {
       const config = await fetchConfig.remoteConfig();
       console.log('config config', config);

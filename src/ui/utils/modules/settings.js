@@ -61,7 +61,6 @@ export function getUsername(id) {
   const seetings = readSettings()
   if (id in seetings.credentials) {
     const cred = seetings.credentials[id];
-    console.log('cred ==>', cred, id)
     return cred.user.name;
   }
   return null;

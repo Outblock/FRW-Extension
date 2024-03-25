@@ -210,13 +210,6 @@ class UserWallet {
       weight: account.weight
     }];
 
-    console.log('result ', result)
-
-
-    console.log('account ', account)
-
-    console.log('account ', privateKey)
-
     if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
       // Create a new result object with extension default setting
