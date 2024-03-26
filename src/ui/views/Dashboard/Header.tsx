@@ -234,7 +234,7 @@ const Header = ({ loading }) => {
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
     await setCurrent(currentWallet);
-    
+
     await storage.set('keyIndex', '');
     await storage.set('hashAlgo', '');
     await storage.set('signAlgo', '');
@@ -294,7 +294,7 @@ const Header = ({ loading }) => {
     const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     console.log('switch account ', account)
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
-    if (account.id){
+    if (account.id) {
       await storage.set('currentId', account.id);
     } else {
       await storage.set('currentId', '');
@@ -947,34 +947,36 @@ const Header = ({ loading }) => {
             marginBottom: '30px'
           }}
         >
-          <ListItem disablePadding onClick={async () => {
-            await usewallet.lockAdd();
-            // history.push('/add');
-          }}>
-            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
-              <ListItemIcon
-                sx={{
-                  width: '24px',
-                  minWidth: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px'
-                }}>
-                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popAdd} />
-              </ListItemIcon>
-              <Typography
-                variant="body1"
-                component="div"
-                display="inline"
-                color='text'
-                sx={{ fontSize: '12px' }}
-              >
-                {chrome.i18n.getMessage('Add_account')}
-              </Typography>
-            </ListItemButton>
-          </ListItem>
+          {loggedInAccounts &&
+            <ListItem disablePadding onClick={async () => {
+              await usewallet.lockAdd();
+              // history.push('/add');
+            }}>
+              <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
+                <ListItemIcon
+                  sx={{
+                    width: '24px',
+                    minWidth: '24px',
+                    height: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: '12px'
+                  }}>
+                  <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popAdd} />
+                </ListItemIcon>
+                <Typography
+                  variant="body1"
+                  component="div"
+                  display="inline"
+                  color='text'
+                  sx={{ fontSize: '12px' }}
+                >
+                  {chrome.i18n.getMessage('Add_account')}
+                </Typography>
+              </ListItemButton>
+            </ListItem>
+          }
           <ListItem sx={{ marginTop: '16px' }} disablePadding onClick={async () => {
             await usewallet.lockWallet();
             history.push('/unlock');
