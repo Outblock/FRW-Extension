@@ -9,8 +9,9 @@ export const findAddressWithKey = async (pubKeyHex, address) => {
         
     if (data.accounts && data.accounts.length > 0) {
       const addresses = data.accounts.map((a) => fcl.withPrefix(fcl.sansPrefix(a.address).padStart(16, '0')))
-      const result = await Promise.all(addresses.map((a) => findAddres(a, pubKeyHex)))
-      return result.flat()
+      const results = await Promise.all(addresses.map((a) => findAddres(a, pubKeyHex)));
+      const filteredResults = results.filter(result => result !== null);      
+      return filteredResults.flat()
     }
     return null
   }

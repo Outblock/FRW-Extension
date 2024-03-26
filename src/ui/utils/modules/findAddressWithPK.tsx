@@ -5,6 +5,7 @@ const findAddress = async (pubKTuple, address) => {
   const { P256, SECP256K1 } = pubKTuple;
   const p256Accounts = await findAddressWithKey(P256.pubK, address) || [];
   const sepc256k1Accounts = await findAddressWithKey(SECP256K1.pubK, address) || [];
+
   const pA = p256Accounts.map((s) => ({...s, pk: P256.pk}))
   const pS = sepc256k1Accounts.map((s) => ({...s, pk: SECP256K1.pk}))
   const accounts = pA.concat(pS)
