@@ -230,6 +230,40 @@ export class WalletController extends BaseController {
     window.close();
   };
 
+  // lockadd here
+  resetPwd = async () => {
+
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    await storage.clear();
+
+    await keyringService.resetKeyRing();
+    await keyringService.setLocked();
+    await passwordService.clear();
+    sessionService.broadcastEvent('accountsChanged', []);
+    sessionService.broadcastEvent('lock');
+    openInternalPageInTab('reset', true);
+    await this.switchNetwork(switchingTo);
+    window.close();
+  };
+
+  // lockadd here
+  restoreWallet = async () => {
+
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+
+
+    const password = keyringService.getPassword();
+    await storage.set('tempPassword', password);
+    await keyringService.setLocked();
+    await passwordService.clear();
+
+    sessionService.broadcastEvent('accountsChanged', []);
+    sessionService.broadcastEvent('lock');
+    openInternalPageInTab('restore', true);
+    await this.switchNetwork(switchingTo);
+    window.close();
+  };
+
   setPopupOpen = (isOpen) => {
     preferenceService.setPopupOpen(isOpen);
   };

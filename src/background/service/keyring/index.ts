@@ -656,15 +656,17 @@ class KeyringService extends EventEmitter {
       .then(async (encryptedString) => {
         const accountIndex = await storage.get('currentAccountIndex');
         const currentId = await storage.get('currentId');
+
         const oldVault = this.store.getState().vault;
+
         const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
 
         // Handle the case when currentId is available
         if (currentId !== null && currentId !== undefined) {
           // Find if an entry with currentId already exists
-          const existingIndex = vaultArray.findIndex(entry => 
-            entry !== null && 
-            entry !== undefined && 
+          const existingIndex = vaultArray.findIndex(entry =>
+            entry !== null &&
+            entry !== undefined &&
             Object.prototype.hasOwnProperty.call(entry, currentId)
           );
 
@@ -694,6 +696,7 @@ class KeyringService extends EventEmitter {
 
         // Update the store's state with the new vault array
         this.store.updateState({ vault: vaultArray });
+
         return true;
       });
   }
@@ -747,6 +750,7 @@ class KeyringService extends EventEmitter {
         encryptedVault = vaultArray; // Default case
       }
     }
+
 
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
@@ -971,6 +975,12 @@ class KeyringService extends EventEmitter {
     return result;
   }
 
+
+  async resetKeyRing() {
+    await this.clearKeyrings();
+    await this.clearVault();
+  }
+
   /**
    * Clear Keyrings
    *
@@ -984,6 +994,18 @@ class KeyringService extends EventEmitter {
     this.memStore.updateState({
       keyrings: [],
     });
+  }
+
+  /**
+   * Clear the Vault
+   *
+   * Clears the vault from the store's state, effectively removing all stored data.
+  */
+  async clearVault(): Promise<void> {
+    // Clear the vault data in the store's state
+    this.store.updateState({ vault: [] });
+
+    console.log('Vault has been cleared');
   }
 
   /**

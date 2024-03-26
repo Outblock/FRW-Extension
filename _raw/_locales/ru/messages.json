@@ -1125,5 +1125,17 @@
   },
   "Private__key_valid": {
     "message": "Приватный ключ действителен"
+  },
+  "Are__you__sure__you__want__to__restore__your__wallet": {
+    "message": "Вы хотите восстановить свой кошелек?"
+  },
+  "Thie_wallet_will_try_and_restore": {
+    "message": "Кошелек попытается восстановить все существующие аккаунты, сохраненные локально."
+  },
+  "Reset_Restore_your_wallet": {
+    "message": "Сбросить/Восстановить ваш кошелек."
+  },
+  "Restore": {
+    "message": "Восстановить"
   }
 }

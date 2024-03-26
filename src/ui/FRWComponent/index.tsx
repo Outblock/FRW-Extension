@@ -1,4 +1,5 @@
 export * from './LLPrimaryButton';
+export * from './LLWarningButton';
 export * from './LLSecondaryButton';
 export * from './LLFormHelperText';
 export * from './LLContactCard';

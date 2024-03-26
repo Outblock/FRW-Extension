@@ -79,7 +79,8 @@ const Main = () => {
           <Route exact path="/addimport" component={AddImport} />
           <Route exact path="/addsync" component={AddSync} />
           <Route exact path="/addwelcome" component={AddWelcome} />
-          <Route exact path="/reset" component={AddWelcome} />
+          <Route exact path="/restore" component={AddWelcome} />
+          <Route exact path="/reset" component={WelcomePage} />
           <Route exact path="/import/google" component={GoogleImport} />
           <Route exact path="/add/google" component={AddGoogle} />
           <Route exact path="/import/accounts" component={GoogleImport} />

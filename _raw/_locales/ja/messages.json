@@ -1125,5 +1125,17 @@
   },
   "Private__key_valid": {
     "message": "秘密鍵は有効です"
+  },
+  "Are__you__sure__you__want__to__restore__your__wallet": {
+    "message": "ウォレットを復元しますか？"
+  },
+  "Thie_wallet_will_try_and_restore": {
+    "message": "ウォレットはローカルに保存されている既存のアカウントを復元しようとします。"
+  },
+  "Reset_Restore_your_wallet": {
+    "message": "リセット/ウォレットを復元します。"
+  },
+  "Restore": {
+    "message": "復元"
   }
 }

@@ -1125,5 +1125,17 @@
   },
   "Private__key_valid": {
     "message": "私钥有效"
+  },
+  "Are__you__sure__you__want__to__restore__your__wallet": {
+    "message": "您确定要恢复您的钱包吗？"
+  },
+  "Thie_wallet_will_try_and_restore": {
+    "message": "该钱包将尝试恢复本地保存的任何现有账户。"
+  },
+  "Reset_Restore_your_wallet": {
+    "message": "重置/恢复您的钱包。"
+  },
+  "Restore": {
+    "message": "恢复"
   }
 }

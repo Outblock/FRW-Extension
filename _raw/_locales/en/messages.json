@@ -1125,5 +1125,17 @@
   },
   "Private__key_valid": {
     "message": "Privatekey is valid"
+  },
+  "Are__you__sure__you__want__to__restore__your__wallet": {
+    "message": "Do you want to restore your wallet?"
+  },
+  "Thie_wallet_will_try_and_restore": {
+    "message": "The wallet will try and restore any existing account saved locally."
+  },
+  "Reset_Restore_your_wallet": {
+    "message": "Reset/Restore your wallet."
+  },
+  "Restore": {
+    "message": "Restore"
   }
 }
