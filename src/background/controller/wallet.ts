@@ -176,7 +176,6 @@ export class WalletController extends BaseController {
 
     sessionService.broadcastEvent('unlock');
     const key = await this.getKey(password);
-    const keyRing = await this.getKeyrings(password);
 
     await userWalletService.switchLogin(key);
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
@@ -401,15 +400,24 @@ export class WalletController extends BaseController {
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
 
-    if (keyrings[0].mnemonic) {
+    for (const keyring of keyrings) {
+      if (keyring.mnemonic) {
+        // If mnemonic is found, extract it and break the loop
+        const serialized = await keyring.serialize();
+        const mnemonic = serialized.mnemonic;
+        pubKTuple = await seed2PubKey(mnemonic);
+        break;
+      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
+        // If a private key is found, extract it and break the loop
+        privateKey = keyring.wallets[0].privateKey.toString('hex');
+        pubKTuple = await pk2PubKey(privateKey);
+        break;
+      }
+    }
 
-      const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
-      const serialized = await keyring.serialize();
-      const mnemonic = serialized.mnemonic;
-      pubKTuple = await seed2PubKey(mnemonic);
-    } else {
-      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
-      pubKTuple = await pk2PubKey(privateKey);
+    if (!pubKTuple) {
+      const error = new Error("No mnemonic or private key found in any of the keyrings.");
+      throw error
     }
     return pubKTuple;
   };
@@ -1114,7 +1122,9 @@ export class WalletController extends BaseController {
   getCurrentWallet = async () => {
     const wallet = await userWalletService.getCurrentWallet();
     if (!wallet.address) {
-      const data = this.refreshUserWallets();
+      const network = await this.getNetwork();
+      await this.refreshUserWallets();
+      const data = await userWalletService.getUserWallets(network);
       return data[0].blockchain[0];
     }
     return wallet;
