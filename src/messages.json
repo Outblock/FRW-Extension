@@ -1103,7 +1103,7 @@
     "message": "Do you want to restore your wallet?"
   },
   "Thie_wallet_will_try_and_restore": {
-    "message": "The wallet will try and restore any existing account saved locally."
+    "message": "The wallet will try and restore any existing account saved locally after importing a new account."
   },
   "Reset_Restore_your_wallet": {
     "message": "Reset/Restore your wallet."

@@ -1130,7 +1130,7 @@
     "message": "您确定要恢复您的钱包吗？"
   },
   "Thie_wallet_will_try_and_restore": {
-    "message": "该钱包将尝试恢复本地保存的任何现有账户。"
+    "message": "钱包将尝试在导入新账户后恢复本地保存的任何现有账户。"
   },
   "Reset_Restore_your_wallet": {
     "message": "重置/恢复您的钱包。"
