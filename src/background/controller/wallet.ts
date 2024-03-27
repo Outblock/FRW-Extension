@@ -175,13 +175,42 @@ export class WalletController extends BaseController {
     await passwordService.setPassword(password);
 
     sessionService.broadcastEvent('unlock');
-    const key = await this.getKey(password);
-
-    await userWalletService.switchLogin(key);
+    // const keyrings = await this.getKeyrings(password);
+    // const keys = this.extractKeys(keyrings);
+    const pubKey = await this.getPubKey();
+    await userWalletService.switchLogin(pubKey);
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
     // }
   };
+
+  extractKeys = (keyrings) => {
+    let privateKeyHex, publicKeyHex;
+  
+    for (const keyring of keyrings) {
+      if (keyring.type === "Simple Key Pair" && keyring.wallets?.length > 0) {
+        const privateKeyData = keyring.wallets[0].privateKey.data;
+        privateKeyHex = Buffer.from(privateKeyData).toString('hex');
+        const publicKeyData = keyring.wallets[0].publicKey.data;
+        publicKeyHex = Buffer.from(publicKeyData).toString('hex');
+        break;
+      } else if (keyring.type === "HD Key Tree") {
+        const activeIndex = keyring.activeIndexes?.[0];
+        if (activeIndex !== undefined) {
+          const wallet = keyring._index2wallet?.[activeIndex.toString()];
+          if (wallet) {
+            const privateKeyData = wallet.privateKey.data;
+            privateKeyHex = Buffer.from(privateKeyData).toString('hex');
+            const publicKeyData = wallet.publicKey.data;
+            publicKeyHex = Buffer.from(publicKeyData).toString('hex');
+            break;
+          }
+        }
+      }
+    }
+  
+    return { privateKeyHex, publicKeyHex };
+  }
 
   isUnlocked = async () => {
     const isUnlocked = keyringService.memStore.getState().isUnlocked;
@@ -375,22 +404,30 @@ export class WalletController extends BaseController {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');
 
-    if (keyrings[0].mnemonic) {
+    for (const keyring of keyrings) {
+      if (keyring.mnemonic) {
 
-      const mnemonic = await this.getMnemonics(password || '');
-      const seed = await seed2PubKey(mnemonic);
-      const PK1 = seed.P256.pk;
-      const PK2 = seed.SECP256K1.pk;
+        const mnemonic = await this.getMnemonics(password || '');
+        const seed = await seed2PubKey(mnemonic);
+        const PK1 = seed.P256.pk;
+        const PK2 = seed.SECP256K1.pk;
 
-      const account = await getStoragedAccount();
-      // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
-      //   throw new Error("Invalid account index.");
-      // }
-      // const account = loggedInAccounts[accountIndex];
-      const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
-      privateKey = (signAlgo === 1) ? PK1 : PK2;
-    } else {
-      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+        const account = await getStoragedAccount();
+        // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
+        //   throw new Error("Invalid account index.");
+        // }
+        // const account = loggedInAccounts[accountIndex];
+        const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+        privateKey = (signAlgo === 1) ? PK1 : PK2;
+        break;
+      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
+        privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+        break;
+      }
+    }
+    if (!privateKey) {
+      const error = new Error("No mnemonic or private key found in any of the keyrings.");
+      throw error
     }
     return privateKey;
   };
@@ -399,7 +436,7 @@ export class WalletController extends BaseController {
     let privateKey;
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
-
+    console.log('keyrings ', keyrings)
     for (const keyring of keyrings) {
       if (keyring.mnemonic) {
         // If mnemonic is found, extract it and break the loop
