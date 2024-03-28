@@ -10,13 +10,13 @@ const stepBox = () => {
           variant="subtitle1"
           sx={{ fontWeight: 'bold', color:'#41CC5D' }}
         >
-          Step 1
+          {chrome.i18n.getMessage('Step_1')}
         </Typography>
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 'bold',color:'#FFFFFFCC' }}
         >
-          Reset Wallet
+          {chrome.i18n.getMessage('Reset_Wallet')}
         </Typography>
 
       </Box>
@@ -26,13 +26,13 @@ const stepBox = () => {
           variant="subtitle1"
           sx={{ fontWeight: 'bold', color:'#41CC5D' }}
         >
-          Step 2
+          {chrome.i18n.getMessage('Step_2')}
         </Typography>
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 'bold',color:'#FFFFFFCC' }}
         >
-          Import Recovery Phrase or Private Key
+          {chrome.i18n.getMessage('Import_Recovery_Phrase_or_Private_Key')}
         </Typography>
 
       </Box>
@@ -42,14 +42,13 @@ const stepBox = () => {
           variant="subtitle1"
           sx={{ fontWeight: 'bold', color:'#41CC5D' }}
         >
-          Step 3
+          {chrome.i18n.getMessage('Step_3')}
         </Typography>
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 'bold',color:'#FFFFFFCC' }}
         >
-          Regain Access to
-          Your Wallet
+          {chrome.i18n.getMessage('Regain_Access_to_Your_Wallet')}
         </Typography>
 
       </Box>

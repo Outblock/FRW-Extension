@@ -118,13 +118,13 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
             lineHeight: '56px',
           }}
         >
-          Retrieve local sensitive data
+          {chrome.i18n.getMessage('Retrieve_local_sensitive_data')}
         </Typography>
         <Typography sx={{
           fontSize: '14px', fontFamily: 'Inter',
           fontStyle: 'normal', color: '#BABABA', margin: '18px 0 32px', cursor: 'pointer'
         }}>
-          It seem like something wrong with your local data, you will need to export your private key out before you reset and restore your wallet.
+          {chrome.i18n.getMessage('It_seem_like_something_wrong')}
         </Typography>
       </Box>
 
@@ -168,7 +168,11 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
           type="submit"
           onClick={handleClick}
           fullWidth
-          label={isLoading ? 'Loading...' : 'Reveal Private Key'}
+          label={
+            isLoading ? 
+              <Typography> {chrome.i18n.getMessage('Loading')}</Typography>: 
+              <Typography>{chrome.i18n.getMessage('Reveal_Private_Key')}</Typography>
+          }
         />
       </Box>
 

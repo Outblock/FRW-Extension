@@ -63,7 +63,7 @@ const Forgot = () => {
                 marginBottom:'40px',
               }}
             >
-              Having Trouble to Login ?
+              {chrome.i18n.getMessage('Having_trouble')}
             </Typography>
 
 
@@ -97,7 +97,7 @@ const Forgot = () => {
 
                   }}
                 >
-                  Reset my wallet
+                  {chrome.i18n.getMessage('Reset_my_wallet')}
                 </Typography>
                 <Typography
                   variant="subtitle1"
@@ -106,8 +106,7 @@ const Forgot = () => {
                     color: 'rgba(255, 255, 255, 0.40)',
                   }}
                 >
-                  If you have your recovery phrase or private key, you can reset and
-                  restore your wallet.
+                  {chrome.i18n.getMessage('If_you_have_your_recovery_phrase')}
                 </Typography>
               </Box>
             </Button>
@@ -143,7 +142,7 @@ const Forgot = () => {
 
                   }}
                 >
-                  Retrieve local sensitive data
+                  {chrome.i18n.getMessage('Retrieve_local_sensitive_data')}
                 </Typography>
                 <Typography
                   variant="subtitle1"
@@ -152,8 +151,7 @@ const Forgot = () => {
                     color: 'rgba(255, 255, 255, 0.40)',
                   }}
                 >
-                  It seem like something wrong with your local data, you can retrieve
-                  your local sensitive data with your password.
+                  {chrome.i18n.getMessage('It_seem_like_something_wrong')}
                 </Typography>
               </Box>
 

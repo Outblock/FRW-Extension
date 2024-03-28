@@ -76,19 +76,20 @@ const ResetPage = (props: AddOrEditAddressProps) => {
             lineHeight: '56px',
           }}
         >
-          Forgot Password
+          {chrome.i18n.getMessage('Forget_Password')}
         </Typography>
         <Typography sx={{
           fontSize: '14px', fontFamily: 'Inter',
           fontStyle: 'normal', color: '#BABABA', margin: '18px 0 52px', cursor: 'pointer'
         }}>
+          {chrome.i18n.getMessage('Forget_Password')}
           If you forgot your password, you will need to reset your wallet and import your recovery phrase or private key to regain access to your wallet.
         </Typography>
       </Box>
       <StepBox />
       <Stack direction="row" spacing={1}>
         <LLWarningButton
-          label={'Reset Your Wallet'}
+          label= {chrome.i18n.getMessage('Reset_Your_Wallet')}
           fullWidth
           onClick={onResetSubmit}
         />
@@ -98,8 +99,8 @@ const ResetPage = (props: AddOrEditAddressProps) => {
           setShowAction={setShowAction}
           isOpen={showAction}
           onOpenChange={resetWalletClicked}
-          errorName={'Confirm to reset Wallet'}
-          errorMessage={'This action will remove all your local data including your private key. Please make sure you have your private keys backed up.'}
+          errorName={chrome.i18n.getMessage('Confirm_to_reset_Wallet')}
+          errorMessage={chrome.i18n.getMessage('This_action_will_remove')}
         />
       }
     </Box>
