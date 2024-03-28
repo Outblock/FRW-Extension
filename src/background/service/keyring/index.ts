@@ -795,13 +795,13 @@ class KeyringService extends EventEmitter {
     for (const vaultEntry of vaultArray) {
       console.log('encryptedVault ', vaultEntry)
       let encryptedString;
-      if (typeof vaultEntry === 'object' && Object.keys(vaultEntry).length === 1) {
+      if (vaultEntry && typeof vaultEntry === 'object' && Object.keys(vaultEntry).length === 1) {
         const key = Object.keys(vaultEntry)[0];
         encryptedString = vaultEntry[key];
       } else if (typeof vaultEntry === 'string') {
         encryptedString = vaultEntry;
       } else {
-        continue;
+        continue; 
       }
 
       try {
