@@ -860,7 +860,6 @@ export class WalletController extends BaseController {
       if (network !== 'crescendo' && network !== 'previewnet') {
         result = await openapiService.checkChildAccountMeta(address);
       }
-      console.log('checkUserChildAccount result', result);
       if (result) {
         meta = result;
       }

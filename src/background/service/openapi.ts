@@ -1039,11 +1039,15 @@ class OpenApiService {
 
   checkChildAccountMeta = async (address: string) => {
     const script = await getScripts('hybridCustody', 'getChildAccountMeta');
-    const result = await fcl.query({
+    fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
+    }).then((res) => {
+      return res;
+    }).catch(() => {
+      console.log('getChildAccountMeta err ')
+      return null;
     });
-    return result;
   };
 
   checkChildAccountNFT = async (address: string) => {
