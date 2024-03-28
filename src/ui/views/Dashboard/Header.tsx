@@ -227,12 +227,14 @@ const Header = ({ loading }) => {
   const freshUserWallet = async () => {
     const wallet = await usewallet.refreshUserWallets();
     const fData = wallet.filter(item => item.blockchain !== null);
+    console.log('refreshUserWallets ', wallet, fData);
     putDeviceInfo(fData);
     await setWallet(fData);
   }
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
+    console.log('currentWallet ', currentWallet);
     await setCurrent(currentWallet);
 
     await storage.set('keyIndex', '');

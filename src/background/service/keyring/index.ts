@@ -724,6 +724,9 @@ class KeyringService extends EventEmitter {
     if (accountIndex === undefined) {
       accountIndex = 0;
     }
+    console.log('accountIndex ', accountIndex);
+    console.log('vaultArray ', vaultArray);
+    console.log('currentId ', currentId);
 
     // If currentId is provided, look for the encryptedString with currentId as the key in the vaultArray
     if (currentId !== undefined) {
@@ -750,6 +753,7 @@ class KeyringService extends EventEmitter {
         encryptedVault = vaultArray; // Default case
       }
     }
+    console.log('unlocked encryptedVault ', encryptedVault);
 
 
     if (!encryptedVault) {
@@ -758,12 +762,82 @@ class KeyringService extends EventEmitter {
 
     await this.clearKeyrings();
     const vault = await this.encryptor.decrypt(password, encryptedVault);
+    console.log('unlocked vault ', vault);
     this.password = password;
     // TODO: FIXME
     await Promise.all(Array.from(vault).map(this._restoreKeyring.bind(this)));
     await this._updateMemStoreKeyrings();
     return this.keyrings;
   }
+
+
+  /**
+   * Retrieve privatekey from vault
+   *
+   * Attempts to unlock the persisted encrypted storage,
+   * Return all the privatekey stored in vault.
+   *
+   * @param {string} password - The keyring controller password.
+   * @returns {Promise<Array<Keyring>>} The keyrings.
+   */
+  async retrievePk(password: string): Promise<any[]> {
+    let vaultArray = this.store.getState().vault;
+
+    // Ensure vaultArray is an array
+    if (typeof vaultArray === 'string') {
+      vaultArray = [vaultArray];
+    }
+
+    console.log('vaultArray ', vaultArray);
+
+    // Decrypt each entry in the vaultArray
+    const decryptedVaults: any[] = [];
+    for (const vaultEntry of vaultArray) {
+      console.log('encryptedVault ', vaultEntry)
+      let encryptedString;
+      if (typeof vaultEntry === 'object' && Object.keys(vaultEntry).length === 1) {
+        const key = Object.keys(vaultEntry)[0];
+        encryptedString = vaultEntry[key];
+      } else if (typeof vaultEntry === 'string') {
+        encryptedString = vaultEntry;
+      } else {
+        continue;
+      }
+
+      try {
+        const decryptedVault = await this.encryptor.decrypt(password, encryptedString);
+        decryptedVaults.push(decryptedVault);
+      } catch (error) {
+        console.error('Decryption failed for an entry:', error);
+        continue;
+      }
+    }
+
+    console.log('Decrypted vaults: ', decryptedVaults);
+
+    if (decryptedVaults.length === 0) {
+      throw new Error(i18n.t('Cannot unlock without a previous vault'));
+    }
+
+    const extractedData = decryptedVaults.map((entry, index) => {
+      const item = entry[0];
+      let keyType, value;
+
+      if (item.type === "HD Key Tree") {
+        keyType = "mnemonic";
+        value = item.data.mnemonic;
+      } else if (item.type === "Simple Key Pair") {
+        keyType = "privateKey";
+        value = item.data[0];
+      }
+
+      return { index, keyType, value };
+    });
+
+    return extractedData; 
+  }
+
+
 
   /**
    * Restore Keyring

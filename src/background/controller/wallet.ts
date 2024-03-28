@@ -184,6 +184,19 @@ export class WalletController extends BaseController {
     // }
   };
 
+  retrievePk = async (password: string) => {
+    // const alianNameInited = await preferenceService.getInitAlianNameStatus();
+    // const alianNames = await preferenceService.getAllAlianName();
+
+    const pk = await keyringService.retrievePk(password);
+
+    console.log('pk is these ', pk)
+    return pk;
+    // if (!alianNameInited && Object.values(alianNames).length === 0) {
+    //   this.initAlianNames();
+    // }
+  };
+
   extractKeys = (keyrings) => {
     let privateKeyHex, publicKeyHex;
   

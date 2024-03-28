@@ -800,7 +800,7 @@
     "message": "Unlock Wallet"
   },
   "Forgot_password": {
-    "message": "Forgot password?"
+    "message": "Cannot login"
   },
   "Welcome_to_lilico":{
     "message":"Welcome to Flow Reference Wallet"
