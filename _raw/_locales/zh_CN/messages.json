@@ -1137,5 +1137,62 @@
   },
   "Restore": {
     "message": "恢复"
+  },
+  "Having_trouble": {
+    "message": "登录有困难吗？"
+  },
+  "Reset_my_wallet": {
+    "message": "重置我的钱包"
+  },
+  "If_you_have_your_recovery_phrase": {
+    "message": "如果您有恢复短语或私钥，您可以重置并恢复您的钱包。"
+  },
+  "Retrieve_local_sensitive_data": {
+    "message": "检索本地敏感数据"
+  },
+  "It_seem_like_something_wrong": {
+    "message": "您的本地数据似乎有问题，您可以使用密码检索您的本地敏感数据。"
+  },
+  "Forget_Password": {
+    "message": "忘记密码"
+  },
+  "If_you_forgot_your_password": {
+    "message": "如果您忘记了密码，您将需要重置您的钱包并导入您的恢复短语或私钥以重新获得对您的钱包的访问权限。"
+  },
+  "Step_1": {
+    "message": "步骤 1"
+  },
+  "Step_2": {
+    "message": "步骤 2"
+  },
+  "Step_3": {
+    "message": "步骤 3"
+  },
+  "Import_Recovery_Phrase_or_Private_Key": {
+    "message": "导入恢复短语或私钥"
+  },
+  "Regain_Access_to_Your_Wallet": {
+    "message": "重新获得对您的钱包的访问"
+  },
+  "Reset_Your_Wallet": {
+    "message": "重置您的钱包"
+  },
+  "Confirm_to_reset_Wallet": {
+    "message": "确认重置钱包"
+  },
+  "This_action_will_remove": {
+    "message": "此操作将删除所有包括私钥在内的本地数据。请确保您的私钥已备份。"
+  },
+  "Reveal_Private_Key": {
+    "message": "揭示私钥"
+  },
+  "Save_your_Private_Key": {
+    "message": "保存您的私钥"
+  },
+  "Here_is_your_local_private_key": {
+    "message": "这是您的本地私钥，请备份您的钥匙，并重新导入私钥以重新获得对您的钱包的访问。"
+  },
+  "Loading": {
+    "message": "加载中..."
   }
 }

@@ -1110,5 +1110,62 @@
   },
   "Restore": {
     "message": "Restore"
+  },
+  "Having_trouble": {
+    "message": "Having Trouble to Login?"
+  },
+  "Reset_my_wallet": {
+    "message": "Reset My Wallet"
+  },
+  "If_you_have_your_recovery_phrase": {
+    "message": "If you have your recovery phrase or private key, you can reset and restore your wallet."
+  },
+  "Retrieve_local_sensitive_data": {
+    "message": "Retrieve local sensitive data "
+  },
+  "It_seem_like_something_wrong": {
+    "message": "It seem like something wrong with your local data, you can retrieve your local sensitive data with your password.  "
+  },
+  "Forget_Password": {
+    "message": "Forgot Password "
+  },
+  "If_you_forgot_your_password": {
+    "message": "If you forgot your password, you will need to reset your wallet and import your recovery phrase or private key to regain access to your wallet. "
+  },
+  "Step_1": {
+    "message": "Step 1 "
+  },
+  "Step_2": {
+    "message": "Step 2 "
+  },
+  "Step_3": {
+    "message": "Step 3 "
+  },
+  "Import_Recovery_Phrase_or_Private_Key": {
+    "message": "Import Recovery Phrase or Private Key "
+  },
+  "Regain_Access_to_Your_Wallet": {
+    "message": "Regain Access to Your Wallet "
+  },
+  "Reset_Your_Wallet": {
+    "message": "Reset Your Wallet "
+  },
+  "Confirm_to_reset_Wallet": {
+    "message": "Confirm to reset Wallet "
+  },
+  "This_action_will_remove": {
+    "message": "This action will remove all your local data including your private key. Please make sure you have your private keys backed up. "
+  },
+  "Reveal_Private_Key": {
+    "message": "Reveal Private Key "
+  },
+  "Save_your_Private_Key": {
+    "message": "Save your Private Key "
+  },
+  "Here_is_your_local_private_key": {
+    "message": "Here is your local private key, please backup your keys and re-import the private key to regain access to your wallet. "
+  },
+  "Loading": {
+    "message": "Loading..."
   }
 }
