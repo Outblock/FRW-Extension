@@ -8,6 +8,7 @@ import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import { makeStyles } from '@mui/styles';
 import lilo from 'ui/FRWAssets/image/lilo.png';
+import { openInternalPageInTab } from 'ui/utils/webapi';
 import './style.css';
 
 const useStyles = makeStyles(() => ({
@@ -49,9 +50,9 @@ const SwitchUnlock = () => {
   }, []);
 
   const restPass = () => {
-    setResetPop(true);
+    // setResetPop(true);
     
-    // openInternalPageInTab('reset')
+    openInternalPageInTab('forgot');
   };
 
   const [run] = useWalletRequest(wallet.switchUnlock, {

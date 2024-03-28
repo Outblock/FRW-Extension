@@ -245,35 +245,8 @@ const AddWelcome = () => {
             </Box>
           </Box>
 
-          {/* <Box sx={{ flexGrow: 1 }} /> */}
 
         </Box>
-
-        {/* <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            backgroundColor: 'background.paper',
-            px: '24px',
-            py: '18px',
-            borderRadius: '12px',
-            textTransform: 'none',
-            mt: '36px',
-            boxShadow: '0px 24px 24px rgba(0,0,0,0.36)',
-          }}
-          // startIcon={
-          //   <QrCodeScannerRoundedIcon sx={{ color: 'primary.main' }} />
-          // }
-        >
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'semi-bold' }}
-            color="text.primary"
-          >
-            Scan QR code to Login
-          </Typography>
-        </Button> */}
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>

@@ -10,7 +10,9 @@ import AddSync from './AddWelcome/Sync';
 import AddWelcome from './AddWelcome';
 import GoogleImport from './AddressImport/GoogleImport';
 import AddGoogle from './AddWelcome/AddressImport/GoogleImport';
-import Reset from './Reset';
+import Forgot from './Forgot';
+import Reset from './Forgot/Reset';
+import Recover from './Forgot/Recover';
 import WelcomePage from './WelcomePage';
 import './MainRoute.css';
 import { spring, AnimatedSwitch } from 'react-router-transition';
@@ -79,7 +81,9 @@ const Main = () => {
           <Route exact path="/addimport" component={AddImport} />
           <Route exact path="/addsync" component={AddSync} />
           <Route exact path="/addwelcome" component={AddWelcome} />
-          <Route exact path="/restore" component={AddWelcome} />
+          <Route exact path="/forgot" component={Forgot} />
+          <Route exact path="/recoverpage" component={Recover} />
+          <Route exact path="/resetpage" component={Reset} />
           <Route exact path="/reset" component={WelcomePage} />
           <Route exact path="/import/google" component={GoogleImport} />
           <Route exact path="/add/google" component={AddGoogle} />
