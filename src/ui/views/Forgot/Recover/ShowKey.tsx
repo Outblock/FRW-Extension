@@ -44,10 +44,10 @@ const ShowKey = ({ handleClick, mnemonic }) => {
         className="registerBox"
       >
         <Typography variant="h4" sx={{ fontWeight: 700 }} color='neutral.contrastText'>
-          Save your Private Key
+          {chrome.i18n.getMessage('Save_your_Private_Key')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Here is your local private key, please backup your keys and re-import the private key to regain access to your wallet.
+          {chrome.i18n.getMessage('Here_is_your_local_private_key')}
         </Typography>
 
         <Box
@@ -214,7 +214,7 @@ const ShowKey = ({ handleClick, mnemonic }) => {
               sx={{ fontWeight: 'bold' }}
               color="background.error"
             >
-              Reset Your Wallet
+              {chrome.i18n.getMessage('Reset_Your_Wallet')}
             </Typography>
           </Button>
         </Box>
@@ -224,8 +224,8 @@ const ShowKey = ({ handleClick, mnemonic }) => {
           setShowAction={setShowAction}
           isOpen={showAction}
           onOpenChange={resetWalletClicked}
-          errorName={'Confirm to reset Wallet'}
-          errorMessage={'This action will remove all your local data including your private key. Please make sure you have your private keys backed up.'}
+          errorName={chrome.i18n.getMessage('Confirm_to_reset_Wallet')}
+          errorMessage={chrome.i18n.getMessage('This_action_will_remove')}
         />
       }
     </ThemeProvider>
