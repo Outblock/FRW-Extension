@@ -174,7 +174,7 @@ const RetrievePK = () => {
       )}
 
 
-      {dataArray.length &&
+      {dataArray.length > 0 &&
         <List sx={{
           maxHeight: '80%',
           overflowY: 'auto',
