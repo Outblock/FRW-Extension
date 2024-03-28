@@ -724,9 +724,6 @@ class KeyringService extends EventEmitter {
     if (accountIndex === undefined) {
       accountIndex = 0;
     }
-    console.log('accountIndex ', accountIndex);
-    console.log('vaultArray ', vaultArray);
-    console.log('currentId ', currentId);
 
     // If currentId is provided, look for the encryptedString with currentId as the key in the vaultArray
     if (currentId !== undefined) {
@@ -753,7 +750,6 @@ class KeyringService extends EventEmitter {
         encryptedVault = vaultArray; // Default case
       }
     }
-    console.log('unlocked encryptedVault ', encryptedVault);
 
 
     if (!encryptedVault) {
@@ -762,7 +758,6 @@ class KeyringService extends EventEmitter {
 
     await this.clearKeyrings();
     const vault = await this.encryptor.decrypt(password, encryptedVault);
-    console.log('unlocked vault ', vault);
     this.password = password;
     // TODO: FIXME
     await Promise.all(Array.from(vault).map(this._restoreKeyring.bind(this)));
@@ -788,12 +783,10 @@ class KeyringService extends EventEmitter {
       vaultArray = [vaultArray];
     }
 
-    console.log('vaultArray ', vaultArray);
 
     // Decrypt each entry in the vaultArray
     const decryptedVaults: any[] = [];
     for (const vaultEntry of vaultArray) {
-      console.log('encryptedVault ', vaultEntry)
       let encryptedString;
       if (vaultEntry && typeof vaultEntry === 'object' && Object.keys(vaultEntry).length === 1) {
         const key = Object.keys(vaultEntry)[0];
@@ -813,7 +806,6 @@ class KeyringService extends EventEmitter {
       }
     }
 
-    console.log('Decrypted vaults: ', decryptedVaults);
 
     if (decryptedVaults.length === 0) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
@@ -1078,8 +1070,6 @@ class KeyringService extends EventEmitter {
   async clearVault(): Promise<void> {
     // Clear the vault data in the store's state
     this.store.updateState({ vault: [] });
-
-    console.log('Vault has been cleared');
   }
 
   /**
