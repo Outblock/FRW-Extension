@@ -49,9 +49,9 @@ const SwitchUnlock = () => {
     inputEl.current.focus();
   }, []);
 
-  const restPass = () => {
+  const restPass = async () => {
     // setResetPop(true);
-    
+    await wallet.lockWallet();
     openInternalPageInTab('forgot');
   };
 
