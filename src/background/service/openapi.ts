@@ -1039,15 +1039,16 @@ class OpenApiService {
 
   checkChildAccountMeta = async (address: string) => {
     const script = await getScripts('hybridCustody', 'getChildAccountMeta');
-    fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(address, t.Address)],
-    }).then((res) => {
+    try {
+      const res = await fcl.query({
+        cadence: script,
+        args: (arg, t) => [arg(address, t.Address)],
+      });
       return res;
-    }).catch(() => {
-      console.log('getChildAccountMeta err ')
+    } catch (err) {
+      console.log('getChildAccountMeta err ', err);
       return null;
-    });
+    }
   };
 
   checkChildAccountNFT = async (address: string) => {
@@ -1321,7 +1322,7 @@ class OpenApiService {
   };
 
   getTokenListFromGithub = async (network: string) => {
-    if(network == 'previewnet') return []
+    if (network == 'previewnet') return []
     const response = await fetch(
       `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
     );
@@ -1355,7 +1356,7 @@ class OpenApiService {
           symbol: 'flow',
         },
       ];
-    } 
+    }
     const values = await this.isTokenListEnabled(address);
 
     const tokenItems: TokenInfo[] = [];
