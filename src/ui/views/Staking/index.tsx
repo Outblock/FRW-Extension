@@ -55,10 +55,13 @@ const Staking = () => {
     setSetup(setup);
 
     const storageData = await wallet.getCoinList();
-    console.log(storageData, 'storage');
-    const flowObject = storageData.find(coin => coin.unit === 'flow');
+    const flowObject = storageData.find(coin => coin.unit.toLowerCase() === 'flow');
     setAmount(flowObject!.balance);
   }
+
+  useEffect(() => {
+    console.log('Updated amount: ', amount);
+  }, [amount]);
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
