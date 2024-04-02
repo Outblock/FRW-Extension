@@ -28,12 +28,14 @@ class AddressBook {
       template: {
         addressBook:  {
           testnet:[],
-          sandboxnet:[],
+          crescendo:[],
+          previewnet:[],
           mainnet:[],
         },
         recent: {
           testnet:[],
-          sandboxnet:[],
+          crescendo:[],
+          previewnet:[],
           mainnet:[],
         }
       },
@@ -81,12 +83,12 @@ class AddressBook {
     this.store = {
       addressBook: {
         testnet:[],
-        sandboxnet:[],
+        crescendo:[],
         mainnet:[],
       },
       recent: {
         testnet:[],
-        sandboxnet:[],
+        crescendo:[],
         mainnet:[],
       }
     }

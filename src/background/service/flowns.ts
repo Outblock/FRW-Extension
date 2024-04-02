@@ -5,6 +5,8 @@ import * as secp from '@noble/secp256k1';
 import HDWallet from 'ethereum-hdwallet';
 import { keyringService, openapiService } from 'background/service';
 import wallet from 'background/controller/wallet';
+import { signMessageHash } from '@/ui/utils/modules/passkey.js';
+import { storage } from '../webapi';
 
 export interface FlownsStore {
   mainnet: boolean;
@@ -136,18 +138,12 @@ class Flowns {
   };
 
   sign = async (signableMessage: string): Promise<string> => {
-    console.log(signableMessage)
-    const messageHash = await secp.utils.sha256(
-      Buffer.from(signableMessage, 'hex')
-    );
+    const hashAlgo = await storage.get('hashAlgo');
+
+    const messageHash = await signMessageHash(hashAlgo, Buffer.from(signableMessage, 'hex'));
 
     const password = keyringService.password;
-    const mnemonic = await wallet.getMnemonics(password || '');
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const privateKey = hdwallet
-      .derive("m/44'/539'/0'/0/0")
-      .getPrivateKey()
-      .toString('hex');
+    const privateKey = await wallet.getKey(password);
     const signature = await secp.sign(messageHash, privateKey);
     const realSignature = secp.Signature.fromHex(signature).toCompactHex();
     return realSignature;
@@ -160,6 +156,7 @@ class Flowns {
     const ADDRESS = fcl.withPrefix(address);
 
     // TODO: FIX THIS
+    
     const KEY_ID = 0;
     return {
       ...account, // bunch of defaults in here, we want to overload some of them though

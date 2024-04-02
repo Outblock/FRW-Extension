@@ -284,7 +284,7 @@ const Send = () => {
       result.map((data) => {
         let address = data.address;
         if(!reg.test(data.address)) { address = '0x' + data.address; }
-        lilicoResult['group'] = 'Flow Reference user';
+        lilicoResult['group'] = 'Flow Reference Wallet user';
         lilicoResult.address = address;
         lilicoResult.contact_name = data.username;
         lilicoResult.domain!.domain_type = 999;

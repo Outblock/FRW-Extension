@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { styled } from '@mui/system';
-import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
+import SwitchUnstyled, {
+  switchUnstyledClasses,
+} from '@mui/core/SwitchUnstyled';
 import { makeStyles } from '@mui/styles';
 import {
   Box,
@@ -11,7 +13,9 @@ import {
   Divider,
   FormControlLabel,
   Alert,
-  Snackbar} from '@mui/material';
+  Snackbar,
+  CircularProgress,
+} from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { useWallet } from 'ui/utils';
@@ -30,7 +34,7 @@ const useStyles = makeStyles(() => ({
     // width: '100%',
     backgroundColor: '#121212',
     margin: 0,
-    padding: 0
+    padding: 0,
   },
   developerTitle: {
     zIndex: 20,
@@ -47,7 +51,7 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     flexDirection: 'row',
     borderRadius: '16px',
-    alignContent: 'space-between'
+    alignContent: 'space-between',
   },
 
   gasBox: {
@@ -59,7 +63,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row',
     borderRadius: '16px',
     alignContent: 'space-between',
-    gap:'8px'
+    gap: '8px',
   },
 
   radioBox: {
@@ -75,6 +79,7 @@ const useStyles = makeStyles(() => ({
     alignContent: 'space-between',
     justifyContent: 'space-between',
     padding: '20px 24px',
+    alignItems: 'center'
   },
   modeSelection: {
     width: '100%',
@@ -83,21 +88,21 @@ const useStyles = makeStyles(() => ({
     margin: 0,
     borderRadius: '16px',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
-  }
+  },
 }));
 
 const orange = {
   500: '#41CC5D',
 };
-  
+
 const grey = {
   400: '#BABABA',
   500: '#787878',
   600: '#5E5E5E',
 };
-  
+
 const Root = styled('span')(
   ({ theme }) => `
     font-size: 0;
@@ -163,7 +168,7 @@ const Root = styled('span')(
       z-index: 1;
       margin: 0;
     }
-    `,
+    `
 );
 
 const DeveloperMode = () => {
@@ -174,29 +179,37 @@ const DeveloperMode = () => {
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
 
+  const [loading, setLoading] = useState(false);
+
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
   const [showError, setShowError] = useState(false);
 
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
-    const sandboxnet = await usewallet.checkSandBoxnet();
-    if (sandboxnet.length > 0) {
+    // const crescendo = await usewallet.checkCrescendo();
+    // if (crescendo.length > 0) {
+    //   setSandboxEnabled(true);
+    // }
+    const previewnet = await usewallet.checkPreviewnet() || [];
+    if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }
+
     setNetwork(network);
-  }
+  };
 
   const loadMonitor = async () => {
     const monitor = await usewallet.getMonitor();
     setMonitor(monitor);
-  }
+  };
 
   const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
-    if (developerMode) 
-    {setModeOn(developerMode);}
-  }
+    if (developerMode) {
+      setModeOn(developerMode);
+    }
+  };
 
   useEffect(() => {
     loadDeveloperMode();
@@ -205,9 +218,11 @@ const DeveloperMode = () => {
   }, []);
 
   const switchNetwork = async (network: string) => {
-
-    if (network === 'sandboxnet' && !isSandboxEnabled) {
-      return
+    // if (network === 'crescendo' && !isSandboxEnabled) {
+    //   return;
+    // }
+    if (network === 'previewnet' && !isSandboxEnabled) {
+      return;
     }
 
     setNetwork(network);
@@ -217,12 +232,12 @@ const DeveloperMode = () => {
       // TODO: replace it with better UX
       window.location.reload();
     }
-  }
+  };
 
   const switchMonitor = async (domain: string) => {
     setMonitor(domain);
     usewallet.switchMonitor(domain);
-  }
+  };
 
   const switchDeveloperMode = async () => {
     setModeOn(!modeOn);
@@ -233,163 +248,308 @@ const DeveloperMode = () => {
     // } else {
     //   window.location.reload();
     // }
-  }
+  };
 
   const enableSandbox = async () => {
+    setLoading(true)
+    try {
+      const { data } = await usewallet.createFlowSandboxAddress('previewnet');
+      await usewallet.pollingTrnasaction(data, 'previewnet')
+      await usewallet.refreshUserWallets();
+      const previewnet = await usewallet.checkPreviewnet() || [];
+      if (previewnet.length > 0) {
+        setSandboxEnabled(true);
+      }
+      await switchNetwork('previewnet')
+      // await usewallet.setDashIndex(0);
+      // history.push('/dashboard?activity=1');
+    } finally {
+      setLoading(false)
+    }
+  };
 
-    const data =  await usewallet.createFlowSandboxAddress();
-    await usewallet.setDashIndex(0);
-    history.push('/dashboard?activity=1');
-    
-  }
-
-  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleErrorClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
     if (reason === 'clickaway') {
       return;
     }
     setShowError(false);
   };
 
-  return (
-    <div className='page'>
+  const enableButton = () => {
+    if (loading) {
+      return (<CircularProgress size={18} color="primary" />)
+    }
 
-      <LLHeader title={chrome.i18n.getMessage('Developer__Settings')} help={false} />
+    return (
+      <LLPrimaryButton
+        onClick={enableSandbox}
+        sx={{
+          backgroundColor: '#CCAF21',
+          padding: '2px 3px',
+          fontSize: '12px',
+          color: '#000',
+          fontWeight: '600',
+          borderRadius: '30px',
+          textTransform: 'initial',
+        }}
+        label={chrome.i18n.getMessage('Enable')}
+      />
+    )
+  }
+
+  return (
+    <div className="page">
+      <LLHeader
+        title={chrome.i18n.getMessage('Developer__Settings')}
+        help={false}
+      />
 
       <Box className={classes.developerBox}>
-        <Typography variant='body1' color='neutral.contrastText' style={{weight: 600}}>{chrome.i18n.getMessage('Developer__Mode')}</Typography>
-        <SwitchUnstyled checked={modeOn} component={Root} onChange={()=>{switchDeveloperMode()}} />
+        <Typography
+          variant="body1"
+          color="neutral.contrastText"
+          style={{ weight: 600 }}
+        >
+          {chrome.i18n.getMessage('Developer__Mode')}
+        </Typography>
+        <SwitchUnstyled
+          checked={modeOn}
+          component={Root}
+          onChange={() => {
+            switchDeveloperMode();
+          }}
+        />
       </Box>
 
       <Presets.TransitionFade>
-        {modeOn && 
-        <Box sx={{pb: '20px'}}>
-          <Typography variant='h6' color='neutral.contrastText' sx={{
-            weight: 500,
-            marginLeft: '18px'
-          }}>{chrome.i18n.getMessage('Switch__Network')}</Typography>
-          <Box className={classes.radioBox}>
-            
-            <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('mainnet')}>
-              <Box className={classes.checkboxRow}>
-                <FormControlLabel
-                  label={chrome.i18n.getMessage('Mainnet')}
-                  control={
-                    <Checkbox
-                      size='small'
-                      icon={<CircleOutlinedIcon />}
-                      checkedIcon={<CheckCircleIcon color='primary' />}
-                      value='mainnet'
-                      checked={currentNetwork==='mainnet'}
-                      onChange={()=>switchNetwork('mainnet')}
-                    />
-                  }
-                />
-              
-                {currentNetwork==='mainnet' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
-              </Box>
-            </CardActionArea>
+        {modeOn && (
+          <Box sx={{ pb: '20px' }}>
+            <Typography
+              variant="h6"
+              color="neutral.contrastText"
+              sx={{
+                weight: 500,
+                marginLeft: '18px',
+              }}
+            >
+              {chrome.i18n.getMessage('Switch__Network')}
+            </Typography>
+            <Box className={classes.radioBox}>
+              <CardActionArea
+                className={classes.modeSelection}
+                onClick={() => switchNetwork('mainnet')}
+              >
+                <Box className={classes.checkboxRow}>
+                  <FormControlLabel
+                    label={chrome.i18n.getMessage('Mainnet')}
+                    control={
+                      <Checkbox
+                        size="small"
+                        icon={<CircleOutlinedIcon />}
+                        checkedIcon={<CheckCircleIcon color="primary" />}
+                        value="mainnet"
+                        checked={currentNetwork === 'mainnet'}
+                        onChange={() => switchNetwork('mainnet')}
+                      />
+                    }
+                  />
 
-            <Divider sx={{width: '90%', margin: '0 auto'}} />
-            
-            <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('testnet')}>
-              <Box className={classes.checkboxRow}>
-                <FormControlLabel
-                  label={chrome.i18n.getMessage('Testnet')}
-                  control={
-                    <Checkbox
-                      size='small'
-                      icon={<CircleOutlinedIcon />}
-                      checkedIcon={<CheckCircleIcon sx={{ color:'#FF8A00'}} />}
-                      value='testnet'
-                      checked={currentNetwork==='testnet'}
-                      onChange={()=>switchNetwork('testnet')}
-                    />
-                  }
-                />
-              
-                {currentNetwork==='testnet' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
-              </Box>
-            </CardActionArea>
+                  {currentNetwork === 'mainnet' && (
+                    <Typography
+                      component="div"
+                      variant="body1"
+                      color="text.nonselect"
+                      sx={{ margin: 'auto 0' }}
+                    >
+                      {chrome.i18n.getMessage('Selected')}
+                    </Typography>
+                  )}
+                </Box>
+              </CardActionArea>
 
-            <Divider sx={{width: '90%', margin: '0 auto'}} />
-            
-            <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('sandboxnet')}>
+              <Divider sx={{ width: '90%', margin: '0 auto' }} />
+
+              <CardActionArea
+                className={classes.modeSelection}
+                onClick={() => switchNetwork('testnet')}
+              >
+                <Box className={classes.checkboxRow}>
+                  <FormControlLabel
+                    label={chrome.i18n.getMessage('Testnet')}
+                    control={
+                      <Checkbox
+                        size="small"
+                        icon={<CircleOutlinedIcon />}
+                        checkedIcon={
+                          <CheckCircleIcon sx={{ color: '#FF8A00' }} />
+                        }
+                        value="testnet"
+                        checked={currentNetwork === 'testnet'}
+                        onChange={() => switchNetwork('testnet')}
+                      />
+                    }
+                  />
+
+                  {currentNetwork === 'testnet' && (
+                    <Typography
+                      component="div"
+                      variant="body1"
+                      color="text.nonselect"
+                      sx={{ margin: 'auto 0' }}
+                    >
+                      {chrome.i18n.getMessage('Selected')}
+                    </Typography>
+                  )}
+                </Box>
+              </CardActionArea>
+
+              <Divider sx={{ width: '90%', margin: '0 auto' }} />
+
+              {/* <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('crescendo')}>
               <Box className={classes.checkboxRow}>
                 <FormControlLabel
-                  label={chrome.i18n.getMessage('Sandboxnet')}
+                  label={chrome.i18n.getMessage('Crescendo')}
                   control={
                     <Checkbox
                       size='small'
                       icon={<CircleOutlinedIcon />}
                       checkedIcon={<CheckCircleIcon sx={{color:'#CCAF21'}} />}
-                      value='sandboxnet'
-                      checked={currentNetwork==='sandboxnet'}
-                      onChange={()=>switchNetwork('sandboxnet')}
+                      value='crescendo'
+                      checked={currentNetwork==='crescendo'}
+                      onChange={()=>switchNetwork('crescendo')}
                     />
                   }
                   disabled={!isSandboxEnabled}
                 />
 
-                {isSandboxEnabled && currentNetwork==='sandboxnet' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
+                {isSandboxEnabled && currentNetwork==='crescendo' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
                 {!isSandboxEnabled && <LLPrimaryButton onClick={enableSandbox} sx={{backgroundColor: '#CCAF21', padding: '2px 3px', fontSize: '12px', color: '#000', fontWeight: '600', borderRadius: '30px', textTransform: 'initial'}} label={chrome.i18n.getMessage('Enable')}/> }
               </Box>
-            </CardActionArea>
+            </CardActionArea> */}
+              <CardActionArea
+                className={classes.modeSelection}
+                onClick={() => switchNetwork('previewnet')}
+              >
+                <Box className={classes.checkboxRow}>
+                  <FormControlLabel
+                    label={chrome.i18n.getMessage('Previewnet')}
+                    control={
+                      <Checkbox
+                        size="small"
+                        icon={<CircleOutlinedIcon />}
+                        checkedIcon={
+                          <CheckCircleIcon sx={{ color: '#CCAF21' }} />
+                        }
+                        value="previewnet"
+                        checked={currentNetwork === 'previewnet'}
+                        onChange={() => switchNetwork('previewnet')}
+                      />
+                    }
+                    disabled={!isSandboxEnabled}
+                  />
+
+                  {isSandboxEnabled && currentNetwork === 'previewnet' && (
+                    <Typography
+                      component="div"
+                      variant="body1"
+                      color="text.nonselect"
+                      sx={{ margin: 'auto 0' }}
+                    >
+                      {chrome.i18n.getMessage('Selected')}
+                    </Typography>
+                  )}
+                  {!isSandboxEnabled && (
+                    enableButton()
+                  )}
+                </Box>
+              </CardActionArea>
+            </Box>
+
+            <Typography
+              variant="h6"
+              color="neutral.contrastText"
+              sx={{
+                weight: 500,
+                marginLeft: '18px',
+              }}
+            >
+              {chrome.i18n.getMessage('Transaction__Monitor')}
+            </Typography>
+            <Box className={classes.radioBox}>
+              <CardActionArea
+                className={classes.modeSelection}
+                onClick={() => switchMonitor('flowscan')}
+              >
+                <Box className={classes.checkboxRow}>
+                  <FormControlLabel
+                    label={chrome.i18n.getMessage('Flowdiver')}
+                    control={
+                      <Checkbox
+                        size="small"
+                        icon={<CircleOutlinedIcon />}
+                        checkedIcon={<CheckCircleIcon color="primary" />}
+                        value="flowscan"
+                        checked={currentMonitor === 'flowscan'}
+                        onChange={() => switchMonitor('flowscan')}
+                      />
+                    }
+                  />
+
+                  {currentMonitor === 'flowscan' && (
+                    <Typography
+                      component="div"
+                      variant="body1"
+                      color="text.nonselect"
+                      sx={{ margin: 'auto 0' }}
+                    >
+                      {chrome.i18n.getMessage('Selected')}
+                    </Typography>
+                  )}
+                </Box>
+              </CardActionArea>
+
+              <Divider sx={{ width: '90%', margin: '0 auto' }} />
+
+              <CardActionArea
+                className={classes.modeSelection}
+                onClick={() => switchMonitor('source')}
+              >
+                <Box className={classes.checkboxRow}>
+                  <FormControlLabel
+                    label={chrome.i18n.getMessage('Flow__view__source')}
+                    control={
+                      <Checkbox
+                        size="small"
+                        icon={<CircleOutlinedIcon />}
+                        checkedIcon={<CheckCircleIcon color="inherit" />}
+                        value="flowViewSource"
+                        checked={currentMonitor === 'source'}
+                        onChange={() => switchMonitor('source')}
+                      />
+                    }
+                  />
+
+                  {currentMonitor === 'source' && (
+                    <Typography
+                      component="div"
+                      variant="body1"
+                      color="text.nonselect"
+                      sx={{ margin: 'auto 0' }}
+                    >
+                      {chrome.i18n.getMessage('Selected')}
+                    </Typography>
+                  )}
+                </Box>
+              </CardActionArea>
+            </Box>
           </Box>
-
-          <Typography variant='h6' color='neutral.contrastText' sx={{
-            weight: 500,
-            marginLeft: '18px'
-          }}>{chrome.i18n.getMessage('Transaction__Monitor')}</Typography>
-          <Box className={classes.radioBox}>
-            
-            <CardActionArea className={classes.modeSelection} onClick={()=>switchMonitor('flowscan')}>
-              <Box className={classes.checkboxRow}>
-                <FormControlLabel
-                  label={chrome.i18n.getMessage('Flowscan')}
-                  control={
-                    <Checkbox
-                      size='small'
-                      icon={<CircleOutlinedIcon />}
-                      checkedIcon={<CheckCircleIcon color='primary' />}
-                      value='flowscan'
-                      checked={currentMonitor==='flowscan'}
-                      onChange={()=>switchMonitor('flowscan')}
-                    />
-                  }
-                />
-              
-                {currentMonitor==='flowscan' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
-              </Box>
-            </CardActionArea>
-
-            <Divider sx={{width: '90%', margin: '0 auto'}} />
-            
-            <CardActionArea className={classes.modeSelection} onClick={()=>switchMonitor('source')}>
-              <Box className={classes.checkboxRow}>
-                <FormControlLabel
-                  label={chrome.i18n.getMessage('Flow__view__source')}
-                  control={
-                    <Checkbox
-                      size='small'
-                      icon={<CircleOutlinedIcon />}
-                      checkedIcon={<CheckCircleIcon color='inherit' />}
-                      value='flowViewSource'
-                      checked={currentMonitor==='source'}
-                      onChange={()=>switchMonitor('source')}
-                    />
-                  }
-                />
-              
-                {currentMonitor==='source' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
-              </Box>
-            </CardActionArea>
-          </Box>
-
-        </Box>
-        }
+        )}
       </Presets.TransitionFade>
     </div>
-  )
-}
+  );
+};
 
 export default DeveloperMode;

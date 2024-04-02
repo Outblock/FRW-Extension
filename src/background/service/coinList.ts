@@ -28,7 +28,8 @@ class CoinList {
         expiry: now.getTime(),
         coinItem: {
           testnet: {},
-          sandboxnet: {},
+          crescendo: {},
+          previewnet:{},
           mainnet: {},
         },
         currentCoin: 'flow'

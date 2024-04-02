@@ -19,6 +19,7 @@ import i18n from '../i18n';
 import { KEYRING_TYPE } from 'consts';
 import DisplayKeyring from './display';
 import eventBus from '@/eventBus';
+import { storage } from '../../webapi';
 
 export const KEYRING_SDK_TYPES = {
   SimpleKeyring,
@@ -215,7 +216,7 @@ class KeyringService extends EventEmitter {
       .then(() => keyring);
   }
 
-  addKeyring(keyring) {
+  async addKeyring(keyring) {
     return keyring
       .getAccounts()
       .then((accounts) => {
@@ -248,6 +249,10 @@ class KeyringService extends EventEmitter {
     await this._updateMemStoreKeyrings();
     this.emit('lock');
     return this.fullUpdate();
+  }
+
+  getPassword(): string | null {
+    return this.password;
   }
 
   /**
@@ -629,7 +634,6 @@ class KeyringService extends EventEmitter {
         new Error('KeyringController - password is not a string')
       );
     }
-
     return Promise.all(
       this.keyrings.map((keyring) => {
         return Promise.all([keyring.type, keyring.serialize()]).then(
@@ -649,8 +653,50 @@ class KeyringService extends EventEmitter {
           serializedKeyrings as unknown as Buffer
         );
       })
-      .then((encryptedString) => {
-        this.store.updateState({ vault: encryptedString });
+      .then(async (encryptedString) => {
+        const accountIndex = await storage.get('currentAccountIndex');
+        const currentId = await storage.get('currentId');
+
+        const oldVault = this.store.getState().vault;
+
+        const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
+
+        // Handle the case when currentId is available
+        if (currentId !== null && currentId !== undefined) {
+          // Find if an entry with currentId already exists
+          const existingIndex = vaultArray.findIndex(entry =>
+            entry !== null &&
+            entry !== undefined &&
+            Object.prototype.hasOwnProperty.call(entry, currentId)
+          );
+
+
+          if (existingIndex !== -1) {
+            // Update existing entry
+            vaultArray[existingIndex][currentId] = encryptedString;
+          } else {
+            // Add new entry
+            const newEntry = {};
+            newEntry[currentId] = encryptedString;
+            vaultArray.push(newEntry);
+          }
+        } else {
+          // Handle the case when currentId is not provided
+          if (accountIndex < vaultArray.length) {
+            vaultArray[accountIndex] = encryptedString; // Update the element at the specified index
+          } else {
+            vaultArray[0] = encryptedString;
+          }
+        }
+
+        // Remove the old entry at accountIndex if currentId was handled
+        // if (currentId !== null && currentId !== undefined && accountIndex < vaultArray.length) {
+        //   vaultArray.splice(accountIndex, 1);
+        // }
+
+        // Update the store's state with the new vault array
+        this.store.updateState({ vault: vaultArray });
+
         return true;
       });
   }
@@ -665,7 +711,47 @@ class KeyringService extends EventEmitter {
    * @returns {Promise<Array<Keyring>>} The keyrings.
    */
   async unlockKeyrings(password: string): Promise<any[]> {
-    const encryptedVault = this.store.getState().vault;
+    let accountIndex = await storage.get('currentAccountIndex');
+    const currentId = await storage.get('currentId');
+    let vaultArray = this.store.getState().vault;
+    let encryptedVault;
+
+    if (typeof vaultArray === 'string') {
+      vaultArray = [vaultArray];
+    }
+
+    // Initialize accountIndex to 0 if it is undefined
+    if (accountIndex === undefined) {
+      accountIndex = 0;
+    }
+
+    // If currentId is provided, look for the encryptedString with currentId as the key in the vaultArray
+    if (currentId !== undefined) {
+      const foundIndex = vaultArray.findIndex(entry => entry && entry[currentId]);
+      if (foundIndex !== -1) {
+        encryptedVault = vaultArray[foundIndex][currentId];
+      } else {
+        // Handle case when currentId is not found in the vaultArray
+        if (vaultArray[accountIndex] !== undefined) {
+          encryptedVault = vaultArray[accountIndex];
+        } else if (vaultArray[0] !== undefined) {
+          encryptedVault = vaultArray[0];
+        } else {
+          encryptedVault = vaultArray; // Default case
+        }
+      }
+    } else {
+      // Handling when currentId is not provided
+      if (vaultArray[accountIndex] !== undefined) {
+        encryptedVault = vaultArray[accountIndex];
+      } else if (vaultArray[0] !== undefined) {
+        encryptedVault = vaultArray[0];
+      } else {
+        encryptedVault = vaultArray; // Default case
+      }
+    }
+
+
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
@@ -678,6 +764,72 @@ class KeyringService extends EventEmitter {
     await this._updateMemStoreKeyrings();
     return this.keyrings;
   }
+
+
+  /**
+   * Retrieve privatekey from vault
+   *
+   * Attempts to unlock the persisted encrypted storage,
+   * Return all the privatekey stored in vault.
+   *
+   * @param {string} password - The keyring controller password.
+   * @returns {Promise<Array<Keyring>>} The keyrings.
+   */
+  async retrievePk(password: string): Promise<any[]> {
+    let vaultArray = this.store.getState().vault;
+
+    // Ensure vaultArray is an array
+    if (typeof vaultArray === 'string') {
+      vaultArray = [vaultArray];
+    }
+
+
+    // Decrypt each entry in the vaultArray
+    const decryptedVaults: any[] = [];
+    for (const vaultEntry of vaultArray) {
+      let encryptedString;
+      if (vaultEntry && typeof vaultEntry === 'object' && Object.keys(vaultEntry).length === 1) {
+        const key = Object.keys(vaultEntry)[0];
+        encryptedString = vaultEntry[key];
+      } else if (typeof vaultEntry === 'string') {
+        encryptedString = vaultEntry;
+      } else {
+        continue; 
+      }
+
+      try {
+        const decryptedVault = await this.encryptor.decrypt(password, encryptedString);
+        decryptedVaults.push(decryptedVault);
+      } catch (error) {
+        console.error('Decryption failed for an entry:', error);
+        continue;
+      }
+    }
+
+
+    if (decryptedVaults.length === 0) {
+      throw new Error(i18n.t('Cannot unlock without a previous vault'));
+    }
+
+    const extractedData = decryptedVaults.map((entry, index) => {
+      const item = entry[0];
+      let keyType, value;
+
+      if (item.type === "HD Key Tree") {
+        keyType = "mnemonic";
+        value = item.data.mnemonic;
+      } else if (item.type === "Simple Key Pair") {
+        keyType = "privateKey";
+        value = item.data[0];
+      }
+
+      return { index, keyType, value };
+    });
+
+    return extractedData; 
+  }
+
+
 
   /**
    * Restore Keyring
@@ -764,6 +916,19 @@ class KeyringService extends EventEmitter {
   }
 
   /**
+   * Get Keyring
+   *
+   * Returns the key ring of current storage
+   * managed by all currently unlocked keyrings.
+   *
+   * @returns {Promise<Array<string>>} The array of accounts.
+   */
+  async getKeyring(): Promise<any[]> {
+    const keyrings = this.keyrings || [];
+    return keyrings;
+  }
+
+  /**
    * Get Keyring For Account
    *
    * Returns the currently initialized keyring that manages
@@ -818,9 +983,7 @@ class KeyringService extends EventEmitter {
     const hiddenAddresses = preference.getHiddenAddresses();
     const accounts: Promise<
       ({ address: string; brandName: string } | string)[]
-    > = keyring.getAccountsWithBrand
-      ? keyring.getAccountsWithBrand()
-      : keyring.getAccounts();
+    > = keyring.getAccountsWithBrand ? keyring.getAccountsWithBrand() : keyring.getAccounts();
 
     return accounts.then((accounts) => {
       const allAccounts = accounts.map((account) => ({
@@ -878,6 +1041,12 @@ class KeyringService extends EventEmitter {
     return result;
   }
 
+
+  async resetKeyRing() {
+    await this.clearKeyrings();
+    await this.clearVault();
+  }
+
   /**
    * Clear Keyrings
    *
@@ -891,6 +1060,16 @@ class KeyringService extends EventEmitter {
     this.memStore.updateState({
       keyrings: [],
     });
+  }
+
+  /**
+   * Clear the Vault
+   *
+   * Clears the vault from the store's state, effectively removing all stored data.
+  */
+  async clearVault(): Promise<void> {
+    // Clear the vault data in the store's state
+    this.store.updateState({ vault: [] });
   }
 
   /**

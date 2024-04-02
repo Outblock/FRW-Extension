@@ -29,7 +29,7 @@ const TransferList = ({setCount}) => {
   const [transaction, setTx] = useState([]);
   const [monitor, setMonitor] = useState('flowscan');
   const [flowscanURL, setFlowscanURL] = useState('https://flowdiver.io')
-  const [viewSource, setViewSourceUrl] = useState('https://flow-view-source.com/mainnet')
+  const [viewSource, setViewSourceUrl] = useState('https://f.dnz.dev')
   const [address, setAddress] = useState<string | null>('0x')
   const [showButton, setShowButton] = useState(false)
 
@@ -94,7 +94,7 @@ const TransferList = ({setCount}) => {
               variant="body1"
               sx={{ fontSize: 14, fontWeight: '500', textAlign: 'end', color: isReceive && isFT ? 'success.main' : 'text.primary' }}
             >
-              {props.type == 1 ? ( (isReceive ? '+' : '-') + `${props.amount/ 100000000}`) : `${props.token.split('.')[2]}`}
+              {props.type == 1 ? ( (isReceive ? '+' : '-') + `${props.amount}`) : `${props.token}`}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -128,7 +128,7 @@ const TransferList = ({setCount}) => {
                 variant="body1"
                 sx={{ fontSize: 14, fontWeight: '500', textAlign: 'start' }}
               >
-                {props.type == 1 ? `${props.token}` : `${props.token.split('.')[2]}`}
+                {props.title}
               </Typography>
             </Box>
 
@@ -193,7 +193,7 @@ const TransferList = ({setCount}) => {
                     <ListItemButton sx={{paddingRight:'0px'}} dense={true} onClick={() => {
                       {monitor === 'flowscan' ?
                         window.open(`${flowscanURL}/tx/${tx.hash}`):
-                        window.open(`${viewSource}/tx/${tx.hash}`)
+                        window.open(`${viewSource}/${tx.hash}`)
                       }
                     }}>
                       <ListItemIcon sx={{borderRadius: '20px', marginRight: '12px', minWidth: '20px'}}>
@@ -210,6 +210,7 @@ const TransferList = ({setCount}) => {
                         receiver={tx.receiver}
                         type={tx.type}
                         token={tx.token}
+                        title={tx.interaction}
                         txType={tx.transferType}
                       />
                     </ListItemButton>

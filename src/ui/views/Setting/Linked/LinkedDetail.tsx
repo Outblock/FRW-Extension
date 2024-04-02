@@ -143,8 +143,8 @@ const LinkedDetail = () => {
     <Box sx={{ fontSize: '14px', color: '#FFFFFF', marginTop: '8px' }}>
       {availableNft.map((item, index) => {
         if ((hideEmpty && item.idList.length > 0) || !hideEmpty) {
-          const imagePath = item.display?.squareImage ?? (nftCatalog.find(cat => cat.contract_name === item.id.split(".")[2])?.logo);
-          const name = item.display?.name ?? item.id.split(".")[2];
+          const imagePath = item.display?.squareImage ?? (nftCatalog.find(cat => cat.contract_name === item.id.split('.')[2])?.logo);
+          const name = item.display?.name ?? item.id.split('.')[2];
           const collectedText = chrome.i18n.getMessage('Collected');
 
           return (
@@ -504,7 +504,7 @@ const LinkedDetail = () => {
               indicatorColor="secondary"
               aria-label="secondary tabs example"
               sx={{
-                ".MuiTabs-indicator": {
+                '.MuiTabs-indicator': {
                   display: 'none'
                 }
               }}

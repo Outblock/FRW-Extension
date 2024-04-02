@@ -59,18 +59,44 @@ export const fclMainnetConfig = async () => {
     .put('flow.auditors', ['0xfd100e39d50a13e6']);
 };
 
-export const fclSanboxnetConfig = async () => {
+export const fclCrescendoConfig = async () => {
   fcl
     .config()
-    .put('accessNode.api', 'https://rest-sandboxnet.onflow.org')
+    .put('accessNode.api', 'https://rest-crescendo.onflow.org')
     .put('sdk.transport', httpSend)
-    .put('0xLockedTokens', '0xf4527793ee68aede')
+    .put('0xLockedTokens', '0x95e019a17d0e23d7')
+    .put('0xFind', '0xa16ab1d0abde3625')
     .put('0xChildAccount', '0x1b655847a90e644a')
     .put('0xHybridCustody', '0x294e44e1ec6993c6')
-    .put('0xFlowToken', '0x0661ab7d6696a460')
-    .put('0xFungibleToken', '0xe20612a0776ca4bf')
-    .put('0xNonFungibleToken', '0x83ade3a54eb3870c')
-    .put('0xMetadataViews', '0x83ade3a54eb3870c')
-    .put('0xFlowFees', '0xe92c2039bbe9da96')
-    .put('flow.network', 'sandboxnet');
+    .put('0xFlowns', '0xb05b2abb42335e88')
+    .put('0xDomains', '0xb05b2abb42335e88')
+    .put('0xFlowToken', '0x7e60df042a9c0868')
+    .put('0xFungibleToken', '0x9a0766d93b6608b7')
+    .put('0xNonFungibleToken', '0x631e88ae7f1d7c20')
+    .put('0xFlowFees', '0x912d5440f7e3769e')
+    .put('0xMetadataViews', '0x631e88ae7f1d7c20')
+    .put('flow.network', 'crescendo')
+    .put('flow.auditors', ['0xf78bfc12d0a786dc']);
+};
+
+
+export const fclPreviewnetConfig = async () => {
+  fcl
+    .config()
+    .put('accessNode.api', 'https://rest-previewnet.onflow.org')
+    .put('sdk.transport', httpSend)
+    .put('0xLockedTokens', '0xb6763b4399a888c8')
+    // .put('0xFind', '0xa16ab1d0abde3625')
+    // .put('0xChildAccount', '0x1b655847a90e644a')
+    // .put('0xHybridCustody', '0x294e44e1ec6993c6')
+    // .put('0xFlowns', '0xb05b2abb42335e88')
+    // .put('0xDomains', '0xb05b2abb42335e88')
+    .put('0xEVM', '0xb6763b4399a888c8')
+    .put('0xFlowToken', '0x4445e7ad11568276')
+    .put('0xFungibleToken', '0xa0225e7000ac82a9')
+    .put('0xNonFungibleToken', '0xb6763b4399a888c8')
+    .put('0xFlowFees', '0xab086ce9cc29fc80')
+    .put('0xMetadataViews', '0xb6763b4399a888c8')
+    .put('flow.network', 'previewnet')
+    // .put('flow.auditors', ['0xf78bfc12d0a786dc']);
 };

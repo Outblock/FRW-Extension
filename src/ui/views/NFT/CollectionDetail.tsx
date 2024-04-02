@@ -278,28 +278,28 @@ const CollectionDetail = (props) => {
       const result: Result = {
         info: {
           collectionDisplay: {
-            name: "Some collection name",
+            name: 'Some collection name',
             squareImage: {
               file: {
-                url: "https://example.com/image.jpg"
+                url: 'https://example.com/image.jpg'
               }
             },
-            externalURL: "",
+            externalURL: '',
           }
         },
         nftCount: 0,
         nfts: [{
-          id: "5838655",
-          name: "",
-          description: "",
-          thumbnail: "",
+          id: '5838655',
+          name: '',
+          description: '',
+          thumbnail: '',
           postMedia: {
             title: 'string',
             description: 'string',
             image: 'string',
             video: 'string',
           },
-          unique_id: ""
+          unique_id: ''
         }]
       };
       const res = await usewallet.getCollectionApi(ownerAddress, collection, offset);

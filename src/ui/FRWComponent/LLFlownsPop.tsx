@@ -61,7 +61,7 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
 
   const onNextBtnClicked = () => {
     wallet.setPopStat(false);
-    window.open("https://core.flow.com/", "_blank");
+    window.open('https://core.flow.com/', '_blank');
 
   }
 

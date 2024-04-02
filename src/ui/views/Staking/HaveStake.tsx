@@ -18,7 +18,6 @@ const HaveStake = (props: HaveStakeProps) => {
 
   const getApy = async () => {
     const result = await usewallet.getApr();
-    console.log('apr: ', result);
     setApr(result);
   };
 

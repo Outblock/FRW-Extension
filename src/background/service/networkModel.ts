@@ -61,7 +61,8 @@ export interface FlowTokenStoragePath {
 export enum FlowNetwork {
   mainnet = 'mainnet',
   testnet = 'testnet',
-  sandboxnet = 'sandboxnet',
+  crescendo = 'crescendo',
+  previewnet = 'previewnet'
 }
 
 export enum Period {
@@ -96,7 +97,8 @@ export interface Contact {
 export enum FlowDomain {
   find = 0,
   flowns = 1,
-  meow = 2
+  meow = 2,
+  none = 999,
 }
 
 export interface NFTData {
@@ -324,4 +326,33 @@ export interface TransactionRecord {
   time: number;
   interaction: string;
   amount:number;
+}
+
+export interface DeviceInfoRequest {
+  device_id: string;
+  ip: string;
+  name: string;
+  type: string;
+  user_agent: string;
+
+  continent?: string;
+  continentCode?: string;
+  country?: string;
+  countryCode?: string;
+  regionName?: string;
+  city?: string;
+  district?: string;
+  zip?: string;
+  lat?: number;
+  lon?: number;
+  timezone?: string;
+  currency?: string;
+  isp?: string;
+  org?: string;
+}
+
+export interface DeviceInfo {
+  account_key: AccountKey;
+  device_info: DeviceInfoRequest;
+
 }

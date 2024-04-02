@@ -152,7 +152,6 @@ const Detail = () => {
   }, []);
 
   const returnFilteredCollections = (contractList, NFT) => {
-    console.log('contractList: ', contractList, NFT)
     return contractList.filter(
       (collection) => collection.name == NFT.collectionName
     );
