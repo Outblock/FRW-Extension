@@ -245,7 +245,6 @@ const Header = ({ loading }) => {
     await storage.set('pubKey', '');
 
     const keys = await usewallet.getAccount();
-    console.log('keys ', keys);
     const pubKTuple = await usewallet.getPubKey();
     const { P256, SECP256K1 } = pubKTuple;
 
@@ -298,7 +297,7 @@ const Header = ({ loading }) => {
     const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     console.log('switch account ', account)
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
-    if (account.id){
+    if (account.id) {
       await storage.set('currentId', account.id);
     } else {
       await storage.set('currentId', '');
@@ -797,7 +796,7 @@ const Header = ({ loading }) => {
       </List>
     );
   };
-
+  
   const usernameSelect = () => {
     return (
       <Drawer

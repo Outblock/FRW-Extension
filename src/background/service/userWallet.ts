@@ -196,31 +196,29 @@ class UserWallet {
     return realSignature;
   };
 
-  switchLogin = async (privateKey: string, replaceUser = true) => {
+  switchLogin = async (pubKey: any, replaceUser = true) => {
 
-    // const accountIndex = await storage.get('currentAccountIndex') || 0;
-    // const currentId = await storage.get('currentId') || null;
-    // const loggedInAccounts = await storage.get('loggedInAccounts') || [];
-    // const account = loggedInAccounts[accountIndex];
+    const keys1 = pubKey.P256;
+    const kesy2 = pubKey.SECP256K1;
+
     const account = await getStoragedAccount();
+    // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
+    //   throw new Error("Invalid account index.");
+    // }
+    // const account = loggedInAccounts[accountIndex];
+    const ktype = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+    const keys = (ktype === 1) ? keys1 : kesy2;
     let result = [{
       hashAlgo: account.hashAlgo,
       signAlgo: account.signAlgo,
-      pubK: account.pubKey,
+      pubK: keys.pubK,
       weight: account.weight
     }];
-
-    console.log('result ', result)
-
-
-    console.log('account ', account)
-
-    console.log('account ', privateKey)
 
     if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
       // Create a new result object with extension default setting
-      result = await findAddressWithPK(privateKey, '');
+      result = await findAddressWithPK(keys.pk, '');
     }
     const app = getApp(process.env.NODE_ENV!);
     const auth = getAuth(app);
@@ -250,7 +248,7 @@ class UserWallet {
     }
     const deviceInfo = await this.getDeviceInfo();
     // const signature = await secp.sign(messageHash, privateKey);
-    const realSignature = await signWithKey(Buffer.from(message, 'hex'), signAlgo, hashAlgo, privateKey);
+    const realSignature = await signWithKey(Buffer.from(message, 'hex'), signAlgo, hashAlgo, keys.pk);
     return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
   };
 

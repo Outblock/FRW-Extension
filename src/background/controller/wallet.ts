@@ -175,14 +175,55 @@ export class WalletController extends BaseController {
     await passwordService.setPassword(password);
 
     sessionService.broadcastEvent('unlock');
-    const key = await this.getKey(password);
-    const keyRing = await this.getKeyrings(password);
-
-    await userWalletService.switchLogin(key);
+    // const keyrings = await this.getKeyrings(password);
+    // const keys = this.extractKeys(keyrings);
+    const pubKey = await this.getPubKey();
+    await userWalletService.switchLogin(pubKey);
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
     // }
   };
+
+  retrievePk = async (password: string) => {
+    // const alianNameInited = await preferenceService.getInitAlianNameStatus();
+    // const alianNames = await preferenceService.getAllAlianName();
+
+    const pk = await keyringService.retrievePk(password);
+
+    console.log('pk is these ', pk)
+    return pk;
+    // if (!alianNameInited && Object.values(alianNames).length === 0) {
+    //   this.initAlianNames();
+    // }
+  };
+
+  extractKeys = (keyrings) => {
+    let privateKeyHex, publicKeyHex;
+  
+    for (const keyring of keyrings) {
+      if (keyring.type === "Simple Key Pair" && keyring.wallets?.length > 0) {
+        const privateKeyData = keyring.wallets[0].privateKey.data;
+        privateKeyHex = Buffer.from(privateKeyData).toString('hex');
+        const publicKeyData = keyring.wallets[0].publicKey.data;
+        publicKeyHex = Buffer.from(publicKeyData).toString('hex');
+        break;
+      } else if (keyring.type === "HD Key Tree") {
+        const activeIndex = keyring.activeIndexes?.[0];
+        if (activeIndex !== undefined) {
+          const wallet = keyring._index2wallet?.[activeIndex.toString()];
+          if (wallet) {
+            const privateKeyData = wallet.privateKey.data;
+            privateKeyHex = Buffer.from(privateKeyData).toString('hex');
+            const publicKeyData = wallet.publicKey.data;
+            publicKeyHex = Buffer.from(publicKeyData).toString('hex');
+            break;
+          }
+        }
+      }
+    }
+  
+    return { privateKeyHex, publicKeyHex };
+  }
 
   isUnlocked = async () => {
     const isUnlocked = keyringService.memStore.getState().isUnlocked;
@@ -226,6 +267,40 @@ export class WalletController extends BaseController {
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
     openInternalPageInTab('addwelcome', true);
+    await this.switchNetwork(switchingTo);
+    window.close();
+  };
+
+  // lockadd here
+  resetPwd = async () => {
+
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    await storage.clear();
+
+    await keyringService.resetKeyRing();
+    await keyringService.setLocked();
+    await passwordService.clear();
+    sessionService.broadcastEvent('accountsChanged', []);
+    sessionService.broadcastEvent('lock');
+    openInternalPageInTab('reset', true);
+    await this.switchNetwork(switchingTo);
+    window.close();
+  };
+
+  // lockadd here
+  restoreWallet = async () => {
+
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+
+
+    const password = keyringService.getPassword();
+    await storage.set('tempPassword', password);
+    await keyringService.setLocked();
+    await passwordService.clear();
+
+    sessionService.broadcastEvent('accountsChanged', []);
+    sessionService.broadcastEvent('lock');
+    openInternalPageInTab('restore', true);
     await this.switchNetwork(switchingTo);
     window.close();
   };
@@ -342,24 +417,30 @@ export class WalletController extends BaseController {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');
 
-    if (keyrings[0].mnemonic) {
+    for (const keyring of keyrings) {
+      if (keyring.mnemonic) {
 
-      const mnemonic = await this.getMnemonics(password || '');
-      const seed = await seed2PubKey(mnemonic);
-      console.log('seed ', seed)
-      console.log('mnemonic ', mnemonic)
-      const PK1 = seed.P256.pk;
-      const PK2 = seed.SECP256K1.pk;
+        const mnemonic = await this.getMnemonics(password || '');
+        const seed = await seed2PubKey(mnemonic);
+        const PK1 = seed.P256.pk;
+        const PK2 = seed.SECP256K1.pk;
 
-      const account = await getStoragedAccount();
-      // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
-      //   throw new Error("Invalid account index.");
-      // }
-      // const account = loggedInAccounts[accountIndex];
-      const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
-      privateKey = (signAlgo === 1) ? PK1 : PK2;
-    } else {
-      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+        const account = await getStoragedAccount();
+        // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
+        //   throw new Error("Invalid account index.");
+        // }
+        // const account = loggedInAccounts[accountIndex];
+        const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+        privateKey = (signAlgo === 1) ? PK1 : PK2;
+        break;
+      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
+        privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
+        break;
+      }
+    }
+    if (!privateKey) {
+      const error = new Error("No mnemonic or private key found in any of the keyrings.");
+      throw error
     }
     return privateKey;
   };
@@ -368,16 +449,25 @@ export class WalletController extends BaseController {
     let privateKey;
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
+    console.log('keyrings ', keyrings)
+    for (const keyring of keyrings) {
+      if (keyring.mnemonic) {
+        // If mnemonic is found, extract it and break the loop
+        const serialized = await keyring.serialize();
+        const mnemonic = serialized.mnemonic;
+        pubKTuple = await seed2PubKey(mnemonic);
+        break;
+      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
+        // If a private key is found, extract it and break the loop
+        privateKey = keyring.wallets[0].privateKey.toString('hex');
+        pubKTuple = await pk2PubKey(privateKey);
+        break;
+      }
+    }
 
-    if (keyrings[0].mnemonic) {
-
-      const keyring = this._getKeyringByType(KEYRING_CLASS.MNEMONIC);
-      const serialized = await keyring.serialize();
-      const mnemonic = serialized.mnemonic;
-      pubKTuple = await seed2PubKey(mnemonic);
-    } else {
-      privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
-      pubKTuple = await pk2PubKey(privateKey);
+    if (!pubKTuple) {
+      const error = new Error("No mnemonic or private key found in any of the keyrings.");
+      throw error
     }
     return pubKTuple;
   };
@@ -415,7 +505,6 @@ export class WalletController extends BaseController {
     // TODO: NEED REVISIT HERE:
 
     const keyring = await keyringService.createKeyringWithMnemonics(mnemonic);
-    console.log('current key ring ', keyring)
     keyringService.removePreMnemonics();
     return this._setCurrentAccountFromKeyring(keyring);
   };
@@ -1082,7 +1171,9 @@ export class WalletController extends BaseController {
   getCurrentWallet = async () => {
     const wallet = await userWalletService.getCurrentWallet();
     if (!wallet.address) {
-      const data = this.refreshUserWallets();
+      const network = await this.getNetwork();
+      await this.refreshUserWallets();
+      const data = await userWalletService.getUserWallets(network);
       return data[0].blockchain[0];
     }
     return wallet;
@@ -2088,7 +2179,6 @@ export class WalletController extends BaseController {
   };
 
   getPayerAddressAndKeyId = async () => {
-    console.log('getPayerAddressAndKeyId 111111');
     try {
       const config = await fetchConfig.remoteConfig();
       console.log('config config', config);

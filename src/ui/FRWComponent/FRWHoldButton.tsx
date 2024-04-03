@@ -6,7 +6,6 @@ export const FRWHoldButton = ({ onHoldTrigger, holdDuration = 2000 }) => {
   const holdTimer = useRef<any>(null);
 
   const startHold = () => {
-    console.log('starting ')
     setHolding(true);
     holdTimer.current = setTimeout(onHoldTrigger, holdDuration);
   };

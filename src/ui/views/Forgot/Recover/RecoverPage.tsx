@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import{Typography, Box, FormControl} from '@mui/material';
-import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent'
-import{Input} from '@mui/material';
+import { Typography, Box, FormControl, List, ListItem, ListItemText } from '@mui/material';
+import { LLPrimaryButton, CredentialBox, LLSecondaryButton } from 'ui/FRWComponent'
+import { Input } from '@mui/material';
 import { Presets } from 'react-component-transition';
-import CancelIcon from '../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../components/iconfont/IconClose';
 import { makeStyles } from '@mui/styles';
-import lilo from 'ui/FRWAssets/image/lilo.png';
-import { openInternalPageInTab } from 'ui/utils/webapi';
-import './style.css';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -33,38 +30,31 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const SwitchUnlock = () => {
+const RecoverPage = ({ dataArray, setArray, goNext }) => {
   const wallet = useWallet();
   const classes = useStyles();
-  const [, resolveApproval] = useApproval();
   const inputEl = useRef<any>(null);
   // const { t } = useTranslation();
   const [showError, setShowError] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
-  const [resetPop, setResetPop] = useState<boolean>(false);
-
+  const [retrieved, setRetrieved] = useState(false);
   useEffect(() => {
     if (!inputEl.current) return;
     inputEl.current.focus();
   }, []);
 
-  const restPass = async () => {
-    // setResetPop(true);
-    await wallet.lockWallet();
-    openInternalPageInTab('forgot');
+
+
+  const run = async (password) => {
+    const result = await wallet.retrievePk(password);
+    console.log('result ', result);
+    await setArray(result);
+    setRetrieved(true);
+    setLoading(false);
+    goNext();
   };
 
-  const [run] = useWalletRequest(wallet.switchUnlock, {
-    onSuccess() {
-      setLoading(false);
-      resolveApproval('unlocked');
-    },
-    onError() {
-      setLoading(false);
-      setShowError(true)
-    },
-  });
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -77,6 +67,15 @@ const SwitchUnlock = () => {
     setLoading(true);
     run(password);
   };
+
+  const copyAll = () => {
+    // Extract 'value' from each item and join them with a space
+    const allValues = dataArray.map((item, index) => `${index + 1}: ${item.value};`).join(' ');
+
+    navigator.clipboard.writeText(allValues)
+      .then(() => console.log("Copied to clipboard successfully!"))
+      .catch(err => console.error("Failed to copy to clipboard: ", err));
+  }
 
   const usernameError = () => (
     <Box
@@ -95,31 +94,41 @@ const SwitchUnlock = () => {
 
   return (
     <Box
-      sx={{height: '100vh',  width: '100%', backgroundColor: '#282828', display: 'flex',
+      sx={{
+        width: '100%',
         flexDirection: 'column',
-        alignItems: 'center'}}>
-      {/* <Logo size={90} style={{marginTop:'120px'}}/> */}
-
-      <Box className="logoContainer" sx={{marginTop:'60px'}}>
-        <img src={lilo} style={{ height: '100%', width: '100%'}} />
-      </Box>
-
-      {/* <img  style={{paddingTop:'108px' }} src={lilicoIcon} /> */}
-      <Box sx={{ width: '100%', 
-        textAlign:'center'}}>
+        padding: '24px 40px 40px'
+      }}
+    >
+      <Box
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: '700',
+            fontSize: '40px',
+            WebkitBackgroundClip: 'text',
+            color: '#fff',
+            lineHeight: '56px',
+          }}
+        >
+          {chrome.i18n.getMessage('Retrieve_local_sensitive_data')}
+        </Typography>
         <Typography sx={{
-          fontWeight:'700',
-          fontSize:'26px', 
-          fontFamily:'Inter', 
-          fontStyle:'normal',
-          pt:'30px', 
-          pb: '30px'
+          fontSize: '14px', fontFamily: 'Inter',
+          fontStyle: 'normal', color: '#BABABA', margin: '18px 0 32px', cursor: 'pointer'
         }}>
-          {chrome.i18n.getMessage('Welcome__Back__Unlock')}
+          {chrome.i18n.getMessage('It_seem_like_something_wrong')}
         </Typography>
       </Box>
 
-      <FormControl sx={{ flexGrow: 1, width: '90%', display: 'flex', flexDirection: 'column'}}>
+      <FormControl sx={{ flexGrow: 1, width: '100%', display: 'flex', flexDirection: 'column' }}>
         <Input
           id="textfield"
           type="password"
@@ -130,10 +139,10 @@ const SwitchUnlock = () => {
           disableUnderline
           value={password}
           onChange={(event) => {
-            setShowError(false)
+            setShowError(false);
             setPassword(event.target.value);
           }}
-          onKeyDown={handleKeyDown} 
+          onKeyDown={handleKeyDown}
         />
 
         <Presets.TransitionSlideUp>
@@ -148,42 +157,29 @@ const SwitchUnlock = () => {
             >
               <Box sx={{ p: '4px' }}>{usernameError()}</Box>
             </Box>
-          )} 
+          )}
         </Presets.TransitionSlideUp>
-
-        {/* <Box sx={{flexGrow: 1}}/> */}
       </FormControl>
 
-
-      <Box sx={{width: '90%', marginBottom: '32px'}}>
+      <Box sx={{ width: '100%', marginTop:'40px',marginBottom: '16px',weight:'700',fontSize:'20px' }}>
         <LLPrimaryButton
           // className="w-full block"\
           color="success"
           type="submit"
-          onClick={handleClick}          
+          onClick={handleClick}
           fullWidth
-          label= {isLoading ? 'Unlocking...' :chrome.i18n.getMessage('Unlock_Wallet')}
-          // sx={{marginTop: '40px', height: '48px'}}
-          // type="primary"
-          // size="large"
+          label={
+            isLoading ? 
+              <Typography> {chrome.i18n.getMessage('Loading')}</Typography>: 
+              <Typography>{chrome.i18n.getMessage('Reveal_Private_Key')}</Typography>
+          }
         />
-        <Typography onClick={restPass}sx={{fontSize:'14px', fontFamily:'Inter', 
-          fontStyle:'normal', color:'neutral1.main', textAlign:'center', marginTop:'16px', cursor:'pointer', fontWeight:'600'}}>
-          {chrome.i18n.getMessage('Forgot_password')}
-        </Typography>
       </Box>
 
-      <LLResetPopup
-        resetPop={resetPop}
-        handleCloseIconClicked={() => setResetPop(false)}
-        handleCancelBtnClicked={() => setResetPop(false)}
-        handleAddBtnClicked={() => {
-          setResetPop(false);
-        }}
-      />
 
-    </Box>
+
+    </Box >
   );
 };
 
-export default SwitchUnlock;
+export default RecoverPage;

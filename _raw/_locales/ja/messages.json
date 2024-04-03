@@ -815,7 +815,7 @@
     "message": "ウォレットのロックを解除する"
   },
   "Forgot_password": {
-    "message": "パスワードを忘れた方はこちら？"
+    "message": "ログインできませんか"
   },
   "Welcome_to_lilico": {
     "message": "lilico へようこそ"
@@ -1125,5 +1125,74 @@
   },
   "Private__key_valid": {
     "message": "秘密鍵は有効です"
+  },
+  "Are__you__sure__you__want__to__restore__your__wallet": {
+    "message": "ウォレットを復元しますか？"
+  },
+  "Thie_wallet_will_try_and_restore": {
+    "message": "ウォレットは新しいアカウントをインポートした後、ローカルに保存されている既存のアカウントを復元しようとします。"
+  },
+  "Reset_Restore_your_wallet": {
+    "message": "リセット/ウォレットを復元します。"
+  },
+  "Restore": {
+    "message": "復元"
+  },
+  "Having_trouble": {
+    "message": "ログインに問題がありますか？"
+  },
+  "Reset_my_wallet": {
+    "message": "私の財布をリセット"
+  },
+  "If_you_have_your_recovery_phrase": {
+    "message": "回復フレーズまたは秘密鍵を持っている場合は、ウォレットをリセットして復元できます。"
+  },
+  "Retrieve_local_sensitive_data": {
+    "message": "ローカルの機密データを取得"
+  },
+  "It_seem_like_something_wrong": {
+    "message": "ローカルデータに問題があるようです。パスワードでローカルの機密データを取得できます。"
+  },
+  "Forget_Password": {
+    "message": "パスワードを忘れた"
+  },
+  "If_you_forgot_your_password": {
+    "message": "パスワードを忘れた場合は、ウォレットをリセットし、回復フレーズまたは秘密鍵をインポートしてウォレットへのアクセスを取り戻す必要があります。"
+  },
+  "Step_1": {
+    "message": "ステップ 1"
+  },
+  "Step_2": {
+    "message": "ステップ 2"
+  },
+  "Step_3": {
+    "message": "ステップ 3"
+  },
+  "Import_Recovery_Phrase_or_Private_Key": {
+    "message": "回復フレーズまたは秘密鍵をインポート"
+  },
+  "Regain_Access_to_Your_Wallet": {
+    "message": "ウォレットへのアクセスを取り戻す"
+  },
+  "Reset_Your_Wallet": {
+    "message": "ウォレットをリセット"
+  },
+  "Confirm_to_reset_Wallet": {
+    "message": "ウォレットをリセット確認"
+  },
+  "This_action_will_remove": {
+    "message": "この操作は、あなたのローカルデータを含むすべての私的鍵を削除します。秘密鍵がバックアップされていることを確認してください。"
+  },
+  "Reveal_Private_Key": {
+    "message": "秘密鍵を表示"
+  },
+  "Save_your_Private_Key": {
+    "message": "秘密鍵を保存"
+  },
+  "Here_is_your_local_private_key": {
+    "message": "これがあなたのローカル秘密鍵です、鍵をバックアップして、ウォレットへのアクセスを取り戻すために秘密鍵を再インポートしてください。"
+  },
+  "Loading": {
+    "message": "読み込み中..."
   }
 }
