@@ -53,7 +53,7 @@ const SendAmount = () => {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>(undefined);
-  const [secondAmount, setSecondAmount] = useState('0.0')
+  const [secondAmount, setSecondAmount] = useState('0.0');
   const [validated, setValidated] = useState<any>(null);
   const [userInfo, setUser] = useState<Contact>(userContact);
   const [network, setNetwork] = useState('mainnet');

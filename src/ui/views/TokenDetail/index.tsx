@@ -106,15 +106,18 @@ const TokenDetail = () => {
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           }
-          <Move
-            isConfirmationOpen={moveOpen}
-            data={{ amount: 0, }}
-            handleCloseIconClicked={() => setMoveOpen(false)}
-            handleCancelBtnClicked={() => setMoveOpen(false)}
-            handleAddBtnClicked={() => {
-              setMoveOpen(false);
-            }}
-          />
+          {moveOpen
+            &&
+            <Move
+              isConfirmationOpen={moveOpen}
+              data={{ amount: 0, }}
+              handleCloseIconClicked={() => setMoveOpen(false)}
+              handleCancelBtnClicked={() => setMoveOpen(false)}
+              handleAddBtnClicked={() => {
+                setMoveOpen(false);
+              }}
+            />
+          }
         </div>
       </div>
     </StyledEngineProvider >

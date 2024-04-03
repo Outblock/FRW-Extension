@@ -199,7 +199,7 @@ export class WalletController extends BaseController {
 
   extractKeys = (keyrings) => {
     let privateKeyHex, publicKeyHex;
-  
+
     for (const keyring of keyrings) {
       if (keyring.type === "Simple Key Pair" && keyring.wallets?.length > 0) {
         const privateKeyData = keyring.wallets[0].privateKey.data;
@@ -221,7 +221,7 @@ export class WalletController extends BaseController {
         }
       }
     }
-  
+
     return { privateKeyHex, publicKeyHex };
   }
 
@@ -1209,6 +1209,28 @@ export class WalletController extends BaseController {
       ,
       [
         fcl.arg(amount, t.UFix64),
+      ]
+    );
+  };
+
+
+
+  transferFlowEvm = async (recipientEVMAddressHex: string, amount = '1.0', gasLimit = 150000): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(8);
+
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+    const script = await getScripts('evm', 'transferFlowToEvmAddress');
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(recipientEVMAddressHex, t.String),
+        fcl.arg(formattedAmount, t.UFix64),
+        fcl.arg(gasLimit, t.UInt64),
       ]
     );
   };

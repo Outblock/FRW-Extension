@@ -1,27 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
-// import { useHistory, useLocation } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import { CoinItem } from 'background/service/coinList';
 import theme from '../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from './TransferAmount'
+import TransferFrom from './TransferFrom';
+import TransferTo from './TransferTo';
 import MoveToken from './MoveToken'
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
 import IconSwitch from '../../../components/iconfont/IconSwitch';
-import TransferConfirmation from './TransferConfirmation';
-import SelectToken from './SelectToken';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { Contact } from 'background/service/networkModel';
-// import { Presets } from 'react-component-transition';
-// import CancelIcon from '../../../components/iconfont/IconClose';
-import { LLHeader } from '@/ui/FRWComponent';
-// import { TokenListProvider } from 'flow-native-token-registry';
 
-import Increment from '../../FRWAssets/svg/increment.svg';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -33,7 +27,7 @@ interface TransferConfirmationProps {
 
 
 const Move = (props: TransferConfirmationProps) => {
-  
+
   enum ENV {
     Mainnet = 'mainnet',
     Testnet = 'testnet'
@@ -88,32 +82,29 @@ const Move = (props: TransferConfirmationProps) => {
   }
 
   const usewallet = useWallet();
+  const history = useHistory();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
   const [selectTokenOpen, setSelectToken] = useState(false);
   // const [exceed, setExceed] = useState(false);
-  const [amount, setAmount] = useState<string | undefined>('0');
-  const [outAmount, setOutAmount] = useState<any>(0);
+  const [amount, setAmount] = useState<string | undefined>('');
   // const [validated, setValidated] = useState<any>(null);
   const [userInfo, setUser] = useState<Contact>(userContact);
-  const [selectTarget, setSelectTarget] = useState<number>(0);
   const [network, setNetwork] = useState('mainnet');
+  const [evmAddress, setEvmAddress] = useState('');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
-  const [estimateInfo, setEstimateInfo] = useState<any>(null);
-  const [token1, setToken1] = useState<any>(null);
-  const [token0, setToken0] = useState<any>(null);
-  const [tokens, setTokens] = useState<any>([]);
-  const [swapTypes, setSwapTypes] = useState<number>(0);
+  const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [swapPrice, setPrice] = useState<any>(0);
   const [errorType, setErrorType] = useState<any>(null);
+  const [exceed, setExceed] = useState(false);
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
     const wallet = await usewallet.getCurrentWallet();
+    console.log('wallet ', wallet)
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
@@ -121,6 +112,7 @@ const Move = (props: TransferConfirmationProps) => {
     await setWallet(wallet);
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
+    console.log('coinList ', coinList, token)
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
     setCoinInfo(coinInfo!);
 
@@ -130,152 +122,38 @@ const Move = (props: TransferConfirmationProps) => {
     userContact.contact_name = info.username;
     setUser(userContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
-    usewallet.openapi.getAllToken().then((res) => {
-      setTokens([...res])
-    });
-    setLoading(false);
-    return;
-  };
-
-
-  const updateCoinInfo = (token) => {
-
-    if (selectTarget) {
-      setToken1(token)
-    } else {
-      const coin = coinList.find(coin => coin.unit.toLowerCase() === token.symbol.toLowerCase());
-      if (coin) {
-        setCoinInfo(coin);
-        setToken0(token);
-      }
-    }
-    return;
-  };
-
-  const switchSide = () => {
-    const currentT1 = token1;
-    const currentT0 = token0;
-    const currentOut = outAmount;
-    const currentAmount = amount;
-    if (token0 && token1) {
-      setToken1(currentT0);
-      setToken0(currentT1);
-      setOutAmount(Number(currentAmount));
-      setAmount(currentOut.toString());
-
-      const coin = coinList.find(coin => coin.unit.toLowerCase() === currentT1.symbol.toLowerCase());
-      if (coin) {
-        setCoinInfo(coin);
-      }
-    }
-    return;
-  };
-
-  const setEstimateOut = (outputAmount) => {
-
-    setOutAmount(outputAmount);
-    setSwapTypes(1);
-  };
-
-  const estimateOut = async () => {
-    setLoading(true);
-    const network = await usewallet.getNetwork();
-    if (token0 && token1) {
-      if (outAmount <= 0) {
-        setLoading(false);
-        return;
-      }
-      const token0Address = `A.${token0.address[network].slice(2)}.${token0.contract_name}`
-      const token1Address = `A.${token1.address[network].slice(2)}.${token1.contract_name}`
-      try {
-        const result = await usewallet.openapi.swapOutEstimate(network, token0Address, token1Address, outAmount);
-        let price: any = result.data.tokenOutAmount / parseFloat(result.data.tokenInAmount);
-        price = (Math.round(price * 1000) / 1000).toFixed(3)
-        setPrice(price);
-        if (errorType == Error.Fail) {
-          setErrorType(null);
-        }
-        setEstimateInfo(result.data);
-        setAmount((Math.round(result.data.tokenInAmount * 1000) / 1000).toFixed(4));
-      } catch (err) {
-        setLoading(false);
-        setErrorType(Error.Fail);
-      }
+    if (network === 'previewnet') {
+      usewallet.queryEvmAddress(wallet.address).then(async (res) => {
+        console.log('resultresultresult ', res);
+        setEvmAddress(res);
+        const balance = await usewallet.getBalance(res);
+        console.log('balance balance balance ', balance);
+      }).catch((err) => {
+        console.log('resultresultresult err', err)
+      });
     }
     setLoading(false);
     return;
-  }
+  };
 
-  const estimate = async () => {
+  const moveToken = async() => {
     setLoading(true);
-    if (Number(amount) <= 0) {
+    usewallet.transferFlowEvm(evmAddress, amount).then(async (createRes) => {
+      usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
+      await usewallet.setDashIndex(0);
+      history.push('/dashboard?activity=1');
+      console.log('transferFlowEvm , ', createRes)
       setLoading(false);
-      return;
-    }
-    const network = await usewallet.getNetwork();
-    if (token0 && token1) {
-      const token0Address = `A.${token0.address[network].slice(2)}.${token0.contract_name}`
-      const token1Address = `A.${token1.address[network].slice(2)}.${token1.contract_name}`
-      try {
-        const result = await usewallet.openapi.swapEstimate(network, token0Address, token1Address, amount);
-        console.log(result)
-        let price: any = result.data.tokenOutAmount / parseFloat(result.data.tokenInAmount);
-        price = (Math.round(price * 1000) / 1000).toFixed(3)
-        setPrice(price);
-        if (errorType == Error.Fail) {
-          setErrorType(null);
-        }
-        setEstimateInfo(result.data);
-        setOutAmount((Math.round(result.data.tokenOutAmount * 1000) / 1000).toFixed(4));
-        setSwapTypes(0);
-      } catch (err) {
-        setLoading(false);
-        setErrorType(Error.Fail);
-      }
-    }
-    setLoading(false);
-
+    }).catch((err) => {
+      console.log(err);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
     setUserWallet();
-    setToken0(flowToken);
   }, [])
 
-  useEffect(() => {
-    if (swapTypes) {
-      return;
-    }
-    const delayDebounceFn = setTimeout(async () => {
-      estimate();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [amount])
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      estimate();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [token1])
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      estimate();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [token0])
-
-  useEffect(() => {
-    if (!swapTypes) {
-      return;
-    }
-    const delayDebounceFn = setTimeout(async () => {
-      estimateOut();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [outAmount])
 
   return (
     <Drawer
@@ -295,9 +173,11 @@ const Move = (props: TransferConfirmationProps) => {
             display: 'flex'
           }}
         >
-          <Box></Box>
+          <Box sx={{ width: '40px' }}></Box>
           <Box>
-            Move Token
+            <Typography sx={{ fontWeight: '700', fontSize: '14px' }}>
+              Move Token
+            </Typography>
           </Box>
           <Box onClick={props.handleCancelBtnClicked}>
             <IconButton>
@@ -308,23 +188,10 @@ const Move = (props: TransferConfirmationProps) => {
             </IconButton>
           </Box>
         </Box>
-        {coinInfo.unit &&
-          <TransferAmount
-            token={token0}
-            amount={amount}
-            setAmount={setAmount}
-            setSwapTypes={setSwapTypes}
-            setError={() => {
-              setErrorType(Error.Exceed);
-            }}
-            removeError={() => {
-              setErrorType(null);
-            }}
-            coinInfo={coinInfo}
-            btnSelect={() => {
-              setSelectToken(true)
-              setSelectTarget(0)
-            }}
+        {userWallet &&
+          <TransferFrom
+            wallet={userWallet}
+            userInfo={userInfo}
           />
         }
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', my: '-21px', zIndex: '99' }}>
@@ -335,7 +202,6 @@ const Move = (props: TransferConfirmationProps) => {
             :
             <Box sx={{ width: '100%', height: '28px', display: 'flex', justifyContent: 'center', }}>
               <Button
-                onClick={() => switchSide()}
                 sx={{ minWidth: '28px', borderRadius: '28px', padding: 0, }}
               >
                 <IconSwitch color={'#41CC5D'} size={28} style={{ borderRadius: '28px', border: '3px solid #000' }} />
@@ -343,23 +209,10 @@ const Move = (props: TransferConfirmationProps) => {
             </Box>
           }
         </Box>
-        {coinInfo.unit &&
-          <TransferAmount
-            token={token0}
-            amount={amount}
-            setAmount={setAmount}
-            setSwapTypes={setSwapTypes}
-            setError={() => {
-              setErrorType(Error.Exceed);
-            }}
-            removeError={() => {
-              setErrorType(null);
-            }}
-            coinInfo={coinInfo}
-            btnSelect={() => {
-              setSelectToken(true)
-              setSelectTarget(0)
-            }}
+        {evmAddress &&
+          <TransferTo
+            wallet={evmAddress}
+            userInfo={userInfo}
           />
         }
       </Box>
@@ -368,13 +221,15 @@ const Move = (props: TransferConfirmationProps) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
         {coinInfo.unit &&
           <MoveToken
-            token={token1}
-            outAmount={outAmount}
-            estimateOut={setEstimateOut}
-            btnSelect={() => {
-              setSelectToken(true)
-              setSelectTarget(1)
-            }}
+            coinList={coinList}
+            amount={amount}
+            setAmount={setAmount}
+            secondAmount={secondAmount}
+            setSecondAmount={setSecondAmount}
+            exceed={exceed}
+            setExceed={setExceed}
+            coinInfo={coinInfo}
+            setCurrentCoin={setCurrentCoin}
           />
         }
       </Box>
@@ -382,7 +237,7 @@ const Move = (props: TransferConfirmationProps) => {
       <Box sx={{ display: 'flex', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
 
         <Button
-          // onClick={() => { setConfirmationOpen(true) }}
+          onClick={() => { moveToken() }}
           // disabled={true}
           variant="contained"
           color="success"
@@ -393,7 +248,7 @@ const Move = (props: TransferConfirmationProps) => {
             borderRadius: '8px',
             textTransform: 'capitalize',
           }}
-          disabled={outAmount <= 0 || Number(amount) <= 0 || errorType || isLoading || token1 == null}
+          disabled={Number(amount) <= 0 || errorType || isLoading}
         >
           <Typography
             variant="subtitle1"
@@ -407,13 +262,6 @@ const Move = (props: TransferConfirmationProps) => {
           </Typography>
         </Button>
       </Box>
-
-      {/* <SelectToken
-        isConfirmationOpen={selectTokenOpen}
-        data={{ tokens: tokens, token0: token0, token1: token1, network: network }}
-        handleCloseIconClicked={() => setSelectToken(false)}
-        updateCoinInfo={updateCoinInfo}
-      /> */}
     </Drawer>
   );
 }

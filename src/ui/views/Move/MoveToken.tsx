@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Button,
+  IconButton,
   ListItemText,
   Select,
   MenuItem,
@@ -11,11 +11,9 @@ import {
   InputAdornment,
   Input,
   Chip,
-  Tooltip,
-  Avatar
+  Tooltip
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import CloseIcon from '@mui/icons-material/Close';
 import IconFlow from '../../../components/iconfont/IconFlow';
 import IconSwitch from '../../../components/iconfont/IconSwitch';
 import CancelIcon from '../../../components/iconfont/IconClose';
@@ -23,7 +21,6 @@ import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import { StyledEngineProvider } from '@mui/material/styles';
 import BN from 'bignumber.js';
 import { Presets } from 'react-component-transition';
-import SelectIcon from '@mui/icons-material/ArrowDropDown';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -33,6 +30,7 @@ const useStyles = makeStyles(() => ({
   },
   inputBox: {
     minHeight: '64px',
+    paddingRight: '12px',
     paddingLeft: '0',
     py: '14px',
     zIndex: '999',
@@ -51,10 +49,19 @@ const useStyles = makeStyles(() => ({
     lineHeight: '1.5',
     display: 'flex',
     gap: '8px',
-    justifyContent: 'center',
     color: '#CDD2D7',
     border: '1px solid #282828',
 
+    // &.${selectUnstyledClasses.expanded} {
+    //   &::after {
+    //     content: '▴';
+    //   }
+    // }
+
+    // &::after {
+    //   content: '▾';
+    //   float: right;
+    // }
     '&ul': {
       fontFamily: 'IBM Plex Sans, sans-serif',
       fontSize: '0.875rem',
@@ -98,21 +105,87 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const MoveToken = ({
-  token,
-  estimateOut,
-  outAmount,
-  btnSelect,
-}) => {
+const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, coinList }) => {
   const classes = useStyles();
+  const [coin, setCoin] = useState<string>('flow');
+  const [coinType, setCoinType] = useState<any>(0);
+  const handleMaxClick = () => {
+    if (coinInfo) {
+      if (coin === 'flow') {
+        setAmount(coinInfo.balance - 0.001)
+      } else {
+        setAmount(coinInfo.balance)
+      }
+    }
+  }
+
+  const renderValue = (option) => {
+    setCurrentCoin(option);
+    setCoin(option);
+    const selectCoin = coinList.find(coin => coin.unit === option)
+    return (
+      selectCoin && <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />
+    );
+  }
+
+  const swap = () => {
+    setCoinType(!coinType);
+  };
+
+  const currentCoinType = () => {
+    setCoin(coinInfo.unit);
+  };
+
+  useEffect(() => {
+    currentCoinType();
+  }, []);
+
+  useEffect(() => {
+    if (coinType) {
+      const secondInt = parseInt(secondAmount)
+      const value = new BN(secondInt)
+        .dividedBy(new BN(coinInfo.price))
+        .toNumber()
+      if (coinInfo.balance - value < 0) {
+        setExceed(true);
+      } else {
+        setExceed(false);
+      }
+      if (isNaN(value)) {
+        setAmount(0)
+      } else {
+        setAmount(parseFloat(value.toFixed(3)))
+      }
+    }
+  }, [secondAmount])
+
+  useEffect(() => {
+    if (!coinType) {
+      if (coinInfo && amount) {
+        const result = parseFloat((coinInfo.amountbalance - amount).toPrecision())
+        if (coinInfo.balance - amount < 0) {
+          setExceed(true);
+        } else {
+          if (coin === 'flow' && result < 0.001) {
+            setExceed(true);
+          } else {
+            setExceed(false);
+          }
+        }
+        const value = new BN(amount)
+          .times(new BN(coinInfo.price))
+          .toFixed(3);
+        setSecondAmount(value)
+      }
+    }
+  }, [amount, coin])
 
   return (
     <StyledEngineProvider injectFirst>
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '0',
-        zIndex: '10'
+        gap: '0'
       }}>
         <Box sx={{
           display: 'flex',
@@ -122,18 +195,24 @@ const MoveToken = ({
           backgroundColor: 'neutral.main',
           zIndex: 1000
         }}>
-          <Box sx={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontFamily: 'IBM Plex Sans, sans-serif',
-            fontSize: '0.875rem',
-            boxSizing: 'border-box',
-            padding: '8px',
-            color: '#fff',
-            flexDirection: 'column'
-          }}>
+          <Box sx={{ width: '100%', display: 'flex' }}>
+            <Select
+              renderValue={renderValue}
+              className={classes.selectRoot}
+              defaultValue={coinInfo.unit}
+              MenuProps={{ MenuListProps: { disablePadding: true } }}
+            >
+              {
+                coinList.map(coin => (
+                  <MenuItem value={coin.unit} key={coin.unit}>
+                    <ListItemIcon>
+                      <img src={coin.icon} style={{ height: '24px', width: '24px' }} />
+                    </ListItemIcon>
+                    <ListItemText>{coin.coin}</ListItemText>
+                  </MenuItem>
+                ))
+              }
+            </Select>
             <FormControl sx={{ flex: '1', display: 'flex' }}>
               <Input
                 id="textfield"
@@ -143,62 +222,58 @@ const MoveToken = ({
                 fullWidth
                 disableUnderline
                 autoComplete="off"
-                value={outAmount}
+                value={amount}
                 type='number'
                 onChange={(event) => {
                   // let value = event.target.value;
                   // value = (Math.round(value * 100) / 100).toFixed(2)
-                  estimateOut(event.target.value);
+                  setExceed(false);
+                  setAmount(event.target.value);
                 }}
                 inputProps={{ sx: { fontSize: '24px' } }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    {token ?
-                      <Button variant="text" onClick={btnSelect} sx={{ width: 'auto', display: 'flex', alignItems: 'center', py: '8px', color: '#fff', backgroundColor: '#333333', marginRight: '4px', px: '8px', borderRadius: '16px' }}>
-                        {/* <img src={token.icon} style={{height: '32px', width: '32px', marginRight:'4px'}}/> */}
-                        <Avatar src={token.icon} sx={{ height: '32px', width: '32px', marginRight: '4px' }} />
-                        <Typography variant="body2" sx={{ color: '#fff', fontSize: '12px' }}>{token.symbol}</Typography>
-                        <SelectIcon
-                          fontSize="medium"
-                          sx={{ color: 'icon.navi', paddingRight: '0px', cursor: 'pointer' }}
-                        />
-                      </Button>
-                      :
-                      <Button variant="text" onClick={btnSelect} sx={{ width: 'auto', display: 'flex', alignItems: 'center', py: '11px', color: '#fff', border: '1px solid #41CC5D', borderRadius: '16px' }}>
-                        <Box sx={{ width: '24px', height: '24px', borderRadius: '24px', marginRight: '4px', background: 'linear-gradient(191.31deg, #41CC5D 11.11%, #7678ED 92.36%)' }}></Box>
-                        <Typography variant="body2" sx={{ color: '#fff', fontSize: '12px' }}>Select</Typography>
-                        <SelectIcon
-                          fontSize="medium"
-                          sx={{ color: 'icon.navi', paddingRight: '0px', cursor: 'pointer' }}
-                        />
-                      </Button>
-                    }
-                  </InputAdornment>
-                }
                 endAdornment={
                   <InputAdornment position="end">
-                    <Chip label={chrome.i18n.getMessage('Max')} size="small" onClick={estimateOut} sx={{ padding: '2px 5px' }} />
+                    <Chip label={chrome.i18n.getMessage('Max')} size="small" onClick={handleMaxClick} sx={{ padding: '2px 5px' }} />
                   </InputAdornment>
-
                 }
               />
             </FormControl>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: '4px',
+              mx: '12px',
+              mb: '14px',
+              justifyContent: 'space-between'
+            }}
+          >
+            <Typography>Balance</Typography>
+            <Typography>{coinInfo.balance}</Typography>
+          </Box>
+        </Box>
+        <Presets.TransitionSlideUp>
+          {exceed &&
             <Box
               sx={{
                 display: 'flex',
                 flexDirection: 'row',
-                justifyContent: 'space-between',
-                gap: '4px',
-                mx: '12px',
-                width: '100%',
-                mb: '14px'
+                alignItems: 'center',
+                width: '95%',
+                backgroundColor: 'error.light',
+                mx: 'auto',
+                borderRadius: '0 0 12px 12px',
               }}
             >
-              <Typography color="text.secondary" variant="caption">Balance</Typography>
-              <Typography color="text.secondary" variant="caption">0</Typography>
+              <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+              <Typography variant="body1" color="text.secondary" sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}>
+                {chrome.i18n.getMessage('Insufficient_balance') + (coin === 'flow' ? chrome.i18n.getMessage('on_Flow_the_balance_cant_less_than_0001_FLOW') : '')}
+              </Typography>
             </Box>
-          </Box>
-        </Box>
+          }
+        </Presets.TransitionSlideUp>
 
 
       </Box>
