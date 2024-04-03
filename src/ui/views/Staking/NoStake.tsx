@@ -23,13 +23,11 @@ const NoStake = (props: NoStakeProps) => {
   const [apr, setApr] = useState<any>(0);
   const getApy = async () => {
     const result = await usewallet.getApr();
-    console.log('apr: ', result);
     setApr(result);
   };
 
   useEffect(() => {
     getApy();
-    console.log(props.amount);
   }, []);
 
   return (

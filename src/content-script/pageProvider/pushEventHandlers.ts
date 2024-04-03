@@ -1,5 +1,5 @@
 import { ethErrors } from 'eth-rpc-errors';
-import { EthereumProvider } from './index';
+import { EthereumProvider } from './index.js';
 
 class PushEventHandlers {
   provider: EthereumProvider;

@@ -34,4 +34,3 @@ const service = {
 }
 
 WalletUtils.injectExtService(service);
-
