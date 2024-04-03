@@ -562,7 +562,7 @@ const patchProvider = (provider) => {
 const log = (event, ...args) => {
     console.log('event ', event)
     if (process.env.NODE_ENV !== "production") {
-        console.log(`%c [rabby] (${new Date().toTimeString().substr(0, 8)}) ${event}`, "font-weight: bold; background-color: #7d6ef9; color: white;", ...args);
+        console.log(`%c (${new Date().toTimeString().substr(0, 8)}) ${event}`, "font-weight: bold; background-color: #7d6ef9; color: white;", ...args);
     }
 };
 let channelName = typeof __rabby__channelName !== "undefined" ? __rabby__channelName : "";

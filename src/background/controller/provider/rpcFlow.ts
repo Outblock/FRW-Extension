@@ -25,9 +25,10 @@ const flowContext = flow
 
     if (!providerController[ctx.mapMethod]) {
       // TODO: make rpc whitelist
-      // if (method.startsWith('eth_') || method === 'net_version') {
-      //   return providerController.ethRpc(ctx.request);
-      // }
+      if (method.startsWith('eth_') || method === 'net_version') {
+        // return providerController.ethRpc(ctx.request);
+        return next();
+      }
 
       throw ethErrors.rpc.methodNotFound({
         message: `method [${method}] doesn't has corresponding handler`,
@@ -38,6 +39,7 @@ const flowContext = flow
     return next();
   })
   .use(async (ctx, next) => {
+    console.log('ctx ', ctx)
     const { mapMethod } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       // check lock
@@ -67,7 +69,7 @@ const flowContext = flow
             params: { origin, name, icon },
             approvalComponent: 'Connect',
           },
-          { height: 390 }
+          { height: 599 }
         );
 
         permissionService.addConnectedSite(origin, name, icon, defaultChain);
