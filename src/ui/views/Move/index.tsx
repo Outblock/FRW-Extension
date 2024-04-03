@@ -15,6 +15,7 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { Contact } from 'background/service/networkModel';
+import wallet from '@/background/controller/wallet';
 
 
 interface TransferConfirmationProps {
@@ -96,6 +97,8 @@ const Move = (props: TransferConfirmationProps) => {
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [toEvm, setToEvm] = useState<boolean>(true);
+  const [evmBalance, setEvmBalance] = useState('0.0');
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
 
@@ -128,6 +131,7 @@ const Move = (props: TransferConfirmationProps) => {
         setEvmAddress(res);
         const balance = await usewallet.getBalance(res);
         console.log('balance balance balance ', balance);
+        setEvmBalance(balance);
       }).catch((err) => {
         console.log('resultresultresult err', err)
       });
@@ -136,7 +140,7 @@ const Move = (props: TransferConfirmationProps) => {
     return;
   };
 
-  const moveToken = async() => {
+  const moveToken = async () => {
     setLoading(true);
     usewallet.transferFlowEvm(evmAddress, amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
@@ -148,6 +152,33 @@ const Move = (props: TransferConfirmationProps) => {
       console.log(err);
       setLoading(false);
     });
+  };
+
+  const withDrawToken = async () => {
+    setLoading(true);
+    usewallet.withdrawFlowEvm(amount, userWallet.address).then(async (createRes) => {
+      usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
+      await usewallet.setDashIndex(0);
+      history.push('/dashboard?activity=1');
+      console.log('transferFlowEvm , ', createRes)
+      setLoading(false);
+    }).catch((err) => {
+      console.log(err);
+      setLoading(false);
+    });
+  };
+
+  const handleMove = async ()=> {
+    if (toEvm) {
+      moveToken();
+    } else {
+      withDrawToken();
+    }
+  };
+
+  const switchSide = () => {
+    const toEvmType = toEvm
+    setToEvm(!toEvmType);
   };
 
   useEffect(() => {
@@ -189,10 +220,17 @@ const Move = (props: TransferConfirmationProps) => {
           </Box>
         </Box>
         {userWallet &&
-          <TransferFrom
-            wallet={userWallet}
-            userInfo={userInfo}
-          />
+          (toEvm ?
+            <TransferFrom
+              wallet={userWallet}
+              userInfo={userInfo}
+            />
+            :
+            <TransferTo
+              wallet={evmAddress}
+              userInfo={userInfo}
+            />
+          )
         }
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', my: '-21px', zIndex: '99' }}>
           {isLoading ?
@@ -202,6 +240,8 @@ const Move = (props: TransferConfirmationProps) => {
             :
             <Box sx={{ width: '100%', height: '28px', display: 'flex', justifyContent: 'center', }}>
               <Button
+                onClick={() => switchSide()}
+
                 sx={{ minWidth: '28px', borderRadius: '28px', padding: 0, }}
               >
                 <IconSwitch color={'#41CC5D'} size={28} style={{ borderRadius: '28px', border: '3px solid #000' }} />
@@ -210,10 +250,18 @@ const Move = (props: TransferConfirmationProps) => {
           }
         </Box>
         {evmAddress &&
-          <TransferTo
-            wallet={evmAddress}
-            userInfo={userInfo}
-          />
+
+          (toEvm ?
+            <TransferTo
+              wallet={evmAddress}
+              userInfo={userInfo}
+            />
+            :
+            <TransferFrom
+              wallet={userWallet}
+              userInfo={userInfo}
+            />
+          )
         }
       </Box>
 
@@ -229,6 +277,8 @@ const Move = (props: TransferConfirmationProps) => {
             exceed={exceed}
             setExceed={setExceed}
             coinInfo={coinInfo}
+            toEvm={toEvm}
+            evmBalance={evmBalance}
             setCurrentCoin={setCurrentCoin}
           />
         }
@@ -237,7 +287,7 @@ const Move = (props: TransferConfirmationProps) => {
       <Box sx={{ display: 'flex', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
 
         <Button
-          onClick={() => { moveToken() }}
+          onClick={() => { handleMove() }}
           // disabled={true}
           variant="contained"
           color="success"

@@ -1237,6 +1237,29 @@ export class WalletController extends BaseController {
 
 
 
+
+  withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(8);
+
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+    const script = await getScripts('evm', 'withdrawCoa');
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(formattedAmount, t.UFix64),
+        fcl.arg(address, t.Address),
+      ]
+      
+    );
+  };
+
+
+
   queryEvmAddress = async (address: string): Promise<string> => {
     const network = await this.getNetwork();
     if (network !== 'previewnet') {

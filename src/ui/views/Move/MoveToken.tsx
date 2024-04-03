@@ -105,7 +105,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, coinList }) => {
+const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, toEvm, evmBalance, coinList }) => {
   const classes = useStyles();
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
@@ -251,7 +251,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
             }}
           >
             <Typography>Balance</Typography>
-            <Typography>{coinInfo.balance}</Typography>
+            <Typography>{toEvm ? coinInfo.balance : (Number(evmBalance) / 1e18)}</Typography>
           </Box>
         </Box>
         <Presets.TransitionSlideUp>
