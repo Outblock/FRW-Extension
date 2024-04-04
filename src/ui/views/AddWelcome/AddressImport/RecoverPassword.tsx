@@ -19,7 +19,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import zxcvbn from 'zxcvbn';
 import theme from '../../../style/LLTheme';
 import { useWallet, saveIndex } from 'ui/utils';
-import { storage } from '@/background/webapi';
+
+import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -129,15 +130,17 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKey }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [username, setUsername] = useState('');
 
   const [password, setPassword] = useState(tempPassword);
-  const [confirmPassword, setConfirmPassword] = useState(tempPassword);
+  const [newKey, setKeyNew] = useState(true);
+  const [isImport, setImport] = useState<any>(false);
+
   const [isLoading, setLoading] = useState(false);
 
   const [showError, setShowError] = useState(false);
@@ -151,7 +154,58 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
     setShowError(false);
   };
 
-  const register = async () => {
+  const signIn = async () => {
+    console.log('accountKey ', accountKey, mnemonic, pk)
+    setLoading(true);
+    if (accountKey[0].mnemonic) {
+      signMnemonic(accountKey);
+    } else {
+      signPk(accountKey);
+    }
+  };
+
+  const signMnemonic = async (accountKey) => {
+    try {
+      const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
+      console.log('result ->', result)
+      setLoading(false);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username)
+      login();
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      if (error.message === 'NoUserFound') {
+        setImport(false);
+      } else {
+        setKeyNew(false);
+      }
+    }
+  }
+
+  const signPk = async (accountKey) => {
+    try {
+      const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
+      console.log('result ->', result)
+      setLoading(false);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username)
+      login();
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      if (error.message === 'NoUserFound') {
+        setImport(false);
+      } else {
+        setKeyNew(false);
+      }
+    }
+  }
+
+
+
+
+  const login = async () => {
     setLoading(true);
 
     await saveIndex(username);
@@ -184,10 +238,10 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
         className="registerBox"
       >
         <Typography variant="h4">
-          {chrome.i18n.getMessage('Welcome__Back')}
-          <Box display="inline" color="primary.main">
+          {chrome.i18n.getMessage('Welcome__Back__import')}
+          {/* <Box display="inline" color="primary.main">
             {username}
-          </Box>{' '}
+          </Box>{' '} */}
         </Typography>
         <Typography variant="body1" color="text.secondary">
           {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
@@ -212,7 +266,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              
+
               onChange={(event) => {
                 setPassword(event.target.value);
               }}
@@ -237,7 +291,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
         <Box>
           <Button
             className="registerButton"
-            onClick={() => register()}
+            onClick={() => signIn()}
             variant="contained"
             color="secondary"
             size="large"
@@ -266,6 +320,15 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, goEnd 
           {errorMessage}
         </Alert>
       </Snackbar>
+      {!newKey &&
+        <ErrorModel
+          isOpen={setKeyNew}
+          onOpenChange={setKeyNew}
+          errorName={chrome.i18n.getMessage('Publickey_already_exist')}
+          errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
+          isGoback={true}
+        />
+      }
     </ThemeProvider>
   );
 };

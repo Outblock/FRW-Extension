@@ -634,6 +634,9 @@
   "Welcome__Back": {
     "message": "Welcome Back, "
   },
+  "Welcome__Back__import": {
+    "message": "Welcome Back "
+  },
   "Use__the__same__Google__Drive__password": {
     "message": "Use the same Google Drive password to secure Flow Reference Wallet"
   },
