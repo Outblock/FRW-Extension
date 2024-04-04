@@ -22,13 +22,14 @@ const flowContext = flow
       data: { method },
     } = ctx.request;
     ctx.mapMethod = underline2Camelcase(method);
-
+    console.log('providerController ', providerController)
+    console.log('ctx ', ctx)
     if (!providerController[ctx.mapMethod]) {
       // TODO: make rpc whitelist
-      if (method.startsWith('eth_') || method === 'net_version') {
-        // return providerController.ethRpc(ctx.request);
-        return next();
-      }
+      // if (method.startsWith('eth_') || method === 'net_version') {
+      //   return providerController.ethRpc(ctx.request);
+      //   return next();
+      // }
 
       throw ethErrors.rpc.methodNotFound({
         message: `method [${method}] doesn't has corresponding handler`,
@@ -62,12 +63,12 @@ const flowContext = flow
       mapMethod,
     } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-      if (!permissionService.hasPerssmion(origin)) {
+      if (!permissionService.hasPermission(origin)) {
         ctx.request.requestedApproval = true;
         const { defaultChain } = await notificationService.requestApproval(
           {
             params: { origin, name, icon },
-            approvalComponent: 'Connect',
+            approvalComponent: 'EthConnect',
           },
           { height: 599 }
         );

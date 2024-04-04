@@ -2,14 +2,17 @@ import { ethErrors } from 'eth-rpc-errors';
 
 // import RpcCache from 'background/utils/rpcCache';
 import {
-
+  permissionService,
   preferenceService,
+  sessionService,
 } from 'background/service';
-import { Session } from 'background/service/session';
 import Wallet from '../wallet';
 import BaseController from '../base';
 import { Account } from 'background/service/preference';
-
+import {
+  CHAINS,
+  SAFE_RPC_METHODS
+} from 'consts';
 interface ApprovalRes {
   type?: string;
   address?: string;
@@ -54,85 +57,39 @@ const signTypedDataVlidation = ({
 };
 
 class ProviderController extends BaseController {
-  // ethRpc = (req, forceChainServerId?: string) => {
-  //   const {
-  //     data: { method, params },
-  //     session: { origin },
-  //   } = req;
+  ethRequestAccounts = async ({ session: { origin } }) => {
+    if (!permissionService.hasPermission(origin)) {
+      throw ethErrors.provider.unauthorized();
+    }
 
-  //   if (
-  //     !permissionService.hasPermission(origin) &&
-  //     !SAFE_RPC_METHODS.includes(method)
-  //   ) {
-  //     throw ethErrors.provider.unauthorized();
-  //   }
+    const _account = await this.getCurrentAccount();
+    const account = _account ? [_account.address.toLowerCase()] : [];
+    sessionService.broadcastEvent('accountsChanged', account);
+    const connectSite = permissionService.getConnectedSite(origin);
+    // if (connectSite) {
+    //   const chain = CHAINS[connectSite.chai!];
+    //   // rabby:chainChanged event must be sent before chainChanged event
+    //   sessionService.broadcastEvent('rabby:chainChanged', chain, origin);
+    //   sessionService.broadcastEvent(
+    //     'chainChanged',
+    //     {
+    //       chain: chain.hex,
+    //       networkVersion: chain.network,
+    //     },
+    //     origin
+    //   );
+    // }
 
-  //   const site = permissionService.getSite(origin);
-  //   let chainServerId = CHAINS[CHAINS_ENUM.ETH].serverId;
-  //   if (site) {
-  //     chainServerId = CHAINS[site.chain].serverId;
-  //   }
-  //   if (forceChainServerId) {
-  //     chainServerId = forceChainServerId;
-  //   }
+    return account;
+  };
 
-  //   const currentAddress =
-  //     preferenceService.getCurrentAccount()?.address.toLowerCase() || '0x';
-  //   const cache = RpcCache.get(currentAddress, {
-  //     method,
-  //     params,
-  //     chainId: chainServerId,
-  //   });
-  //   if (cache) return cache;
-  //   const chain = Object.values(CHAINS).find(
-  //     (item) => item.serverId === chainServerId
-  //   )!;
-  //   if (RPCService.hasCustomRPC(chain.enum)) {
-  //     const promise = RPCService.requestCustomRPC(
-  //       chain.enum,
-  //       method,
-  //       params
-  //     ).then((result) => {
-  //       RpcCache.set(currentAddress, {
-  //         method,
-  //         params,
-  //         result,
-  //         chainId: chainServerId,
-  //       });
-  //       return result;
-  //     });
-  //     RpcCache.set(currentAddress, {
-  //       method,
-  //       params,
-  //       result: promise,
-  //       chainId: chainServerId,
-  //     });
-  //     return promise;
-  //   } else {
-  //     const promise = openapiService
-  //       .ethRpc(chainServerId, {
-  //         origin: encodeURIComponent(origin),
-  //         method,
-  //         params,
-  //       })
-  //       .then((result) => {
-  //         RpcCache.set(currentAddress, {
-  //           method,
-  //           params,
-  //           result,
-  //           chainId: chainServerId,
-  //         });
-  //         return result;
-  //       });
-  //     RpcCache.set(currentAddress, {
-  //       method,
-  //       params,
-  //       result: promise,
-  //       chainId: chainServerId,
-  //     });
-  //     return promise;
-  //   }
-  // };
+  ethAccounts = async ({ session: { origin } }) => {
+    return ['000000000000000000000002f9e3b9cbbaa99770'];
+  };
+
+  ethChainId = ({ session }) => {
+    return 646;
+  };
 }
 
 export default new ProviderController();

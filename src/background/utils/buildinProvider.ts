@@ -117,8 +117,8 @@ export class EthereumProvider extends EventEmitter {
       //     .finally(() => {
       //       preferenceService.setCurrentAccount(currentAccount);
       //     });
-      // case 'eth_chainId':
-      //   return chain.hex;
+      case 'eth_chainId':
+        return 'FLOW';
       default:
         return providerController[mapMethod](request);
     }

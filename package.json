@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.1.0",
+    "@debank/common": "^0.3.60",
     "@dnd-kit/core": "^4.0.3",
     "@dnd-kit/sortable": "^5.1.0",
     "@dnd-kit/utilities": "^3.0.2",
