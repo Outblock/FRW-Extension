@@ -84,7 +84,18 @@ class ProviderController extends BaseController {
   };
 
   ethAccounts = async ({ session: { origin } }) => {
-    return ['000000000000000000000002f9e3b9cbbaa99770'];
+    if (!permissionService.hasPermission(origin) || !Wallet.isUnlocked()) {
+      return [];
+    }
+   
+    const network = await Wallet.getNetwork();
+    if (network !== 'previewnet') {
+     await Wallet.switchNetwork('previewnet');
+    }
+    const currentWallet = await Wallet.getCurrentWallet();
+    const res = await Wallet.queryEvmAddress(currentWallet.address);
+    return [res];
+    // return ['000000000000000000000002f9e3b9cbbaa99770'];
   };
 
   ethChainId = ({ session }) => {

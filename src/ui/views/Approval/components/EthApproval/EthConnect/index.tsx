@@ -60,7 +60,7 @@ const EthConnect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     let collectList: { name: string; logo_url: string }[] = [];
     let defaultChain = 'FLOW';
     let isShowTestnet = false;
-   
+
     setDefaultChain(defaultChain);
 
     setIsLoading(false);
@@ -132,57 +132,9 @@ const EthConnect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   return (
     <ThemeProvider theme={theme}>
       123123123123131331
-      {showSwitch ?
-        <Box sx={{
-          margin: '18px 18px 0px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '12px',
-          height: '506px',
-          background: 'linear-gradient(0deg, #121212, #11271D)'
-        }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
-            <Divider />
-            <Typography sx={{ textAlign: 'center', fontSize: '20px', color: '#E6E6E6' }} >Allow this site to switch  <br />the network?</Typography>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', marginTop: '18px' }}>
-              <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>This action will change your current network from <Typography sx={{ display: 'inline', color: '#E6E6E6' }}  > {currentNetwork}</Typography> to <Typography sx={{ display: 'inline', color: '#E6E6E6' }} > {msgNetwork}</Typography>.</Typography>
-            </Stack>
-          </Box>
-          <Stack direction="column" spacing="18px" sx={{ justifyContent: 'space-between', width: '100%' }}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={currentNetwork === 'testnet' ? testnetsvg : mainnetsvg} />
-                <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{currentNetwork}</Typography>
-              </Box>
-              <img style={{ width: '116px' }} src={Link} />
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={msgNetwork === 'testnet' ? testnetsvg : mainnetsvg} />
-                <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{msgNetwork}</Typography>
-              </Box>
-
-            </Box>
-          </Stack>
-          <Box sx={{ flexGrow: 1 }} />
-          <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
-            <LLSecondaryButton
-              label={chrome.i18n.getMessage('Cancel')}
-              fullWidth
-              onClick={handleCancel}
-            />
-            <LLPrimaryButton
-              label={chrome.i18n.getMessage('Switch__Network')}
-              fullWidth
-              type="submit"
-              onClick={handleSwitchNetwork}
-            />
-          </Stack>
-        </Box>
-        :
-        <Box>
-          {renderContent()}
-        </Box>
-
-      }
+      <Box>
+        {renderContent()}
+      </Box>
     </ThemeProvider>
   );
 };
