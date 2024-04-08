@@ -15,6 +15,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
 import { jsonToKey } from '../../../utils/modules/passkey';
+import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -84,14 +85,16 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       e.preventDefault();
       const keystore = e.target[0].value;
       const flag = checkJSONImport(keystore);
-      if (!flag) return;
+      if (!flag) {
+        setErrorMessage('json not valid');
+        return;
+      }
       const password = e.target[2].value;
       const address = e.target[5].value;
       const pk = await jsonToKey(keystore, password);
       if (pk == null) {
-        const error = new Error('Password incorrect');
-        throw error;
-       
+        setErrorMessage('Password incorrect')
+        return
       }
       const pkHex = Buffer.from(pk!.data()).toString('hex');
       const result = await findAddressWithPK(pkHex, address);
@@ -117,10 +120,6 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
     }
     const result = hasJsonStructure(event);
     setIsInvalid(!result);
-    if (!result) {
-      const error = new Error('Not a valid json input');
-      throw error;
-    }
     setErrorMessage(!result ? 'Not a valid json input' : '');
     return result;
   };
@@ -184,6 +183,14 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           </Typography>
         </Button>
       </form>
+      {errorMesssage != '' && (
+        <ErrorModel
+          isOpen={errorMesssage !== ''}
+          onOpenChange={()=>{setErrorMessage('')}}
+          errorName={chrome.i18n.getMessage('Error')}
+          errorMessage={errorMesssage}
+        />
+      )}
     </Box>
   );
 };
