@@ -10,7 +10,6 @@ import {
   IconButton,
   TextareaAutosize,
   InputAdornment,
-  Alert,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
@@ -90,8 +89,8 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       const address = e.target[5].value;
       const pk = await jsonToKey(keystore, password);
       if (pk == null) {
-        setErrorMessage('Password incorrect');
-        return;
+        const error = new Error('Password incorrect');
+        throw error;
       }
       const pkHex = Buffer.from(pk.data()).toString('hex');
       const result = await findAddressWithPK(pkHex, address);
@@ -117,6 +116,10 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
     }
     const result = hasJsonStructure(event);
     setIsInvalid(!result);
+    if (!result) {
+      const error = new Error('Not a valid json input');
+      throw error;
+    }
     setErrorMessage(!result ? 'Not a valid json input' : '');
     return result;
   };
@@ -180,11 +183,6 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           </Typography>
         </Button>
       </form>
-      {errorMesssage && (
-        <Alert severity="warning">
-          {errorMesssage}
-        </Alert>
-      )}
     </Box>
   );
 };

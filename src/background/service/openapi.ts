@@ -523,6 +523,8 @@ class OpenApiService {
         return 'flowusd';
       case PriceProvider.kucoin:
         return 'flowusdt';
+      default:
+        return '';
     }
   };
 
@@ -532,15 +534,15 @@ class OpenApiService {
       `/api/prices`,
       {},
       {},
-      'https://test.lilico.app'
+      WEB_NEXT_URL
     );
 
     if (pricesMap && pricesMap['FlovatarDustToken']) {
       return pricesMap;
     }
     data.map((d) => {
-      const { rateToUSD, contractName } = d;
-      pricesMap[contractName] = { price: { last: rateToUSD.toFixed(4) } };
+      const { rateToUSD, contractName, contractAddress, symbol } = d;
+      pricesMap[symbol] = rateToUSD.toFixed(4);
     });
 
     return pricesMap;
@@ -548,12 +550,8 @@ class OpenApiService {
 
   getPricesBySymbol = async (symbol: string) => {
     const data = await this.getTokenPrices();
-    switch (symbol) {
-      case 'dust':
-        return data['FlovatarDustToken'];
-      default:
-        return null;
-    }
+    const key = symbol.toUpperCase()
+    return data[key];
   };
 
   getTokenPair = (token: string, provider: PriceProvider): string | null => {
@@ -1843,7 +1841,7 @@ class OpenApiService {
       `/api/scripts?network=${network}`,
       {},
       {},
-      'https://test.lilico.app'
+      WEB_NEXT_URL
     );
     return data;
   };

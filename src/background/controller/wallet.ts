@@ -978,7 +978,8 @@ export class WalletController extends BaseController {
 
   private tokenPrice = async (tokenSymbol: string) => {
     const token = tokenSymbol.toLowerCase();
-    const prices = await openapiService.getTokenPrices();
+    const price = await openapiService.getPricesBySymbol(tokenSymbol);
+
     switch (token) {
       case 'flow':
         return await openapiService.getTokenPrice('flow');
@@ -988,14 +989,12 @@ export class WalletController extends BaseController {
         return Promise.resolve({
           price: { last: '1.0', change: { percentage: '0.0' } },
         });
-      case 'dust':
-        return prices['FlovatarDustToken'];
-      // case 'dust':
-      //   return prices['FlovatarDustToken'];
-      // case 'dust':
-      //   return prices['FlovatarDustToken'];
       default:
-        return null;
+        if (price) {
+          return { price: { last: price, change: { percentage: '0.0' } } };
+        } else{
+          return null;
+        }
     }
   };
 
@@ -1030,7 +1029,9 @@ export class WalletController extends BaseController {
             ? 0
             : new BN(allPrice[index].price.last).toNumber(),
         change24h:
-          allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
+          allPrice[index] === null ||
+          !allPrice[index].price ||
+          !allPrice[index].price.change
             ? 0
             : new BN(allPrice[index].price.change.percentage)
               .multipliedBy(100)

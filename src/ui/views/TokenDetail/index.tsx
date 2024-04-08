@@ -64,9 +64,9 @@ const TokenDetail = () => {
 
     setProviders(result);
     if (result.length == 0) {
-      const { price } = await wallet.openapi.getPricesBySymbol(token);
+      const price = await wallet.openapi.getPricesBySymbol(token);
       if (price) {
-        setPrice(price.last);
+        setPrice(price);
       }
     }
   };
