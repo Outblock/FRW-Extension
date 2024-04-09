@@ -2,11 +2,20 @@ import { useEffect, useState, useContext } from 'react';
 import { findAddressWithPK } from '../../../../utils/modules/findAddressWithPK';
 import { KEY_TYPE } from '../../../../utils/modules/constants';
 import React from 'react';
-import { Box, Button, Typography, TextField, IconButton, TextareaAutosize, InputAdornment } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  IconButton,
+  TextareaAutosize,
+  InputAdornment,
+} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
-import { jsonToKey } from '../../../../utils/modules/passkey'
+import ErrorModel from '../../../../FRWComponent/PopupModal/errorModel';
+import { jsonToKey } from '../../../../utils/modules/passkey';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -41,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   input: {
     '& .MuiInputBase-input': {
       padding: '0 20px',
-      fontWeight: 400
+      fontWeight: 400,
     },
   },
   button: {
@@ -54,7 +63,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
-  const [json, setJson] = useState('')
+  const [json, setJson] = useState('');
   const [errorMesssage, setErrorMessage] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -72,24 +81,33 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
 
   const handleImport = async (e) => {
     try {
-      setLoading(true)
+      setLoading(true);
       e.preventDefault();
-      const keystore = e.target[0].value
-      const password = e.target[2].value
-      const address = e.target[5].value
-      const pk = await jsonToKey(keystore, password)
-      const pkHex = Buffer.from(pk.data()).toString('hex')
-      const result = await findAddressWithPK(pkHex, address)
-      console.log(result)
+      const keystore = e.target[0].value;
+      const flag = checkJSONImport(keystore);
+      if (!flag) {
+        setErrorMessage('json not valid')
+        return;
+      }
+      const password = e.target[2].value;
+      const address = e.target[5].value;
+      const pk = await jsonToKey(keystore, password);
+      if (pk == null) {
+        setErrorMessage('Password incorrect')
+        return
+      }
+      const pkHex = Buffer.from(pk.data()).toString('hex');
+      const result = await findAddressWithPK(pkHex, address);
+      console.log(result);
       setPk(pkHex);
       if (!result) {
         onOpen();
         return;
       }
-      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.KEYSTORE }))
+      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.KEYSTORE }));
       onImport(accounts);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -102,6 +120,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
     }
     const result = hasJsonStructure(event);
     setIsInvalid(!result);
+
     setErrorMessage(!result ? 'Not a valid json input' : '');
     return result;
   };
@@ -136,9 +155,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
           defaultValue={''}
-
         />
-
 
         <Button
           className="registerButton"
@@ -153,10 +170,9 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex'
+            display: 'flex',
           }}
           disabled={isLoading || isSignLoading}
-
         >
           {(isLoading || isSignLoading) && <LLSpinner size={28} />}
           <Typography
@@ -168,6 +184,14 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           </Typography>
         </Button>
       </form>
+      {errorMesssage !='' && (
+        <ErrorModel
+          isOpen={errorMesssage !== ''}
+          onOpenChange={()=>{setErrorMessage('')}}
+          errorName={chrome.i18n.getMessage('Error')}
+          errorMessage={errorMesssage}
+        />
+      )}
     </Box>
   );
 };

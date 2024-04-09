@@ -86,6 +86,7 @@ const auth = getAuth(app);
 // const remoteConfig = getRemoteConfig(app);
 
 const remoteFetch = fetchConfig;
+const pricesMap = {};
 
 const waitForAuthInit = async () => {
   let unsubscribe: Promise<Unsubscribe>;
@@ -522,7 +523,36 @@ class OpenApiService {
         return 'flowusd';
       case PriceProvider.kucoin:
         return 'flowusdt';
+      default:
+        return '';
     }
+  };
+
+  getTokenPrices = async () => {
+    const { data = [] } = await this.sendRequest(
+      'GET',
+      `/api/prices`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+
+    if (pricesMap && pricesMap['FLOW']) {
+      return pricesMap;
+    }
+    data.map((d) => {
+      const { rateToUSD, symbol } = d;
+      const key = symbol.toUpperCase()
+      pricesMap[key] = rateToUSD.toFixed(4);
+    });
+
+    return pricesMap;
+  };
+
+  getPricesBySymbol = async (symbol: string) => {
+    const data = await this.getTokenPrices();
+    const key = symbol.toUpperCase()
+    return data[key];
   };
 
   getTokenPair = (token: string, provider: PriceProvider): string | null => {
@@ -1322,7 +1352,7 @@ class OpenApiService {
   };
 
   getTokenListFromGithub = async (network: string) => {
-    if (network == 'previewnet') return []
+    if (network == 'previewnet') return [];
     const response = await fetch(
       `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
     );
@@ -1812,7 +1842,7 @@ class OpenApiService {
       `/api/scripts?network=${network}`,
       {},
       {},
-      'https://test.lilico.app'
+      WEB_NEXT_URL
     );
     return data;
   };
