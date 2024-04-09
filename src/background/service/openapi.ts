@@ -537,12 +537,13 @@ class OpenApiService {
       WEB_NEXT_URL
     );
 
-    if (pricesMap && pricesMap['FlovatarDustToken']) {
+    if (pricesMap && pricesMap['FLOW']) {
       return pricesMap;
     }
     data.map((d) => {
-      const { rateToUSD, contractName, contractAddress, symbol } = d;
-      pricesMap[symbol] = rateToUSD.toFixed(4);
+      const { rateToUSD, symbol } = d;
+      const key = symbol.toUpperCase()
+      pricesMap[key] = rateToUSD.toFixed(4);
     });
 
     return pricesMap;
