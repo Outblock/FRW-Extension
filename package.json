@@ -79,7 +79,7 @@
     "eth-rpc-errors": "^4.0.3",
     "eth-sig-util": "^3.0.1",
     "ethereum-hdwallet": "^0.0.26",
-    "ethereumjs-util": "^7.1.2",
+    "ethereumjs-util": "^7.1.5",
     "ethers": "^5.4.2",
     "events": "^3.3.0",
     "file-saver": "^2.0.5",
@@ -125,7 +125,7 @@
     "ts-toolbelt": "^9.6.0",
     "util": "^0.12.3",
     "wagmi": "^1.4.6",
-    "web3-utils": "^4.1.0",
+    "web3-utils": "^4.2.2",
     "yarn": "^1.22.18",
     "zxcvbn": "^4.4.2"
   },

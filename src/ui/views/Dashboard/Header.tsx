@@ -229,13 +229,11 @@ const Header = ({ loading }) => {
     const currentWallet = await usewallet.getCurrentWallet();
     await setCurrent(currentWallet);
     const network = await usewallet.getNetwork();
-    console.log('currentNetwork ', network)
     if (network === 'previewnet') {
       usewallet.queryEvmAddress(currentWallet.address).then(async (res) => {
-        console.log('resultresultresult ', res);
         setEvmAddress(res);
       }).catch((err) => {
-        console.log('resultresultresult err', err)
+        console.log('evm err', err)
       });
     }
 
@@ -489,6 +487,13 @@ const Header = ({ loading }) => {
     // TODO: replace it with better UX
     window.location.reload();
   }
+
+  const formatAddress = (address) => {
+    if (address && address.length >= 30) {
+      return `0x${address.substring(0, 6)}...${address.substring(address.length - 8)}`;
+    }
+    return address;
+  };
 
   const WalletFunction = (props) => {
     return (
@@ -865,7 +870,7 @@ const Header = ({ loading }) => {
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
-                    {props.address}
+                    {formatAddress(props.address)}
                   </Typography>
                   <IconCopy fill="icon.navi" width="12px" />
                 </Box>

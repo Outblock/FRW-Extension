@@ -133,7 +133,16 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
 
         {props.evmAddress ?
-          <Box sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }}>
+          <Box
+            sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }}
+            onClick={() => props.setWallets({
+              name: 'evm',
+              address: props.evmAddress,
+              chain_id: props.currentNetwork,
+              coins: ['flow'],
+              id: 1
+            }, 'evm')}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <CardMedia sx={{ margin: '0 auto', width: '32px', height: '32px', display: 'block', marginRight: '12px' }} image={evmlogo} />
             </Box>
@@ -167,8 +176,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
               </Box>
               <EvmADDComponent myString={props.evmAddress} />
             </Box>
-            <Box></Box>
-
           </Box>
           :
           <Box sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }} >

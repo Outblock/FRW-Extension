@@ -50,12 +50,12 @@ const WalletTab = ({ network }) => {
   const [coinData, setCoinData] = useState<any>([]);
   const [accessible, setAccessible] = useState<any>([]);
   const [balance, setBalance] = useState<string>('$0.00');
+  const [childType, setChildType] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [txCount, setTxCount] = useState('');
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [swapConfig, setSwapConfig] = useState(false);
-  const [cadenceScripts, setCadneceScripts] = useState({});
   const [incLink, _] = useState(
     network === 'mainnet'
       ? 'https://app.increment.fi/swap'
@@ -74,6 +74,7 @@ const WalletTab = ({ network }) => {
 
   const setUserAddress = async () => {
     const data = await wallet.getCurrentAddress();
+    console.log('get currentAddress ', data)
     if (data) {
       setAddress(withPrefix(data) || '');
     } else {
@@ -111,33 +112,32 @@ const WalletTab = ({ network }) => {
   const fetchWallet = async () => {
     // const remote = await fetchRemoteConfig.remoteConfig();
     // console.log('remote ', remote)
-    const isChild = await wallet.getActiveWallet();
-    if (isChild) {
-      setIsActive(false);
+    if (!isActive) {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
         console.log('ftResult ', ftResult);
       }
-    } else {
-      setIsActive(true);
     }
-    const storageData = await wallet.refreshCoinList(expiry_time);
-    sortWallet(storageData);
+    if (childType !== 'evm') {
+      const storageData = await wallet.refreshCoinList(expiry_time);
+      sortWallet(storageData);
+    }
   };
 
   const loadCache = async () => {
     const storageSwap = await wallet.getSwapConfig();
-    console.log('swapConfig -> ', storageSwap);
     setSwapConfig(storageSwap);
     const storageData = await wallet.getCoinList(expiry_time);
     sortWallet(storageData);
-    const cadenceScripts = await wallet.getCadenceScripts();
-    console.log('cadenceScripts -> ', cadenceScripts);
-    setCadneceScripts(cadenceScripts);
   };
 
   const handleStorageData = async (storageData) => {
+    if (childType === 'evm') {
+      const balance = await wallet.getBalance(address.substring(2));
+      storageData[0].balance = Number(balance) / 1e18;
+      storageData[0].total = storageData[0].balance * storageData[0].price;
+    }
     if (storageData) {
       await setCoinData(storageData);
       let sum = 0;
@@ -150,7 +150,19 @@ const WalletTab = ({ network }) => {
     }
   };
 
+  const fetchChildState = async () => {
+    const isChild = await wallet.getActiveWallet();
+    if (isChild) {
+      await setIsActive(false);
+      await setChildType(isChild);
+    } else {
+      setIsActive(true);
+    }
+    return isChild;
+  };
+
   useEffect(() => {
+    fetchChildState();
     const pollTimer = pollingFunction(setUserAddress, 5000, 300000, true);
 
     if (location.search.includes('activity')) {
