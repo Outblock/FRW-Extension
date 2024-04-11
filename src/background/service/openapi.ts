@@ -1091,6 +1091,7 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
+    console.log(result, 'check child nft info result----=====')
     return result;
   };
 
@@ -2012,7 +2013,7 @@ class OpenApiService {
     await storage.set('hashAlgo', '');
     await storage.set('signAlgo', '');
     await storage.set('pubKey', '');
-    
+
     const { P256, SECP256K1 } = pubKTuple;
 
     const keyInfoA = findKeyAndInfo(keys, P256.pubK);
@@ -2065,8 +2066,7 @@ class OpenApiService {
     // await setOtherAccounts(otherAccounts);
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);
-    return {otherAccounts, wallet, loggedInAccounts}
-
+    return { otherAccounts, wallet, loggedInAccounts };
   };
 }
 

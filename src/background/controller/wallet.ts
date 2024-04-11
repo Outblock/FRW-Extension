@@ -883,23 +883,29 @@ export class WalletController extends BaseController {
   };
 
   checkAccessibleNft = async (childAccount) => {
-    const network = await this.getNetwork();
+    try {
+      const network = await this.getNetwork();
 
-    const address = await userWalletService.getMainWallet(network);
-    // const res = await openapiService.checkChildAccount(address);
-    // const nfts = await openapiService.queryAccessible(
-    //   '0x84221fe0294044d7',
-    //   '0x16c41a2b76dee69b'
-    // );
-    const nfts = await openapiService.queryAccessible(address, childAccount);
-    // openapiService.checkChildAccountNFT(address).then((res) => {
-    //   console.log(res)
-    // }).catch((err) => {
-    //   console.log(err)
-    // })
-    console.log('res nfts ', nfts);
+      const address = await userWalletService.getMainWallet(network);
+      // const res = await openapiService.checkChildAccount(address);
+      // const nfts = await openapiService.queryAccessible(
+      //   '0x84221fe0294044d7',
+      //   '0x16c41a2b76dee69b'
+      // );
+      const nfts = await openapiService.checkChildAccountNFT(childAccount);
+      // openapiService.checkChildAccountNFT(address).then((res) => {
+      //   console.log(res)
+      // }).catch((err) => {
+      //   console.log(err)
+      // })
+      console.log('res nfts ======', nfts);
 
-    return nfts;
+      return nfts;
+    } catch (error) {
+      console.log(error, 'error ===')
+      return []
+    }
+    
   };
 
   checkAccessibleFt = async (childAccount) => {
@@ -916,7 +922,7 @@ export class WalletController extends BaseController {
     // }).catch((err) => {
     //   console.log(err)
     // })
-    console.log('res nfts ', result);
+    console.log('res fts ', result);
 
     return result;
   };
@@ -992,7 +998,7 @@ export class WalletController extends BaseController {
       default:
         if (price) {
           return { price: { last: price, change: { percentage: '0.0' } } };
-        } else{
+        } else {
           return null;
         }
     }
