@@ -43,6 +43,7 @@ import {
   getFirbaseConfig,
   getFirbaseFunctionUrl,
 } from 'background/utils/firebaseConfig';
+import { findKeyAndInfo } from 'background/utils';
 import {
   userWalletService,
   coinListService,
@@ -54,13 +55,15 @@ import {
 } from './index';
 import * as fcl from '@onflow/fcl';
 import { storage } from '@/background/webapi';
-import { userInfo } from 'os';
+// import { userInfo } from 'os';
 import {
   fclMainnetConfig,
   fclTestnetConfig,
   fclCrescendoConfig,
 } from '../fclConfig';
-import userWallet from './userWallet';
+
+import { walletController } from '../controller';
+// import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
 
 export interface OpenApiConfigValue {
@@ -542,7 +545,7 @@ class OpenApiService {
     }
     data.map((d) => {
       const { rateToUSD, symbol } = d;
-      const key = symbol.toUpperCase()
+      const key = symbol.toUpperCase();
       pricesMap[key] = rateToUSD.toFixed(4);
     });
 
@@ -551,7 +554,7 @@ class OpenApiService {
 
   getPricesBySymbol = async (symbol: string) => {
     const data = await this.getTokenPrices();
-    const key = symbol.toUpperCase()
+    const key = symbol.toUpperCase();
     return data[key];
   };
 
@@ -1088,6 +1091,7 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
+    console.log(result, 'check child nft info result----=====')
     return result;
   };
 
@@ -1960,6 +1964,109 @@ class OpenApiService {
     );
 
     return response.json();
+  };
+
+  putDeviceInfo = async (walletData) => {
+    try {
+      const testnetId = walletData.find(
+        (item) => item.chain_id === 'testnet'
+      )?.id;
+      const mainnetId = walletData.find(
+        (item) => item.chain_id === 'mainnet'
+      )?.id;
+      const result = await this.getLocation();
+      const installationId = await this.getInstallationId();
+      // console.log('location ', userlocation);
+      const userlocation = result.data;
+      await this.addDevice({
+        wallet_id: mainnetId.toString(),
+        wallettest_id: testnetId.toString(),
+        device_info: {
+          city: userlocation.city,
+          continent: userlocation.country,
+          continentCode: userlocation.countryCode,
+          country: userlocation.country,
+          countryCode: userlocation.countryCode,
+          currency: userlocation.countryCode,
+          device_id: installationId,
+          district: '',
+          ip: userlocation.query,
+          isp: userlocation.as,
+          lat: userlocation.lat,
+          lon: userlocation.lon,
+          name: 'FRW Chrome Extension',
+          org: userlocation.org,
+          regionName: userlocation.regionName,
+          type: '2',
+          user_agent: 'Chrome',
+          zip: userlocation.zip,
+        },
+      });
+    } catch (error) {
+      console.error('Error while adding device:', error);
+      return;
+    }
+  };
+
+  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet) => {
+    await storage.set('keyIndex', '');
+    await storage.set('hashAlgo', '');
+    await storage.set('signAlgo', '');
+    await storage.set('pubKey', '');
+
+    const { P256, SECP256K1 } = pubKTuple;
+
+    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+    const keyInfo = keyInfoA ||
+      keyInfoB || {
+      index: 0,
+      signAlgo: keys.keys[0].signAlgo,
+      hashAlgo: keys.keys[0].hashAlgo,
+      publicKey: keys.keys[0].publicKey,
+    };
+    await storage.set('keyIndex', keyInfo.index);
+    await storage.set('signAlgo', keyInfo.signAlgo);
+    await storage.set('hashAlgo', keyInfo.hashAlgo);
+    await storage.set('pubKey', keyInfo.publicKey);
+
+    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+
+    wallet['address'] = currentWallet.address;
+    wallet['pubKey'] = keyInfo.publicKey;
+    wallet['hashAlgo'] = keyInfo.hashAlgo;
+    wallet['signAlgo'] = keyInfo.signAlgo;
+    wallet['weight'] = keys.keys[0].weight;
+
+    console.log('wallet is this:', wallet);
+
+    const accountIndex = loggedInAccounts.findIndex(
+      (account) => account.username === wallet.username
+    );
+
+    if (accountIndex === -1) {
+      loggedInAccounts.push(wallet);
+    } else {
+      loggedInAccounts[accountIndex] = wallet;
+    }
+    await storage.set('loggedInAccounts', loggedInAccounts);
+
+    console.log('Updated loggedInAccounts:', loggedInAccounts);
+    const otherAccounts = loggedInAccounts
+      .filter((account) => account.username !== wallet.username)
+      .map((account) => {
+        const indexInLoggedInAccounts = loggedInAccounts.findIndex(
+          (loggedInAccount) => loggedInAccount.username === account.username
+        );
+        return { ...account, indexInLoggedInAccounts };
+      })
+      .slice(0, 2);
+
+    console.log('otherAccounts with index:', otherAccounts);
+    // await setOtherAccounts(otherAccounts);
+    // await setUserInfo(wallet);
+    // await setLoggedIn(loggedInAccounts);
+    return { otherAccounts, wallet, loggedInAccounts };
   };
 }
 

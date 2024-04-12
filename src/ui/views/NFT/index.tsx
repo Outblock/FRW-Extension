@@ -49,7 +49,7 @@ const NFTTab = () => {
     } else {
       setIsActive(true);
     }
-
+    // setAddress(address);
     if (process.env.NODE_ENV !== 'production') {
       const value = await storage.get('ExampleNFTAddreess') || '0xa3897cee18b350ea';
       setAddress(value);
