@@ -152,6 +152,7 @@ export class WalletController extends BaseController {
   // };
 
   unlock = async (password: string) => {
+    console.log('unlocking --- ')
     // const alianNameInited = await preferenceService.getInitAlianNameStatus();
     // const alianNames = await preferenceService.getAllAlianName();
     await keyringService.submitPassword(password);
@@ -1261,10 +1262,14 @@ export class WalletController extends BaseController {
 
 
   queryEvmAddress = async (address: string): Promise<string> => {
+    if (address.length > 18) {
+      return ''
+    };
+
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
       throw Error;
-    }
+    };
 
     const script = await getScripts('evm', 'getCoaAddr');
 

@@ -40,7 +40,7 @@ const flowContext = flow
     return next();
   })
   .use(async (ctx, next) => {
-    console.log('ctx ', ctx)
+    console.log('ctx1 ', ctx)
     const { mapMethod } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       // check lock
@@ -55,13 +55,16 @@ const flowContext = flow
     return next();
   })
   .use(async (ctx, next) => {
-    // check connect
     const {
       request: {
         session: { origin, name, icon },
       },
       mapMethod,
     } = ctx;
+    console.log('ctx2 ', ctx)
+    console.log('ctx2 safe ', !Reflect.getMetadata('SAFE', providerController, mapMethod))
+    console.log('ctx2 hasPermission ', !permissionService.hasPermission(origin))
+    // check connect
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       if (!permissionService.hasPermission(origin)) {
         ctx.request.requestedApproval = true;
