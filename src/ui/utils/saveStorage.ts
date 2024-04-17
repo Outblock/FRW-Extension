@@ -25,12 +25,6 @@ export const saveIndex = async (username = '', userId = null) => {
   }
 };
 
-export const saveTempHash = async (hash = 1, sign = 1, index = 0) => {
-  await storage.set('tempHash', hash);
-  await storage.set('tempSign', sign);
-  await storage.set('tempIndex', index);
-};
-
 
 export const getStoragedAccount = async () => {
   const accountIndex = await storage.get('currentAccountIndex') || 0;

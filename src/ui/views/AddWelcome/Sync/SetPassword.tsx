@@ -21,7 +21,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../../style/LLTheme';
-import { useWallet, saveIndex, saveTempHash } from 'ui/utils';
+import { useWallet, saveIndex } from 'ui/utils';
 import { storage } from '@/background/webapi';
 
 // const helperTextStyles = makeStyles(() => ({
@@ -217,7 +217,6 @@ const SetPassword = ({ handleClick, mnemonic, username, setUsername, accountKey,
     await wallet.signInV3(mnemonic, accountKey, deviceInfo);
     const userInfo = await wallet.getUserInfo(true);
     setUsername(userInfo.username);
-    await saveTempHash(accountKey.hash_algo, accountKey.sign_algo, 0);
     await saveIndex(userInfo.username);
     try {
       await wallet.boot(password);

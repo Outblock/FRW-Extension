@@ -10,7 +10,7 @@ import {
   CssBaseline,
 } from '@mui/material';
 import theme from '../../style/LLTheme';
-import { useWallet, saveTempHash } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 import { Core } from '@walletconnect/core';
 import { FCLWalletConnectMethod } from '@/ui/utils/type';
 import SignClient from '@walletconnect/sign-client';
@@ -224,7 +224,6 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
               sign_algo: accountKey.signAlgo,
               weight: accountKey.weight,
             }
-            await saveTempHash(ak.hash_algo, ak.sign_algo, 0);
             usewallet.signInV3(mnemonic, ak, deviceInfo).then(async (result) => {
               confirmMnemonic(mnemonic);
               const userInfo = await usewallet.getUserInfo(true);

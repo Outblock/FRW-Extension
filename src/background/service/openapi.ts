@@ -2025,21 +2025,6 @@ class OpenApiService {
       hashAlgo: keys.keys[0].hashAlgo,
       publicKey: keys.keys[0].publicKey,
     };
-
-    const tempHash = await storage.get('tempHash');
-    const tempSign = await storage.get('tempSign');
-    const tempIndex = await storage.get('tempIndex');
-
-    if (tempHash) {
-      keyInfo.hashAlgo = tempHash;
-    }
-    if (tempSign) {
-      keyInfo.signAlgo = tempSign;
-    }
-    if (tempIndex) {
-      keyInfo.index = tempIndex;
-    }
-
     await storage.set('keyIndex', keyInfo.index);
     await storage.set('signAlgo', keyInfo.signAlgo);
     await storage.set('hashAlgo', keyInfo.hashAlgo);
@@ -2065,10 +2050,6 @@ class OpenApiService {
       loggedInAccounts[accountIndex] = wallet;
     }
     await storage.set('loggedInAccounts', loggedInAccounts);
-
-    await storage.remove('tempHash');
-    await storage.remove('tempSign');
-    await storage.remove('tempIndex');
 
     console.log('Updated loggedInAccounts:', loggedInAccounts);
     const otherAccounts = loggedInAccounts
