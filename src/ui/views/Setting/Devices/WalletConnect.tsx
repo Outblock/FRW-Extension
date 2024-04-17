@@ -268,12 +268,12 @@ const WalletConnect = (props: RevokePageProps) => {
 
         web3wallet.on('session_request', onSessionRequest)
         const res = await web3wallet.pair({ uri: keyword })
-        console.log(res, 'wc pair res')
 
       } else {
         console.log('Web3Wallet is not initialized');
       }
     } catch (error) {
+      
       console.log(error, 'wc connect error')
     }
 
