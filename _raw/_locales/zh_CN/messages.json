@@ -625,6 +625,9 @@
   "Welcome__Back": {
     "message": "欢迎回来，"
   },
+  "Welcome__Back__import": {
+    "message": "欢迎回来 "
+  },
   "Use__the__same__Google__Drive__password": {
     "message": "使用相同的云端硬盘密码来保护 Flow Reference Wallet 的钱包"
   },

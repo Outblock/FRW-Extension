@@ -625,6 +625,9 @@
   "Welcome__Back": {
     "message": "С возвращением, "
   },
+  "Welcome__Back__import": {
+    "message": "С возвращением "
+  },
   "Use__the__same__Google__Drive__password": {
     "message": "Используйте тот же пароль Google Drive для защиты кошелька Flow Reference Wallet"
   },

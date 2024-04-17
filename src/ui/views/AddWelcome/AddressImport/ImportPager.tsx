@@ -46,54 +46,6 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   const wallet = useWallet();
 
 
-  const signIn = async (accountKey) => {
-    console.log('accountKey ', accountKey, mnemonic, pk)
-    setSignLoading(true);
-    if (accountKey[0].mnemonic) {
-      signMnemonic(accountKey);
-    } else {
-      signPk(accountKey);
-    }
-  };
-
-  const signMnemonic = async (accountKey) => {
-    try {
-      const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
-      console.log('result ->', result)
-      setSignLoading(false);
-      const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
-      goPassword();
-    } catch (error) {
-      console.log(error);
-      setSignLoading(false);
-      if (error.message === 'NoUserFound') {
-        setImport(false);
-      } else {
-        setKeyNew(false);
-      }
-    }
-  }
-
-  const signPk = async (accountKey) => {
-    try {
-      const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
-      console.log('result ->', result)
-      setSignLoading(false);
-      const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
-      goPassword();
-    } catch (error) {
-      console.log(error);
-      setSignLoading(false);
-      if (error.message === 'NoUserFound') {
-        setImport(false);
-      } else {
-        setKeyNew(false);
-      }
-    }
-  }
-
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
   };
@@ -108,7 +60,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
       const result = await wallet.openapi.checkImport(accountKey[0].pubK);
       console.log('result ', result)
       if (result.status === 409) {
-        signIn(accountKey);
+        goPassword();
       } else {
         handleClick();
       }
@@ -139,7 +91,8 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
     console.log('handleAddressSelection ==>', account);
     const result = await wallet.openapi.checkImport(account.pubK);
     if (result.status === 409) {
-      signIn([account]);
+      setAccounts([account]);
+      goPassword();
     } else {
       setAccounts([account]);
       handleClick();

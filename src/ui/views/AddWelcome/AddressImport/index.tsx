@@ -141,7 +141,7 @@ const AddressImport = () => {
           />
         );
       case 3:
-        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} pk={pk} username={username} tempPassword={password} goEnd={goEnd} />;
+        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} pk={pk} tempPassword={password} goEnd={goEnd} accountKey={accounts} />;
       case 4:
         return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
       case 5:

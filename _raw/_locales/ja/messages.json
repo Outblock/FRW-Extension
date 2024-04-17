@@ -628,6 +628,9 @@
   "Welcome__Back": {
     "message": "おかえりなさい、 "
   },
+  "Welcome__Back__import": {
+    "message": "おかえりなさい "
+  },
   "Use__the__same__Google__Drive__password": {
     "message": "Lilico ウォレットを保護するために同じ Google ドライブのパスワードを使用します"
   },
