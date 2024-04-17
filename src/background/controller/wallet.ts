@@ -2313,7 +2313,7 @@ export class WalletController extends BaseController {
 
   getAccount = async () => {
     const address = await this.getCurrentAddress();
-    const account = await fcl.send([fcl.getAccount(address)]).then(fcl.decode);
+    const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
     return account;
   };
 }
