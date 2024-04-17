@@ -6,19 +6,6 @@ const QrScannerComponent = ({setUrl}) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const current = tabs[0];
-      const url = current.url! + chrome.runtime.id;
-      console.log(url, 'url')
-      const incognito = current.incognito;
-      let pattern = /^file:/.test(url) ? url : url.replace(/\/[^/]*?$/, '/*');
-      chrome.contentSettings['camera'].set({
-        primaryPattern: '*://*/*',
-        setting: 'allow',
-        scope: incognito ? 'incognito_session_only' : 'regular'
-      })
-    }
-    
     if (!videoRef.current) {
       return;
     }
