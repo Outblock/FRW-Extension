@@ -191,7 +191,7 @@ export class WalletController extends BaseController {
 
     const pk = await keyringService.retrievePk(password);
 
-    console.log('pk is these ', pk)
+    console.log('pk is these ', pk);
     return pk;
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
@@ -202,13 +202,13 @@ export class WalletController extends BaseController {
     let privateKeyHex, publicKeyHex;
 
     for (const keyring of keyrings) {
-      if (keyring.type === "Simple Key Pair" && keyring.wallets?.length > 0) {
+      if (keyring.type === 'Simple Key Pair' && keyring.wallets?.length > 0) {
         const privateKeyData = keyring.wallets[0].privateKey.data;
         privateKeyHex = Buffer.from(privateKeyData).toString('hex');
         const publicKeyData = keyring.wallets[0].publicKey.data;
         publicKeyHex = Buffer.from(publicKeyData).toString('hex');
         break;
-      } else if (keyring.type === "HD Key Tree") {
+      } else if (keyring.type === 'HD Key Tree') {
         const activeIndex = keyring.activeIndexes?.[0];
         if (activeIndex !== undefined) {
           const wallet = keyring._index2wallet?.[activeIndex.toString()];
@@ -224,7 +224,7 @@ export class WalletController extends BaseController {
     }
 
     return { privateKeyHex, publicKeyHex };
-  }
+  };
 
   isUnlocked = async () => {
     const isUnlocked = keyringService.memStore.getState().isUnlocked;
@@ -257,9 +257,8 @@ export class WalletController extends BaseController {
 
   // lockadd here
   lockAdd = async () => {
-
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-
+    const switchingTo =
+      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
 
     const password = keyringService.getPassword();
     await storage.set('tempPassword', password);
@@ -274,8 +273,8 @@ export class WalletController extends BaseController {
 
   // lockadd here
   resetPwd = async () => {
-
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo =
+      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     await storage.clear();
 
     await keyringService.resetKeyRing();
@@ -290,9 +289,8 @@ export class WalletController extends BaseController {
 
   // lockadd here
   restoreWallet = async () => {
-
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-
+    const switchingTo =
+      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
 
     const password = keyringService.getPassword();
     await storage.set('tempPassword', password);
@@ -420,7 +418,6 @@ export class WalletController extends BaseController {
 
     for (const keyring of keyrings) {
       if (keyring.mnemonic) {
-
         const mnemonic = await this.getMnemonics(password || '');
         const seed = await seed2PubKey(mnemonic);
         const PK1 = seed.P256.pk;
@@ -431,17 +428,26 @@ export class WalletController extends BaseController {
         //   throw new Error("Invalid account index.");
         // }
         // const account = loggedInAccounts[accountIndex];
-        const signAlgo = typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
-        privateKey = (signAlgo === 1) ? PK1 : PK2;
+        const signAlgo =
+          typeof account.signAlgo === 'string'
+            ? getSignAlgo(account.signAlgo)
+            : account.signAlgo;
+        privateKey = signAlgo === 1 ? PK1 : PK2;
         break;
-      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
+      } else if (
+        keyring.wallets &&
+        keyring.wallets.length > 0 &&
+        keyring.wallets[0].privateKey
+      ) {
         privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
         break;
       }
     }
     if (!privateKey) {
-      const error = new Error("No mnemonic or private key found in any of the keyrings.");
-      throw error
+      const error = new Error(
+        'No mnemonic or private key found in any of the keyrings.'
+      );
+      throw error;
     }
     return privateKey;
   };
@@ -450,7 +456,7 @@ export class WalletController extends BaseController {
     let privateKey;
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
-    console.log('keyrings ', keyrings)
+    console.log('keyrings ', keyrings);
     for (const keyring of keyrings) {
       if (keyring.mnemonic) {
         // If mnemonic is found, extract it and break the loop
@@ -458,7 +464,11 @@ export class WalletController extends BaseController {
         const mnemonic = serialized.mnemonic;
         pubKTuple = await seed2PubKey(mnemonic);
         break;
-      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
+      } else if (
+        keyring.wallets &&
+        keyring.wallets.length > 0 &&
+        keyring.wallets[0].privateKey
+      ) {
         // If a private key is found, extract it and break the loop
         privateKey = keyring.wallets[0].privateKey.toString('hex');
         pubKTuple = await pk2PubKey(privateKey);
@@ -467,8 +477,10 @@ export class WalletController extends BaseController {
     }
 
     if (!pubKTuple) {
-      const error = new Error("No mnemonic or private key found in any of the keyrings.");
-      throw error
+      const error = new Error(
+        'No mnemonic or private key found in any of the keyrings.'
+      );
+      throw error;
     }
     return pubKTuple;
   };
@@ -872,23 +884,29 @@ export class WalletController extends BaseController {
   };
 
   checkAccessibleNft = async (childAccount) => {
-    const network = await this.getNetwork();
+    try {
+      const network = await this.getNetwork();
 
-    const address = await userWalletService.getMainWallet(network);
-    // const res = await openapiService.checkChildAccount(address);
-    // const nfts = await openapiService.queryAccessible(
-    //   '0x84221fe0294044d7',
-    //   '0x16c41a2b76dee69b'
-    // );
-    const nfts = await openapiService.queryAccessible(address, childAccount);
-    // openapiService.checkChildAccountNFT(address).then((res) => {
-    //   console.log(res)
-    // }).catch((err) => {
-    //   console.log(err)
-    // })
-    console.log('res nfts ', nfts);
+      const address = await userWalletService.getMainWallet(network);
+      // const res = await openapiService.checkChildAccount(address);
+      // const nfts = await openapiService.queryAccessible(
+      //   '0x84221fe0294044d7',
+      //   '0x16c41a2b76dee69b'
+      // );
+      const nfts = await openapiService.checkChildAccountNFT(childAccount);
+      // openapiService.checkChildAccountNFT(address).then((res) => {
+      //   console.log(res)
+      // }).catch((err) => {
+      //   console.log(err)
+      // })
+      console.log('res nfts ======', nfts);
 
-    return nfts;
+      return nfts;
+    } catch (error) {
+      console.log(error, 'error ===')
+      return []
+    }
+    
   };
 
   checkAccessibleFt = async (childAccount) => {
@@ -905,7 +923,7 @@ export class WalletController extends BaseController {
     // }).catch((err) => {
     //   console.log(err)
     // })
-    console.log('res nfts ', result);
+    console.log('res fts ', result);
 
     return result;
   };
@@ -967,6 +985,8 @@ export class WalletController extends BaseController {
 
   private tokenPrice = async (tokenSymbol: string) => {
     const token = tokenSymbol.toLowerCase();
+    const price = await openapiService.getPricesBySymbol(tokenSymbol);
+
     switch (token) {
       case 'flow':
         return await openapiService.getTokenPrice('flow');
@@ -977,7 +997,11 @@ export class WalletController extends BaseController {
           price: { last: '1.0', change: { percentage: '0.0' } },
         });
       default:
-        return null;
+        if (price) {
+          return { price: { last: price, change: { percentage: '0.0' } } };
+        } else {
+          return null;
+        }
     }
   };
 
@@ -993,7 +1017,7 @@ export class WalletController extends BaseController {
       address || '0x',
       tokenList
     );
-    console.log(allBalanceMap, 'allBalanceMap =========')
+    console.log(allBalanceMap, 'allBalanceMap =========');
     const prices = tokenList.map((token) => this.tokenPrice(token.symbol));
 
     const allPrice = await Promise.all(prices);
@@ -1001,8 +1025,7 @@ export class WalletController extends BaseController {
     // const allBalanceMap = await Promise.all(balances);
     // const allPrice = await Promise.all(prices);
     const coins: CoinItem[] = tokenList.map((token, index) => {
-
-      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`
+      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
       return {
         coin: token.name,
         unit: token.symbol,
@@ -1013,7 +1036,9 @@ export class WalletController extends BaseController {
             ? 0
             : new BN(allPrice[index].price.last).toNumber(),
         change24h:
-          allPrice[index] === null
+          allPrice[index] === null ||
+          !allPrice[index].price ||
+          !allPrice[index].price.change
             ? 0
             : new BN(allPrice[index].price.change.percentage)
               .multipliedBy(100)
@@ -1118,7 +1143,9 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const active = await userWalletService.getActiveWallet();
     const v2data = await openapiService.userWalletV2();
-    const filteredData = v2data.data.wallets.filter(item => item.blockchain !== null);
+    const filteredData = v2data.data.wallets.filter(
+      (item) => item.blockchain !== null
+    );
 
     if (!active) {
       userInfoService.addUserId(v2data.data.id);
@@ -1407,10 +1434,9 @@ export class WalletController extends BaseController {
     publicKey: string,
     signatureAlgorithm: number,
     hashAlgorithm: number,
-    weight: number,
+    weight: number
   ): Promise<string> => {
-
-    console.log('this is weight ', weight)
+    console.log('this is weight ', weight);
     return await userWalletService.sendTransaction(
       `
       import Crypto
@@ -1427,9 +1453,13 @@ export class WalletController extends BaseController {
               )
           }
       }
-      `
-      ,
-      [fcl.arg(publicKey, t.String), fcl.arg(signatureAlgorithm, t.UInt8), fcl.arg(hashAlgorithm, t.UInt8), fcl.arg(weight.toFixed(1), t.UFix64)]
+      `,
+      [
+        fcl.arg(publicKey, t.String),
+        fcl.arg(signatureAlgorithm, t.UInt8),
+        fcl.arg(hashAlgorithm, t.UInt8),
+        fcl.arg(weight.toFixed(1), t.UFix64),
+      ]
     );
   };
 
@@ -1748,8 +1778,18 @@ export class WalletController extends BaseController {
     return userWalletService.sigInWithPk(pk, replaceUser);
   };
 
-  signInV3 = async (mnemonic: string, accountKey: any, deviceInfo: any, replaceUser = true) => {
-    return userWalletService.signInv3(mnemonic, accountKey, deviceInfo, replaceUser);
+  signInV3 = async (
+    mnemonic: string,
+    accountKey: any,
+    deviceInfo: any,
+    replaceUser = true
+  ) => {
+    return userWalletService.signInv3(
+      mnemonic,
+      accountKey,
+      deviceInfo,
+      replaceUser
+    );
   };
 
   signMessage = async (message: string): Promise<string> => {
@@ -1843,7 +1883,6 @@ export class WalletController extends BaseController {
     return baseURL;
   };
 
-
   poll = async (fn, fnCondition, ms) => {
     let result = await fn();
     while (fnCondition(result)) {
@@ -1854,23 +1893,25 @@ export class WalletController extends BaseController {
   };
 
   wait = (ms = 1000) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, ms);
     });
   };
 
-  pollingTrnasaction = async (
-    txId: string,
-    network: string
-  ) => {
+  pollingTrnasaction = async (txId: string, network: string) => {
     if (!txId || !txId.match(/^0?x?[0-9a-fA-F]{64}/)) {
       return;
     }
 
-    const fetchReport = async () => (await fetch(`https://rest-${network}.onflow.org/v1/transaction_results/${txId}`)).json();
-    const validate = result => result.status !== 'Sealed';
+    const fetchReport = async () =>
+      (
+        await fetch(
+          `https://rest-${network}.onflow.org/v1/transaction_results/${txId}`
+        )
+      ).json();
+    const validate = (result) => result.status !== 'Sealed';
     return await this.poll(fetchReport, validate, 3000);
-  }
+  };
 
   listenTransaction = async (
     txId: string,
@@ -2359,17 +2400,18 @@ export class WalletController extends BaseController {
   };
 
   createFlowSandboxAddress = async (network) => {
-
     const account = await getStoragedAccount();
     const { hashAlgo, signAlgo, pubKey, weight } = account;
-    console.log('loggedInAccounts[accountIndex]; ==>', account)
+    console.log('loggedInAccounts[accountIndex]; ==>', account);
 
     const accountKey = {
       public_key: pubKey,
-      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      hash_algo:
+        typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
+      sign_algo:
+        typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: weight,
-    }
+    };
 
     const result = await openapiService.createFlowNetworkAddress(
       accountKey,
@@ -2390,7 +2432,7 @@ export class WalletController extends BaseController {
 
   getAccount = async () => {
     const address = await this.getCurrentAddress();
-    const account = await fcl.send([fcl.getAccount(address)]).then(fcl.decode);
+    const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
     return account;
   };
 }

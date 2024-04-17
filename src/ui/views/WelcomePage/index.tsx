@@ -158,7 +158,7 @@ const WelcomePage = () => {
                 </Typography>
               </Button> */}
 
-              {/* <Button
+              <Button
                 variant="contained"
                 color="secondary"
                 component={Link}
@@ -192,7 +192,7 @@ const WelcomePage = () => {
                 >
                   {chrome.i18n.getMessage('Sync_with_Mobile_App')}
                 </Typography>
-              </Button> */}
+              </Button>
 
               <Button
                 variant="contained"

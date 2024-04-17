@@ -92,7 +92,7 @@ class Flowns {
     const walletAddress = await wallet.getCurrentAddress()
     // TODO: FIX ME
     const walletKeyIndex = 0
-    const account = await fcl.send([fcl.getAccount(walletAddress)]).then(fcl.decode);
+    const account = await fcl.send([fcl.getAccount(walletAddress!)]).then(fcl.decode);
     const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
 
     const refBlock = latestSealedBlock.id
@@ -118,7 +118,7 @@ class Flowns {
       payer: payerAddress,
       payloadSigs: payloadSigsArray,
       authorizers: [walletAddress, lilicAccount, flownsAddress],
-      computeLimit: 9999,
+      computeLimit: '9999',
     };
     const message = sdk.encodeTransactionPayload(tx);
     const signature = await this.sign(message);

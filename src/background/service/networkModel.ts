@@ -1,4 +1,3 @@
-
 export interface CheckResponse {
   unique: boolean;
   username: string;
@@ -10,6 +9,7 @@ export enum PriceProvider {
   huobi = 'huobi',
   coinbase = 'coinbase-pro',
   kucoin = 'kucoin',
+  increment = 'increment',
 }
 
 export interface TokenModel {
@@ -29,7 +29,7 @@ export interface NFTModel {
   contract_name: string;
   logo: string | null;
   banner: string | null;
-  official_website: string  | null;
+  official_website: string | null;
   marketplace: string | null;
   description: string | null;
   path: NFTPath;
@@ -49,20 +49,20 @@ export interface SecureCadenceCompatible {
 
 export interface FlowNetworkModel {
   mainnet: string | null;
-  testnet:  string | null;
+  testnet: string | null;
 }
 
 export interface FlowTokenStoragePath {
-  balance: string,
+  balance: string;
   vault: string;
-  receiver: string,
+  receiver: string;
 }
 
 export enum FlowNetwork {
   mainnet = 'mainnet',
   testnet = 'testnet',
   crescendo = 'crescendo',
-  previewnet = 'previewnet'
+  previewnet = 'previewnet',
 }
 
 export enum Period {
@@ -71,7 +71,7 @@ export enum Period {
   oneMonth = '1M',
   threeMonth = '3M',
   oneYear = '1Y',
-  all = 'All'
+  all = 'All',
 }
 
 export enum PeriodFrequency {
@@ -80,7 +80,7 @@ export enum PeriodFrequency {
   oneHour = 3600,
   oneDay = 86400,
   threeDay = 259200,
-  oneWeek = 604800
+  oneWeek = 604800,
 }
 
 export interface Contact {
@@ -308,8 +308,8 @@ export interface TransactionItem {
   hash: string;
   time: number;
   interaction: string;
-  amount:number;
-  error?:string;
+  amount: number;
+  error?: string;
 }
 
 export interface ContractRecord {
@@ -325,7 +325,7 @@ export interface TransactionRecord {
   hash: string;
   time: number;
   interaction: string;
-  amount:number;
+  amount: number;
 }
 
 export interface DeviceInfoRequest {
@@ -354,5 +354,4 @@ export interface DeviceInfoRequest {
 export interface DeviceInfo {
   account_key: AccountKey;
   device_info: DeviceInfoRequest;
-
 }

@@ -1,18 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 
-const QrScannerComponent = () => {
+const QrScannerComponent = ({setUrl}) => {
   const videoRef = useRef(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    console.log('this is video ref ')
-    if (!videoRef.current) return;
+    if (!videoRef.current) {
+      return;
+    }
     console.log('video ref  true, ', videoRef)
 
     const qrScanner = new QrScanner(
       videoRef.current,
-      result => console.log('decoded qr code:', result),
+      result => {
+        console.log('decoded qr code:', result)
+        const {data = ''} = result
+        if(data && data.length > 0) {
+          setUrl(data)
+          qrScanner.stop()
+        }
+       
+      },
       { returnDetailedScanResult: true }
     );
 
@@ -25,8 +34,21 @@ const QrScannerComponent = () => {
     return () => qrScanner.stop();
   }, []);
 
+  // useEffect(()=>{
+  //   if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  //     navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+  //         // video.src = window.URL.createObjectURL(stream);
+  //         // video.play();
+  //         console.log(stream)
+  //     }).catch(function(error) {
+  //         console.log("获取摄像头访问权限失败：", error);
+  //     });
+  //   }
+  // })
+
   const retryAccess = () => {
     setError('');
+
     // Re-initiate QR Scanner or refresh the page
   };
 

@@ -52,7 +52,9 @@
     "tabs",
     "notifications",
     "identity",
-    "camera"
+    "camera",
+    "videoCapture",
+    "*://*/*"
   ],
   "web_accessible_resources": [
     {

@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) => {
+const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAccountKey, setDeviceInfo }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const [Uri, setUri] = useState('');
@@ -200,8 +200,16 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
       if (jsonObject.method === FCLWalletConnectMethod.accountInfo) {
         const accountKey: AccountKey = getAccountKey();
         const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
+        const ak = {
+          public_key: accountKey.publicKey,
+          hash_algo: accountKey.hashAlgo,
+          sign_algo: accountKey.signAlgo,
+          weight: accountKey.weight,
+        }
         console.log('sent ->', accountKey)
-
+        confirmMnemonic(mnemonic);
+        setAccountKey(ak);
+        setDeviceInfo(deviceInfo);
         wallet.request({
           topic: topic,
           chainId: `flow:${currentNetwork}`,
@@ -218,20 +226,15 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
           },
         })
           .then(async (sent) => {
-            const ak = {
-              public_key: accountKey.publicKey,
-              hash_algo: accountKey.hashAlgo,
-              sign_algo: accountKey.signAlgo,
-              weight: accountKey.weight,
-            }
-            usewallet.signInV3(mnemonic, ak, deviceInfo).then(async (result) => {
-              confirmMnemonic(mnemonic);
-              const userInfo = await usewallet.getUserInfo(true);
-              setUsername(userInfo.username);
-              handleClick();
-            }).catch((error) => {
-              console.error('Error in sign in wallet request:', error);
-            });
+            handleClick();
+            // usewallet.signInV3(mnemonic, ak, deviceInfo).then(async (result) => {
+              
+            //   const userInfo = await usewallet.getUserInfo(true);
+            //   setUsername(userInfo.username);
+            //   handleClick();
+            // }).catch((error) => {
+            //   console.error('Error in sign in wallet request:', error);
+            // });
           })
           .catch((error) => {
             console.error('Error in second wallet request:', error);

@@ -257,20 +257,24 @@ const WalletConnect = (props: RevokePageProps) => {
   }
 
   const handleFilterAndSearch = async (e) => {
-    const keyword = e.target.value;
-    console.log('keyword', keyword);
-    console.log('web3wallet ', web3wallet);
+    try {
+      const keyword = e.target.value;
+      console.log('keyword', keyword);
+      console.log('web3wallet ', web3wallet);
 
-    if (web3wallet) {
+      if (web3wallet) {
 
-      web3wallet.on('session_proposal', onSessionProposal)
+        web3wallet.on('session_proposal', onSessionProposal)
 
-      web3wallet.on('session_request', onSessionRequest)
-      await web3wallet.pair({ uri: keyword })
+        web3wallet.on('session_request', onSessionRequest)
+        const res = await web3wallet.pair({ uri: keyword })
 
-
-    } else {
-      console.log('Web3Wallet is not initialized');
+      } else {
+        console.log('Web3Wallet is not initialized');
+      }
+    } catch (error) {
+      
+      console.log(error, 'wc connect error')
     }
 
 
@@ -301,6 +305,9 @@ const WalletConnect = (props: RevokePageProps) => {
   };
 
 
+  const setUrl = (data: string) => {
+    handleFilterAndSearch({ target: { value: data } })
+  }
 
 
   const renderContent = () => (
@@ -369,7 +376,7 @@ const WalletConnect = (props: RevokePageProps) => {
           }}
           onError={(error) => console.log(error?.message)}
         /> */}
-        <QrScannerComponent />
+        <QrScannerComponent setUrl={setUrl} />
 
       </Box>
       <Typography color='error.main' sx={{ margin: '8px auto 60px', color: 'rgba(255, 255, 255, 0.40)', fontSize: '12px', fontWeight: 400, width: '250px' }}>

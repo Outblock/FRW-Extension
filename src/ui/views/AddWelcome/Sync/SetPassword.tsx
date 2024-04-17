@@ -132,7 +132,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username }) => {
+const SetPassword = ({ handleClick, mnemonic, username, setUsername, accountKey, deviceInfo }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -214,8 +214,10 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
 
   const register = async () => {
     setLoading(true);
-
-    await saveIndex(username);
+    await wallet.signInV3(mnemonic, accountKey, deviceInfo);
+    const userInfo = await wallet.getUserInfo(true);
+    setUsername(userInfo.username);
+    await saveIndex(userInfo.username);
     try {
       await wallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');

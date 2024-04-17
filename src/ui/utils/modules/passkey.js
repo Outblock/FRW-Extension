@@ -13,11 +13,16 @@ import { getStringFromHashAlgo, getStringFromSignAlgo } from 'ui/utils';
 import { storage } from 'background/webapi';
 
 const jsonToKey = async (json, password) => {
-  const { StoredKey, PrivateKey } = await initWasm();
-  const keystore = StoredKey.importJSON(json);
-  const privateKeyData = await keystore.decryptPrivateKey(password);
-  const privateKey = PrivateKey.createWithData(privateKeyData);
-  return privateKey;
+  try {
+    const { StoredKey, PrivateKey } = await initWasm();
+    const keystore = StoredKey.importJSON(json);
+    const privateKeyData = await keystore.decryptPrivateKey(password);
+    const privateKey = PrivateKey.createWithData(privateKeyData);
+    return privateKey;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 };
 
 const pk2PubKey = async (pk) => {
@@ -232,12 +237,14 @@ const uint8Array2Hex = (input) => {
 const signMessageHash = async (hashAlgo, messageData) => {
   // Other key
   const { Hash } = await initWasm();
-  const messageHash = hashAlgo === HASH_ALGO.SHA3_256 ? Hash.sha3_256(messageData) : Hash.sha256(messageData)
-  return messageHash
-}
+  const messageHash =
+    hashAlgo === HASH_ALGO.SHA3_256
+      ? Hash.sha3_256(messageData)
+      : Hash.sha256(messageData);
+  return messageHash;
+};
 
 const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
-  
   // Other key
   if (typeof signAlgo === 'number') {
     signAlgo = getStringFromSignAlgo(signAlgo);
@@ -245,16 +252,21 @@ const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
   if (typeof hashAlgo === 'number') {
     hashAlgo = getStringFromHashAlgo(hashAlgo);
   }
-  console.log(' signAlgo ', signAlgo)
-  console.log(' hashAlgo ', hashAlgo)
+  console.log(' signAlgo ', signAlgo);
+  console.log(' hashAlgo ', hashAlgo);
   const { HDWallet, Curve, Hash, PrivateKey } = await initWasm();
-  const messageData = Buffer.from(message, 'hex')
-  const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'))
-  const curve = signAlgo === SIGN_ALGO.P256 ? Curve.nist256p1 : Curve.secp256k1
-  const messageHash = hashAlgo === HASH_ALGO.SHA3_256 ? Hash.sha3_256(messageData) : Hash.sha256(messageData)
-  const signature = privateKey.sign(messageHash, curve)
-  return Buffer.from(signature.subarray(0, signature.length - 1)).toString('hex')
-}
+  const messageData = Buffer.from(message, 'hex');
+  const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
+  const curve = signAlgo === SIGN_ALGO.P256 ? Curve.nist256p1 : Curve.secp256k1;
+  const messageHash =
+    hashAlgo === HASH_ALGO.SHA3_256
+      ? Hash.sha3_256(messageData)
+      : Hash.sha256(messageData);
+  const signature = privateKey.sign(messageHash, curve);
+  return Buffer.from(signature.subarray(0, signature.length - 1)).toString(
+    'hex'
+  );
+};
 
 export {
   createPasskey,
