@@ -1197,5 +1197,32 @@
   },
   "Loading": {
     "message": "読み込み中..."
+  },
+  "Application": {
+    "message": "アプリケーション"
+  },
+  "IP_Address": {
+    "message": "IPアドレス"
+  },
+  "Location": {
+    "message": "場所"
+  },
+  "Date": {
+    "message": "日付"
+  },
+  "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
+    "message": "QRコードをスキャンしてフローリファレンスウォレットモバイルをリンク"
+  },
+  "Current_Sessions": {
+    "message": "現在のセッション"
+  },
+  "Active_Sessions": {
+    "message": "アクティブセッション"
+  },
+  "Online": {
+    "message": "オンライン"
+  },
+  "Wallet_Confirmation": {
+    "message": "ウォレット確認"
   }
 }

@@ -413,7 +413,7 @@ const WalletConnect = (props: RevokePageProps) => {
       <Box
         sx={{ margin: '20px 0' }}
       >
-        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>Wallet Confirmation</Typography>
+        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>{chrome.i18n.getMessage('Wallet_Confirmation')}</Typography>
       </Box>
       {proposer &&
 

@@ -1197,5 +1197,32 @@
   },
   "Loading": {
     "message": "加载中..."
+  },
+  "Application": {
+    "message": "应用程序"
+  },
+  "IP_Address": {
+    "message": "IP地址"
+  },
+  "Location": {
+    "message": "位置"
+  },
+  "Date": {
+    "message": "日期"
+  },
+  "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
+    "message": "通过扫描二维码链接流参考钱包手机"
+  },
+  "Current_Sessions": {
+    "message": "当前会话"
+  },
+  "Active_Sessions": {
+    "message": "活跃会话"
+  },
+  "Online": {
+    "message": "在线"
+  },
+  "Wallet_Confirmation": {
+    "message": "钱包确认"
   }
 }

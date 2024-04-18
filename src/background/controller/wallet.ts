@@ -2314,6 +2314,7 @@ export class WalletController extends BaseController {
   getAccount = async () => {
     const address = await this.getCurrentAddress();
     const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
+    console.log('fcl get account ', account);
     return account;
   };
 }
