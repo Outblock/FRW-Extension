@@ -34,7 +34,7 @@ const TokenItem = ({token, isLoading, enabledList, onClick}) => {
   const [isEnabled, setEnabled] = useState(false);
 
   const checkStorageStatus = async () => {
-    const isEnabled = enabledList.map(item => item.name).includes(token.name)
+    const isEnabled = enabledList.map(item => item.contractName).includes(token.contract_name)
     setEnabled(isEnabled);
   }
 
