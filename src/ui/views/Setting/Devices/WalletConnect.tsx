@@ -273,7 +273,7 @@ const WalletConnect = (props: RevokePageProps) => {
         console.log('Web3Wallet is not initialized');
       }
     } catch (error) {
-      
+
       console.log(error, 'wc connect error')
     }
 
@@ -334,17 +334,17 @@ const WalletConnect = (props: RevokePageProps) => {
         sx={{ margin: '20px 0' }}
         onClick={props.handleCloseIconClicked}
       >
-        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>Link Mobile Device</Typography>
+        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>{chrome.i18n.getMessage('Link_Mobile_Device')}</Typography>
       </Box>
       <Box sx={{ display: 'flex', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img style={{ height: '40px', width: '40px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={dicon} />
-          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>Desktop Device</Typography>
+          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>{chrome.i18n.getMessage('Desktop_Device')}</Typography>
         </Box>
         <img style={{ width: '108px', height: '8px', marginTop: '20px' }} src={licon} />
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img style={{ height: '40px', width: '40px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={micone} />
-          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>Mobile Device</Typography>
+          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>{chrome.i18n.getMessage('Mobile_Device')}</Typography>
         </Box>
 
       </Box>
@@ -380,7 +380,7 @@ const WalletConnect = (props: RevokePageProps) => {
 
       </Box>
       <Typography color='error.main' sx={{ margin: '8px auto 60px', color: 'rgba(255, 255, 255, 0.40)', fontSize: '12px', fontWeight: 400, width: '250px' }}>
-        Scan QR code to active your mobile device
+        {chrome.i18n.getMessage('Scan_QR_code_to_active')}
       </Typography>
 
     </Box>

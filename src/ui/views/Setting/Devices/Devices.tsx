@@ -108,7 +108,7 @@ const Devices = () => {
           borderRadius: '12px',
           margin: '24px auto'
         }}
-        onClick={(() => toggleQr())}><img src={QR} style={{ width: '24px', height: '24px' }} /><Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#000', marginLeft: '8px' }}>Sync Mobile Device</Typography></Box>
+        onClick={(() => toggleQr())}><img src={QR} style={{ width: '24px', height: '24px' }} /><Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#000', marginLeft: '8px' }}>{chrome.i18n.getMessage('Sync_Mobile_Device')}</Typography></Box>
       <Box sx={{ width: '339px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}></Box>
       {
         devices

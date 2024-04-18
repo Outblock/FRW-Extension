@@ -1224,5 +1224,23 @@
   },
   "Wallet_Confirmation": {
     "message": "ウォレット確認"
+  },
+  "Sync_Mobile_Device": {
+    "message": "モバイルデバイスを同期"
+  },
+  "Link_Mobile_Device": {
+    "message": "モバイルデバイスをリンク"
+  },
+  "Desktop_Device": {
+    "message": "デスクトップデバイス"
+  },
+  "Mobile_Device": {
+    "message": "モバイルデバイス"
+  },
+  "Scan_QR_code_to_active": {
+    "message": "モバイルデバイスをアクティブにするためにQRコードをスキャンしてください"
+  },
+  "lease_allow_the_camera_permission": {
+    "message": "右上の拡張機能ビューのウェブ権限設定からカメラの権限を許可してください。"
   }
 }

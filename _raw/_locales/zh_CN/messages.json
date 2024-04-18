@@ -1224,5 +1224,23 @@
   },
   "Wallet_Confirmation": {
     "message": "钱包确认"
+  },
+  "Sync_Mobile_Device": {
+    "message": "同步移动设备"
+  },
+  "Link_Mobile_Device": {
+    "message": "连接移动设备"
+  },
+  "Desktop_Device": {
+    "message": "桌面设备"
+  },
+  "Mobile_Device": {
+    "message": "移动设备"
+  },
+  "Scan_QR_code_to_active": {
+    "message": "扫描二维码激活您的移动设备"
+  },
+  "lease_allow_the_camera_permission": {
+    "message": "请通过右上角扩展视图的网页权限设置允许使用摄像头权限。"
   }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 
-const QrScannerComponent = ({setUrl}) => {
+const QrScannerComponent = ({ setUrl }) => {
   const videoRef = useRef(null);
   const [error, setError] = useState('');
 
@@ -15,12 +15,12 @@ const QrScannerComponent = ({setUrl}) => {
       videoRef.current,
       result => {
         console.log('decoded qr code:', result)
-        const {data = ''} = result
-        if(data && data.length > 0) {
+        const { data = '' } = result
+        if (data && data.length > 0) {
           setUrl(data)
           qrScanner.stop()
         }
-       
+
       },
       { returnDetailedScanResult: true }
     );
@@ -57,8 +57,9 @@ const QrScannerComponent = ({setUrl}) => {
       <video ref={videoRef}></video>
       {error && (
         <div>
-          <p>{error}</p>
-          <button onClick={retryAccess}>Retry</button>
+          <p>
+            {chrome.i18n.getMessage('lease_allow_the_camera_permission')}
+          </p>
         </div>
       )}
     </div>
