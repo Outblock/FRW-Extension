@@ -1242,5 +1242,14 @@
   },
   "lease_allow_the_camera_permission": {
     "message": "lease allow the camera permission through the top right extension view web permissions setting."
+  },
+  "Allow": {
+    "message": "Allow"
+  },
+  "to_connect": {
+    "message": "to connect?"
+  },
+  "Devices": {
+    "message": "Devices"
   }
 }

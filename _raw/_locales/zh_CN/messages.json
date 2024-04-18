@@ -1242,5 +1242,14 @@
   },
   "lease_allow_the_camera_permission": {
     "message": "请通过右上角扩展视图的网页权限设置允许使用摄像头权限。"
+  },
+  "Allow": {
+    "message": "允许"
+  },
+  "to_connect": {
+    "message": "连接吗？"
+  },
+  "Devices": {
+    "message": "设备"
   }
 }

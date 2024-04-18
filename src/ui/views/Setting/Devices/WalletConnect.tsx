@@ -428,7 +428,7 @@ const WalletConnect = (props: RevokePageProps) => {
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', margin: '0 18px 18px', gap: '18px' }}>
             <Divider />
-            <Typography sx={{ textAlign: 'center', fontWeight: '700', fontSize: '16px', color: '#E6E6E6' }} >Allow {proposer.name} to connect?</Typography>
+            <Typography sx={{ textAlign: 'center', fontWeight: '700', fontSize: '16px', color: '#E6E6E6' }} >{chrome.i18n.getMessage('Allow')} {proposer.name} {chrome.i18n.getMessage('to_connect')}</Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={proposer.icons} />
               <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>{proposer.description}</Typography>
@@ -442,7 +442,7 @@ const WalletConnect = (props: RevokePageProps) => {
               onClick={() => cancelProposal()}
             />
             <LLPrimaryButton
-              label={syncing ? 'Approving...' : 'Approve'}
+              label={syncing ? 'Approving...' : `${chrome.i18n.getMessage('Approve')}`}
               fullWidth
               type="submit"
               onClick={() => approveProposal()}

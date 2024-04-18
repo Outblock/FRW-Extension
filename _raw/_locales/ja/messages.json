@@ -1242,5 +1242,14 @@
   },
   "lease_allow_the_camera_permission": {
     "message": "右上の拡張機能ビューのウェブ権限設定からカメラの権限を許可してください。"
+  },
+  "Allow": {
+    "message": "許可する"
+  },
+  "to_connect": {
+    "message": "接続しますか？"
+  },
+  "Devices": {
+    "message": "デバイス"
   }
 }
