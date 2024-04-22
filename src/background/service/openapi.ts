@@ -552,8 +552,7 @@ class OpenApiService {
     return pricesMap;
   };
 
-  getPricesBySymbol = async (symbol: string) => {
-    const data = await this.getTokenPrices();
+  getPricesBySymbol = async (symbol: string, data) => {
     const key = symbol.toUpperCase();
     return data[key];
   };

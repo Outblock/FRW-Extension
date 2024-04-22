@@ -982,9 +982,9 @@ export class WalletController extends BaseController {
     return coinListService.listCoins(network);
   };
 
-  private tokenPrice = async (tokenSymbol: string) => {
+  private tokenPrice = async (tokenSymbol: string, data) => {
     const token = tokenSymbol.toLowerCase();
-    const price = await openapiService.getPricesBySymbol(tokenSymbol);
+    const price = await openapiService.getPricesBySymbol(tokenSymbol, data);
 
     switch (token) {
       case 'flow':
@@ -1017,7 +1017,8 @@ export class WalletController extends BaseController {
       tokenList
     );
     console.log(allBalanceMap, 'allBalanceMap =========');
-    const prices = tokenList.map((token) => this.tokenPrice(token.symbol));
+    const data = await openapiService.getTokenPrices();
+    const prices = tokenList.map((token) => this.tokenPrice(token.symbol, data));
 
     const allPrice = await Promise.all(prices);
 
