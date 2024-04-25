@@ -81,7 +81,7 @@
     "eth-sig-util": "^3.0.1",
     "ethereum-hdwallet": "^0.0.26",
     "ethereumjs-util": "^7.1.5",
-    "ethers": "^6.11.1",
+    "ethers": "^6.12.0",
     "events": "^3.3.0",
     "file-saver": "^2.0.5",
     "firebase": "^10.0.0",

@@ -54,6 +54,26 @@ export const hex2Text = (hex: string) => {
   }
 };
 
+export const hexToUint8Array = (hexString: string) => {
+  if (hexString.startsWith('0x')) {
+      hexString = hexString.substring(2);
+  }
+
+  if (hexString.length % 2 !== 0) {
+      hexString = '0' + hexString; // Pad with zero if odd
+  }
+
+  const arrayLength = hexString.length / 2;
+  const uint8Array = new Uint8Array(arrayLength);
+
+  for (let i = 0; i < arrayLength; i++) {
+      const byte = hexString.substr(i * 2, 2);
+      uint8Array[i] = parseInt(byte, 16);
+  }
+
+  return uint8Array;
+}
+
 export const getUITypeName = (): string => {
   const UIType = getUiType();
 

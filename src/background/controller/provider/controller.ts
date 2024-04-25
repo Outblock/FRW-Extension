@@ -115,21 +115,12 @@ async function signMessage(keyring, msgParams, opts = {}) {
   const privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
 
 
-
-  const mnemonic = "kiwi erosion weather slam harvest move crumble zero juice steel start hotel";
-  const hdwallet = HDWallet.fromMnemonic(mnemonic);
-  const pk = hdwallet
-    .derive("m/44'/539'/0'/0/0")
-    .getPrivateKey()
-    .toString('hex');
-  console.log('asdsadaasd ', pk)
-
   // const wallet = new ethers.Wallet(privateKey);
-  const signature = await signWithKey(signableData, 2, 1, pk);
-
+  const signature = await signWithKey(signableData, 2, 1, privateKey);
+  const currentWallet = await Wallet.getCurrentWallet();
   const proof = {
     keyIndices: Buffer.from([0]),
-    address: Buffer.from("0xd962e1938ab387c8", 'hex'),
+    address: Buffer.from(currentWallet.address, 'hex'),
     capabilityPath: Buffer.from("evm", 'utf8'),
     signatures: Buffer.from(signature, 'hex'),
   };
@@ -140,7 +131,7 @@ async function signMessage(keyring, msgParams, opts = {}) {
     proof.signatures
   ]);
 
-  const addressHex = '0xd962e1938ab387c8';
+  const addressHex = currentWallet.address;
   const addressBuffer = Buffer.from(addressHex.slice(2), 'hex');
   const addressArray = Uint8Array.from(addressBuffer);
 
@@ -167,10 +158,14 @@ class ProviderController extends BaseController {
       throw ethErrors.provider.unauthorized();
     }
 
-    const _account = await this.getCurrentAccount();
-    const account = _account ? [_account.address.toLowerCase()] : [];
+    const currentWallet = await Wallet.getCurrentWallet();
+    let res = await Wallet.queryEvmAddress(currentWallet.address);
+    res = '0x' + res;
+    const account = res ? [res.toLowerCase()] : [];
     sessionService.broadcastEvent('accountsChanged', account);
     const connectSite = permissionService.getConnectedSite(origin);
+
+    console.log('account ', account)
     // if (connectSite) {
     //   const chain = CHAINS[connectSite.chai!];
     //   // rabby:chainChanged event must be sent before chainChanged event
@@ -187,6 +182,46 @@ class ProviderController extends BaseController {
 
     return account;
   };
+  ethEstimateGas = async ({data}) => {
+
+    console.log('account ', data)
+    const url = 'https://previewnet.evm.nodes.onflow.org'
+    const provider = new ethers.JsonRpcProvider(url)
+    const gas = await provider.estimateGas({
+      from: data.params[0].from,
+      // Wrapped ETH address
+      to: data.params[0].to,
+      // `function deposit() payable`
+      data: "0xd0e30db0",
+      // 1 ether
+      value: data.params[0].value
+    });
+    console.log('gas gas gas ', gas)
+    return '0x' + gas.toString(16);
+  };
+
+  ethSendTransaction = async (data) => {
+
+    console.log('account ', data)
+    if (!data || !data.data || !data.data.params || !data.data.params.length) {
+      console.error("Invalid data structure");
+      return null;
+    }
+
+    // Accessing the first item in 'params' array
+    const transactionParams = data.data.params[0];
+
+    // Extracting individual parameters
+    const from = transactionParams.from || '';
+    const gas = transactionParams.gas || '0x76c0';
+    const to = transactionParams.to || '';
+    const value = transactionParams.value || '0.0';
+    const dataValue = transactionParams.data || '0x';
+
+    console.log('transactionParams ', transactionParams)
+    const result = await Wallet.sendEvmTransaction(to, gas, value,dataValue);
+    return result;
+  };
 
   ethAccounts = async ({ session: { origin } }) => {
     if (!permissionService.hasPermission(origin) || !Wallet.isUnlocked()) {
@@ -199,7 +234,7 @@ class ProviderController extends BaseController {
     }
     const currentWallet = await Wallet.getCurrentWallet();
     const res = await Wallet.queryEvmAddress(currentWallet.address);
-    return ['0x0000000000000000000000029a9d22fe53a8fc9f'];
+    return res;
     // return ['000000000000000000000002f9e3b9cbbaa99770'];
   };
 

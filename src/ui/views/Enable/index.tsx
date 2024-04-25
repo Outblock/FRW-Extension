@@ -20,12 +20,13 @@ import { useWallet } from 'ui/utils';
 
 
 const Enable = () => {
-
+  const expiry_time = 60000;
   const history = useHistory();
   const wallet = useWallet();
   const [claiming, setClaiming] = useState(false);
   const [failed, setFailed] = useState(false);
   const [error, setError] = useState('');
+  const [enough, setEnough] = useState(false);
 
   const handleClaiming = async () => {
     setClaiming(true);
@@ -44,17 +45,16 @@ const Enable = () => {
   };
 
   const getUsername = async () => {
-    const currentWallet = await wallet.getCurrentWallet();
-    wallet.queryEvmAddress(currentWallet.address).then(async (res) => {
-      console.log('resultresultresult ', res);
-    }).catch((err) => {
-      console.log(err)
-    });
-
+    const storageData = await wallet.getCoinList(expiry_time);
+    console.log('storageData ', storageData)
+    const flowToken = storageData.find(token => token.unit === 'flow');
+    if (flowToken!.balance >= 0.002) {
+      setEnough(true);
+    }
   };
 
   useEffect(() => {
-    // getUsername();
+    getUsername();
   }, []);
 
   return (
@@ -105,13 +105,25 @@ const Enable = () => {
           Enable the Path
           to FlowEVM
         </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px' }}
-          color="error"
-        >
-          Manage multi-VM assets seamlessly.
-        </Typography>
+        {enough ?
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px' }}
+            color="error"
+          >
+            Manage multi-VM assets seamlessly.
+          </Typography>
+          :
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px',paddingX:'38px' }}
+            color="error"
+          >
+            Balance is lower than 0.002,
+            please fund your account to continue.
+          </Typography>
+        }
+
       </Box>
       <Box sx={{ padding: '18px' }}>
         {claiming ? (
@@ -153,6 +165,7 @@ const Enable = () => {
           <LLPrimaryButton
             label={chrome.i18n.getMessage('Claim')}
             onClick={handleClaiming}
+            disabled={!enough}
             sx={{
               borderRadius: '14px',
               height: '50px',

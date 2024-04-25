@@ -54,6 +54,7 @@ import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
 import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
+import { A } from 'ts-toolbelt';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -906,7 +907,7 @@ export class WalletController extends BaseController {
       console.log(error, 'error ===')
       return []
     }
-    
+
   };
 
   checkAccessibleFt = async (childAccount) => {
@@ -1037,8 +1038,8 @@ export class WalletController extends BaseController {
             : new BN(allPrice[index].price.last).toNumber(),
         change24h:
           allPrice[index] === null ||
-          !allPrice[index].price ||
-          !allPrice[index].price.change
+            !allPrice[index].price ||
+            !allPrice[index].price.change
             ? 0
             : new BN(allPrice[index].price.change.percentage)
               .multipliedBy(100)
@@ -1282,7 +1283,7 @@ export class WalletController extends BaseController {
         fcl.arg(formattedAmount, t.UFix64),
         fcl.arg(address, t.Address),
       ]
-      
+
     );
   };
 
@@ -1305,6 +1306,48 @@ export class WalletController extends BaseController {
       args: (arg, t) => [arg(address, t.Address)],
     });
     return result;
+  };
+
+
+
+  sendEvmTransaction = async (to: string, gas, value, data) => {
+    if (to.startsWith('0x')) {
+      to = to.substring(2);
+    }
+    const network = await this.getNetwork();
+    if (network !== 'previewnet') {
+      throw Error;
+    };
+    const script = await getScripts('evm', 'callContract');
+    const gasLimit = parseInt(gas, 16);
+    const dataBuffer = Buffer.from(data.slice(2), 'hex');
+    const dataArray = Uint8Array.from(dataBuffer);
+    const regularArray = Array.from(dataArray);
+
+    const amount = parseInt(value, 16) / 1e18;
+    const ufixAmount = amount.toFixed(8);
+    console.log('amount ', ufixAmount)
+    console.log('gasLimit ', gasLimit)
+    console.log('dataInt ', dataArray)
+
+    const result = await userWalletService.sendTransaction(script, [
+      fcl.arg(to, t.String),
+      fcl.arg(ufixAmount, t.UFix64),
+      fcl.arg(regularArray, t.Array(t.UInt8)),
+      fcl.arg(gasLimit, t.UInt64),
+    ]);
+    console.log('result ', result)
+    const res = await fcl.tx(result).onceSealed();
+    console.log('res ', res)
+    for (const event of res.events) {
+      if (event.data.transactionHash) {
+        return event.data.transactionHash;
+      }
+    }
+    // const transaction = await fcl.tx(result).onceSealed();
+    // console.log('transaction ', transaction);
+
+    // return result;
   };
 
 
