@@ -30,7 +30,7 @@ const Enable = () => {
 
   const handleClaiming = async () => {
     setClaiming(true);
-    wallet.createCOA('0.0').then(async (createRes) => {
+    wallet.createCOA('0.001').then(async (createRes) => {
       wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your flow EVM address has been created. \nClick to view this transaction.`);
       await wallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
