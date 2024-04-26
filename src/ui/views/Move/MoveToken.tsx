@@ -163,7 +163,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
     if (!coinType) {
       if (coinInfo && amount) {
         const result = parseFloat((coinInfo.amountbalance - amount).toPrecision())
-        if (coinInfo.balance - amount < 0) {
+        if ((coinInfo.balance - amount < 0) && toEvm) {
           setExceed(true);
         } else {
           if (coin === 'flow' && result < 0.001) {
@@ -172,13 +172,16 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
             setExceed(false);
           }
         }
+        if (!toEvm && ((Number(evmBalance) / 1e18) - amount < 0 )) {
+          setExceed(true);
+        }
         const value = new BN(amount)
           .times(new BN(coinInfo.price))
           .toFixed(3);
         setSecondAmount(value)
       }
     }
-  }, [amount, coin])
+  }, [amount, coin, evmBalance])
 
   return (
     <StyledEngineProvider injectFirst>
