@@ -1934,6 +1934,50 @@ class OpenApiService {
     return data;
   };
 
+  evmFTList = async () => {
+    const { data } = await this.sendRequest(
+      'GET',
+      '/api/evm/fts',
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+  getEvmFT = async (address: string) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/evm/${address}/fts`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+  evmNFTList = async () => {
+    const { data } = await this.sendRequest(
+      'GET',
+      '/api/evm/nfts',
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+  getEvmNFT = async (address: string) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/evm/${address}/nfts`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
   genTx = async (contract_name: string) => {
     const network = await userWalletService.getNetwork();
     const app = getApp(process.env.NODE_ENV!);
