@@ -22,6 +22,7 @@ import RLP from 'rlp';
 import HDWallet from 'ethereum-hdwallet';
 import Web3 from 'web3';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
+import { storage } from '../../webapi';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission
@@ -114,9 +115,10 @@ async function signMessage(keyring, msgParams, opts = {}) {
   const keyrings = await keyringService.getKeyring();
   const privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
 
-
+  const hashAlgo = await storage.get('hashAlgo');
+  const signAlgo = await storage.get('signAlgo');
   // const wallet = new ethers.Wallet(privateKey);
-  const signature = await signWithKey(signableData, 2, 1, privateKey);
+  const signature = await signWithKey(signableData, signAlgo, hashAlgo, privateKey);
   const currentWallet = await Wallet.getCurrentWallet();
   const proof = {
     keyIndices: Buffer.from([0]),

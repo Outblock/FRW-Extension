@@ -13,12 +13,6 @@ import {
   LLSecondaryButton,
   LLConnectLoading
 } from 'ui/FRWComponent';
-import { WalletUtils } from '@onflow/fcl'
-import Link from 'ui/FRWAssets/svg/link.svg';
-import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
-import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
-
-import { storage } from '@/background/webapi';
 
 interface ConnectProps {
   params: any;
@@ -131,7 +125,6 @@ const EthConnect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      123123123123131331
       <Box>
         {renderContent()}
       </Box>

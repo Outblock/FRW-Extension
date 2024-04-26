@@ -10,7 +10,7 @@ import providerController from './controller';
 import eventBus from '@/eventBus';
 
 const isSignApproval = (type: string) => {
-  const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx'];
+  const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx', 'EthConfirm'];
   return SIGN_APPROVALS.includes(type);
 };
 
@@ -91,14 +91,16 @@ const flowContext = flow
       },
       mapMethod,
     } = ctx;
-    const [approvalType, condition, { height = 770 } = {}] =
+    console.log('ctx ctx ctx ctx', ctx)
+    const [approvalType, condition, { height = 599 } = {}] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || [];
 
-    if (approvalType && (!condition || !condition(ctx.request))) {
+    console.log('approvalType approvalType providerController ctx', mapMethod, providerController)
+    if (mapMethod === 'ethSendTransaction') {
       ctx.request.requestedApproval = true;
       ctx.approvalRes = await notificationService.requestApproval(
         {
-          approvalComponent: approvalType,
+          approvalComponent: 'EthConfirm',
           params: {
             method,
             data: params,
@@ -108,7 +110,7 @@ const flowContext = flow
         },
         { height }
       );
-      if (isSignApproval(approvalType)) {
+      if (isSignApproval('EthConfirm')) {
         permissionService.updateConnectSite(origin, { isSigned: true }, true);
       } else {
         permissionService.touchConnectedSite(origin);
