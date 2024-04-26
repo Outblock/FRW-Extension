@@ -109,44 +109,20 @@ async function signMessage(keyring, msgParams, opts = {}) {
   const prependUserDomainTag = (msg: string) => USER_DOMAIN_TAG + msg
   const signableData = prependUserDomainTag(removeHexPrefix(hashedData))
 
-  const hashed = sha256(Buffer.from(signableData, "hex"));
-
   // Retrieve the private key from the wallet (assuming Ethereum wallet)
-  const keyrings = await keyringService.getKeyring();
-  const privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
-
+  const password = keyringService.password;
+  const privateKey = await Wallet.getKey(password);
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(signableData, signAlgo, hashAlgo, privateKey);
   const currentWallet = await Wallet.getCurrentWallet();
-  const proof = {
-    keyIndices: Buffer.from([0]),
-    address: Buffer.from(currentWallet.address, 'hex'),
-    capabilityPath: Buffer.from("evm", 'utf8'),
-    signatures: Buffer.from(signature, 'hex'),
-  };
-  const encoded = RLP.encode([
-    proof.keyIndices,
-    proof.address,
-    proof.capabilityPath,
-    proof.signatures
-  ]);
 
   const addressHex = currentWallet.address;
   const addressBuffer = Buffer.from(addressHex.slice(2), 'hex');
   const addressArray = Uint8Array.from(addressBuffer);
 
   const encodedProof = createAndEncodeCOAOwnershipProof([BigInt(0)], addressArray, 'evm', [Uint8Array.from(Buffer.from(signature, 'hex'))]);
-
-
-  console.log("coa address ===> ", keyring);
-  console.log("message data ===> ", hashedData);
-  console.log("signableData message ===> ", signableData);
-  console.log("hashed message ===> ", bufferToHex(hashed));
-  console.log("sig ===> ", signature);
-  console.log("encoded ===> ", toHexString(encodedProof));
-
 
 
 
@@ -184,7 +160,7 @@ class ProviderController extends BaseController {
 
     return account;
   };
-  ethEstimateGas = async ({data}) => {
+  ethEstimateGas = async ({ data }) => {
 
     console.log('account ', data)
     const url = 'https://previewnet.evm.nodes.onflow.org'
@@ -221,7 +197,7 @@ class ProviderController extends BaseController {
     const dataValue = transactionParams.data || '0x';
 
     console.log('transactionParams ', transactionParams)
-    const result = await Wallet.sendEvmTransaction(to, gas, value,dataValue);
+    const result = await Wallet.sendEvmTransaction(to, gas, value, dataValue);
     return result;
   };
 
