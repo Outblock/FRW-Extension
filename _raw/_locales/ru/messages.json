@@ -1197,5 +1197,59 @@
   },
   "Loading": {
     "message": "Загрузка..."
+  },
+  "Application": {
+    "message": "Приложение"
+  },
+  "IP_Address": {
+    "message": "IP-адрес"
+  },
+  "Location": {
+    "message": "Местоположение"
+  },
+  "Date": {
+    "message": "Дата"
+  },
+  "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
+    "message": "Связать мобильный кошелек Flow Reference, сканируя QR-код"
+  },
+  "Current_Sessions": {
+    "message": "Текущие сессии"
+  },
+  "Active_Sessions": {
+    "message": "Активные сессии"
+  },
+  "Online": {
+    "message": "Онлайн"
+  },
+  "Wallet_Confirmation": {
+    "message": "Подтверждение кошелька"
+  },
+  "Sync_Mobile_Device": {
+    "message": "Синхронизировать мобильное устройство"
+  },
+  "Link_Mobile_Device": {
+    "message": "Подключить мобильное устройство"
+  },
+  "Desktop_Device": {
+    "message": "Настольное устройство"
+  },
+  "Mobile_Device": {
+    "message": "Мобильное устройство"
+  },
+  "Scan_QR_code_to_active": {
+    "message": "Сканируйте QR-код для активации вашего мобильного устройства"
+  },
+  "lease_allow_the_camera_permission": {
+    "message": "Пожалуйста, разрешите доступ к камере через настройки веб-разрешений в расширении, находящемся в правом верхнем углу."
+  },
+  "Allow": {
+    "message": "Разрешить"
+  },
+  "to_connect": {
+    "message": "подключить?"
+  },
+  "Devices": {
+    "message": "Устройства"
   }
 }

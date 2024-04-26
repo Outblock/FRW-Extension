@@ -1197,5 +1197,59 @@
   },
   "Loading": {
     "message": "Loading..."
+  },
+  "Application": {
+    "message": "Application"
+  },
+  "IP_Address": {
+    "message": "IP Address"
+  },
+  "Location": {
+    "message": "Location"
+  },
+  "Date": {
+    "message": "Date"
+  },
+  "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
+    "message": "Link Flow Reference Wallet Mobile by Scanning the QR code"
+  },
+  "Current_Sessions": {
+    "message": "Current Sessions"
+  },
+  "Active_Sessions": {
+    "message": "Active Sessions"
+  },
+  "Online": {
+    "message": "Online"
+  },
+  "Wallet_Confirmation": {
+    "message": "Wallet Confirmation"
+  },
+  "Sync_Mobile_Device": {
+    "message": "Sync Mobile Device"
+  },
+  "Link_Mobile_Device": {
+    "message": "Link Mobile Device"
+  },
+  "Desktop_Device": {
+    "message": "Desktop Device"
+  },
+  "Mobile_Device": {
+    "message": "Mobile Device"
+  },
+  "Scan_QR_code_to_active": {
+    "message": "Scan QR code to active your mobile device"
+  },
+  "lease_allow_the_camera_permission": {
+    "message": "lease allow the camera permission through the top right extension view web permissions setting."
+  },
+  "Allow": {
+    "message": "Allow"
+  },
+  "to_connect": {
+    "message": "to connect?"
+  },
+  "Devices": {
+    "message": "Devices"
   }
 }

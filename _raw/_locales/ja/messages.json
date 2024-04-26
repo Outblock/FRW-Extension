@@ -1197,5 +1197,59 @@
   },
   "Loading": {
     "message": "読み込み中..."
+  },
+  "Application": {
+    "message": "アプリケーション"
+  },
+  "IP_Address": {
+    "message": "IPアドレス"
+  },
+  "Location": {
+    "message": "場所"
+  },
+  "Date": {
+    "message": "日付"
+  },
+  "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
+    "message": "QRコードをスキャンしてフローリファレンスウォレットモバイルをリンク"
+  },
+  "Current_Sessions": {
+    "message": "現在のセッション"
+  },
+  "Active_Sessions": {
+    "message": "アクティブセッション"
+  },
+  "Online": {
+    "message": "オンライン"
+  },
+  "Wallet_Confirmation": {
+    "message": "ウォレット確認"
+  },
+  "Sync_Mobile_Device": {
+    "message": "モバイルデバイスを同期"
+  },
+  "Link_Mobile_Device": {
+    "message": "モバイルデバイスをリンク"
+  },
+  "Desktop_Device": {
+    "message": "デスクトップデバイス"
+  },
+  "Mobile_Device": {
+    "message": "モバイルデバイス"
+  },
+  "Scan_QR_code_to_active": {
+    "message": "モバイルデバイスをアクティブにするためにQRコードをスキャンしてください"
+  },
+  "lease_allow_the_camera_permission": {
+    "message": "右上の拡張機能ビューのウェブ権限設定からカメラの権限を許可してください。"
+  },
+  "Allow": {
+    "message": "許可する"
+  },
+  "to_connect": {
+    "message": "接続しますか？"
+  },
+  "Devices": {
+    "message": "デバイス"
   }
 }

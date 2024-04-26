@@ -91,7 +91,7 @@ const DeviceInfo = () => {
                   fontSize: '14px',
                   fontWeight: 400,
                 }}>
-                Application
+                {chrome.i18n.getMessage('Application')}
               </Typography>
               <Typography
                 sx={{
@@ -112,7 +112,7 @@ const DeviceInfo = () => {
                   fontSize: '14px',
                   fontWeight: 400,
                 }}>
-                IP Address
+                {chrome.i18n.getMessage('IP_Address')}
               </Typography>
               <Typography
                 sx={{
@@ -133,7 +133,7 @@ const DeviceInfo = () => {
                   fontSize: '14px',
                   fontWeight: 400,
                 }}>
-                Location
+                {chrome.i18n.getMessage('Location')}
               </Typography>
               <Typography
                 sx={{
@@ -153,7 +153,7 @@ const DeviceInfo = () => {
                   fontSize: '14px',
                   fontWeight: 400,
                 }}>
-                Date
+                {chrome.i18n.getMessage('Date')}
               </Typography>
               <Typography
                 sx={{

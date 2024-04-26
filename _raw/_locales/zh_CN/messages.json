@@ -1197,5 +1197,59 @@
   },
   "Loading": {
     "message": "加载中..."
+  },
+  "Application": {
+    "message": "应用程序"
+  },
+  "IP_Address": {
+    "message": "IP地址"
+  },
+  "Location": {
+    "message": "位置"
+  },
+  "Date": {
+    "message": "日期"
+  },
+  "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
+    "message": "通过扫描二维码链接流参考钱包手机"
+  },
+  "Current_Sessions": {
+    "message": "当前会话"
+  },
+  "Active_Sessions": {
+    "message": "活跃会话"
+  },
+  "Online": {
+    "message": "在线"
+  },
+  "Wallet_Confirmation": {
+    "message": "钱包确认"
+  },
+  "Sync_Mobile_Device": {
+    "message": "同步移动设备"
+  },
+  "Link_Mobile_Device": {
+    "message": "连接移动设备"
+  },
+  "Desktop_Device": {
+    "message": "桌面设备"
+  },
+  "Mobile_Device": {
+    "message": "移动设备"
+  },
+  "Scan_QR_code_to_active": {
+    "message": "扫描二维码激活您的移动设备"
+  },
+  "lease_allow_the_camera_permission": {
+    "message": "请通过右上角扩展视图的网页权限设置允许使用摄像头权限。"
+  },
+  "Allow": {
+    "message": "允许"
+  },
+  "to_connect": {
+    "message": "连接吗？"
+  },
+  "Devices": {
+    "message": "设备"
   }
 }
