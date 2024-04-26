@@ -113,8 +113,12 @@ const Header = ({ loading }) => {
   };
 
   const wallets = (data) => {
+    let sortData = data;
     const walletName = domain ? domain : 'Wallet';
-    const filteredData = (data || []).filter((wallet, index) => {
+    if (!Array.isArray(sortData)) {
+      sortData = [];
+    }
+    const filteredData = (sortData || []).filter((wallet, index) => {
       return wallet.chain_id == currentNetwork;
     });
     return (filteredData || []).map((wallet, index) => {
@@ -130,8 +134,8 @@ const Header = ({ loading }) => {
   const [walletList, setWalletList] = useState([]);
 
   const fetchUserWallet = async () => {
-    const wallet = await usewallet.getUserWallets();
-    await setWallet(wallet);
+    // const wallet = await usewallet.getUserWallets();
+    // await setWallet(wallet);
     const userInfo = await usewallet.getUserInfo(false);
     // const domain = await usewallet.fetchUserDomain();
     await setUserInfo(userInfo);
@@ -173,7 +177,7 @@ const Header = ({ loading }) => {
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
-    await setCurrent(currentWallet);
+    const childType = await usewallet.getActiveWallet();
     const network = await usewallet.getNetwork();
     if (network === 'previewnet') {
       usewallet.queryEvmAddress(currentWallet.address).then(async (res) => {
@@ -182,11 +186,18 @@ const Header = ({ loading }) => {
         console.log('evm err', err)
       });
     }
+    if (childType === 'evm') {
+      const evmWallet = await usewallet.getEvmWallet();
+      await setCurrent(evmWallet);
+    } else {
+      await setCurrent(currentWallet);
+    }
+
 
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
-    const {otherAccounts, wallet, loggedInAccounts} = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData)
+    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData)
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
@@ -332,6 +343,7 @@ const Header = ({ loading }) => {
     await usewallet.openapi.checkAuthStatus();
     await usewallet.checkNetwork();
   };
+
 
   useEffect(() => {
     loadNetwork();
@@ -740,7 +752,7 @@ const Header = ({ loading }) => {
       )
     );
   };
-  
+
   const usernameSelect = () => {
     return (
       <Drawer

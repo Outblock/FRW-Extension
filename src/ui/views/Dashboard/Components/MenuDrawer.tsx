@@ -8,9 +8,10 @@ import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { makeStyles } from '@mui/styles';
 import { UserInfoResponse } from 'background/service/networkModel';
-import sideMore from '../../../FRWAssets/svg/sideMore.svg'
-import planetr from '../../../FRWAssets/svg/planetr.svg'
-import rightarrow from '../../../FRWAssets/svg/rightarrow.svg'
+import sideMore from '../../../FRWAssets/svg/sideMore.svg';
+import planetr from '../../../FRWAssets/svg/planetr.svg';
+import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
+import { storage } from '@/background/webapi';
 
 import evmlogo from 'ui/FRWAssets/image/evmlogo.png';
 
@@ -53,6 +54,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   const usewallet = useWallet();
   const history = useHistory();
   const classes = useStyles();
+  const [evmMode, setEvmMode] = useState(false);
 
   function formatString(str: string): string {
     if (!str || str.length < 16) return str; // Check if string is too short
@@ -96,6 +98,16 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     history.push('/dashboard/enable');
   };
 
+  const checkEvmMode = async () => {
+    const mode = await storage.get('evmMode');
+    setEvmMode(mode);
+  };
+
+
+  useEffect(() => {
+    checkEvmMode();
+  }, []);
+
 
 
   return (
@@ -131,96 +143,96 @@ const MenuDrawer = (props: MenuDrawerProps) => {
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
         </Box>
         {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
-
-        {props.evmAddress ?
-          <Box
-            sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }}
-            onClick={() => props.setWallets({
-              name: 'evm',
-              address: props.evmAddress,
-              chain_id: props.currentNetwork,
-              coins: ['flow'],
-              id: 1
-            }, 'evm')}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <CardMedia sx={{ margin: '0 auto', width: '32px', height: '32px', display: 'block', marginRight: '12px' }} image={evmlogo} />
-            </Box>
-            <Box>
-              <Box sx={{ display: "flex", alginItems: 'center' }}>
-                <Typography
-                  variant="body1"
-                  component="span"
-                  color="#FFF"
-                  fontSize={'12px'}
-                >
-                  Flow EVM Wallet
-                </Typography>
-
-                <Typography
-                  variant="body1"
-                  component="span"
-                  color="#FFF"
-                  fontSize={'9px'}
-                  sx={{
-                    backgroundColor: '#627EEA',
-                    padding: '0 8px',
-                    borderRadius: '18px',
-                    textAlign: 'center',
-                    marginLeft: '8px',
-                    lineHeight: '19px'
-                  }}
-                >
-                  EVM
-                </Typography>
-              </Box>
-              <EvmADDComponent myString={props.evmAddress} />
-            </Box>
-          </Box>
-          :
-          <Box sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }} >
+        {evmMode && (
+          props.evmAddress ? (
             <Box
-              sx={{
-                borderRadius: '12px',
-                display: 'flex',
-                width: '100%',
-                justifyContent: 'space-between',
-                backgroundColor: 'rgba(0, 0, 0, 0.30)',
-                padding: '16px',
-                ':hover': {
-                  opacity: 0.8
-                }
-              }}
-              onClick={goEnable}
+              sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }}
+              onClick={() => props.setWallets({
+                name: 'evm',
+                address: props.evmAddress,
+                chain_id: props.currentNetwork,
+                coins: ['flow'],
+                id: 1
+              }, 'evm')}
             >
-              <Box>
-                <Typography
-                  sx={{
-                    color: " #FFF",
-                    fontSize: "12px",
-                    fontStyle: "normal",
-                    fontWeight: 600,
-                    letterSpacing: "0.1px"
-                  }}
-                >
-                  Enable the path to  <Typography style={gradientStyle}>FlowEVM</Typography> !
-                </Typography>
-                <Typography
-                  sx={{
-                    color: " rgba(255, 255, 255, 0.80)",
-                    fontSize: "10px",
-                    fontStyle: "normal",
-                    fontWeight: 400,
-                    letterSpacing: "0.1px"
-                  }}
-                >
-                  Manage multi-VM assets seamlessly.
-                </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <CardMedia sx={{ margin: '0 auto', width: '32px', height: '32px', display: 'block', marginRight: '12px' }} image={evmlogo} />
               </Box>
-              <CardMedia sx={{ width: '20px', height: '20px', display: 'block', marginLeft: '6px' }} image={rightarrow} />
-            </Box>
-          </Box>
-        }
+              <Box>
+                <Box sx={{ display: "flex", alginItems: 'center' }}>
+                  <Typography
+                    variant="body1"
+                    component="span"
+                    color="#FFF"
+                    fontSize={'12px'}
+                  >
+                    Flow EVM Wallet
+                  </Typography>
+
+                  <Typography
+                    variant="body1"
+                    component="span"
+                    color="#FFF"
+                    fontSize={'9px'}
+                    sx={{
+                      backgroundColor: '#627EEA',
+                      padding: '0 8px',
+                      borderRadius: '18px',
+                      textAlign: 'center',
+                      marginLeft: '8px',
+                      lineHeight: '19px'
+                    }}
+                  >
+                    EVM
+                  </Typography>
+                </Box>
+                <EvmADDComponent myString={props.evmAddress} />
+              </Box>
+            </Box>)
+            : (
+              <Box sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }} >
+                <Box
+                  sx={{
+                    borderRadius: '12px',
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'space-between',
+                    backgroundColor: 'rgba(0, 0, 0, 0.30)',
+                    padding: '16px',
+                    ':hover': {
+                      opacity: 0.8
+                    }
+                  }}
+                  onClick={goEnable}
+                >
+                  <Box>
+                    <Typography
+                      sx={{
+                        color: " #FFF",
+                        fontSize: "12px",
+                        fontStyle: "normal",
+                        fontWeight: 600,
+                        letterSpacing: "0.1px"
+                      }}
+                    >
+                      Enable the path to  <Typography style={gradientStyle}>FlowEVM</Typography> !
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: " rgba(255, 255, 255, 0.80)",
+                        fontSize: "10px",
+                        fontStyle: "normal",
+                        fontWeight: 400,
+                        letterSpacing: "0.1px"
+                      }}
+                    >
+                      Manage multi-VM assets seamlessly.
+                    </Typography>
+                  </Box>
+                  <CardMedia sx={{ width: '20px', height: '20px', display: 'block', marginLeft: '6px' }} image={rightarrow} />
+                </Box>
+              </Box>
+            ))}
 
         {Object.keys(props.childAccounts).map((key) => (
           <ListItem

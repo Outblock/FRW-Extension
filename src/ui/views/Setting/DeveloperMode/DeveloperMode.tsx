@@ -176,6 +176,7 @@ const DeveloperMode = () => {
   const classes = useStyles();
   const history = useHistory();
   const [modeOn, setModeOn] = useState(false);
+  const [evmOn, setEvmOn] = useState(false);
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
 
@@ -206,8 +207,10 @@ const DeveloperMode = () => {
 
   const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
+    const evmMode = await storage.get('evmMode');
     if (developerMode) {
       setModeOn(developerMode);
+      setEvmOn(evmMode);
     }
   };
 
@@ -243,6 +246,17 @@ const DeveloperMode = () => {
     setModeOn(!modeOn);
     storage.set('developerMode', !modeOn);
     // window.location.reload();
+    // if (modeOn == true) {
+    //   switchNetwork('mainnet')
+    // } else {
+    //   window.location.reload();
+    // }
+  };
+
+  const switchEVMMode = async () => {
+    setEvmOn(!evmOn);
+    storage.set('evmMode', !evmOn);
+    window.location.reload();
     // if (modeOn == true) {
     //   switchNetwork('mainnet')
     // } else {
@@ -544,6 +558,33 @@ const DeveloperMode = () => {
                   )}
                 </Box>
               </CardActionArea>
+            </Box>
+
+            <Typography
+              variant="h6"
+              color="neutral.contrastText"
+              sx={{
+                weight: 500,
+                marginLeft: '18px',
+              }}
+            >
+              Other
+            </Typography>
+            <Box className={classes.developerBox}>
+              <Typography
+                variant="body1"
+                color="neutral.contrastText"
+                style={{ weight: 600 }}
+              >
+                EVM on Flow
+              </Typography>
+              <SwitchUnstyled
+                checked={evmOn}
+                component={Root}
+                onChange={() => {
+                  switchEVMMode();
+                }}
+              />
             </Box>
           </Box>
         )}

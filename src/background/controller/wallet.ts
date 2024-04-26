@@ -929,6 +929,13 @@ export class WalletController extends BaseController {
     return result;
   };
 
+  getMainWallet = async () => {
+    const network = await this.getNetwork();
+    const address = await userWalletService.getMainWallet(network);
+
+    return address;
+  }
+
   fetchFlownsInbox = async () => {
     const info = await userInfoService.getUserInfo();
     const res = await openapiService.getFlownsInbox(info.username);
@@ -1207,6 +1214,18 @@ export class WalletController extends BaseController {
       return data[0].blockchain[0];
     }
     return wallet;
+  };
+
+  getEvmWallet = async () => {
+    const wallet = await userWalletService.getEvmWallet();
+    return wallet;
+  };
+
+
+  getEvmAddress = async () => {
+    const wallet = await userWalletService.getEvmWallet();
+    const address = withPrefix(wallet.address) || '';
+    return address;
   };
 
   getCurrentAddress = async () => {

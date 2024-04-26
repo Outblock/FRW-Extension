@@ -23,7 +23,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
   const getActive = async () => {
     const isChild = await wallet.getActiveWallet();
 
-    const timerId = setTimeout(() => {
+    const timerId = setTimeout(async () => {
       wallet.openapi.getTokenInfo(token).then(async (response) => {
         if (!isMounted.current) return;  // Early exit if component is not mounted
         setData(response!);
@@ -51,12 +51,19 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
           setAccessible(true);
         }
       });
+      if (isChild === 'evm') {
+        const address = await wallet.getEvmAddress();
+        const balance = await wallet.getBalance(address.substring(2));
+        setBalance(Number(balance) / 1e18);
+      } else {
+        wallet.openapi.getWalletTokenBalance(token).then((response) => {
+          if (isMounted.current) {
+            setBalance(parseFloat(parseFloat(response).toFixed(3)));
+          }
+        });
 
-      wallet.openapi.getWalletTokenBalance(token).then((response) => {
-        if (isMounted.current) {
-          setBalance(parseFloat(parseFloat(response).toFixed(3)));
-        }
-      });
+      }
+
     }, 400);
 
     return () => {
@@ -114,9 +121,9 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>${(balance * price).toFixed(3)} {chrome.i18n.getMessage('USD')}</Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
-            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color:'primary.contrastText' ,fontWeight:'600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />
-            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color:'primary.contrastText',fontWeight:'600' }} disabled={!accessible} onClick={() => history.push('/dashboard/wallet/deposit')} label={chrome.i18n.getMessage('Deposit')} fullWidth />
-            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color:'primary.contrastText',fontWeight:'600' }} disabled={!accessible} onClick={setMoveOpen} label='Move' fullWidth />
+            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />
+            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={() => history.push('/dashboard/wallet/deposit')} label={chrome.i18n.getMessage('Deposit')} fullWidth />
+            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={setMoveOpen} label='Move' fullWidth />
           </Box>
         </>
       }

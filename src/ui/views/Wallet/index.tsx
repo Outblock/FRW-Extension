@@ -73,7 +73,12 @@ const WalletTab = ({ network }) => {
   };
 
   const setUserAddress = async () => {
-    const data = await wallet.getCurrentAddress();
+    let data = '';
+    if (childType !== 'evm') {
+      data = await wallet.getEvmAddress();
+    } else {
+      data = await wallet.getCurrentAddress();
+    }
     console.log('get currentAddress ', data)
     if (data) {
       setAddress(withPrefix(data) || '');
@@ -152,9 +157,9 @@ const WalletTab = ({ network }) => {
 
   const fetchChildState = async () => {
     const isChild = await wallet.getActiveWallet();
-    if (isChild) {
+    await setChildType(isChild);
+    if (isChild && isChild !== 'evm') {
       await setIsActive(false);
-      await setChildType(isChild);
     } else {
       setIsActive(true);
     }

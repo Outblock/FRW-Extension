@@ -15,6 +15,7 @@ import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
   currentWallet: BlockchainResponse;
+  evmWallet: BlockchainResponse;
   childAccount: ChildAccount;
   network: string;
   monitor: string;
@@ -42,6 +43,13 @@ class UserWallet {
           id: 1,
           coins: ['flow'],
         },
+        evmWallet: {
+          name: '',
+          address: '',
+          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          id: 1,
+          coins: ['flow'],
+        },
         activeChild: null,
         monitor: 'flowscan',
         network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
@@ -59,6 +67,13 @@ class UserWallet {
       },
       childAccount: {},
       currentWallet: {
+        name: '',
+        address: '',
+        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        id: 1,
+        coins: ['flow'],
+      },
+      evmWallet: {
         name: '',
         address: '',
         chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
@@ -96,8 +111,10 @@ class UserWallet {
   };
 
   setCurrentWallet = (wallet: any, key: any, network: string) => {
-    if (key) {
+    if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
+    } else if (key === 'evm') {
+      this.store.evmWallet = wallet;
     } else {
       const current = this.store.wallets[network][0].blockchain[0];
       this.store.currentWallet = current;
@@ -162,6 +179,10 @@ class UserWallet {
 
   getCurrentWallet = () => {
     return this.store.currentWallet;
+  };
+
+  getEvmWallet = () => {
+    return this.store.evmWallet;
   };
 
   getMainWallet = (network: string) => {
