@@ -8,7 +8,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import TransferAmount from '../TransferAmount'
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
-import ToEthConfirmation from './ToEthConfirmation'
+import ToEthConfirmation from './ToEthConfirmation';
+import EvmConfirmation from './EvmConfirmation'
 import {
   LLContactCard,
 } from 'ui/FRWComponent';
@@ -16,7 +17,7 @@ import { Contact } from 'background/service/networkModel';
 import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../../components/iconfont/IconClose';
 import { LLHeader } from '@/ui/FRWComponent';
-import {isValidEthereumAddress} from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils';
 
 interface ContactState {
   contact: Contact
@@ -60,6 +61,8 @@ const SendEth = () => {
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [childType, setChildType] = useState<string>('');
+  const [evmBalance, setEvmBalance] = useState<any>('');
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
@@ -74,6 +77,12 @@ const SendEth = () => {
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
+
+    const balance = await usewallet.getBalance(location.state.contact.address);
+    const balanceNumber = Number(balance) / 1e18;
+    console.log('balance balance balance ', balance);
+    setEvmBalance(balanceNumber);
+    coinInfo!.balance = balanceNumber;
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
@@ -82,11 +91,14 @@ const SendEth = () => {
     userContact.contact_name = info.username;
     setUser(userContact);
 
+    
+
   };
 
 
   const checkAddress = async () => {
-
+    const childType = await usewallet.getActiveWallet();
+    setChildType(childType);
     //wallet controller api
     try {
       const address = location.state.contact.address;
@@ -198,7 +210,7 @@ const SendEth = () => {
                       fontSize: '15px',
                     }}>
                     {
-                      (Math.round(coinInfo.balance * 100) / 100).toFixed(2) + ' ' + coinInfo.unit.toUpperCase() + ' ≈ ' + '$ ' + coinInfo.total
+                      (Math.round(evmBalance * 100) / 100).toFixed(2)
                     }
                   </Typography>
                 </Box>
@@ -254,16 +266,28 @@ const SendEth = () => {
               </Typography>
             </Button>
           </Box>
+          {childType === 'evm' ?
+            <EvmConfirmation
+              isConfirmationOpen={isConfirmationOpen}
+              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo }}
+              handleCloseIconClicked={() => setConfirmationOpen(false)}
+              handleCancelBtnClicked={() => setConfirmationOpen(false)}
+              handleAddBtnClicked={() => {
+                setConfirmationOpen(false);
+              }}
+            />
+            :
+            <ToEthConfirmation
+              isConfirmationOpen={isConfirmationOpen}
+              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo }}
+              handleCloseIconClicked={() => setConfirmationOpen(false)}
+              handleCancelBtnClicked={() => setConfirmationOpen(false)}
+              handleAddBtnClicked={() => {
+                setConfirmationOpen(false);
+              }}
+            />
+          }
 
-          <ToEthConfirmation
-            isConfirmationOpen={isConfirmationOpen}
-            data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo }}
-            handleCloseIconClicked={() => setConfirmationOpen(false)}
-            handleCancelBtnClicked={() => setConfirmationOpen(false)}
-            handleAddBtnClicked={() => {
-              setConfirmationOpen(false);
-            }}
-          />
 
         </Box>
       </ThemeProvider>

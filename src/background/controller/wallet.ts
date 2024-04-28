@@ -1402,6 +1402,9 @@ export class WalletController extends BaseController {
     if (network !== 'previewnet') {
       throw Error;
     }
+    if (hexEncodedAddress.startsWith('0x')) {
+      hexEncodedAddress = hexEncodedAddress.substring(2);
+    }
 
     const script = await getScripts('evm', 'getBalance');
 
