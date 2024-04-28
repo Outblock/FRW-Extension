@@ -3,25 +3,26 @@ import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
 import { useHistory, useLocation } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { CoinItem } from 'background/service/coinList';
-import theme from '../../style/LLTheme';
+import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from './TransferAmount'
+import TransferAmount from '../TransferAmount'
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
-import TransferConfirmation from './TransferConfirmation';
+import ToEthConfirmation from './ToEthConfirmation'
 import {
   LLContactCard,
 } from 'ui/FRWComponent';
 import { Contact } from 'background/service/networkModel';
 import { Presets } from 'react-component-transition';
-import CancelIcon from '../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../components/iconfont/IconClose';
 import { LLHeader } from '@/ui/FRWComponent';
+import {isValidEthereumAddress} from 'ui/utils';
 
 interface ContactState {
   contact: Contact
 }
 
-const SendAmount = () => {
+const SendEth = () => {
 
   const userContact = {
     address: '',
@@ -88,11 +89,14 @@ const SendAmount = () => {
 
     //wallet controller api
     try {
-      const address = withPrefix(location.state.contact.address);
-      const validatedResult = await usewallet.checkAddress(address!);
+      const address = location.state.contact.address;
+      console.log('000000000000000000000002edcb9a31eda963d5 address ', address)
+      const validatedResult = isValidEthereumAddress(address)
+      console.log('validatedResult address ', validatedResult)
       setValidated(validatedResult);
       return validatedResult;
     } catch (err) {
+      console.log('validatedResult err ', err)
       setValidated(false);
     }
     setLoading(false);
@@ -251,7 +255,7 @@ const SendAmount = () => {
             </Button>
           </Box>
 
-          <TransferConfirmation
+          <ToEthConfirmation
             isConfirmationOpen={isConfirmationOpen}
             data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo }}
             handleCloseIconClicked={() => setConfirmationOpen(false)}
@@ -268,4 +272,4 @@ const SendAmount = () => {
 }
 
 
-export default SendAmount;
+export default SendEth;

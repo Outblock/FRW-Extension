@@ -141,7 +141,7 @@ const Move = (props: TransferConfirmationProps) => {
 
   const moveToken = async () => {
     setLoading(true);
-    usewallet.transferFlowEvm(evmAddress, amount).then(async (createRes) => {
+    usewallet.fundFlowEvm(amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');

@@ -31,7 +31,7 @@ import { makeStyles } from '@mui/styles';
 import { StyledEngineProvider } from '@mui/material/styles';
 import { withPrefix } from '@/ui/utils/address';
 import IconAbout from '../../../components/iconfont/IconAbout';
-import { LLHeader } from '@/ui/FRWComponent';
+import { isValidEthereumAddress } from 'ui/utils';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
@@ -326,6 +326,7 @@ const Send = () => {
     }
   }
 
+
   const handleFilterAndSearch = async (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
@@ -349,6 +350,22 @@ const Send = () => {
 
 
     const checkAddress = keyword.trim()
+    if (isValidEthereumAddress(checkAddress)){
+      if (filtered[0]) {
+        searchResult = filtered[0]
+      } else {
+        searchResult.address = withPrefix(keyword) || keyword;
+        searchResult.contact_name = withPrefix(checkAddress) || keyword;
+        searchResult.avatar = '';
+          searchResult.type! = 4;
+      }
+      history.push({
+        pathname: '/dashboard/wallet/sendeth',
+        state: { contact: searchResult },
+      })
+      return;
+    }
+
     if (/^(0x)?[a-fA-F0-9]{16}$/.test(checkAddress)) {
       if (filtered[0]) {
         searchResult = filtered[0]
@@ -382,7 +399,6 @@ const Send = () => {
     }
   };
 
-  console.log('AAA ->', chrome.i18n.getMessage('Search__PlaceHolder'))
 
   return (
     <StyledEngineProvider injectFirst>

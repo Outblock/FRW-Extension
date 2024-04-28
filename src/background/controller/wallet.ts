@@ -1272,6 +1272,9 @@ export class WalletController extends BaseController {
       throw Error;
     }
     const script = await getScripts('evm', 'transferFlowToEvmAddress');
+    if (recipientEVMAddressHex.startsWith('0x')) {
+      recipientEVMAddressHex = recipientEVMAddressHex.substring(2);
+    }
 
     return await userWalletService.sendTransaction(
       script
@@ -1302,6 +1305,28 @@ export class WalletController extends BaseController {
       [
         fcl.arg(formattedAmount, t.UFix64),
         fcl.arg(address, t.Address),
+      ]
+
+    );
+  };
+
+
+
+
+  fundFlowEvm = async (amount = '1.0'): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(8);
+
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+    const script = await getScripts('evm', 'fundCoa');
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(formattedAmount, t.UFix64),
       ]
 
     );

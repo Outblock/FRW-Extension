@@ -4,7 +4,7 @@ import {
 } from 'consts';
 import { Account } from 'background/service/preference';
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => {};
+export const noop = () => { };
 
 export * from './WalletContext';
 export * from './WindowContext';
@@ -56,19 +56,19 @@ export const hex2Text = (hex: string) => {
 
 export const hexToUint8Array = (hexString: string) => {
   if (hexString.startsWith('0x')) {
-      hexString = hexString.substring(2);
+    hexString = hexString.substring(2);
   }
 
   if (hexString.length % 2 !== 0) {
-      hexString = '0' + hexString; // Pad with zero if odd
+    hexString = '0' + hexString; // Pad with zero if odd
   }
 
   const arrayLength = hexString.length / 2;
   const uint8Array = new Uint8Array(arrayLength);
 
   for (let i = 0; i < arrayLength; i++) {
-      const byte = hexString.substr(i * 2, 2);
-      uint8Array[i] = parseInt(byte, 16);
+    const byte = hexString.substr(i * 2, 2);
+    uint8Array[i] = parseInt(byte, 16);
   }
 
   return uint8Array;
@@ -207,4 +207,9 @@ export function getStringFromSignAlgo(value: number): string {
     default:
       return 'unknown'; // Handle unknown values
   }
+}
+
+export const isValidEthereumAddress = (address) => {
+  const regex = /^(0x)?[0-9a-fA-F]{40}$/;
+  return regex.test(address);
 }

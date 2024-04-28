@@ -23,6 +23,7 @@ import Swap from '../views/Swap';
 import Deposit from '../views/Deposit';
 import AddressBook from './Setting/AddressBook';
 import SendAmount from './Send/SendAmount';
+import SendEth from './Send/SendEth';
 import TokenDetail from './TokenDetail';
 import TokenList from './TokenList';
 import Inbox from './Inbox';
@@ -200,6 +201,10 @@ const Inner = (props) => {
 
           <PrivateRoute path={`${props.match.url}/wallet/sendAmount`}>
             <SendAmount />
+          </PrivateRoute>
+
+          <PrivateRoute path={`${props.match.url}/wallet/sendeth`}>
+            <SendEth />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/token/:id`}>
