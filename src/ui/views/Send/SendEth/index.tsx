@@ -6,7 +6,7 @@ import { CoinItem } from 'background/service/coinList';
 import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import TransferAmount from '../TransferAmount'
-import { useWallet } from 'ui/utils';
+import { useWallet, isValidEthereumAddress } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
 import ToEthConfirmation from './ToEthConfirmation';
 import EvmConfirmation from './EvmConfirmation'
@@ -17,7 +17,7 @@ import { Contact } from 'background/service/networkModel';
 import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../../components/iconfont/IconClose';
 import { LLHeader } from '@/ui/FRWComponent';
-import { isValidEthereumAddress } from 'ui/utils';
+
 
 interface ContactState {
   contact: Contact
@@ -68,7 +68,7 @@ const SendEth = () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    const wallet = await usewallet.getCurrentWallet();
+    const wallet = await usewallet.getEvmWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
@@ -78,11 +78,11 @@ const SendEth = () => {
     setCoinList(coinList);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
 
-    const balance = await usewallet.getBalance(location.state.contact.address);
+    const balance = await usewallet.getBalance(wallet.address);
     const balanceNumber = Number(balance) / 1e18;
-    console.log('balance balance balance ', balance);
     setEvmBalance(balanceNumber);
     coinInfo!.balance = balanceNumber;
+    coinInfo!.total = balanceNumber * coinInfo!.price;
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
@@ -91,7 +91,7 @@ const SendEth = () => {
     userContact.contact_name = info.username;
     setUser(userContact);
 
-    
+
 
   };
 
@@ -210,7 +210,7 @@ const SendEth = () => {
                       fontSize: '15px',
                     }}>
                     {
-                      (Math.round(evmBalance * 100) / 100).toFixed(2)
+                      (Math.round(coinInfo.balance * 100) / 100).toFixed(2) + ' ' + coinInfo.unit.toUpperCase() + ' ≈ ' + '$ ' + coinInfo.total
                     }
                   </Typography>
                 </Box>

@@ -59,12 +59,18 @@ const SendAmount = () => {
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [childType, setChildType] = useState<string>('');
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    const wallet = await usewallet.getCurrentWallet();
+    let wallet
+    if (childType === 'evm') {
+      wallet = await usewallet.getEvmWallet();
+    } else {
+      wallet = await usewallet.getCurrentWallet();
+    }
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
@@ -73,6 +79,14 @@ const SendAmount = () => {
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
+
+    if (childType === 'evm') {
+      const balance = await usewallet.getBalance(wallet.address);
+      const balanceNumber = Number(balance) / 1e18;
+      coinInfo!.balance = balanceNumber;
+      coinInfo!.total = balanceNumber * coinInfo!.price;
+    }
+
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
@@ -85,6 +99,8 @@ const SendAmount = () => {
 
 
   const checkAddress = async () => {
+    const child = await usewallet.getActiveWallet();
+    setChildType(child);
 
     //wallet controller api
     try {
@@ -110,9 +126,12 @@ const SendAmount = () => {
   };
 
   useEffect(() => {
-    setUserWallet();
     checkAddress();
   }, [])
+
+  useEffect(() => {
+    setUserWallet();
+  }, [childType])
 
   useEffect(() => {
     updateCoinInfo();
@@ -250,16 +269,18 @@ const SendAmount = () => {
               </Typography>
             </Button>
           </Box>
-
-          <TransferConfirmation
-            isConfirmationOpen={isConfirmationOpen}
-            data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo }}
-            handleCloseIconClicked={() => setConfirmationOpen(false)}
-            handleCancelBtnClicked={() => setConfirmationOpen(false)}
-            handleAddBtnClicked={() => {
-              setConfirmationOpen(false);
-            }}
-          />
+          {validated
+            &&
+            <TransferConfirmation
+              isConfirmationOpen={isConfirmationOpen}
+              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo, childType }}
+              handleCloseIconClicked={() => setConfirmationOpen(false)}
+              handleCancelBtnClicked={() => setConfirmationOpen(false)}
+              handleAddBtnClicked={() => {
+                setConfirmationOpen(false);
+              }}
+            />
+          }
 
         </Box>
       </ThemeProvider>

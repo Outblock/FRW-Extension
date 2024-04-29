@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
-import { useWallet } from 'ui/utils';
+import { useWallet, formatAddress } from 'ui/utils';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
@@ -32,6 +32,7 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
   const [contactAdd, setContactAdd] = useState(false);
 
   const DomainLogo = () => {
+    console.log(contact, ' asdasdadasdasdasd')
     if (contact.domain?.value === '') {
       return undefined;
     }
@@ -123,7 +124,7 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {!isLoading?
             <Typography variant="body1" sx={{ textAlign: 'start' }}>
-              {contact.domain?.value || contact.contact_name}{' '}
+              {contact.domain?.value || formatAddress(contact.contact_name)}{' '}
               {contact.usernam && contact.usernam !== '' && (
                 <Box display="inline" color="info.main">
                   {contact.username !== '' ? ' (@' + contact.username + ')' : ''}
@@ -138,7 +139,7 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
               sx={{ lineHeight: '1', textAlign: 'start' }}
               color="text.secondary"
             >
-              {contact.address}
+              {formatAddress(contact.address)}
             </Typography>
             : (
               <Skeleton variant="text" width={45} height={15} />

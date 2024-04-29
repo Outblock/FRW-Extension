@@ -100,7 +100,12 @@ const MenuDrawer = (props: MenuDrawerProps) => {
 
   const checkEvmMode = async () => {
     const mode = await storage.get('evmMode');
-    setEvmMode(mode);
+    const network = await usewallet.getNetwork();
+    if (network === 'previewnet') {
+      setEvmMode(mode);
+    } else {
+      setEvmMode(false);
+    }
   };
 
 

@@ -23,7 +23,7 @@ import {
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
 import Tooltip from '@mui/material/Tooltip';
-import { useWallet } from 'ui/utils';
+import { useWallet, formatAddress } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
@@ -406,12 +406,6 @@ const Header = ({ loading }) => {
     window.location.reload();
   };
 
-  const formatAddress = (address) => {
-    if (address && address.length >= 30) {
-      return `0x${address.substring(0, 6)}...${address.substring(address.length - 8)}`;
-    }
-    return address;
-  };
 
   const WalletFunction = (props) => {
     return (
