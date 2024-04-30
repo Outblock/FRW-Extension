@@ -74,12 +74,11 @@ const WalletTab = ({ network }) => {
 
   const setUserAddress = async () => {
     let data = '';
-    if (childType !== 'evm') {
+    if (childType === 'evm') {
       data = await wallet.getEvmAddress();
     } else {
       data = await wallet.getCurrentAddress();
     }
-    console.log('get currentAddress ', data)
     if (data) {
       setAddress(withPrefix(data) || '');
     } else {
@@ -137,11 +136,27 @@ const WalletTab = ({ network }) => {
     sortWallet(storageData);
   };
 
+  const transformTokens = (tokens) => {
+    return tokens.map(token => {
+        return {
+            coin: token.name, 
+            unit: token.symbol.toLowerCase(), 
+            icon: token.logoURI || "", 
+            balance: token.balance, 
+            price: 1.0, 
+            change24h: 0.0, 
+            total: token.balance * 1.0 
+        };
+    });
+}
   const handleStorageData = async (storageData) => {
     if (childType === 'evm') {
-      const balance = await wallet.getBalance(address.substring(2));
+      const evmFt = await wallet.openapi.getEvmFT(address);
+      const evmFts = await transformTokens(evmFt)
+      const balance = await wallet.getBalance(address);
       storageData[0].balance = Number(balance) / 1e18;
       storageData[0].total = storageData[0].balance * storageData[0].price;
+      storageData.concat(evmFts);
     }
     if (storageData) {
       await setCoinData(storageData);
@@ -184,11 +199,14 @@ const WalletTab = ({ network }) => {
     if (address) {
       setCoinLoading(true);
       loadCache();
-      setAddress(address);
       setCoinLoading(false);
       fetchWallet();
     }
   }, [address]);
+
+  useEffect(() => {
+    setUserAddress();
+  }, [childType]);
 
   return (
     <Box
