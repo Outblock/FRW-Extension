@@ -191,7 +191,7 @@
     "message": "Previewnet"
   },
   "Transaction__Monitor": {
-    "message": "トランザクションモニター"
+    "message": "ブロックエクスプローラー "
   },
   "Flowdiver": {
     "message": "Flowdiver"
@@ -263,7 +263,7 @@
     "message": "セキュリティについて"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "Flow Core が私のすべてのトランザクションの手数料を支払うことを許可する。"
+    "message": "Flow Wallet が私のすべてのトランザクションの手数料を支払うことを許可する。"
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "この機能は一時的に無効化されています。"
