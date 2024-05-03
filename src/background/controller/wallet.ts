@@ -1250,14 +1250,17 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
       throw Error;
+      
     }
+    const formattedAmount = parseFloat(amount).toFixed(8);
+
     const script = await getScripts('evm', 'createCoa');
 
     return await userWalletService.sendTransaction(
       script
       ,
       [
-        fcl.arg(amount, t.UFix64),
+        fcl.arg(formattedAmount, t.UFix64),
       ]
     );
   };
