@@ -1232,10 +1232,12 @@ class OpenApiService {
     return data;
   };
 
-  getTokenInfo = async (name: string): Promise<TokenModel | undefined> => {
+  getTokenInfo = async (name: string): Promise<TokenInfo | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
-    const coins = await remoteFetch.flowCoins();
-    return coins.find(
+    const tokens = await this.getEnabledTokenList();
+    // const coins = await remoteFetch.flowCoins();
+    console.log('coins ', tokens);
+    return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
     );
   };
@@ -1338,13 +1340,13 @@ class OpenApiService {
     };
   };
 
-  getTokenBalanceWithModel = async (address: string, token: TokenModel) => {
+  getTokenBalanceWithModel = async (address: string, token: TokenInfo) => {
     const script = await getScripts('basic', 'getTokenBalanceWithModel');
 
     const network = await userWalletService.getNetwork();
     const cadence = script
-      .replaceAll('<Token>', token.contract_name)
-      .replaceAll('<TokenBalancePath>', token.storage_path.balance)
+      .replaceAll('<Token>', token.contractName)
+      .replaceAll('<TokenBalancePath>', token.path.balance)
       .replaceAll('<TokenAddress>', token.address[network]);
     const balance = await fcl.query({
       cadence: cadence,
@@ -1421,14 +1423,14 @@ class OpenApiService {
   };
 
   // todo
-  isTokenStorageEnabled = async (address: string, token: TokenModel) => {
+  isTokenStorageEnabled = async (address: string, token: TokenInfo) => {
     const network = await userWalletService.getNetwork();
     const script = await getScripts('basic', 'isTokenStorageEnabled');
 
     const cadence = script
-      .replaceAll('<Token>', token.contract_name)
-      .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-      .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
+      .replaceAll('<Token>', token.contractName)
+      .replaceAll('<TokenBalancePath>', token.path.balance)
+      .replaceAll('<TokenReceiverPath>', token.path.receiver)
       .replaceAll('<TokenAddress>', token.address[network]);
 
     const isEnabled = await fcl.query({
