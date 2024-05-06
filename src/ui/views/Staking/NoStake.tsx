@@ -255,7 +255,7 @@ const NoStake = (props: NoStakeProps) => {
                 variant="overline"
                 color="text.primary"
               >
-                Earn rewards everyweek, up to{' '}
+                Earn rewards every week, up to{' '}
                 <Typography
                   sx={{ fontSize: '12px' }}
                   display="inline"

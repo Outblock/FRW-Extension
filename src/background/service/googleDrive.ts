@@ -95,10 +95,13 @@ class GoogleDriveService {
   loadBackup = async (): Promise<DriveItem[]>  => {
     const files = await this.listFiles();
     if (files.length === 0) {
-      return []
+      return [];
     }
-
-    const fileId = files[0].id
+    const firstOutblockBackup = files.find(file => file.name === "outblock_backup");
+    if (!firstOutblockBackup) {
+      return [];
+    }
+    const fileId = firstOutblockBackup.id
     this.fileId = fileId
     const fileContent = await this.getFile(fileId)
     const text = await fileContent.text()
