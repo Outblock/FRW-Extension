@@ -1342,12 +1342,11 @@ class OpenApiService {
 
   getTokenBalanceWithModel = async (address: string, token: TokenInfo) => {
     const script = await getScripts('basic', 'getTokenBalanceWithModel');
-
     const network = await userWalletService.getNetwork();
     const cadence = script
       .replaceAll('<Token>', token.contractName)
       .replaceAll('<TokenBalancePath>', token.path.balance)
-      .replaceAll('<TokenAddress>', token.address[network]);
+      .replaceAll('<TokenAddress>', token.address);
     const balance = await fcl.query({
       cadence: cadence,
       args: (arg, t) => [arg(address, t.Address)],
@@ -1431,7 +1430,7 @@ class OpenApiService {
       .replaceAll('<Token>', token.contractName)
       .replaceAll('<TokenBalancePath>', token.path.balance)
       .replaceAll('<TokenReceiverPath>', token.path.receiver)
-      .replaceAll('<TokenAddress>', token.address[network]);
+      .replaceAll('<TokenAddress>', token.address);
 
     const isEnabled = await fcl.query({
       cadence: cadence,
@@ -1454,7 +1453,7 @@ class OpenApiService {
   getTokenListBalance = async (address: string, allTokens: TokenInfo[]) => {
     const network = await userWalletService.getNetwork();
 
-    const tokens = allTokens.filter((token) => token.address[network]);
+    const tokens = allTokens.filter((token) => token.address);
     const script = await getScripts('ft', 'getTokenListBalance');
 
     const balanceList = await fcl.query({

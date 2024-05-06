@@ -1010,7 +1010,6 @@ export class WalletController extends BaseController {
     coinListService.setExpiry(exp);
 
     const address = await this.getCurrentAddress();
-    console.log('getCurrentAddress ', address);
     const tokenList = await openapiService.getEnabledTokenList();
     const allBalanceMap = await openapiService.getTokenListBalance(
       address || '0x',
@@ -1268,7 +1267,7 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenBalancePath>', token.path.balance)
         .replaceAll('<TokenReceiverPath>', token.path.receiver)
         .replaceAll('<TokenStoragePath>', token.path.vault)
-        .replaceAll('<TokenAddress>', token.address[network]),
+        .replaceAll('<TokenAddress>', token.address),
       [fcl.arg(amount, t.UFix64), fcl.arg(address, t.Address)]
     );
   };
@@ -1299,7 +1298,7 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenBalancePath>', token.path.balance)
         .replaceAll('<TokenReceiverPath>', token.path.receiver)
         .replaceAll('<TokenStoragePath>', token.path.vault)
-        .replaceAll('<TokenAddress>', token.address[network]),
+        .replaceAll('<TokenAddress>', token.address),
       [fcl.arg(amount, t.UFix64), fcl.arg(address, t.Address)]
     );
   };
@@ -1423,7 +1422,7 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenBalancePath>', token.path.balance)
         .replaceAll('<TokenReceiverPath>', token.path.receiver)
         .replaceAll('<TokenStoragePath>', token.path.vault)
-        .replaceAll('<TokenAddress>', token.address[network]),
+        .replaceAll('<TokenAddress>', token.address),
       []
     );
   };

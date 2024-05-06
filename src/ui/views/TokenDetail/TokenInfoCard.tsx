@@ -59,6 +59,8 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible }) => {
         if (isMounted.current) {
           setBalance(parseFloat(parseFloat(response).toFixed(3)));
         }
+      }).catch((err) => {
+        console.log('err ', err)
       });
     }, 400);
 
