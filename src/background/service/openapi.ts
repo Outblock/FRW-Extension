@@ -1236,7 +1236,6 @@ class OpenApiService {
     // FIX ME: Get defaultTokenList from firebase remote config
     const tokens = await this.getEnabledTokenList();
     // const coins = await remoteFetch.flowCoins();
-    console.log('coins ', tokens);
     return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
     );
@@ -1284,10 +1283,10 @@ class OpenApiService {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  getAllTokenInfo = async (fiterNetwork = true): Promise<TokenModel[]> => {
-    const list = await remoteFetch.flowCoins();
+  getAllTokenInfo = async (fiterNetwork = true): Promise<TokenInfo[]> => {
     const network = await userWalletService.getNetwork();
-    return fiterNetwork ? list.filter((item) => item.address[network]) : list;
+    const list = await this.getTokenListFromGithub(network);
+    return fiterNetwork ? list.filter((item) => item.address) : list;
   };
 
   getAllNft = async (fiterNetwork = true): Promise<NFTModel[]> => {
@@ -1357,12 +1356,22 @@ class OpenApiService {
 
   getTokenListFromGithub = async (network: string) => {
     if (network == 'previewnet') return [];
-    const response = await fetch(
-      `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
-    );
-    const res = await response.json();
-    const { tokens = {} } = res;
-    return tokens;
+
+    const gitToken = await storage.getExpiry('GitTokenList');
+    
+    if (gitToken){
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
+      );
+      const res = await response.json();
+      const { tokens = {} } = res;
+      if (tokens) {
+        storage.setExpiry('GitTokenList', tokens, 600000);
+      }
+      return tokens;
+    }
   };
 
   getEnabledTokenList = async () => {
@@ -1395,7 +1404,6 @@ class OpenApiService {
 
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
-    console.log(tokenList, 'tokenList===');
     tokenList.forEach((token) => {
       const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
       // console.log(tokenMap,'tokenMap',values)
@@ -1446,7 +1454,6 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-    console.log(isEnabledList, 'isEnabledList====');
     return isEnabledList;
   };
 
