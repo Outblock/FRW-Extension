@@ -1713,7 +1713,6 @@ export class WalletController extends BaseController {
   };
 
   refreshAll = async () => {
-    await storage.remove('GitTokenList')
     const wallets = await this.refreshUserWallets();
     this.refreshAddressBook();
     await this.getCadenceScripts();

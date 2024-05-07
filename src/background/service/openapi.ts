@@ -1359,7 +1359,7 @@ class OpenApiService {
   getTokenListFromGithub = async (network: string) => {
     if (network == 'previewnet') return [];
 
-    const gitToken = await storage.getExpiry('GitTokenList');
+    const gitToken = await storage.getExpiry(`GitTokenList${network}`);
     
     if (gitToken){
       return gitToken;
@@ -1370,7 +1370,7 @@ class OpenApiService {
       const res = await response.json();
       const { tokens = {} } = res;
       if (tokens) {
-        storage.setExpiry('GitTokenList', tokens, 600000);
+        storage.setExpiry(`GitTokenList${network}`, tokens, 600000);
       }
       return tokens;
     }
