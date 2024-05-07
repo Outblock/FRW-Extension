@@ -1234,7 +1234,9 @@ class OpenApiService {
 
   getTokenInfo = async (name: string): Promise<TokenInfo | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
-    const tokens = await this.getEnabledTokenList();
+    const network = await userWalletService.getNetwork();
+
+    const tokens = await this.getTokenListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
     return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
