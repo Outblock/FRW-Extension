@@ -138,17 +138,17 @@ const WalletTab = ({ network }) => {
 
   const transformTokens = (tokens) => {
     return tokens.map(token => {
-        return {
-            coin: token.name, 
-            unit: token.symbol.toLowerCase(), 
-            icon: token.logoURI || "", 
-            balance: token.balance, 
-            price: 1.0, 
-            change24h: 0.0, 
-            total: token.balance * 1.0 
-        };
+      return {
+        coin: token.name,
+        unit: token.symbol.toLowerCase(),
+        icon: token.logoURI || "",
+        balance: token.balance,
+        price: 1.0,
+        change24h: 0.0,
+        total: token.balance * 1.0
+      };
     });
-}
+  }
   const handleStorageData = async (storageData) => {
     if (childType === 'evm') {
       const evmFt = await wallet.openapi.getEvmFT(address);
