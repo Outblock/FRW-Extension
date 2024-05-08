@@ -1113,6 +1113,19 @@ class OpenApiService {
     });
     return address;
   };
+  
+
+  getAccountMinFlow = async (address: string) => {
+    const script = await getScripts('basic', 'getAccountMinFlow');
+
+    const minFlow = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(address, t.Address)],
+    });
+    return minFlow;
+  };
+
+  
 
   getFlownsDomainsByAddress = async (address: string) => {
     const script = await getScripts('basic', 'getFlownsDomainsByAddress');
@@ -1375,7 +1388,7 @@ class OpenApiService {
       return tokens;
     }
   };
-
+   
   getEnabledTokenList = async () => {
     // const tokenList = await remoteFetch.flowCoins();
     const network = await userWalletService.getNetwork();

@@ -760,7 +760,7 @@ const Header = ({ loading }) => {
             </Box>
           )}
           <Box sx={{ paddingTop: '4px', px: '2px' }}>
-            {otherAccounts &&
+            {/* {otherAccounts &&
               otherAccounts.map((account, index) => (
                 <IconButton
                   key={index}
@@ -774,7 +774,7 @@ const Header = ({ loading }) => {
                     style={{ display: 'inline-block', width: '20px' }}
                   />
                 </IconButton>
-              ))}
+              ))} */}
             <IconButton edge="end" aria-label="close" onClick={togglePop}>
               <img
                 style={{ display: 'inline-block', width: '24px' }}
