@@ -46,14 +46,12 @@ const EthConnect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   // TODO: replace default logo
   const [logo, setLogo] = useState('')
   const init = async () => {
-    console.log('origin ', origin);
-    console.log('icon ', icon)
     setLogo(icon);
     const account = await wallet.getCurrentAccount();
     const site = await wallet.getSite(origin);
-    let collectList: { name: string; logo_url: string }[] = [];
-    let defaultChain = 'FLOW';
-    let isShowTestnet = false;
+    const collectList: { name: string; logo_url: string }[] = [];
+    const defaultChain = 'FLOW';
+    const isShowTestnet = false;
 
     setDefaultChain(defaultChain);
 

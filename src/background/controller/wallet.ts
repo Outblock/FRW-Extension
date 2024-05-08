@@ -1339,12 +1339,12 @@ export class WalletController extends BaseController {
   queryEvmAddress = async (address: string): Promise<string> => {
     if (address.length > 18) {
       return ''
-    };
+    }
 
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
       throw Error;
-    };
+    }
 
     const script = await getScripts('evm', 'getCoaAddr');
 
@@ -1364,7 +1364,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
       throw Error;
-    };
+    }
     const script = await getScripts('evm', 'callContract');
     const gasLimit = parseInt(gas, 16);
     const dataBuffer = Buffer.from(data.slice(2), 'hex');

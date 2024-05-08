@@ -63,6 +63,8 @@ const SendEth = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
   const [evmBalance, setEvmBalance] = useState<any>('');
+  const [minAmount, setMinAmount] = useState<any>(0);
+
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
@@ -89,6 +91,8 @@ const SendEth = () => {
     userContact.address = withPrefix(wallet.address) || '';
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
+    const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
+    setMinAmount(minAmount);
     setUser(userContact);
 
 
@@ -189,7 +193,8 @@ const SendEth = () => {
                 exceed={exceed}
                 setExceed={setExceed}
                 coinInfo={coinInfo}
-                setCurrentCoin={setCurrentCoin} />
+                setCurrentCoin={setCurrentCoin}
+                minAmount={minAmount} />
             }
 
             {coinInfo.unit &&
