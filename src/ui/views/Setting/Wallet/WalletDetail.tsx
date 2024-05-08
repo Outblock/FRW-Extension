@@ -387,12 +387,6 @@ const WalletDetail = () => {
               <Typography variant='body1' color={gasKillSwitch ? 'text.secondary' : 'error.main'} sx={{ weight: 400, fontSize: '12px' }}>
                 {gasKillSwitch ? chrome.i18n.getMessage('Allow__lilico__to__pay__the__gas__fee') : chrome.i18n.getMessage('This__feature__has__been__disabled__temporarily')}
               </Typography>
-              {
-                gasKillSwitch && modeGas &&
-                <Typography variant='body1' color={'error.main'} sx={{ weight: 400, fontSize: '10px', pt: '4px' }}>
-                  {chrome.i18n.getMessage('It__might__increase__the__waiting__time__when__you__approve__a__transaction')}
-                </Typography>
-              }
             </Box>
             <SwitchUnstyled disabled={!gasKillSwitch} checked={modeGas} component={Root} onChange={() => { switchGasMode() }} />
           </Box>

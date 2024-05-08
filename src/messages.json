@@ -188,7 +188,7 @@
     "message": "Previewnet"
   },
   "Transaction__Monitor": {
-    "message": "Transaction Monitor"
+    "message": "Block Explorer"
   },
   "Flowdiver": {
     "message": "Flowdiver"
@@ -260,7 +260,7 @@
     "message": "Security"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "Allow lilico to pay the gas fee for all my transactions."
+    "message": "Allow Flow Wallet to pay all gas fees for my transactions."
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "This feature has been disabled temporarily"

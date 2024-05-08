@@ -263,7 +263,7 @@
     "message": "安全性"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "允许 Flow Reference Wallet 为我的所有交易支付矿工费。"
+    "message": "允许 Flow Wallet 为我的所有交易支付矿工费。"
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "此功能已被暂时禁用"

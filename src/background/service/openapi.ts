@@ -1232,10 +1232,13 @@ class OpenApiService {
     return data;
   };
 
-  getTokenInfo = async (name: string): Promise<TokenModel | undefined> => {
+  getTokenInfo = async (name: string): Promise<TokenInfo | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
-    const coins = await remoteFetch.flowCoins();
-    return coins.find(
+    const network = await userWalletService.getNetwork();
+
+    const tokens = await this.getTokenListFromGithub(network);
+    // const coins = await remoteFetch.flowCoins();
+    return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
     );
   };
@@ -1282,10 +1285,10 @@ class OpenApiService {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  getAllTokenInfo = async (fiterNetwork = true): Promise<TokenModel[]> => {
-    const list = await remoteFetch.flowCoins();
+  getAllTokenInfo = async (fiterNetwork = true): Promise<TokenInfo[]> => {
     const network = await userWalletService.getNetwork();
-    return fiterNetwork ? list.filter((item) => item.address[network]) : list;
+    const list = await this.getTokenListFromGithub(network);
+    return fiterNetwork ? list.filter((item) => item.address) : list;
   };
 
   getAllNft = async (fiterNetwork = true): Promise<NFTModel[]> => {
@@ -1338,14 +1341,13 @@ class OpenApiService {
     };
   };
 
-  getTokenBalanceWithModel = async (address: string, token: TokenModel) => {
+  getTokenBalanceWithModel = async (address: string, token: TokenInfo) => {
     const script = await getScripts('basic', 'getTokenBalanceWithModel');
-
     const network = await userWalletService.getNetwork();
     const cadence = script
-      .replaceAll('<Token>', token.contract_name)
-      .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-      .replaceAll('<TokenAddress>', token.address[network]);
+      .replaceAll('<Token>', token.contractName)
+      .replaceAll('<TokenBalancePath>', token.path.balance)
+      .replaceAll('<TokenAddress>', token.address);
     const balance = await fcl.query({
       cadence: cadence,
       args: (arg, t) => [arg(address, t.Address)],
@@ -1356,12 +1358,22 @@ class OpenApiService {
 
   getTokenListFromGithub = async (network: string) => {
     if (network == 'previewnet') return [];
-    const response = await fetch(
-      `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
-    );
-    const res = await response.json();
-    const { tokens = {} } = res;
-    return tokens;
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}`);
+    
+    if (gitToken){
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
+      );
+      const res = await response.json();
+      const { tokens = {} } = res;
+      if (tokens) {
+        storage.setExpiry(`GitTokenList${network}`, tokens, 600000);
+      }
+      return tokens;
+    }
   };
 
   getEnabledTokenList = async () => {
@@ -1394,7 +1406,6 @@ class OpenApiService {
 
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
-    console.log(tokenList, 'tokenList===');
     tokenList.forEach((token) => {
       const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
       // console.log(tokenMap,'tokenMap',values)
@@ -1421,15 +1432,15 @@ class OpenApiService {
   };
 
   // todo
-  isTokenStorageEnabled = async (address: string, token: TokenModel) => {
+  isTokenStorageEnabled = async (address: string, token: TokenInfo) => {
     const network = await userWalletService.getNetwork();
     const script = await getScripts('basic', 'isTokenStorageEnabled');
 
     const cadence = script
-      .replaceAll('<Token>', token.contract_name)
-      .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-      .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
-      .replaceAll('<TokenAddress>', token.address[network]);
+      .replaceAll('<Token>', token.contractName)
+      .replaceAll('<TokenBalancePath>', token.path.balance)
+      .replaceAll('<TokenReceiverPath>', token.path.receiver)
+      .replaceAll('<TokenAddress>', token.address);
 
     const isEnabled = await fcl.query({
       cadence: cadence,
@@ -1445,14 +1456,13 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-    console.log(isEnabledList, 'isEnabledList====');
     return isEnabledList;
   };
 
   getTokenListBalance = async (address: string, allTokens: TokenInfo[]) => {
     const network = await userWalletService.getNetwork();
 
-    const tokens = allTokens.filter((token) => token.address[network]);
+    const tokens = allTokens.filter((token) => token.address);
     const script = await getScripts('ft', 'getTokenListBalance');
 
     const balanceList = await fcl.query({

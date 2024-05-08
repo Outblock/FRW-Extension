@@ -3,7 +3,10 @@ import { useWallet } from 'ui/utils';
 import { Typography, Box, ButtonBase } from '@mui/material';
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
 import { LLPrimaryButton } from '@/ui/FRWComponent';
-import { TokenModel } from 'background/service/networkModel';
+import {
+  TokenInfo,
+} from 'flow-native-token-registry';
+
 import { useHistory } from 'react-router-dom';
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
@@ -13,7 +16,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
   const isMounted = useRef(true);
   const [balance, setBalance] = useState(0);
   const [active, setIsActive] = useState(true);
-  const [data, setData] = useState<TokenModel | undefined>(undefined);
+  const [data, setData] = useState<TokenInfo | undefined>(undefined);
 
   const toSend = async () => {
     await wallet.setCurrentCoin(token);
@@ -35,7 +38,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
             const hasMatch = ftResult.some(item => {
               const parts = item.id.split('.');
               const thirdString = parts[2];
-              return response.contract_name === thirdString;
+              return response.contractName === thirdString;
             });
 
             if (hasMatch) {
@@ -60,6 +63,8 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
           if (isMounted.current) {
             setBalance(parseFloat(parseFloat(response).toFixed(3)));
           }
+        }).catch((err) => {
+          console.log('err ', err)
         });
 
       }
@@ -98,8 +103,8 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
       {data &&
         <>
           <Box sx={{ mt: '-12px', display: 'flex' }}>
-            <img style={{ height: '64px', width: '64px', backgroundColor: '#282828', borderRadius: '32px' }} src={data.icon}></img>
-            <ButtonBase onClick={() => data.website && window.open(data.website, '_blank')}>
+            <img style={{ height: '64px', width: '64px', backgroundColor: '#282828', borderRadius: '32px' }} src={data.logoURI}></img>
+            <ButtonBase onClick={() => data.extensions && window.open(data.extensions.website, '_blank')}>
               <Box sx={{
                 display: 'flex',
                 alignItems: 'center',

@@ -253,7 +253,7 @@ const NoStake = (props: NoStakeProps) => {
                 variant="overline"
                 color="text.primary"
               >
-                Earn up to{' '}
+                Earn rewards every week, up to{' '}
                 <Typography
                   sx={{ fontSize: '12px' }}
                   display="inline"
@@ -302,7 +302,7 @@ const NoStake = (props: NoStakeProps) => {
                   color="#00B881"
                   sx={{ fontSize: '12px' }}
                 >
-                  Flow
+                  FLOW
                 </Typography>{' '}
                 you receive{' '}
                 <Typography
@@ -310,17 +310,17 @@ const NoStake = (props: NoStakeProps) => {
                   color="#00B881"
                   sx={{ fontSize: '12px' }}
                 >
-                  Flow
+                  FLOW 
                 </Typography>
-                . You can{' '}
+                {' '}as a reward. Your rewards are liquid and can be can{' '}
                 <Typography
                   color="#00B881"
                   display="inline"
                   sx={{ fontSize: '12px' }}
                 >
-                  trade
+                  traded
                 </Typography>{' '}
-                this liquid asset at any time.
+                at any time.
               </Typography>
             </Box>
             <Box
@@ -355,7 +355,7 @@ const NoStake = (props: NoStakeProps) => {
                 variant="overline"
                 color="text.primary"
               >
-                You start earning{' '}
+                You'll start earning rewards{' '}
                 <Typography
                   sx={{ fontSize: '12px' }}
                   display="inline"
@@ -397,13 +397,13 @@ const NoStake = (props: NoStakeProps) => {
                 variant="overline"
                 color="text.primary"
               >
-                Rewards are automatically credited to your deposit every few{' '}
+                Rewards are automatically deposited to your account every{' '}
                 <Typography
                   display="inline"
                   color="#00B881"
                   sx={{ fontSize: '12px' }}
                 >
-                  days
+                  week
                 </Typography>
                 .
               </Typography>

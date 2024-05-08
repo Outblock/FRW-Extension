@@ -16,7 +16,6 @@ import { useWallet } from 'ui/utils';
 import { StyledEngineProvider } from '@mui/material/styles';
 import TokenItem from './TokenItem';
 import AddTokenConfirmation from './AddTokenConfirmation';
-import { TokenModel } from 'background/service/networkModel';
 import { LLHeader } from '@/ui/FRWComponent';
 import SearchIcon from '@mui/icons-material/Search';
 import { TokenInfo } from 'flow-native-token-registry';
@@ -61,11 +60,11 @@ const TokenList = () => {
   const classes = useStyles();
   const wallet = useWallet();
   const [keyword, setKeyword] = useState('')
-  const [data, setData] = useState<TokenModel[]>([])
-  const [fitered, setFitered] = useState<TokenModel[]>([])
+  const [data, setData] = useState<TokenInfo[]>([])
+  const [fitered, setFitered] = useState<TokenInfo[]>([])
   const [enabledList, setEnabledList] = useState<TokenInfo[]>([])
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-  const [selectedToken, setSelectedToken] = useState<TokenModel|null>(null);
+  const [selectedToken, setSelectedToken] = useState<TokenInfo|null>(null);
 
   const [isLoading, setLoading] = useState(true)
 
