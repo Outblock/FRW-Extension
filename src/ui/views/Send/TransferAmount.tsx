@@ -114,7 +114,9 @@ const TransferAmount = ({ amount, setAmount, secondAmount, setSecondAmount, exce
       if (coin === 'flow') {
         setAmount(coinInfo.balance - 0.001)
       } else {
-        setAmount(coinInfo.balance - minAmount);
+        const minimumValue = minAmount > 0.001 ? minAmount : 0.001;
+        const newAmount = coinInfo.balance - minimumValue;
+        setAmount(newAmount);
       }
     }
   }
