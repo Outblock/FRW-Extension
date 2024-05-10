@@ -134,11 +134,11 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             </Box>
           }
           <Box sx={{ paddingTop: '4px', px: '2px' }}>
-            {props.otherAccounts && props.otherAccounts.map((account, index) => (
+            {/* {props.otherAccounts && props.otherAccounts.map((account, index) => (
               <IconButton key={index} edge="end" aria-label="account" onClick={() => props.switchAccount(account)}>
                 <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
               </IconButton>
-            ))}
+            ))} */}
             <IconButton edge="end" aria-label="close" onClick={props.togglePop}>
               <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
             </IconButton>
