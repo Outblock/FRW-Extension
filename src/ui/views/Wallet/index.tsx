@@ -128,12 +128,10 @@ const WalletTab = ({ network }) => {
 
   const loadCache = async () => {
     const storageSwap = await wallet.getSwapConfig();
-    console.log('swapConfig -> ', storageSwap);
     setSwapConfig(storageSwap);
     const storageData = await wallet.getCoinList(expiry_time);
     sortWallet(storageData);
     const cadenceScripts = await wallet.getCadenceScripts();
-    console.log('cadenceScripts -> ', cadenceScripts);
     setCadneceScripts(cadenceScripts);
   };
 

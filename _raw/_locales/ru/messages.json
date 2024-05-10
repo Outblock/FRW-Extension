@@ -191,7 +191,7 @@
     "message": "Previewnet"
   },
   "Transaction__Monitor": {
-    "message": "Монитор транзакций"
+    "message": "Блок-эксплорер"
   },
   "Flowdiver": {
     "message": "Flowdiver"
@@ -263,7 +263,7 @@
     "message": "Безопасность"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "The room was very small and the bed was very comfortable."
+    "message": "Разрешите кошельку Flow оплачивать все комиссии за мои транзакции."
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "Эта функция временно отключена"

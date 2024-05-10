@@ -979,9 +979,9 @@ export class WalletController extends BaseController {
     return coinListService.listCoins(network);
   };
 
-  private tokenPrice = async (tokenSymbol: string) => {
+  private tokenPrice = async (tokenSymbol: string, data) => {
     const token = tokenSymbol.toLowerCase();
-    const price = await openapiService.getPricesBySymbol(tokenSymbol);
+    const price = await openapiService.getPricesBySymbol(tokenSymbol, data);
 
     switch (token) {
       case 'flow':
@@ -1007,14 +1007,14 @@ export class WalletController extends BaseController {
     coinListService.setExpiry(exp);
 
     const address = await this.getCurrentAddress();
-    console.log('getCurrentAddress ', address);
     const tokenList = await openapiService.getEnabledTokenList();
     const allBalanceMap = await openapiService.getTokenListBalance(
       address || '0x',
       tokenList
     );
     console.log(allBalanceMap, 'allBalanceMap =========');
-    const prices = tokenList.map((token) => this.tokenPrice(token.symbol));
+    const data = await openapiService.getTokenPrices();
+    const prices = tokenList.map((token) => this.tokenPrice(token.symbol, data));
 
     const allPrice = await Promise.all(prices);
 
@@ -1260,11 +1260,11 @@ export class WalletController extends BaseController {
 
     return await userWalletService.sendTransaction(
       script
-        .replaceAll('<Token>', token.contract_name)
-        .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-        .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
-        .replaceAll('<TokenStoragePath>', token.storage_path.vault)
-        .replaceAll('<TokenAddress>', token.address[network]),
+        .replaceAll('<Token>', token.contractName)
+        .replaceAll('<TokenBalancePath>', token.path.balance)
+        .replaceAll('<TokenReceiverPath>', token.path.receiver)
+        .replaceAll('<TokenStoragePath>', token.path.vault)
+        .replaceAll('<TokenAddress>', token.address),
       [fcl.arg(amount, t.UFix64), fcl.arg(address, t.Address)]
     );
   };
@@ -1291,11 +1291,11 @@ export class WalletController extends BaseController {
     console.log('this is network ', network);
     return await userWalletService.sendTransaction(
       script
-        .replaceAll('<Token>', token.contract_name)
-        .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-        .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
-        .replaceAll('<TokenStoragePath>', token.storage_path.vault)
-        .replaceAll('<TokenAddress>', token.address[network]),
+        .replaceAll('<Token>', token.contractName)
+        .replaceAll('<TokenBalancePath>', token.path.balance)
+        .replaceAll('<TokenReceiverPath>', token.path.receiver)
+        .replaceAll('<TokenStoragePath>', token.path.vault)
+        .replaceAll('<TokenAddress>', token.address),
       [fcl.arg(amount, t.UFix64), fcl.arg(address, t.Address)]
     );
   };
@@ -1415,11 +1415,11 @@ export class WalletController extends BaseController {
 
     return await userWalletService.sendTransaction(
       script
-        .replaceAll('<Token>', token.contract_name)
-        .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-        .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
-        .replaceAll('<TokenStoragePath>', token.storage_path.vault)
-        .replaceAll('<TokenAddress>', token.address[network]),
+        .replaceAll('<Token>', token.contractName)
+        .replaceAll('<TokenBalancePath>', token.path.balance)
+        .replaceAll('<TokenReceiverPath>', token.path.receiver)
+        .replaceAll('<TokenStoragePath>', token.path.vault)
+        .replaceAll('<TokenAddress>', token.address),
       []
     );
   };

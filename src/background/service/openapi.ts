@@ -9,7 +9,7 @@ import {
   ENV,
   TokenInfo,
 } from 'flow-native-token-registry';
-
+import log from 'loglevel';
 import {
   getAuth,
   signInWithCustomToken,
@@ -552,8 +552,7 @@ class OpenApiService {
     return pricesMap;
   };
 
-  getPricesBySymbol = async (symbol: string) => {
-    const data = await this.getTokenPrices();
+  getPricesBySymbol = async (symbol: string, data) => {
     const key = symbol.toUpperCase();
     return data[key];
   };
@@ -1115,6 +1114,19 @@ class OpenApiService {
     return address;
   };
 
+
+  getAccountMinFlow = async (address: string) => {
+    const script = await getScripts('basic', 'getAccountMinFlow');
+
+    const minFlow = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(address, t.Address)],
+    });
+    return minFlow;
+  };
+
+
+
   getFlownsDomainsByAddress = async (address: string) => {
     const script = await getScripts('basic', 'getFlownsDomainsByAddress');
 
@@ -1233,10 +1245,13 @@ class OpenApiService {
     return data;
   };
 
-  getTokenInfo = async (name: string): Promise<TokenModel | undefined> => {
+  getTokenInfo = async (name: string): Promise<TokenInfo | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
-    const coins = await remoteFetch.flowCoins();
-    return coins.find(
+    const network = await userWalletService.getNetwork();
+
+    const tokens = await this.getTokenListFromGithub(network);
+    // const coins = await remoteFetch.flowCoins();
+    return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
     );
   };
@@ -1283,10 +1298,10 @@ class OpenApiService {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  getAllTokenInfo = async (fiterNetwork = true): Promise<TokenModel[]> => {
-    const list = await remoteFetch.flowCoins();
+  getAllTokenInfo = async (fiterNetwork = true): Promise<TokenInfo[]> => {
     const network = await userWalletService.getNetwork();
-    return fiterNetwork ? list.filter((item) => item.address[network]) : list;
+    const list = await this.getTokenListFromGithub(network);
+    return fiterNetwork ? list.filter((item) => item.address) : list;
   };
 
   getAllNft = async (fiterNetwork = true): Promise<NFTModel[]> => {
@@ -1339,14 +1354,13 @@ class OpenApiService {
     };
   };
 
-  getTokenBalanceWithModel = async (address: string, token: TokenModel) => {
+  getTokenBalanceWithModel = async (address: string, token: TokenInfo) => {
     const script = await getScripts('basic', 'getTokenBalanceWithModel');
-
     const network = await userWalletService.getNetwork();
     const cadence = script
-      .replaceAll('<Token>', token.contract_name)
-      .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-      .replaceAll('<TokenAddress>', token.address[network]);
+      .replaceAll('<Token>', token.contractName)
+      .replaceAll('<TokenBalancePath>', token.path.balance)
+      .replaceAll('<TokenAddress>', token.address);
     const balance = await fcl.query({
       cadence: cadence,
       args: (arg, t) => [arg(address, t.Address)],
@@ -1357,12 +1371,22 @@ class OpenApiService {
 
   getTokenListFromGithub = async (network: string) => {
     if (network == 'previewnet') return [];
-    const response = await fetch(
-      `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
-    );
-    const res = await response.json();
-    const { tokens = {} } = res;
-    return tokens;
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}`);
+
+    if (gitToken) {
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
+      );
+      const res = await response.json();
+      const { tokens = {} } = res;
+      if (tokens) {
+        storage.setExpiry(`GitTokenList${network}`, tokens, 600000);
+      }
+      return tokens;
+    }
   };
 
   getEnabledTokenList = async () => {
@@ -1395,7 +1419,6 @@ class OpenApiService {
 
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
-    console.log(tokenList, 'tokenList===');
     tokenList.forEach((token) => {
       const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
       // console.log(tokenMap,'tokenMap',values)
@@ -1417,20 +1440,19 @@ class OpenApiService {
       const item = tokenMap[key];
       tokenItems.push(item);
     });
-    console.log(tokenItems, 'tokenItems======');
     return tokenItems;
   };
 
   // todo
-  isTokenStorageEnabled = async (address: string, token: TokenModel) => {
+  isTokenStorageEnabled = async (address: string, token: TokenInfo) => {
     const network = await userWalletService.getNetwork();
     const script = await getScripts('basic', 'isTokenStorageEnabled');
 
     const cadence = script
-      .replaceAll('<Token>', token.contract_name)
-      .replaceAll('<TokenBalancePath>', token.storage_path.balance)
-      .replaceAll('<TokenReceiverPath>', token.storage_path.receiver)
-      .replaceAll('<TokenAddress>', token.address[network]);
+      .replaceAll('<Token>', token.contractName)
+      .replaceAll('<TokenBalancePath>', token.path.balance)
+      .replaceAll('<TokenReceiverPath>', token.path.receiver)
+      .replaceAll('<TokenAddress>', token.address);
 
     const isEnabled = await fcl.query({
       cadence: cadence,
@@ -1446,14 +1468,13 @@ class OpenApiService {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-    console.log(isEnabledList, 'isEnabledList====');
     return isEnabledList;
   };
 
   getTokenListBalance = async (address: string, allTokens: TokenInfo[]) => {
     const network = await userWalletService.getNetwork();
 
-    const tokens = allTokens.filter((token) => token.address[network]);
+    const tokens = allTokens.filter((token) => token.address);
     const script = await getScripts('ft', 'getTokenListBalance');
 
     const balanceList = await fcl.query({
@@ -2008,50 +2029,54 @@ class OpenApiService {
     }
   };
 
-  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet) => {
-    await storage.set('keyIndex', '');
-    await storage.set('hashAlgo', '');
-    await storage.set('signAlgo', '');
-    await storage.set('pubKey', '');
-
-    const { P256, SECP256K1 } = pubKTuple;
-
-    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
-    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
-    const keyInfo = keyInfoA ||
-      keyInfoB || {
-      index: 0,
-      signAlgo: keys.keys[0].signAlgo,
-      hashAlgo: keys.keys[0].hashAlgo,
-      publicKey: keys.keys[0].publicKey,
-    };
-    await storage.set('keyIndex', keyInfo.index);
-    await storage.set('signAlgo', keyInfo.signAlgo);
-    await storage.set('hashAlgo', keyInfo.hashAlgo);
-    await storage.set('pubKey', keyInfo.publicKey);
-
+  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
     const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
 
-    wallet['address'] = currentWallet.address;
-    wallet['pubKey'] = keyInfo.publicKey;
-    wallet['hashAlgo'] = keyInfo.hashAlgo;
-    wallet['signAlgo'] = keyInfo.signAlgo;
-    wallet['weight'] = keys.keys[0].weight;
+    if (!isChild) {
+      await storage.set('keyIndex', '');
+      await storage.set('hashAlgo', '');
+      await storage.set('signAlgo', '');
+      await storage.set('pubKey', '');
 
-    console.log('wallet is this:', wallet);
+      const { P256, SECP256K1 } = pubKTuple;
 
-    const accountIndex = loggedInAccounts.findIndex(
-      (account) => account.username === wallet.username
-    );
+      const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+      const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+      const keyInfo = keyInfoA ||
+        keyInfoB || {
+        index: 0,
+        signAlgo: keys.keys[0].signAlgo,
+        hashAlgo: keys.keys[0].hashAlgo,
+        publicKey: keys.keys[0].publicKey,
+      };
+      await storage.set('keyIndex', keyInfo.index);
+      await storage.set('signAlgo', keyInfo.signAlgo);
+      await storage.set('hashAlgo', keyInfo.hashAlgo);
+      await storage.set('pubKey', keyInfo.publicKey);
 
-    if (accountIndex === -1) {
-      loggedInAccounts.push(wallet);
-    } else {
-      loggedInAccounts[accountIndex] = wallet;
+
+      wallet['address'] = currentWallet.address;
+      wallet['pubKey'] = keyInfo.publicKey;
+      wallet['hashAlgo'] = keyInfo.hashAlgo;
+      wallet['signAlgo'] = keyInfo.signAlgo;
+      wallet['weight'] = keys.keys[0].weight;
+
+      log.log('wallet is this:', wallet);
+
+      const accountIndex = loggedInAccounts.findIndex(
+        (account) => account.username === wallet.username
+      );
+
+      if (accountIndex === -1) {
+        loggedInAccounts.push(wallet);
+      } else {
+        loggedInAccounts[accountIndex] = wallet;
+      }
+      await storage.set('loggedInAccounts', loggedInAccounts);
     }
-    await storage.set('loggedInAccounts', loggedInAccounts);
 
-    console.log('Updated loggedInAccounts:', loggedInAccounts);
+
+    log.log('Updated loggedInAccounts:', loggedInAccounts);
     const otherAccounts = loggedInAccounts
       .filter((account) => account.username !== wallet.username)
       .map((account) => {
@@ -2062,7 +2087,7 @@ class OpenApiService {
       })
       .slice(0, 2);
 
-    console.log('otherAccounts with index:', otherAccounts);
+    log.log('otherAccounts with index:', otherAccounts);
     // await setOtherAccounts(otherAccounts);
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);
