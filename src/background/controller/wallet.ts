@@ -902,7 +902,7 @@ export class WalletController extends BaseController {
       console.log(error, 'error ===')
       return []
     }
-    
+
   };
 
   checkAccessibleFt = async (childAccount) => {
@@ -1033,8 +1033,8 @@ export class WalletController extends BaseController {
             : new BN(allPrice[index].price.last).toNumber(),
         change24h:
           allPrice[index] === null ||
-          !allPrice[index].price ||
-          !allPrice[index].price.change
+            !allPrice[index].price ||
+            !allPrice[index].price.change
             ? 0
             : new BN(allPrice[index].price.change.percentage)
               .multipliedBy(100)
@@ -2023,30 +2023,31 @@ export class WalletController extends BaseController {
         return cadenceScrpts['data'];
       }
 
-      const data = (await openapiService.cadenceScripts(network)) ?? {};
+      // const { cadence, networks } = data;
+      // const cadencev1 = (await openapiService.cadenceScripts(network)) ?? {};
 
-      const { cadence, networks } = data;
+      const cadenceScriptsV2 = (await openapiService.cadenceScriptsV2()) ?? {};
+      // const { scripts, version } = cadenceScriptsV2;
 
-      const cadenceVersion = networks[network];
+      // const cadenceVersion = cadenceScriptsV2.version;
+      const cadence = cadenceScriptsV2.scripts[network]
 
-      let script = {};
-
-      for (const item of cadence) {
-        console.log(cadenceVersion, 'cadenceVersion');
-        if (item && item.version == cadenceVersion) {
-          script = item;
-        }
-      }
+      // for (const item of cadence) {
+      //   console.log(cadenceVersion, 'cadenceVersion');
+      //   if (item && item.version == cadenceVersion) {
+      //     script = item;
+      //   }
+      // }
 
       const scripts = {
-        data: script,
+        data: cadence,
         expiry: exp,
         network,
       };
       storage.set('cadenceScripts', scripts);
       console.log(scripts, 'scripts ====');
 
-      return script;
+      return cadence;
     } catch (error) {
       console.log(error, '=== get scripts error ===');
     }

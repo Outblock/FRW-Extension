@@ -1872,6 +1872,17 @@ class OpenApiService {
     return data;
   };
 
+  cadenceScriptsV2 = async () => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v2/scripts`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
   nftCatalogList = async (address: string, limit: any, offset: any) => {
     const { data } = await this.sendRequest(
       'GET',
