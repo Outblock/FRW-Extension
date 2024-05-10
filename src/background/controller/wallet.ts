@@ -71,7 +71,7 @@ export class WalletController extends BaseController {
   //     {
   //       data,
   //       session: {
-  //         name: 'Flow Reference',
+  //         name: 'Flow',
   //         origin: INTERNAL_REQUEST_ORIGIN,
   //         icon: './images/icon-128.png',
   //       },
@@ -84,7 +84,7 @@ export class WalletController extends BaseController {
     return provider({
       data,
       session: {
-        name: 'Flow Reference Wallet',
+        name: 'Flow Wallet',
         origin: INTERNAL_REQUEST_ORIGIN,
         icon: './images/icon-128.png',
       },
@@ -187,10 +187,7 @@ export class WalletController extends BaseController {
   retrievePk = async (password: string) => {
     // const alianNameInited = await preferenceService.getInitAlianNameStatus();
     // const alianNames = await preferenceService.getAllAlianName();
-
     const pk = await keyringService.retrievePk(password);
-
-    console.log('pk is these ', pk);
     return pk;
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();

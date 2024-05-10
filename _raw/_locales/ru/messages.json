@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Flow Reference Wallet",
+    "message": "Flow Wallet",
     "description": "Application Name"
   },
   "appDescription": {
@@ -77,7 +77,7 @@
     "message": "Анонимный"
   },
   "Other__Lilico__users__cannot__search__for__your__username": {
-    "message": "Другие пользователи Flow Reference Wallet не могут искать ваше имя пользователя."
+    "message": "Другие пользователи Flow Wallet не могут искать ваше имя пользователя."
   },
   "Private__Key": {
     "message": "Приватный ключ"
@@ -131,7 +131,7 @@
     "message": "БЕСПЛАТНЫЙ"
   },
   "Lilico__domain": {
-    "message": "Домен Flow Reference Wallet."
+    "message": "Домен Flow Wallet."
   },
   "Edit__Address": {
     "message": "Изменить адрес"
@@ -239,7 +239,7 @@
     "message": "Вы уверены, что хотите сбросить ваш кошелек?"
   },
   "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
-    "message": "Удаление кошелька из Flow Reference Wallet не удаляет кошелек из блокчейна Flow. Вы можете импортировать ваш кошелек снова, используя резервную копию фразы или Google Drive."
+    "message": "Удаление кошелька из Flow Wallet не удаляет кошелек из блокчейна Flow. Вы можете импортировать ваш кошелек снова, используя резервную копию фразы или Google Drive."
   },
   "Reset": {
     "message": "Reset"
@@ -515,7 +515,7 @@
     "message": "Запустить мой кошелек"
   },
   "Start__exploring__with__Lilico__now": {
-    "message": "Начните изучать с Flow Reference Wallet сейчас!"
+    "message": "Начните изучать с Flow Wallet сейчас!"
   },
   "all__set": {
     "message": "всё установлено"
@@ -524,10 +524,10 @@
     "message": "Вы"
   },
   "Flow_Core": {
-    "message": "Flow Reference Wallet"
+    "message": "Flow Wallet"
   },
   "Lilico": {
-    "message": "Flow Reference Wallet"
+    "message": "Flow Wallet"
   },
   "and__Pin": {
     "message": "и Пин-код"
@@ -560,7 +560,7 @@
     "message": "Выберите ваш "
   },
   "Your__username__will__be__used__to__send__and__receive": {
-    "message": "Ваше имя пользователя будет использоваться для отправки и получения жетонов с друзьями на Flow Reference Wallet."
+    "message": "Ваше имя пользователя будет использоваться для отправки и получения жетонов с друзьями на Flow Wallet."
   },
   "Okay__I__have__saved__it__properly": {
     "message": "Хорошо, я сохранил его правильно"
@@ -614,10 +614,10 @@
     "message": "Условия предоставления услуг"
   },
   "Lilico__uses__this__password__to__protect__your__recovery__phrase": {
-    "message": "Flow Reference Wallet использует этот пароль для защиты вашей фразы восстановления."
+    "message": "Flow Wallet использует этот пароль для защиты вашей фразы восстановления."
   },
   "I__agree__to__Lilico": {
-    "message": "Я согласен с Flow Reference Wallet"
+    "message": "Я согласен с Flow Wallet"
   },
   "Try__again": {
     "message": "Попробовать еще раз"
@@ -629,7 +629,7 @@
     "message": "С возвращением "
   },
   "Use__the__same__Google__Drive__password": {
-    "message": "Используйте тот же пароль Google Drive для защиты кошелька Flow Reference Wallet"
+    "message": "Используйте тот же пароль Google Drive для защиты кошелька Flow Wallet"
   },
   "Please__enter__your__password__to__decrypt": {
     "message": "Пожалуйста, введите пароль для расшифровки резервной копии кошелька."
@@ -686,7 +686,7 @@
     "message": " всё установлено"
   },
   "You_can_start_experiencing_Lilico_now": {
-    "message": "Вы можете начать испытывать Flow Reference Wallet сейчас!"
+    "message": "Вы можете начать испытывать Flow Wallet сейчас!"
   },
   "Back_up": {
     "message": "Резервная копия"
@@ -821,7 +821,7 @@
     "message": "Не можете войти"
   },
   "Welcome_to_lilico": {
-    "message": "Добро пожаловать в Flow Reference Wallet"
+    "message": "Добро пожаловать в Flow Wallet"
   },
   "Flow": {
     "message": "Поток"
@@ -842,7 +842,7 @@
     "message": " Это удалит эту резервную копию Google. Вы не будете импортировать этот кошелек через резервную копию Google."
   },
   "Your_lilico_domain_will_look_like": {
-    "message": "Ваш домен Flow Reference Wallet будет выглядеть так:"
+    "message": "Ваш домен Flow Wallet будет выглядеть так:"
   },
   "meow": {
     "message": ".меу"
@@ -1034,7 +1034,7 @@
     "message": "Аккаунты, найденные в блокчейне"
   },
   "Support_Flow_Wallet_and_private_key": {
-    "message": "Поддержка Flow Reference Wallet, Blocto, секретной фразы, ключевого хранилища и приватного ключа"
+    "message": "Поддержка Flow Wallet, Blocto, секретной фразы, ключевого хранилища и приватного ключа"
   },
   "Import_Address": {
     "message": "Импортировать адрес"
@@ -1061,13 +1061,13 @@
     "message": "Приватный ключ недействителен"
   },
   "Open_your_Flow_Reference_on_Mobil": {
-    "message": "Откройте ваше мобильное приложение Flow Reference Wallet и отсканируйте QR-код для синхронизации вашего кошелька."
+    "message": "Откройте ваше мобильное приложение Flow Wallet и отсканируйте QR-код для синхронизации вашего кошелька."
   },
   "Sync_": {
     "message": "Синхронизация"
   },
   "Note_Your_recovery_phrase_will_not": {
-    "message": "Примечание: Ваша фраза восстановления НИКОГДА не проходит через сервер Flow Reference Wallet. Она зашифрована с конца в конец, и мы никогда не сможем ее прочитать."
+    "message": "Примечание: Ваша фраза восстановления НИКОГДА не проходит через сервер Flow Wallet. Она зашифрована с конца в конец, и мы никогда не сможем ее прочитать."
   },
   "Scan_Successfully": {
     "message": "Сканирование успешно"
@@ -1211,7 +1211,7 @@
     "message": "Дата"
   },
   "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
-    "message": "Связать мобильный кошелек Flow Reference, сканируя QR-код"
+    "message": "Связать мобильный кошелек Flow, сканируя QR-код"
   },
   "Current_Sessions": {
     "message": "Текущие сессии"
