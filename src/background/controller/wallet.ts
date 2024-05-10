@@ -1711,6 +1711,7 @@ export class WalletController extends BaseController {
 
   refreshAll = async () => {
     const wallets = await this.refreshUserWallets();
+    this.clearNFT();
     this.refreshAddressBook();
     await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
