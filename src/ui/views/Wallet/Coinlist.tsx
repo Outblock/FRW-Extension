@@ -151,7 +151,7 @@ const CoinList = ({ data, ableFt, isActive }) => {
                 key={coin.unit}
                 secondaryAction={
                   <EndListItemText
-                    primary={coin.balance}
+                    primary={parseFloat(coin.balance).toFixed(3)}
                     secondary={parseFloat(coin.total.toFixed(2))}
                     unit={coin.unit}
                     change={parseFloat(coin.change24h.toFixed(2))}
