@@ -1035,7 +1035,7 @@ export class WalletController extends BaseController {
         coin: token.name,
         unit: token.symbol,
         icon: token['logoURI'] || '',
-        balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(3)),
+        balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
         price:
           allPrice[index] === null
             ? 0
@@ -1923,6 +1923,7 @@ export class WalletController extends BaseController {
 
   refreshAll = async () => {
     const wallets = await this.refreshUserWallets();
+    this.clearNFT();
     this.refreshAddressBook();
     await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
