@@ -235,7 +235,7 @@ const SettingTab = () => {
 
           <Divider sx={{ width: '90%' }} variant="middle" />
 
-          <ListItem 
+          {/* <ListItem 
             button 
             component={Link} 
             to="/dashboard/setting/devices"
@@ -251,7 +251,7 @@ const SettingTab = () => {
                 <IconEnd size={12} />
               </ListItemIcon>
             </ListItemButton>
-          </ListItem>
+          </ListItem> */}
 
           <Divider sx={{ width: '90%' }} variant="middle" />
 

@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Flow Reference Wallet",
+    "message": "Flow Wallet",
     "description": "Application Name"
   },
   "appDescription": {
@@ -77,7 +77,7 @@
     "message": "匿名模式"
   },
   "Other__Lilico__users__cannot__search__for__your__username": {
-    "message": "其他 Flow Reference Wallet 用户无法搜索到你的用户名。"
+    "message": "其他 Flow Wallet 用户无法搜索到你的用户名。"
   },
   "Private__Key": {
     "message": "私钥"
@@ -131,7 +131,7 @@
     "message": "免费"
   },
   "Lilico__domain": {
-    "message": "Flow Reference Wallet 域名"
+    "message": "Flow Wallet 域名"
   },
   "Edit__Address": {
     "message": "编辑地址"
@@ -239,7 +239,7 @@
     "message": "您确认要重置钱包吗？"
   },
   "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
-    "message": "从 Flow Reference Wallet 删除钱包并不意味着从Flow区块链上删除钱包。你可以使用你的助记词或云端硬盘备份再次导入你的钱包。"
+    "message": "从 Flow Wallet 删除钱包并不意味着从Flow区块链上删除钱包。你可以使用你的助记词或云端硬盘备份再次导入你的钱包。"
   },
   "Reset": {
     "message": "重置"
@@ -338,7 +338,7 @@
     "message": "脚本"
   },
   "lilico__covers__this__gas__fee__for__you": {
-    "message": "Flow Reference Wallet 为你支付这笔矿工费"
+    "message": "Flow Wallet 为你支付这笔矿工费"
   },
   "SIGN__MESSAGE": {
     "message": "签署信息"
@@ -371,7 +371,7 @@
     "message": "你应该知道的事情"
   },
   "Free__lilico__domain__help__you__find__each__other__easier__on__chain": {
-    "message": "免费的 Flow Reference Wallet 域名帮助你在链上更容易找到对方。"
+    "message": "免费的 Flow Wallet 域名帮助你在链上更容易找到对方。"
   },
   "An__Inbox__system__will__help__you__send__tokens__and__NFT__to__your__friend__without__enable__vault": {
     "message": "一个收件箱系统将帮助你发送代币和 NFT 给你的朋友，而不需要初始化资源。"
@@ -518,7 +518,7 @@
     "message": "启动我的钱包"
   },
   "Start__exploring__with__Lilico__now": {
-    "message": "现在就开始与 Flow Reference Wallet 探索吧"
+    "message": "现在就开始与 Flow Wallet 探索吧"
   },
   "all__set": {
     "message": "一切就绪"
@@ -527,10 +527,10 @@
     "message": "你已"
   },
   "Flow_Core": {
-    "message": "Flow Reference Wallet"
+    "message": "Flow Wallet"
   },
   "Lilico": {
-    "message": "Flow Reference Wallet"
+    "message": "Flow Wallet"
   },
   "and__Pin": {
     "message": "并固定"
@@ -563,7 +563,7 @@
     "message": "选择你的"
   },
   "Your__username__will__be__used__to__send__and__receive": {
-    "message": "你的用户名将用于与你在 Flow Reference Wallet 的朋友发送和接收代币。"
+    "message": "你的用户名将用于与你在 Flow Wallet 的朋友发送和接收代币。"
   },
   "Okay__I__have__saved__it__properly": {
     "message": "好的，我已经妥善保存了"
@@ -617,10 +617,10 @@
     "message": "服务条款"
   },
   "Lilico__uses__this__password__to__protect__your__recovery__phrase": {
-    "message": "Flow Reference Wallet 使用此密码来保护您的助记词。"
+    "message": "Flow Wallet 使用此密码来保护您的助记词。"
   },
   "I__agree__to__Lilico": {
-    "message": "我同意 Flow Reference Wallet 的"
+    "message": "我同意 Flow Wallet 的"
   },
   "Welcome__Back": {
     "message": "欢迎回来，"
@@ -629,7 +629,7 @@
     "message": "欢迎回来 "
   },
   "Use__the__same__Google__Drive__password": {
-    "message": "使用相同的云端硬盘密码来保护 Flow Reference Wallet 的钱包"
+    "message": "使用相同的云端硬盘密码来保护 Flow Wallet 的钱包"
   },
   "Please__enter__your__password__to__decrypt": {
     "message": "请输入密码，解密你的钱包备份。"
@@ -686,7 +686,7 @@
     "message": "一切就绪"
   },
   "You_can_start_experiencing_Lilico_now": {
-    "message": "你现在就可以开始体验 Flow Reference Wallet 了!"
+    "message": "你现在就可以开始体验 Flow Wallet 了!"
   },
   "Back_up": {
     "message": "备份"
@@ -719,7 +719,7 @@
     "message": "复制"
   },
   "I_agree_to_the": {
-    "message": "我同意 Flow Reference Wallet 钱包的"
+    "message": "我同意 Flow Wallet 钱包的"
   },
   "of_Lilico_Wallet": {
     "message": ""
@@ -821,7 +821,7 @@
     "message": "无法登录"
   },
   "Welcome_to_lilico": {
-    "message": "欢迎来到 Flow Reference Wallet"
+    "message": "欢迎来到 Flow Wallet"
   },
   "Flow": {
     "message": "Flow"
@@ -842,7 +842,7 @@
     "message": "这将删除这个谷歌备份。你将不能通过谷歌备份导入这个钱包。"
   },
   "Your_lilico_domain_will_look_like": {
-    "message": "你的 Flow Reference Wallet 域名将为："
+    "message": "你的 Flow Wallet 域名将为："
   },
   "Go": {
     "message": "跳转"
@@ -1067,7 +1067,7 @@
     "message": "同步"
   },
   "Note_Your_recovery_phrase_will_not": {
-    "message": "注意：您的恢复短语不会经过 Flow Reference Wallet 的服务器。它是端对端加密的，我们无法阅读。"
+    "message": "注意：您的恢复短语不会经过 Flow Wallet 的服务器。它是端对端加密的，我们无法阅读。"
   },
   "Scan_Successfully": {
     "message": "扫描成功"

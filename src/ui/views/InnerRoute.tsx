@@ -230,9 +230,9 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/setting/developerMode`}>
             <DeveloperMode />
           </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/devices`}>
+          {/* <PrivateRoute path={`${props.match.url}/setting/devices`}>
             <Devices />
-          </PrivateRoute>
+          </PrivateRoute> */}
           <PrivateRoute path={`${props.match.url}/setting/deviceinfo`}>
             <DeviceInfo />
           </PrivateRoute>

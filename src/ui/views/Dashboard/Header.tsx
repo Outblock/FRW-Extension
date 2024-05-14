@@ -159,7 +159,6 @@ const Header = ({ loading }) => {
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    console.log('childresp :', childresp);
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
   };
@@ -197,7 +196,8 @@ const Header = ({ loading }) => {
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
-    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData)
+    const isChild = await usewallet.getActiveWallet();
+    const {otherAccounts, wallet, loggedInAccounts} = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild)
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
@@ -206,7 +206,6 @@ const Header = ({ loading }) => {
   const switchAccount = async (account) => {
     const switchingTo =
       process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-    console.log('switch account ', account);
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
     if (account.id) {
       await storage.set('currentId', account.id);

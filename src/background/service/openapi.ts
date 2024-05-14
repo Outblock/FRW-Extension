@@ -9,7 +9,7 @@ import {
   ENV,
   TokenInfo,
 } from 'flow-native-token-registry';
-
+import log from 'loglevel';
 import {
   getAuth,
   signInWithCustomToken,
@@ -1113,7 +1113,7 @@ class OpenApiService {
     });
     return address;
   };
-  
+
 
   getAccountMinFlow = async (address: string) => {
     const script = await getScripts('basic', 'getAccountMinFlow');
@@ -1125,7 +1125,7 @@ class OpenApiService {
     return minFlow;
   };
 
-  
+
 
   getFlownsDomainsByAddress = async (address: string) => {
     const script = await getScripts('basic', 'getFlownsDomainsByAddress');
@@ -1373,8 +1373,8 @@ class OpenApiService {
     if (network == 'previewnet') return [];
 
     const gitToken = await storage.getExpiry(`GitTokenList${network}`);
-    
-    if (gitToken){
+
+    if (gitToken) {
       return gitToken;
     } else {
       const response = await fetch(
@@ -1388,7 +1388,7 @@ class OpenApiService {
       return tokens;
     }
   };
-   
+
   getEnabledTokenList = async () => {
     // const tokenList = await remoteFetch.flowCoins();
     const network = await userWalletService.getNetwork();
@@ -1440,7 +1440,6 @@ class OpenApiService {
       const item = tokenMap[key];
       tokenItems.push(item);
     });
-    console.log(tokenItems, 'tokenItems======');
     return tokenItems;
   };
 
@@ -1873,6 +1872,17 @@ class OpenApiService {
     return data;
   };
 
+  cadenceScriptsV2 = async () => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v2/scripts`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
   nftCatalogList = async (address: string, limit: any, offset: any) => {
     const { data } = await this.sendRequest(
       'GET',
@@ -2074,50 +2084,54 @@ class OpenApiService {
     }
   };
 
-  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet) => {
-    await storage.set('keyIndex', '');
-    await storage.set('hashAlgo', '');
-    await storage.set('signAlgo', '');
-    await storage.set('pubKey', '');
-
-    const { P256, SECP256K1 } = pubKTuple;
-
-    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
-    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
-    const keyInfo = keyInfoA ||
-      keyInfoB || {
-      index: 0,
-      signAlgo: keys.keys[0].signAlgo,
-      hashAlgo: keys.keys[0].hashAlgo,
-      publicKey: keys.keys[0].publicKey,
-    };
-    await storage.set('keyIndex', keyInfo.index);
-    await storage.set('signAlgo', keyInfo.signAlgo);
-    await storage.set('hashAlgo', keyInfo.hashAlgo);
-    await storage.set('pubKey', keyInfo.publicKey);
-
+  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
     const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
 
-    wallet['address'] = currentWallet.address;
-    wallet['pubKey'] = keyInfo.publicKey;
-    wallet['hashAlgo'] = keyInfo.hashAlgo;
-    wallet['signAlgo'] = keyInfo.signAlgo;
-    wallet['weight'] = keys.keys[0].weight;
+    if (!isChild) {
+      await storage.set('keyIndex', '');
+      await storage.set('hashAlgo', '');
+      await storage.set('signAlgo', '');
+      await storage.set('pubKey', '');
 
-    console.log('wallet is this:', wallet);
+      const { P256, SECP256K1 } = pubKTuple;
 
-    const accountIndex = loggedInAccounts.findIndex(
-      (account) => account.username === wallet.username
-    );
+      const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+      const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+      const keyInfo = keyInfoA ||
+        keyInfoB || {
+        index: 0,
+        signAlgo: keys.keys[0].signAlgo,
+        hashAlgo: keys.keys[0].hashAlgo,
+        publicKey: keys.keys[0].publicKey,
+      };
+      await storage.set('keyIndex', keyInfo.index);
+      await storage.set('signAlgo', keyInfo.signAlgo);
+      await storage.set('hashAlgo', keyInfo.hashAlgo);
+      await storage.set('pubKey', keyInfo.publicKey);
 
-    if (accountIndex === -1) {
-      loggedInAccounts.push(wallet);
-    } else {
-      loggedInAccounts[accountIndex] = wallet;
+
+      wallet['address'] = currentWallet.address;
+      wallet['pubKey'] = keyInfo.publicKey;
+      wallet['hashAlgo'] = keyInfo.hashAlgo;
+      wallet['signAlgo'] = keyInfo.signAlgo;
+      wallet['weight'] = keys.keys[0].weight;
+
+      log.log('wallet is this:', wallet);
+
+      const accountIndex = loggedInAccounts.findIndex(
+        (account) => account.username === wallet.username
+      );
+
+      if (accountIndex === -1) {
+        loggedInAccounts.push(wallet);
+      } else {
+        loggedInAccounts[accountIndex] = wallet;
+      }
+      await storage.set('loggedInAccounts', loggedInAccounts);
     }
-    await storage.set('loggedInAccounts', loggedInAccounts);
 
-    console.log('Updated loggedInAccounts:', loggedInAccounts);
+
+    log.log('Updated loggedInAccounts:', loggedInAccounts);
     const otherAccounts = loggedInAccounts
       .filter((account) => account.username !== wallet.username)
       .map((account) => {
@@ -2128,7 +2142,7 @@ class OpenApiService {
       })
       .slice(0, 2);
 
-    console.log('otherAccounts with index:', otherAccounts);
+    log.log('otherAccounts with index:', otherAccounts);
     // await setOtherAccounts(otherAccounts);
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);

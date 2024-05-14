@@ -101,7 +101,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
             projectId: process.env.WC_PROJECTID,
           }),
           metadata: {
-            name: 'Flow Reference Walllet',
+            name: 'Flow Walllet',
             description: 'Digital wallet created for everyone.',
             url: 'https://fcw-link.lilico.app',
             icons: ['https://fcw-link.lilico.app/logo.png']

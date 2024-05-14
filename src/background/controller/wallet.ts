@@ -72,7 +72,7 @@ export class WalletController extends BaseController {
   //     {
   //       data,
   //       session: {
-  //         name: 'Flow Reference',
+  //         name: 'Flow',
   //         origin: INTERNAL_REQUEST_ORIGIN,
   //         icon: './images/icon-128.png',
   //       },
@@ -85,7 +85,7 @@ export class WalletController extends BaseController {
     return provider({
       data,
       session: {
-        name: 'Flow Reference Wallet',
+        name: 'Flow Wallet',
         origin: INTERNAL_REQUEST_ORIGIN,
         icon: './images/icon-128.png',
       },
@@ -189,10 +189,7 @@ export class WalletController extends BaseController {
   retrievePk = async (password: string) => {
     // const alianNameInited = await preferenceService.getInitAlianNameStatus();
     // const alianNames = await preferenceService.getAllAlianName();
-
     const pk = await keyringService.retrievePk(password);
-
-    console.log('pk is these ', pk);
     return pk;
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
@@ -2238,30 +2235,31 @@ export class WalletController extends BaseController {
         return cadenceScrpts['data'];
       }
 
-      const data = (await openapiService.cadenceScripts(network)) ?? {};
+      // const { cadence, networks } = data;
+      // const cadencev1 = (await openapiService.cadenceScripts(network)) ?? {};
 
-      const { cadence, networks } = data;
+      const cadenceScriptsV2 = (await openapiService.cadenceScriptsV2()) ?? {};
+      // const { scripts, version } = cadenceScriptsV2;
 
-      const cadenceVersion = networks[network];
+      // const cadenceVersion = cadenceScriptsV2.version;
+      const cadence = cadenceScriptsV2.scripts[network]
 
-      let script = {};
-
-      for (const item of cadence) {
-        console.log(cadenceVersion, 'cadenceVersion');
-        if (item && item.version == cadenceVersion) {
-          script = item;
-        }
-      }
+      // for (const item of cadence) {
+      //   console.log(cadenceVersion, 'cadenceVersion');
+      //   if (item && item.version == cadenceVersion) {
+      //     script = item;
+      //   }
+      // }
 
       const scripts = {
-        data: script,
+        data: cadence,
         expiry: exp,
         network,
       };
       storage.set('cadenceScripts', scripts);
       console.log(scripts, 'scripts ====');
 
-      return script;
+      return cadence;
     } catch (error) {
       console.log(error, '=== get scripts error ===');
     }
