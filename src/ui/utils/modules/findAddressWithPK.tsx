@@ -11,14 +11,17 @@ const findAddress = async (pubKTuple, address) => {
 
   console.log('accounts 222 ==>', accounts);
   if (!accounts || accounts.length === 0) {
-    return null
+    SECP256K1['weight'] = 1000;
+    SECP256K1['hashAlgo'] = "SHA2_256";
+    SECP256K1['signAlgo'] = "ECDSA_secp256k1";
+    SECP256K1['keyIndex'] = 0;
+    return [SECP256K1]
   }
   return accounts
 }
 
 export const findAddressWithPK = async (pk, address) => {
   const pubKTuple = await pk2PubKey(pk);
-  console.log('pubKTuple ==>', pk, pubKTuple)
   return await findAddress(pubKTuple, address);
 }
 

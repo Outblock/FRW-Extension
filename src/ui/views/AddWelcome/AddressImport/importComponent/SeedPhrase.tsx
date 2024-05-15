@@ -49,7 +49,9 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
         onOpen();
         return;
       }
-      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }))
+      
+      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }));
+      console.log('accounts is ', accounts);
       onImport(accounts);
     } finally {
       setLoading(false);

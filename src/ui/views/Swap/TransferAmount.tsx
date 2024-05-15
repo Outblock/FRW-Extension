@@ -110,7 +110,7 @@ const TransferAmount = ({token, amount, setAmount, setSwapTypes, setError,remove
   const classes = useStyles();
   const handleMaxClick = () => {
     if (coinInfo) {
-      if (coinInfo.unit === 'flow') {
+      if (coinInfo.unit.toLowerCase() === 'flow') {
         setAmount(coinInfo.balance - 0.001)
       } else {
         setAmount(coinInfo.balance)

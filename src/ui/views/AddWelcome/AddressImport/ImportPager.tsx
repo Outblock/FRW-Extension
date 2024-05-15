@@ -62,6 +62,10 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
       if (result.status === 409) {
         goPassword();
       } else {
+        if (!accountKey[0].address) {
+          handleNotFoundPopup();
+          return
+        }
         handleClick();
       }
 
@@ -79,16 +83,9 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
   const handleAddressSelection = async (address) => {
-    console.log('handleAddressSelection ==>', address);
-    console.log(
-      'handleAddressSelection ==>',
-      accounts.filter((account) => account.address === address)[0],
-      accounts
-    );
     const account = accounts.filter(
       (account) => account.address === address
     )[0];
-    console.log('handleAddressSelection ==>', account);
     const result = await wallet.openapi.checkImport(account.pubK);
     if (result.status === 409) {
       setAccounts([account]);
@@ -101,7 +98,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
 
-  const handleRegister = async () => {
+  const handleNotFoundPopup = async () => {
     setAddressFound(!addressFound)
   };
   
@@ -138,13 +135,13 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
         <Googledrive setErrorMessage={setErrorMessage} setShowError={setShowError} />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <JsonImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={2}>
-        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
+        <SeedPhraseImport onOpen={handleNotFoundPopup} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={3}>
-        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <KeyImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       {!addressFound &&
         <ErrorModel
