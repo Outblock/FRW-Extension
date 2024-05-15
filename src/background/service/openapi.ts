@@ -1378,7 +1378,7 @@ class OpenApiService {
       return gitToken;
     } else {
       const response = await fetch(
-        `https://raw.githubusercontent.com/FlowFans/flow-token-list/main/src/tokens/flow-${network}.tokenlist.json`
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/default.json`
       );
       const res = await response.json();
       const { tokens = {} } = res;
