@@ -17,9 +17,10 @@ import { LLSpinner,
 import { useWallet } from 'ui/utils';
 import { LLProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import eventBus from '@/eventBus';
+import Web3 from 'web3';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import erc20ABI from 'background/utils/erc20.abi.json';
 
 interface ToEthConfirmationProps {
   isConfirmationOpen: boolean;
@@ -29,12 +30,16 @@ interface ToEthConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
+const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
+const web3 = new Web3(provider);
+const erc20Contract = new web3.eth.Contract(erc20ABI, "0x7cd84a6b988859202cbb3e92830fff28813b9341");
+
 const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [occupied, setOccupied] = useState(false);
+  const [occupied, setOccupied] = useState(true);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
   const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
@@ -68,13 +73,29 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
 
   const transferToken = async () => {
     // TODO: Replace it with real data
-
+    const amount = (props.data.amount * 1e18)
     setSending(true);
-    const amount = (props.data.amount * 1e18).toString(16)
+    let address, gas, value, data
+    const weiValue = web3.utils.toWei(props.data.amount.toString(), 'ether').slice(0, -(18 - 18));
 
-    console.log('transferToken ->',props.data.contact.address, amount)
+    console.log('transferToken ->',props.data.contact.address, weiValue)
+    const encodedData = erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
+
+    console.log('transferToken data ->', data)
+    if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
+      address = props.data.contact.address;
+      gas = '186a0';
+      value = (props.data.amount * 1e18).toString(16);
+      data = [];
+    } else {
+      address = "7cd84a6b988859202cbb3e92830fff28813b9341";
+      gas = '186a0';
+      value = 0;
+      data = encodedData;
+    }
+    
     // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
-    wallet.sendEvmTransaction(props.data.contact.address, '186a0', amount, []).then(async (txID)=> {
+    wallet.sendEvmTransaction(address, gas, value, data).then(async (txID)=> {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);
       props.handleCloseIconClicked();
@@ -104,6 +125,13 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       chrome.runtime.onMessage.removeListener(transactionDoneHanlder)
     }
   }, []);
+
+  useEffect(() => {
+    console.log('props data ', props.data)
+    if (props.data.coinInfo.unit) {
+      setOccupied(false);
+    }
+  }, [props.data]);
 
   const renderContent = () => (
     <Box

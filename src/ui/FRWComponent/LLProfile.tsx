@@ -3,6 +3,7 @@ import { Box, Typography, Avatar, Skeleton } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
+import { formatAddress } from 'ui/utils';
 
 const useStyles = makeStyles(() => ({
   ContactCardAvatar: {
@@ -81,7 +82,7 @@ export const LLProfile = ({ contact, isLoading = false }) => {
         }
         {!isLoading?
           <Typography variant="body2" sx={{ textAlign: 'start' }}>
-            {contact.domain?.value || contact.contact_name}{' '}
+            {contact.domain?.value || formatAddress(contact.contact_name)}{' '}
             {contact.username && contact.username !== '' && (
               <Box display="inline" color="info.main">
                 {contact.username !== '' ? ' (@' + contact.username + ')' : ''}
@@ -96,7 +97,7 @@ export const LLProfile = ({ contact, isLoading = false }) => {
             sx={{ lineHeight: '1', textAlign: 'start' }}
             color="text.secondary"
           >
-            {`${contact.address}`}
+            {`${formatAddress(contact.address)}`}
           </Typography>
           : (
             <Skeleton variant="text" width={45} height={15} />

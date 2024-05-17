@@ -3,14 +3,14 @@ import { useHistory } from 'react-router-dom';
 import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { CoinItem } from 'background/service/coinList';
-import theme from '../../style/LLTheme';
+import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import TransferFrom from './TransferFrom';
 import TransferTo from './TransferTo';
 import MoveToken from './MoveToken'
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
-import IconSwitch from '../../../components/iconfont/IconSwitch';
+import IconSwitch from '../../../../components/iconfont/IconSwitch';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
@@ -54,24 +54,6 @@ const Move = (props: TransferConfirmationProps) => {
     },
   } as unknown as Contact;
 
-  const flowToken = {
-    'name': 'Flow',
-    'address': {
-      'mainnet': '0x1654653399040a61',
-      'testnet': '0x7e60df042a9c0868',
-      'crescendo': '0x7e60df042a9c0868'
-    },
-    'contract_name': 'FlowToken',
-    'storage_path': {
-      'balance': '/public/flowTokenBalance',
-      'vault': '/storage/flowTokenVault',
-      'receiver': '/public/flowTokenReceiver'
-    },
-    'decimal': 8,
-    'icon': 'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png',
-    'symbol': 'flow',
-    'website': 'https://www.onflow.org'
-  }
   const empty: CoinItem = {
     coin: '',
     unit: '',
@@ -97,7 +79,6 @@ const Move = (props: TransferConfirmationProps) => {
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
   const [toEvm, setToEvm] = useState<boolean>(true);
-  const [evmBalance, setEvmBalance] = useState('0.0');
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
 
@@ -114,7 +95,8 @@ const Move = (props: TransferConfirmationProps) => {
     await setWallet(wallet);
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
-    console.log('coinList ', coinList, token)
+    const data = await usewallet.getEvmAddress();
+    setEvmAddress(data);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
     setCoinInfo(coinInfo!);
 
@@ -124,17 +106,6 @@ const Move = (props: TransferConfirmationProps) => {
     userContact.contact_name = info.username;
     setUser(userContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
-    if (network === 'previewnet') {
-      usewallet.queryEvmAddress(wallet).then(async (res) => {
-        console.log('resultresultresult ', res);
-        setEvmAddress(res);
-        const balance = await usewallet.getBalance(res);
-        console.log('balance balance balance ', balance);
-        setEvmBalance(balance);
-      }).catch((err) => {
-        console.log('resultresultresult err', err)
-      });
-    }
     setLoading(false);
     return;
   };
@@ -279,7 +250,6 @@ const Move = (props: TransferConfirmationProps) => {
             setExceed={setExceed}
             coinInfo={coinInfo}
             toEvm={toEvm}
-            evmBalance={evmBalance}
             setCurrentCoin={setCurrentCoin}
           />
         }

@@ -19,7 +19,7 @@ import { saveAs } from 'file-saver'
 import SendIcon from 'ui/FRWAssets/svg/send.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
 import { Link } from 'react-router-dom';
-import Move from '../Move';
+import Move from '../EvmMove/Move';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {

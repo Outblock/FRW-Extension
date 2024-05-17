@@ -1370,35 +1370,23 @@ class OpenApiService {
   };
 
   getTokenListFromGithub = async (network: string) => {
-
-    const gitToken = await storage.getExpiry(`GitTokenList${network}`);
+    const childType = await userWalletService.getActiveWallet();
+    let chainType = 'flow'
+    if (childType === 'evm') {
+      chainType = 'evm';
+    }
+    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
 
     if (gitToken) {
       return gitToken;
     } else {
       const response = await fetch(
-        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/default.json`
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
       );
       const res = await response.json();
       const { tokens = {} } = res;
       if (tokens) {
-        storage.setExpiry(`GitTokenList${network}`, tokens, 600000);
-      }
-      return tokens;
-    }
-  };
-
-  getEnabledTokenList = async () => {
-    // const tokenList = await remoteFetch.flowCoins();
-    const network = await userWalletService.getNetwork();
-
-    let tokenList = await this.getTokenListFromGithub(network);
-
-    const address = await userWalletService.getCurrentAddress();
-
-    if (network == 'previewnet') {
-      tokenList = [
-        {
+        tokens.push({
           name: 'Flow',
           address: '0x4445e7ad11568276',
           contractName: 'FlowToken',
@@ -1411,9 +1399,22 @@ class OpenApiService {
             'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
           decimals: 8,
           symbol: 'flow',
-        },
-      ];
+        })
+
+        console.log(' github tokens is ', tokens)
+        storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+      }
+      return tokens;
     }
+  };
+
+  getEnabledTokenList = async () => {
+    // const tokenList = await remoteFetch.flowCoins();
+    const network = await userWalletService.getNetwork();
+
+    let tokenList = await this.getTokenListFromGithub(network);
+    const address = await userWalletService.getCurrentAddress();
+
     const values = await this.isTokenListEnabled(address);
 
     const tokenItems: TokenInfo[] = [];

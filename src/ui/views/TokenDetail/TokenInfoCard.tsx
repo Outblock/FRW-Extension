@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useWallet } from 'ui/utils';
-import { Typography, Box, ButtonBase } from '@mui/material';
+import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
 import { LLPrimaryButton } from '@/ui/FRWComponent';
 import {
   TokenInfo,
 } from 'flow-native-token-registry';
+import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 
 import { useHistory } from 'react-router-dom';
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
-const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen }) => {
+const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, tokenInfo, network }) => {
   const wallet = useWallet();
   const history = useHistory();
   const isMounted = useRef(true);
@@ -27,37 +28,16 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
     const isChild = await wallet.getActiveWallet();
 
     const timerId = setTimeout(async () => {
-      wallet.openapi.getTokenInfo(token).then(async (response) => {
-        if (!isMounted.current) return;  // Early exit if component is not mounted
-        setData(response!);
+      if (!isMounted.current) return;  // Early exit if component is not mounted
+      setData(tokenInfo!);
 
-        if (isChild && response) {
-          const address = await wallet.getCurrentAddress();
-          const ftResult = await wallet.checkAccessibleFt(address);
-          if (ftResult) {
-            const hasMatch = ftResult.some(item => {
-              const parts = item.id.split('.');
-              const thirdString = parts[2];
-              return response.contractName === thirdString;
-            });
-
-            if (hasMatch) {
-              setAccessible(true);
-              setIsActive(true);
-            } else {
-              setAccessible(false);
-              setIsActive(false);
-            }
-          }
-        } else {
-          setIsActive(true);
-          setAccessible(true);
-        }
-      });
+      setIsActive(true);
+      setAccessible(true);
       if (isChild === 'evm') {
-        const address = await wallet.getEvmAddress();
-        const balance = await wallet.getBalance(address.substring(2));
-        setBalance(Number(balance) / 1e18);
+        const coins = await wallet.getCoinList();
+        const thisCoin = coins.filter(coin => coin.unit.toLowerCase() === token);
+        const balance = thisCoin[0].balance
+        setBalance(Number(balance));
       } else {
         wallet.openapi.getWalletTokenBalance(token).then((response) => {
           if (isMounted.current) {
@@ -84,7 +64,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
     return () => {
       isMounted.current = false;
     };
-  }, []);
+  }, [token]);
 
   return (
     <Box
@@ -102,8 +82,8 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
       }}>
       {data &&
         <>
-          <Box sx={{ mt: '-12px', display: 'flex' }}>
-            <img style={{ height: '64px', width: '64px', backgroundColor: '#282828', borderRadius: '32px' }} src={data.logoURI}></img>
+          <Box sx={{ mt: '-12px', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <img style={{ height: '64px', width: '64px', backgroundColor: '#282828', borderRadius: '32px' }} src={data.logoURI || 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg'}></img>
             <ButtonBase onClick={() => data.extensions && window.open(data.extensions.website, '_blank')}>
               <Box sx={{
                 display: 'flex',
@@ -112,13 +92,41 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
                 gap: '4px',
                 px: '8px',
                 py: '4px',
+                marginRight: '4px',
                 borderRadius: '8px',
                 alignSelf: 'end'
               }}>
-                <Typography variant="h6" sx={{ fontWeight: '550' }}>{data.name}</Typography>
+                <Typography variant="h6"
+                  sx={{
+                    fontWeight: '550',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '130px'
+                  }}>
+                  {data.name}
+                </Typography>
                 <IconChevronRight size={20} />
               </Box>
             </ButtonBase>
+            <Box sx={{ flex: 1 }} />
+            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && network === 'previewnet') &&
+              <ButtonBase onClick={setMoveOpen}>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'rgba(65, 204, 93, 0.16)',
+                  gap: '4px',
+                  px: '8px',
+                  py: '4px',
+                  borderRadius: '8px',
+                  alignSelf: 'end'
+                }}>
+                  <Typography sx={{ fontWeight: 'normal', color: '#41CC5D' }}>Move</Typography>
+                  <CardMedia sx={{ width: '12px', height: '12px', marginLeft: '4px', }} image={iconMove} />
+                </Box>
+              </ButtonBase>
+            }
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '6px', pt: '18px' }}>
             <Typography variant="body1" sx={{ fontWeight: '700', fontSize: '32px' }}>{balance}</Typography>
@@ -128,7 +136,6 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen })
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
             <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />
             <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={() => history.push('/dashboard/wallet/deposit')} label={chrome.i18n.getMessage('Deposit')} fullWidth />
-            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={setMoveOpen} label='Move' fullWidth />
           </Box>
         </>
       }

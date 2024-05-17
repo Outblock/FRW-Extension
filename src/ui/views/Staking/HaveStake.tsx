@@ -78,7 +78,6 @@ const HaveStake = (props: HaveStakeProps) => {
               onClick={() => {
                 setNewStake(false);
               }}
-              // disabled={true}
               variant="contained"
               size="large"
               sx={{

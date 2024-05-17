@@ -126,6 +126,9 @@ const WalletTab = ({ network }) => {
     if (childType !== 'evm') {
       const storageData = await wallet.refreshCoinList(expiry_time);
       sortWallet(storageData);
+    } else {
+      const storageData = await wallet.refreshEvmList(expiry_time);
+      sortWallet(storageData);
     }
   };
 
@@ -150,14 +153,6 @@ const WalletTab = ({ network }) => {
     });
   }
   const handleStorageData = async (storageData) => {
-    if (childType === 'evm') {
-      const evmFt = await wallet.openapi.getEvmFT(address);
-      const evmFts = await transformTokens(evmFt)
-      const balance = await wallet.getBalance(address);
-      storageData[0].balance = Number(balance) / 1e18;
-      storageData[0].total = storageData[0].balance * storageData[0].price;
-      storageData.concat(evmFts);
-    }
     if (storageData) {
       await setCoinData(storageData);
       let sum = 0;

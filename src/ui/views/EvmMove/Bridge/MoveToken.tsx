@@ -14,9 +14,9 @@ import {
   Tooltip
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import IconFlow from '../../../components/iconfont/IconFlow';
-import IconSwitch from '../../../components/iconfont/IconSwitch';
-import CancelIcon from '../../../components/iconfont/IconClose';
+import IconFlow from '../../../../components/iconfont/IconFlow';
+import IconSwitch from '../../../../components/iconfont/IconSwitch';
+import CancelIcon from '../../../../components/iconfont/IconClose';
 import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import { StyledEngineProvider } from '@mui/material/styles';
 import BN from 'bignumber.js';
@@ -105,7 +105,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, toEvm, evmBalance, coinList }) => {
+const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, toEvm, coinList }) => {
   const classes = useStyles();
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
@@ -172,16 +172,13 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
             setExceed(false);
           }
         }
-        if (!toEvm && ((Number(evmBalance) / 1e18) - amount < 0 )) {
-          setExceed(true);
-        }
         const value = new BN(amount)
           .times(new BN(coinInfo.price))
           .toFixed(3);
         setSecondAmount(value)
       }
     }
-  }, [amount, coin, evmBalance])
+  }, [amount, coin])
 
   return (
     <StyledEngineProvider injectFirst>
@@ -204,6 +201,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
               className={classes.selectRoot}
               defaultValue={coinInfo.unit}
               MenuProps={{ MenuListProps: { disablePadding: true } }}
+              disabled={true}
             >
               {
                 coinList.map(coin => (
@@ -254,7 +252,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
             }}
           >
             <Typography>Balance</Typography>
-            <Typography>{toEvm ? coinInfo.balance : (Number(evmBalance) / 1e18)}</Typography>
+            <Typography>{coinInfo.balance}</Typography>
           </Box>
         </Box>
         <Presets.TransitionSlideUp>

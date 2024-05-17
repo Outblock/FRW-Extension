@@ -9,12 +9,12 @@ import TokenInfoCard from './TokenInfoCard';
 import StackingCard from './StackingCard';
 import PriceCard from './PriceCard';
 import ClaimTokenCard from './ClaimTokenCard';
-import Move from '../Move';
+import Move from '../EvmMove/Move';
+import Bridge from '../EvmMove/Bridge';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { PriceProvider } from '@/background/service/networkModel';
 import tips from 'ui/FRWAssets/svg/tips.svg';
-import { last } from 'lodash';
 
 const useStyles = makeStyles(() => ({
   page: {
@@ -45,6 +45,7 @@ const TokenDetail = () => {
   const [walletName, setCurrentWallet] = useState({ name: '' });
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
+  const [tokenInfo, setTokenInfo] = useState<any>(undefined);
   const [providers, setProviders] = useState<PriceProvider[]>([])
 
   const Header = () => {
@@ -63,7 +64,11 @@ const TokenDetail = () => {
 
   const getProvider = async () => {
     const result = await wallet.openapi.getPriceProvider(token);
-
+    const tokenResult = await wallet.openapi.getTokenInfo(token);
+    if (tokenResult) {
+      setTokenInfo(tokenResult);
+    }
+    console.log('this is tokenInfo ', tokenResult)
     setProviders(result);
     if (result.length == 0) {
       const data = await wallet.openapi.getTokenPrices();
@@ -118,13 +123,17 @@ const TokenDetail = () => {
               </Typography>
             </Box>
           )}
-          <TokenInfoCard
-            price={price}
-            token={token}
-            setAccessible={setAccessible}
-            accessible={accessible}
-            setMoveOpen={setMoveOpen}
-          />
+          {tokenInfo &&
+            <TokenInfoCard
+              price={price}
+              token={token}
+              setAccessible={setAccessible}
+              accessible={accessible}
+              setMoveOpen={setMoveOpen}
+              tokenInfo={tokenInfo}
+              network={network}
+            />
+          }
           {token === 'flow' && <StackingCard network={network} />}
           {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
           {network === 'testnet' ||
@@ -145,18 +154,30 @@ const TokenDetail = () => {
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           )}
-          {moveOpen
-            &&
-            <Move
-              isConfirmationOpen={moveOpen}
-              data={{ amount: 0, }}
-              handleCloseIconClicked={() => setMoveOpen(false)}
-              handleCancelBtnClicked={() => setMoveOpen(false)}
-              handleAddBtnClicked={() => {
-                setMoveOpen(false);
-              }}
-            />
-          }
+          {moveOpen && (
+            tokenInfo && (tokenInfo.evmAddress || tokenInfo.flowIdentifier) ? (
+              <Bridge
+                isConfirmationOpen={moveOpen}
+                data={{ amount: 0, tokenInfo: tokenInfo }}
+                handleCloseIconClicked={() => setMoveOpen(false)}
+                handleCancelBtnClicked={() => setMoveOpen(false)}
+                handleAddBtnClicked={() => {
+                  setMoveOpen(false);
+                }}
+              />
+            ) : (
+              <Move
+                isConfirmationOpen={moveOpen}
+                data={{ amount: 0 }}
+                handleCloseIconClicked={() => setMoveOpen(false)}
+                handleCancelBtnClicked={() => setMoveOpen(false)}
+                handleAddBtnClicked={() => {
+                  setMoveOpen(false);
+                }}
+              />
+            )
+          )}
+
         </div>
       </div>
     </StyledEngineProvider>

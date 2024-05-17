@@ -81,13 +81,6 @@ const SendAmount = () => {
     setCoinList(coinList);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
 
-    if (childType === 'evm') {
-      const balance = await usewallet.getBalance(wallet.address);
-      const balanceNumber = Number(balance) / 1e18;
-      coinInfo!.balance = balanceNumber;
-      coinInfo!.total = balanceNumber * coinInfo!.price;
-    }
-
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);

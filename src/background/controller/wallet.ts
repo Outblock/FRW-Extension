@@ -454,7 +454,6 @@ export class WalletController extends BaseController {
     let privateKey;
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
-    console.log('keyrings ', keyrings);
     for (const keyring of keyrings) {
       if (keyring.mnemonic) {
         // If mnemonic is found, extract it and break the loop
@@ -979,13 +978,18 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const now = new Date();
     const expiry = coinListService.getExpiry();
-
+    let childType = await userWalletService.getActiveWallet();
+    childType = childType === 'evm' ? 'evm' : 'coinItem';
     // compare the expiry time of the item with the current time
     if (now.getTime() > expiry) {
-      this.refreshCoinList(_expiry);
+      if (childType === 'evm') {
+        await this.refreshEvmList(_expiry);
+      } else {
+        this.refreshCoinList(_expiry);
+      }
     }
 
-    return coinListService.listCoins(network);
+    return coinListService.listCoins(network, childType);
   };
 
   private tokenPrice = async (tokenSymbol: string, data) => {
@@ -1021,14 +1025,11 @@ export class WalletController extends BaseController {
       address || '0x',
       tokenList
     );
-    console.log(allBalanceMap, 'allBalanceMap =========');
+
     const data = await openapiService.getTokenPrices();
     const prices = tokenList.map((token) => this.tokenPrice(token.symbol, data));
 
     const allPrice = await Promise.all(prices);
-
-    // const allBalanceMap = await Promise.all(balances);
-    // const allPrice = await Promise.all(prices);
     const coins: CoinItem[] = tokenList.map((token, index) => {
       const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
       return {
@@ -1077,6 +1078,89 @@ export class WalletController extends BaseController {
     return coinListService.listCoins(network);
   };
 
+  refreshEvmList = async (_expiry = 5000) => {
+    const now = new Date();
+    const exp = _expiry + now.getTime();
+    coinListService.setExpiry(exp);
+
+    const network = await this.getNetwork();
+
+    const tokenList = await openapiService.getTokenListFromGithub(network);
+    
+    const address = await this.getEvmAddress();
+    const allBalanceMap = await openapiService.getEvmFT(
+      address || '0x',
+    );
+    const flowBalance = await this.getBalance(address);
+    
+    console.log(allBalanceMap, 'allBalanceMap =========');
+    console.log('allBalanceMap tokenList this ', tokenList);
+
+    const mergeBalances = (tokenList, allBalanceMap, flowBalance) => {
+      return tokenList.map(token => {
+        const balanceInfo = allBalanceMap.find(balance => balance.address === token.address);
+        let balance = balanceInfo ? (Number(balanceInfo.balance) / 1e18) : null;
+    
+        // If the token unit is 'flow', set the balance to flowBalance
+        if (token.symbol.toLowerCase() === 'flow') {
+          balance = flowBalance / 1e18;
+        }
+    
+        return {
+          ...token,
+          balance
+        };
+      });
+    };
+
+    const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
+    console.log('mergedList ', mergedList);
+    const data = await openapiService.getTokenPrices();
+    const prices = tokenList.map((token) => this.tokenPrice(token.symbol, data));
+
+    const allPrice = await Promise.all(prices);
+
+    const coins: CoinItem[] = mergedList.map((token, index) => {
+      return {
+        coin: token.name,
+        unit: token.symbol,
+        icon: token['logoURI'] || 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+        balance: parseFloat(token.balance),
+        price:
+          allPrice[index] === null
+            ? 0
+            : new BN(allPrice[index].price.last).toNumber(),
+        change24h:
+          allPrice[index] === null ||
+            !allPrice[index].price ||
+            !allPrice[index].price.change
+            ? 0
+            : new BN(allPrice[index].price.change.percentage)
+              .multipliedBy(100)
+              .toNumber(),
+        total:
+          allPrice[index] === null
+            ? 0
+            : this.currencyBalance(
+              token.balance,
+              allPrice[index].price.last
+            ),
+      };
+    });
+
+    coins
+      .sort((a, b) => {
+        if (b.total === a.total) {
+          return b.balance - a.balance;
+        } else {
+          return b.total - a.total;
+        }
+      })
+      .map((coin) => coinListService.addCoin(coin, network, 'evm'));
+  
+    return coinListService.listCoins(network, 'evm');
+  };
+
   private currencyBalance = (balance, price) => {
     const bnBalance = new BN(balance);
     const currencyBalance = bnBalance.times(new BN(price));
@@ -1084,6 +1168,7 @@ export class WalletController extends BaseController {
   };
 
   setCurrentCoin = async (coinName: string) => {
+    console.log('set currentCoin ', coinName)
     await coinListService.setCurrentCoin(coinName);
   };
 
@@ -1246,7 +1331,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
       throw Error;
-      
+
     }
     const formattedAmount = parseFloat(amount).toFixed(8);
 
@@ -1326,6 +1411,56 @@ export class WalletController extends BaseController {
       ,
       [
         fcl.arg(formattedAmount, t.UFix64),
+      ]
+
+    );
+  };
+
+
+
+
+  bridgeToEvm = async (tokenContractAddress = '0x8920ffd3d8768daa', tokenContractName = 'ExampleToken', amount = '1.0'): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(8);
+
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+    const script = await getScripts('bridge', 'bridgeTokensToEvm');
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(tokenContractAddress, t.Address),
+        fcl.arg(tokenContractName, t.String),
+        fcl.arg(formattedAmount, t.UFix64),
+      ]
+
+    );
+  };
+
+
+
+
+  bridgeToFlow = async (tokenContractAddress = '0x8920ffd3d8768daa', tokenContractName = 'ExampleToken', amount = '1.0'): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(18);
+    // Convert the formatted amount to an integer
+    const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
+
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+    const script = await getScripts('bridge', 'bridgeTokensFromEvm');
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(tokenContractAddress, t.Address),
+        fcl.arg(tokenContractName, t.String),
+        fcl.arg(integerAmount, t.UInt256),
       ]
 
     );
@@ -2106,6 +2241,10 @@ export class WalletController extends BaseController {
     await nftService.clearNFTCollection();
   };
 
+  clearCoinList = async () => {
+    await coinListService.clear();
+  };
+
   clearAllStorage = () => {
     nftService.clear();
     userInfoService.removeUserInfo();
@@ -2231,8 +2370,6 @@ export class WalletController extends BaseController {
         now.getTime() <= cadenceScrpts['expiry'] &&
         cadenceScrpts.network == network
       ) {
-        console.log('use cache data');
-        console.log(cadenceScrpts);
         return cadenceScrpts['data'];
       }
 

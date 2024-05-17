@@ -55,21 +55,21 @@ const SendEth = () => {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>(undefined);
-  const [secondAmount, setSecondAmount] = useState('0.0');
+  const [secondAmount, setSecondAmount] = useState('12');
   const [validated, setValidated] = useState<any>(null);
   const [userInfo, setUser] = useState<Contact>(userContact);
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
-  const [evmBalance, setEvmBalance] = useState<any>('');
-  const [minAmount, setMinAmount] = useState<any>(0);
+  const [minAmount, setMinAmount] = useState<any>(12);
 
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
+    console.log('token getCurrentCoin', token)
     const wallet = await usewallet.getEvmWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
@@ -80,11 +80,7 @@ const SendEth = () => {
     setCoinList(coinList);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
 
-    const balance = await usewallet.getBalance(wallet.address);
-    const balanceNumber = Number(balance) / 1e18;
-    setEvmBalance(balanceNumber);
-    coinInfo!.balance = balanceNumber;
-    coinInfo!.total = balanceNumber * coinInfo!.price;
+    coinInfo!.total = coinInfo!.balance * coinInfo!.price;
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
@@ -102,11 +98,11 @@ const SendEth = () => {
 
   const checkAddress = async () => {
     const childType = await usewallet.getActiveWallet();
+    console.log(' childType ', childType)
     setChildType(childType);
     //wallet controller api
     try {
       const address = location.state.contact.address;
-      console.log('000000000000000000000002edcb9a31eda963d5 address ', address)
       const validatedResult = isValidEthereumAddress(address)
       console.log('validatedResult address ', validatedResult)
       setValidated(validatedResult);
@@ -250,7 +246,6 @@ const SendEth = () => {
 
             <Button
               onClick={() => { setConfirmationOpen(true) }}
-              // disabled={true}
               variant="contained"
               color="success"
               size="large"

@@ -282,6 +282,7 @@ const Header = ({ loading }) => {
     const currentWallet = await usewallet.getCurrentWallet();
     setCurrent(currentWallet);
     usewallet.clearNFTCollection();
+    usewallet.clearCoinList();
     // TODO: replace it with better UX
     window.location.reload();
   };

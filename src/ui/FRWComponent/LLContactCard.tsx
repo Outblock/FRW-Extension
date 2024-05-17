@@ -32,7 +32,6 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
   const [contactAdd, setContactAdd] = useState(false);
 
   const DomainLogo = () => {
-    console.log(contact, ' asdasdadasdasdasd')
     if (contact.domain?.value === '') {
       return undefined;
     }

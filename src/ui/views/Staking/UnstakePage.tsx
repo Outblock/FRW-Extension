@@ -298,7 +298,6 @@ const UnstakePage = () => {
 
             <Button
               onClick={() => {setConfirmationOpen(true)}}
-              // disabled={true}
               variant="contained"
               size="large"
               sx={{

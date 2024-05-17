@@ -59,10 +59,10 @@ const seed2PubKey = async (seed) => {
   const phraseKey = `user${accountIndex}_phrase`;
   const path = await storage.get(pathKey)  || FLOW_BIP44_PATH;
   const passphrase = await storage.get(phraseKey)  || '';
-  console.log('pathpathpath ', path)
-  console.log('pathKey ', pathKey)
-  console.log('phraseKey ', phraseKey)
-  console.log('passphrase ', passphrase)
+  // console.log('pathpathpath ', path)
+  // console.log('pathKey ', pathKey)
+  // console.log('phraseKey ', phraseKey)
+  // console.log('passphrase ', passphrase)
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
   const p256PK = wallet.getKeyByCurve(Curve.nist256p1, path);
   const p256PubK = Buffer.from(
