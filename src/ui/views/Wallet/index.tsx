@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from 'ui/utils';
 import { Box } from '@mui/system';
-import { Typography, Button, Tab, Tabs, Skeleton, Drawer } from '@mui/material';
+import { Typography, Button, Tab, Tabs, Skeleton, Drawer, ButtonBase, CardMedia } from '@mui/material';
 import theme from '../../style/LLTheme';
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded';
 import SwipeableViews from 'react-swipeable-views';
 import FlashOnRoundedIcon from '@mui/icons-material/FlashOnRounded';
 import CoinList from './Coinlist';
+import MoveBoard from '../MoveBoard';
 import { withPrefix } from '../../utils/address';
 import { useHistory } from 'react-router-dom';
 import TransferList from './TransferList';
@@ -15,7 +16,8 @@ import eventBus from '@/eventBus';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import ReactTextTransition from 'react-text-transition';
 import OnRampList from './OnRampList';
-// import fetchRemoteConfig from 'background/utils/remoteConfig';
+import iconMove from 'ui/FRWAssets/svg/homeMove.svg';
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -56,6 +58,8 @@ const WalletTab = ({ network }) => {
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [swapConfig, setSwapConfig] = useState(false);
+  const [showMoveBoard, setMoveBoard] = useState(false);
+
   const [incLink, _] = useState(
     network === 'mainnet'
       ? 'https://app.increment.fi/swap'
@@ -320,9 +324,23 @@ const WalletTab = ({ network }) => {
               {chrome.i18n.getMessage('Swap')}
             </Button>
           )}
-          {/* <Button color="info" variant="contained" sx={{ width: '100%' }}>
-              Swap
-          </Button> */}
+          <Box sx={{ flex: '1' }}>
+          </Box>
+          <ButtonBase onClick={() => setMoveBoard(true)}>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              background: '#2C2C2C',
+              gap: '4px',
+              px: '8px',
+              py: '4px',
+              borderRadius: '8px',
+              alignSelf: 'end'
+            }}>
+              <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
+              <Typography sx={{ fontWeight: 'normal', color: '#FFF' }}>Move</Typography>
+            </Box>
+          </ButtonBase>
         </Box>
         <Tabs
           value={value}
@@ -421,6 +439,16 @@ const WalletTab = ({ network }) => {
       >
         <OnRampList close={() => setOnRamp(false)} />
       </Drawer>
+      {showMoveBoard && (
+        <MoveBoard
+          showMoveBoard={showMoveBoard}
+          handleCloseIconClicked={() => setMoveBoard(false)}
+          handleCancelBtnClicked={() => setMoveBoard(false)}
+          handleAddBtnClicked={() => {
+            setMoveBoard(false);
+          }}
+        />
+      )}
     </Box>
   );
 };

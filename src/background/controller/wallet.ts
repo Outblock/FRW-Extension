@@ -1086,13 +1086,13 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
 
     const tokenList = await openapiService.getTokenListFromGithub(network);
-    
+
     const address = await this.getEvmAddress();
     const allBalanceMap = await openapiService.getEvmFT(
       address || '0x',
     );
     const flowBalance = await this.getBalance(address);
-    
+
     console.log(allBalanceMap, 'allBalanceMap =========');
     console.log('allBalanceMap tokenList this ', tokenList);
 
@@ -1100,12 +1100,12 @@ export class WalletController extends BaseController {
       return tokenList.map(token => {
         const balanceInfo = allBalanceMap.find(balance => balance.address === token.address);
         let balance = balanceInfo ? (Number(balanceInfo.balance) / 1e18) : null;
-    
+
         // If the token unit is 'flow', set the balance to flowBalance
         if (token.symbol.toLowerCase() === 'flow') {
           balance = flowBalance / 1e18;
         }
-    
+
         return {
           ...token,
           balance
@@ -1114,7 +1114,6 @@ export class WalletController extends BaseController {
     };
 
     const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
-    console.log('mergedList ', mergedList);
     const data = await openapiService.getTokenPrices();
     const prices = tokenList.map((token) => this.tokenPrice(token.symbol, data));
 
@@ -1157,8 +1156,31 @@ export class WalletController extends BaseController {
         }
       })
       .map((coin) => coinListService.addCoin(coin, network, 'evm'));
-  
+
     return coinListService.listCoins(network, 'evm');
+  };
+
+  reqeustEvmNft = async () => {
+    const address = await this.getEvmAddress();
+
+    const evmList = await openapiService.getEvmNFT(address);
+    return evmList;
+  }
+
+  requestCadenceNft = async () => {
+    const network = await this.getNetwork();
+    const address = await this.getCurrentAddress();
+    const NFTList = await openapiService.getNFTCadenceList(address!, network);
+    console.log('nft results ', NFTList)
+    return NFTList;
+  };
+
+  requestCollectionInfo = async (identifier) => {
+    const network = await this.getNetwork();
+    const address = await this.getCurrentAddress();
+    const NFTCollection = await openapiService.getNFTCadenceCollection(address!, network, identifier);
+    console.log('nft results ',NFTCollection)
+    return NFTCollection;
   };
 
   private currencyBalance = (balance, price) => {
@@ -1783,14 +1805,53 @@ export class WalletController extends BaseController {
   enableNFTStorageLocal = async (token: NFTModel) => {
     const script = await getScripts('collection', 'enableNFTStorage');
 
-    const cadence = script
-      .replaceAll('<NFT>', token.contract_name)
-      .replaceAll('<NFTAddress>', token.address)
-      .replaceAll('<CollectionStoragePath>', token.path.storage_path)
-      .replaceAll('<CollectionPublicType>', token.path.public_type)
-      .replaceAll('<CollectionPublicPath>', token.path.public_path);
-    return await userWalletService.sendTransaction(cadence, []);
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      []
+    );
   };
+
+  batchBridgeNftToEvm = async (
+    nftContractAddress: string,
+    nftContractName: string,
+    ids: Array<number>,
+  ): Promise<string> => {
+
+    const script = await getScripts('bridge', 'batchBridgeNFTToEvm');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script,
+      [
+        fcl.arg(nftContractAddress, t.Address),
+        fcl.arg(nftContractName, t.String),
+        fcl.arg(ids,  t.Array(t.UInt64)),
+      ]
+    );
+  };
+
+  batchBridgeNftFromEvm = async (
+    nftContractAddress: string,
+    nftContractName: string,
+    ids: Array<number>,
+  ): Promise<string> => {
+
+    const script = await getScripts('bridge', 'batchBridgeNFTFromEvm');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script,
+      [
+        fcl.arg(nftContractAddress, t.Address),
+        fcl.arg(nftContractName, t.String),
+        fcl.arg(ids,  t.Array(t.UInt256)),
+      ]
+    );
+  };
+
 
   sendNFT = async (
     recipient: string,

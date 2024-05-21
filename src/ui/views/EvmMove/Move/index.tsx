@@ -259,7 +259,6 @@ const Move = (props: TransferConfirmationProps) => {
 
         <Button
           onClick={() => { handleMove() }}
-          // disabled={true}
           variant="contained"
           color="success"
           size="large"

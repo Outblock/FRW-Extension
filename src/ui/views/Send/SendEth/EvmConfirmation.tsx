@@ -72,13 +72,9 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
 
 
   const transferToken = async () => {
-    // TODO: Replace it with real data
     const amount = (props.data.amount * 1e18)
     setSending(true);
     let address, gas, value, data
-    const weiValue = web3.utils.toWei(props.data.amount.toString(), 'ether').slice(0, -(18 - 18));
-
-    console.log('transferToken ->',props.data.contact.address, weiValue)
     const encodedData = erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
 
     console.log('transferToken data ->', data)
@@ -94,7 +90,6 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       data = encodedData;
     }
     
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet.sendEvmTransaction(address, gas, value, data).then(async (txID)=> {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);

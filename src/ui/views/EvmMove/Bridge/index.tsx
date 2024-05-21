@@ -99,26 +99,6 @@ const Bridge = (props: TransferConfirmationProps) => {
   const moveToken = async () => {
     setLoading(true);
     console.log('amount ', amount)
-    // const nft = {
-    //   "address": "0x8920ffd3d8768daa",
-    //   "id": "cadenceExampleNFTCollection",
-    //   "contract_name": "ExampleNFT",
-    //   "logo": "https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg",
-    //   "name": "The Example Collection",
-    //   "banner": "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg",
-    //   "official_website": "https://example-nft.onflow.org",
-    //   "description": "This collection is used as an example to help you develop your next Flow NFT.",
-    //   "path": {
-    //     "storage_path": "/storage/cadenceExampleNFTCollection",
-    //     "public_path": "/public/cadenceExampleNFTCollection",
-    //     public_collection_name: "",
-    //     public_type: '',
-    //     private_type: '',
-    //   },
-    //   marketplace: "",
-    // }
-    // const txID = await wallet.enableNFTStorageLocal(nft);
-    // console.log('txid ', txID);
     usewallet.bridgeToEvm(props.data.tokenInfo.address, props.data.tokenInfo.contractName, amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
@@ -133,6 +113,8 @@ const Bridge = (props: TransferConfirmationProps) => {
 
   const withDrawToken = async () => {
     setLoading(true);
+
+
    
     usewallet.bridgeToFlow().then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
@@ -267,7 +249,6 @@ const Bridge = (props: TransferConfirmationProps) => {
 
         <Button
           onClick={() => { handleMove() }}
-          // disabled={true}
           variant="contained"
           color="success"
           size="large"

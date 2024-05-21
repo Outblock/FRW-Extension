@@ -2010,6 +2010,28 @@ class OpenApiService {
     return data;
   };
 
+  getNFTCadenceList = async (address: string, network = 'previewnet', offset = 0, limit = 5) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v2/nft/id?network=${network}&address=${address}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+  getNFTCadenceCollection = async (address: string,network = 'previewnet',  identifier, offset = 0, limit = 5) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
   genTx = async (contract_name: string) => {
     const network = await userWalletService.getNetwork();
     const app = getApp(process.env.NODE_ENV!);
