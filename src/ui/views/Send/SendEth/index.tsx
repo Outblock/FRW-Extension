@@ -17,7 +17,8 @@ import { Contact } from 'background/service/networkModel';
 import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../../components/iconfont/IconClose';
 import { LLHeader } from '@/ui/FRWComponent';
-
+import Web3 from 'web3';
+import erc20ABI from 'background/utils/erc20.abi.json';
 
 interface ContactState {
   contact: Contact
@@ -63,6 +64,11 @@ const SendEth = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
   const [minAmount, setMinAmount] = useState<any>(12);
+
+
+  const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
+  const web3 = new Web3(provider);
+  const erc20Contract = new web3.eth.Contract(erc20ABI, "0x7cd84a6b988859202cbb3e92830fff28813b9341");
 
 
   const setUserWallet = async () => {
@@ -269,7 +275,7 @@ const SendEth = () => {
           {childType === 'evm' ?
             <EvmConfirmation
               isConfirmationOpen={isConfirmationOpen}
-              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo }}
+              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo, erc20Contract }}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
               handleAddBtnClicked={() => {
@@ -279,7 +285,7 @@ const SendEth = () => {
             :
             <ToEthConfirmation
               isConfirmationOpen={isConfirmationOpen}
-              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo }}
+              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo, erc20Contract }}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
               handleAddBtnClicked={() => {

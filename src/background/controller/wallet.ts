@@ -1395,6 +1395,64 @@ export class WalletController extends BaseController {
 
 
 
+  transferFTToEvm = async (tokenContractAddress: string, tokenContractName:string, amount = '1.0',contractEVMAddress:string, data, gas): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(8);
+
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+
+    const script = await getScripts('bridge', 'bridgeTokensToEvmAddress');
+    if (contractEVMAddress.startsWith('0x')) {
+      contractEVMAddress = contractEVMAddress.substring(2);
+    }
+    const dataBuffer = Buffer.from(data.slice(2), 'hex');
+    const dataArray = Uint8Array.from(dataBuffer);
+    const regularArray = Array.from(dataArray);
+    const gasLimit = parseInt(gas, 16);
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(tokenContractAddress, t.Address),
+        fcl.arg(tokenContractName, t.String),
+        fcl.arg(formattedAmount, t.UFix64),
+        fcl.arg(contractEVMAddress, t.String),
+        fcl.arg(regularArray, t.Array(t.UInt8)),
+        fcl.arg(gasLimit, t.UInt64),
+      ]
+    );
+  };
+
+
+  
+  transferFTFromEvm = async (tokenContractAddress: string, tokenContractName:string, amount = '1.0',receiver:string): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(18);
+    // Convert the formatted amount to an integer
+    const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
+
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+
+    const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlow');
+    console.log('tokenContractAddress ', tokenContractAddress, tokenContractName, integerAmount, receiver)
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(tokenContractAddress, t.Address),
+        fcl.arg(tokenContractName, t.String),
+        fcl.arg(integerAmount, t.UInt256),
+        fcl.arg(receiver, t.Address),
+      ]
+    );
+  };
+
+  
 
   withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
     const network = await this.getNetwork();
@@ -1527,9 +1585,7 @@ export class WalletController extends BaseController {
 
     const amount = parseInt(value, 16) / 1e18;
     const ufixAmount = amount.toFixed(8);
-    console.log('amount ', ufixAmount)
-    console.log('gasLimit ', gasLimit)
-    console.log('dataInt ', dataArray)
+
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),

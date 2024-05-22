@@ -17,10 +17,8 @@ import { LLSpinner,
 import { useWallet } from 'ui/utils';
 import { LLProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import Web3 from 'web3';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
-import erc20ABI from 'background/utils/erc20.abi.json';
 
 interface ToEthConfirmationProps {
   isConfirmationOpen: boolean;
@@ -30,9 +28,6 @@ interface ToEthConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
-const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
-const web3 = new Web3(provider);
-const erc20Contract = new web3.eth.Contract(erc20ABI, "0x7cd84a6b988859202cbb3e92830fff28813b9341");
 
 const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const wallet = useWallet();
@@ -75,7 +70,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     const amount = (props.data.amount * 1e18)
     setSending(true);
     let address, gas, value, data
-    const encodedData = erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
+    const encodedData = props.data.erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
 
     console.log('transferToken data ->', data)
     if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
