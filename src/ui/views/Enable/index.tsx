@@ -30,7 +30,7 @@ const Enable = () => {
 
   const handleClaiming = async () => {
     setClaiming(true);
-    wallet.createCOA('0.001').then(async (createRes) => {
+    wallet.createCoaEmpty().then(async (createRes) => {
       wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your flow EVM address has been created. \nClick to view this transaction.`);
       await wallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
@@ -105,24 +105,13 @@ const Enable = () => {
           Enable the Path
           to FlowEVM
         </Typography>
-        {enough ?
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px' }}
-            color="error"
-          >
-            Manage multi-VM assets seamlessly.
-          </Typography>
-          :
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px',paddingX:'38px' }}
-            color="error"
-          >
-            Balance is lower than 0.002,
-            please fund your account to continue.
-          </Typography>
-        }
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px' }}
+          color="error"
+        >
+          Manage multi-VM assets seamlessly.
+        </Typography>
 
       </Box>
       <Box sx={{ padding: '18px' }}>
@@ -165,7 +154,6 @@ const Enable = () => {
           <LLPrimaryButton
             label={chrome.i18n.getMessage('Claim')}
             onClick={handleClaiming}
-            disabled={!enough}
             sx={{
               borderRadius: '14px',
               height: '50px',

@@ -1371,6 +1371,24 @@ export class WalletController extends BaseController {
 
 
 
+  createCoaEmpty = async (): Promise<string> => {
+    const network = await this.getNetwork();
+    if (network !== 'previewnet') {
+      throw Error;
+
+    }
+
+    const script = await getScripts('evm', 'createCoaEmpty');
+
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      []
+    );
+  };
+
+
+
   transferFlowEvm = async (recipientEVMAddressHex: string, amount = '1.0', gasLimit = 150000): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);

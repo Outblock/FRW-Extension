@@ -156,7 +156,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         </Box>
         {collectionDetail &&
           <Button onClick={() => setSelectCollection(true)} >
-            <CardMedia component="img" sx={{ width: '24px', height: '24px', display: 'inline', borderRadius: '8px', marginRight:'8px',objectFit:'cover',objectPosition: 'left !important' }} image={collectionDetail.logo} />
+            <CardMedia component="img" sx={{ width: '24px', height: '24px', display: 'inline', borderRadius: '8px', marginRight: '8px', objectFit: 'cover', objectPosition: 'left !important' }} image={collectionDetail.logo} />
             <Typography
               variant="body1"
               component="div"
@@ -166,7 +166,7 @@ const MoveEvm = (props: MoveBoardProps) => {
             >
               Select
             </Typography>
-            <CardMedia component="img" sx={{ width: '16px', height: '16px',marginLeft:'4px' }} image={moveSelectDrop} />
+            <CardMedia component="img" sx={{ width: '16px', height: '16px', marginLeft: '4px' }} image={moveSelectDrop} />
           </Button>
         }
       </Box>
@@ -184,13 +184,13 @@ const MoveEvm = (props: MoveBoardProps) => {
                   marginBottom: '3px',
                   borderRadius: '16px',
                   backgroundColor: '#333',
-                  position:'relative'
+                  position: 'relative'
                 }}
               >
-                
+
 
                 <Button onClick={() => toggleSelectNft(nfts.id)}>
-                {nftIdArray.includes(nfts.id) && <CardMedia component="img" sx={{ width: '84px', height: '84px', zIndex:'2000', position: 'absolute' }} image={selectedCover} />}
+                  {nftIdArray.includes(nfts.id) && <CardMedia component="img" sx={{ width: '84px', height: '84px', zIndex: '2000', position: 'absolute' }} image={selectedCover} />}
                   <CardMedia
                     component="img"
                     alt={nfts.name}
@@ -205,19 +205,35 @@ const MoveEvm = (props: MoveBoardProps) => {
         </Box>
         :
         <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px' }}>
-          <Box sx={{ display: 'flex', width: '74px', height: '74px', borderRadius: '16px', backgroundColor: '#333' }}>
+          <Box sx={{ display: 'flex', width: '84px', height: '84px', borderRadius: '16px', backgroundColor: '#333' }}>
             <Skeleton
               variant="rectangular"
-              width={74}
-              height={74}
+              width={84}
+              height={84}
               sx={{ margin: '0 auto', borderRadius: '16px' }}
             />
           </Box>
-          <Box sx={{ display: 'flex', width: '74px', height: '74px', borderRadius: '16px', backgroundColor: '#333' }}>
+          <Box sx={{ display: 'flex', width: '84px', height: '84px', borderRadius: '16px', backgroundColor: '#333' }}>
             <Skeleton
               variant="rectangular"
-              width={74}
-              height={74}
+              width={84}
+              height={84}
+              sx={{ margin: '0 auto', borderRadius: '16px' }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', width: '84px', height: '84px', borderRadius: '16px', backgroundColor: '#333' }}>
+            <Skeleton
+              variant="rectangular"
+              width={84}
+              height={84}
+              sx={{ margin: '0 auto', borderRadius: '16px' }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', width: '84px', height: '84px', borderRadius: '16px', backgroundColor: '#333' }}>
+            <Skeleton
+              variant="rectangular"
+              width={84}
+              height={84}
               sx={{ margin: '0 auto', borderRadius: '16px' }}
             />
           </Box>
@@ -276,7 +292,8 @@ const MoveEvm = (props: MoveBoardProps) => {
           )}
 
       </Button>
-      {selectCollection &&
+      {
+        selectCollection &&
         <MoveCollectionSelect
           showMoveBoard={selectCollection}
           handleCloseIconClicked={() => setSelectCollection(false)}
