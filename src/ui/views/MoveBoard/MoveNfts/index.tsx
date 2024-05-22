@@ -3,6 +3,7 @@ import { Box, Button, Skeleton, Typography, Drawer, IconButton, ListItem, ListIt
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
+import selectedCover from 'ui/FRWAssets/svg/selectedCover.svg';
 import MoveCollectionSelect from '../MoveCollectionSelect';
 import {
   LLSpinner,
@@ -93,6 +94,7 @@ const MoveNfts = (props: MoveBoardProps) => {
   };
 
   const moveNFT = async () => {
+    setSending(true);
     usewallet.batchBridgeNftToEvm(collectionDetail.collection.address, collectionDetail.collection.contract_name, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
@@ -165,7 +167,7 @@ const MoveNfts = (props: MoveBoardProps) => {
         </Box>
         {currentCollection &&
           <Button onClick={() => setSelectCollection(true)} >
-            {currentCollection.logo && <CardMedia component="img" sx={{ width: '24px', height: '24px', display: 'inline', borderRadius: '8px', paddingRight: '8px' }} image={currentCollection.logo} />}
+            {currentCollection.logo && <CardMedia component="img" sx={{ width: '24px', height: '24px', display: 'inline', borderRadius: '8px', marginRight:'8px', objectFit:'cover',objectPosition: 'left !important' }} image={currentCollection.logo} />}
             <Typography
               variant="body1"
               component="div"
@@ -184,9 +186,11 @@ const MoveNfts = (props: MoveBoardProps) => {
           {
             collectionDetail.nfts.map((nft) => (
               <Box key={nft.id} sx={{
-                display: 'flex', width: '84px', height: '84px', borderRadius: '16px', marginBottom: '3px', backgroundColor: '#333', border: nftIdArray.includes(nft.id) ? '1px solid #41CC5D' : 'none'
+                display: 'flex', position: 'relative', width: '84px', height: '84px', borderRadius: '16px', marginBottom: '3px', backgroundColor: '#333',
               }}>
+
                 <Button onClick={() => toggleSelectNft(nft.id)}>
+                  {nftIdArray.includes(nft.id) && <CardMedia component="img" sx={{ width: '84px', height: '84px', zIndex:'2000', position: 'absolute' }} image={selectedCover} />}
                   <CardMedia
                     component="img"
                     alt={nft.name}
@@ -219,6 +223,7 @@ const MoveNfts = (props: MoveBoardProps) => {
           </Box>
         </Box>
       }
+      <Box sx={{ flex: '1' }}></Box>
 
       <Button
         onClick={moveNFT}
@@ -232,7 +237,8 @@ const MoveNfts = (props: MoveBoardProps) => {
           textTransform: 'capitalize',
           display: 'flex',
           gap: '12px',
-          marginBottom: '33px'
+          marginBottom: '33px',
+          mx: '16px',
         }}
       >
         {sending ? (
@@ -263,7 +269,7 @@ const MoveNfts = (props: MoveBoardProps) => {
                   sx={{ fontWeight: 'bold' }}
                   color="text.primary"
                 >
-                  {chrome.i18n.getMessage('Send')}
+                  Move {nftIdArray.length > 0 && nftIdArray.length} NFT{nftIdArray.length > 1 && 's'}
                 </Typography>
               }
             </>

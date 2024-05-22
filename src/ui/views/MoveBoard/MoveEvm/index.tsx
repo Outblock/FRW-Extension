@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
 import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import iconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
-import vmsvg from 'ui/FRWAssets/svg/viewmore.svg';
+import selectedCover from 'ui/FRWAssets/svg/selectedCover.svg';
 import MoveCollectionSelect from '../MoveCollectionSelect';
 import {
   LLSpinner,
@@ -83,9 +83,8 @@ const MoveEvm = (props: MoveBoardProps) => {
   };
 
   const moveNFT = async () => {
+    setSending(true);
     const collection = collectionList.find(collection => collection.id === selectedCollection);
-
-    console.log('identifier ', collection);
 
     usewallet.batchBridgeNftFromEvm(`0x${collection.address}`, collection.CollectionName, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`,);
@@ -116,7 +115,7 @@ const MoveEvm = (props: MoveBoardProps) => {
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
-        sx: { width: '100%', height: 'auto', background: '#222', borderRadius: '18px 18px 0px 0px', },
+        sx: { width: '100%', height: '479px', background: '#222', borderRadius: '18px 18px 0px 0px', },
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>
@@ -156,7 +155,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         </Box>
         {collectionDetail &&
           <Button onClick={() => setSelectCollection(true)} >
-            <CardMedia component="img" sx={{ width: '24px', height: '24px', display: 'inline', borderRadius: '8px', paddingRight: '8px' }} image={collectionDetail.logo} />
+            <CardMedia component="img" sx={{ width: '24px', height: '24px', display: 'inline', borderRadius: '8px', marginRight:'8px',objectFit:'cover',objectPosition: 'left !important' }} image={collectionDetail.logo} />
             <Typography
               variant="body1"
               component="div"
@@ -183,11 +182,13 @@ const MoveEvm = (props: MoveBoardProps) => {
                   marginBottom: '3px',
                   borderRadius: '16px',
                   backgroundColor: '#333',
-                  border: nftIdArray.includes(nfts.id) ? '1px solid #41CC5D' : 'none'
+                  position:'relative'
                 }}
               >
+                
+
                 <Button onClick={() => toggleSelectNft(nfts.id)}>
-                  {/* Replace 'thumbnail' with the appropriate property from your NFT object */}
+                {nftIdArray.includes(nfts.id) && <CardMedia component="img" sx={{ width: '84px', height: '84px', zIndex:'2000', position: 'absolute' }} image={selectedCover} />}
                   <CardMedia
                     component="img"
                     alt={nfts.name}
@@ -220,7 +221,7 @@ const MoveEvm = (props: MoveBoardProps) => {
           </Box>
         </Box>
       }
-
+      <Box sx={{ flex: '1' }}></Box>
       <Button
         onClick={moveNFT}
         // disabled={sending || occupied}
@@ -233,7 +234,8 @@ const MoveEvm = (props: MoveBoardProps) => {
           textTransform: 'capitalize',
           display: 'flex',
           gap: '12px',
-          marginBottom: '33px'
+          marginBottom: '33px',
+          mx: '16px',
         }}
       >
         {sending ? (
@@ -245,6 +247,7 @@ const MoveEvm = (props: MoveBoardProps) => {
               color="text.primary"
             >
               {chrome.i18n.getMessage('Sending')}
+
             </Typography>
           </>
         ) :
@@ -264,7 +267,7 @@ const MoveEvm = (props: MoveBoardProps) => {
                   sx={{ fontWeight: 'bold' }}
                   color="text.primary"
                 >
-                  {chrome.i18n.getMessage('Send')}
+                  Move {nftIdArray.length > 0 && nftIdArray.length} NFT{nftIdArray.length > 1 && 's'}
                 </Typography>
               }
             </>

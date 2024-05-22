@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
+import homeMoveFt from 'ui/FRWAssets/svg/homeMoveFt.svg';
 import moveSvg from 'ui/FRWAssets/svg/moveSvg.svg';
 import MoveNfts from './MoveNfts';
 import MoveEvm from './MoveEvm';
@@ -102,11 +102,8 @@ const MoveBoard = (props: MoveBoardProps) => {
           </Button>
         </Box>
         <Box>
-          <Button onClick={() => {
-            setSelectBoard(true);
-          }}
-          >
-            <CardMedia component="img" sx={{ width: '148px', height: '180px', display: 'inline', borderRadius: '8px', paddingRight: '8px' }} image={moveSvg} />
+          <Button>
+            <CardMedia component="img" sx={{ width: '148px', height: '180px', display: 'inline', borderRadius: '8px', paddingRight: '8px' }} image={homeMoveFt} />
           </Button>
         </Box>
       </Box>
