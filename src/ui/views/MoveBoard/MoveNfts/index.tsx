@@ -155,13 +155,13 @@ const MoveNfts = (props: MoveBoardProps) => {
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '16px', mt: '10px', padding: '0 18px' }}>
-        <Box>
+        <Box sx={{height:'24px', padding:'6px 0'}}>
           <Typography
             variant="body1"
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
+            sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px',fontWeight: '600' }}
           >
             Collection
           </Typography>
