@@ -4,6 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
 import selectedCover from 'ui/FRWAssets/svg/selectedCover.svg';
+import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import MoveCollectionSelect from '../MoveCollectionSelect';
 import {
   LLSpinner,
@@ -177,7 +178,9 @@ const MoveNfts = (props: MoveBoardProps) => {
             >
               Select
             </Typography>
+            <CardMedia component="img" sx={{ width: '16px', height: '16px',marginLeft:'4px' }} image={moveSelectDrop} />
           </Button>
+          
         }
       </Box>
       {collectionDetail ?

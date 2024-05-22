@@ -11,6 +11,7 @@ import MoveCollectionSelect from '../MoveCollectionSelect';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
+import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 
 
 
@@ -165,6 +166,7 @@ const MoveEvm = (props: MoveBoardProps) => {
             >
               Select
             </Typography>
+            <CardMedia component="img" sx={{ width: '16px', height: '16px',marginLeft:'4px' }} image={moveSelectDrop} />
           </Button>
         }
       </Box>
