@@ -228,7 +228,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           <CardMedia sx={{ width: '24px', height: '24px' }} image={props.data.coinInfo.icon} />
           <Typography variant="body1" sx={{ fontSize: '18px', fontWeight: 'semi-bold' }}>{props.data.coinInfo.coin}</Typography>
           <Box sx={{ flexGrow: 1 }} />
-          <Typography variant="body1" sx={{ fontSize: '18px', fontWeight: '400', textAlign: 'end' }}>{props.data.amount} {props.data.coinInfo.coin}</Typography>
+          <Typography variant="body1" sx={{ fontSize: '18px', fontWeight: '400', textAlign: 'end' }}>{props.data.amount} {props.data.coinInfo.unit}</Typography>
         </Stack>
         <Stack direction="column" spacing={1}>
           <Typography variant="body1" color="info" sx={{ fontSize: '14px', fontWeight: 'semi-bold', textAlign: 'end' }}>$ {props.data.secondAmount}</Typography>

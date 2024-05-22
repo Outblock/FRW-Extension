@@ -55,6 +55,7 @@ import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
 import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 import { A } from 'ts-toolbelt';
+import placeholder from 'ui/FRWAssets/image/placeholder.png';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -1123,7 +1124,7 @@ export class WalletController extends BaseController {
       return {
         coin: token.name,
         unit: token.symbol,
-        icon: token['logoURI'] || 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+        icon: token['logoURI'] || placeholder,
         balance: parseFloat(token.balance),
         price:
           allPrice[index] === null
