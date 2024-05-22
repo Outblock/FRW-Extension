@@ -51,7 +51,7 @@ class UserWallet {
           coins: ['flow'],
         },
         activeChild: null,
-        monitor: 'source',
+        monitor: 'flowscan',
         network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
       },
     });
@@ -81,7 +81,7 @@ class UserWallet {
         coins: ['flow'],
       },
       activeChild: null,
-      monitor: 'source',
+      monitor: 'flowscan',
       network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
     };
   };
