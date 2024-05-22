@@ -92,7 +92,7 @@ const MoveBoard = (props: MoveBoardProps) => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ display: 'flex', padding: '0 24px',mb: '24px', mt: '24px', justifyContent: 'space-between' }}>
+      <Box sx={{ display: 'flex', padding: '0 24px',mb: '32px', mt: '24px', justifyContent: 'space-between' }}>
         <Box>
           <Button onClick={() => {
             setSelectBoard(true);
@@ -107,17 +107,6 @@ const MoveBoard = (props: MoveBoardProps) => {
           </Button>
         </Box>
       </Box>
-      <Button onClick={props.handleCancelBtnClicked}>
-        <Typography
-          variant="body1"
-          component="div"
-          display="inline"
-          color='text'
-          sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', marginBottom: '32px', fontWeight: '600', opacity: '0.8' }}
-        >
-          Maybe Later
-        </Typography>
-      </Button>
       {showSelectNft && (
         <>
           {childType === 'evm' ? (
