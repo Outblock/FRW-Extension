@@ -12,7 +12,7 @@ import ListTab from './ListTab';
 import EditNFTAddress from './EditNFTAddress';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 
-const NFTTab = () => {
+const NftEvm = () => {
   const wallet = useWallet();
 
   const [address, setAddress] = useState<string | null>('');
@@ -22,12 +22,14 @@ const NFTTab = () => {
   const [nftCount, setCount] = useState<number>(0);
   const [accessible, setAccessible] = useState<any>([]);
   const [isActive, setIsActive] = useState(true);
+  const [nftList, setNftList] = useState<any>(null);
   const gridRef = useRef<any>(null);
   const listRef = useRef<any>(null);
 
   useEffect(() => {
     fetchPreferedTab();
     loadNFTs();
+    requestCadenceNft();
   }, []);
 
   const handleChange = (event, newValue) => {
@@ -35,11 +37,96 @@ const NFTTab = () => {
     storage.set('PreferredNFT', newValue);
   };
 
+  const requestCadenceNft = async () => {
+    const activeChild = await wallet.getActiveWallet();
+    if (activeChild === 'evm') {
+      const evmNftResult = await wallet.reqeustEvmNft();
+      const tokensWithNfts = evmNftResult.filter(token => token.nftIds && token.nftIds.length > 0);
+      const nftresult = await convertToNftCatalogModel(tokensWithNfts);
+      console.log(tokensWithNfts, ' tokensWithNfts[0].collection.id');
+      setNftList(nftresult);
+    } else {
+      const cadenceResult = await wallet.requestCadenceNft();
+      const collection = await wallet.requestCollectionInfo(cadenceResult[0].collection.id);
+      const resultData = await convertToReactComponent(collection); 3
+      setNftList(resultData);
+    }
+
+
+
+
+
+
+  };
+
+  const convertToNftCatalogModel = (data) => {
+    return data.flatMap(item =>
+      item.nfts.map(nft => ({
+        id: nft.id,
+        name: nft.name,
+        description: '',
+        thumbnail: nft.thumbnail,
+        externalURL: item.tokenURI,
+        contractEvmAddress: item.address,
+        contractAddress: '0x' + item.flowIdentifier.split('.')[1],
+        collectionID: item.flowIdentifier,
+        collectionName: item.name,
+        collectionContractName: item.flowIdentifier.split('.')[2],
+        collectionDescription: '',
+        collectionSquareImage: item.logoURI,
+        collectionBannerImage: '',
+        collectionExternalURL: '',
+        royalties: [],
+        traits: [],
+        postMedia: {
+          image: nft.thumbnail,
+          isSvg: false,
+          description: '',
+          title: nft.name,
+        },
+      }))
+    );
+  }
+
+  const convertToReactComponent = (data) => {
+    const { nfts } = data;
+
+    return nfts.map(nft => ({
+      id: nft.id,
+      name: nft.name,
+      description: nft.description,
+      thumbnail: nft.thumbnail,
+      externalURL: nft.externalURL,
+      contractAddress: nft.contractAddress,
+      collectionID: nft.collectionID,
+      collectionName: nft.collectionName,
+      collectionContractName: nft.collectionContractName,
+      collectionDescription: nft.collectionDescription,
+      collectionSquareImage: nft.collectionSquareImage,
+      collectionBannerImage: nft.collectionBannerImage,
+      collectionExternalURL: nft.collectionExternalURL,
+      royalties: nft.royalties.cutInfos.map(cutInfo => ({
+        receiver: cutInfo.receiver,
+        cut: cutInfo.cut,
+        description: cutInfo.description
+      })),
+      traits: nft.traits,
+      postMedia: {
+        image: nft.postMedia.image,
+        isSvg: nft.postMedia.isSvg,
+        description: nft.postMedia.description,
+        title: nft.postMedia.title
+      }
+    }));
+  }
+
+
   const loadNFTs = async () => {
     const isChild = await wallet.getActiveWallet();
     const address = await wallet.getCurrentAddress();
     // const flowCoins = fetchRemoteConfig.flowCoins();
-    // console.log(flowCoins);
+
+    console.log('address ', address);
     if (isChild) {
       const nftResult = await wallet.checkAccessibleNft(address);
       if (nftResult) {
@@ -142,18 +229,18 @@ const NFTTab = () => {
           </Tooltip>
 
           <TabsListStyle
-            sx={{ backgroundColor: 'rgb(250, 250, 250, 0.24)', width: '120px', height: '36px', padding:'0px' }}>
+            sx={{ backgroundColor: 'rgb(250, 250, 250, 0.24)', width: '120px', height: '36px', padding: '0px' }}>
             <StyledTab sx={
               {
                 zIndex: 12,
-                backgroundColor:'rgba(250, 250, 250, 0)',
+                backgroundColor: 'rgba(250, 250, 250, 0)',
                 '&:focus': { backgroundColor: '#000000', color: '#FFFFFF', padding: '2px 13px' }
               }
             }>{chrome.i18n.getMessage('Grid')}</StyledTab>
             <StyledTab sx={
               {
                 zIndex: 12,
-                backgroundColor:'rgba(250, 250, 250, 0)',
+                backgroundColor: 'rgba(250, 250, 250, 0)',
                 '&:focus': { backgroundColor: '#000000', color: '#FFFFFF', padding: '2px 13px' },
               }
             }>{chrome.i18n.getMessage('List')}</StyledTab>
@@ -244,13 +331,16 @@ const NFTTab = () => {
         />
 
         <TabPanelStyle value={0} sx={{ width: '100%' }} id="scrollableTab">
-          <GridTab
-            setCount={setCount}
-            data={{ ownerAddress: address }}
-            ref={gridRef}
-            accessible={accessible}
-            isActive= {isActive}
-          />
+          {nftList &&
+            <GridTab
+              setCount={setCount}
+              data={{ ownerAddress: address }}
+              ref={gridRef}
+              accessible={accessible}
+              isActive={isActive}
+              nftList={nftList}
+            />
+          }
         </TabPanelStyle>
         <TabPanelStyle value={1} sx={{ width: '100%' }}>
           <ListTab
@@ -258,7 +348,8 @@ const NFTTab = () => {
             data={{ ownerAddress: address }}
             ref={listRef}
             accessible={accessible}
-            isActive= {isActive}
+            isActive={isActive}
+            nftList={nftList}
           />
         </TabPanelStyle>
       </Tabs>
@@ -266,4 +357,4 @@ const NFTTab = () => {
   );
 };
 
-export default NFTTab;
+export default NftEvm;

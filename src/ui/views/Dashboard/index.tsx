@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import SwipeableViews from 'react-swipeable-views';
 import WalletTab from '../Wallet';
 import NFTTab from '../NFT';
+import NftEvm from '../NftEvm';
 import Staking from '../Staking';
 import SettingTab from '../Setting';
 import { useLocation, useHistory } from 'react-router-dom';
@@ -93,7 +94,11 @@ const Dashboard = ({ value, setValue }) => {
             <WalletTab network={currentNetwork} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <NFTTab />
+            {currentNetwork === 'previewnet' ?
+              <NftEvm />
+              :
+              <NFTTab />
+            }
           </TabPanel>
           <TabPanel value={value} index={2}>
             <Staking />

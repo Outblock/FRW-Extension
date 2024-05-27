@@ -15,6 +15,7 @@ import Header from './Dashboard/Header';
 import Dashboard from './Dashboard';
 import CollectionDetail from './NFT/CollectionDetail';
 import Detail from './NFT/Detail';
+import NftEvmDetail from './NftEvm/Detail';
 import { PrivateRoute } from 'ui/component';
 import { useWallet } from 'ui/utils';
 import Enable from '../views/Enable';
@@ -43,6 +44,7 @@ import WalletDetail from './Setting/Wallet/WalletDetail';
 import RemoveWallet from './Setting/Wallet/RemoveWallet';
 import ManageBackups from './Setting/Backups';
 import SendToAddress from './NFT/SendNFT/SendToAddress';
+import SendNftEvm from './NftEvm/SendNFT/SendToAddress';
 import { spring, AnimatedSwitch } from 'react-router-transition';
 // import OnRampList from './Wallet/OnRampList';
 
@@ -185,6 +187,15 @@ const Inner = (props) => {
 
           <PrivateRoute path={`${props.match.url}/nft/send`}>
             <SendToAddress />
+          </PrivateRoute>
+
+          <PrivateRoute path={`${props.match.url}/nftevm/detail/:id`}>
+            <NftEvmDetail />
+          </PrivateRoute>
+
+
+          <PrivateRoute path={`${props.match.url}/nftevm/send`}>
+            <SendNftEvm />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/wallet/send`}>

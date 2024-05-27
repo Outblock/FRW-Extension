@@ -1927,6 +1927,65 @@ export class WalletController extends BaseController {
     );
   };
 
+  bridgeNftToEvmAddress = async (
+    nftContractAddress: string,
+    nftContractName: string,
+    ids: number,
+    contractEVMAddress: string,
+    data: any,
+    gas: any,
+  ): Promise<string> => {
+
+    const script = await getScripts('bridge', 'bridgeNFTToEvmAddress');
+    console.log('script is this ', script)
+    const gasLimit = parseInt(gas, 16);
+    const dataBuffer = Buffer.from(data.slice(2), 'hex');
+    const dataArray = Uint8Array.from(dataBuffer);
+    const regularArray = Array.from(dataArray);
+
+    if (!nftContractAddress.startsWith('0x')) {
+      nftContractAddress = '0x'+nftContractAddress;
+    }
+
+
+    if (contractEVMAddress.startsWith('0x')) {
+      contractEVMAddress = contractEVMAddress.substring(2);
+    }
+
+    return await userWalletService.sendTransaction(
+      script,
+      [
+        fcl.arg(nftContractAddress, t.Address),
+        fcl.arg(nftContractName, t.String),
+        fcl.arg(ids,  t.UInt64),
+        fcl.arg(contractEVMAddress, t.String),
+        fcl.arg(regularArray,  t.Array(t.UInt8)),
+        fcl.arg(gasLimit,  t.UInt64),
+      ]
+    );
+  };
+
+
+  bridgeNftFromEvmToFlow = async (
+    nftContractAddress: string,
+    nftContractName: string,
+    ids: number,
+    receiver: string,
+  ): Promise<string> => {
+
+    const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlow');
+
+    return await userWalletService.sendTransaction(
+      script,
+      [
+        fcl.arg(nftContractAddress, t.Address),
+        fcl.arg(nftContractName, t.String),
+        fcl.arg(ids,  t.UInt256),
+        fcl.arg(receiver, t.Address),
+      ]
+    );
+  };
+
 
   sendNFT = async (
     recipient: string,

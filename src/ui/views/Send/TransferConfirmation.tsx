@@ -120,7 +120,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
   const transferFt = async () => {
     const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
-    console.log('tokenResult ', tokenResult)
+    console.log('tokenResult ',  props.data.amount)
     const flowid = tokenResult!['flowIdentifier'].split('.');
     const address = '0x' + flowid[1];
     const contractName = flowid[2];

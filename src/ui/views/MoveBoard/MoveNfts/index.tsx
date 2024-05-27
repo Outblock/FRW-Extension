@@ -12,7 +12,6 @@ import {
 
 
 
-
 interface MoveBoardProps {
   showMoveBoard: boolean;
   handleCloseIconClicked: () => void;

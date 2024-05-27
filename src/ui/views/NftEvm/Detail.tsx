@@ -323,7 +323,7 @@ const Detail = () => {
                     <IconButton
                       sx={{ backgroundColor: 'neutral2.main', p: '12px', aspectRatio: '1 / 1' }}
                       onClick={() => history.push({
-                        pathname: '/dashboard/nft/send',
+                        pathname: '/dashboard/nftevm/send/',
                         state: { nft: nftDetail, media: media, contract: contractInfo }
                       })}
                     >

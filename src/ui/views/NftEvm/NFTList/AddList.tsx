@@ -1,0 +1,213 @@
+import React, { useEffect, useState } from 'react';
+import { makeStyles } from '@mui/styles';
+import {
+  Typography,
+  Box,
+  InputAdornment,
+  Input,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+  Skeleton
+} from '@mui/material';
+import { useWallet } from 'ui/utils';
+import { useHistory } from 'react-router-dom';
+import SearchIcon from '@mui/icons-material/Search';
+import CollectionCard from './AddNFTCard';
+import { LLHeader } from '@/ui/FRWComponent';
+import AddNFTConfirmation from './AddNFTConfirmation';
+import { NFTModel } from '@/background/service/networkModel';
+
+const useStyles = makeStyles(() => ({
+  inputWrapper: {
+    paddingLeft: '18px',
+    paddingRight: '18px',
+    // width: '100%',
+  },
+  inputBox: {
+    minHeight: '56px',
+    backgroundColor: '#282828',
+    zIndex: '999',
+    borderRadius: '16px',
+    boxSizing: 'border-box',
+    width: '100%',
+  },
+  grid: {
+    width: '100%',
+    margin: 0,
+    // paddingLeft: '15px',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignContent: 'flex-start',
+    padding: '10px 13px'
+    // marginLeft: 'auto'
+  },
+  skeletonCard: {
+    display: 'flex',
+    backgroundColor: '#000000',
+    width: '100%',
+    height: '72px',
+    margin: '12px auto',
+    boxShadow: 'none',
+    padding: 'auto'
+  },
+}));
+
+export interface CollectionItem {
+  name?: string;
+  description?: string;
+  official_website?: string;
+  logo?: string;
+  address?: {
+    mainnet?: string;
+    testnet?: string;
+    crescendo?: string;
+    previewnet?: string;
+  };
+  contract_name?: string;
+  banner?: string;
+  marketplace?: string;
+  hidden?: boolean;
+  added?: boolean;
+}
+
+const AddList = () => {
+  const classes = useStyles();
+  const history = useHistory();
+  const usewallet = useWallet();
+  const [collections, setCollections] = useState<Array<any>>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [statusLoading, setStatusLoading] = useState<boolean>(true);
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
+
+  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
+  const [selectedNFT, setSelectedNFT] = useState<NFTModel|null>(null);
+
+  const fetchList = async (data) => {
+    setStatusLoading(true)
+    try {
+      const enabledList = await usewallet.openapi.getEnabledNFTList(data);
+      if (enabledList.length > 0) {
+        data.map(item => { item.added = (enabledList.filter(enabled => enabled.contract_name === item.contract_name && enabled.address === item.address).length > 0)})
+      }
+      
+      setCollections(data);
+    } finally {
+      setStatusLoading(false);
+    }
+  }
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const nftList = await usewallet.openapi.getAllNft();
+      setCollections(nftList);
+      return nftList;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData().then((data) => {
+      fetchList(data);
+    })
+  }, []);
+
+  const handleNFTClick = (token) => {
+    // if (!isEnabled) {
+    setSelectedNFT(token)
+    setConfirmationOpen(true)
+    // }
+  }
+
+  const handleSearch = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const filteredCollections = collections.map((collection: CollectionItem) => {
+      if (!collection.name?.toLowerCase().includes(e.target.value.toLowerCase()) && !collection.description?.toLowerCase().includes(e.target.value.toLowerCase())) {
+        return {
+          ...collection,
+          hidden: true,
+        }
+      } else {
+        return {
+          ...collection,
+          hidden: false,
+        }
+      }
+    })
+    setCollections(filteredCollections)
+  }
+
+  return (
+    <div className='page'>
+
+      <LLHeader title={chrome.i18n.getMessage('Add__Collection')} help={false} />
+
+      <Box>
+        <div className={classes.inputWrapper}>
+          <Input
+            type="search"
+            className={classes.inputBox}
+            placeholder={chrome.i18n.getMessage('Seach__NFT__Collection')}
+            autoFocus
+            disableUnderline
+            startAdornment={
+              <InputAdornment position="start">
+                <SearchIcon
+                  color="primary"
+                  sx={{ ml: '10px', my: '5px', fontSize: '24px' }}
+                />
+              </InputAdornment>
+            }
+            onChange={handleSearch}
+          />
+        </div>
+        <Box sx={{ padding: '8px 18px', display: 'flex', flexDirection: 'column' }}>
+
+          {loading &&
+          (
+            <Grid container className={classes.grid}>
+              {[...Array(4).keys()].map(key =>(
+                <Card key={key} sx={{borderRadius: '12px', backgroundColor: '#000000', padding: '12px'}} className={classes.skeletonCard}>
+                  <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                    <CardMedia sx={{
+                      width: '48px',
+                      height: '48px',
+                      justifyContent: 'center',
+                    }}><Skeleton variant='circular' width={48} height={48} /></CardMedia>
+                    <CardContent sx={{ flex: '1 0 auto', padding: '0 8px' }}>
+                      <Skeleton variant='text' width={280}/>
+                      <Skeleton variant='text' width={150}/>
+                    </CardContent>
+                  </Box>
+                </Card>
+              ))}
+            </Grid>
+          )
+          }
+
+          <Typography sx={{ color: '#5E5E5E', fontSize: '14px', fontWeight: 600 }}>{chrome.i18n.getMessage('COLLECTION__LIST')}</Typography>
+          {collections.filter(ele => !ele.hidden).map((ele, index) =>
+            <CollectionCard item={ele} key={index} setAlertOpen={setAlertOpen} isLoading={statusLoading} onClick={handleNFTClick}/>)
+          }
+        </Box>
+      </Box>
+
+
+      <AddNFTConfirmation
+        isConfirmationOpen={isConfirmationOpen}
+        data={selectedNFT}
+        handleCloseIconClicked={() => setConfirmationOpen(false)}
+        handleCancelBtnClicked={() => setConfirmationOpen(false)}
+        handleAddBtnClicked={() => {
+          setConfirmationOpen(false);
+        }}
+      />
+
+    </div>
+  );
+}
+
+export default AddList;
