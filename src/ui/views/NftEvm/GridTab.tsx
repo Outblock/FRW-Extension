@@ -154,7 +154,7 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
 
 
 
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
 
   const [blockList, setBlockList] = useState<string[]>([]);
 

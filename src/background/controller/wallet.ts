@@ -2471,7 +2471,7 @@ export class WalletController extends BaseController {
     }
     return list;
   };
-
+  
   getSingleCollection = async (
     address: string,
     contract: string,
@@ -2483,6 +2483,31 @@ export class WalletController extends BaseController {
       contract,
       24,
       offset
+    );
+
+    data.nfts.map((nft) => {
+      nft.unique_id = nft.collectionName + '_' + nft.id;
+    });
+    function getUniqueListBy(arr, key) {
+      return [...new Map(arr.map((item) => [item[key], item])).values()];
+    }
+    const unique_nfts = getUniqueListBy(data.nfts, 'unique_id');
+    data.nfts = unique_nfts;
+    return data;
+  };
+
+  getSingleCollectionv2 = async (
+    address: string,
+    contract: string,
+    offset = 0
+  ) => {
+    const network = await this.getNetwork();
+    const data = await openapiService.getNFTCadenceCollection(
+      address!,
+      network,
+      contract,
+      offset,
+      24,
     );
 
     data.nfts.map((nft) => {

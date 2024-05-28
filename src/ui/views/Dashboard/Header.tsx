@@ -187,6 +187,7 @@ const Header = ({ loading }) => {
     }
     if (childType === 'evm') {
       const evmWallet = await usewallet.getEvmWallet();
+      evmWallet.address = '0x' + evmWallet.address
       await setCurrent(evmWallet);
     } else {
       await setCurrent(currentWallet);

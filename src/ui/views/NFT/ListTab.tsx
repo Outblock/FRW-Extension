@@ -87,7 +87,6 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   }));
 
   const fetchCollectionCache = async (address: string) => {
-    console.log('accessible ', props)
     setAccessible(props.accessible)
     try {
       setCollectionLoading(true);

@@ -14,6 +14,7 @@ import { withRouter } from 'react-router-dom';
 import Header from './Dashboard/Header';
 import Dashboard from './Dashboard';
 import CollectionDetail from './NFT/CollectionDetail';
+import EvmCollectionDetail from './NftEvm/CollectionDetail';
 import Detail from './NFT/Detail';
 import NftEvmDetail from './NftEvm/Detail';
 import { PrivateRoute } from 'ui/component';
@@ -179,6 +180,12 @@ const Inner = (props) => {
             path={`${props.match.url}/nested/collectiondetail/:collection_address_name`}
           >
             <CollectionDetail />
+          </PrivateRoute>
+
+          <PrivateRoute
+            path={`${props.match.url}/nested/evm/collectiondetail/:collection_address_name`}
+          >
+            <EvmCollectionDetail />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/nested/nftdetail/:id`}>

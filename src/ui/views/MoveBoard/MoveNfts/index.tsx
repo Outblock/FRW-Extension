@@ -154,13 +154,13 @@ const MoveNfts = (props: MoveBoardProps) => {
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '16px', mt: '10px', padding: '0 18px' }}>
-        <Box sx={{height:'24px', padding:'6px 0'}}>
+        <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography
             variant="body1"
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px',fontWeight: '600' }}
+            sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
           >
             Collection
           </Typography>
@@ -184,26 +184,41 @@ const MoveNfts = (props: MoveBoardProps) => {
       </Box>
       {collectionDetail ?
         <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px', flexWrap: 'wrap', justifyContent: collectionDetail.nfts.length <= 4 ? 'flex-start' : 'space-between' }}>
-
-          {
-            collectionDetail.nfts.map((nft) => (
-              <Box key={nft.id} sx={{
-                display: 'flex', position: 'relative', width: '84px', height: '84px', borderRadius: '16px', marginBottom: '3px', backgroundColor: '#333',
-              }}>
-
-                <Button onClick={() => toggleSelectNft(nft.id)}>
-                  {nftIdArray.includes(nft.id) && <CardMedia component="img" sx={{ width: '84px', height: '84px', zIndex: '2000', position: 'absolute' }} image={selectedCover} />}
+          {collectionDetail.nfts.length > 0 &&
+            collectionDetail.nfts.map(nft => (
+              <Box
+                key={nft.id}
+                sx={{
+                  display: 'flex',
+                  position: 'relative',
+                  width: '84px',
+                  height: '84px',
+                  borderRadius: '16px',
+                  marginBottom: '3px',
+                  backgroundColor: '#333',
+                }}
+              >
+                <Button onClick={() => toggleSelectNft(nft.id)} sx={{ padding: 0 }}>
+                  {nftIdArray.includes(nft.id) &&
+                    <CardMedia
+                      component="img"
+                      sx={{ width: '84px', height: '84px', zIndex: '2000', position: 'absolute' }}
+                      image={selectedCover}
+                    />
+                  }
                   <CardMedia
                     component="img"
                     alt={nft.name}
                     height="84px"
                     image={nft.thumbnail}
                     title={nft.name}
+                    sx={{ borderRadius: '16px' }}
                   />
                 </Button>
               </Box>
             ))
           }
+
         </Box>
         :
         <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px' }}>

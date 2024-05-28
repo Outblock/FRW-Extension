@@ -160,7 +160,13 @@ const SendToAddress = () => {
     await wallet.setDashIndex(1);
     const info = await wallet.getUserInfo(false);
     const currentWallet = await wallet.getCurrentWallet();
-    userContact.address = withPrefix(currentWallet.address) || '';
+    const activeChild = await wallet.getActiveWallet();
+    if (activeChild === 'evm') {
+      const data = await wallet.getEvmAddress();
+      userContact.address = data;
+    } else {
+      userContact.address = withPrefix(currentWallet.address) || '';
+    }
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
     setUser(userContact);

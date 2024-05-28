@@ -75,66 +75,67 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   const [collectionLoading, setCollectionLoading] = useState(true);
   const [collections, setCollections] = useState<any[]>([]);
   const [isCollectionEmpty, setCollectionEmpty] = useState(true);
-  const [accesibleArray, setAccessible] = useState([{id:''}]);
+  const [accesibleArray, setAccessible] = useState([{ id: '' }]);
   const [ownerAddress, setAddress] = useState('');
 
-  useImperativeHandle(ref, () => ({
-    reload: () => {
-      usewallet.clearNFTCollection()
-      setCollections([])
-      setCollectionLoading(true);
-      fetchLatestCollection(ownerAddress)
-    }
-  }));
-
-  const fetchCollectionCache = async (address: string) => {
-    console.log('accessible ', props)
-    setAccessible(props.accessible)
-    try {
-      setCollectionLoading(true);
-      const list = await usewallet.getCollectionCache();
-      if (list && list.length > 0) {
-        setCollectionEmpty(false);
-        setCollections(list);
-        const count = list.reduce((acc, item) => acc + item.count, 0);
-        props.setCount(count);
-      } else {
-        setCollectionEmpty(true);
-        fetchLatestCollection(address);
-      }
-    } catch {
-      setCollectionEmpty(true);
-      fetchLatestCollection(address);
-    } finally {
-      setCollectionLoading(false);
-    }
-  };
-
-  const fetchLatestCollection = async (address: string) => {
-    try {
-      const list = await usewallet.refreshCollection(address);
-      setCollectionLoading(false);
-      if (list && list.length > 0) {
-        setCollectionEmpty(false);
-        setCollections(list);
-      } else {
-        setCollectionEmpty(true);
-      }
-    } catch (err) {
-      console.log(err)
-      setCollectionLoading(false);
-      setCollectionEmpty(true);
-    }
-  };
+  useEffect(() => {
+    reverseTransformCollections();
+  }, []);
 
   useEffect(() => {
     if (props.data.ownerAddress) {
-      fetchCollectionCache(props.data.ownerAddress);
       setAddress(props.data.ownerAddress);
     }
   }, [props.data.ownerAddress]);
 
 
+  const reverseTransformCollections = () => {
+    const collectionsMap = {};
+    const nftCatalogModels = props.nftList;
+    nftCatalogModels.forEach(nft => {
+      const collectionID = nft.collectionID;
+
+      if (!collectionsMap[collectionID]) {
+        collectionsMap[collectionID] = {
+          collection: {
+            id: nft.collectionID,
+            contract_name: nft.collectionContractName,
+            logo: nft.collectionSquareImage,
+            address: nft.contractAddress,
+            name: nft.collectionName,
+            banner: nft.collectionBannerImage,
+            official_website: nft.collectionExternalURL,
+            description: nft.collectionDescription,
+            path: {
+              // Assuming static values for the path, adjust as necessary
+              storage_path: `/storage/${nft.collectionContractName}Collection`,
+              public_path: `/public/${nft.collectionContractName}Collection`,
+              public_collection_name: "NonFungibleToken.CollectionPublic",
+              public_type: `${nft.collectionContractName}.Collection{${nft.collectionContractName}.CollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}`,
+              private_type: `${nft.collectionContractName}.Collection{${nft.collectionContractName}.CollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}`
+            },
+            socials: {
+              // Assuming static values for the socials, adjust as necessary
+              discord: { url: "https://discord.gg/example" },
+              twitter: { url: "https://twitter.com/example" }
+            }
+          },
+          ids: [],
+          count: 0
+        };
+      }
+
+      collectionsMap[collectionID].ids.push(nft.id);
+      collectionsMap[collectionID].count += 1;
+    });
+    console.log('collectionsMap ', Object.values(collectionsMap))
+    const objCollections = Object.values(collectionsMap);
+    if (objCollections.length > 0) {
+      setCollectionEmpty(false);
+    }
+    setCollectionLoading(false);
+    setCollections(objCollections);
+  };
 
   const CollectionView = (data) => {
     console.log('props  ', props)
@@ -145,7 +146,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
           className={classes.actionarea}
           onClick={() =>
             history.push({
-              pathname: `/dashboard/nested/collectiondetail/${data.ownerAddress + '.' + data.contract_name + '.' + data.count
+              pathname: `/dashboard/nested/evm/collectiondetail/${data.ownerAddress + '.' + data.contract_name + '.' + data.count
                 }`,
               state: {
                 collection: data,
@@ -200,7 +201,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                           color: 'neutral.text',
                           marginTop: '2px',
                           fontSize: '10px',
-                          fontFamily:'Inter, sans-serif',
+                          fontFamily: 'Inter, sans-serif',
                           backgroundColor: 'neutral1.light'
                         }}
                       >

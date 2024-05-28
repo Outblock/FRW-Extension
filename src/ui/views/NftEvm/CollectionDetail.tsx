@@ -193,33 +193,6 @@ const CollectionDetail = (props) => {
   const address = collection_info[0]
   const collection_name = collection_info[1]
   const nftCount = collection_info[2]
-  // const getInfo = async () => {
-  //   // if (uselocation.state) {
-  //   //   return {
-  //   //     collection: uselocation.state.collection, 
-  //   //     ownerAddress: uselocation.state.ownerAddress,
-  //   //     nftCount: uselocation.state.collection.nftCount
-  //   //   }
-  //   // }
-
-  //   const ownerAddress = collection_info[0]
-  //   const collection_name = collection_info[1]
-  //   const nftCount = collection_info[2]
-  //   console.log('collection_name -->', collection_name)
-
-  //   const info = await usewallet.openapi.getNFTCollectionInfo(collection_name)
-  //   console.log('info -->', info)
-  //   setInfo(info)
-  //   setTotal(nftCount);
-
-  //   // const filteredCollection = await usewallet.getSingleCollection(ownerAddress, collection_name);
-  //   return {
-  //     collection: collection_name,
-  //     ownerAddress: ownerAddress,
-  //     nftCount: nftCount
-  //   }
-  // }
-
   const fetchCollection = async () => {
     // const { collection, ownerAddress } = await getInfo();
     setOwnerAddress(address);
@@ -323,7 +296,7 @@ const CollectionDetail = (props) => {
       console.log('res.collection.display.name ', result)
       return result;
     } else {
-      return await usewallet.getSingleCollection(ownerAddress, collection, offset);
+      return await usewallet.getSingleCollectionv2(ownerAddress, collection, offset);
     }
   }
 
