@@ -17,6 +17,7 @@ import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import { PostMedia, MatchMediaType } from '@/ui/utils/url';
 import { saveAs } from 'file-saver'
 import SendIcon from 'ui/FRWAssets/svg/send.svg';
+import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
 import { Link } from 'react-router-dom';
 

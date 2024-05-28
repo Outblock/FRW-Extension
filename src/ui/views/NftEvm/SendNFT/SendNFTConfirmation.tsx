@@ -171,12 +171,17 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const flowToFlow = async () => {
     setSending(true);
+    const contractTokenModel = {
+      contract_name : props.data.nft.collectionContractName,
+      address : props.data.nft.contractAddress,
+      path : props.data.nft.contractInfo,
+    }
     try {
       let txID = ''
       if (props.data.contract.contract_name.trim() == 'TopShot') {
         txID = await wallet.sendNBANFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
       } else {
-        txID = await wallet.sendInboxNFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
+        txID = await wallet.sendNFT(props.data.contact.address, parseInt(props.data.nft.id), contractTokenModel)
       }
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);

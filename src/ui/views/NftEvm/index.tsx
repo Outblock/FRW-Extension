@@ -110,6 +110,7 @@ const NftEvm = () => {
         cut: cutInfo.cut,
         description: cutInfo.description
       })),
+      contractInfo: data.collection.path,
       traits: nft.traits,
       postMedia: {
         image: nft.postMedia.image,

@@ -2026,7 +2026,7 @@ export class WalletController extends BaseController {
   sendInboxNFT = async (
     recipient: string,
     id: any,
-    token: NFTModel
+    token: any
   ): Promise<string> => {
     console.log(token, id);
     const script = await getScripts('domain', 'sendInboxNFT');
