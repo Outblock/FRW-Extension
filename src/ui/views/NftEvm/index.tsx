@@ -43,12 +43,12 @@ const NftEvm = () => {
       const evmNftResult = await wallet.reqeustEvmNft();
       const tokensWithNfts = evmNftResult.filter(token => token.nftIds && token.nftIds.length > 0);
       const nftresult = await convertToNftCatalogModel(tokensWithNfts);
-      console.log(tokensWithNfts, ' tokensWithNfts[0].collection.id');
       setNftList(nftresult);
     } else {
       const cadenceResult = await wallet.requestCadenceNft();
       const collection = await wallet.requestCollectionInfo(cadenceResult[0].collection.id);
-      const resultData = await convertToReactComponent(collection); 3
+      const resultData = await convertToReactComponent(collection);
+      
       setNftList(resultData);
     }
 
