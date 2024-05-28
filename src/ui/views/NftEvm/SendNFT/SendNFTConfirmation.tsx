@@ -115,7 +115,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     setSending(true);
     const data = await wallet.getEvmAddress();
     const encodedData = erc721Contract.methods.safeTransferFrom(data, props.data.contact.address, props.data.nft.id).encodeABI();
-    const gas = '186a0';
+    const gas = '2dc6c0';
     setSending(true);
     wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, '7cd84a6b988859202cbb3e92830fff28813b9341', encodedData, gas).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
@@ -147,7 +147,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     setSending(true);
     const data = await wallet.getEvmAddress();
     const encodedData = erc721Contract.methods.safeTransferFrom(data, props.data.contact.address, props.data.nft.id).encodeABI();
-    const gas = '186a0';
+    const gas = '2dc6c0';
     setSending(true);
     wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, '7cd84a6b988859202cbb3e92830fff28813b9341', encodedData, gas).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
