@@ -97,18 +97,17 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const transferFt = async () => {
     const amount = (props.data.amount * 1e18)
     setSending(true);
-    let address, gas, value, data
     const encodedData = props.data.erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
     const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
 
-    address = tokenResult!.address;
-    gas = '186a0';
-    value = parseFloat(props.data.amount).toFixed(8);
-    data = encodedData;
-    
+    const address = tokenResult!.address;
+    const gas = '1312d00';
+    const value = parseFloat(props.data.amount).toFixed(8);
+    const data = encodedData;
+
     const evmAddress = tokenResult!['evmAddress'];
 
-    wallet.transferFTToEvm(address, tokenResult!.contractName, value,evmAddress, data,gas).then(async (txID) => {
+    wallet.transferFTToEvm(address, tokenResult!.contractName, value, evmAddress, data, gas).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);
       props.handleCloseIconClicked();

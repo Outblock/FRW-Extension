@@ -60,32 +60,40 @@ const NftEvm = () => {
   };
 
   const convertToNftCatalogModel = (data) => {
-    return data.flatMap(item =>
-      item.nfts.map(nft => ({
-        id: nft.id,
-        name: nft.name,
-        description: '',
-        thumbnail: nft.thumbnail,
-        externalURL: item.tokenURI,
-        contractEvmAddress: item.address,
-        contractAddress: '0x' + item.flowIdentifier.split('.')[1],
-        collectionID: item.flowIdentifier,
-        collectionName: item.name,
-        collectionContractName: item.flowIdentifier.split('.')[2],
-        collectionDescription: '',
-        collectionSquareImage: item.logoURI,
-        collectionBannerImage: '',
-        collectionExternalURL: '',
-        royalties: [],
-        traits: [],
-        postMedia: {
-          image: nft.thumbnail,
-          isSvg: false,
+    console.log('data', data);
+
+    const convertedData = data.flatMap(item =>
+      item.nfts.map(nft => {
+        const flowIdentifierParts = item.flowIdentifier ? item.flowIdentifier.split('.') : [];
+        return {
+          id: nft.id,
+          name: nft.name,
           description: '',
-          title: nft.name,
-        },
-      }))
+          thumbnail: nft.thumbnail,
+          externalURL: item.tokenURI,
+          contractEvmAddress: item.address,
+          contractAddress: flowIdentifierParts[1] ? '0x' + flowIdentifierParts[1] : '',
+          collectionID: item.flowIdentifier || '',
+          collectionName: item.name,
+          collectionContractName: flowIdentifierParts[2] || '',
+          collectionDescription: '',
+          collectionSquareImage: item.logoURI,
+          collectionBannerImage: '',
+          collectionExternalURL: '',
+          royalties: [],
+          traits: [],
+          postMedia: {
+            image: nft.thumbnail,
+            isSvg: false,
+            description: '',
+            title: nft.name,
+          },
+        };
+      })
     );
+
+    console.log('convertedData', convertedData);
+    return convertedData;
   }
 
   const convertToReactComponent = (data) => {
@@ -255,7 +263,7 @@ const NftEvm = () => {
           <Box component='span'>
             <Button
               component={Link}
-              to='/dashboard/nested/add_list'
+              to='/dashboard/nested/evm/add_list'
               variant='contained'
               color='secondary'
               sx={{

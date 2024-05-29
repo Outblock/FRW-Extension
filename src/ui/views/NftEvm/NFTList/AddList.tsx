@@ -89,6 +89,7 @@ const AddList = () => {
     setStatusLoading(true)
     try {
       const enabledList = await usewallet.openapi.getEnabledNFTList(data);
+      console.log('nftList ', data, enabledList)
       if (enabledList.length > 0) {
         data.map(item => { item.added = (enabledList.filter(enabled => enabled.contract_name === item.contract_name && enabled.address === item.address).length > 0)})
       }
@@ -102,9 +103,13 @@ const AddList = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const nftList = await usewallet.openapi.getAllNft();
-      setCollections(nftList);
-      return nftList;
+      const response = await fetch(
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/previewnet/flow/nfts.json`
+      );
+      const res = await response.json();
+      console.log('nftList ', res)
+      setCollections(res.tokens);
+      return res.tokens;
     } finally {
       setLoading(false);
     }

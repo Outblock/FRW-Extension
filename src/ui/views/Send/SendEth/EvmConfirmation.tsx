@@ -75,12 +75,12 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     console.log('transferToken data ->', data)
     if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
       address = props.data.contact.address;
-      gas = '186a0';
+      gas = '1';
       value = (props.data.amount * 1e18).toString(16);
       data = [];
     } else {
       address = "7cd84a6b988859202cbb3e92830fff28813b9341";
-      gas = '186a0';
+      gas = '1312d00';
       value = 0;
       data = encodedData;
     }

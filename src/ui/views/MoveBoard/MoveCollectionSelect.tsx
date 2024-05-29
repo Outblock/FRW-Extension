@@ -35,7 +35,7 @@ const MoveCollectionSelect = ({ showMoveBoard, handleCloseIconClicked, handleCan
   return (
     <Drawer
       anchor="bottom"
-      sx={{ zIndex: '1600 !important' }}
+      sx={{ zIndex: '1200 !important' }}
       transitionDuration={300}
       open={showMoveBoard}
       PaperProps={{
@@ -78,7 +78,7 @@ const MoveCollectionSelect = ({ showMoveBoard, handleCloseIconClicked, handleCan
               filteredCollectionList.map((obj, index) => (
                 <Button onClick={() => setSelected(obj.id)} sx={{ width: '100%' }}>
                   <Box sx={{ backgroundColor: '#2C2C2C', width: "100%", height: '64px', display: 'flex', overflow: 'hidden', justifyContent: 'space-between', borderRadius: '12px' }} key={index}>
-                    <CardMedia component="img" sx={{ width: '80px', height: '100%', display: 'inline', }} image={obj.logo} />
+                    <CardMedia component="img" sx={{ width: '80px', height: '100%', display: 'inline', objectFit: 'cover', objectPosition:'left' }} image={obj.logo} />
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: '1', marginLeft: '16px', mt: '12px', height: '100%' }}>
                       <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>{obj.CollectionName}</Typography>
                       <Typography sx={{ fontSize: '12px', fontWeight: 400 }}>{obj.NftCount} NFTs</Typography>

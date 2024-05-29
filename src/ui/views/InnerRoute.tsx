@@ -34,6 +34,7 @@ import UnstakePage from './Staking/UnstakePage';
 import NodeDetail from './Staking/NodeDetail';
 import Flowns from './Flowns';
 import AddList from './NFT/NFTList/AddList';
+import AddEvmList from './NftEvm/NFTList/AddList';
 import About from './Setting/About/About';
 import Linked from './Setting/Linked';
 import LinkedDetail from './Setting/Linked/LinkedDetail';
@@ -236,6 +237,11 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/nested/add_list`}>
             <AddList />
           </PrivateRoute>
+
+          <PrivateRoute path={`${props.match.url}/nested/evm/add_list`}>
+            <AddEvmList />
+          </PrivateRoute>
+
           <PrivateRoute path={`${props.match.url}/setting/about`}>
             <About />
           </PrivateRoute>

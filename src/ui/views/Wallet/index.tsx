@@ -326,21 +326,24 @@ const WalletTab = ({ network }) => {
           )}
           <Box sx={{ flex: '1' }}>
           </Box>
-          <ButtonBase onClick={() => setMoveBoard(true)}>
-            <Box sx={{
-              display: 'flex',
-              alignItems: 'center',
-              background: '#2C2C2C',
-              gap: '4px',
-              px: '8px',
-              py: '4px',
-              borderRadius: '8px',
-              alignSelf: 'end'
-            }}>
-              <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
-              <Typography sx={{ fontWeight: 'normal', color: '#FFF' }}>Move</Typography>
-            </Box>
-          </ButtonBase>
+          {network === 'previewnet' &&
+            <ButtonBase onClick={() => setMoveBoard(true)}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                background: '#2C2C2C',
+                gap: '4px',
+                px: '8px',
+                py: '4px',
+                borderRadius: '8px',
+                alignSelf: 'end'
+              }}>
+                <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
+                <Typography sx={{ fontWeight: 'normal', color: '#FFF' }}>Move</Typography>
+              </Box>
+            </ButtonBase>
+
+          }
         </Box>
         <Tabs
           value={value}

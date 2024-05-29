@@ -236,11 +236,19 @@ const TransferAmount = ({ amount, setAmount, secondAmount, setSecondAmount, exce
                 renderValue={renderValue}
                 className={classes.selectRoot}
                 defaultValue={coinInfo.unit}
-                MenuProps={{ MenuListProps: { disablePadding: true } }}
+                MenuProps={{
+                  MenuListProps: { disablePadding: true },
+                  PaperProps: {
+                    style: {
+                      zIndex: 2000,
+                    },
+                  },
+                }}
+                sx={{ zIndex: 2000 }}
               >
                 {
                   coinList.map(coin => (
-                    <MenuItem value={coin.unit} key={coin.unit}>
+                    <MenuItem value={coin.unit} key={coin.unit} sx={{ zIndex: 2000 }}>
                       <ListItemIcon>
                         <img src={coin.icon} style={{ height: '24px', width: '24px' }} />
                       </ListItemIcon>

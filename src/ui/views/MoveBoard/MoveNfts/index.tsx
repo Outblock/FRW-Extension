@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Skeleton, Typography, Drawer, IconButton, ListItem, ListItemIcon, ListItemText, Avatar, CardMedia } from '@mui/material';
+import { Box, Button, Skeleton, Typography, Drawer, IconButton, Snackbar, Alert, ListItemText, Avatar, CardMedia } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
@@ -9,6 +9,8 @@ import MoveCollectionSelect from '../MoveCollectionSelect';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
+import EmptyStatus from '../../NftEvm/EmptyStatus';
+import AccountBox from '../AccountBox';
 
 
 
@@ -33,7 +35,7 @@ const MoveNfts = (props: MoveBoardProps) => {
   const [nftIdArray, setNftIdArray] = useState<number[]>([]);
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [collectionLoaded, setCollectionLoaded] = useState(false);
+  const [errorOpen, setShowError] = useState(false);
   const [selectCollection, setSelectCollection] = useState(false);
   const [currentCollection, setCurrentCollection] = useState<any>({
     CollectionName: '',
@@ -43,6 +45,13 @@ const MoveNfts = (props: MoveBoardProps) => {
     logo: '',
   });
   // console.log('props.loggedInAccounts', props.current)
+
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowError(false);
+  };
 
   const findCollectionByContractName = () => {
     if (collectionList) {
@@ -54,7 +63,6 @@ const MoveNfts = (props: MoveBoardProps) => {
 
   const requestCadenceNft = async () => {
     const cadenceResult = await usewallet.requestCadenceNft();
-    console.log(cadenceResult[0].collection.id, ' cadenceResult[0].collection.id')
     setSelected(cadenceResult[0].collection.id);
     const extractedObjects = cadenceResult.map(obj => {
       return {
@@ -84,7 +92,12 @@ const MoveNfts = (props: MoveBoardProps) => {
 
     if (index === -1) {
       // If nftId is not in the array, add it
-      tempIdArray.push(nftId);
+      if (tempIdArray.length < 3) {
+        tempIdArray.push(nftId);
+      } else {
+        // Display an error or warning message that no more than 3 IDs are allowed
+        setShowError(true);
+      }
     } else {
       // If nftId is in the array, remove it
       tempIdArray.splice(index, 1);
@@ -92,7 +105,6 @@ const MoveNfts = (props: MoveBoardProps) => {
 
     setNftIdArray(tempIdArray);
   };
-
   const moveNFT = async () => {
     setSending(true);
     usewallet.batchBridgeNftToEvm(collectionDetail.collection.address, collectionDetail.collection.contract_name, nftIdArray).then(async (txID) => {
@@ -123,7 +135,7 @@ const MoveNfts = (props: MoveBoardProps) => {
   return (
     <Drawer
       anchor="bottom"
-      sx={{ zIndex: '1600 !important' }}
+      sx={{ zIndex: '1100 !important' }}
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
@@ -152,7 +164,7 @@ const MoveNfts = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
-
+      <AccountBox isEvm={false} />
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '16px', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography
@@ -183,8 +195,8 @@ const MoveNfts = (props: MoveBoardProps) => {
         }
       </Box>
       {collectionDetail ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px', flexWrap: 'wrap', justifyContent: collectionDetail.nfts.length <= 4 ? 'flex-start' : 'space-between' }}>
-          {collectionDetail.nfts.length > 0 &&
+        <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+          {collectionDetail.nfts.length > 0 ?
             collectionDetail.nfts.map(nft => (
               <Box
                 key={nft.id}
@@ -217,6 +229,11 @@ const MoveNfts = (props: MoveBoardProps) => {
                 </Button>
               </Box>
             ))
+            :
+
+            <Box sx={{ margin: '-58px auto -84px auto', }}>
+              <EmptyStatus />
+            </Box>
           }
 
         </Box>
@@ -320,6 +337,11 @@ const MoveNfts = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       }
+      <Snackbar open={errorOpen} autoHideDuration={3000} onClose={handleErrorClose}>
+        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '80%', margin: '0 auto 80px' }}>
+          Cannot move more than 3
+        </Alert>
+      </Snackbar>
     </Drawer >
   );
 }

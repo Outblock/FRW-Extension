@@ -40,16 +40,14 @@ export const switchChainNotice = (
       </div>
       <div style="display: flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #d3d8e0;border-top-width:0.5px;">
         <img style="width: 14px;" src="${IconWarning}"/>
-        ${
-          isSwitchToMainnet
-            ? `Testnet <img style="width: 14px;" src="${IconArrow}"/> Mainnet`
-            : ""
-        }
-        ${
-          isSwitchToTestnet
-            ? `Mainnet <img style="width: 14px;" src="${IconArrow}"/> Testnet`
-            : ""
-        }
+${isSwitchToMainnet
+    ? `Testnet <img style="width: 14px;" src="${IconArrow}"/> Mainnet`
+    : ""
+}
+  ${isSwitchToTestnet
+    ? `Mainnet <img style="width: 14px;" src="${IconArrow}"/> Testnet`
+    : ""
+}
       </div>
     </div>
     `;

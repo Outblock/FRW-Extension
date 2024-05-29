@@ -357,7 +357,6 @@ const rabbyProvider = new Proxy(provider, {
       typeof prop === "string" &&
       ["on", "isRabby", "isMetaMask", "_isRabby"].includes(prop)
     ) {
-      // @ts-ignore
       delete target[prop];
     }
     return true;

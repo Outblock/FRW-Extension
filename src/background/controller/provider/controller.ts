@@ -196,7 +196,6 @@ class ProviderController extends BaseController {
     const value = transactionParams.value || '0.0';
     const dataValue = transactionParams.data || '0x';
 
-    console.log('transactionParams ', transactionParams)
     const result = await Wallet.sendEvmTransaction(to, gas, value, dataValue);
     return result;
   };
@@ -219,25 +218,21 @@ class ProviderController extends BaseController {
   personalSign = async ({ data, approvalRes, session }) => {
     console.log('data ', data);
     if (!data.params) return;
-    try {
-      const [string, from] = data.params;
-      const hex = isHexString(string) ? string : stringToHex(string);
-      const keyring = await this._checkAddress(from);
-      const result = await signMessage(
-        keyring,
-        { data: hex, from },
-        approvalRes?.extra
-      );
-      signTextHistoryService.createHistory({
-        address: from,
-        text: string,
-        origin: session.origin,
-        type: 'personalSign',
-      });
-      return result;
-    } catch (e) {
-      throw e;
-    }
+    const [string, from] = data.params;
+    const hex = isHexString(string) ? string : stringToHex(string);
+    const keyring = await this._checkAddress(from);
+    const result = await signMessage(
+      keyring,
+      { data: hex, from },
+      approvalRes?.extra
+    );
+    signTextHistoryService.createHistory({
+      address: from,
+      text: string,
+      origin: session.origin,
+      type: 'personalSign',
+    });
+    return result;
   };
 
   private _checkAddress = async (address) => {

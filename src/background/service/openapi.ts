@@ -1310,6 +1310,12 @@ class OpenApiService {
     return list;
   };
 
+  getAllNftV2 = async (fiterNetwork = true): Promise<NFTModel[]> => {
+    const list = await remoteFetch.nftv2Collection();
+    // const network = await userWalletService.getNetwork();
+    return list;
+  };
+
   isWalletTokenStorageEnabled = async (tokenSymbol: string) => {
     // FIX ME: Get defaultTokenList from firebase remote config
     const address = await userWalletService.getCurrentAddress();
@@ -1412,7 +1418,7 @@ class OpenApiService {
     // const tokenList = await remoteFetch.flowCoins();
     const network = await userWalletService.getNetwork();
 
-    let tokenList = await this.getTokenListFromGithub(network);
+    const tokenList = await this.getTokenListFromGithub(network);
     const address = await userWalletService.getCurrentAddress();
 
     const values = await this.isTokenListEnabled(address);
@@ -2021,10 +2027,21 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceCollection = async (address: string,network = 'previewnet',  identifier, offset = 0, limit = 5) => {
+  getNFTCadenceCollection = async (address: string,network = 'previewnet',  identifier, offset = 0, limit = 24) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+  getNFTV2CollectionList = async (address: string,network = 'previewnet',) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v2/nft/collections?network=${network}&address=${address}`,
       {},
       {},
       WEB_NEXT_URL

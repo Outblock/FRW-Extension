@@ -27,8 +27,22 @@ interface TransferConfirmationProps {
 }
 
 
-const Bridge = (props: TransferConfirmationProps) => {
+const Move = (props: TransferConfirmationProps) => {
 
+  enum ENV {
+    Mainnet = 'mainnet',
+    Testnet = 'testnet'
+  }
+  enum Error {
+    Exceed = 'Insufficient balance',
+    Fail = 'Cannot find swap pair'
+  }
+
+  // declare enum Strategy {
+  //   GitHub = 'GitHub',
+  //   Static = 'Static',
+  //   CDN = 'CDN'
+  // }
   const userContact = {
     address: '',
     id: 0,
@@ -64,26 +78,24 @@ const Bridge = (props: TransferConfirmationProps) => {
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [toEvm, setToEvm] = useState<boolean>(true);
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
+    const token = await usewallet.getCurrentCoin();
     const wallet = await usewallet.getMainWallet();
-    console.log('wallet ', wallet, props.data.tokenInfo)
     const network = await usewallet.getNetwork();
     setNetwork(network);
-    setCurrentCoin(props.data.tokenInfo.symbol);
+    setCurrentCoin(token);
     // userWallet
     await setWallet(wallet);
-    const data = await usewallet.getEvmAddress();
-    setEvmAddress(data);
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
-    console.log('coinList ', coinList)
-    const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === props.data.tokenInfo.symbol.toLowerCase());
+    const data = await usewallet.getEvmAddress();
+    setEvmAddress(data);
+    const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
@@ -98,56 +110,61 @@ const Bridge = (props: TransferConfirmationProps) => {
 
   const moveToken = async () => {
     setLoading(true);
-    console.log('amount ', amount)
-    usewallet.bridgeToEvm(props.data.tokenInfo.address, props.data.tokenInfo.contractName, amount).then(async (createRes) => {
+    console.log('coinList ', coinList)
+    usewallet.fundFlowEvm(amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
       console.log('transferFlowEvm , ', createRes)
       setLoading(false);
+      props.handleCancelBtnClicked();
     }).catch((err) => {
       console.log(err);
       setLoading(false);
     });
   };
 
-  const withDrawToken = async () => {
+  const bridgeToken = async () => {
     setLoading(true);
-    const flowIdentifier = props.data.tokenInfo.flowIdentifier.split('.');
-    const address = '0x' + flowIdentifier[1]
-    const contractName = flowIdentifier[2]
-    console.log('props.data ', props.data)
-   
-    usewallet.bridgeToFlow(address, contractName, amount).then(async (createRes) => {
+    const tokenResult = await wallet.openapi.getTokenInfo(currentCoin);
+    usewallet.bridgeToEvm(tokenResult!.address, tokenResult!.contractName, amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
       console.log('transferFlowEvm , ', createRes)
       setLoading(false);
+      props.handleCancelBtnClicked();
     }).catch((err) => {
       console.log(err);
       setLoading(false);
     });
   };
+
 
   const handleMove = async () => {
-    if (toEvm) {
+    console.log('currentCoin ', currentCoin)
+    if (currentCoin.toLowerCase() === 'flow') {
       moveToken();
     } else {
-      withDrawToken();
+      bridgeToken();
     }
   };
 
-  const switchSide = async () => {
-    const isChild = await usewallet.getActiveWallet();
-    console.log('isChild ', isChild);
-    setToEvm(isChild !== 'evm');
+
+  const handleCoinInfo = async () => {
+    if (coinList.length > 0){
+      const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === currentCoin.toLowerCase());
+      setCoinInfo(coinInfo!);
+    }
   };
 
   useEffect(() => {
-    switchSide();
     setUserWallet();
   }, [])
+
+  useEffect(() => {
+    handleCoinInfo();
+  }, [currentCoin])
 
 
   return (
@@ -155,6 +172,7 @@ const Bridge = (props: TransferConfirmationProps) => {
       anchor="bottom"
       open={props.isConfirmationOpen}
       transitionDuration={300}
+      sx={{ zIndex: '1200 !important' }}
       PaperProps={{
         sx: { width: '100%', height: 'auto', background: '#222', borderRadius: '18px 18px 0px 0px' },
       }}
@@ -171,7 +189,7 @@ const Bridge = (props: TransferConfirmationProps) => {
           <Box sx={{ width: '40px' }}></Box>
           <Box>
             <Typography sx={{ fontWeight: '700', fontSize: '14px' }}>
-              Bridge Token
+              Move Token
             </Typography>
           </Box>
           <Box onClick={props.handleCancelBtnClicked}>
@@ -184,17 +202,10 @@ const Bridge = (props: TransferConfirmationProps) => {
           </Box>
         </Box>
         {userWallet &&
-          (toEvm ?
-            <TransferFrom
-              wallet={userWallet}
-              userInfo={userInfo}
-            />
-            :
-            <TransferTo
-              wallet={evmAddress}
-              userInfo={userInfo}
-            />
-          )
+          <TransferFrom
+            wallet={userWallet}
+            userInfo={userInfo}
+          />
         }
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', my: '-21px', zIndex: '99' }}>
           {isLoading ?
@@ -215,17 +226,10 @@ const Bridge = (props: TransferConfirmationProps) => {
         </Box>
         {evmAddress &&
 
-          (toEvm ?
-            <TransferTo
-              wallet={evmAddress}
-              userInfo={userInfo}
-            />
-            :
-            <TransferFrom
-              wallet={userWallet}
-              userInfo={userInfo}
-            />
-          )
+          <TransferTo
+            wallet={evmAddress}
+            userInfo={userInfo}
+          />
         }
       </Box>
 
@@ -241,7 +245,6 @@ const Bridge = (props: TransferConfirmationProps) => {
             exceed={exceed}
             setExceed={setExceed}
             coinInfo={coinInfo}
-            toEvm={toEvm}
             setCurrentCoin={setCurrentCoin}
           />
         }
@@ -269,7 +272,7 @@ const Bridge = (props: TransferConfirmationProps) => {
           >
             {errorType ?
               errorType :
-              'Bridge'
+              'Move'
             }
           </Typography>
         </Button>
@@ -279,4 +282,4 @@ const Bridge = (props: TransferConfirmationProps) => {
 }
 
 
-export default Bridge;
+export default Move;

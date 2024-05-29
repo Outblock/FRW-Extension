@@ -9,8 +9,8 @@ import TokenInfoCard from './TokenInfoCard';
 import StackingCard from './StackingCard';
 import PriceCard from './PriceCard';
 import ClaimTokenCard from './ClaimTokenCard';
-import Move from '../EvmMove/Move';
-import Bridge from '../EvmMove/Bridge';
+import MoveFromEvm from '../EvmMove/MoveFromEvm';
+import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { PriceProvider } from '@/background/service/networkModel';
@@ -46,7 +46,8 @@ const TokenDetail = () => {
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<any>(undefined);
-  const [providers, setProviders] = useState<PriceProvider[]>([])
+  const [providers, setProviders] = useState<PriceProvider[]>([]);
+  const [childType, setChildType] = useState<string>('');
 
   const Header = () => {
     return (
@@ -86,9 +87,16 @@ const TokenDetail = () => {
     setNetwork(network);
   };
 
+  const requestChildType = async () => {
+    const result = await wallet.getActiveWallet();
+    setChildType(result);
+  };
+
+
   useEffect(() => {
     loadNetwork();
     getProvider();
+    requestChildType();
   }, []);
 
   return (
@@ -155,10 +163,10 @@ const TokenDetail = () => {
             />
           )}
           {moveOpen && (
-            tokenInfo && (tokenInfo.evmAddress || tokenInfo.flowIdentifier) ? (
-              <Bridge
+            childType === 'evm' ? (
+              <MoveFromEvm
                 isConfirmationOpen={moveOpen}
-                data={{ amount: 0, tokenInfo: tokenInfo }}
+                data={{ amount: 0 }}
                 handleCloseIconClicked={() => setMoveOpen(false)}
                 handleCancelBtnClicked={() => setMoveOpen(false)}
                 handleAddBtnClicked={() => {
@@ -166,7 +174,7 @@ const TokenDetail = () => {
                 }}
               />
             ) : (
-              <Move
+              <MoveFromFlow
                 isConfirmationOpen={moveOpen}
                 data={{ amount: 0 }}
                 handleCloseIconClicked={() => setMoveOpen(false)}

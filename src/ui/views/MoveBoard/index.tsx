@@ -8,6 +8,8 @@ import homeMoveFt from 'ui/FRWAssets/svg/homeMoveFt.svg';
 import moveSvg from 'ui/FRWAssets/svg/moveSvg.svg';
 import MoveNfts from './MoveNfts';
 import MoveEvm from './MoveEvm';
+import MoveFromFlow from '../EvmMove/MoveFromFlow';
+import MoveFromEvm from '../EvmMove/MoveFromEvm';
 
 
 
@@ -26,6 +28,7 @@ const MoveBoard = (props: MoveBoardProps) => {
   const usewallet = useWallet();
   const history = useHistory();
   const [showSelectNft, setSelectBoard] = useState<boolean>(false);
+  const [moveFtOpen, setMoveFt] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
 
   // console.log('props.loggedInAccounts', props.current)
@@ -42,7 +45,7 @@ const MoveBoard = (props: MoveBoardProps) => {
   return (
     <Drawer
       anchor="bottom"
-      sx={{ zIndex: '1500 !important' }}
+      sx={{ zIndex: '1000 !important' }}
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
@@ -84,7 +87,7 @@ const MoveBoard = (props: MoveBoardProps) => {
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '12px', textAlign: 'center', lineHeight: '24px', padding:'0 50px',fontWeight: '400', opacity: '0.8' }}
+            sx={{ fontSize: '12px', textAlign: 'center', lineHeight: '24px', padding: '0 50px', fontWeight: '400', opacity: '0.8' }}
           >
             {`Would you like to move your assets to ${childType === 'evm' ? 'FLOW' : 'EVM'} account?`}
           </Typography>
@@ -92,7 +95,7 @@ const MoveBoard = (props: MoveBoardProps) => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ display: 'flex', padding: '0 24px',mb: '32px', mt: '24px', justifyContent: 'space-between' }}>
+      <Box sx={{ display: 'flex', padding: '0 24px', mb: '32px', mt: '24px', justifyContent: 'space-between' }}>
         <Box>
           <Button onClick={() => {
             setSelectBoard(true);
@@ -102,7 +105,9 @@ const MoveBoard = (props: MoveBoardProps) => {
           </Button>
         </Box>
         <Box>
-          <Button>
+          <Button onClick={() => {
+            setMoveFt(true);
+          }}>
             <CardMedia component="img" sx={{ width: '148px', height: '180px', display: 'inline', borderRadius: '8px', paddingRight: '8px' }} image={homeMoveFt} />
           </Button>
         </Box>
@@ -125,6 +130,30 @@ const MoveBoard = (props: MoveBoardProps) => {
             />
           )}
         </>
+      )}
+
+      {moveFtOpen && (
+        childType === 'evm' ? (
+          <MoveFromEvm
+            isConfirmationOpen={moveFtOpen}
+            data={{ amount: 0 }}
+            handleCloseIconClicked={() => setMoveFt(false)}
+            handleCancelBtnClicked={() => setMoveFt(false)}
+            handleAddBtnClicked={() => {
+              setMoveFt(false);
+            }}
+          />
+        ) : (
+          <MoveFromFlow
+            isConfirmationOpen={moveFtOpen}
+            data={{ amount: 0 }}
+            handleCloseIconClicked={() => setMoveFt(false)}
+            handleCancelBtnClicked={() => setMoveFt(false)}
+            handleAddBtnClicked={() => {
+              setMoveFt(false);
+            }}
+          />
+        )
       )}
 
 

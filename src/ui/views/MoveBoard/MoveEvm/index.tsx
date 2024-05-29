@@ -12,6 +12,8 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
+import EmptyStatus from '../../NftEvm/EmptyStatus';
+import AccountBox from '../AccountBox';
 
 
 
@@ -34,40 +36,51 @@ const MoveEvm = (props: MoveBoardProps) => {
   const [collectionList, setCollectionList] = useState<any>(null);
   const [selectedCollection, setSelected] = useState<string>('');
   const [collectionDetail, setCollectionDetail] = useState<any>(null);
+  const [collectInfo, setCollectionInfo] = useState<any>(null);
   const [nftIdArray, setNftIdArray] = useState<number[]>([]);
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [occupied, setOccupied] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [selectCollection, setSelectCollection] = useState(false);
   // console.log('props.loggedInAccounts', props.current)
 
 
   const updateCurrentCollection = async () => {
-    const collection = collectionList.find(collection => collection.id === selectedCollection);
-    setCollectionDetail(collection);
+    console.log('selectedShow ', collectionList, cadenceNft)
+    if (collectionList && cadenceNft) {
+      console.log('collectionListcollectionList ', collectionList, cadenceNft)
+      const collection = collectionList.find(collection => collection.id === selectedCollection);
+      const selectedShow = cadenceNft.find(collection => collection.name === selectedCollection);
+      console.log('selectedShow ', selectedShow)
+      setCollectionDetail(collection);
+      setCollectionInfo(selectedShow);
+    }
   };
 
   const requestCadenceNft = async () => {
     const cadenceResult = await usewallet.reqeustEvmNft();
     const tokensWithNfts = cadenceResult.filter(token => token.nftIds && token.nftIds.length > 0);
-    setSelected(tokensWithNfts[0].name);
-    const extractedObjects = tokensWithNfts.map(obj => {
-      console.log('obj ', obj.nfts)
-      console.log('obj ', obj.nfts.length)
-      const flowIdentifierParts = obj.flowIdentifier.split('.');
-      return {
-        CollectionName: flowIdentifierParts[2],
-        NftCount: obj.nfts.length,
-        id: obj.name,
-        address: flowIdentifierParts[1],
-        logo: obj.logoURI,
-      };
-    });
+    const filteredData = tokensWithNfts.filter(item => item.flowIdentifier);
+    console.log('filteredData ', filteredData)
+    if (filteredData.length > 0) {
+      setSelected(filteredData[0].name);
+      const extractedObjects = filteredData.map(obj => {
 
-    setCollectionList(extractedObjects);
-
-    console.log('cadenceResult ', tokensWithNfts)
-    setCadenceNft(tokensWithNfts);
+        const flowIdentifierParts = obj.flowIdentifier.split('.');
+        return {
+          CollectionName: flowIdentifierParts[2],
+          NftCount: obj.nfts.length,
+          id: obj.name,
+          address: flowIdentifierParts[1],
+          logo: obj.logoURI,
+        };
+      });
+      setCadenceNft(filteredData);
+      setCollectionList(extractedObjects);
+    } else {
+      setCollectionInfo({ nfts: [] });
+    }
+    setLoading(false);
   };
 
   const toggleSelectNft = async (nftId) => {
@@ -106,13 +119,14 @@ const MoveEvm = (props: MoveBoardProps) => {
 
   useEffect(() => {
     updateCurrentCollection();
-  }, [collectionList, selectedCollection])
+    console.log('collectionList ', collectionList)
+  }, [collectionList, cadenceNft, selectedCollection])
 
 
   return (
     <Drawer
       anchor="bottom"
-      sx={{ zIndex: '1600 !important' }}
+      sx={{ zIndex: '1100 !important' }}
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
@@ -141,15 +155,16 @@ const MoveEvm = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
+      <AccountBox isEvm={true} />
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '16px', mt: '10px', padding: '0 18px' }}>
-      <Box sx={{height:'24px', padding:'6px 0'}}>
+        <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography
             variant="body1"
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px',fontWeight: '600' }}
+            sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
           >
             Collection
           </Typography>
@@ -170,11 +185,11 @@ const MoveEvm = (props: MoveBoardProps) => {
           </Button>
         }
       </Box>
-      {collectionDetail ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px', flexWrap: 'wrap', justifyContent: collectionDetail.NftCount <= 4 ? 'flex-start' : 'space-between' }}>
+      {!loading ?
+        <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
 
-          {
-            cadenceNft.find(collection => collection.name === selectedCollection).nfts.map((nfts) => (
+          {collectInfo.nfts.length > 0 ? (
+            collectInfo.nfts.map(nfts => (
               <Box
                 key={nfts.id}
                 sx={{
@@ -187,21 +202,31 @@ const MoveEvm = (props: MoveBoardProps) => {
                   position: 'relative'
                 }}
               >
-
-
                 <Button onClick={() => toggleSelectNft(nfts.id)}>
-                  {nftIdArray.includes(nfts.id) && <CardMedia component="img" sx={{ width: '84px', height: '84px', zIndex: '2000', position: 'absolute' }} image={selectedCover} />}
+                  {nftIdArray.includes(nfts.id) && (
+                    <CardMedia
+                      component="img"
+                      sx={{ width: '84px', height: '84px', zIndex: '2000', position: 'absolute' }}
+                      image={selectedCover}
+                    />
+                  )}
                   <CardMedia
                     component="img"
                     alt={nfts.name}
                     height="84px"
-                    image={nfts.thumbnail} // Call a function to get the image link based on nftId
+                    image={nfts.thumbnail}
                     title={nfts.name}
                   />
                 </Button>
               </Box>
             ))
+          ) : (
+            <Box sx={{ margin: '-58px auto -84px auto', }}>
+              <EmptyStatus />
+            </Box>
+          )
           }
+
         </Box>
         :
         <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px' }}>

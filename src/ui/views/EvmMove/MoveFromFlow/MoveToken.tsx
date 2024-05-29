@@ -105,7 +105,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, toEvm, coinList }) => {
+const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, coinList }) => {
   const classes = useStyles();
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
@@ -163,14 +163,12 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
     if (!coinType) {
       if (coinInfo && amount) {
         const result = parseFloat((coinInfo.amountbalance - amount).toPrecision())
-        if ((coinInfo.balance - amount < 0) && toEvm) {
+        if (coinInfo.balance - amount < 0) {
+          setExceed(true);
+        } else if (coin === 'flow' && result < 0.001) {
           setExceed(true);
         } else {
-          if (coin === 'flow' && result < 0.001) {
-            setExceed(true);
-          } else {
-            setExceed(false);
-          }
+          setExceed(false);
         }
         const value = new BN(amount)
           .times(new BN(coinInfo.price))
@@ -201,7 +199,6 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
               className={classes.selectRoot}
               defaultValue={coinInfo.unit}
               MenuProps={{ MenuListProps: { disablePadding: true } }}
-              disabled={true}
             >
               {
                 coinList.map(coin => (

@@ -166,6 +166,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                 margin: '8px',
                 borderRadius: '12px',
                 justifyContent: 'center',
+                objectFit: 'cover', objectPosition:'left'
               }}
               image={data.logo}
               alt={data.name}

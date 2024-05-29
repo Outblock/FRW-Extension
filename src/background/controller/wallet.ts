@@ -897,7 +897,6 @@ export class WalletController extends BaseController {
       // }).catch((err) => {
       //   console.log(err)
       // })
-      console.log('res nfts ======', nfts);
 
       return nfts;
     } catch (error) {
@@ -1094,8 +1093,6 @@ export class WalletController extends BaseController {
     );
     const flowBalance = await this.getBalance(address);
 
-    console.log(allBalanceMap, 'allBalanceMap =========');
-    console.log('allBalanceMap tokenList this ', tokenList);
 
     const mergeBalances = (tokenList, allBalanceMap, flowBalance) => {
       return tokenList.map(token => {
@@ -1990,7 +1987,7 @@ export class WalletController extends BaseController {
   sendNFT = async (
     recipient: string,
     id: any,
-    token: NFTModel
+    token: any
   ): Promise<string> => {
     const network = await this.getNetwork();
     const script = await getScripts('collection', 'sendNFT');
