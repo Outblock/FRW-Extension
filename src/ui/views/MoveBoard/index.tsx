@@ -10,6 +10,7 @@ import MoveNfts from './MoveNfts';
 import MoveEvm from './MoveEvm';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import MoveFromEvm from '../EvmMove/MoveFromEvm';
+import { add } from 'lodash';
 
 
 
@@ -36,6 +37,11 @@ const MoveBoard = (props: MoveBoardProps) => {
   const requestChildType = async () => {
     const result = await usewallet.getActiveWallet();
     setChildType(result);
+  };
+
+  const closeFullPage = () => {
+    setMoveFt(false);
+    props.handleCancelBtnClicked();
   };
 
   useEffect(() => {
@@ -120,6 +126,7 @@ const MoveBoard = (props: MoveBoardProps) => {
               handleCloseIconClicked={() => setSelectBoard(false)}
               handleCancelBtnClicked={() => setSelectBoard(false)}
               handleAddBtnClicked={() => setSelectBoard(false)}
+              handleReturnHome={() => props.handleCancelBtnClicked()}
             />
           ) : (
             <MoveNfts
@@ -127,6 +134,7 @@ const MoveBoard = (props: MoveBoardProps) => {
               handleCloseIconClicked={() => setSelectBoard(false)}
               handleCancelBtnClicked={() => setSelectBoard(false)}
               handleAddBtnClicked={() => setSelectBoard(false)}
+              handleReturnHome={() => props.handleCancelBtnClicked()}
             />
           )}
         </>
@@ -137,7 +145,7 @@ const MoveBoard = (props: MoveBoardProps) => {
           <MoveFromEvm
             isConfirmationOpen={moveFtOpen}
             data={{ amount: 0 }}
-            handleCloseIconClicked={() => setMoveFt(false)}
+            handleCloseIconClicked={() => closeFullPage()}
             handleCancelBtnClicked={() => setMoveFt(false)}
             handleAddBtnClicked={() => {
               setMoveFt(false);
@@ -147,7 +155,7 @@ const MoveBoard = (props: MoveBoardProps) => {
           <MoveFromFlow
             isConfirmationOpen={moveFtOpen}
             data={{ amount: 0 }}
-            handleCloseIconClicked={() => setMoveFt(false)}
+            handleCloseIconClicked={() => closeFullPage()}
             handleCancelBtnClicked={() => setMoveFt(false)}
             handleAddBtnClicked={() => {
               setMoveFt(false);

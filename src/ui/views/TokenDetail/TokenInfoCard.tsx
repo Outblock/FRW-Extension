@@ -18,6 +18,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   const [balance, setBalance] = useState(0);
   const [active, setIsActive] = useState(true);
   const [data, setData] = useState<TokenInfo | undefined>(undefined);
+  const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
 
   const toSend = async () => {
     await wallet.setCurrentCoin(token);
@@ -25,6 +26,9 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   };
 
   const getActive = async () => {
+
+    const evmEnabled = await wallet.getEvmEnabled();
+    setEvmEnabled(evmEnabled);
     const isChild = await wallet.getActiveWallet();
 
     const timerId = setTimeout(async () => {
@@ -111,7 +115,9 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
             {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && network === 'previewnet') &&
-              <ButtonBase onClick={setMoveOpen}>
+              <ButtonBase
+                onClick={() => evmEnabled ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })}
+              >
                 <Box sx={{
                   display: 'flex',
                   alignItems: 'center',

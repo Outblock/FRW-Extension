@@ -27,12 +27,12 @@ import { useWallet, formatAddress } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
-import { withPrefix } from '@/ui/utils/address';
+import { withPrefix, ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { StyledEngineProvider } from '@mui/material/styles';
 import eventBus from '@/eventBus';
 import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
-import sideMore from '../../FRWAssets/svg/sideMore.svg';
+import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
 
@@ -180,14 +180,16 @@ const Header = ({ loading }) => {
     const network = await usewallet.getNetwork();
     if (network === 'previewnet') {
       usewallet.queryEvmAddress(currentWallet.address).then(async (res) => {
-        setEvmAddress(res);
+        console.log('res ', res)
+        setEvmAddress(res!);
       }).catch((err) => {
         console.log('evm err', err)
       });
     }
     if (childType === 'evm') {
       const evmWallet = await usewallet.getEvmWallet();
-      evmWallet.address = '0x' + evmWallet.address
+      const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
+      evmWallet.address = evmAddress
       await setCurrent(evmWallet);
     } else {
       await setCurrent(currentWallet);
@@ -198,7 +200,7 @@ const Header = ({ loading }) => {
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
     const isChild = await usewallet.getActiveWallet();
-    const {otherAccounts, wallet, loggedInAccounts} = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild)
+    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild)
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
@@ -215,12 +217,12 @@ const Header = ({ loading }) => {
     }
     await usewallet.lockWallet();
     history.push('/switchunlock');
+    await usewallet.refreshEvmWallets();
     await usewallet.switchNetwork(switchingTo);
   };
 
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
-    console.log('network ', network)
     setIsSandbox(false);
     // if (network === 'crescendo') {
     //   setIsSandbox(true);
@@ -303,6 +305,7 @@ const Header = ({ loading }) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const result = await chrome.storage.session.get('transactionPending');
+    console.log('pending tx ->', result);
     const now = new Date();
     if (result.transactionPending?.date) {
       const diff = now.getTime() - result.transactionPending.date.getTime();
@@ -410,61 +413,59 @@ const Header = ({ loading }) => {
 
   const WalletFunction = (props) => {
     return (
-      <ListItem
-        disablePadding
+      <Box
         onClick={() => {
           setWallets(null, null);
         }}
-        sx={{ mb: 0, paddingX: '20px' }}
+        sx={{ mb: 0, paddingX: '16px' }}
       >
-        <ListItemButton
-          sx={{ mb: 0 }}
+        <Box
+          sx={{ mb: 0, background: 'none !important', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           className={current['address'] === props.address ? classes.active : ''}
         >
-          <ListItemText
-            primary={
-              <Typography
-                variant="body1"
-                component="span"
-                fontWeight={'semi-bold'}
-                display="flex"
-                color={
-                  props.props_id == currentWallet
-                    ? 'text.title'
-                    : 'text.nonselect'
-                }
-              >
-                {props.name}
-                {props.address == current['address'] && (
-                  <ListItemIcon
-                    style={{ display: 'flex', alignItems: 'center' }}
-                  >
-                    <FiberManualRecordIcon
-                      style={{
-                        fontSize: '10px',
-                        color: '#40C900',
-                        marginLeft: '10px',
-                      }}
-                    />
-                  </ListItemIcon>
-                )}
-              </Typography>
-            }
-            secondary={
-              <Typography
-                variant="body1"
-                component="span"
-                // display="inline"
-                color={'text.nonselect'}
-                sx={{ fontSize: '13px', textTransform: 'lowercase' }}
-              >
-                {/* <span>{'  '}</span> */}
-                {props.address}
-              </Typography>
-            }
-          />
-        </ListItemButton>
-      </ListItem>
+          <CardMedia component="img" image={userInfo?.avatar} sx={{ marginRight: '12px', width: '32px', height: '32px' }} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', background: 'none' }}>
+            <Typography
+              variant="body1"
+              component="span"
+              fontWeight={'semi-bold'}
+              display="flex"
+              color={
+                props.props_id == currentWallet
+                  ? 'text.title'
+                  : 'text.nonselect'
+              }
+            >
+              Main {props.name}
+              {props.address == current['address'] && (
+                <ListItemIcon
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <FiberManualRecordIcon
+                    style={{
+                      fontSize: '10px',
+                      color: '#40C900',
+                      marginLeft: '10px',
+                    }}
+                  />
+                </ListItemIcon>
+              )}
+            </Typography>
+            <Typography
+              variant="body1"
+              component="span"
+              // display="inline"
+              color={'text.nonselect'}
+              sx={{ fontSize: '13px', textTransform: 'lowercase' }}
+            >
+              {/* <span>{'  '}</span> */}
+              {props.address}
+            </Typography>
+          </Box>
+          <Box sx={{ flex: "1" }}></Box>
+          {/* <IconEnd size={12} /> */}
+        </Box>
+      </Box>
     );
   };
 

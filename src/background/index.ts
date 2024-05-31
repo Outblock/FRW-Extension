@@ -191,7 +191,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 chrome.runtime.onConnect.addListener((port) => {
   // openapiService.getConfig();
 
-  // console.log('chrome.runtime.onConnect ->', port);
+  console.log('chrome.runtime.onConnect ->', port);
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore

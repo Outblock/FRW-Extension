@@ -6,8 +6,8 @@ import { CoinItem } from 'background/service/coinList';
 import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import TransferAmount from '../TransferAmount'
-import { useWallet, isValidEthereumAddress } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
+import { useWallet } from 'ui/utils';
+import { withPrefix, isValidEthereumAddress } from 'ui/utils/address';
 import ToEthConfirmation from './ToEthConfirmation';
 import EvmConfirmation from './EvmConfirmation'
 import {

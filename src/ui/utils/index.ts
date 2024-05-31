@@ -209,12 +209,6 @@ export function getStringFromSignAlgo(value: number): string {
   }
 }
 
-export const isValidEthereumAddress = (address) => {
-  const regex = /^(0x)?[0-9a-fA-F]{40}$/;
-  return regex.test(address);
-}
-
-
 export const formatAddress = (address) => {
   if (address && address.length >= 30) {
     return `${address.substring(0, 6)}...${address.substring(address.length - 8)}`;

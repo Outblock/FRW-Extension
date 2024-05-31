@@ -4,7 +4,8 @@ import {
   Typography,
   IconButton,
   Box,
-  CardMedia,
+  Link,
+  CardMedia
 } from '@mui/material';
 import {
   LLPrimaryButton,
@@ -12,10 +13,8 @@ import {
 } from 'ui/FRWComponent';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // import '../../Unlock/style.css';
-import flownsPBanner from 'ui/FRWAssets/svg/flownsPBanner.svg';
 import enableBg from 'ui/FRWAssets/image/enableBg.png';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import SubstructIcon from '../../../components/iconfont/IconSubtract'
+// import enableBg from 'ui/FRWAssets/svg/enableBg.svg';
 import { useWallet } from 'ui/utils';
 
 
@@ -31,7 +30,7 @@ const Enable = () => {
   const handleClaiming = async () => {
     setClaiming(true);
     wallet.createCoaEmpty().then(async (createRes) => {
-      wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your flow EVM address has been created. \nClick to view this transaction.`);
+      wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your EVM on Flow address has been created. \nClick to view this transaction.`);
       await wallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
 
@@ -59,7 +58,7 @@ const Enable = () => {
 
   return (
     <Box sx={{
-      width: '100%', height: '100%', display: 'flex', flexDirection: 'column'
+      width: '100%', height: '100%', display: 'flex', backgroundColor:'#292929', flexDirection: 'column'
     }}>
       <Box sx={{
         display: 'flex',
@@ -73,38 +72,28 @@ const Enable = () => {
             color: 'icon.navi',
           }} />
         </IconButton>
-        <IconButton onClick={history.goBack}>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              fontWeight: 'normal', color: 'rgba(255, 255, 255, 0.80)', textAlign: 'center', fontSize: '12px', borderRadius: '24px',
-              background: ' rgba(255, 255, 255, 0.20)', width: '49px', height: '24px', lineHeight: '24px',
-            }}
-            color="error"
-          >
-            Skip
-          </Typography>
-        </IconButton>
 
       </Box>
 
 
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'end', backgroundImage: `url(${enableBg})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'top' }}>
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',alignItems:'center' }}>
         <Typography
           variant="subtitle1"
           sx={{
             fontWeight: 'bold',
-            color: '#e6e6e6',
+            color: '#FFFFFFCC',
             textAlign: 'center',
-            fontFamily: 'Montserrat',
-            fontSize: '20px',
-
+            fontFamily: 'Inter',
+            fontSize: '18px',
+            mt:'20px',
           }}
           color="error"
         >
           Enable the Path
-          to FlowEVM
+          to EVM on Flow
         </Typography>
+        
+        <CardMedia component="img" sx={{ width: '196px', height: '196px' }} image={enableBg} />
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px' }}
@@ -152,13 +141,14 @@ const Enable = () => {
           </Box>
         ) : (
           <LLPrimaryButton
-            label={chrome.i18n.getMessage('Claim')}
+            label={chrome.i18n.getMessage('Enable')}
             onClick={handleClaiming}
             sx={{
               borderRadius: '14px',
               height: '50px',
               width: '100%',
               fontSize: '18px',
+              fontWeight:'700',
               textTransform: 'none !important',
             }}
           />
@@ -175,12 +165,14 @@ const Enable = () => {
           paddingBottom: '48px'
         }}
       >
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 'normal', fontSize: '14px', color: 'rgba(255, 255, 255, 0.80)' }}
-        >
-          Learn More
-        </Typography>
+        <Link href="https://flow.com/upgrade/crescendo/evm" target="_blank" underline="none" sx={{ textDecoration: 'none' }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 'normal', fontSize: '14px', color: 'rgba(255, 255, 255, 0.80)' }}
+          >
+            Learn More
+          </Typography>
+        </Link>
       </Box>
     </Box >
   );

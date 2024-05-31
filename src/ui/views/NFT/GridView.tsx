@@ -196,25 +196,6 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
         </CardMedia>
         <CardContent className={classes.content}>
           <Typography className={classes.nftname}>{TilteWordWrapped(media?.title) || ''}</Typography>
-          {!isAccessible &&
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '67px',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                color: 'neutral.text',
-                marginTop: '2px',
-                fontSize: '10px',
-                fontFamily: 'Inter, sans-serif',
-                backgroundColor: 'neutral1.light'
-              }}
-            >
-              {chrome.i18n.getMessage('Inaccessible')}
-            </Box>
-          }
           {/* <Typography className={classes.nftprice}>{props.price}</Typography> */}
         </CardContent>
       </CardActionArea>

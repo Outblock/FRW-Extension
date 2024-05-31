@@ -174,10 +174,10 @@ const TransferList = ({setCount}) => {
         <Box>
           {transaction.length?
             <> {
-              (transaction || []).map((tx: any) => {
+              (transaction || []).map((tx: any, index) => {
                 return (
                   <ListItem
-                    key={tx.time}
+                    key={index}
                     secondaryAction={
                       <EndListItemText
                         status={tx.status}

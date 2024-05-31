@@ -23,6 +23,7 @@ interface MoveBoardProps {
   handleCloseIconClicked: () => void;
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
+  handleReturnHome: () => void;
 }
 
 
@@ -102,6 +103,7 @@ const MoveEvm = (props: MoveBoardProps) => {
 
     usewallet.batchBridgeNftFromEvm(`0x${collection.address}`, collection.CollectionName, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`,);
+      props.handleReturnHome();
       props.handleCloseIconClicked();
       await usewallet.setDashIndex(0);
       setSending(false);
@@ -119,7 +121,6 @@ const MoveEvm = (props: MoveBoardProps) => {
 
   useEffect(() => {
     updateCurrentCollection();
-    console.log('collectionList ', collectionList)
   }, [collectionList, cadenceNft, selectedCollection])
 
 
@@ -221,8 +222,8 @@ const MoveEvm = (props: MoveBoardProps) => {
               </Box>
             ))
           ) : (
-            <Box sx={{ margin: '-58px auto -84px auto', }}>
-              <EmptyStatus />
+            <Box sx={{width:'100%', textAlign:'center'}}>
+              <Typography sx={{color:'#FFFFFF66', fontSize:'14px',fontWeight:'700'}}>0 NFTs</Typography>
             </Box>
           )
           }

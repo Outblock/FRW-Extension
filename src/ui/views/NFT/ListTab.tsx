@@ -74,7 +74,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   const [collectionLoading, setCollectionLoading] = useState(true);
   const [collections, setCollections] = useState<any[]>([]);
   const [isCollectionEmpty, setCollectionEmpty] = useState(true);
-  const [accesibleArray, setAccessible] = useState([{id:''}]);
+  const [accesibleArray, setAccessible] = useState([{ id: '' }]);
   const [ownerAddress, setAddress] = useState('');
 
   useImperativeHandle(ref, () => ({
@@ -180,40 +180,14 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                   </Typography>
 
 
-                  {
-                    (!accesibleArray.some(item => {
-                      const parts = item.id.split('.');
-                      const thirdString = parts[2];
-                      return data.contract_name === thirdString;
-                    }) && !props.isActive) ?
-
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '67px',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          color: 'neutral.text',
-                          marginTop: '2px',
-                          fontSize: '10px',
-                          fontFamily:'Inter, sans-serif',
-                          backgroundColor: 'neutral1.light'
-                        }}
-                      >
-                        {chrome.i18n.getMessage('Inaccessible')}
-                      </Box>
-                      :
-                      <Typography
-                        variant="body1"
-                        sx={{ fontSize: '14px' }}
-                        color="#B2B2B2"
-                        component="div"
-                      >
-                        {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
-                      </Typography>
-                  }
+                  <Typography
+                    variant="body1"
+                    sx={{ fontSize: '14px' }}
+                    color="#B2B2B2"
+                    component="div"
+                  >
+                    {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
+                  </Typography>
                 </Grid>
                 <Grid item>
                   <ArrowForwardIcon color="primary" sx={{ mt: '12px' }} />

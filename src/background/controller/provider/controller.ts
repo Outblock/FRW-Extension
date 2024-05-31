@@ -22,6 +22,7 @@ import RLP from 'rlp';
 import HDWallet from 'ethereum-hdwallet';
 import Web3 from 'web3';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
+import { ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { storage } from '../../webapi';
 
 interface Web3WalletPermission {
@@ -138,7 +139,7 @@ class ProviderController extends BaseController {
 
     const currentWallet = await Wallet.getCurrentWallet();
     let res = await Wallet.queryEvmAddress(currentWallet.address);
-    res = '0x' + res;
+    res = ensureEvmAddressPrefix(res);
     const account = res ? [res.toLowerCase()] : [];
     sessionService.broadcastEvent('accountsChanged', account);
     const connectSite = permissionService.getConnectedSite(origin);
@@ -211,8 +212,17 @@ class ProviderController extends BaseController {
     }
     const currentWallet = await Wallet.getCurrentWallet();
     const res = await Wallet.queryEvmAddress(currentWallet.address);
-    return res;
+    const evmAddress = ensureEvmAddressPrefix(res);
+    return [evmAddress];
     // return ['000000000000000000000002f9e3b9cbbaa99770'];
+  };
+
+  walletRequestPermissions = ({ data: { params: permissions } }) => {
+    const result: Web3WalletPermission[] = [];
+    if (permissions && 'eth_accounts' in permissions[0]) {
+      result.push({ parentCapability: 'eth_accounts' });
+    }
+    return result;
   };
 
   personalSign = async ({ data, approvalRes, session }) => {

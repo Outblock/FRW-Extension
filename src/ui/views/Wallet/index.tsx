@@ -17,6 +17,10 @@ import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import ReactTextTransition from 'react-text-transition';
 import OnRampList from './OnRampList';
 import iconMove from 'ui/FRWAssets/svg/homeMove.svg';
+import sendIcon from 'ui/FRWAssets/svg/sendIcon.svg';
+import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
+import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
+import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
 
 
 function TabPanel(props) {
@@ -59,6 +63,11 @@ const WalletTab = ({ network }) => {
   const [isActive, setIsActive] = useState(true);
   const [swapConfig, setSwapConfig] = useState(false);
   const [showMoveBoard, setMoveBoard] = useState(false);
+  const [buyHover, setBuyHover] = useState(false);
+  const [sendHover, setSendHover] = useState(false);
+  const [swapHover, setSwapHover] = useState(false);
+  const [receiveHover, setReceiveHover] = useState(false);
+  const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
 
   const [incLink, _] = useState(
     network === 'mainnet'
@@ -120,6 +129,9 @@ const WalletTab = ({ network }) => {
   const fetchWallet = async () => {
     // const remote = await fetchRemoteConfig.remoteConfig();
     // console.log('remote ', remote)
+
+    const evmEnabled = await wallet.getEvmEnabled();
+    setEvmEnabled(evmEnabled);
     if (!isActive) {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
@@ -273,77 +285,131 @@ const WalletTab = ({ network }) => {
         <Box
           sx={{
             display: 'flex',
-            gap: '8px',
             height: '32px',
             px: '20px',
             mb: '20px',
           }}
         >
-          {network == 'mainnet' && (
+          <Box sx={{ display: 'flex', gap: '2px', width: network === 'previewnet' ? 'auto' : '100%', }}>
+            {isActive && (
+              <Button
+                color="info3"
+                variant="contained"
+                onMouseEnter={() => setSendHover(true)}
+                onMouseLeave={() => setSendHover(false)}
+                onClick={() => history.push('/dashboard/wallet/send')}
+                sx={{
+                  height: '36px',
+                  borderTopLeftRadius: '24px',
+                  borderBottomLeftRadius: '24px',
+                  borderTopRightRadius: '0',
+                  borderBottomRightRadius: '0',
+                  px: '12px !important',
+                  minWidth: '56px',
+                  width: sendHover ? '100%' : '56px',
+                  textTransform: 'capitalize !important',
+                  flex: network === 'previewnet' ? 'auto' :'1',
+                  transition: 'width 0.3s ease-in-out'
+                }}
+              >
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={sendIcon} />
+                {sendHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Send')}</Typography>}
+              </Button>
+            )}
+            {isActive && (
+              <Button
+                color="info3"
+                variant="contained"
+                sx={{
+                  height: '36px',
+                  px: '12px !important',
+                  minWidth: '56px',
+                  borderRadius:'0px',
+                  width: swapHover ? '100%' : '56px',
+                  textTransform: 'capitalize !important',
+                  flex: network === 'previewnet' ? 'auto' :'1',
+                  transition: 'width 0.3s ease-in-out'
+                }}
+                onMouseEnter={() => setSwapHover(true)}
+                onMouseLeave={() => setSwapHover(false)}
+                onClick={() => {
+                  if (swapConfig) {
+                    history.push('/dashboard/wallet/swap');
+                  } else {
+                    window.open(incLink, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+              >
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={swapIcon} />
+                {swapHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Swap')}</Typography>}
+              </Button>
+            )}
             <Button
               color="info3"
               variant="contained"
-              sx={{ width: '100%' }}
+              sx={{
+                height: '36px',
+                px: '12px !important',
+                minWidth: '56px',
+                borderRadius:'0px',
+                width: receiveHover ? '100%' : '56px',
+                textTransform: 'capitalize !important',
+                flex: network === 'previewnet' ? 'auto' :'1',
+                transition: 'width 0.3s ease-in-out'
+              }}
+              onMouseEnter={() => setReceiveHover(true)}
+              onMouseLeave={() => setReceiveHover(false)}
+              onClick={() => history.push('/dashboard/wallet/deposit')}
+            >
+              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={receiveIcon} />
+              {receiveHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Receive')}</Typography>}
+            </Button>
+            <Button
+              color="info3"
+              variant="contained"
+              sx={{
+                height: '36px',
+                borderTopRightRadius: '24px',
+                borderBottomRightRadius: '24px',
+                borderTopLeftRadius: '0px',
+                borderBottomLeftRadius: '0px',
+                px: '12px !important',
+                minWidth: '56px',
+                width: buyHover ? '100%' : '56px',
+                textTransform: 'capitalize !important',
+                flex: network === 'previewnet' ? 'auto' :'1',
+                transition: 'width 0.3s ease-in-out'
+              }}
+              onMouseEnter={() => setBuyHover(true)}
+              onMouseLeave={() => setBuyHover(false)}
               onClick={() => setOnRamp(true)}
             >
-              {chrome.i18n.getMessage('Buy')}
+              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={buyIcon} />
+              {buyHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Buy')}</Typography>}
             </Button>
-          )}
-          {isActive && (
-            <Button
-              color="info3"
-              variant="contained"
-              onClick={() => history.push('/dashboard/wallet/send')}
-              // onClick={() => history.push('/dashboard/wallet/sendAmount')}
-              sx={{ width: '100%' }}
-            >
-              {chrome.i18n.getMessage('Send')}
-            </Button>
-          )}
-          <Button
-            color="info3"
-            variant="contained"
-            sx={{ width: '100%' }}
-            onClick={() => history.push('/dashboard/wallet/deposit')}
-          >
-            {chrome.i18n.getMessage('Receive')}
-          </Button>
-          {isActive && (
-            <Button
-              color="info3"
-              variant="contained"
-              sx={{ width: '100%' }}
-              onClick={() => {
-                if (swapConfig) {
-                  history.push('/dashboard/wallet/swap');
-                } else {
-                  window.open(incLink, '_blank', 'noopener,noreferrer');
-                }
-              }}
-            >
-              {chrome.i18n.getMessage('Swap')}
-            </Button>
-          )}
-          <Box sx={{ flex: '1' }}>
           </Box>
+
           {network === 'previewnet' &&
-            <ButtonBase onClick={() => setMoveBoard(true)}>
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                background: '#2C2C2C',
-                gap: '4px',
-                px: '8px',
-                py: '4px',
-                borderRadius: '8px',
-                alignSelf: 'end'
-              }}>
+            <Box sx={{ flex: '1' }}>
+            </Box>
+          }
+          {network === 'previewnet' &&
+
+            <Box>
+              <Button
+                color="info3"
+                variant="contained"
+                onClick={() => evmEnabled ? setMoveBoard(true) : history.push({ pathname: '/dashboard/enable' })}
+                sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
+              >
                 <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
-                <Typography sx={{ fontWeight: 'normal', color: '#FFF' }}>Move</Typography>
-              </Box>
-            </ButtonBase>
+                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>Move</Typography>
+              </Button>
+            </Box>
+
 
           }
+
         </Box>
         <Tabs
           value={value}
@@ -442,17 +508,19 @@ const WalletTab = ({ network }) => {
       >
         <OnRampList close={() => setOnRamp(false)} />
       </Drawer>
-      {showMoveBoard && (
-        <MoveBoard
-          showMoveBoard={showMoveBoard}
-          handleCloseIconClicked={() => setMoveBoard(false)}
-          handleCancelBtnClicked={() => setMoveBoard(false)}
-          handleAddBtnClicked={() => {
-            setMoveBoard(false);
-          }}
-        />
-      )}
-    </Box>
+      {
+        showMoveBoard && (
+          <MoveBoard
+            showMoveBoard={showMoveBoard}
+            handleCloseIconClicked={() => setMoveBoard(false)}
+            handleCancelBtnClicked={() => setMoveBoard(false)}
+            handleAddBtnClicked={() => {
+              setMoveBoard(false);
+            }}
+          />
+        )
+      }
+    </Box >
   );
 };
 

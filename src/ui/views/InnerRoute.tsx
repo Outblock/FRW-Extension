@@ -15,6 +15,7 @@ import Header from './Dashboard/Header';
 import Dashboard from './Dashboard';
 import CollectionDetail from './NFT/CollectionDetail';
 import EvmCollectionDetail from './NftEvm/CollectionDetail';
+import CollectionDetailEvm from './NftEvm/EvmCollectionDetail';
 import Detail from './NFT/Detail';
 import NftEvmDetail from './NftEvm/Detail';
 import { PrivateRoute } from 'ui/component';
@@ -189,6 +190,12 @@ const Inner = (props) => {
             <EvmCollectionDetail />
           </PrivateRoute>
 
+          <PrivateRoute
+            path={`${props.match.url}/nested/evm/evmcollectiondetail/:collection_address_name`}
+          >
+            <CollectionDetailEvm />
+          </PrivateRoute>
+          
           <PrivateRoute path={`${props.match.url}/nested/nftdetail/:id`}>
             <Detail />
           </PrivateRoute>

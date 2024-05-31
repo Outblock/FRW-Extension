@@ -1224,5 +1224,8 @@
   },
   "Devices": {
     "message": "Devices"
+  },
+  "Move": {
+    "message": "Move"
   }
 }

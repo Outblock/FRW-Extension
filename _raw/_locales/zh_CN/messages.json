@@ -1251,5 +1251,8 @@
   },
   "Devices": {
     "message": "设备"
+  },
+  "Move": {
+    "message": "移动"
   }
 }

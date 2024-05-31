@@ -1251,5 +1251,8 @@
   },
   "Devices": {
     "message": "デバイス"
+  },
+  "Move": {
+    "message": "移動"
   }
 }

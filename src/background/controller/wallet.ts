@@ -25,6 +25,7 @@ import { CacheState } from 'background/service/pageStateCache';
 import i18n from 'background/service/i18n';
 import { KEYRING_CLASS, DisplayedKeryring } from 'background/service/keyring';
 import { openInternalPageInTab } from 'ui/utils/webapi';
+import { isValidEthereumAddress } from 'ui/utils/address';
 import BaseController from './base';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 import { Account } from '../service/preference';
@@ -1177,7 +1178,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const address = await this.getCurrentAddress();
     const NFTCollection = await openapiService.getNFTCadenceCollection(address!, network, identifier);
-    console.log('nft results ',NFTCollection)
+    console.log('nft results ', NFTCollection)
     return NFTCollection;
   };
 
@@ -1322,6 +1323,10 @@ export class WalletController extends BaseController {
     return wallet;
   };
 
+  setEvmAddress = async (address) => {
+    await userWalletService.setEvmAddress(address);
+  }
+
 
   getEvmAddress = async () => {
     const wallet = await userWalletService.getEvmWallet();
@@ -1411,7 +1416,7 @@ export class WalletController extends BaseController {
 
 
 
-  transferFTToEvm = async (tokenContractAddress: string, tokenContractName:string, amount = '1.0',contractEVMAddress:string, data, gas): Promise<string> => {
+  transferFTToEvm = async (tokenContractAddress: string, tokenContractName: string, amount = '1.0', contractEVMAddress: string, data, gas): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
@@ -1443,8 +1448,8 @@ export class WalletController extends BaseController {
   };
 
 
-  
-  transferFTFromEvm = async (tokenContractAddress: string, tokenContractName:string, amount = '1.0',receiver:string): Promise<string> => {
+
+  transferFTFromEvm = async (tokenContractAddress: string, tokenContractName: string, amount = '1.0', receiver: string): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(18);
     // Convert the formatted amount to an integer
@@ -1468,7 +1473,7 @@ export class WalletController extends BaseController {
     );
   };
 
-  
+
 
   withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
     const network = await this.getNetwork();
@@ -1564,11 +1569,14 @@ export class WalletController extends BaseController {
 
 
 
-  queryEvmAddress = async (address: string): Promise<string> => {
+  queryEvmAddress = async (address: string): Promise<string | null> => {
     if (address.length > 18) {
       return ''
     }
-
+    const evmAddress = await this.getEvmAddress();
+    if (evmAddress.length > 20) {
+      return evmAddress
+    }
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
       throw Error;
@@ -1580,7 +1588,12 @@ export class WalletController extends BaseController {
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-    return result;
+    if (result) {
+      await this.setEvmAddress(result);
+      return result;
+    } else {
+      return null
+    }
   };
 
 
@@ -1901,7 +1914,7 @@ export class WalletController extends BaseController {
       [
         fcl.arg(nftContractAddress, t.Address),
         fcl.arg(nftContractName, t.String),
-        fcl.arg(ids,  t.Array(t.UInt64)),
+        fcl.arg(ids, t.Array(t.UInt64)),
       ]
     );
   };
@@ -1919,7 +1932,7 @@ export class WalletController extends BaseController {
       [
         fcl.arg(nftContractAddress, t.Address),
         fcl.arg(nftContractName, t.String),
-        fcl.arg(ids,  t.Array(t.UInt256)),
+        fcl.arg(ids, t.Array(t.UInt256)),
       ]
     );
   };
@@ -1941,7 +1954,7 @@ export class WalletController extends BaseController {
     const regularArray = Array.from(dataArray);
 
     if (!nftContractAddress.startsWith('0x')) {
-      nftContractAddress = '0x'+nftContractAddress;
+      nftContractAddress = '0x' + nftContractAddress;
     }
 
 
@@ -1954,10 +1967,10 @@ export class WalletController extends BaseController {
       [
         fcl.arg(nftContractAddress, t.Address),
         fcl.arg(nftContractName, t.String),
-        fcl.arg(ids,  t.UInt64),
+        fcl.arg(ids, t.UInt64),
         fcl.arg(contractEVMAddress, t.String),
-        fcl.arg(regularArray,  t.Array(t.UInt8)),
-        fcl.arg(gasLimit,  t.UInt64),
+        fcl.arg(regularArray, t.Array(t.UInt8)),
+        fcl.arg(gasLimit, t.UInt64),
       ]
     );
   };
@@ -1977,7 +1990,7 @@ export class WalletController extends BaseController {
       [
         fcl.arg(nftContractAddress, t.Address),
         fcl.arg(nftContractName, t.String),
-        fcl.arg(ids,  t.UInt256),
+        fcl.arg(ids, t.UInt256),
         fcl.arg(receiver, t.Address),
       ]
     );
@@ -2249,7 +2262,7 @@ export class WalletController extends BaseController {
   };
 
   refreshAll = async () => {
-    const wallets = await this.refreshUserWallets();
+    await this.refreshUserWallets();
     this.clearNFT();
     this.refreshAddressBook();
     await this.getCadenceScripts();
@@ -2263,6 +2276,19 @@ export class WalletController extends BaseController {
   getNetwork = async (): Promise<string> => {
     return await userWalletService.getNetwork();
   };
+
+  getEvmEnabled = async (): Promise<boolean> => {
+    const address = await this.getEvmAddress();
+    if (isValidEthereumAddress(address)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  refreshEvmWallets = () => {
+    userWalletService.refreshEvm();
+  }
 
   getFlowscanURL = async (): Promise<string> => {
     const network = await this.getNetwork();
@@ -2468,7 +2494,7 @@ export class WalletController extends BaseController {
     }
     return list;
   };
-  
+
   getSingleCollection = async (
     address: string,
     contract: string,

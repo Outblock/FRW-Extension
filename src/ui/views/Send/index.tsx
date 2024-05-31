@@ -29,9 +29,8 @@ import { Contact } from 'background/service/networkModel';
 import { isEmpty } from 'lodash';
 import { makeStyles } from '@mui/styles';
 import { StyledEngineProvider } from '@mui/material/styles';
-import { withPrefix } from '@/ui/utils/address';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import IconAbout from '../../../components/iconfont/IconAbout';
-import { isValidEthereumAddress } from 'ui/utils';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',

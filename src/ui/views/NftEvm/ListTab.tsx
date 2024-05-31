@@ -24,6 +24,7 @@ interface ListTabProps {
   accessible: any;
   isActive: boolean;
   nftList: any;
+  isEvm: string;
 }
 
 
@@ -75,7 +76,6 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   const [collectionLoading, setCollectionLoading] = useState(true);
   const [collections, setCollections] = useState<any[]>([]);
   const [isCollectionEmpty, setCollectionEmpty] = useState(true);
-  const [accesibleArray, setAccessible] = useState([{ id: '' }]);
   const [ownerAddress, setAddress] = useState('');
 
   useEffect(() => {
@@ -128,7 +128,6 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
       collectionsMap[collectionID].ids.push(nft.id);
       collectionsMap[collectionID].count += 1;
     });
-    console.log('collectionsMap ', Object.values(collectionsMap))
     const objCollections = Object.values(collectionsMap);
     if (objCollections.length > 0) {
       setCollectionEmpty(false);
@@ -146,12 +145,13 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
           className={classes.actionarea}
           onClick={() =>
             history.push({
-              pathname: `/dashboard/nested/evm/collectiondetail/${data.ownerAddress + '.' + data.contract_name + '.' + data.count
+              pathname: `/dashboard/nested/evm/${props.isEvm}collectiondetail/${data.ownerAddress + '.' + data.contract_name + '.' + data.count
                 }`,
               state: {
                 collection: data,
                 ownerAddress: data.ownerAddress,
-                accessible: props.accessible
+                accessible: props.accessible,
+                nftList: props.nftList,
               }
             })
           }
@@ -166,7 +166,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                 margin: '8px',
                 borderRadius: '12px',
                 justifyContent: 'center',
-                objectFit: 'cover', objectPosition:'left'
+                objectFit: 'cover', objectPosition: 'left'
               }}
               image={data.logo}
               alt={data.name}
@@ -184,40 +184,14 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                   </Typography>
 
 
-                  {
-                    (!accesibleArray.some(item => {
-                      const parts = item.id.split('.');
-                      const thirdString = parts[2];
-                      return data.contract_name === thirdString;
-                    }) && !props.isActive) ?
-
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '67px',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          color: 'neutral.text',
-                          marginTop: '2px',
-                          fontSize: '10px',
-                          fontFamily: 'Inter, sans-serif',
-                          backgroundColor: 'neutral1.light'
-                        }}
-                      >
-                        {chrome.i18n.getMessage('Inaccessible')}
-                      </Box>
-                      :
-                      <Typography
-                        variant="body1"
-                        sx={{ fontSize: '14px' }}
-                        color="#B2B2B2"
-                        component="div"
-                      >
-                        {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
-                      </Typography>
-                  }
+                  <Typography
+                    variant="body1"
+                    sx={{ fontSize: '14px' }}
+                    color="#B2B2B2"
+                    component="div"
+                  >
+                    {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
+                  </Typography>
                 </Grid>
                 <Grid item>
                   <ArrowForwardIcon color="primary" sx={{ mt: '12px' }} />

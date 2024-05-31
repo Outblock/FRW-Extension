@@ -11,6 +11,8 @@ import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
 import { storage } from '../webapi';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
+import emoji from 'background/utils/emoji.json';
+
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -20,12 +22,14 @@ interface UserWalletStore {
   network: string;
   monitor: string;
   activeChild: any;
+  evmEnabled: boolean;
 }
 
 class UserWallet {
   store!: UserWalletStore;
 
   init = async () => {
+
     this.store = await createPersistStore<UserWalletStore>({
       name: 'userWallets',
       template: {
@@ -38,6 +42,7 @@ class UserWallet {
         childAccount: {},
         currentWallet: {
           name: '',
+          icon: '',
           address: '',
           chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
           id: 1,
@@ -45,12 +50,14 @@ class UserWallet {
         },
         evmWallet: {
           name: '',
+          icon: '',
           address: '',
           chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
           id: 1,
           coins: ['flow'],
         },
         activeChild: null,
+        evmEnabled: false,
         monitor: 'flowscan',
         network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
       },
@@ -69,6 +76,7 @@ class UserWallet {
       currentWallet: {
         name: '',
         address: '',
+        icon: '',
         chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
         id: 1,
         coins: ['flow'],
@@ -76,11 +84,13 @@ class UserWallet {
       evmWallet: {
         name: '',
         address: '',
+        icon: '',
         chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
         id: 1,
         coins: ['flow'],
       },
       activeChild: null,
+      evmEnabled: false,
       monitor: 'flowscan',
       network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
     };
@@ -93,7 +103,6 @@ class UserWallet {
       this.store.wallets[chainid] = [singleWallet];
     }
 
-    console.log('this.store.wallets data:', this.store.wallets);
     const current = this.store.wallets[network][0].blockchain[0];
     this.store.currentWallet = current;
   };
@@ -114,7 +123,8 @@ class UserWallet {
     if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
     } else if (key === 'evm') {
-      this.store.evmWallet = wallet;
+      console.log('setCurrentWallet ', wallet, key)
+      this.store.evmWallet.address = wallet.address;
     } else {
       const current = this.store.wallets[network][0].blockchain[0];
       this.store.currentWallet = current;
@@ -147,6 +157,27 @@ class UserWallet {
   setMonitor = (monitor: string) => {
     this.store.monitor = monitor;
   };
+
+  setEvmEnabled = (status: boolean) => {
+    this.store.evmEnabled = status;
+  };
+
+  getEvmEnabled = () => {
+    return this.store.evmEnabled;
+  };
+
+  refreshEvm = () => {
+    console.log('refreshEvm ')
+    this.store.evmWallet = {
+      name: '',
+      address: '',
+      icon: '',
+      chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      id: 1,
+      coins: ['flow'],
+    }
+    this.store.evmEnabled = false
+  }
 
   getNetwork = async (): Promise<string> => {
     if (!this.store) {
@@ -183,6 +214,15 @@ class UserWallet {
 
   getEvmWallet = () => {
     return this.store.evmWallet;
+  };
+
+  setEvmAddress = (address: string,) => {
+    console.log('setEvmAddress ', address)
+    if (address.length > 20) {
+      this.store.evmWallet.address = address;
+    } else {
+      this.store.evmWallet.address = ''
+    }
   };
 
   getMainWallet = (network: string) => {

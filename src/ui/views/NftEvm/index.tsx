@@ -23,6 +23,7 @@ const NftEvm = () => {
   const [accessible, setAccessible] = useState<any>([]);
   const [isActive, setIsActive] = useState(true);
   const [nftList, setNftList] = useState<any>(null);
+  const [isEvm, setIsEvm] = useState<string>('');
   const gridRef = useRef<any>(null);
   const listRef = useRef<any>(null);
 
@@ -40,14 +41,18 @@ const NftEvm = () => {
   const requestCadenceNft = async () => {
     const activeChild = await wallet.getActiveWallet();
     if (activeChild === 'evm') {
+      setIsEvm('evm')
       const evmNftResult = await wallet.reqeustEvmNft();
       const tokensWithNfts = evmNftResult.filter(token => token.nftIds && token.nftIds.length > 0);
       const nftresult = await convertToNftCatalogModel(tokensWithNfts);
       setNftList(nftresult);
     } else {
       const cadenceResult = await wallet.requestCadenceNft();
-      const collection = await wallet.requestCollectionInfo(cadenceResult[0].collection.id);
-      const resultData = await convertToReactComponent(collection);
+      let resultData = [];
+      if (cadenceResult.length) {
+        const collection = await wallet.requestCollectionInfo(cadenceResult[0].collection.id);
+        resultData = await convertToReactComponent(collection);
+      }
 
       setNftList(resultData);
     }
@@ -325,6 +330,7 @@ const NftEvm = () => {
               accessible={accessible}
               isActive={isActive}
               nftList={nftList}
+              isEvm={isEvm}
             />
           }
         </TabPanelStyle>

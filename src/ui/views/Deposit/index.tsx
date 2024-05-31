@@ -140,7 +140,26 @@ const Deposit = () => {
       // Handle the error here
       console.error('Error checking user child account:', error);
     }
-    if (isChild) {
+    if (isChild === 'evm') {
+      setIsActive(true);
+      const wallets = await wallet.getEvmWallet();
+      const result = [{
+        "id": 0,
+        "name": isChild,
+        "chain_id": currentNetwork,
+        "icon": "placeholder",
+        "color": "placeholder",
+        "blockchain": [wallets]
+      }]
+      console.log(' result ', result)
+      setUserWallets(
+        result.map((ele, idx) => ({
+          id: idx,
+          name: chrome.i18n.getMessage('Wallet'),
+          address: withPrefix(ele.blockchain[0].address),
+        }))
+      );
+    } else if (isChild) {
       setIsActive(false);
       setUserWallets(
         Object.keys(childresp).map((key, index) => ({
@@ -152,6 +171,7 @@ const Deposit = () => {
     } else {
       setIsActive(true);
       const wallets = await wallet.getUserWallets();
+      console.log('wallets ', wallets)
       setUserWallets(
         wallets.map((ele, idx) => ({
           id: idx,
@@ -160,7 +180,7 @@ const Deposit = () => {
         }))
       );
     }
-    
+
     await wallet.setDashIndex(0);
     const network = await wallet.getNetwork();
     setNetwork(network);

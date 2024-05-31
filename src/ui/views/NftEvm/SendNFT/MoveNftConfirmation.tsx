@@ -22,8 +22,6 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
-import erc721 from 'background/utils/erc721.abi.json';
-import Web3 from 'web3';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -33,7 +31,7 @@ interface SendNFTConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
-const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
+const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
@@ -43,9 +41,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [count, setCount] = useState(0);
   const colorArray = ['#FCE9E1', '#FCC7AE', '#FCA47C', '#FCA47C', '#41CC5D', '#41CC5D', '#41CC5D'];
 
-  const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
-  const web3 = new Web3(provider);
-  const erc721Contract = new web3.eth.Contract(erc721, "0xdafbac220f0d24541d126cd42b694c3f42df97fe");
 
   const startCount = () => {
     console.log('props.data ', props.data)
@@ -92,55 +87,37 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const sendNFT = async () => {
     // setSending(true);
     const activeChild = await wallet.getActiveWallet();
-    const { address } = props.data.contact;
     const isEvm = activeChild === 'evm';
-    const isEvmAddress = address.length > 20;
     console.log('props.data ', props.data, activeChild)
-    if (isEvm && isEvmAddress) {
+    if (isEvm) {
       console.log('send evm to evm');
-      await evmToEvm();
-    } else if (isEvm && !isEvmAddress) {
-      console.log('send evm to flow');
-      await evmToFlow();
-    } else if (!isEvm && isEvmAddress) {
-      console.log('send flow to evm');
-      await flowToEvm();
+      await moveNFTToFlow();
     } else {
-      await flowToFlow();
+      await moveNFTToEvm();
     }
 
   }
 
-  const removeHexPrefix = (address) => {
-    return address.startsWith('0x') ? address.slice(2) : address;
+
+  const moveNFTToFlow = async () => {
+    setSending(true);
+
+    wallet.batchBridgeNftFromEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`,);
+      props.handleCloseIconClicked();
+      await wallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch(() => {
+      setSending(false);
+      setFailed(true);
+    })
+
   };
 
-  const evmToEvm = async () => {
+  const moveNFTToEvm = async () => {
     setSending(true);
-    const data = await wallet.getEvmAddress();
-    const dataWithoutPrefix = removeHexPrefix(data);
-    const contactAddressWithoutPrefix = removeHexPrefix(props.data.contact.address);
-    const encodedData = erc721Contract.methods.safeTransferFrom(dataWithoutPrefix, contactAddressWithoutPrefix, props.data.nft.id).encodeABI();
-    const gas = '1312d00';
-
-    wallet.sendEvmTransaction(props.data.nft.contractEvmAddress, gas, 0, encodedData).then(async (txID) => {
-      await wallet.setRecent(props.data.contact);
-      wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.nft.collectionContractName} Sent`, `You have sent 1 ${props.data.nft.collectionContractName} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.nft.collectionSquareImage);
-      props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
-      setSending(false);
-      setTid(txID);
-      history.push('/dashboard?activity=1');
-    }).catch((err) => {
-      console.log('err ', err)
-      setSending(false);
-      setFailed(true);
-    })
-  }
-
-  const evmToFlow = async () => {
-    setSending(true);
-    wallet.bridgeNftFromEvmToFlow(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.contact.address).then(async (txID) => {
+    wallet.batchBridgeNftToEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
@@ -150,55 +127,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
       setSending(false);
       setFailed(true);
     })
-  }
 
-  const flowToEvm = async () => {
-    setSending(true);
-    const data = await wallet.getEvmAddress();
-    const encodedData = erc721Contract.methods.safeTransferFrom(data, props.data.contact.address, props.data.nft.id).encodeABI();
-    const gas = '1312d00';
-    setSending(true);
-    wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.nft.contractEvmAddress ? props.data.nft.contractEvmAddress : 'dafbac220f0d24541d126cd42b694c3f42df97fe', encodedData, gas).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
-      props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch(() => {
-      setSending(false);
-      setFailed(true);
-    })
-  }
-
-  const flowToFlow = async () => {
-    setSending(true);
-    console.log('props.data ', props.data)
-    const contractTokenModel = {
-      contract_name : props.data.nft.collectionContractName,
-      address : props.data.nft.contractAddress,
-      path : props.data.nft.contractInfo,
-    }
-    console.log('props.data ', contractTokenModel)
-    try {
-      let txID = ''
-      if (props.data.nft.collectionContractName.trim() == 'TopShot') {
-        txID = await wallet.sendNBANFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
-      } else {
-        txID = await wallet.sendNFT(props.data.contact.address, parseInt(props.data.nft.id), contractTokenModel)
-      }
-      await wallet.setRecent(props.data.contact);
-      wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
-      await wallet.setDashIndex(0);
-      history.push('/dashboard?activity=1');
-      props.handleAddBtnClicked();
-    } catch (error) {
-      console.log(error);
-      setFailed(true);
-      setSending(false);
-    } finally {
-      setSending(false);
-    }
-  }
+  };
 
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {
@@ -289,7 +219,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
                 fontWeight="bold"
                 fontSize="20px"
               >
-                {chrome.i18n.getMessage('Send')} NFT
+                {chrome.i18n.getMessage('Move')} NFT
               </Typography>
             }
           </Grid>
@@ -302,7 +232,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </IconButton>
           </Grid>
         </Grid>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
+        {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
           <LLProfile contact={props.data.userContact} />
           <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {colorArray.map((color, index) => (
@@ -315,7 +245,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             ))}
           </Box>
           <LLProfile contact={props.data.contact} />
-        </Box>
+        </Box> */}
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', px: '13px', py: '16px', backgroundColor: '#333333', borderRadius: '16px', my: '10px' }}>
           <Stack direction="row" spacing={1}>
@@ -325,8 +255,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             }
           </Stack>
           <Stack direction="column" spacing={1} sx={{ ml: '18px' }}>
+            <Typography color='neutral.contrastText' sx={{ fontSize: '18px', fontWeight: '700' }}>{props.data.media && props.data.media?.title}</Typography>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.contract && props.data.contract.logo} />
               <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.contract && props.data.contract.name}</Typography>
               <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
             </Stack>
@@ -334,14 +264,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        {/* <Stack direction="row" spacing={1} sx={{marginBottom: '33px'}}>
-          <LLPrimaryButton
-            label="Send"
-            onClick={sendNFT}
-            fullWidth
-            type="submit"
-          />
-        </Stack> */}
         {occupied &&
           <Presets.TransitionSlideUp>
             <Box
@@ -407,7 +329,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
                   sx={{ fontWeight: 'bold' }}
                   color="text.primary"
                 >
-                  {chrome.i18n.getMessage('Send')}
+                  {chrome.i18n.getMessage('Move')}
                 </Typography>
               }
             </>
@@ -433,4 +355,4 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   );
 };
 
-export default SendNFTConfirmation;
+export default MoveNftConfirmation;

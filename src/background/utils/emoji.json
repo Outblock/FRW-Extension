@@ -1,0 +1,52 @@
+{
+  "emojis": [
+    {
+      "emoji": "🐨",
+      "name": "Koala"
+    },
+    {
+      "emoji": "🦁",
+      "name": "Lion"
+    },
+    {
+      "emoji": "🐼",
+      "name": "Panda"
+    },
+    {
+      "emoji": "🦋",
+      "name": "Butterfly"
+    },
+    {
+      "emoji": "🐲",
+      "name": "Dragon"
+    },
+    {
+      "emoji": "🐧",
+      "name": "Penguin"
+    },
+    {
+      "emoji": "🍒",
+      "name": "Cherries"
+    },
+    {
+      "emoji": "🍑",
+      "name": "Peach"
+    },
+    {
+      "emoji": "🌰",
+      "name": "Chestnut"
+    },
+    {
+      "emoji": "🍋",
+      "name": "Lemon"
+    },
+    {
+      "emoji": "🥥",
+      "name": "Coconut"
+    },
+    {
+      "emoji": "🥑",
+      "name": "Avocado"
+    }
+  ]
+}

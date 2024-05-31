@@ -40,6 +40,17 @@ const Bridge = (props: TransferConfirmationProps) => {
     },
   } as unknown as Contact;
 
+  const evmContact = {
+    address: '',
+    id: 0,
+    contact_name: '',
+    avatar: '',
+    domain: {
+      domain_type: 999,
+      value: '',
+    },
+  } as unknown as Contact;
+
   const empty: CoinItem = {
     coin: '',
     unit: '',
@@ -59,6 +70,7 @@ const Bridge = (props: TransferConfirmationProps) => {
   const [amount, setAmount] = useState<string | undefined>('');
   // const [validated, setValidated] = useState<any>(null);
   const [userInfo, setUser] = useState<Contact>(userContact);
+  const [evmUserInfo, setEvmUser] = useState<Contact>(evmContact);
   const [network, setNetwork] = useState('mainnet');
   const [evmAddress, setEvmAddress] = useState('');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
@@ -77,11 +89,11 @@ const Bridge = (props: TransferConfirmationProps) => {
     setCurrentCoin(token);
     // userWallet
     await setWallet(wallet);
-    const data = await usewallet.getEvmAddress();
-    setEvmAddress(data);
+    const evmWallet = await usewallet.getEvmWallet();
+    setEvmAddress(evmWallet.address);
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
-    console.log('coinList ', coinList)
+    console.log('coinList ', evmWallet)
     const tokenResult = await usewallet.openapi.getTokenInfo(token);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase());
     setCoinInfo(coinInfo!);
@@ -91,6 +103,12 @@ const Bridge = (props: TransferConfirmationProps) => {
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
     setUser(userContact);
+
+    evmContact.address = withPrefix(evmWallet.address) || '';
+    evmContact.avatar = evmWallet.icon;
+    evmContact.contact_name = evmWallet.name;
+    setEvmUser(evmContact);
+
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
     return;
@@ -102,9 +120,8 @@ const Bridge = (props: TransferConfirmationProps) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
-      console.log('transferFlowEvm , ', createRes)
       setLoading(false);
-      props.handleCancelBtnClicked();
+      props.handleCloseIconClicked();
     }).catch((err) => {
       console.log(err);
       setLoading(false);
@@ -123,9 +140,8 @@ const Bridge = (props: TransferConfirmationProps) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
-      console.log('transferFlowEvm , ', createRes)
       setLoading(false);
-      props.handleCancelBtnClicked();
+      props.handleCloseIconClicked();
     }).catch((err) => {
       console.log(err);
       setLoading(false);

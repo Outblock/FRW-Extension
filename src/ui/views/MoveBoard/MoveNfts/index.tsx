@@ -19,6 +19,7 @@ interface MoveBoardProps {
   handleCloseIconClicked: () => void;
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
+  handleReturnHome: () => void;
 }
 
 
@@ -92,7 +93,7 @@ const MoveNfts = (props: MoveBoardProps) => {
 
     if (index === -1) {
       // If nftId is not in the array, add it
-      if (tempIdArray.length < 3) {
+      if (tempIdArray.length < 10) {
         tempIdArray.push(nftId);
       } else {
         // Display an error or warning message that no more than 3 IDs are allowed
@@ -109,6 +110,7 @@ const MoveNfts = (props: MoveBoardProps) => {
     setSending(true);
     usewallet.batchBridgeNftToEvm(collectionDetail.collection.address, collectionDetail.collection.contract_name, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
+      props.handleReturnHome();
       props.handleCloseIconClicked();
       await usewallet.setDashIndex(0);
       setSending(false);
@@ -230,9 +232,8 @@ const MoveNfts = (props: MoveBoardProps) => {
               </Box>
             ))
             :
-
-            <Box sx={{ margin: '-58px auto -84px auto', }}>
-              <EmptyStatus />
+            <Box sx={{width:'100%', textAlign:'center'}}>
+              <Typography sx={{color:'#FFFFFF66', fontSize:'14px',fontWeight:'700'}}>0 NFTs</Typography>
             </Box>
           }
 
@@ -337,9 +338,9 @@ const MoveNfts = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       }
-      <Snackbar open={errorOpen} autoHideDuration={3000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '80%', margin: '0 auto 80px' }}>
-          Cannot move more than 3
+      <Snackbar open={errorOpen} autoHideDuration={3000} onClose={handleErrorClose} sx={{zIndex:'2000'}}>
+        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '80%', margin: '0 auto 80px',zIndex:'2000' }}>
+          Cannot move more than 10
         </Alert>
       </Snackbar>
     </Drawer >

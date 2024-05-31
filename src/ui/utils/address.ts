@@ -30,3 +30,29 @@ export const getAccountKey = (mnemonic) => {
   };
   return key;
 }
+
+
+export const isValidEthereumAddress = (address) => {
+  const regex = /^(0x)?[0-9a-fA-F]{40}$/;
+  return regex.test(address);
+}
+
+export const ensureEvmAddressPrefix = (address) => {
+
+  const cleanAddress = address.startsWith('0x') ? address.slice(2) : address;
+
+  const prefixedAddress = '0x' + cleanAddress;
+
+  if (isValidEthereumAddress(prefixedAddress)) {
+    return prefixedAddress;
+  } else {
+    throw new Error('Invalid Ethereum address');
+  }
+};
+
+
+export const formatString = (str: string): string => {
+  const addressString = ensureEvmAddressPrefix(str)
+  if (!addressString || addressString.length < 16) return addressString; // Check if string is too short
+  return `${addressString.substring(0, 6)}...${addressString.substring(addressString.length - 10)}`;
+}
