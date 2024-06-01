@@ -88,10 +88,10 @@ const AddList = () => {
   const fetchList = async (data) => {
     setStatusLoading(true)
     try {
-      const enabledList = await usewallet.openapi.getEnabledNFTList(data);
-      console.log('nftList ', data, enabledList)
-      if (enabledList.length > 0) {
-        data.map(item => { item.added = (enabledList.filter(enabled => enabled.contract_name === item.contract_name && enabled.address === item.address).length > 0)})
+      const cadenceResult = await usewallet.requestCadenceNft();
+      console.log('nftList ', data, cadenceResult)
+      if (cadenceResult.length > 0) {
+        data.map(item => { item.added = (cadenceResult.filter(enabled => enabled.collection.contract_name === item.contract_name && enabled.collection.address === item.address).length > 0)})
       }
       
       setCollections(data);

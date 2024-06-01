@@ -6,6 +6,7 @@ import { formatString, isValidEthereumAddress } from 'ui/utils/address';
 import { useHistory } from 'react-router-dom';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
 import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
+import importIcon from 'ui/FRWAssets/svg/importIcon.svg';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { makeStyles } from '@mui/styles';
 import { UserInfoResponse } from 'background/service/networkModel';
@@ -46,6 +47,7 @@ interface MenuDrawerProps {
   setWallets: any;
   currentNetwork: string;
   evmAddress: string;
+  emojis: any;
 }
 
 
@@ -151,8 +153,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         </ListItem>
         {evmMode && (
           !isValidEthereumAddress(props.evmAddress) && (
-            <Box sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }} >
-              <Box
+            <ListItem sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }} >
+              <ListItemButton
                 sx={{
                   borderRadius: '12px',
                   display: 'flex',
@@ -192,8 +194,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                   </Typography>
                 </Box>
                 <CardMedia sx={{ width: '20px', height: '20px', display: 'block', marginLeft: '6px' }} image={rightarrow} />
-              </Box>
-            </Box>
+              </ListItemButton>
+            </ListItem>
           ))}
         <Box sx={{ px: '16px' }}>
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
@@ -201,8 +203,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
         {(isValidEthereumAddress(props.evmAddress) || Object.keys(props.childAccounts).length > 0) && <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '18px', marginLeft: '16px' }}>Linked Account</Typography>}
         {evmMode && isValidEthereumAddress(props.evmAddress) && (
-          <Box
-            sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px', cursor: 'pointer' }}
+          <ListItem
+            sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px 0', cursor: 'pointer' }}
             onClick={() => props.setWallets({
               name: 'evm',
               address: props.evmAddress,
@@ -212,12 +214,11 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             }, 'evm')}
           >
 
-            <Box
-              sx={{ mb: 0, display: 'flex', alignItems: 'center',flexDirection: 'space-between', background: 'none !important' }}
-              className={isEvm ? classes.active : ''}
+            <ListItemButton
+              sx={{ mb: 0, display: 'flex', alignItems: 'center', flexDirection: 'space-between', }}
             >
 
-              <CardMedia
+              {/* <CardMedia
                 component="img"
                 image="https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png"
                 style={{
@@ -227,7 +228,15 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                   backgroundColor: '#282828',
                   borderRadius: '18px',
                 }}
-              />
+              /> */}
+
+              <Box sx={{
+                display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: props.emojis[1]['bgcolor'], marginRight: '12px'
+              }}>
+                <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
+                  {props.emojis[1].emoji}
+                </Typography>
+              </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography
                   variant="body1"
@@ -281,8 +290,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 </Typography>
                 <EvmADDComponent myString={props.evmAddress} />
               </Box>
-            </Box>
-          </Box>)}
+            </ListItemButton>
+          </ListItem>)}
 
         {Object.keys(props.childAccounts).map((key) => (
           <Box
@@ -411,27 +420,27 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             alignItems: 'center',
             flexDirection: 'column',
             display: 'flex',
-            paddingLeft: '16px',
+            px: '0',
             marginTop: 'auto',
-            marginBottom: '30px'
+            marginBottom: '20px'
           }}
         >
           <ListItem disablePadding onClick={async () => {
             await usewallet.lockAdd();
             // history.push('/add');
           }}>
-            <ListItemButton sx={{ padding: '8px 0', margin: '0', borderRadius: '5px' }}>
+            <ListItemButton sx={{ padding: '8px 16px', margin: '0', borderRadius: '0' }}>
               <ListItemIcon
                 sx={{
                   width: '24px',
-                  minWidth: '24px',
+                  minWidth: '16px',
                   height: '24px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginRight: '12px'
                 }}>
-                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popAdd} />
+                <CardMedia component="img" sx={{ width: '16px', height: '16px' }} image={importIcon} />
               </ListItemIcon>
               <Typography
                 variant="body1"
@@ -440,7 +449,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 color='text'
                 sx={{ fontSize: '12px' }}
               >
-                {chrome.i18n.getMessage('Add_account')}
+                {chrome.i18n.getMessage('Import__Wallet')}
               </Typography>
             </ListItemButton>
           </ListItem>
@@ -448,7 +457,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             await usewallet.lockWallet();
             history.push('/unlock');
           }}>
-            <ListItemButton sx={{ padding: '8px 0', margin: '0', borderRadius: '5px' }}>
+            <ListItemButton sx={{ padding: '8px 16px', margin: '0', borderRadius: '0' }}>
               <ListItemIcon
                 sx={{
                   width: '24px',

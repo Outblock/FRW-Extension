@@ -43,6 +43,7 @@ import Account from './Setting/Account';
 import DeveloperMode from './Setting/DeveloperMode/DeveloperMode';
 import Devices from './Setting/Devices/Devices';
 import DeviceInfo from './Setting/Devices/DeviceInfo';
+import WalletList from './Setting/Wallet';
 import WalletDetail from './Setting/Wallet/WalletDetail';
 import RemoveWallet from './Setting/Wallet/RemoveWallet';
 import ManageBackups from './Setting/Backups';
@@ -195,7 +196,7 @@ const Inner = (props) => {
           >
             <CollectionDetailEvm />
           </PrivateRoute>
-          
+
           <PrivateRoute path={`${props.match.url}/nested/nftdetail/:id`}>
             <Detail />
           </PrivateRoute>
@@ -268,8 +269,13 @@ const Inner = (props) => {
             <DeviceInfo />
           </PrivateRoute>
 
-          <PrivateRoute path={`${props.match.url}/setting/wallet`}>
+          <PrivateRoute path={`${props.match.url}/setting/wallet/detail`}>
             <WalletDetail />
+          </PrivateRoute>
+
+
+          <PrivateRoute path={`${props.match.url}/setting/wallet`}>
+            <WalletList />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/setting/removeWallet`}>

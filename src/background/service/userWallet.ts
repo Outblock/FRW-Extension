@@ -11,7 +11,6 @@ import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
 import { storage } from '../webapi';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
-import emoji from 'background/utils/emoji.json';
 
 
 interface UserWalletStore {

@@ -5,8 +5,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { CoinItem } from 'background/service/coinList';
 import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
-import TransferFrom from './TransferFrom';
-import TransferTo from './TransferTo';
+import TransferFrom from '../TransferFrom';
+import TransferTo from '../TransferTo';
 import MoveToken from './MoveToken'
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
@@ -192,16 +192,17 @@ const Bridge = (props: TransferConfirmationProps) => {
             justifyContent: 'space-between',
             alignItems: 'center',
             flexDirection: 'row',
-            display: 'flex'
+            display: 'flex',
+            pb:'6px'
           }}
         >
           <Box sx={{ width: '40px' }}></Box>
-          <Box>
-            <Typography sx={{ fontWeight: '700', fontSize: '14px' }}>
-              Bridge Token
+          <Box sx={{pt:'16px'}}>
+            <Typography sx={{ fontWeight: '700', fontFamily: 'e-Ukraine', fontSize: '20px' }}>
+              Move Token
             </Typography>
           </Box>
-          <Box onClick={props.handleCancelBtnClicked}>
+          <Box sx={{pt:'14px'}} onClick={props.handleCancelBtnClicked}>
             <IconButton>
               <CloseIcon
                 fontSize="medium"

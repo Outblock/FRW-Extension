@@ -69,7 +69,6 @@ const TokenDetail = () => {
     if (tokenResult) {
       setTokenInfo(tokenResult);
     }
-    console.log('this is tokenInfo ', tokenResult)
     setProviders(result);
     if (result.length == 0) {
       const data = await wallet.openapi.getTokenPrices();

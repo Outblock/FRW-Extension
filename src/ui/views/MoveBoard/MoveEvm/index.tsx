@@ -14,6 +14,7 @@ import {
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import EmptyStatus from '../../NftEvm/EmptyStatus';
 import AccountBox from '../AccountBox';
+import selected from 'ui/FRWAssets/svg/selected.svg';
 
 
 
@@ -131,7 +132,7 @@ const MoveEvm = (props: MoveBoardProps) => {
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
-        sx: { width: '100%', height: '479px', background: '#222', borderRadius: '18px 18px 0px 0px', },
+        sx: { width: '100%', height: '479px', background: '#222', },
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>
@@ -142,7 +143,7 @@ const MoveEvm = (props: MoveBoardProps) => {
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '18px', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
+            sx={{ fontSize: '20px', textAlign: 'center', fontFamily: 'e-Ukraine', lineHeight: '24px', fontWeight: '700' }}
           >
             Select NFTs
           </Typography>
@@ -158,7 +159,7 @@ const MoveEvm = (props: MoveBoardProps) => {
       </Box>
       <AccountBox isEvm={true} />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '16px', mt: '10px', padding: '0 18px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography
             variant="body1"
@@ -180,14 +181,15 @@ const MoveEvm = (props: MoveBoardProps) => {
               color='text'
               sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
             >
-              Select
+              {collectionDetail.CollectionName}
             </Typography>
+            <CardMedia component="img" sx={{ width: '12px', height: '12px', marginLeft: '4px' }} image={'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png'} />
             <CardMedia component="img" sx={{ width: '16px', height: '16px', marginLeft: '4px' }} image={moveSelectDrop} />
           </Button>
         }
       </Box>
       {!loading ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
 
           {collectInfo.nfts.length > 0 ? (
             collectInfo.nfts.map(nfts => (
@@ -195,26 +197,30 @@ const MoveEvm = (props: MoveBoardProps) => {
                 key={nfts.id}
                 sx={{
                   display: 'flex',
+                  position: 'relative',
                   width: '84px',
                   height: '84px',
-                  marginBottom: '3px',
                   borderRadius: '16px',
-                  backgroundColor: '#333',
-                  position: 'relative'
+                  marginBottom: '3px',
+                  border: nftIdArray.includes(nfts.id) && '1px solid #41CC5D'
                 }}
               >
-                <Button onClick={() => toggleSelectNft(nfts.id)}>
-                  {nftIdArray.includes(nfts.id) && (
-                    <CardMedia
-                      component="img"
-                      sx={{ width: '84px', height: '84px', zIndex: '2000', position: 'absolute' }}
-                      image={selectedCover}
-                    />
-                  )}
+                <Button onClick={() => toggleSelectNft(nfts.id)} sx={{ padding: 0, borderRadius: '16px', backgroundColor: '#333', }}>
+                  {nftIdArray.includes(nfts.id) &&
+                    <Box sx={{ backgroundColor: '#00000099', borderRadius: '16px', position: 'absolute', width: '100%', height: '100%' }}>
+                      <CardMedia
+                        component="img"
+                        sx={{ width: '16px', borderRadius: '16px', height: '16px', top: '8px', right: '8px', zIndex: '2000', position: 'absolute' }}
+                        image={selected}
+                      />
+                    </Box>
+                  }
                   <CardMedia
                     component="img"
                     alt={nfts.name}
                     height="84px"
+                    width="84px"
+                    sx={{ borderRadius: '16px', }}
                     image={nfts.thumbnail}
                     title={nfts.name}
                   />
@@ -222,8 +228,8 @@ const MoveEvm = (props: MoveBoardProps) => {
               </Box>
             ))
           ) : (
-            <Box sx={{width:'100%', textAlign:'center'}}>
-              <Typography sx={{color:'#FFFFFF66', fontSize:'14px',fontWeight:'700'}}>0 NFTs</Typography>
+            <Box sx={{ width: '100%', textAlign: 'center' }}>
+              <Typography sx={{ color: '#FFFFFF66', fontSize: '14px', fontWeight: '700' }}>0 NFTs</Typography>
             </Box>
           )
           }

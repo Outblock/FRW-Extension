@@ -44,8 +44,8 @@ const Popup = (props: TransferConfirmationProps) => {
         sx: { width: '100%', height: 'auto', background: '#222', borderRadius: '18px 18px 0px 0px', },
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', height: '24px', margin: '20px 0', alignItems: 'center', }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', height: '24px', margin: '20px 0', alignItems: 'center',  px: '20px'}}>
           <Box sx={{ width: '40px' }}></Box>
           <Typography
             variant="body1"
@@ -74,7 +74,8 @@ const Popup = (props: TransferConfirmationProps) => {
                 alignItems: 'center',
                 flexDirection: 'column',
                 display: 'flex',
-                height: viewmore ? '246px' : '166px',
+                height: 'auto',
+                maxHeight: viewmore ? '246px' : '166px',
                 overflow: viewmore ? 'scroll' : 'hidden',
                 paddingBottom: '16px'
               }}
@@ -90,38 +91,40 @@ const Popup = (props: TransferConfirmationProps) => {
                       props.switchAccount(userWithIndex);
                     }
                   }}>
-                    <ListItemIcon>
-                      <Avatar
-                        component="span"
-                        src={user.avatar}
-                        sx={{ width: '32px', height: '32px' }}
-                        alt="avatar"
-                      />
-                    </ListItemIcon>
-                    <ListItemText>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <Typography
-                          variant="body1"
-                          component="div"
-                          display="inline"
-                          color='text.primary'
-                        >
-                          {user.username}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          component="div"
-                          display="inline"
-                          color="text.secondary"
-                          sx={{ fontSize: '12px' }}
-                        >
-                          {user.address ? user.address : user.nickname}
-                        </Typography>
-                      </Box>
-                    </ListItemText>
-                    {user.username === props.userInfo.username &&
-                      <CardMedia component="img" sx={{ width: '16px', height: '16px' }} image={iconCheck} />
-                    }
+                    <ListItemButton sx={{padding:'0 20px'}}>
+                      <ListItemIcon>
+                        <Avatar
+                          component="span"
+                          src={user.avatar}
+                          sx={{ width: '32px', height: '32px' }}
+                          alt="avatar"
+                        />
+                      </ListItemIcon>
+                      <ListItemText>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                          <Typography
+                            variant="body1"
+                            component="div"
+                            display="inline"
+                            color='text.primary'
+                          >
+                            {user.username}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="div"
+                            display="inline"
+                            color="text.secondary"
+                            sx={{ fontSize: '12px' }}
+                          >
+                            {user.address ? user.address : user.nickname}
+                          </Typography>
+                        </Box>
+                      </ListItemText>
+                      {user.username === props.userInfo.username &&
+                        <CardMedia component="img" sx={{ width: '16px', height: '16px' }} image={iconCheck} />
+                      }
+                    </ListItemButton>
                   </ListItem>
                 );
               })}
@@ -145,7 +148,7 @@ const Popup = (props: TransferConfirmationProps) => {
             justifyContent: 'space-between',
             alignItems: 'center',
             flexDirection: 'column',
-            display: 'flex'
+            display: 'flex',
           }}
         >
           {props.loggedInAccounts &&
@@ -153,7 +156,7 @@ const Popup = (props: TransferConfirmationProps) => {
               await usewallet.lockAdd();
               // history.push('/add');
             }}>
-              <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
+              <ListItemButton sx={{ padding: '8px 20px', margin: '0', borderRadius: '5px' }}>
                 <ListItemIcon
                   sx={{
                     width: '24px',
@@ -182,7 +185,7 @@ const Popup = (props: TransferConfirmationProps) => {
             await usewallet.lockWallet();
             history.push('/unlock');
           }}>
-            <ListItemButton sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}>
+            <ListItemButton sx={{ padding: '8px 20px', margin: '0', borderRadius: '5px' }}>
               <ListItemIcon
                 sx={{
                   width: '24px',

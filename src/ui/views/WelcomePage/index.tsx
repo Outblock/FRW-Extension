@@ -7,7 +7,6 @@ import appicon from '../../FRWAssets/image/appicon.png';
 import create from '../../FRWAssets/svg/create.svg';
 import importPng from '../../FRWAssets/svg/import.svg';
 import qr from '../../FRWAssets/svg/scanIcon.svg';
-import outside from '../../FRWAssets/svg/importoutside.svg';
 import { Link } from 'react-router-dom';
 import IconFlow from '../../../components/iconfont/IconFlow';
 

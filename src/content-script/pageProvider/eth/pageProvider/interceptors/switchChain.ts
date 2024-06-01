@@ -1,4 +1,4 @@
-import IconRabby from "../../assets/rabby.svg";
+import IconFlow from "../../assets/flow.svg";
 import IconWarning from "../../assets/warning.svg";
 import IconArrow from "../../assets/arrow.svg";
 import notice from "../notice";
@@ -30,7 +30,7 @@ export const switchChainNotice = (
   const isSwitchToTestnet =
     chain?.prev && !chain?.prev?.isTestnet && chain?.isTestnet;
 
-  const rawContent = `<img style="width: 20px; margin-right: 8px;" src="${IconRabby}"/>Switched to <span class="rabby-strong" style="margin: 0 8px;">${chain?.name}</span> for the current Dapp`;
+  const rawContent = `<img style="width: 20px; margin-right: 8px;" src="${IconFlow}"/>Switched to <span class="rabby-strong" style="margin: 0 8px;">${chain?.name}</span> for the current Dapp`;
   let content = rawContent;
   if (isSwitchToMainnet || isSwitchToTestnet) {
     content = `

@@ -11,6 +11,7 @@ import {
 } from 'ui/FRWComponent';
 import EmptyStatus from '../../NftEvm/EmptyStatus';
 import AccountBox from '../AccountBox';
+import selected from 'ui/FRWAssets/svg/selected.svg';
 
 
 
@@ -141,7 +142,7 @@ const MoveNfts = (props: MoveBoardProps) => {
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
-        sx: { width: '100%', height: '479px', background: '#222', borderRadius: '18px 18px 0px 0px', },
+        sx: { width: '100%', height: '479px', background: '#222', },
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>
@@ -152,7 +153,7 @@ const MoveNfts = (props: MoveBoardProps) => {
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '18px', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
+            sx={{ fontSize: '20px', textAlign: 'center', fontFamily: 'e-Ukraine', lineHeight: '24px', fontWeight: '700' }}
           >
             Select NFTs
           </Typography>
@@ -167,7 +168,7 @@ const MoveNfts = (props: MoveBoardProps) => {
         </Box>
       </Box>
       <AccountBox isEvm={false} />
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '16px', mt: '10px', padding: '0 18px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography
             variant="body1"
@@ -189,15 +190,17 @@ const MoveNfts = (props: MoveBoardProps) => {
               color='text'
               sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
             >
-              Select
+              {currentCollection.CollectionName}
             </Typography>
+            
+            <CardMedia component="img" sx={{ width: '12px', height: '12px', marginLeft: '4px' }} image={'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png'} />
             <CardMedia component="img" sx={{ width: '16px', height: '16px', marginLeft: '4px' }} image={moveSelectDrop} />
           </Button>
 
         }
       </Box>
       {collectionDetail ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
           {collectionDetail.nfts.length > 0 ?
             collectionDetail.nfts.map(nft => (
               <Box
@@ -209,31 +212,34 @@ const MoveNfts = (props: MoveBoardProps) => {
                   height: '84px',
                   borderRadius: '16px',
                   marginBottom: '3px',
-                  backgroundColor: '#333',
+                  border: nftIdArray.includes(nft.id) && '1px solid #41CC5D'
                 }}
               >
-                <Button onClick={() => toggleSelectNft(nft.id)} sx={{ padding: 0 }}>
+                <Button onClick={() => toggleSelectNft(nft.id)} sx={{ padding: 0, borderRadius: '16px', backgroundColor: '#333', }}>
                   {nftIdArray.includes(nft.id) &&
-                    <CardMedia
-                      component="img"
-                      sx={{ width: '84px', height: '84px', zIndex: '2000', position: 'absolute' }}
-                      image={selectedCover}
-                    />
+                    <Box sx={{ backgroundColor: '#00000099', borderRadius: '16px', position: 'absolute', width: '100%', height: '100%' }}>
+                      <CardMedia
+                        component="img"
+                        sx={{ width: '16px', borderRadius: '16px', height: '16px', top: '8px', right: '8px', zIndex: '2000', position: 'absolute' }}
+                        image={selected}
+                      />
+                    </Box>
                   }
                   <CardMedia
                     component="img"
                     alt={nft.name}
                     height="84px"
+                    width="84px"
+                    sx={{ borderRadius: '16px', }}
                     image={nft.thumbnail}
                     title={nft.name}
-                    sx={{ borderRadius: '16px' }}
                   />
                 </Button>
               </Box>
             ))
             :
-            <Box sx={{width:'100%', textAlign:'center'}}>
-              <Typography sx={{color:'#FFFFFF66', fontSize:'14px',fontWeight:'700'}}>0 NFTs</Typography>
+            <Box sx={{ width: '100%', textAlign: 'center' }}>
+              <Typography sx={{ color: '#FFFFFF66', fontSize: '14px', fontWeight: '700' }}>0 NFTs</Typography>
             </Box>
           }
 
@@ -338,8 +344,8 @@ const MoveNfts = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       }
-      <Snackbar open={errorOpen} autoHideDuration={3000} onClose={handleErrorClose} sx={{zIndex:'2000'}}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '80%', margin: '0 auto 80px',zIndex:'2000' }}>
+      <Snackbar open={errorOpen} autoHideDuration={3000} onClose={handleErrorClose} sx={{ zIndex: '2000' }}>
+        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '80%', margin: '0 auto 80px', zIndex: '2000' }}>
           Cannot move more than 10
         </Alert>
       </Snackbar>

@@ -58,7 +58,7 @@ const Enable = () => {
 
   return (
     <Box sx={{
-      width: '100%', height: '100%', display: 'flex', backgroundColor:'#292929', flexDirection: 'column'
+      width: '100%', height: '100%', display: 'flex', backgroundColor: '#121212', flexDirection: 'column'
     }}>
       <Box sx={{
         display: 'flex',
@@ -76,30 +76,31 @@ const Enable = () => {
       </Box>
 
 
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',alignItems:'center' }}>
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        <CardMedia component="img" sx={{ width: '196px', height: '196px' }} image={enableBg} />
         <Typography
           variant="subtitle1"
           sx={{
             fontWeight: 'bold',
-            color: '#FFFFFFCC',
-            textAlign: 'center',
+            color: '#E6E6E6',
+            textAlign: 'Montserrat',
             fontFamily: 'Inter',
-            fontSize: '18px',
-            mt:'20px',
+            fontSize: '20px',
+            mt: '20px',
+            width:'168px'
           }}
           color="error"
         >
           Enable the Path
           to EVM on Flow
         </Typography>
-        
-        <CardMedia component="img" sx={{ width: '196px', height: '196px' }} image={enableBg} />
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px' }}
           color="error"
         >
-          Manage multi-VM assets seamlessly.
+          Manage Multi-VM assets seamlessly.
         </Typography>
 
       </Box>
@@ -114,7 +115,7 @@ const Enable = () => {
               textTransform: 'none !important',
               display: 'flex',
               justifyContent: 'center',
-              backgroundColor: '#f2f2f2',
+              backgroundColor: '#FFFFFFCC',
               alignItems: 'center',
             }}
           >
@@ -148,7 +149,7 @@ const Enable = () => {
               height: '50px',
               width: '100%',
               fontSize: '18px',
-              fontWeight:'700',
+              fontWeight: '700',
               textTransform: 'none !important',
             }}
           />

@@ -96,7 +96,6 @@ const WalletConnect = (props: RevokePageProps) => {
             icons: ['https://fcw-link.lilico.app/logo.png']
           },
         });
-        console.log('web3walletadress', wallet);
         setWeb3Wallet(wallet);
       } catch (e) {
         console.error(e);
@@ -128,9 +127,7 @@ const WalletConnect = (props: RevokePageProps) => {
       // ------- end namespaces builder util ------------ //
       setNamespace(namespaces);
     } catch (error) {
-      console.log('error ', error)
     }
-    console.log(' id ', id)
     setProposer(params.proposer.metadata);
     setId(id);
     showApproveWindow();

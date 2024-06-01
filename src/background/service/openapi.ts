@@ -1391,7 +1391,9 @@ class OpenApiService {
       );
       const res = await response.json();
       const { tokens = {} } = res;
-      if (tokens) {
+      const hasFlowToken = tokens.some(token => token.symbol.toLowerCase().includes('flow'));
+
+      if (!hasFlowToken) {
         tokens.push({
           name: 'Flow',
           address: '0x4445e7ad11568276',

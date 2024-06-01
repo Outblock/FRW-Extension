@@ -71,9 +71,12 @@ const TokenList = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const data = await wallet.openapi.getAllTokenInfo();
-      setData(data);
-      setFitered(data);
+      const result = await wallet.openapi.getAllTokenInfo();
+      const uniqueTokens = result.filter((token, index, self) =>
+        index === self.findIndex((t) => t.symbol.toLowerCase() === token.symbol.toLowerCase())
+      );
+      setData(uniqueTokens);
+      setFitered(uniqueTokens);
   
       const enabledList = await wallet.openapi.getEnabledTokenList();
       setEnabledList(enabledList)

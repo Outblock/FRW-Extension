@@ -185,7 +185,6 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
 
 
   async function sendRequest(wallet: SignClient, topic: string) {
-    console.log(wallet)
     wallet.request({
       topic: topic,
       chainId: `flow:${currentNetwork}`,
@@ -194,13 +193,10 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
         params: [],
       },
     }).then(async (result: any) => {
-      console.log('result ', result);
       const jsonObject = JSON.parse(result);
-      console.log('jsonObject ', jsonObject);
       if (jsonObject.method === FCLWalletConnectMethod.accountInfo) {
         const accountKey: AccountKey = getAccountKey();
         const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
-        console.log('sent ->', accountKey)
 
         wallet.request({
           topic: topic,

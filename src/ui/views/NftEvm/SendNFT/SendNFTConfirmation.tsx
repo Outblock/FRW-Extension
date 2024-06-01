@@ -41,7 +41,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
-  const colorArray = ['#FCE9E1', '#FCC7AE', '#FCA47C', '#FCA47C', '#41CC5D', '#41CC5D', '#41CC5D'];
+  const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
 
   const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
   const web3 = new Web3(provider);
@@ -174,9 +174,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     setSending(true);
     console.log('props.data ', props.data)
     const contractTokenModel = {
-      contract_name : props.data.nft.collectionContractName,
-      address : props.data.nft.contractAddress,
-      path : props.data.nft.contractInfo,
+      contract_name: props.data.nft.collectionContractName,
+      address: props.data.nft.contractAddress,
+      path: props.data.nft.contractInfo,
     }
     console.log('props.data ', contractTokenModel)
     try {
@@ -326,8 +326,11 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Stack>
           <Stack direction="column" spacing={1} sx={{ ml: '18px' }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.contract && props.data.contract.logo} />
-              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.contract && props.data.contract.name}</Typography>
+              <Typography color="text" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.nft && props.data.nft.name}</Typography>
+            </Stack>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.nft && props.data.nft.collectionSquareImage} />
+              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.nft && props.data.nft.collectionContractName}</Typography>
               <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
             </Stack>
           </Stack>

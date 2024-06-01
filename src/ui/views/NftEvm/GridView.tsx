@@ -11,7 +11,7 @@ import {
 import { PostMedia } from '@/ui/utils/url';
 import { Link } from 'react-router-dom';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
-import { isNull } from 'util';
+import queryString from 'query-string';
 
 const useStyles = makeStyles(() => ({
   titleWrapper: {
@@ -87,7 +87,7 @@ const useStyles = makeStyles(() => ({
   nftname: {
     color: '#E6E6E6',
     fontSize: '14px',
-    fontWeight:'700'
+    fontWeight: '700'
   },
   nftprice: {
     color: '#808080',
@@ -117,6 +117,12 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
 
     }
   }
+
+  const navigateWithState = (data, media, index, ownerAddress) => {
+    const state = { nft: data, media: media, index: index, ownerAddress: ownerAddress };
+    localStorage.setItem('nftDetailState', JSON.stringify(state));
+  }
+
 
   useEffect(() => {
     fecthMedia();
@@ -190,6 +196,7 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
       <CardActionArea component={Link}
         className={classes.actionarea}
         to={{ pathname: `/dashboard/nftevm/detail/${index}`, state: { nft: data, media: media, index: index, ownerAddress: ownerAddress } }}
+        onClick={() => navigateWithState(data, media, index, ownerAddress)}
       >
         <CardMedia className={classes.cardmedia}>
           {getUri()}

@@ -27,7 +27,7 @@ interface ConnectProps {
   // defaultChain: CHAINS_ENUM;
 }
 
-const EthConfirm = ({ params: { icon, origin, tabId, type } }: ConnectProps) => {
+const EthConfirm = ({ params }: ConnectProps) => {
   const [, resolveApproval, rejectApproval, linkningConfirm] = useApproval();
   const { t } = useTranslation();
   const wallet = useWallet();
@@ -36,7 +36,13 @@ const EthConfirm = ({ params: { icon, origin, tabId, type } }: ConnectProps) => 
   const [opener, setOpener] = useState<number | undefined>(undefined)
   const [host, setHost] = useState(null)
   const [cadenceArguments, setCadenceArguments] = useState<any[]>([]);
-  const [cadenceScript, setCadenceScript] = useState<string>('')
+  const [requestParams, setParams] = useState<any>({
+    method: "",
+    data: [],
+    origin: "",
+    name: "",
+    icon: ""
+  })
   const [approval, setApproval] = useState(false)
   const [windowId, setWindowId] = useState<number | undefined>(undefined)
   const [expanded, setExpanded] = useState(false);
@@ -49,7 +55,6 @@ const EthConfirm = ({ params: { icon, origin, tabId, type } }: ConnectProps) => 
   const [image, setImage] = useState<string>('')
   const [accountTitle, setAccountTitle] = useState<string>('')
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null)
-  const [title, setTitle] = useState('')
 
   // TODO: replace default logo
   const [logo, setLogo] = useState('')
@@ -78,6 +83,27 @@ const EthConfirm = ({ params: { icon, origin, tabId, type } }: ConnectProps) => 
   }
 
 
+  const extractData = (obj) => {
+    console.log('obj ', obj)
+    try {
+      const {
+        method = "",
+        data = [],
+        session: {
+          origin = "",
+          name = "",
+          icon = ""
+        } = {}
+      } = obj;
+
+      const params = { origin, name, icon, method, data };
+      setParams(params);
+    } catch (error) {
+      console.error("Error extracting data:", error);
+      setParams({ origin: "", name: "", icon: "", method: "", data: [] });
+    }
+  };
+
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
   };
@@ -89,7 +115,12 @@ const EthConfirm = ({ params: { icon, origin, tabId, type } }: ConnectProps) => 
     });
   };
 
-
+  useEffect(() => {
+    if (params) {
+      console.log('params ', params)
+      extractData(params);
+    }
+  }, []);
 
 
   return (
@@ -116,14 +147,13 @@ const EthConfirm = ({ params: { icon, origin, tabId, type } }: ConnectProps) => 
           background: accountLinking ? 'linear-gradient(0deg, #121212, #32484C)' : 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           <DefaultBlock
-            title={title}
-            host={host}
+            title={requestParams.name || ''}
+            host={requestParams.origin || ''}
             auditor={auditor}
             expanded={expanded}
-            lilicoEnabled={lilicoEnabled}
-            cadenceArguments={cadenceArguments}
-            logo={logo}
-            cadenceScript={cadenceScript}
+            data={requestParams.data || []}
+            method={requestParams.method || ''}
+            logo={requestParams.icon || ''}
             setExpanded={setExpanded}
             dedent={dedent}
           />

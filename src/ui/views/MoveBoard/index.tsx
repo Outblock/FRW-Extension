@@ -59,14 +59,14 @@ const MoveBoard = (props: MoveBoardProps) => {
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', px: '16px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', height: '24px', margin: '20px 0', alignItems: 'center', }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', height: '24px', margin: '20px 0 12px', alignItems: 'center', }}>
           <Box sx={{ width: '40px' }}></Box>
           <Typography
             variant="body1"
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '18px', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
+            sx={{ fontSize: '20px', fontFamily:'e-Ukraine', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
           >
             Move Assets
           </Typography>
@@ -93,7 +93,7 @@ const MoveBoard = (props: MoveBoardProps) => {
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '12px', textAlign: 'center', lineHeight: '24px', padding: '0 50px', fontWeight: '400', opacity: '0.8' }}
+            sx={{ fontSize: '12px', textAlign: 'center', lineHeight: '24px', padding: '0 62px', fontWeight: '400', color: '#FFFFFFCC' }}
           >
             {`Would you like to move your assets to ${childType === 'evm' ? 'FLOW' : 'EVM'} account?`}
           </Typography>
@@ -101,7 +101,7 @@ const MoveBoard = (props: MoveBoardProps) => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ display: 'flex', padding: '0 24px', mb: '32px', mt: '24px', justifyContent: 'space-between' }}>
+      <Box sx={{ display: 'flex', padding: '0 24px', mb: '51px', mt: '24px', justifyContent: 'space-between' }}>
         <Box>
           <Button onClick={() => {
             setSelectBoard(true);

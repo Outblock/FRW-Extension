@@ -18,6 +18,7 @@ const NftEvm = () => {
   const [address, setAddress] = useState<string | null>('');
   const [value, setValue] = useState(0);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [childType, setChildType] = useState<string>('');
   const [isAddAddressOpen, setIsAddAddressOpen] = useState<boolean>(false);
   const [nftCount, setCount] = useState<number>(0);
   const [accessible, setAccessible] = useState<any>([]);
@@ -139,6 +140,7 @@ const NftEvm = () => {
     const isChild = await wallet.getActiveWallet();
     let address = ''
     if (isChild === 'evm') {
+      setChildType('evm')
       address = await wallet.getEvmAddress();
     } else {
 
@@ -265,33 +267,35 @@ const NftEvm = () => {
               }
             }>{chrome.i18n.getMessage('List')}</StyledTab>
           </TabsListStyle>
-          <Box component='span'>
-            <Button
-              component={Link}
-              to='/dashboard/nested/evm/add_list'
-              variant='contained'
-              color='secondary'
-              sx={{
-                width: '46px',
-                height: '35px',
-                borderRadius: '12px',
-                minWidth: '46px',
-                padding: '6px 9px',
-                zIndex: 12,
-                opacity: '0.24',
-              }}
-            >
-              <Typography color='#111111'
+          {childType !== 'evm' &&
+            <Box component='span'>
+              <Button
+                component={Link}
+                to='/dashboard/nested/evm/add_list'
+                variant='contained'
+                color='secondary'
                 sx={{
-                  fontWeight: '600',
-                  fontSize: '0.875rem',
-                  textTransform: 'none'
+                  width: '46px',
+                  height: '35px',
+                  borderRadius: '12px',
+                  minWidth: '46px',
+                  padding: '6px 9px',
+                  zIndex: 12,
+                  opacity: '0.24',
                 }}
               >
-                {chrome.i18n.getMessage('Add')}
-              </Typography>
-            </Button>
-          </Box>
+                <Typography color='#111111'
+                  sx={{
+                    fontWeight: '600',
+                    fontSize: '0.875rem',
+                    textTransform: 'none'
+                  }}
+                >
+                  {chrome.i18n.getMessage('Add')}
+                </Typography>
+              </Button>
+            </Box>
+          }
         </Box>
 
         <EditNFTAddress

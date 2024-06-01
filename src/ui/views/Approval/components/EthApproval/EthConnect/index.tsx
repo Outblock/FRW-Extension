@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useApproval, useWallet } from 'ui/utils';
 // import { CHAINS_ENUM } from 'consts';
 import { ThemeProvider } from '@mui/system';
-import { Stack, Box, Typography, Divider } from '@mui/material';
+import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
 import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
 import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
 import theme from 'ui/style/LLTheme';
@@ -46,6 +46,7 @@ const EthConnect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   // TODO: replace default logo
   const [logo, setLogo] = useState('')
   const init = async () => {
+    console.log('init ',icon, tabId, origin)
     setLogo(icon);
     const account = await wallet.getCurrentAccount();
     const site = await wallet.getSite(origin);
@@ -86,9 +87,9 @@ const EthConnect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
             <Box sx={{ display: 'flex', gap: '18px', marginBottom: '0px' }}>
-              <img style={{ height: '60px', width: '60px', borderRadius: '12px', backgroundColor: 'text.secondary' }} src={logo} />
+              <CardMedia component="img" sx={{ height: '60px', width: '60px', borderRadius: '12px', backgroundColor: 'text.secondary' }} image={icon} />
               <Stack direction="column" spacing={1} sx={{ justifyContent: 'space-between' }}>
-                <Typography>{title}</Typography>
+                <Typography>{origin}</Typography>
                 <Typography color="secondary.main" variant="overline">{host}</Typography>
               </Stack>
             </Box>

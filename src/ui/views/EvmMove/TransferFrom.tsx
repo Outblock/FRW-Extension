@@ -31,7 +31,7 @@ const TransferFrom = ({ wallet, userInfo }) => {
             </Box>
             <Box sx={{display:'flex',flexDirection:'column',padding:'16px 0'}}>
               <Typography sx={{fontSize:'14px',fontWeight:'600'}}>{userInfo.contact_name}</Typography>
-              <Typography sx={{fontSize:'12px',fontWeight:'400'}}>{userInfo.address}</Typography>
+              <Typography sx={{fontSize:'12px',fontWeight:'400', color:'#FFFFFFCC'}}>{userInfo.address}</Typography>
             </Box>
 
           </Box>

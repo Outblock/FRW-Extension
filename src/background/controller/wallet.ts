@@ -55,7 +55,7 @@ import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
 import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
-import { A } from 'ts-toolbelt';
+import emoji from 'background/utils/emoji.json';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
 
 const stashKeyrings: Record<string, any> = {};
@@ -1170,7 +1170,6 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const address = await this.getCurrentAddress();
     const NFTList = await openapiService.getNFTCadenceList(address!, network);
-    console.log('nft results ', NFTList)
     return NFTList;
   };
 
@@ -1178,7 +1177,6 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const address = await this.getCurrentAddress();
     const NFTCollection = await openapiService.getNFTCadenceCollection(address!, network, identifier);
-    console.log('nft results ', NFTCollection)
     return NFTCollection;
   };
 
@@ -1391,7 +1389,7 @@ export class WalletController extends BaseController {
 
 
 
-  transferFlowEvm = async (recipientEVMAddressHex: string, amount = '1.0', gasLimit = 150000): Promise<string> => {
+  transferFlowEvm = async (recipientEVMAddressHex: string, amount = '1.0', gasLimit = 30000000): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
@@ -1431,7 +1429,7 @@ export class WalletController extends BaseController {
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
-    const gasLimit = parseInt(gas, 16);
+    const gasLimit = 30000000;
 
     return await userWalletService.sendTransaction(
       script
@@ -1607,7 +1605,7 @@ export class WalletController extends BaseController {
       throw Error;
     }
     const script = await getScripts('evm', 'callContract');
-    const gasLimit = parseInt(gas, 16);
+    const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
@@ -1654,6 +1652,13 @@ export class WalletController extends BaseController {
       args: (arg, t) => [arg(hexEncodedAddress, t.String)],
     });
     return result;
+  };
+
+  
+
+  getFlowBalance = async (address) => {
+    const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
+    return account.balance;
   };
 
 
@@ -1948,7 +1953,7 @@ export class WalletController extends BaseController {
 
     const script = await getScripts('bridge', 'bridgeNFTToEvmAddress');
     console.log('script is this ', script)
-    const gasLimit = parseInt(gas, 16);
+    const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
@@ -2905,8 +2910,51 @@ export class WalletController extends BaseController {
   getAccount = async () => {
     const address = await this.getCurrentAddress();
     const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
-    console.log('fcl get account ', account);
     return account;
+  };
+  
+
+  getEmoji = async () => {
+    const currentId = await storage.get('currentId');
+    let emojires = await storage.get(`${currentId}emoji`)
+    if (!emojires) {
+      const index1 = Math.floor(Math.random() * emoji.emojis.length);
+      let index2;
+
+      do {
+        index2 = Math.floor(Math.random() * emoji.emojis.length);
+      } while (index1 === index2);
+
+      emojires = [emoji.emojis[index1], emoji.emojis[index2]];
+      storage.set(`${currentId}emoji`, emojires)
+    }
+
+    return emojires;
+  };
+  
+
+  setEmoji = async (emoji, type) => {
+    const currentId = await storage.get('currentId');
+    let emojires = await storage.get(`${currentId}emoji`)
+    if (!emojires) {
+      const index1 = Math.floor(Math.random() * emoji.emojis.length);
+      let index2;
+
+      do {
+        index2 = Math.floor(Math.random() * emoji.emojis.length);
+      } while (index1 === index2);
+
+      emojires = [emoji.emojis[index1], emoji.emojis[index2]];
+    }
+    if (type === 'evm') {
+      emojires[1] = emoji
+    } else {
+      emojires[0] = emoji
+    }
+
+    await storage.set(`${currentId}emoji`, emojires)
+
+    return emojires;
   };
 }
 

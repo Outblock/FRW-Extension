@@ -30,11 +30,10 @@ import { storage } from '@/background/webapi';
 import { withPrefix, ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { StyledEngineProvider } from '@mui/material/styles';
 import eventBus from '@/eventBus';
-import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
-import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
+import { profileHooks } from 'ui/utils/profileHooks'
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -59,7 +58,21 @@ type ChildAccount = {
   };
 };
 
+const tempEmoji = [
+  {
+    "emoji": "🥥",
+    "name": "Coconut",
+    "bgcolor": "#FFE4C4"
+  },
+  {
+    "emoji": "🥑",
+    "name": "Avocado",
+    "bgcolor": "#98FB98"
+  }
+];
+
 const Header = ({ loading }) => {
+
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
@@ -70,6 +83,8 @@ const Header = ({ loading }) => {
   const [currentWallet, setCurrentWallet] = useState(0);
   const [current, setCurrent] = useState({});
   const [currentNetwork, setNetwork] = useState('mainnet');
+  const [emojis, setEmojis] = useState(tempEmoji);
+
   const [isSandbox, setIsSandbox] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
   const [otherAccounts, setOtherAccounts] = useState<any>(null);
@@ -77,15 +92,16 @@ const Header = ({ loading }) => {
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [modeOn, setModeOn] = useState(false);
   // const [unread, setUnread] = useState(0);
-  const [alertOpen, setAlertOpen] = useState<boolean>(false);
-  const [domain, setDomain] = useState('');
 
+  const [domain, setDomain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
   const [crescendoAvailable, setSandboxnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
 
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
+
+  const [flowBalance, setFlowBalance] = useState(0);
 
   const [modeAnonymous, setModeAnonymous] = useState(false);
 
@@ -137,7 +153,6 @@ const Header = ({ loading }) => {
     // const wallet = await usewallet.getUserWallets();
     // await setWallet(wallet);
     const userInfo = await usewallet.getUserInfo(false);
-    // const domain = await usewallet.fetchUserDomain();
     await setUserInfo(userInfo);
     // await setDomain(domain);
     if (userInfo.private == 1) {
@@ -197,6 +212,7 @@ const Header = ({ loading }) => {
 
 
     const keys = await usewallet.getAccount();
+    setFlowBalance(keys.balance);
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
     const isChild = await usewallet.getActiveWallet();
@@ -348,16 +364,24 @@ const Header = ({ loading }) => {
     await usewallet.checkNetwork();
   };
 
-
+  const fetchProfile = async () => {
+    const emojires = await usewallet.getEmoji();
+    setEmojis(emojires);
+  }
   useEffect(() => {
     loadNetwork();
     fetchUserWallet();
     loadDeveloperMode();
     checkPendingTx();
     checkAuthStatus();
+    fetchProfile();
 
     const addressDone = () => {
       fetchUserWallet();
+    };
+
+    const changeEmoji = () => {
+      fetchProfile();
     };
 
     const networkChanged = (network) => {
@@ -369,10 +393,12 @@ const Header = ({ loading }) => {
      * Fired when a message is sent from either an extension process or a content script.
      */
     eventBus.addEventListener('addressDone', addressDone);
+    eventBus.addEventListener('profileChanged', changeEmoji);
     eventBus.addEventListener('switchNetwork', networkChanged);
     return () => {
       eventBus.removeEventListener('addressDone', addressDone);
       eventBus.removeEventListener('switchNetwork', networkChanged);
+      eventBus.removeEventListener('profileChanged', changeEmoji);
       chrome.runtime.onMessage.removeListener(transactionHanlder);
     };
   }, []);
@@ -413,17 +439,25 @@ const Header = ({ loading }) => {
 
   const WalletFunction = (props) => {
     return (
-      <Box
+      <ListItem
         onClick={() => {
           setWallets(null, null);
         }}
-        sx={{ mb: 0, paddingX: '16px' }}
+        sx={{ mb: 0, paddingX: '0', cursor: 'pointer' }}
       >
-        <Box
-          sx={{ mb: 0, background: 'none !important', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-          className={current['address'] === props.address ? classes.active : ''}
+
+        <ListItemButton
+          sx={{ mb: 0, display: 'flex', px: '16px', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <CardMedia component="img" image={userInfo?.avatar} sx={{ marginRight: '12px', width: '32px', height: '32px' }} />
+          {emojis &&
+            < Box sx={{
+              display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emojis[0]['bgcolor'], marginRight: '12px'
+            }}>
+              <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
+                {emojis[0].emoji}
+              </Typography>
+            </Box>
+          }
           <Box sx={{ display: 'flex', flexDirection: 'column', background: 'none' }}>
             <Typography
               variant="body1"
@@ -459,13 +493,13 @@ const Header = ({ loading }) => {
               sx={{ fontSize: '13px', textTransform: 'lowercase' }}
             >
               {/* <span>{'  '}</span> */}
-              {props.address}
+              {flowBalance / 100000000} Flow
             </Typography>
           </Box>
           <Box sx={{ flex: "1" }}></Box>
           {/* <IconEnd size={12} /> */}
-        </Box>
-      </Box>
+        </ListItemButton>
+      </ListItem >
     );
   };
 
@@ -901,21 +935,24 @@ const Header = ({ loading }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          <MenuDrawer
-            userInfo={userInfo!}
-            drawer={drawer}
-            toggleDrawer={toggleDrawer}
-            otherAccounts={otherAccounts}
-            switchAccount={switchAccount}
-            togglePop={togglePop}
-            walletList={walletList}
-            childAccounts={childAccounts}
-            current={current}
-            createWalletList={createWalletList}
-            setWallets={setWallets}
-            currentNetwork={currentNetwork}
-            evmAddress={evmAddress}
-          />
+          {userInfo &&
+            <MenuDrawer
+              userInfo={userInfo!}
+              drawer={drawer}
+              toggleDrawer={toggleDrawer}
+              otherAccounts={otherAccounts}
+              switchAccount={switchAccount}
+              togglePop={togglePop}
+              walletList={walletList}
+              childAccounts={childAccounts}
+              current={current}
+              createWalletList={createWalletList}
+              setWallets={setWallets}
+              currentNetwork={currentNetwork}
+              evmAddress={evmAddress}
+              emojis={emojis}
+            />
+          }
           {appBarLabel(current)}
           {usernameSelect()}
           {userInfo && (

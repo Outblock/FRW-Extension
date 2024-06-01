@@ -5,16 +5,9 @@ import {
   CardMedia
 } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
-
+import { formatAddress } from 'ui/utils';
 
 const TransferTo = ({ wallet, userInfo }) => {
-
-  const formatWalletAddress = (address) => {
-    if (address && address.length > 10) {
-      return `0x${address.substring(0, 4)}...${address.substring(address.length - 6)}`;
-    }
-    return address;
-  };
 
   return (
     <StyledEngineProvider injectFirst>
@@ -59,7 +52,7 @@ const TransferTo = ({ wallet, userInfo }) => {
                 </Typography>
               </Box>
 
-              <Typography sx={{ fontSize: '12px', fontWeight: '400' }}>{formatWalletAddress(wallet)}</Typography>
+              <Typography sx={{ fontSize: '12px', fontWeight: '400', color:'#FFFFFFCC' }}>{formatAddress(wallet)}</Typography>
             </Box>
 
           </Box>

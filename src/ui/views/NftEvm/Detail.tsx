@@ -87,6 +87,17 @@ interface NFTDetailState {
 }
 
 const Detail = () => {
+
+  const emptyContact = {
+    address: '',
+    contact_name: '',
+    avatar: '',
+    domain: {
+      domain_type: 0,
+      value: '',
+    }
+  };
+
   const classes = useStyles();
   const location = useLocation();
   const history = useHistory();
@@ -98,21 +109,66 @@ const Detail = () => {
   const [media, setMedia] = useState<PostMedia | null>(null);
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
   const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
+  const [contactOne, setContactOne] = useState<any>(emptyContact);
+  const [contactTwo, setContactTwo] = useState<any>(emptyContact);
+  const [nftDetailState, setNftDetailState] = useState({ nft: null, media: null, ownerAddress: null, index: null });
+
+  useEffect(() => {
+    const savedState = localStorage.getItem('nftDetailState');
+    if (savedState) {
+      const nftDetail = JSON.parse(savedState);
+      setDetail(nftDetail.nft);
+      setMedia(nftDetail.media);
+      setOwnerAddress(nftDetail.ownerAddress);
+      setMetadata(nftDetail.nft);
+    }
+  }, []);
 
 
   const fetchNft = async () => {
-    const state = location.state as NFTDetailState
-    const NFT = state.nft
-    const media = state.media
-    const ownerAddress = state.ownerAddress
+    const userInfo = await usewallet.getUserInfo(false);
+    const currentAddress = await usewallet.getCurrentAddress();
+    const evmAddress = await usewallet.getEvmAddress();
+    const isEvm = await usewallet.getActiveWallet();
+    const userTemplate = {
+      avatar: userInfo.avatar,
+      domain: {
+        domain_type: 0,
+        value: '',
+      }
+    };
 
+    let userOne, userTwo;
+
+    if (isEvm === 'evm') {
+      userOne = {
+        ...userTemplate,
+        address: evmAddress,
+        contact_name: 'evm',
+      };
+      userTwo = {
+        ...userTemplate,
+        address: currentAddress,
+        contact_name: userInfo.nickname,
+      };
+    } else {
+      userOne = {
+        ...userTemplate,
+        address: currentAddress,
+        contact_name: userInfo.nickname,
+      };
+      userTwo = {
+        ...userTemplate,
+        address: evmAddress,
+        contact_name: 'evm',
+      };
+    }
+    setContactOne(userOne);
+    setContactTwo(userTwo);
+
+    console.log('userInfo ', userInfo)
     const evmEnabled = await usewallet.getEvmEnabled();
     setEvmEnabled(evmEnabled);
-    setDetail(NFT);
-    setMedia(media);
-    setOwnerAddress(ownerAddress);
-    const nft_metadata = NFT
-    setMetadata(nft_metadata);
 
 
     await usewallet.setDashIndex(1);
@@ -374,23 +430,7 @@ const Detail = () => {
         <MoveNftConfirmation
           isConfirmationOpen={moveOpen}
           data={{
-            contact: {
-              address: '',
-              contact_name: '',
-              avatar: '',
-              domain: {
-                domain_type: 0,
-                value: '',
-              },
-            }, userContact: {
-              address: '',
-              contact_name: '',
-              avatar: '',
-              domain: {
-                domain_type: 0,
-                value: '',
-              },
-            }, nft: nftDetail, contract: nftDetail, media: media
+            contact: contactTwo, userContact: contactOne, nft: nftDetail, contract: nftDetail, media: media
           }}
           handleCloseIconClicked={() => setMoveOpen(false)}
           handleCancelBtnClicked={() => setMoveOpen(false)}

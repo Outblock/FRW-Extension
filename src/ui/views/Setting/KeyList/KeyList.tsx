@@ -33,7 +33,6 @@ const KeyList = () => {
     const account = await wallet.getAccount();
     const keys = await wallet.openapi.keyList();
     const installationId = await wallet.openapi.getInstallationId();
-    console.log(' installationId ', installationId)
     // console.log(';account is ', account)
     const mergedArray = await mergeData({
       result: keys.data.result,

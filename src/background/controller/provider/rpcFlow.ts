@@ -79,6 +79,8 @@ const flowContext = flow
         permissionService.addConnectedSite(origin, name, icon, defaultChain);
       }
     }
+    const site = permissionService.getConnectedSite(origin);
+    console.log('site ', site)
 
     return next();
   })
@@ -91,12 +93,10 @@ const flowContext = flow
       },
       mapMethod,
     } = ctx;
-    console.log('ctx ctx ctx ctx', ctx)
+    console.log('ctx3 ', ctx)
     const [approvalType, condition, { height = 599 } = {}] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || [];
-
-    console.log('approvalType approvalType providerController ctx', mapMethod, providerController)
-    if (mapMethod === 'ethSendTransaction') {
+    if (mapMethod === 'ethSendTransaction' || mapMethod === 'personalSign') {
       ctx.request.requestedApproval = true;
       ctx.approvalRes = await notificationService.requestApproval(
         {
@@ -120,6 +120,7 @@ const flowContext = flow
     return next();
   })
   .use(async (ctx) => {
+    console.log('ctx4 ', ctx)
     const { approvalRes, mapMethod, request } = ctx;
     // process request
     const [approvalType] =

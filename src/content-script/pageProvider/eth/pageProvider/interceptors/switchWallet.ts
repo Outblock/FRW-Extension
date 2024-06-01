@@ -1,7 +1,8 @@
 import IconMetamask from "../../assets/metamask.svg";
-import IconRabby from "../../assets/rabby.svg";
+import IconFlow from "../../assets/flow.svg";
 import notice from "../notice";
 import { isInSameOriginIframe } from "../../utils/iframe";
+import { flow } from "lodash";
 
 let instance: ReturnType<typeof notice> | null;
 
@@ -10,7 +11,7 @@ export const switchWalletNotice = (type: "rabby" | "metamask") => {
     return;
   }
   const titles = {
-    rabby: "Rabby",
+    flow: "Flow Wallet",
     metamask: "MetaMask",
   };
   if (instance) {
@@ -22,13 +23,9 @@ export const switchWalletNotice = (type: "rabby" | "metamask") => {
     timeout: 0,
     className: "rabby-notice-default-wallet",
     content: `<div style="display: flex; align-items: center; gap: 12px;">
-      <img style="width: 28px;" src="${
-        type === "rabby" ? IconRabby : IconMetamask
-      }"/>
+      <img style="width: 28px;" src="${type === "rabby" ? IconFlow : IconMetamask}"/>
       <div>
-        <div><span style="font-weight: bold;">${
-          titles[type]
-        }</span> is your default wallet now. </div>
+        <div><span style="font-weight: bold;">${titles[type]}</span> is your default wallet now. </div>
         <div>
         Please <a
           href="javascript:window.location.reload();"

@@ -144,7 +144,6 @@ class ProviderController extends BaseController {
     sessionService.broadcastEvent('accountsChanged', account);
     const connectSite = permissionService.getConnectedSite(origin);
 
-    console.log('account ', account)
     // if (connectSite) {
     //   const chain = CHAINS[connectSite.chai!];
     //   // rabby:chainChanged event must be sent before chainChanged event
@@ -162,8 +161,6 @@ class ProviderController extends BaseController {
     return account;
   };
   ethEstimateGas = async ({ data }) => {
-
-    console.log('account ', data)
     const url = 'https://previewnet.evm.nodes.onflow.org'
     const provider = new ethers.JsonRpcProvider(url)
     const gas = await provider.estimateGas({
@@ -181,7 +178,6 @@ class ProviderController extends BaseController {
 
   ethSendTransaction = async (data) => {
 
-    console.log('account ', data)
     if (!data || !data.data || !data.data.params || !data.data.params.length) {
       console.error("Invalid data structure");
       return null;
@@ -211,9 +207,18 @@ class ProviderController extends BaseController {
       await Wallet.switchNetwork('previewnet');
     }
     const currentWallet = await Wallet.getCurrentWallet();
-    const res = await Wallet.queryEvmAddress(currentWallet.address);
-    const evmAddress = ensureEvmAddressPrefix(res);
-    return [evmAddress];
+    let res = await Wallet.queryEvmAddress(currentWallet.address);
+    res = ensureEvmAddressPrefix(res);
+    const account = res ? [res.toLowerCase()] : [];
+    await sessionService.broadcastEvent('accountsChanged', account);
+    await permissionService.getConnectedSite(origin);
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    console.log('evmAddress ', account)
+    await delay(2000);
+
+    console.log('evmAdevmAddressevmAddressevmAddressdress ', account)
+    return account;
     // return ['000000000000000000000002f9e3b9cbbaa99770'];
   };
 

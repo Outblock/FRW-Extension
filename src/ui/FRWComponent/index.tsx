@@ -17,3 +17,4 @@ export * from './LLFlownsPop';
 export * from './LLSwap';
 export * from './FRWHoldButton';
 export * from './CredentialBox';
+export * from './FRWProfileCard';

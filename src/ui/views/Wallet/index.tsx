@@ -170,7 +170,10 @@ const WalletTab = ({ network }) => {
   }
   const handleStorageData = async (storageData) => {
     if (storageData) {
-      await setCoinData(storageData);
+      const uniqueTokens = storageData.filter((token, index, self) =>
+        index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
+      );
+      await setCoinData(uniqueTokens);
       let sum = 0;
       storageData
         .filter((item) => item.total !== null)
@@ -482,7 +485,7 @@ const WalletTab = ({ network }) => {
         style={{ height: '100%', width: '100%' }}
       >
         <TabPanel value={value} index={0}>
-          <CoinList data={coinData} ableFt={accessible} isActive={isActive} />
+          <CoinList data={coinData} ableFt={accessible} isActive={isActive} childType={childType} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           <TransferList setCount={setTxCount} />

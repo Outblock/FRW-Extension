@@ -38,7 +38,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
-  const colorArray = ['#FCE9E1', '#FCC7AE', '#FCA47C', '#FCA47C', '#41CC5D', '#41CC5D', '#41CC5D'];
+  const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
   
   const startCount = () => {
     let count = 0;

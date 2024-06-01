@@ -218,7 +218,7 @@
     "message": "Do not share your private key!"
   },
   "If__someone__has__your__private__key": {
-    "message": "If someone has your private key, they will  <br/>have full access to your wallet. "
+    "message": "If someone has your private key, they will have full access to your wallet. "
   },
   "COPY": {
     "message": "COPY"
@@ -227,7 +227,7 @@
     "message": "Do not share your secret phrase!"
   },
   "If__someone__has__your__secret__phrase": {
-    "message": "If someone has your secret phrase, they will  <br/>have full control of your wallet."
+    "message": "If someone has your secret phrase, they will have full control of your wallet."
   },
   "Done": {
     "message": "Done"
