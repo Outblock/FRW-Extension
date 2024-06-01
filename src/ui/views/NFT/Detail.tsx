@@ -109,21 +109,15 @@ const Detail = () => {
     const NFT = state.nft
     const media = state.media
     const ownerAddress = state.ownerAddress
-    // console.log('state ===>', state, NFT, media, ownerAddress)
+
+
     setDetail(NFT);
     setMedia(media);
     setOwnerAddress(ownerAddress);
     const nft_metadata = NFT
     setMetadata(nft_metadata);
-    // const metadata_titles = ['name', 'title', 'description', 'uri', 'image', 'media', 'mimeType', 'type']
-    // if (nft_metadata) {
-    //   const metadata_titles = ['name', 'title', 'description', 'image', 'mimeType', 'uri']
-    //   const filtered_metadata = nft_metadata
-    //     .filter((metadata) => !metadata_titles.includes(metadata.name))
-    //     .sort((a, b) => (a.value.length + a.name.length) - (b.value.length + b.name.length))
 
-    //   setMetadata(filtered_metadata);
-    // }
+
     const contractList = await usewallet.openapi.getAllNft();
     await usewallet.setDashIndex(1);
     const filteredCollections = returnFilteredCollections(contractList, NFT)
