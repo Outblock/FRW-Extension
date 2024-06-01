@@ -34,6 +34,8 @@ import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
 import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
 import { profileHooks } from 'ui/utils/profileHooks'
+import { P } from 'ts-toolbelt/out/Object/_api';
+import { Network } from 'ethers';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -212,11 +214,21 @@ const Header = ({ loading }) => {
 
 
     const keys = await usewallet.getAccount();
-    setFlowBalance(keys.balance);
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
     const isChild = await usewallet.getActiveWallet();
+
     const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild)
+    if (!isChild) {
+      setFlowBalance(keys.balance);
+    } else {
+      usewallet.getUserWallets().then((res) => {
+        const address = res[0].blockchain[0].address;
+        usewallet.getFlowBalance(address).then((balance) => {
+          setFlowBalance(balance);
+        });
+      });
+    }
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
@@ -493,7 +505,7 @@ const Header = ({ loading }) => {
               sx={{ fontSize: '13px', textTransform: 'lowercase' }}
             >
               {/* <span>{'  '}</span> */}
-              {flowBalance / 100000000} Flow
+              {(flowBalance / 100000000).toFixed(3)} Flow
             </Typography>
           </Box>
           <Box sx={{ flex: "1" }}></Box>
@@ -951,6 +963,7 @@ const Header = ({ loading }) => {
               currentNetwork={currentNetwork}
               evmAddress={evmAddress}
               emojis={emojis}
+              networkColor={networkColor}
             />
           }
           {appBarLabel(current)}

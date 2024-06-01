@@ -210,7 +210,7 @@ const DeveloperMode = () => {
     const evmMode = await storage.get('evmMode');
     if (developerMode) {
       setModeOn(developerMode);
-      setEvmOn(evmMode);
+      setEvmOn(!evmMode);
     }
   };
 

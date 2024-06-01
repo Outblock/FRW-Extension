@@ -11,7 +11,10 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { makeStyles } from '@mui/styles';
 import { UserInfoResponse } from 'background/service/networkModel';
 import sideMore from '../../../FRWAssets/svg/sideMore.svg';
-import planetr from '../../../FRWAssets/svg/planetr.svg';
+import mainnetIndicator from '../../../FRWAssets/svg/networkIndicator.svg';
+import testnetIndicator from '../../../FRWAssets/svg/networkIndicatorTestnet.svg';
+import previewnetIndicator from '../../../FRWAssets/svg/networkIndicatorPreviewnet.svg';
+
 import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
 import { storage } from '@/background/webapi';
 
@@ -48,6 +51,7 @@ interface MenuDrawerProps {
   currentNetwork: string;
   evmAddress: string;
   emojis: any;
+  networkColor: any;
 }
 
 
@@ -57,7 +61,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   const usewallet = useWallet();
   const history = useHistory();
   const classes = useStyles();
-  const [evmMode, setEvmMode] = useState(false);
+  const [evmMode, setEvmMode] = useState(true);
   const [isEvm, setIsEvm] = useState(false);
 
   interface EvmADDComponentProps {
@@ -100,16 +104,15 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   const checkEvmMode = async () => {
     const mode = await storage.get('evmMode');
     const activeChild = await usewallet.getActiveWallet();
-    console.log('props. ', props.evmAddress)
     if (activeChild === 'evm') {
       setIsEvm(true);
     } else {
       setIsEvm(false)
     }
 
-    const network = await usewallet.getNetwork();
+    const network = props.currentNetwork;
     if (network === 'previewnet') {
-      setEvmMode(mode);
+      setEvmMode(!mode);
     } else {
       setEvmMode(false);
     }
@@ -119,6 +122,19 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   useEffect(() => {
     checkEvmMode();
   }, []);
+
+  const getIndicatorImage = () => {
+    switch (props.currentNetwork) {
+      case 'mainnet':
+        return mainnetIndicator;
+      case 'testnet':
+        return testnetIndicator;
+      case 'previewnet':
+        return previewnetIndicator;
+      default:
+        return mainnetIndicator; // Default to mainnet if no match
+    }
+  };
 
 
 
@@ -133,23 +149,39 @@ const MenuDrawer = (props: MenuDrawerProps) => {
       <List sx={{ backgroundColor: '#282828', display: 'flex', flexDirection: 'column', height: '100%' }}>
         <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           {props.userInfo &&
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <ListItemIcon>
+            <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+              <ListItemIcon sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <img src={props.userInfo!.avatar} width="48px" />
-              </ListItemIcon>
-              <ListItemText primary={props.userInfo!.username} />
-            </Box>
-          }
-          <Box sx={{ paddingTop: '4px', px: '2px' }}>
-            {/* {props.otherAccounts && props.otherAccounts.map((account, index) => (
+
+                <Box sx={{ paddingTop: '4px', px: '2px' }}>
+                  {/* {props.otherAccounts && props.otherAccounts.map((account, index) => (
               <IconButton key={index} edge="end" aria-label="account" onClick={() => props.switchAccount(account)}>
                 <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
               </IconButton>
             ))} */}
-            <IconButton edge="end" aria-label="close" onClick={props.togglePop}>
-              <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
-            </IconButton>
-          </Box>
+                  <IconButton edge="end" aria-label="close" onClick={props.togglePop}>
+                    <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
+                  </IconButton>
+                </Box>
+              </ListItemIcon>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <ListItemText sx={{ fontSize: '14px', fontWeight: '700' }} primary={props.userInfo!.username} />
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 12px', borderRadius: '24px', height: '24px', border: `1px solid ${props.networkColor(props.currentNetwork)}` }}>
+                  <Box sx={{ width: '4px', height: '4px', marginRight: '8px', borderRadius: '4px', background: props.networkColor(props.currentNetwork) }}></Box>
+                  <Typography sx={{ fontSize: '12px', marginRight: '12px', lineHeight: '24px', fontWeight: '400', color: props.networkColor(props.currentNetwork) }}> {props.currentNetwork}</Typography>
+
+
+                  <CardMedia component="img" sx={{
+                    width: '16px', height: '16px',
+                  }} image={getIndicatorImage()} />
+
+
+
+                </Box>
+              </Box>
+            </Box>
+          }
         </ListItem>
         {evmMode && (
           !isValidEthereumAddress(props.evmAddress) && (
@@ -293,9 +325,10 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             </ListItemButton>
           </ListItem>)}
 
-        {Object.keys(props.childAccounts).map((key) => (
+        {Object.keys(props.childAccounts).map((key, index) => (
           <Box
             sx={{ display: 'flex', justifyContent: 'space-between', padding: '16px 16px 0', cursor: 'pointer' }}
+            key={index}
             onClick={() => props.setWallets({
               name: props.childAccounts[key]?.name ?? key,
               address: key,

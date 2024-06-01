@@ -104,25 +104,21 @@ const Detail = () => {
   };
 
 
+
   const fetchNft = async () => {
-    const state = location.state as NFTDetailState
-    const NFT = state.nft
-    const media = state.media
-    const ownerAddress = state.ownerAddress
-
-
-    setDetail(NFT);
-    setMedia(media);
-    setOwnerAddress(ownerAddress);
-    const nft_metadata = NFT
-    setMetadata(nft_metadata);
-
-
-    const contractList = await usewallet.openapi.getAllNft();
+    const savedState = localStorage.getItem('nftDetailState');
     await usewallet.setDashIndex(1);
-    const filteredCollections = returnFilteredCollections(contractList, NFT)
-    if (filteredCollections.length > 0) {
-      setContractInfo(filteredCollections[0])
+    if (savedState) {
+      const nftDetail = JSON.parse(savedState);
+      setDetail(nftDetail.nft);
+      setMedia(nftDetail.media);
+      setOwnerAddress(nftDetail.ownerAddress);
+      setMetadata(nftDetail.nft);
+      const contractList = await usewallet.openapi.getAllNft();
+      const filteredCollections = returnFilteredCollections(contractList, nftDetail.nft)
+      if (filteredCollections.length > 0) {
+        setContractInfo(filteredCollections[0])
+      }
     }
   }
 

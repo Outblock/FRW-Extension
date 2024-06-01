@@ -118,6 +118,13 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
     }
   }
 
+  
+
+  const navigateWithState = (data, media, index, ownerAddress) => {
+    const state = { nft: data, media: media, index: index, ownerAddress: ownerAddress };
+    localStorage.setItem('nftDetailState', JSON.stringify(state));
+  }
+
   useEffect(() => {
     fecthMedia();
   }, [])
@@ -190,6 +197,7 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
       <CardActionArea component={Link}
         className={classes.actionarea}
         to={{ pathname: `/dashboard/nested/nftdetail/${index}`, state: { nft: data, media: media, index: index, ownerAddress: ownerAddress } }}
+        onClick={() => navigateWithState(data, media, index, ownerAddress)}
       >
         <CardMedia className={classes.cardmedia}>
           {getUri()}

@@ -68,6 +68,7 @@ const WalletTab = ({ network }) => {
   const [swapHover, setSwapHover] = useState(false);
   const [receiveHover, setReceiveHover] = useState(false);
   const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
+  const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
 
   const [incLink, _] = useState(
     network === 'mainnet'
@@ -87,15 +88,30 @@ const WalletTab = ({ network }) => {
 
   const setUserAddress = async () => {
     let data = '';
-    if (childType === 'evm') {
-      data = await wallet.getEvmAddress();
-    } else {
-      data = await wallet.getCurrentAddress();
+    try {
+      if (childType === 'evm') {
+        data = await wallet.getEvmAddress();
+      } else {
+        data = await wallet.getCurrentAddress();
+      }
+    } catch (error) {
+      console.error('Error getting address:', error);
+      data = '';
     }
     if (data) {
       setAddress(withPrefix(data) || '');
     } else {
-      wallet.openapi.getManualAddress();
+      const currentTime = Date.now();
+      if (currentTime - lastManualAddressCallTime > 60000) {
+        try {
+          await wallet.openapi.getManualAddress();
+          setlastManualAddressCallTime(currentTime)
+        } catch (error) {
+          console.error('Error getting manual address:', error);
+        }
+      } else {
+        console.log('Skipped calling getManualAddress to prevent frequent calls');
+      }
     }
     return data;
   };
@@ -136,7 +152,6 @@ const WalletTab = ({ network }) => {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
-        console.log('ftResult ', ftResult);
       }
     }
     if (childType !== 'evm') {
@@ -311,7 +326,7 @@ const WalletTab = ({ network }) => {
                   minWidth: '56px',
                   width: sendHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
-                  flex: network === 'previewnet' ? 'auto' :'1',
+                  flex: network === 'previewnet' ? 'auto' : '1',
                   transition: 'width 0.3s ease-in-out'
                 }}
               >
@@ -327,10 +342,10 @@ const WalletTab = ({ network }) => {
                   height: '36px',
                   px: '12px !important',
                   minWidth: '56px',
-                  borderRadius:'0px',
+                  borderRadius: '0px',
                   width: swapHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
-                  flex: network === 'previewnet' ? 'auto' :'1',
+                  flex: network === 'previewnet' ? 'auto' : '1',
                   transition: 'width 0.3s ease-in-out'
                 }}
                 onMouseEnter={() => setSwapHover(true)}
@@ -354,10 +369,10 @@ const WalletTab = ({ network }) => {
                 height: '36px',
                 px: '12px !important',
                 minWidth: '56px',
-                borderRadius:'0px',
+                borderRadius: '0px',
                 width: receiveHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
-                flex: network === 'previewnet' ? 'auto' :'1',
+                flex: network === 'previewnet' ? 'auto' : '1',
                 transition: 'width 0.3s ease-in-out'
               }}
               onMouseEnter={() => setReceiveHover(true)}
@@ -380,7 +395,7 @@ const WalletTab = ({ network }) => {
                 minWidth: '56px',
                 width: buyHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
-                flex: network === 'previewnet' ? 'auto' :'1',
+                flex: network === 'previewnet' ? 'auto' : '1',
                 transition: 'width 0.3s ease-in-out'
               }}
               onMouseEnter={() => setBuyHover(true)}
