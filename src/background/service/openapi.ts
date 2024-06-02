@@ -1078,7 +1078,7 @@ class OpenApiService {
       });
       return res;
     } catch (err) {
-      console.log('getChildAccountMeta err ', err);
+      console.log('getChildAccountMeta err');
       return null;
     }
   };
@@ -1408,10 +1408,8 @@ class OpenApiService {
           decimals: 8,
           symbol: 'flow',
         })
-
-        console.log(' github tokens is ', tokens)
-        storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
       }
+      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
       return tokens;
     }
   };
@@ -1422,8 +1420,17 @@ class OpenApiService {
 
     const tokenList = await this.getTokenListFromGithub(network);
     const address = await userWalletService.getCurrentAddress();
-
-    const values = await this.isTokenListEnabled(address);
+    console.log('address ', address)
+    let values;
+    
+    try {
+      values = await this.isTokenListEnabled(address);
+      console.log(`isTokenListEnabled fetching for token:`, values);
+    } catch (error) {
+      console.error(`Error isTokenListEnabled token:`);
+      values = {}
+    }
+    console.log('isTokenListEnabled ', values)
 
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
@@ -1484,7 +1491,6 @@ class OpenApiService {
 
     const tokens = allTokens.filter((token) => token.address);
     const script = await getScripts('ft', 'getTokenListBalance');
-
     const balanceList = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
@@ -2029,7 +2035,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceCollection = async (address: string,network = 'previewnet',  identifier, offset = 0, limit = 24) => {
+  getNFTCadenceCollection = async (address: string, network = 'previewnet', identifier, offset = 0, limit = 24) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
@@ -2040,7 +2046,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTV2CollectionList = async (address: string,network = 'previewnet',) => {
+  getNFTV2CollectionList = async (address: string, network = 'previewnet',) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collections?network=${network}&address=${address}`,

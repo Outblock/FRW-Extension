@@ -78,7 +78,6 @@ function createAndEncodeCOAOwnershipProof(keyIndices: bigint[], address: Uint8Ar
     capabilityPath,
     signatures
   };
-  console.log('proof ', proof)
   // Prepare data for RLP encoding
   const encodedData = RLP.encode([
     proof.keyIndices.map(index => Buffer.from(index.toString(16), 'hex')), // Convert bigint to Buffer
@@ -95,7 +94,6 @@ async function signMessage(keyring, msgParams, opts = {}) {
 
   const web3 = new Web3();
   const textData = msgParams.data;
-  console.log('texttexttexttext ', textData)
 
   const rightPaddedHexBuffer = (value: string, pad: number) =>
     Buffer.from(value.padEnd(pad * 2, '0'), 'hex')
@@ -144,20 +142,6 @@ class ProviderController extends BaseController {
     sessionService.broadcastEvent('accountsChanged', account);
     const connectSite = permissionService.getConnectedSite(origin);
 
-    // if (connectSite) {
-    //   const chain = CHAINS[connectSite.chai!];
-    //   // rabby:chainChanged event must be sent before chainChanged event
-    //   sessionService.broadcastEvent('rabby:chainChanged', chain, origin);
-    //   sessionService.broadcastEvent(
-    //     'chainChanged',
-    //     {
-    //       chain: chain.hex,
-    //       networkVersion: chain.network,
-    //     },
-    //     origin
-    //   );
-    // }
-
     return account;
   };
   ethEstimateGas = async ({ data }) => {
@@ -172,7 +156,6 @@ class ProviderController extends BaseController {
       // 1 ether
       value: data.params[0].value
     });
-    console.log('gas gas gas ', gas)
     return '0x' + gas.toString(16);
   };
 
@@ -217,7 +200,6 @@ class ProviderController extends BaseController {
     console.log('evmAddress ', account)
     await delay(2000);
 
-    console.log('evmAdevmAddressevmAddressevmAddressdress ', account)
     return account;
     // return ['000000000000000000000002f9e3b9cbbaa99770'];
   };
@@ -231,7 +213,6 @@ class ProviderController extends BaseController {
   };
 
   personalSign = async ({ data, approvalRes, session }) => {
-    console.log('data ', data);
     if (!data.params) return;
     const [string, from] = data.params;
     const hex = isHexString(string) ? string : stringToHex(string);

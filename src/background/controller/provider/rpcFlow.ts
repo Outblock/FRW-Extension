@@ -23,7 +23,6 @@ const flowContext = flow
     } = ctx.request;
     ctx.mapMethod = underline2Camelcase(method);
     console.log('providerController ', providerController)
-    console.log('ctx ', ctx)
     if (!providerController[ctx.mapMethod]) {
       // TODO: make rpc whitelist
       // if (method.startsWith('eth_') || method === 'net_version') {
@@ -62,8 +61,6 @@ const flowContext = flow
       mapMethod,
     } = ctx;
     console.log('ctx2 ', ctx)
-    console.log('ctx2 safe ', !Reflect.getMetadata('SAFE', providerController, mapMethod))
-    console.log('ctx2 hasPermission ', !permissionService.hasPermission(origin))
     // check connect
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       if (!permissionService.hasPermission(origin)) {
@@ -80,7 +77,6 @@ const flowContext = flow
       }
     }
     const site = permissionService.getConnectedSite(origin);
-    console.log('site ', site)
 
     return next();
   })
@@ -93,7 +89,6 @@ const flowContext = flow
       },
       mapMethod,
     } = ctx;
-    console.log('ctx3 ', ctx)
     const [approvalType, condition, { height = 599 } = {}] =
       Reflect.getMetadata('APPROVAL', providerController, mapMethod) || [];
     if (mapMethod === 'ethSendTransaction' || mapMethod === 'personalSign') {
@@ -120,7 +115,6 @@ const flowContext = flow
     return next();
   })
   .use(async (ctx) => {
-    console.log('ctx4 ', ctx)
     const { approvalRes, mapMethod, request } = ctx;
     // process request
     const [approvalType] =

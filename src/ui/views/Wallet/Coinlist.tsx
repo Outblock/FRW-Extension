@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import IconCreate from '../../../components/iconfont/IconCreate';
 
-const CoinList = ({ data, ableFt, isActive, childType }) => {
+const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   // const wallet = useWallet();
   const [isLoading, setLoading] = useState(true);
   const history = useHistory();

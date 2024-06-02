@@ -131,6 +131,45 @@ const WalletTab = ({ network }) => {
     return pollTimer;
   };
 
+  const refreshWithRetry = async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
+    try {
+      const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
+      console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
+
+      if (refreshedCoinlist.length === 0 && retryCount < maxRetries) {
+        console.log(`No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
+        setTimeout(() => {
+          refreshWithRetry(expiry_time, retryCount + 1);
+        }, delay);
+      } else {
+        console.log(`refreshedCoinlist found, refreshedCoinlist`, refreshedCoinlist);
+        sortWallet(refreshedCoinlist);
+      }
+    } catch (error) {
+      console.error(`Error fetching price for token:`, error);
+      if (retryCount < maxRetries) {
+        console.log(`Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
+        setTimeout(() => {
+          refreshWithRetry(expiry_time, retryCount + 1);
+        }, delay);
+      } else {
+        wallet.getCoinList(expiry_time).then((res) => {
+          if (res.length === 0 && retryCount < maxRetries) {
+            console.log(`No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
+            setTimeout(() => {
+              refreshWithRetry(expiry_time, retryCount + 1);
+            }, delay);
+          } else {
+            console.log(`res found, refreshedCoinlist`, res);
+            sortWallet(res);
+          }
+        }).catch((err) => {
+          console.error(`Error getCoinList price for token:`, err);
+        });
+      }
+    }
+  };
+
   const sortWallet = (data) => {
     const sorted = data.sort((a, b) => {
       if (b.total === a.total) {
@@ -146,20 +185,36 @@ const WalletTab = ({ network }) => {
     // const remote = await fetchRemoteConfig.remoteConfig();
     // console.log('remote ', remote)
 
-    const evmEnabled = await wallet.getEvmEnabled();
-    setEvmEnabled(evmEnabled);
+    wallet.getEvmEnabled().then((res) => {
+      setEvmEnabled(res);
+
+    }).catch((err) => {
+      console.log('getNFTCollectionInfo -->', err);
+      setEvmEnabled(false);
+    });
+
+    console.log('childType ', childType)
     if (!isActive) {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
       }
     }
-    if (childType !== 'evm') {
-      const storageData = await wallet.refreshCoinList(expiry_time);
-      sortWallet(storageData);
-    } else {
+
+    console.log('childType ', childType)
+    if (childType === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
       sortWallet(storageData);
+    } else {
+      try {
+        const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
+        sortWallet(refreshedCoinlist)
+      } catch (error) {
+        refreshWithRetry(expiry_time);
+      }
+      // const storageData = await wallet.refreshCoinList(expiry_time);
+      // console.log('refreshCoinList ', storageData)
+      // sortWallet(storageData);
     }
   };
 
@@ -170,19 +225,7 @@ const WalletTab = ({ network }) => {
     sortWallet(storageData);
   };
 
-  const transformTokens = (tokens) => {
-    return tokens.map(token => {
-      return {
-        coin: token.name,
-        unit: token.symbol.toLowerCase(),
-        icon: token.logoURI || "",
-        balance: token.balance,
-        price: 1.0,
-        change24h: 0.0,
-        total: token.balance * 1.0
-      };
-    });
-  }
+
   const handleStorageData = async (storageData) => {
     if (storageData) {
       const uniqueTokens = storageData.filter((token, index, self) =>
@@ -500,7 +543,7 @@ const WalletTab = ({ network }) => {
         style={{ height: '100%', width: '100%' }}
       >
         <TabPanel value={value} index={0}>
-          <CoinList data={coinData} ableFt={accessible} isActive={isActive} childType={childType} />
+          <CoinList data={coinData} ableFt={accessible} isActive={isActive} childType={childType} coinLoading={coinLoading} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           <TransferList setCount={setTxCount} />

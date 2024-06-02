@@ -132,7 +132,7 @@ const MoveEvm = (props: MoveBoardProps) => {
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
-        sx: { width: '100%', height: '479px', background: '#222', },
+        sx: { width: '100%', height: 'calc(100% - 56px)', background: '#222', },
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>

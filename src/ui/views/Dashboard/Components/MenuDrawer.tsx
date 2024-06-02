@@ -102,7 +102,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   };
 
   const checkEvmMode = async () => {
-    const mode = await storage.get('evmMode');
     const activeChild = await usewallet.getActiveWallet();
     if (activeChild === 'evm') {
       setIsEvm(true);
@@ -112,7 +111,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
 
     const network = props.currentNetwork;
     if (network === 'previewnet') {
-      setEvmMode(!mode);
+      setEvmMode(true);
     } else {
       setEvmMode(false);
     }
@@ -233,8 +232,10 @@ const MenuDrawer = (props: MenuDrawerProps) => {
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
         </Box>
         {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
-        {(isValidEthereumAddress(props.evmAddress) || Object.keys(props.childAccounts).length > 0) && <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '18px', marginLeft: '16px' }}>Linked Account</Typography>}
-        {evmMode && isValidEthereumAddress(props.evmAddress) && (
+        {(isValidEthereumAddress(props.evmAddress) || Object.keys(props.childAccounts).length > 0) &&
+          <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '18px', marginLeft: '16px' }}>{chrome.i18n.getMessage('Linked_Account')}</Typography>
+        }
+        {isValidEthereumAddress(props.evmAddress) && (
           <ListItem
             sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px 0', cursor: 'pointer' }}
             onClick={() => props.setWallets({
@@ -287,7 +288,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                     color="#FFF"
                     fontSize={'12px'}
                   >
-                    EVM on Flow Wallet
+                    {props.emojis[1].name}
                   </Typography>
 
                   <Typography

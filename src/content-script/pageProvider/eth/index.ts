@@ -18,7 +18,7 @@ declare const __rabby__isOpera;
 const log = (event, ...args) => {
   if (process.env.NODE_ENV !== "production") {
     console.log(
-      `%c [rabby] (${new Date().toTimeString().substr(0, 8)}) ${event}`,
+      `%c [frw] (${new Date().toTimeString().substr(0, 8)}) ${event}`,
       "font-weight: bold; background-color: #7d6ef9; color: white;",
       ...args
     );
@@ -36,21 +36,21 @@ let isOpera =
 let uuid = typeof __rabby__uuid !== "undefined" ? __rabby__uuid : "";
 
 const getParams = () => {
-  if (localStorage.getItem("rabby:channelName")) {
-    channelName = localStorage.getItem("rabby:channelName") as string;
-    localStorage.removeItem("rabby:channelName");
+  if (localStorage.getItem("frw:channelName")) {
+    channelName = localStorage.getItem("frw:channelName") as string;
+    localStorage.removeItem("frw:channelName");
   }
-  if (localStorage.getItem("rabby:isDefaultWallet")) {
-    isDefaultWallet = localStorage.getItem("rabby:isDefaultWallet") === "true";
-    localStorage.removeItem("rabby:isDefaultWallet");
+  if (localStorage.getItem("frw:isDefaultWallet")) {
+    isDefaultWallet = localStorage.getItem("frw:isDefaultWallet") === "true";
+    localStorage.removeItem("frw:isDefaultWallet");
   }
-  if (localStorage.getItem("rabby:uuid")) {
-    uuid = localStorage.getItem("rabby:uuid") as string;
-    localStorage.removeItem("rabby:uuid");
+  if (localStorage.getItem("frw:uuid")) {
+    uuid = localStorage.getItem("frw:uuid") as string;
+    localStorage.removeItem("frw:uuid");
   }
-  if (localStorage.getItem("rabby:isOpera")) {
-    isOpera = localStorage.getItem("rabby:isOpera") === "true";
-    localStorage.removeItem("rabby:isOpera");
+  if (localStorage.getItem("frw:isOpera")) {
+    isOpera = localStorage.getItem("frw:isOpera") === "true";
+    localStorage.removeItem("frw:isOpera");
   }
 };
 getParams();
@@ -337,13 +337,13 @@ declare global {
   interface Window {
     ethereum: EthereumProvider;
     web3: any;
-    rabby: EthereumProvider;
+    frw: EthereumProvider;
     rabbyWalletRouter: {
-      rabbyProvider: EthereumProvider;
+      frwProvider: EthereumProvider;
       lastInjectedProvider?: EthereumProvider;
       currentProvider: EthereumProvider;
       providers: EthereumProvider[];
-      setDefaultProvider: (rabbyAsDefault: boolean) => void;
+      setDefaultProvider: (frwAsDefault: boolean) => void;
       addProvider: (provider: EthereumProvider) => void;
     };
   }
@@ -351,7 +351,7 @@ declare global {
 
 const provider = new EthereumProvider();
 patchProvider(provider);
-const rabbyProvider = new Proxy(provider, {
+const frwProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
     if (
       typeof prop === "string" &&
@@ -378,23 +378,23 @@ const requestIsDefaultWallet = () => {
 };
 
 const initOperaProvider = () => {
-  window.ethereum = rabbyProvider;
-  rabbyProvider._isReady = true;
-  window.rabby = rabbyProvider;
-  patchProvider(rabbyProvider);
-  rabbyProvider.on("rabby:chainChanged", switchChainNotice);
+  window.ethereum = frwProvider;
+  frwProvider._isReady = true;
+  window.frw = frwProvider;
+  patchProvider(frwProvider);
+  frwProvider.on("frw:chainChanged", switchChainNotice);
 };
 
 const initProvider = () => {
-  rabbyProvider._isReady = true;
-  rabbyProvider.on("defaultWalletChanged", switchWalletNotice);
-  patchProvider(rabbyProvider);
+  frwProvider._isReady = true;
+  frwProvider.on("defaultWalletChanged", switchWalletNotice);
+  patchProvider(frwProvider);
   if (window.ethereum) {
     requestHasOtherProvider();
   }
   if (!window.web3) {
     window.web3 = {
-      currentProvider: rabbyProvider,
+      currentProvider: frwProvider,
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, "ethereum");
@@ -402,8 +402,8 @@ const initProvider = () => {
   if (canDefine) {
     try {
       Object.defineProperties(window, {
-        rabby: {
-          value: rabbyProvider,
+        frw: {
+          value: frwProvider,
           configurable: false,
           writable: false,
         },
@@ -418,16 +418,16 @@ const initProvider = () => {
         },
         rabbyWalletRouter: {
           value: {
-            rabbyProvider,
+            frwProvider,
             lastInjectedProvider: window.ethereum,
-            currentProvider: rabbyProvider,
+            currentProvider: frwProvider,
             providers: [
-              rabbyProvider,
+              frwProvider,
               ...(window.ethereum ? [window.ethereum] : []),
             ],
-            setDefaultProvider(rabbyAsDefault: boolean) {
-              if (rabbyAsDefault) {
-                window.rabbyWalletRouter.currentProvider = window.rabby;
+            setDefaultProvider(frwAsDefault: boolean) {
+              if (frwAsDefault) {
+                window.rabbyWalletRouter.currentProvider = window.frw;
               } else {
                 const nonDefaultProvider =
                   window.rabbyWalletRouter.lastInjectedProvider ??
@@ -439,7 +439,7 @@ const initProvider = () => {
               if (!window.rabbyWalletRouter.providers.includes(provider)) {
                 window.rabbyWalletRouter.providers.push(provider);
               }
-              if (rabbyProvider !== provider) {
+              if (frwProvider !== provider) {
                 requestHasOtherProvider();
                 window.rabbyWalletRouter.lastInjectedProvider = provider;
               }
@@ -453,12 +453,12 @@ const initProvider = () => {
       // think that defineProperty failed means there is any other wallet
       requestHasOtherProvider();
       console.error(e);
-      window.ethereum = rabbyProvider;
-      window.rabby = rabbyProvider;
+      window.ethereum = frwProvider;
+      window.frw = frwProvider;
     }
   } else {
-    window.ethereum = rabbyProvider;
-    window.rabby = rabbyProvider;
+    window.ethereum = frwProvider;
+    window.frw = frwProvider;
   }
 };
 
@@ -468,10 +468,10 @@ if (isOpera) {
   initProvider();
 }
 
-requestIsDefaultWallet().then((rabbyAsDefault) => {
-  window.rabbyWalletRouter?.setDefaultProvider(rabbyAsDefault);
-  if (rabbyAsDefault) {
-    window.ethereum = rabbyProvider;
+requestIsDefaultWallet().then((frwAsDefault) => {
+  window.rabbyWalletRouter?.setDefaultProvider(frwAsDefault);
+  if (frwAsDefault) {
+    window.ethereum = frwProvider;
   }
 });
 
@@ -493,10 +493,10 @@ const announceEip6963Provider = (provider: EthereumProvider) => {
 window.addEventListener<any>(
   "eip6963:requestProvider",
   (event: EIP6963RequestProviderEvent) => {
-    announceEip6963Provider(rabbyProvider);
+    announceEip6963Provider(frwProvider);
   }
 );
 
-announceEip6963Provider(rabbyProvider);
+announceEip6963Provider(frwProvider);
 
 window.dispatchEvent(new Event("ethereum#initialized"));

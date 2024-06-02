@@ -980,17 +980,18 @@ export class WalletController extends BaseController {
     const now = new Date();
     const expiry = coinListService.getExpiry();
     let childType = await userWalletService.getActiveWallet();
+    console.log('childType ', childType)
     childType = childType === 'evm' ? 'evm' : 'coinItem';
     // compare the expiry time of the item with the current time
     if (now.getTime() > expiry) {
       if (childType === 'evm') {
         await this.refreshEvmList(_expiry);
       } else {
-        this.refreshCoinList(_expiry);
+        await this.refreshCoinList(_expiry);
       }
     }
-
-    return coinListService.listCoins(network, childType);
+    const listCoins = coinListService.listCoins(network, childType);
+    return listCoins;
   };
 
   private tokenPrice = async (tokenSymbol: string, data) => {
@@ -1016,67 +1017,75 @@ export class WalletController extends BaseController {
   };
 
   refreshCoinList = async (_expiry = 5000) => {
-    const now = new Date();
-    const exp = _expiry + now.getTime();
-    coinListService.setExpiry(exp);
+    try {
+      const now = new Date();
+      const exp = _expiry + now.getTime();
+      coinListService.setExpiry(exp);
 
-    const address = await this.getCurrentAddress();
-    const tokenList = await openapiService.getEnabledTokenList();
-    const allBalanceMap = await openapiService.getTokenListBalance(
-      address || '0x',
-      tokenList
-    );
+      const address = await this.getCurrentAddress();
+      const tokenList = await openapiService.getEnabledTokenList();
 
-    const data = await openapiService.getTokenPrices();
-    const prices = tokenList.map((token) => this.tokenPrice(token.symbol, data));
+      let allBalanceMap;
+      try {
+        allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
+      } catch (error) {
+        console.error('Error fetching token list balance:');
+        throw new Error('Failed to fetch token list balance');
+      }
+      const data = await openapiService.getTokenPrices();
 
-    const allPrice = await Promise.all(prices);
-    const coins: CoinItem[] = tokenList.map((token, index) => {
-      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
-      return {
-        coin: token.name,
-        unit: token.symbol,
-        icon: token['logoURI'] || '',
-        balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
-        price:
-          allPrice[index] === null
+      // Map over tokenList to get prices and handle errors individually
+      const pricesPromises = tokenList.map(async (token) => {
+        try {
+          return await this.tokenPrice(token.symbol, data);
+        } catch (error) {
+          console.error(`Error fetching price for token ${token.symbol}:`, error);
+          return null;
+        }
+      });
+
+      const pricesResults = await Promise.allSettled(pricesPromises);
+
+      // Extract fulfilled prices
+      const allPrice = pricesResults.map(result => result.status === 'fulfilled' ? result.value : null);
+
+      const coins = tokenList.map((token, index) => {
+        const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
+        return {
+          coin: token.name,
+          unit: token.symbol,
+          icon: token['logoURI'] || '',
+          balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
+          price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
+          change24h: allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
             ? 0
-            : new BN(allPrice[index].price.last).toNumber(),
-        change24h:
-          allPrice[index] === null ||
-            !allPrice[index].price ||
-            !allPrice[index].price.change
-            ? 0
-            : new BN(allPrice[index].price.change.percentage)
-              .multipliedBy(100)
-              .toNumber(),
-        total:
-          allPrice[index] === null
-            ? 0
-            : this.currencyBalance(
-              allBalanceMap[tokenId],
-              allPrice[index].price.last
-            ),
-      };
-    });
+            : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
+          total: allPrice[index] === null ? 0 : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
+        };
+      });
 
-    const network = await this.getNetwork();
-    coins
-      .sort((a, b) => {
+      const network = await this.getNetwork();
+      coins.sort((a, b) => {
         if (b.total === a.total) {
           return b.balance - a.balance;
         } else {
           return b.total - a.total;
         }
-      })
-      .map((coin) => coinListService.addCoin(coin, network));
-    const allTokens = await openapiService.getAllTokenInfo();
-    const enabledSymbols = tokenList.map((token) => token.symbol);
-    const disableSymbols = allTokens
-      .map((token) => token.symbol)
-      .filter((symbol) => !enabledSymbols.includes(symbol));
-    disableSymbols.map((coin) => coinListService.removeCoin(coin, network));
-    return coinListService.listCoins(network);
+      });
+  
+      // Add all coins at once
+      coinListService.addCoins(coins, network);
+
+      const allTokens = await openapiService.getAllTokenInfo();
+      const enabledSymbols = tokenList.map((token) => token.symbol);
+      const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
+      disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
+      const coinListResult = coinListService.listCoins(network);
+      return coinListResult;
+    } catch (err) {
+      console.error('refreshCoinList encountered an error:');
+      throw err;
+    }
   };
 
   refreshEvmList = async (_expiry = 5000) => {
@@ -1571,7 +1580,12 @@ export class WalletController extends BaseController {
     if (address.length > 18) {
       return ''
     }
-    const evmAddress = await this.getEvmAddress();
+    let evmAddress = '';
+    try {
+      evmAddress = await this.getEvmAddress();
+    } catch (error) {
+      console.error('Error getting EVM address:', error);
+    }
     if (evmAddress.length > 20) {
       return evmAddress
     }
@@ -1581,11 +1595,13 @@ export class WalletController extends BaseController {
     }
 
     const script = await getScripts('evm', 'getCoaAddr');
+    console.log('getCoaAddr ', evmAddress)
 
     const result = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
+    console.log('result ', result)
     if (result) {
       await this.setEvmAddress(result);
       return result;
@@ -1654,7 +1670,7 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  
+
 
   getFlowBalance = async (address) => {
     const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
@@ -2738,6 +2754,10 @@ export class WalletController extends BaseController {
     return googleDriveService.loadBackupAccounts();
   };
 
+  loadBackupAccountLists = async (): Promise<any[]> => {
+    return googleDriveService.loadBackupAccountLists();
+  };
+
   restoreAccount = async (username, password): Promise<string | null> => {
     return googleDriveService.restoreAccount(username, password);
   };
@@ -2912,7 +2932,7 @@ export class WalletController extends BaseController {
     const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
     return account;
   };
-  
+
 
   getEmoji = async () => {
     const currentId = await storage.get('currentId');
@@ -2931,7 +2951,7 @@ export class WalletController extends BaseController {
 
     return emojires;
   };
-  
+
 
   setEmoji = async (emoji, type) => {
     const currentId = await storage.get('currentId');

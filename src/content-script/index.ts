@@ -9,10 +9,10 @@ const channelName = nanoid();
 const injectProviderScript = async (isDefaultWallet) => {
   // the script element with src won't execute immediately
   // use inline script element instead!
-  await localStorage.setItem('rabby:channelName', channelName);
-  await localStorage.setItem('rabby:isDefaultWallet', 'true');
-  await localStorage.setItem('rabby:uuid', uuid());
-  console.log(localStorage.getItem("rabby:channelName"))
+  await localStorage.setItem('frw:channelName', channelName);
+  await localStorage.setItem('frw:isDefaultWallet', 'true');
+  await localStorage.setItem('frw:uuid', uuid());
+  console.log(localStorage.getItem("frw:channelName"))
   const container = document.head || document.documentElement;
   const ele = document.createElement('script');
   // in prevent of webpack optimized code do some magic(e.g. double/sigle quote wrap),

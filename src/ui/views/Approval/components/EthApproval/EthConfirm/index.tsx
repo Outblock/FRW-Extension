@@ -115,9 +115,14 @@ const EthConfirm = ({ params }: ConnectProps) => {
     });
   };
 
+  const loadPayer = async () => {
+    const isEnabled = await wallet.allowLilicoPay()
+    setLilicoEnabled(isEnabled)
+  }
+
   useEffect(() => {
     if (params) {
-      console.log('params ', params)
+      loadPayer();
       extractData(params);
     }
   }, []);
@@ -156,6 +161,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
             logo={requestParams.icon || ''}
             setExpanded={setExpanded}
             dedent={dedent}
+            lilicoEnabled={lilicoEnabled}
           />
           <Box sx={{ flexGrow: 1 }} />
           <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>

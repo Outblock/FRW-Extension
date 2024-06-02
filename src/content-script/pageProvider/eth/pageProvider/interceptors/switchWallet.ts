@@ -6,7 +6,7 @@ import { flow } from "lodash";
 
 let instance: ReturnType<typeof notice> | null;
 
-export const switchWalletNotice = (type: "rabby" | "metamask") => {
+export const switchWalletNotice = (type: "frw" | "metamask") => {
   if (isInSameOriginIframe()) {
     return;
   }
@@ -23,7 +23,7 @@ export const switchWalletNotice = (type: "rabby" | "metamask") => {
     timeout: 0,
     className: "rabby-notice-default-wallet",
     content: `<div style="display: flex; align-items: center; gap: 12px;">
-      <img style="width: 28px;" src="${type === "rabby" ? IconFlow : IconMetamask}"/>
+      <img style="width: 28px;" src="${type === "frw" ? IconFlow : IconMetamask}"/>
       <div>
         <div><span style="font-weight: bold;">${titles[type]}</span> is your default wallet now. </div>
         <div>

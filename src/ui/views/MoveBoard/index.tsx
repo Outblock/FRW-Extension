@@ -4,8 +4,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import homeMoveFt from 'ui/FRWAssets/svg/homeMoveFt.svg';
-import moveSvg from 'ui/FRWAssets/svg/moveSvg.svg';
+import moveftbg from 'ui/FRWAssets/svg/moveftbg.svg';
+import movenftbg from 'ui/FRWAssets/svg/movenftbg.svg';
+import moveft from 'ui/FRWAssets/image/moveft.png';
+import movenft from 'ui/FRWAssets/image/movenft.png';
 import MoveNfts from './MoveNfts';
 import MoveEvm from './MoveEvm';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
@@ -66,7 +68,7 @@ const MoveBoard = (props: MoveBoardProps) => {
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '20px', fontFamily:'e-Ukraine', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
+            sx={{ fontSize: '20px', fontFamily: 'e-Ukraine', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
           >
             Move Assets
           </Typography>
@@ -101,22 +103,48 @@ const MoveBoard = (props: MoveBoardProps) => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ display: 'flex', padding: '0 24px', mb: '51px', mt: '24px', justifyContent: 'space-between' }}>
-        <Box>
-          <Button onClick={() => {
+      <Box sx={{ display: 'flex',gap:'16px', padding: '0 24px', mb: '51px', mt: '24px', justifyContent: 'space-between' }}>
+        <Button
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '198px',
+            width:'162px',
+            backgroundImage: `url(${movenftbg})`,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            '&:hover': {
+              opacity: 0.6,
+            },
+          }}
+          onClick={() => {
             setSelectBoard(true);
           }}
-          >
-            <CardMedia component="img" sx={{ width: '148px', height: '180px', display: 'inline', borderRadius: '8px', paddingRight: '8px' }} image={moveSvg} />
-          </Button>
-        </Box>
-        <Box>
-          <Button onClick={() => {
+        >
+          <CardMedia component="img" sx={{ width: '147px', height: 'auto', display: 'inline' }} image={movenft} />
+          <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600',textTransform:'capitalize' }}>Move NFTs</Typography>
+        </Button>
+        <Button
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '198px',
+            width:'162px',
+            backgroundImage: `url(${moveftbg})`,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            '&:hover': {
+              opacity: 0.6,
+            },
+          }}
+          onClick={() => {
             setMoveFt(true);
           }}>
-            <CardMedia component="img" sx={{ width: '148px', height: '180px', display: 'inline', borderRadius: '8px', paddingRight: '8px' }} image={homeMoveFt} />
-          </Button>
-        </Box>
+          <CardMedia component="img" sx={{ width: '140px', height: 'auto', display: 'inline', }} image={moveft} />
+          <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600',textTransform:'capitalize' }}>Move Tokens</Typography>
+        </Button>
       </Box>
       {showSelectNft && (
         <>

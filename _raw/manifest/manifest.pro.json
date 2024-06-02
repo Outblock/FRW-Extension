@@ -54,6 +54,7 @@
     "identity",
     "camera",
     "videoCapture",
+    "contentSettings",
     "*://*/*"
   ],
   "web_accessible_resources": [

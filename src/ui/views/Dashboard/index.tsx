@@ -45,12 +45,14 @@ const Dashboard = ({ value, setValue }) => {
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [domain, setDomain] = useState<string>('');
   const [flownsPop, setFlownsPop] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const handleChangeIndex = (index) => {
     setValue(index);
   };
 
   const fetchAll = async () => {
+    setLoading(true)
     const [network, userDomain, popStat] = await Promise.all([
       wallet.getNetwork(),
       wallet.fetchUserDomain(),
@@ -64,6 +66,7 @@ const Dashboard = ({ value, setValue }) => {
     if (address) {
       setFlownsPop(popStat);
     }
+    setLoading(false)
   };
 
 
@@ -91,7 +94,9 @@ const Dashboard = ({ value, setValue }) => {
           style={{ height: '100%', width: '100%', backgroundColor: 'black' }}
         >
           <TabPanel value={value} index={0}>
-            <WalletTab network={currentNetwork} />
+            {!loading &&
+              <WalletTab network={currentNetwork} />
+            }
           </TabPanel>
           <TabPanel value={value} index={1}>
             {currentNetwork === 'previewnet' ?

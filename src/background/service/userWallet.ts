@@ -216,7 +216,7 @@ class UserWallet {
   };
 
   setEvmAddress = (address: string,) => {
-    console.log('setEvmAddress ', address)
+    console.log('setEvmAddress ', this.store)
     if (address.length > 20) {
       this.store.evmWallet.address = address;
     } else {

@@ -152,23 +152,15 @@ const Header = ({ loading }) => {
   const [walletList, setWalletList] = useState([]);
 
   const fetchUserWallet = async () => {
-    // const wallet = await usewallet.getUserWallets();
-    // await setWallet(wallet);
+
     const userInfo = await usewallet.getUserInfo(false);
     await setUserInfo(userInfo);
-    // await setDomain(domain);
     if (userInfo.private == 1) {
       setModeAnonymous(false);
     } else {
       setModeAnonymous(true);
     }
-    // if (domain) {
-    //   loadInbox();
-    // }
-    // const crescendo = await usewallet.checkCrescendo();
-    // if (crescendo.length > 0) {
-    //   setSandboxEnabled(true);
-    // }
+
     const previewnet = (await usewallet.checkPreviewnet()) || [];
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
@@ -181,22 +173,23 @@ const Header = ({ loading }) => {
   };
 
   const freshUserWallet = async () => {
-    const wallet = await usewallet.refreshUserWallets();
+    const wallet = await usewallet.getUserWallets();
     const fData = wallet.filter((item) => item.blockchain !== null);
     // putDeviceInfo(fData);
+    await setWallet(fData);
     if (initialStart) {
       await usewallet.openapi.putDeviceInfo(fData);
       setInitial(false);
     }
-    await setWallet(fData);
   };
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
     const childType = await usewallet.getActiveWallet();
     const network = await usewallet.getNetwork();
+    console.log('fresh user info ', network, currentWallet)
     if (network === 'previewnet') {
-      usewallet.queryEvmAddress(currentWallet.address).then(async (res) => {
+      usewallet.queryEvmAddress(currentWallet.address).then((res) => {
         console.log('res ', res)
         setEvmAddress(res!);
       }).catch((err) => {
@@ -482,7 +475,7 @@ const Header = ({ loading }) => {
                   : 'text.nonselect'
               }
             >
-              Main {props.name}
+              {emojis[0].name}
               {props.address == current['address'] && (
                 <ListItemIcon
                   style={{ display: 'flex', alignItems: 'center' }}
@@ -849,7 +842,7 @@ const Header = ({ loading }) => {
           } */}
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
-        {!isLoading && props ? (
+        {!isLoading && props && props.address ? (
           <Tooltip title={chrome.i18n.getMessage('Copy__Address')} arrow>
             <Button
               onClick={() => {

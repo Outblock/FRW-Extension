@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Avatar, Skeleton } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
-import { formatAddress } from 'ui/utils';
+import { useWallet, formatAddress } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
 const useStyles = makeStyles(() => ({
@@ -22,8 +22,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const tempEmoji = {
+  "emoji": "🥥",
+  "name": "Coconut",
+  "bgcolor": "#FFE4C4"
+};
+
 export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) => {
 
+  const usewallet = useWallet();
+  const [emoji, setEmoji] = useState(tempEmoji);
 
   const getName = (name: string) => {
     if (!name) {
@@ -35,6 +43,19 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
       return name[0].toUpperCase()
     }
   }
+
+  const getEmoji = async () => {
+    const emojiList = await usewallet.getEmoji();
+    if (isValidEthereumAddress(contact.address)) {
+      setEmoji(emojiList[1])
+    } else {
+      setEmoji(emojiList[0])
+    }
+  }
+
+  useEffect(() => {
+    getEmoji();
+  }, [contact]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -50,19 +71,13 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
       >
         {!isLoading ?
 
-          <Avatar
-            alt={contact.contact_name}
-            src={contact.avatar}
-            sx={{
-              mr: '13px',
-              color: 'primary.main',
-              backgroundColor: '#484848',
-              width: '40px',
-              height: '40px',
-            }}
-          >
-            {getName(contact.contact_name)}
-          </Avatar>
+          <Box sx={{
+            display: 'flex', height: '40px', width: '40px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emoji['bgcolor'], marginRight: '12px'
+          }}>
+            <Typography sx={{ fontSize: '28px', fontWeight: '600' }}>
+              {emoji.emoji}
+            </Typography>
+          </Box>
           : (
             <Skeleton variant="circular" width={40} height={40} />
           )
@@ -70,12 +85,7 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           {!isLoading ?
             <Typography sx={{ textAlign: 'start', color: '#FFFFFF', fontSize: '12px' }}>
-              {contact.domain?.value || formatAddress(contact.contact_name)}{' '}
-              {contact.username && contact.username !== '' && (
-                <Box display="inline" color="info.main">
-                  {contact.username !== '' ? ' (@' + contact.username + ')' : ''}
-                </Box>
-              )}
+              {emoji.name}
               {isValidEthereumAddress(contact.address) &&
                 <Typography
                   variant="body1"

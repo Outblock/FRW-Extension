@@ -67,12 +67,12 @@ class PushEventHandlers {
     }
   };
 
-  "rabby:chainChanged" = (chain) => {
+  "frw:chainChanged" = (chain) => {
     if (
       chain &&
       chain.hex?.toLowerCase() !== this.provider.chainId?.toLowerCase()
     ) {
-      this._emit("rabby:chainChanged", chain);
+      this._emit("frw:chainChanged", chain);
     }
   };
 }

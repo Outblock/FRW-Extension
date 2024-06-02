@@ -68,7 +68,7 @@ function AccountBox({ isEvm }) {
           {firstEmoji &&
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
               <Box sx={{
-                display: 'flex', height: '20px', width: '20px', borderRadius: '20px', alignItems: 'center', backgroundColor: firstEmoji['bgcolor'], marginRight: '4px'
+                display: 'flex', height: '20px', width: '20px', borderRadius: '20px', justifyContent: 'center', alignItems: 'center', backgroundColor: firstEmoji['bgcolor'], marginRight: '4px'
               }}>
                 <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>
                   {firstEmoji.emoji}
@@ -109,7 +109,7 @@ function AccountBox({ isEvm }) {
           {secondEmoji &&
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
               <Box sx={{
-                display: 'flex', height: '20px', width: '20px', borderRadius: '20px', alignItems: 'center', backgroundColor: secondEmoji['bgcolor'], marginRight: '4px'
+                display: 'flex', height: '20px', width: '20px', borderRadius: '20px', justifyContent: 'center', alignItems: 'center', backgroundColor: secondEmoji['bgcolor'], marginRight: '4px'
               }}>
                 <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>
                   {secondEmoji.emoji}

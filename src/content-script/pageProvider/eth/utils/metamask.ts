@@ -1,4 +1,4 @@
-// keep isMetaMask and remove isRabby
+// keep isMetaMask and remove isFrw
 const impersonateMetamaskWhitelist = [
   // layerzero
   "bitcoinbridge.network",
@@ -13,7 +13,7 @@ const impersonateMetamaskWhitelist = [
   "telx.network",
 ];
 
-// keep isRabby and remove isMetaMask
+// keep isFrw and remove isMetaMask
 const rabbyHostList: string[] = [];
 
 /**
@@ -63,14 +63,14 @@ export const calcIsGray = (host: string, ratio: number) => {
   return (djb2(domain) % 100) / 100 <= ratio;
 };
 
-type Mode = "metamask" | "rabby" | "default";
+type Mode = "metamask" | "frw" | "default";
 
 export const getProviderMode = (host: string): Mode => {
   if (isInHostList(impersonateMetamaskWhitelist, host)) {
     return "metamask";
   }
   if (isInHostList(rabbyHostList, host)) {
-    return "rabby";
+    return "frw";
   }
   return "default";
 };
@@ -79,18 +79,18 @@ export const patchProvider = (provider: any) => {
   const mode = getProviderMode(window.location.hostname);
   try {
     if (mode === "metamask") {
-      delete provider.isRabby;
+      delete provider.isFrw;
       provider.isMetaMask = true;
       return;
     }
-    if (mode === "rabby") {
+    if (mode === "frw") {
       delete provider.isMetaMask;
-      provider.isRabby = true;
+      provider.isFrw = true;
       return;
     }
     if (mode === "default") {
       provider.isMetaMask = true;
-      provider.isRabby = true;
+      provider.isFrw = true;
       return;
     }
   } catch (e) {
