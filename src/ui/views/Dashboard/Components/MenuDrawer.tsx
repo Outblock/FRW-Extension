@@ -52,6 +52,7 @@ interface MenuDrawerProps {
   evmAddress: string;
   emojis: any;
   networkColor: any;
+  evmLoading: boolean;
 }
 
 
@@ -63,13 +64,14 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   const classes = useStyles();
   const [evmMode, setEvmMode] = useState(true);
   const [isEvm, setIsEvm] = useState(false);
+  const [evmBalance, setEvmBalance] = useState(0);
 
   interface EvmADDComponentProps {
-    myString: string;
+    myString: string | number;
   }
 
   const EvmADDComponent: React.FC<EvmADDComponentProps> = ({ myString }) => {
-    const formattedString = formatString(myString);
+    // const formattedString = formatString(myString);
 
     return (
       <Typography
@@ -80,7 +82,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
           marginTop: '4px'
         }}
       >
-        {formattedString}
+        {myString} Flow
       </Typography>
     );
   }
@@ -117,10 +119,24 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     }
   };
 
+  const getEvmAddress = async () => {
+    console.log('props.evmAddress ', props.evmAddress)
+    if (isValidEthereumAddress(props.evmAddress)) {
+      const result = await usewallet.getBalance(props.evmAddress);
+      const readBalance = parseFloat(result) /1e18
+      setEvmBalance(readBalance)
+    }
+  };
+
 
   useEffect(() => {
     checkEvmMode();
   }, []);
+
+
+  useEffect(() => {
+    getEvmAddress();
+  }, [props.evmAddress]);
 
   const getIndicatorImage = () => {
     switch (props.currentNetwork) {
@@ -182,7 +198,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             </Box>
           }
         </ListItem>
-        {evmMode && (
+        {evmMode && !props.evmLoading && (
           !isValidEthereumAddress(props.evmAddress) && (
             <ListItem sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }} >
               <ListItemButton
@@ -251,18 +267,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
               sx={{ mb: 0, display: 'flex', alignItems: 'center', flexDirection: 'space-between', }}
             >
 
-              {/* <CardMedia
-                component="img"
-                image="https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png"
-                style={{
-                  height: '32px',
-                  width: '32px',
-                  marginRight: '12px',
-                  backgroundColor: '#282828',
-                  borderRadius: '18px',
-                }}
-              /> */}
-
               <Box sx={{
                 display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: props.emojis[1]['bgcolor'], marginRight: '12px'
               }}>
@@ -321,7 +325,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                     </ListItemIcon>
                   )}
                 </Typography>
-                <EvmADDComponent myString={props.evmAddress} />
+                <EvmADDComponent myString={evmBalance} />
               </Box>
             </ListItemButton>
           </ListItem>)}

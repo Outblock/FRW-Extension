@@ -12,6 +12,7 @@ import {
 import EmptyStatus from '../../NftEvm/EmptyStatus';
 import AccountBox from '../AccountBox';
 import selected from 'ui/FRWAssets/svg/selected.svg';
+import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 
 
 
@@ -94,7 +95,7 @@ const MoveNfts = (props: MoveBoardProps) => {
 
     if (index === -1) {
       // If nftId is not in the array, add it
-      if (tempIdArray.length < 10) {
+      if (tempIdArray.length < 9) {
         tempIdArray.push(nftId);
       } else {
         // Display an error or warning message that no more than 3 IDs are allowed
@@ -107,6 +108,7 @@ const MoveNfts = (props: MoveBoardProps) => {
 
     setNftIdArray(tempIdArray);
   };
+
   const moveNFT = async () => {
     setSending(true);
     usewallet.batchBridgeNftToEvm(collectionDetail.collection.address, collectionDetail.collection.contract_name, nftIdArray).then(async (txID) => {
@@ -192,7 +194,7 @@ const MoveNfts = (props: MoveBoardProps) => {
             >
               {currentCollection.CollectionName}
             </Typography>
-            
+
             <CardMedia component="img" sx={{ width: '12px', height: '12px', marginLeft: '4px' }} image={'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png'} />
             <CardMedia component="img" sx={{ width: '16px', height: '16px', marginLeft: '4px' }} image={moveSelectDrop} />
           </Button>
@@ -344,9 +346,19 @@ const MoveNfts = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       }
-      <Snackbar open={errorOpen} autoHideDuration={3000} onClose={handleErrorClose} sx={{ zIndex: '2000' }}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '80%', margin: '0 auto 80px', zIndex: '2000' }}>
-          Cannot move more than 10
+      <Snackbar
+        open={errorOpen}
+        autoHideDuration={2000}
+        onClose={handleErrorClose}
+        sx={{ zIndex: '2000' }}
+      >
+        <Alert
+          icon={<img src={alertMark} alt="alert icon" />}
+          variant="filled"
+          severity="warning"
+          sx={{ color: '#FFFFFF', padding: '0 16px', fontSize: '12px', fontWeight: '400', borderRadius: '24px', margin: '0 auto 80px', zIndex: '2000' }}
+        >
+          Cannot move more than 9 NFTs
         </Alert>
       </Snackbar>
     </Drawer >

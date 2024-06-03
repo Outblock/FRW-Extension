@@ -7,7 +7,7 @@ import { isValidEthereumAddress } from 'ui/utils/address';
 import homeMoveFt from 'ui/FRWAssets/svg/homeMoveFt.svg';
 import moveSvg from 'ui/FRWAssets/svg/moveSvg.svg';
 import emojis from 'background/utils/emoji.json';
-import {profileHooks} from 'ui/utils/profileHooks'
+import { profileHooks } from 'ui/utils/profileHooks'
 
 
 
@@ -141,8 +141,8 @@ const EditProfile = (props: MoveBoardProps) => {
                 </ListItem>
               ))}
             </Box>
-            <Box sx={{px:'16px', border:'1px solid #FFFFFFCC', borderRadius:'16px',width:'100%', height:'46px',display:'flex', justifyContent:'start',alignItems:'center',mb:'24px'}}>
-              {selectedEmoji && <Typography sx={{ color: '#FFFFFF', fontSize: '14px', fontWeight: '600',  }}>{selectedEmoji.name}</Typography>}
+            <Box sx={{ px: '16px', border: '1px solid #FFFFFFCC', borderRadius: '16px', width: '100%', height: '46px', display: 'flex', justifyContent: 'start', alignItems: 'center', mb: '24px' }}>
+              {selectedEmoji && <Typography sx={{ color: '#FFFFFF', fontSize: '14px', fontWeight: '600', }}>{selectedEmoji.name}</Typography>}
             </Box>
 
             <Box
@@ -152,7 +152,7 @@ const EditProfile = (props: MoveBoardProps) => {
                 alignItems: 'center',
                 gap: '12px',
                 mb: '24px',
-                width:'100%'
+                width: '100%'
 
               }}
             >

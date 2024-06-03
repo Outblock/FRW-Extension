@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Skeleton, Typography, Drawer, IconButton, ListItem, ListItemIcon, ListItemText, Avatar, CardMedia } from '@mui/material';
+import { Box, Button, Skeleton, Typography, Drawer, IconButton, Snackbar, Alert, ListItemText, Avatar, CardMedia } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
@@ -15,6 +15,7 @@ import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import EmptyStatus from '../../NftEvm/EmptyStatus';
 import AccountBox from '../AccountBox';
 import selected from 'ui/FRWAssets/svg/selected.svg';
+import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 
 
 
@@ -43,9 +44,16 @@ const MoveEvm = (props: MoveBoardProps) => {
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [errorOpen, setShowError] = useState(false);
   const [selectCollection, setSelectCollection] = useState(false);
   // console.log('props.loggedInAccounts', props.current)
 
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowError(false);
+  };
 
   const updateCurrentCollection = async () => {
     console.log('selectedShow ', collectionList, cadenceNft)
@@ -90,8 +98,15 @@ const MoveEvm = (props: MoveBoardProps) => {
     const index = tempIdArray.indexOf(nftId);
 
     if (index === -1) {
-      tempIdArray.push(nftId);
+      // If nftId is not in the array, add it
+      if (tempIdArray.length < 10) {
+        tempIdArray.push(nftId);
+      } else {
+        // Display an error or warning message that no more than 3 IDs are allowed
+        setShowError(true);
+      }
     } else {
+      // If nftId is in the array, remove it
       tempIdArray.splice(index, 1);
     }
 
@@ -336,6 +351,21 @@ const MoveEvm = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       }
+      <Snackbar
+        open={errorOpen}
+        autoHideDuration={2000}
+        onClose={handleErrorClose}
+        sx={{ zIndex: '2000' }}
+      >
+        <Alert
+          icon={<img src={alertMark} alt="alert icon" />}
+          variant="filled"
+          severity="warning"
+          sx={{ color: '#FFFFFF', padding: '0 16px', fontSize: '12px', fontWeight: '400', borderRadius: '24px', margin: '0 auto 80px', zIndex: '2000' }}
+        >
+          Cannot move more than 9 NFTs
+        </Alert>
+      </Snackbar>
 
 
 

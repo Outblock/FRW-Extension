@@ -1095,6 +1095,84 @@ export class WalletController extends BaseController {
     }
   };
 
+  refreshCoinPrice = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
+    try {
+      const now = new Date();
+      const exp = _expiry + now.getTime();
+      coinListService.setExpiry(exp);
+
+      const address = await this.getCurrentAddress();
+      const tokenList = await openapiService.getEnabledTokenList();
+
+      let allBalanceMap;
+      try {
+        allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
+      } catch (error) {
+        console.error('Error fetching token list balance:');
+        throw new Error('Failed to fetch token list balance');
+      }
+      const data = await openapiService.getTokenPrices();
+
+      // Map over tokenList to get prices and handle errors individually
+      const pricesPromises = tokenList.map(async (token) => {
+        try {
+          return await this.tokenPrice(token.symbol, data);
+        } catch (error) {
+          console.error(`Error fetching price for token ${token.symbol}:`, error);
+          return null;
+        }
+      });
+
+      const pricesResults = await Promise.allSettled(pricesPromises);
+
+      // Extract fulfilled prices
+      const allPrice = pricesResults.map(result => result.status === 'fulfilled' ? result.value : null);
+
+      const coins = tokenList.map((token, index) => {
+        const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
+        return {
+          coin: token.name,
+          unit: token.symbol,
+          icon: token['logoURI'] || '',
+          balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
+          price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
+          change24h: allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
+            ? 0
+            : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
+          total: allPrice[index] === null ? 0 : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
+        };
+      });
+
+      const network = await this.getNetwork();
+      coins.sort((a, b) => {
+        if (b.total === a.total) {
+          return b.balance - a.balance;
+        } else {
+          return b.total - a.total;
+        }
+      });
+
+      // Add all coins at once
+      if (signal.aborted) throw new Error('Operation aborted');
+      coinListService.addCoins(coins, network);
+
+      // const allTokens = await openapiService.getAllTokenInfo();
+      // const enabledSymbols = tokenList.map((token) => token.symbol);
+      // const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
+      // console.log('disableSymbols are these ', disableSymbols, enabledSymbols, coins)
+      // disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
+      const coinListResult = coinListService.listCoins(network);
+      return coinListResult;
+    } catch (err) {
+      if (err.message === 'Operation aborted') {
+        console.log('refreshCoinList operation aborted.');
+      } else {
+        console.error('refreshCoinList encountered an error:', err);
+      }
+      throw err;
+    }
+  };
+
   refreshEvmList = async (_expiry = 5000) => {
     const now = new Date();
     const exp = _expiry + now.getTime();
@@ -1584,7 +1662,7 @@ export class WalletController extends BaseController {
 
 
   queryEvmAddress = async (address: string): Promise<string | null> => {
-    if (address.length > 18) {
+    if (address.length > 20) {
       return ''
     }
     let evmAddress = '';
@@ -1602,13 +1680,11 @@ export class WalletController extends BaseController {
     }
 
     const script = await getScripts('evm', 'getCoaAddr');
-    console.log('getCoaAddr ', evmAddress)
 
     const result = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-    console.log('result ', result)
     if (result) {
       await this.setEvmAddress(result);
       return result;
@@ -2260,9 +2336,9 @@ export class WalletController extends BaseController {
   }
 
   switchNetwork = async (network: string) => {
-    this.abort();
-    const signal = this.abortController.signal;
+    
     await userWalletService.setNetwork(network);
+    eventBus.emit('switchNetwork', network);
     if (network === 'testnet') {
       await fclTestnetConfig();
     } else if (network == 'mainnet') {
@@ -2271,8 +2347,7 @@ export class WalletController extends BaseController {
       // await fclCrescendoConfig();
       await fclPreviewnetConfig();
     }
-    this.refreshAll({ signal });
-    eventBus.emit('switchNetwork', network);
+    this.refreshAll();
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       tabs[0].id &&
@@ -2297,16 +2372,19 @@ export class WalletController extends BaseController {
   };
 
 
-  refreshAll = async ({ signal }) => {
+  refreshAll = async () => {
     await this.refreshUserWallets();
     this.clearNFT();
     this.refreshAddressBook();
     await this.getCadenceScripts();
-    await this.refreshCoinList(5000, { signal });
     const address = await this.getCurrentAddress();
     if (address) {
       this.refreshTransaction(address, 15, 0);
     }
+    
+    this.abort();
+    const signal = this.abortController.signal;
+    await this.refreshCoinList(5000, { signal });
   };
 
   getNetwork = async (): Promise<string> => {

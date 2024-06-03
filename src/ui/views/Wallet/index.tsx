@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
 import { Box } from '@mui/system';
 import { Typography, Button, Tab, Tabs, Skeleton, Drawer, ButtonBase, CardMedia } from '@mui/material';
 import theme from '../../style/LLTheme';
@@ -185,16 +186,8 @@ const WalletTab = ({ network }) => {
     // const remote = await fetchRemoteConfig.remoteConfig();
     // console.log('remote ', remote)
 
-    wallet.getEvmEnabled().then((res) => {
-      setEvmEnabled(res);
-
-    }).catch((err) => {
-      console.log('getNFTCollectionInfo -->', err);
-      setEvmEnabled(false);
-    });
-
     console.log('childType ', childType)
-    if (!isActive) {
+    if (!isActive && childType !== 'evm') {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
@@ -217,9 +210,6 @@ const WalletTab = ({ network }) => {
       } catch (error) {
         refreshWithRetry(expiry_time);
       }
-      // const storageData = await wallet.refreshCoinList(expiry_time);
-      // console.log('refreshCoinList ', storageData)
-      // sortWallet(storageData);
     }
   };
 
@@ -271,6 +261,30 @@ const WalletTab = ({ network }) => {
       clearInterval(pollTimer);
     };
   }, []);
+
+  const goMoveBoard = async () => {
+    try {
+      const evmAddress = await wallet.queryEvmAddress(address);
+      console.log('evm queryEvmAddress', evmAddress);
+      const evmison = isValidEthereumAddress(evmAddress);
+
+      if (evmison) {
+        setMoveBoard(true);
+      } else {
+        history.push({ pathname: '/dashboard/enable' });
+      }
+    } catch (error) {
+      console.error('Error querying EVM address:', error);
+      history.push({ pathname: '/dashboard/enable' });
+    }
+  };
+
+  const filteredCoinData = coinData.filter((coin) => {
+    if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0) {
+      return false;
+    }
+    return true;
+  });
 
   useEffect(() => {
     setCoinLoading(address === '');
@@ -466,7 +480,7 @@ const WalletTab = ({ network }) => {
               <Button
                 color="info3"
                 variant="contained"
-                onClick={() => evmEnabled ? setMoveBoard(true) : history.push({ pathname: '/dashboard/enable' })}
+                onClick={() => goMoveBoard()}
                 sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
               >
                 <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
@@ -509,7 +523,7 @@ const WalletTab = ({ network }) => {
                   fontWeight: 'semi-bold',
                 }}
               >
-                {coinData?.length || ''} {chrome.i18n.getMessage('coins')}
+                {childType === 'evm' ? filteredCoinData?.length || '' : coinData?.length || ''} {chrome.i18n.getMessage('coins')}
               </Typography>
             }
             style={{ color: '#F9F9F9', minHeight: '25px' }}

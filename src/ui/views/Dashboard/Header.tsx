@@ -80,6 +80,8 @@ const Header = ({ loading }) => {
   const history = useHistory();
 
   const [isLoading, setLoading] = useState(loading);
+
+  const [evmLoading, setEvmLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const [userWallet, setWallet] = useState<any>(null);
   const [currentWallet, setCurrentWallet] = useState(0);
@@ -187,11 +189,12 @@ const Header = ({ loading }) => {
     const currentWallet = await usewallet.getCurrentWallet();
     const childType = await usewallet.getActiveWallet();
     const network = await usewallet.getNetwork();
-    if (network === 'previewnet') {
+    if (network === 'previewnet' && currentWallet.address) {
       usewallet.queryEvmAddress(currentWallet.address).then((res) => {
         setEvmAddress(res!);
-      }).catch((err) => {
-        console.log('evm err', err)
+        setEvmLoading(false);
+      }).catch(() => {
+        setEvmLoading(false);
       });
     }
     if (childType === 'evm') {
@@ -247,6 +250,7 @@ const Header = ({ loading }) => {
     //   setIsSandbox(true);
     // }
     if (network === 'previewnet') {
+      setEvmLoading(true);
       await setIsSandbox(true);
     }
     await setNetwork(network);
@@ -955,6 +959,7 @@ const Header = ({ loading }) => {
               evmAddress={evmAddress}
               emojis={emojis}
               networkColor={networkColor}
+              evmLoading={evmLoading}
             />
           }
           {appBarLabel(current)}
