@@ -1019,6 +1019,9 @@ export class WalletController extends BaseController {
 
   refreshCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
     try {
+      
+
+      const network = await this.getNetwork();
       const now = new Date();
       const exp = _expiry + now.getTime();
       coinListService.setExpiry(exp);
@@ -1064,8 +1067,6 @@ export class WalletController extends BaseController {
           total: allPrice[index] === null ? 0 : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
         };
       });
-
-      const network = await this.getNetwork();
       coins.sort((a, b) => {
         if (b.total === a.total) {
           return b.balance - a.balance;
