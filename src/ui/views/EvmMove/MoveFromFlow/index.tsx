@@ -27,7 +27,7 @@ interface TransferConfirmationProps {
 }
 
 
-const Move = (props: TransferConfirmationProps) => {
+const MoveFromFlow = (props: TransferConfirmationProps) => {
 
   enum ENV {
     Mainnet = 'mainnet',
@@ -97,6 +97,7 @@ const Move = (props: TransferConfirmationProps) => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
+    console.log('getCurrentCoin ', token);
     const wallet = await usewallet.getMainWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
@@ -106,6 +107,7 @@ const Move = (props: TransferConfirmationProps) => {
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
     const evmWallet = await usewallet.getEvmWallet();
+    console.log('evmWallet ', evmWallet);
     setEvmAddress(evmWallet.address);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
     setCoinInfo(coinInfo!);
@@ -143,6 +145,7 @@ const Move = (props: TransferConfirmationProps) => {
   const bridgeToken = async () => {
     setLoading(true);
     const tokenResult = await wallet.openapi.getTokenInfo(currentCoin);
+    console.log('tokenResult ', tokenResult);
     usewallet.bridgeToEvm(tokenResult!.address, tokenResult!.contractName, amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
@@ -298,4 +301,4 @@ const Move = (props: TransferConfirmationProps) => {
 }
 
 
-export default Move;
+export default MoveFromFlow;

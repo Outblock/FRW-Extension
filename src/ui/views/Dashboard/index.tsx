@@ -94,9 +94,7 @@ const Dashboard = ({ value, setValue }) => {
           style={{ height: '100%', width: '100%', backgroundColor: 'black' }}
         >
           <TabPanel value={value} index={0}>
-            {!loading &&
-              <WalletTab network={currentNetwork} />
-            }
+            <WalletTab network={currentNetwork} />
           </TabPanel>
           <TabPanel value={value} index={1}>
             {currentNetwork === 'previewnet' ?

@@ -153,7 +153,7 @@ const WalletTab = ({ network }) => {
           refreshWithRetry(expiry_time, retryCount + 1);
         }, delay);
       } else {
-        wallet.getCoinList(expiry_time).then((res) => {
+        wallet.refreshCoinList(expiry_time).then((res) => {
           if (res.length === 0 && retryCount < maxRetries) {
             console.log(`No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
             setTimeout(() => {
@@ -208,7 +208,12 @@ const WalletTab = ({ network }) => {
     } else {
       try {
         const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-        sortWallet(refreshedCoinlist)
+        console.log('refreshCoinList result', refreshedCoinlist)
+        if (refreshedCoinlist.length === 0) {
+          refreshWithRetry(expiry_time);
+        } else {
+          sortWallet(refreshedCoinlist)
+        }
       } catch (error) {
         refreshWithRetry(expiry_time);
       }
@@ -222,6 +227,7 @@ const WalletTab = ({ network }) => {
     const storageSwap = await wallet.getSwapConfig();
     setSwapConfig(storageSwap);
     const storageData = await wallet.getCoinList(expiry_time);
+    console.log('storageData ', storageData)
     sortWallet(storageData);
   };
 

@@ -61,6 +61,7 @@ import placeholder from 'ui/FRWAssets/image/placeholder.png';
 const stashKeyrings: Record<string, any> = {};
 
 export class WalletController extends BaseController {
+
   openapi = openapiService;
 
   /* wallet */
@@ -1016,7 +1017,7 @@ export class WalletController extends BaseController {
     }
   };
 
-  refreshCoinList = async (_expiry = 5000) => {
+  refreshCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
     try {
       const now = new Date();
       const exp = _expiry + now.getTime();
@@ -1072,18 +1073,24 @@ export class WalletController extends BaseController {
           return b.total - a.total;
         }
       });
-  
+
       // Add all coins at once
+      if (signal.aborted) throw new Error('Operation aborted');
       coinListService.addCoins(coins, network);
 
-      const allTokens = await openapiService.getAllTokenInfo();
-      const enabledSymbols = tokenList.map((token) => token.symbol);
-      const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
-      disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
+      // const allTokens = await openapiService.getAllTokenInfo();
+      // const enabledSymbols = tokenList.map((token) => token.symbol);
+      // const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
+      // console.log('disableSymbols are these ', disableSymbols, enabledSymbols, coins)
+      // disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
       const coinListResult = coinListService.listCoins(network);
       return coinListResult;
     } catch (err) {
-      console.error('refreshCoinList encountered an error:');
+      if (err.message === 'Operation aborted') {
+        console.log('refreshCoinList operation aborted.');
+      } else {
+        console.error('refreshCoinList encountered an error:', err);
+      }
       throw err;
     }
   };
@@ -2246,8 +2253,15 @@ export class WalletController extends BaseController {
   signMessage = async (message: string): Promise<string> => {
     return userWalletService.sign(message);
   };
+  abortController = new AbortController();
+  abort() {
+    this.abortController.abort();  // Abort ongoing operations
+    this.abortController = new AbortController();  // Create a new controller for subsequent operations
+  }
 
   switchNetwork = async (network: string) => {
+    this.abort();
+    const signal = this.abortController.signal;
     await userWalletService.setNetwork(network);
     if (network === 'testnet') {
       await fclTestnetConfig();
@@ -2257,7 +2271,7 @@ export class WalletController extends BaseController {
       // await fclCrescendoConfig();
       await fclPreviewnetConfig();
     }
-    this.refreshAll();
+    this.refreshAll({ signal });
     eventBus.emit('switchNetwork', network);
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -2282,16 +2296,17 @@ export class WalletController extends BaseController {
     return userWalletService.getMonitor();
   };
 
-  refreshAll = async () => {
+
+  refreshAll = async ({ signal }) => {
     await this.refreshUserWallets();
     this.clearNFT();
     this.refreshAddressBook();
     await this.getCadenceScripts();
+    await this.refreshCoinList(5000, { signal });
     const address = await this.getCurrentAddress();
     if (address) {
       this.refreshTransaction(address, 15, 0);
     }
-    this.refreshCoinList();
   };
 
   getNetwork = async (): Promise<string> => {

@@ -27,7 +27,7 @@ interface TransferConfirmationProps {
 }
 
 
-const Bridge = (props: TransferConfirmationProps) => {
+const MoveFromEvm = (props: TransferConfirmationProps) => {
 
   const userContact = {
     address: '',
@@ -85,6 +85,7 @@ const Bridge = (props: TransferConfirmationProps) => {
     console.log('wallet ', wallet, props.data)
     const network = await usewallet.getNetwork();
     const token = await usewallet.getCurrentCoin();
+    console.log('getCurrentCoin ', token);
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
@@ -287,4 +288,4 @@ const Bridge = (props: TransferConfirmationProps) => {
 }
 
 
-export default Bridge;
+export default MoveFromEvm;

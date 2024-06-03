@@ -187,10 +187,8 @@ const Header = ({ loading }) => {
     const currentWallet = await usewallet.getCurrentWallet();
     const childType = await usewallet.getActiveWallet();
     const network = await usewallet.getNetwork();
-    console.log('fresh user info ', network, currentWallet)
     if (network === 'previewnet') {
       usewallet.queryEvmAddress(currentWallet.address).then((res) => {
-        console.log('res ', res)
         setEvmAddress(res!);
       }).catch((err) => {
         console.log('evm err', err)

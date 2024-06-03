@@ -1382,7 +1382,7 @@ class OpenApiService {
       chainType = 'evm';
     }
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
-
+    console.log('gitToken ', gitToken)
     if (gitToken) {
       return gitToken;
     } else {
@@ -1410,6 +1410,7 @@ class OpenApiService {
         })
       }
       storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+      console.log('tokens ', tokens)
       return tokens;
     }
   };
@@ -1420,17 +1421,14 @@ class OpenApiService {
 
     const tokenList = await this.getTokenListFromGithub(network);
     const address = await userWalletService.getCurrentAddress();
-    console.log('address ', address)
     let values;
     
     try {
       values = await this.isTokenListEnabled(address);
-      console.log(`isTokenListEnabled fetching for token:`, values);
     } catch (error) {
       console.error(`Error isTokenListEnabled token:`);
       values = {}
     }
-    console.log('isTokenListEnabled ', values)
 
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};

@@ -61,6 +61,13 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
     };
   };
 
+  const moveToken = () => {
+    if (data) {
+      wallet.setCurrentCoin(data?.symbol);
+      evmEnabled ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })
+    }
+  }
+
   useEffect(() => {
     isMounted.current = true;
     getActive();
@@ -116,7 +123,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
             <Box sx={{ flex: 1 }} />
             {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && network === 'previewnet') &&
               <ButtonBase
-                onClick={() => evmEnabled ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })}
+                onClick={() => moveToken()}
               >
                 <Box sx={{
                   display: 'flex',
