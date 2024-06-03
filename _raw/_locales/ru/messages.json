@@ -1254,5 +1254,53 @@
   },
   "Move": {
     "message": "Переместить"
+  },
+  "multi_vm": {
+    "message": "Мульти-ВМ кошелек"
+  },
+  "main_wallet": {
+    "message": "Основные кошельки"
+  },
+  "edit_wallet": {
+    "message": "Редактировать кошелек"
+  },
+  "move_tokens": {
+    "message": "Переместить токены"
+  },
+  "move_assets": {
+    "message": "Переместить активы"
+  },
+  "select_collection": {
+    "message": "Выбрать коллекцию"
+  },
+  "select": {
+    "message": "Выбрать"
+  },
+  "collection": {
+    "message": "Коллекция"
+  },
+  "Cannot_move_more": {
+    "message": "Невозможно переместить более 9 NFT"
+  },
+  "manage_multi_assets_seamlessly": {
+    "message": "Управляйте мульти-ВМ активами без проблем."
+  },
+  "path_to_enable": {
+    "message": "Включить путь к"
+  },
+  "EVM_on_flow": {
+    "message": "EVM на Flow"
+  },
+  "enable_the_path_to_evm_on_flow": {
+    "message": "Включить путь к EVM на Flow"
+  },
+  "Would_you_like_to_move": {
+    "message": "Хотите переместить ваши активы в"
+  },
+  "lowercaseaccount": {
+    "message": "аккаунт"
+  },
+  "balance": {
+    "message": "Баланс"
   }
 }

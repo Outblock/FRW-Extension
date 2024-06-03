@@ -1254,5 +1254,53 @@
   },
   "Move": {
     "message": "移動"
+  },
+  "multi_vm": {
+    "message": "マルチVMウォレット"
+  },
+  "main_wallet": {
+    "message": "メインウォレット"
+  },
+  "edit_wallet": {
+    "message": "ウォレットを編集"
+  },
+  "move_tokens": {
+    "message": "トークンを移動"
+  },
+  "move_assets": {
+    "message": "資産を移動"
+  },
+  "select_collection": {
+    "message": "コレクションを選択"
+  },
+  "select": {
+    "message": "選択"
+  },
+  "collection": {
+    "message": "コレクション"
+  },
+  "Cannot_move_more": {
+    "message": "9個以上のNFTを移動できません"
+  },
+  "manage_multi_assets_seamlessly": {
+    "message": "マルチVM資産をシームレスに管理"
+  },
+  "path_to_enable": {
+    "message": "有効にするパス"
+  },
+  "EVM_on_flow": {
+    "message": "Flow上のEVM"
+  },
+  "enable_the_path_to_evm_on_flow": {
+    "message": "Flow上のEVMへのパスを有効にする"
+  },
+  "Would_you_like_to_move": {
+    "message": "資産を移動しますか"
+  },
+  "lowercaseaccount": {
+    "message": "アカウント"
+  },
+  "balance": {
+    "message": "残高"
   }
 }

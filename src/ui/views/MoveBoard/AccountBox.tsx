@@ -59,7 +59,7 @@ function AccountBox({ isEvm }) {
   return (
     <Box sx={{ padding: '0 18px' }}>
       <Typography sx={{ mb: '8px' }}>
-        Account
+        {chrome.i18n.getMessage('Account')}
       </Typography>
 
       < Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

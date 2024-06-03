@@ -120,10 +120,9 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   };
 
   const getEvmAddress = async () => {
-    console.log('props.evmAddress ', props.evmAddress)
     if (isValidEthereumAddress(props.evmAddress)) {
       const result = await usewallet.getBalance(props.evmAddress);
-      const readBalance = parseFloat(result) /1e18
+      const readBalance = parseFloat(result) / 1e18
       setEvmBalance(readBalance)
     }
   };
@@ -226,7 +225,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                       letterSpacing: "0.1px"
                     }}
                   >
-                    Enable the path to  <Typography style={gradientStyle}>EVM on Flow</Typography> !
+                    {chrome.i18n.getMessage('path_to_enable')} <Typography style={gradientStyle}>{chrome.i18n.getMessage('EVM_on_flow')}</Typography> !
                   </Typography>
                   <Typography
                     sx={{
@@ -237,7 +236,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                       letterSpacing: "0.1px"
                     }}
                   >
-                    Manage multi-VM assets seamlessly.
+                    {chrome.i18n.getMessage('manage_multi_assets_seamlessly')}
                   </Typography>
                 </Box>
                 <CardMedia sx={{ width: '20px', height: '20px', display: 'block', marginLeft: '6px' }} image={rightarrow} />

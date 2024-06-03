@@ -124,7 +124,7 @@ const Wallet = () => {
       <Box sx={{ justifyContent: 'center', alignItems: 'center', width: '100%', px: '18px', }}>
 
         <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#787878', margin: '20px 0 8px' }}>
-          Main Wallets
+          {chrome.i18n.getMessage('main_wallet')}
         </Typography>
         <List
           sx={{
@@ -186,7 +186,7 @@ const Wallet = () => {
 
         {evmList.length > 0 &&
           <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#787878', margin: '20px 0 8px' }}>
-            Multi VM Wallet
+            {chrome.i18n.getMessage('multi_vm')}
           </Typography>
         }
 

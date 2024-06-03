@@ -88,19 +88,18 @@ const Enable = () => {
             fontFamily: 'Inter',
             fontSize: '20px',
             mt: '20px',
-            width:'168px'
+            width: '168px'
           }}
           color="error"
         >
-          Enable the Path
-          to EVM on Flow
+          {chrome.i18n.getMessage('enable_the_path_to_evm_on_flow')}
         </Typography>
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'center', fontSize: '14px' }}
           color="error"
         >
-          Manage Multi-VM assets seamlessly.
+          {chrome.i18n.getMessage('manage_multi_assets_seamlessly')}
         </Typography>
 
       </Box>
@@ -171,7 +170,7 @@ const Enable = () => {
             variant="subtitle1"
             sx={{ fontWeight: 'normal', fontSize: '14px', color: 'rgba(255, 255, 255, 0.80)' }}
           >
-            Learn More
+            {chrome.i18n.getMessage('Learn__more')}
           </Typography>
         </Link>
       </Box>

@@ -737,13 +737,13 @@
     "message": "Enter your recovery phrase, using spaces to separate each wordEnter your recovery phrase"
   },
   "Go_to_flow_faucet_to_get_some_tokens": {
-    "message": "Go to flow faucet to get some tokens"
+    "message": "前往 flow faucet 来获取虚拟币"
   },
   "Claim_Testnet": {
-    "message": "Claim Testnet "
+    "message": "领取 Testnet "
   },
   "tokens": {
-    "message": " tokens"
+    "message": " 虚拟币"
   },
   "Binance": {
     "message": "Binance"
@@ -1254,5 +1254,53 @@
   },
   "Move": {
     "message": "移动"
+  },
+  "multi_vm": {
+    "message": "复数虚拟钱包"
+  },
+  "main_wallet": {
+    "message": "主要钱包"
+  },
+  "edit_wallet": {
+    "message": "编辑钱包"
+  },
+  "move_tokens": {
+    "message": "转移代币"
+  },
+  "move_assets": {
+    "message": "转移资产"
+  },
+  "select_collection": {
+    "message": "选择收藏"
+  },
+  "select": {
+    "message": "选择"
+  },
+  "collection": {
+    "message": "收藏"
+  },
+  "Cannot_move_more": {
+    "message": "不能移动超过9个NFT"
+  },
+  "manage_multi_assets_seamlessly": {
+    "message": "无缝管理复数虚拟资产"
+  },
+  "path_to_enable": {
+    "message": "启用路径到"
+  },
+  "EVM_on_flow": {
+    "message": "Flow上的EVM"
+  },
+  "enable_the_path_to_evm_on_flow": {
+    "message": "启用路径到Flow上的EVM"
+  },
+  "Would_you_like_to_move": {
+    "message": "您想要将您的资产转移到"
+  },
+  "lowercaseaccount": {
+    "message": "账户"
+  },
+  "balance": {
+    "message": "余额"
   }
 }

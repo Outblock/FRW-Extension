@@ -78,7 +78,7 @@ const EditProfile = (props: MoveBoardProps) => {
               color='text'
               sx={{ fontSize: '18px', fontFamily: 'Inter', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
             >
-              Edit Wallet
+              {chrome.i18n.getMessage('edit_wallet')}
             </Typography>
           </Box>
 

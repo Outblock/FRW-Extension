@@ -403,7 +403,7 @@ const Detail = () => {
             >
               {/* <IosShareOutlinedIcon color="primary" /> */}
               <CardMedia image={SendIcon} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
-              Send
+              {chrome.i18n.getMessage('Send')}
             </Button>
           }
 
@@ -423,7 +423,7 @@ const Detail = () => {
             >
               {/* <IosShareOutlinedIcon color="primary" /> */}
               <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
-              Move
+              {chrome.i18n.getMessage('Move')}
             </Button>
           }
         </Box>

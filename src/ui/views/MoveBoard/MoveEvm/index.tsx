@@ -99,7 +99,7 @@ const MoveEvm = (props: MoveBoardProps) => {
 
     if (index === -1) {
       // If nftId is not in the array, add it
-      if (tempIdArray.length < 10) {
+      if (tempIdArray.length < 9) {
         tempIdArray.push(nftId);
       } else {
         // Display an error or warning message that no more than 3 IDs are allowed
@@ -160,7 +160,7 @@ const MoveEvm = (props: MoveBoardProps) => {
             color='text'
             sx={{ fontSize: '20px', textAlign: 'center', fontFamily: 'e-Ukraine', lineHeight: '24px', fontWeight: '700' }}
           >
-            Select NFTs
+            {chrome.i18n.getMessage('select')} NFTs
           </Typography>
           <Box>
             <IconButton onClick={props.handleCancelBtnClicked}>
@@ -183,7 +183,7 @@ const MoveEvm = (props: MoveBoardProps) => {
             color='text'
             sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
           >
-            Collection
+            {chrome.i18n.getMessage('collection')}
           </Typography>
         </Box>
         {collectionDetail &&
@@ -332,7 +332,7 @@ const MoveEvm = (props: MoveBoardProps) => {
                   sx={{ fontWeight: 'bold' }}
                   color="text.primary"
                 >
-                  Move {nftIdArray.length > 0 && nftIdArray.length} NFT{nftIdArray.length > 1 && 's'}
+                  {chrome.i18n.getMessage('Move')}  {nftIdArray.length > 0 && nftIdArray.length} NFT{nftIdArray.length > 1 && 's'}
                 </Typography>
               }
             </>
@@ -363,7 +363,7 @@ const MoveEvm = (props: MoveBoardProps) => {
           severity="warning"
           sx={{ color: '#FFFFFF', padding: '0 16px', fontSize: '12px', fontWeight: '400', borderRadius: '24px', margin: '0 auto 80px', zIndex: '2000' }}
         >
-          Cannot move more than 9 NFTs
+          {chrome.i18n.getMessage('Cannot_move_more')}
         </Alert>
       </Snackbar>
 

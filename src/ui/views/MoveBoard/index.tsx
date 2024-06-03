@@ -70,7 +70,7 @@ const MoveBoard = (props: MoveBoardProps) => {
             color='text'
             sx={{ fontSize: '20px', fontFamily: 'e-Ukraine', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
           >
-            Move Assets
+            {chrome.i18n.getMessage('move_assets')}
           </Typography>
           <Box>
             <IconButton onClick={props.handleCancelBtnClicked}>
@@ -95,21 +95,21 @@ const MoveBoard = (props: MoveBoardProps) => {
             component="div"
             display="inline"
             color='text'
-            sx={{ fontSize: '12px', textAlign: 'center', lineHeight: '24px', padding: '0 62px', fontWeight: '400', color: '#FFFFFFCC' }}
+            sx={{ fontSize: '12px', textAlign: 'center', lineHeight: '24px', padding: '0 65px', fontWeight: '400', color: '#FFFFFFCC' }}
           >
-            {`Would you like to move your assets to ${childType === 'evm' ? 'FLOW' : 'EVM'} account?`}
+            {chrome.i18n.getMessage('Would_you_like_to_move')}{`${childType === 'evm' ? 'FLOW' : 'EVM'}`} {chrome.i18n.getMessage('lowercaseaccount')}?
           </Typography>
         </Box>
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ display: 'flex',gap:'16px', padding: '0 24px', mb: '51px', mt: '24px', justifyContent: 'space-between' }}>
+      <Box sx={{ display: 'flex', gap: '16px', padding: '0 24px', mb: '51px', mt: '24px', justifyContent: 'space-between' }}>
         <Button
           sx={{
             display: 'flex',
             flexDirection: 'column',
             height: '198px',
-            width:'162px',
+            width: '162px',
             backgroundImage: `url(${movenftbg})`,
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
@@ -123,14 +123,14 @@ const MoveBoard = (props: MoveBoardProps) => {
           }}
         >
           <CardMedia component="img" sx={{ width: '147px', height: 'auto', display: 'inline' }} image={movenft} />
-          <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600',textTransform:'capitalize' }}>Move NFTs</Typography>
+          <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600', textTransform: 'capitalize' }}>{chrome.i18n.getMessage('Move')} NFTs</Typography>
         </Button>
         <Button
           sx={{
             display: 'flex',
             flexDirection: 'column',
             height: '198px',
-            width:'162px',
+            width: '162px',
             backgroundImage: `url(${moveftbg})`,
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
@@ -143,7 +143,9 @@ const MoveBoard = (props: MoveBoardProps) => {
             setMoveFt(true);
           }}>
           <CardMedia component="img" sx={{ width: '140px', height: 'auto', display: 'inline', }} image={moveft} />
-          <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600',textTransform:'capitalize' }}>Move Tokens</Typography>
+          <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600', textTransform: 'capitalize' }}>
+            {chrome.i18n.getMessage('move_tokens')}
+          </Typography>
         </Button>
       </Box>
       {showSelectNft && (

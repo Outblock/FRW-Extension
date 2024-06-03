@@ -135,7 +135,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
                   borderRadius: '8px',
                   alignSelf: 'end'
                 }}>
-                  <Typography sx={{ fontWeight: 'normal', color: '#41CC5D' }}>Move</Typography>
+                  <Typography sx={{ fontWeight: 'normal', color: '#41CC5D' }}>{chrome.i18n.getMessage('Move')}</Typography>
                   <CardMedia sx={{ width: '12px', height: '12px', marginLeft: '4px', }} image={iconMove} />
                 </Box>
               </ButtonBase>

@@ -248,7 +248,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
               justifyContent: 'space-between'
             }}
           >
-            <Typography>Balance</Typography>
+            <Typography>{chrome.i18n.getMessage('Balance')}</Typography>
             <Typography>{coinInfo.balance}</Typography>
           </Box>
         </Box>

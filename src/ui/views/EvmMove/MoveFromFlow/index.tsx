@@ -208,7 +208,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
           <Box sx={{ width: '40px' }}></Box>
           <Box sx={{ pt: '16px' }}>
             <Typography sx={{ fontWeight: '700', fontFamily: 'e-Ukraine', fontSize: '20px' }}>
-              Move Token
+              {chrome.i18n.getMessage('move_tokens')}
             </Typography>
           </Box>
           <Box sx={{ pt: '14px' }} onClick={props.handleCancelBtnClicked}>
@@ -291,7 +291,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
           >
             {errorType ?
               errorType :
-              'Move'
+              chrome.i18n.getMessage('Move')
             }
           </Typography>
         </Button>
