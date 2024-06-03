@@ -1027,7 +1027,7 @@ export class WalletController extends BaseController {
       coinListService.setExpiry(exp);
 
       const address = await this.getCurrentAddress();
-      const tokenList = await openapiService.getEnabledTokenList();
+      const tokenList = await openapiService.getEnabledTokenList(network);
 
       let allBalanceMap;
       try {
@@ -1096,83 +1096,6 @@ export class WalletController extends BaseController {
     }
   };
 
-  refreshCoinPrice = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
-    try {
-      const now = new Date();
-      const exp = _expiry + now.getTime();
-      coinListService.setExpiry(exp);
-
-      const address = await this.getCurrentAddress();
-      const tokenList = await openapiService.getEnabledTokenList();
-
-      let allBalanceMap;
-      try {
-        allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
-      } catch (error) {
-        console.error('Error fetching token list balance:');
-        throw new Error('Failed to fetch token list balance');
-      }
-      const data = await openapiService.getTokenPrices();
-
-      // Map over tokenList to get prices and handle errors individually
-      const pricesPromises = tokenList.map(async (token) => {
-        try {
-          return await this.tokenPrice(token.symbol, data);
-        } catch (error) {
-          console.error(`Error fetching price for token ${token.symbol}:`, error);
-          return null;
-        }
-      });
-
-      const pricesResults = await Promise.allSettled(pricesPromises);
-
-      // Extract fulfilled prices
-      const allPrice = pricesResults.map(result => result.status === 'fulfilled' ? result.value : null);
-
-      const coins = tokenList.map((token, index) => {
-        const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
-        return {
-          coin: token.name,
-          unit: token.symbol,
-          icon: token['logoURI'] || '',
-          balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
-          price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
-          change24h: allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
-            ? 0
-            : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
-          total: allPrice[index] === null ? 0 : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
-        };
-      });
-
-      const network = await this.getNetwork();
-      coins.sort((a, b) => {
-        if (b.total === a.total) {
-          return b.balance - a.balance;
-        } else {
-          return b.total - a.total;
-        }
-      });
-
-      // Add all coins at once
-      if (signal.aborted) throw new Error('Operation aborted');
-      coinListService.addCoins(coins, network);
-
-      // const allTokens = await openapiService.getAllTokenInfo();
-      // const enabledSymbols = tokenList.map((token) => token.symbol);
-      // const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
-      // console.log('disableSymbols are these ', disableSymbols, enabledSymbols, coins)
-      // disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
-      const coinListResult = coinListService.listCoins(network);
-      return coinListResult;
-    } catch (err) {
-      if (err.message === 'Operation aborted') {
-        console.log('refreshCoinList operation aborted.');
-      } else {
-        console.error('refreshCoinList encountered an error:', err);
-      }
-      throw err;
-    }
-  };
 
   refreshEvmList = async (_expiry = 5000) => {
     const now = new Date();

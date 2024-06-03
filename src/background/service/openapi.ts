@@ -1415,9 +1415,11 @@ class OpenApiService {
     }
   };
 
-  getEnabledTokenList = async () => {
+  getEnabledTokenList = async (network = '') => {
     // const tokenList = await remoteFetch.flowCoins();
-    const network = await userWalletService.getNetwork();
+    if (!network) {
+      network = await userWalletService.getNetwork();
+    }
 
     const tokenList = await this.getTokenListFromGithub(network);
     const address = await userWalletService.getCurrentAddress();
