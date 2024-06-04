@@ -524,7 +524,7 @@
     "message": "Flow Wallet"
   },
   "Lilico": {
-    "message": "Flow Wallet"
+    "message": "Flow Wallets"
   },
   "and__Pin": {
     "message": "and Pin"
@@ -653,13 +653,13 @@
     "message": "Review"
   },
   "Write__down__this__phrase__in__this__exact__order__and__keep__them__safe": {
-    "message": "Write down this phrase in this exact order and make sure to keep them somewhere safe!"
+    "message": "Write down your recovery phrase in its exact order and make sure to keep it somewhere safe"
   },
   "Please_select_the_word_one_by_one_refering_to_tits_order": {
     "message": "Please select the word one by one refering to its order."
   },
   "Please__notice__that__If__you__lose__you__can__not__access": {
-    "message": "Please notice that If you lose recovery phrases, you can not access your account forever."
+    "message": "If you lose your recovery phrase, you will not be able to regain access to your account."
   },
   "Recovery_phrases_word_count_must_be_12_or_24_words": {
     "message": "Recovery phrases word count must be 12 or 24 words"
@@ -1034,7 +1034,7 @@
     "message": "Private key is invalid"
   },
   "Open_your_Flow_Reference_on_Mobil": {
-    "message": "Open your Flow Wallet on Mobile app and Scan the QR Code to Sync your Wallet."
+    "message": "Open your Flow Wallet mobile app and scan the QR code to sync your wallets. Syncing your Flow Wallets allows your Flow account to be used across your Flow Wallet apps."
   },
   "Sync_": {
     "message": "Sync"
@@ -1058,7 +1058,7 @@
     "message": "Import Wallets"
   },
   "Support_Flow_Wallet_Blocto": {
-    "message": "Support seed phrase, keystore and raw key"
+    "message": "From Seed Phrase, Keystore or Raw Key"
   },
   "A_crypto_wallet_on_Flow": {
     "message": "A crypto wallet on Flow built for"
@@ -1076,10 +1076,10 @@
     "message": "Private Key"
   },
   "You_can_import_the": {
-    "message": "You can import the json file from other wallet (eg. Blocto)"
+    "message": "Paste the JSON contents of the keystore from another wallet (eg: Blocto)"
   },
   "Enter_password_for_json_file": {
-    "message": "Enter password for json file"
+    "message": "Enter the password for the JSON file / keystore"
   },
   "Enter_your_flow_address": {
     "message": "Enter your flow address (Optional)"
@@ -1115,13 +1115,13 @@
     "message": "Restore"
   },
   "Having_trouble": {
-    "message": "Having Trouble to Login?"
+    "message": "Having issues Logging in?"
   },
   "Reset_my_wallet": {
-    "message": "Reset My Wallet"
+    "message": "Reset Wallet"
   },
   "If_you_have_your_recovery_phrase": {
-    "message": "If you have your recovery phrase or private key, you can reset and restore your wallet."
+    "message": "If you have your recovery phrase or private key, you can reset and restore your account."
   },
   "Retrieve_local_sensitive_data": {
     "message": "Retrieve local sensitive data "
@@ -1275,5 +1275,8 @@
   },
   "balance": {
     "message": "Balance"
+  },
+  "import_account" :{
+    "message": "Import Account"
   }
 }

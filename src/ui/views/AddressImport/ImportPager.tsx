@@ -160,10 +160,10 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
     <Box sx={{ padding: '0 16px 16px' }}>
       <Box sx={{ padding: '20px 24px' }}>
         <Typography variant="h4">
-          {chrome.i18n.getMessage('Import_Address')}
+          {chrome.i18n.getMessage('import_account')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Support_Flow_Wallet_and_private_key')}
+          {chrome.i18n.getMessage('Support_Flow_Wallet_Blocto')}
         </Typography>
       </Box>
 

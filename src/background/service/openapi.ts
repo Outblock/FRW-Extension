@@ -1245,10 +1245,11 @@ class OpenApiService {
     return data;
   };
 
-  getTokenInfo = async (name: string): Promise<TokenInfo | undefined> => {
+  getTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
-    const network = await userWalletService.getNetwork();
-
+    if (!network) {
+      network = await userWalletService.getNetwork();
+    }
     const tokens = await this.getTokenListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
     return tokens.find(
@@ -1420,9 +1421,9 @@ class OpenApiService {
     if (!network) {
       network = await userWalletService.getNetwork();
     }
+    const address = await userWalletService.getCurrentAddress();
 
     const tokenList = await this.getTokenListFromGithub(network);
-    const address = await userWalletService.getCurrentAddress();
     let values;
     
     try {

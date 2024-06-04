@@ -82,7 +82,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
           marginTop: '4px'
         }}
       >
-        {myString} Flow
+        {myString} FLOW
       </Typography>
     );
   }

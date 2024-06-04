@@ -497,10 +497,10 @@ const Header = ({ loading }) => {
               component="span"
               // display="inline"
               color={'text.nonselect'}
-              sx={{ fontSize: '13px', textTransform: 'lowercase' }}
+              sx={{ fontSize: '13px', textTransform: 'uppercase' }}
             >
               {/* <span>{'  '}</span> */}
-              {(flowBalance / 100000000).toFixed(3)} Flow
+              {(flowBalance / 100000000).toFixed(3)} FLOW
             </Typography>
           </Box>
           <Box sx={{ flex: "1" }}></Box>

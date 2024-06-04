@@ -95,7 +95,7 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
     console.log('coinList ', evmWallet)
-    const tokenResult = await usewallet.openapi.getTokenInfo(token);
+    const tokenResult = await usewallet.openapi.getTokenInfo(token, network);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase());
     setCoinInfo(coinInfo!);
 
@@ -131,7 +131,7 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
   const bridgeToken = async () => {
     setLoading(true);
-    const tokenResult = await wallet.openapi.getTokenInfo(currentCoin);
+    const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
     console.log('tokenInfo ', tokenResult)
     const flowIdentifier = tokenResult!['flowIdentifier'].split('.');
     const address = '0x' + flowIdentifier[1]

@@ -530,7 +530,7 @@
     "message": "Flow Wallet"
   },
   "Lilico": {
-    "message": "Flow Wallet"
+    "message": "Flow Wallets"
   },
   "and__Pin": {
     "message": "とピン"
@@ -665,7 +665,7 @@
     "message": "単語を順番に選んでください。"
   },
   "Please__notice__that__If__you__lose__you__can__not__access": {
-    "message": "リカバリーフレーズを紛失した場合、アカウントに永久にアクセスできなくなりますのでご注意ください。"
+    "message": "リカバリーフレーズを失うと、アカウントにアクセスできなくなります。"
   },
   "Select_the_word_at": {
     "message": "で単語を選択します"
@@ -1061,7 +1061,7 @@
     "message": "プライベートキーが無効です"
   },
   "Open_your_Flow_Reference_on_Mobil": {
-    "message": "モバイルアプリでFlowリファレンスを開き、QRコードをスキャンしてウォレットを同期します。"
+    "message": "Flow Walletのモバイルアプリを開き、QRコードをスキャンしてウォレットを同期してください。Flow Walletの同期により、FlowアカウントをFlow Walletアプリで使用できるようになります。"
   },
   "Sync_": {
     "message": "同期"
@@ -1103,7 +1103,7 @@
     "message": "プライベートキー"
   },
   "You_can_import_the": {
-    "message": "他のウォレット（例：Blocto）からjsonファイルをインポートできます"
+    "message": "他のウォレット（例：Blocto）からキーストアのJSON内容を貼り付けてください"
   },
   "Enter_password_for_json_file": {
     "message": "jsonファイルのパスワードを入力してください"
@@ -1145,10 +1145,10 @@
     "message": "ログインに問題がありますか？"
   },
   "Reset_my_wallet": {
-    "message": "私の財布をリセット"
+    "message": "財布をリセット"
   },
   "If_you_have_your_recovery_phrase": {
-    "message": "回復フレーズまたは秘密鍵を持っている場合は、ウォレットをリセットして復元できます。"
+    "message": "リカバリーフレーズまたは秘密鍵があれば、アカウントをリセットして復元できます。"
   },
   "Retrieve_local_sensitive_data": {
     "message": "ローカルの機密データを取得"
@@ -1302,5 +1302,8 @@
   },
   "balance": {
     "message": "残高"
+  },
+  "import_account": {
+    "message": "アカウントをインポート"
   }
 }

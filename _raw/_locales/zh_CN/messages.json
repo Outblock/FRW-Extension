@@ -530,7 +530,7 @@
     "message": "Flow Wallet"
   },
   "Lilico": {
-    "message": "Flow Wallet"
+    "message": "Flow Wallets"
   },
   "and__Pin": {
     "message": "并固定"
@@ -662,7 +662,7 @@
     "message": "请按照顺序逐一选择正确助记词。"
   },
   "Please__notice__that__If__you__lose__you__can__not__access": {
-    "message": "请注意，如果你失去了助记词，你将永远无法访问你的账户。"
+    "message": "如果您丢失了助记词，您将无法重新访问您的帐户。"
   },
   "Choose_provider": {
     "message": "选择购买平台"
@@ -1061,7 +1061,7 @@
     "message": "私钥无效"
   },
   "Open_your_Flow_Reference_on_Mobil": {
-    "message": "在移动应用上打开您的 Flow 参考并扫描二维码以同步您的钱包。"
+    "message": "打开您的Flow Wallet移动应用并扫描二维码以同步您的钱包。同步您的Flow Wallets可以使您的Flow帐户在您的Flow Wallet应用程序中使用。"
   },
   "Sync_": {
     "message": "同步"
@@ -1103,7 +1103,7 @@
     "message": "私钥"
   },
   "You_can_import_the": {
-    "message": "您可以从其他钱包（例如 Blocto）导入 json 文件"
+    "message": "从另一个钱包（例如：Blocto）粘贴Json内容"
   },
   "Enter_password_for_json_file": {
     "message": "输入 json 文件的密码"
@@ -1145,10 +1145,10 @@
     "message": "登录有困难吗？"
   },
   "Reset_my_wallet": {
-    "message": "重置我的钱包"
+    "message": "重置钱包"
   },
   "If_you_have_your_recovery_phrase": {
-    "message": "如果您有恢复短语或私钥，您可以重置并恢复您的钱包。"
+    "message": "如果您有助记词或私钥，您可以重置并恢复您的帐户。"
   },
   "Retrieve_local_sensitive_data": {
     "message": "检索本地敏感数据"
@@ -1302,5 +1302,8 @@
   },
   "balance": {
     "message": "余额"
+  },
+  "import_account": {
+    "message": "导入账户"
   }
 }

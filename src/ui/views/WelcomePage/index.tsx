@@ -226,7 +226,7 @@ const WelcomePage = () => {
                       color: '#FFF',
                     }}
                   >
-                    {chrome.i18n.getMessage('Import_Other_Wallets')}
+                    {chrome.i18n.getMessage('Import__Wallet')}
                   </Typography>
                 </Box>
                 <Typography
