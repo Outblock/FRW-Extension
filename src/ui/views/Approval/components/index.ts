@@ -4,4 +4,5 @@ export { default as SignMessage } from './SignMessage';
 
 export { default as EthConnect } from './EthApproval/EthConnect';
 export { default as EthConfirm } from './EthApproval/EthConfirm';
+export { default as EthEnable } from './EthApproval/EthEnable';
 

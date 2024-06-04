@@ -7,6 +7,7 @@ import {
   sessionService,
   signTextHistoryService,
   keyringService,
+  notificationService
 } from 'background/service';
 import Wallet from '../wallet';
 import BaseController from '../base';
@@ -22,7 +23,7 @@ import RLP from 'rlp';
 import HDWallet from 'ethereum-hdwallet';
 import Web3 from 'web3';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
-import { ensureEvmAddressPrefix } from '@/ui/utils/address';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import { storage } from '../../webapi';
 
 interface Web3WalletPermission {
@@ -189,9 +190,29 @@ class ProviderController extends BaseController {
     if (network !== 'previewnet') {
       await Wallet.switchNetwork('previewnet');
     }
+
     const currentWallet = await Wallet.getCurrentWallet();
-    let res = await Wallet.queryEvmAddress(currentWallet.address);
-    res = ensureEvmAddressPrefix(res);
+    // const res = await Wallet.queryEvmAddress(currentWallet.address);
+    let res: string | null;
+    try {
+      // Attempt to query the EVM address
+      res = await Wallet.queryEvmAddress(currentWallet.address);
+      console.log('Query successful:', res);
+    } catch (error) {
+      // If an error occurs, request approval
+      console.error('Error querying EVM address:', error);
+
+      await notificationService.requestApproval(
+        {
+          params: { origin },
+          approvalComponent: 'EthConnect',
+        },
+        { height: 599 }
+      );
+
+      res = await Wallet.queryEvmAddress(currentWallet.address);
+    }
+    
     const account = res ? [res.toLowerCase()] : [];
     await sessionService.broadcastEvent('accountsChanged', account);
     await permissionService.getConnectedSite(origin);

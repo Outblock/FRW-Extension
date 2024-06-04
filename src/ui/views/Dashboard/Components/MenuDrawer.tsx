@@ -11,12 +11,13 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { makeStyles } from '@mui/styles';
 import { UserInfoResponse } from 'background/service/networkModel';
 import sideMore from '../../../FRWAssets/svg/sideMore.svg';
-import mainnetIndicator from '../../../FRWAssets/svg/networkIndicator.svg';
-import testnetIndicator from '../../../FRWAssets/svg/networkIndicatorTestnet.svg';
-import previewnetIndicator from '../../../FRWAssets/svg/networkIndicatorPreviewnet.svg';
+import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
+import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
+import previewnetIndicator from '../../../FRWAssets/svg/previewnetArrow.svg';
+import networkLink from '../../../FRWAssets/svg/networkLink.svg';
 
 import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
-import { storage } from '@/background/webapi';
+import NetworkList from './NetworkList';
 
 import evmlogo from 'ui/FRWAssets/image/evmlogo.png';
 
@@ -65,7 +66,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   const [evmMode, setEvmMode] = useState(true);
   const [isEvm, setIsEvm] = useState(false);
   const [evmBalance, setEvmBalance] = useState(0);
-
   interface EvmADDComponentProps {
     myString: string | number;
   }
@@ -137,18 +137,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     getEvmAddress();
   }, [props.evmAddress]);
 
-  const getIndicatorImage = () => {
-    switch (props.currentNetwork) {
-      case 'mainnet':
-        return mainnetIndicator;
-      case 'testnet':
-        return testnetIndicator;
-      case 'previewnet':
-        return previewnetIndicator;
-      default:
-        return mainnetIndicator; // Default to mainnet if no match
-    }
-  };
 
 
 
@@ -180,19 +168,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
               </ListItemIcon>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <ListItemText sx={{ fontSize: '14px', fontWeight: '700' }} primary={props.userInfo!.username} />
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 12px', borderRadius: '24px', height: '24px', border: `1px solid ${props.networkColor(props.currentNetwork)}` }}>
-                  <Box sx={{ width: '4px', height: '4px', marginRight: '8px', borderRadius: '4px', background: props.networkColor(props.currentNetwork) }}></Box>
-                  <Typography sx={{ fontSize: '12px', marginRight: '12px', lineHeight: '24px', fontWeight: '400', color: props.networkColor(props.currentNetwork) }}> {props.currentNetwork}</Typography>
-
-
-                  <CardMedia component="img" sx={{
-                    width: '16px', height: '16px',
-                  }} image={getIndicatorImage()} />
-
-
-
-                </Box>
               </Box>
             </Box>
           }
@@ -462,6 +437,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             marginBottom: '20px'
           }}
         >
+          <NetworkList networkColor={props.networkColor} currentNetwork={props.currentNetwork}/>
           <ListItem disablePadding onClick={async () => {
             await usewallet.lockAdd();
             // history.push('/add');
