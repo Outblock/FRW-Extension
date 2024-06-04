@@ -51,7 +51,7 @@ const RegisterHeader = () => {
           }}
           startIcon={<HelpOutlineRoundedIcon sx={{ color: '#5e5e5e'}} />}
         >
-          <a href="https://outblock.notion.site/FAQ-lilico-support-fc26f774ad514439a11c5c7cb255d1ec" target='_blank'>
+          <a href="https://wallet.flow.com/contact" target='_blank'>
             <Typography sx={{color: '#F9F9F9', textTransform: 'capitalize', marginLeft:'5px'}}>{chrome.i18n.getMessage('Need__Help')}</Typography>
           </a>
         </Button> 

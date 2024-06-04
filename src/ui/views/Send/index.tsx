@@ -427,7 +427,7 @@ const Send = () => {
             </Typography>
           </Grid>
           <Grid item xs={1} sx={{display: 'flex', justifyContent: 'center'}}>
-            <IconButton onClick={() => window.open('https://outblock.notion.site/FAQ-lilico-support-fc26f774ad514439a11c5c7cb255d1ec', '_blank')}>
+            <IconButton onClick={() => window.open('https://wallet.flow.com/contact', '_blank')}>
               <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
                 <HelpOutlineRoundedIcon  sx={{ color: 'icon.navi' }} />
               </Tooltip>
