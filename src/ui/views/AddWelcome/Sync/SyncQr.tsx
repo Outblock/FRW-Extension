@@ -348,7 +348,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
               }}
             >
               {chrome.i18n.getMessage('Sync_')} <span style={{ display: 'inline-block', width: '353px' }}>
-                {chrome.i18n.getMessage('Flow_Core')}</span>
+                {chrome.i18n.getMessage('Lilico')}</span>
             </Typography>
 
             <Typography
