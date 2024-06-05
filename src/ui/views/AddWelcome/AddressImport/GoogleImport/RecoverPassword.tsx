@@ -276,6 +276,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                 className={classes.inputBox}
                 fullWidth
                 disableUnderline
+                readOnly={!(password.length < 8)}
                 
                 onChange={(event) => {
                   setPassword(event.target.value);

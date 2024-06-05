@@ -138,7 +138,8 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
             marginRight: '12px',
             lineHeight: '24px',
             fontWeight: '400',
-            color: networkColor(currentNetwork)
+            color: networkColor(currentNetwork),
+            textTransform:'capitalize'
           }}
         >
           {currentNetwork}

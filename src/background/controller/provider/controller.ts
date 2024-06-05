@@ -136,8 +136,53 @@ class ProviderController extends BaseController {
       throw ethErrors.provider.unauthorized();
     }
 
-    const currentWallet = await Wallet.getCurrentWallet();
-    let res = await Wallet.queryEvmAddress(currentWallet.address);
+    const network = await Wallet.getNetwork();
+
+    let currentWallet;
+    try {
+      if (network !== 'previewnet') {
+        await Wallet.switchNetwork('previewnet');
+      }
+      // Attempt to query the previewnet address
+      currentWallet = await Wallet.getCurrentWallet();
+    } catch (error) {
+      // If an error occurs, request approval
+      console.error('Error querying EVM address:', error);
+
+      await notificationService.requestApproval(
+        {
+          params: { origin },
+          approvalComponent: 'EthEnable',
+        },
+        { height: 599 }
+      );
+
+      return []
+    }
+
+    // const currentWallet = await Wallet.getCurrentWallet();
+    // let res = await Wallet.queryEvmAddress(currentWallet.address);
+
+    let res: string | null;
+    try {
+      // Attempt to query the EVM address
+      res = await Wallet.queryEvmAddress(currentWallet.address);
+      console.log('Query successful:', res);
+    } catch (error) {
+      // If an error occurs, request approval
+      console.error('Error querying EVM address:', error);
+
+      await notificationService.requestApproval(
+        {
+          params: { origin },
+          approvalComponent: 'EthConnect',
+        },
+        { height: 599 }
+      );
+
+      res = await Wallet.queryEvmAddress(currentWallet.address);
+    }
+    
     res = ensureEvmAddressPrefix(res);
     const account = res ? [res.toLowerCase()] : [];
     sessionService.broadcastEvent('accountsChanged', account);
@@ -187,11 +232,30 @@ class ProviderController extends BaseController {
     }
 
     const network = await Wallet.getNetwork();
-    if (network !== 'previewnet') {
-      await Wallet.switchNetwork('previewnet');
+
+    let currentWallet;
+    try {
+      if (network !== 'previewnet') {
+        await Wallet.switchNetwork('previewnet');
+      }
+      // Attempt to query the previewnet address
+      currentWallet = await Wallet.getCurrentWallet();
+    } catch (error) {
+      // If an error occurs, request approval
+      console.error('Error querying EVM address:', error);
+
+      await notificationService.requestApproval(
+        {
+          params: { origin },
+          approvalComponent: 'EthEnable',
+        },
+        { height: 599 }
+      );
+
+      return
     }
 
-    const currentWallet = await Wallet.getCurrentWallet();
+    // const currentWallet = await Wallet.getCurrentWallet();
     // const res = await Wallet.queryEvmAddress(currentWallet.address);
     let res: string | null;
     try {

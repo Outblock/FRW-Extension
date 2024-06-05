@@ -295,7 +295,8 @@ const SetPassword = ({ handleClick, mnemonic, username, setUsername, accountKey,
                 fullWidth
                 autoFocus
                 disableUnderline
-                
+                readOnly={!(password.length < 8)}
+
                 onChange={(event) => {
                   setPassword(event.target.value);
                 }}

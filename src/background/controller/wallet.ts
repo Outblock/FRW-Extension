@@ -2328,6 +2328,10 @@ export class WalletController extends BaseController {
     userWalletService.refreshEvm();
   }
 
+  clearWallet = () => {
+    userWalletService.clear();
+  }
+
   getFlowscanURL = async (): Promise<string> => {
     const network = await this.getNetwork();
     let baseURL = 'https://flowdiver.io';

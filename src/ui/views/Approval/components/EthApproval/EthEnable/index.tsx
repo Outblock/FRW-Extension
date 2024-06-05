@@ -52,10 +52,6 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
   const init = async () => {
     wallet.switchNetwork('previewnet');
     setLogo(icon);
-    const currentWallet = await wallet.getCurrentWallet();
-    const res = await wallet.queryEvmAddress(currentWallet.address);
-    setEvmAddress(res!);
-    setIsEvm(isValidEthereumAddress(res));
     const site = await wallet.getSite(origin);
     const collectList: { name: string; logo_url: string }[] = [];
     const defaultChain = 'FLOW';
@@ -66,40 +62,6 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
     setIsLoading(false);
   };
 
-  const createCoa = async () => {
-    setIsLoading(true)
-
-    wallet.createCoaEmpty().then(async (createRes) => {
-      wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your EVM on Flow address has been created. \nClick to view this transaction.`);
-
-      setIsLoading(false);
-    }).catch((err) => {
-      console.log(err);
-      setIsLoading(false);
-    });
-  }
-
-
-
-  const transactionDoneHanlder = async (request) => {
-    if (request.msg === 'transactionDone') {
-      const currentWallet = await wallet.getCurrentWallet();
-      const res = await wallet.queryEvmAddress(currentWallet.address);
-      setEvmAddress(res!);
-      setIsEvm(isValidEthereumAddress(res));
-
-    }
-    return true
-  }
-
-  useEffect(() => {
-
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
-
-    return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder)
-    }
-  }, []);
 
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
@@ -120,15 +82,15 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
     <Box sx={{ padingTop: '18px' }}>
       {isLoading ? <LLConnectLoading logo={logo} /> :
         (<Box sx={{
-          margin: '0 18px 0px 18px',
+          margin: ' 18px ',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '12px',
           height: '506px',
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', margin: '0 18px', gap: '8px' }}>
-            <Typography sx={{ textTransform: 'uppercase', fontSize: '18px' }} variant="body1" color="text.secondary">Evm on FLOW is not enabled</Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', margin: '18px', gap: '8px' }}>
+            <Typography sx={{ textTransform: 'uppercase', fontSize: '18px' }} variant="body1" color="text.secondary">Preivewnet is not enabled</Typography>
             <CardMedia component="img" sx={{ width: '196px', height: '196px' }} image={enableBg} />
             <Typography
               variant="subtitle1"
@@ -141,14 +103,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
               }}
               color="error"
             >
-              {chrome.i18n.getMessage('enable_the_path_to_evm_on_flow')}
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'left', fontSize: '12px' }}
-              color="error"
-            >
-              {chrome.i18n.getMessage('manage_multi_assets_seamlessly')}
+              Previewnet not enabled, please go back to extension and enable it first.
             </Typography>
           </Box>
 
@@ -159,21 +114,6 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
               fullWidth
               onClick={handleCancel}
             />
-            {isEvm ?
-              <LLPrimaryButton
-                label={chrome.i18n.getMessage('Connect')}
-                fullWidth
-                type="submit"
-                onClick={handleAllow}
-              /> :
-              <LLPrimaryButton
-                label={chrome.i18n.getMessage('Enable')}
-                fullWidth
-                type="submit"
-                onClick={createCoa}
-              />
-
-            }
 
             {/* {claiming ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>

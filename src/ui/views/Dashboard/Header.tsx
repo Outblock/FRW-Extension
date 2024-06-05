@@ -239,7 +239,7 @@ const Header = ({ loading }) => {
     }
     await usewallet.lockWallet();
     history.push('/switchunlock');
-    await usewallet.refreshEvmWallets();
+    await usewallet.clearWallet();
     await usewallet.switchNetwork(switchingTo);
   };
 
@@ -470,6 +470,7 @@ const Header = ({ loading }) => {
               variant="body1"
               component="span"
               fontWeight={'semi-bold'}
+              sx={{fontSize:'12px'}}
               display="flex"
               color={
                 props.props_id == currentWallet
@@ -497,7 +498,7 @@ const Header = ({ loading }) => {
               component="span"
               // display="inline"
               color={'text.nonselect'}
-              sx={{ fontSize: '13px', textTransform: 'uppercase' }}
+              sx={{ fontSize: '12px', textTransform: 'uppercase' }}
             >
               {/* <span>{'  '}</span> */}
               {(flowBalance / 100000000).toFixed(3)} FLOW

@@ -323,6 +323,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
               placeholder={chrome.i18n.getMessage('Create__a__password')}
               value={password}
               className={classes.inputBox}
+              readOnly={!(password.length < 8)}
               fullWidth
               disableUnderline
               

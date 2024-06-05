@@ -264,6 +264,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
               placeholder={chrome.i18n.getMessage('Confirm__Password')}
               value={password}
               className={classes.inputBox}
+              readOnly={!(password.length < 8)}
               fullWidth
               disableUnderline
 

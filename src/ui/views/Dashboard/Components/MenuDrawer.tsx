@@ -223,7 +223,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         </Box>
         {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
         {(isValidEthereumAddress(props.evmAddress) || Object.keys(props.childAccounts).length > 0) &&
-          <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '18px', marginLeft: '16px' }}>{chrome.i18n.getMessage('Linked_Account')}</Typography>
+          <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}>{chrome.i18n.getMessage('Linked_Account')}</Typography>
         }
         {isValidEthereumAddress(props.evmAddress) && (
           <ListItem
@@ -344,7 +344,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                     variant="body1"
                     component="span"
                     color="#E6E6E6"
-                    fontSize={'10px'}
+                    fontSize={'12px'}
                   >
                     {props.childAccounts[key]?.name ?? key}
                   </Typography>
