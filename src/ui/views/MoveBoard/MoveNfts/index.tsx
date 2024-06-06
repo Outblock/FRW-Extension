@@ -30,7 +30,7 @@ const MoveNfts = (props: MoveBoardProps) => {
 
   const usewallet = useWallet();
   const history = useHistory();
-  const [viewmore, setMore] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [cadenceNft, setCadenceNft] = useState<any>(null);
   const [collectionList, setCollectionList] = useState<any>(null);
   const [selectedCollection, setSelected] = useState<string>('');
@@ -59,33 +59,51 @@ const MoveNfts = (props: MoveBoardProps) => {
   const findCollectionByContractName = () => {
     if (collectionList) {
       const collection = collectionList.find(collection => collection.id === selectedCollection);
+      console.log('setCurrentCollection ', collection)
       setCurrentCollection(collection);
     }
 
   };
 
   const requestCadenceNft = async () => {
-    const cadenceResult = await usewallet.requestCadenceNft();
-    setSelected(cadenceResult[0].collection.id);
-    const extractedObjects = cadenceResult.map(obj => {
-      return {
-        CollectionName: obj.collection.contract_name,
-        NftCount: obj.count,
-        id: obj.collection.id,
-        address: obj.collection.address,
-        logo: obj.collection.logo,
-      };
+    setIsLoading(true);
+    try {
+      const cadenceResult = await usewallet.requestCadenceNft();
+      setSelected(cadenceResult[0].collection.id);
 
-    });
+      const extractedObjects = cadenceResult.map(obj => {
+        return {
+          CollectionName: obj.collection.contract_name,
+          NftCount: obj.count,
+          id: obj.collection.id,
+          address: obj.collection.address,
+          logo: obj.collection.logo,
+        };
+      });
 
-    setCollectionList(extractedObjects);
-    setCadenceNft(cadenceResult);
+      setCollectionList(extractedObjects);
+      setCadenceNft(cadenceResult);
+    } catch (error) {
+      console.error('Error fetching NFT data:', error);
+      setSelected('');
+      setCollectionList(null);
+      setCadenceNft(null);
+      setIsLoading(false);
+    }
   };
 
   const requestCollectionInfo = async () => {
     if (selectedCollection) {
-      const cadenceResult = await usewallet.requestCollectionInfo(selectedCollection);
-      setCollectionDetail(cadenceResult);
+      try {
+        const cadenceResult = await usewallet.requestCollectionInfo(selectedCollection);
+        setCollectionDetail(cadenceResult);
+        console.log('setCollectionDetail ', cadenceResult);
+      } catch (error) {
+        console.error('Error requesting collection info:', error);
+        setCollectionDetail(null);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -126,14 +144,17 @@ const MoveNfts = (props: MoveBoardProps) => {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     requestCadenceNft();
   }, [])
 
   useEffect(() => {
+    setIsLoading(true);
     requestCollectionInfo();
   }, [selectedCollection])
 
   useEffect(() => {
+    setIsLoading(true);
     findCollectionByContractName();
   }, [collectionList, selectedCollection])
 
@@ -182,7 +203,7 @@ const MoveNfts = (props: MoveBoardProps) => {
             {chrome.i18n.getMessage('collection')}
           </Typography>
         </Box>
-        {currentCollection &&
+        {currentCollection && collectionDetail &&
           <Button onClick={() => setSelectCollection(true)} >
             {currentCollection.logo && <CardMedia component="img" sx={{ width: '24px', height: '24px', display: 'inline', borderRadius: '8px', marginRight: '8px', objectFit: 'cover', objectPosition: 'left !important' }} image={currentCollection.logo} />}
             <Typography
@@ -201,9 +222,9 @@ const MoveNfts = (props: MoveBoardProps) => {
 
         }
       </Box>
-      {collectionDetail ?
+      {!isLoading ?
         <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-          {collectionDetail.nfts.length > 0 ?
+          {collectionDetail && collectionDetail.nfts.length > 0 ?
             collectionDetail.nfts.map(nft => (
               <Box
                 key={nft.id}
@@ -290,6 +311,7 @@ const MoveNfts = (props: MoveBoardProps) => {
         variant="contained"
         color="success"
         size="large"
+        disabled={!collectionDetail || (collectionDetail.nfts && collectionDetail.nfts.length === 0)}
         sx={{
           height: '50px',
           borderRadius: '12px',

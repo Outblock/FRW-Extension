@@ -58,7 +58,6 @@ const MoveEvm = (props: MoveBoardProps) => {
   const updateCurrentCollection = async () => {
     console.log('selectedShow ', collectionList, cadenceNft)
     if (collectionList && cadenceNft) {
-      console.log('collectionListcollectionList ', collectionList, cadenceNft)
       const collection = collectionList.find(collection => collection.id === selectedCollection);
       const selectedShow = cadenceNft.find(collection => collection.name === selectedCollection);
       console.log('selectedShow ', selectedShow)
@@ -293,6 +292,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         variant="contained"
         color="success"
         size="large"
+        disabled={!collectionDetail || (collectionDetail.nfts && collectionDetail.nfts.length === 0)}
         sx={{
           height: '50px',
           borderRadius: '12px',

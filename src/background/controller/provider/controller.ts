@@ -141,6 +141,10 @@ class ProviderController extends BaseController {
     let currentWallet;
     try {
       if (network !== 'previewnet') {
+        const previewnet = await Wallet.checkPreviewnet() || [];
+        if (previewnet.length === 0) {
+          throw new Error('Previewnet wallet is empty.');
+        }
         await Wallet.switchNetwork('previewnet');
       }
       // Attempt to query the previewnet address
@@ -182,7 +186,7 @@ class ProviderController extends BaseController {
 
       res = await Wallet.queryEvmAddress(currentWallet.address);
     }
-    
+
     res = ensureEvmAddressPrefix(res);
     const account = res ? [res.toLowerCase()] : [];
     sessionService.broadcastEvent('accountsChanged', account);
@@ -236,6 +240,10 @@ class ProviderController extends BaseController {
     let currentWallet;
     try {
       if (network !== 'previewnet') {
+        const previewnet = await Wallet.checkPreviewnet() || [];
+        if (previewnet.length === 0) {
+          throw new Error('Previewnet wallet is empty.');
+        }
         await Wallet.switchNetwork('previewnet');
       }
       // Attempt to query the previewnet address
@@ -276,7 +284,7 @@ class ProviderController extends BaseController {
 
       res = await Wallet.queryEvmAddress(currentWallet.address);
     }
-    
+
     const account = res ? [res.toLowerCase()] : [];
     await sessionService.broadcastEvent('accountsChanged', account);
     await permissionService.getConnectedSite(origin);

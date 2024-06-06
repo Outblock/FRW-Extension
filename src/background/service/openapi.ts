@@ -1383,7 +1383,6 @@ class OpenApiService {
       chainType = 'evm';
     }
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
-    console.log('gitToken ', gitToken)
     if (gitToken) {
       return gitToken;
     } else {
@@ -1411,7 +1410,6 @@ class OpenApiService {
         })
       }
       storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
-      console.log('tokens ', tokens)
       return tokens;
     }
   };

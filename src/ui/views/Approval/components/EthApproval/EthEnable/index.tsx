@@ -90,7 +90,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', margin: '18px', gap: '8px' }}>
-            <Typography sx={{ textTransform: 'uppercase', fontSize: '18px' }} variant="body1" color="text.secondary">Preivewnet is not enabled</Typography>
+            <Typography sx={{ textTransform: 'uppercase', fontSize: '18px' }} variant="body1" color="text.secondary">Previewnet is not enabled</Typography>
             <CardMedia component="img" sx={{ width: '196px', height: '196px' }} image={enableBg} />
             <Typography
               variant="subtitle1"
@@ -114,26 +114,6 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
               fullWidth
               onClick={handleCancel}
             />
-
-            {/* {claiming ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
-                <LLSpinner size={28} />
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 'bold' }}
-                  color="background.paper"
-                >
-                  {chrome.i18n.getMessage('Working_on_it')}
-                </Typography>
-              </Box>
-            ) : (
-              <LLPrimaryButton
-                label={chrome.i18n.getMessage('Enable')}
-                fullWidth
-                type="submit"
-                onClick={createCoa}
-              />
-            )} */}
           </Stack>
         </Box>)}
     </Box>

@@ -362,7 +362,7 @@
     "message": "二维码"
   },
   "Shown__your__QR__code__to__receive__transactions": {
-    "message": "显示你的二维码以接收交易。"
+    "message": "扫描二维码将资产发送到这个 FLOW 账户。"
   },
   "Make__sure__you__are__using__the__correct__network": {
     "message": "确保你使用的是正确的网络。只发送测试网资产到这个存款地址。"
@@ -1295,7 +1295,7 @@
     "message": "启用路径到Flow上的EVM"
   },
   "Would_you_like_to_move": {
-    "message": "您想要将您的资产转移到"
+    "message": "您是否想要将您的资产转移到"
   },
   "lowercaseaccount": {
     "message": "账户"

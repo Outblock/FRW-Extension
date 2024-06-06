@@ -54,6 +54,7 @@ interface MenuDrawerProps {
   emojis: any;
   networkColor: any;
   evmLoading: boolean;
+  modeOn: boolean;
 }
 
 
@@ -127,7 +128,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     }
   };
 
-
+  
   useEffect(() => {
     checkEvmMode();
   }, []);
@@ -437,7 +438,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             marginBottom: '20px'
           }}
         >
-          <NetworkList networkColor={props.networkColor} currentNetwork={props.currentNetwork}/>
+          {props.modeOn &&  <NetworkList networkColor={props.networkColor} currentNetwork={props.currentNetwork}/>}
           <ListItem disablePadding onClick={async () => {
             await usewallet.lockAdd();
             // history.push('/add');

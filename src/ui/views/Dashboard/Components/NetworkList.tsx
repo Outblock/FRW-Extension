@@ -23,11 +23,28 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
 
   const usewallet = useWallet();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [sandboxEnable, setSandboxEnabled] = useState(false);
   const [indicatorRotation, setIndicatorRotation] = useState(180); // Initial rotation angle
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
+
+  const checkPreviewnet = async () => {
+
+    const previewnet = await usewallet.checkPreviewnet() || [];
+    if (previewnet.length > 0) {
+      setSandboxEnabled(true);
+    }
+
+  }
+
+
+
+
+  useEffect(() => {
+    checkPreviewnet();
+  }, [currentNetwork]);
 
   const rotateIndicator = () => {
     setIndicatorRotation(indicatorRotation === 180 ? 0 : 180); // Toggle rotation angle
@@ -76,10 +93,6 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
     <ListItem
       disablePadding
       sx={{ display: 'flex', justifyContent: 'space-between' }}
-      onClick={() => {
-        rotateIndicator();
-        toggleDropdown();
-      }}
     >
       <Box
         sx={{
@@ -131,6 +144,10 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
           backgroundColor: bgColor(currentNetwork),
           marginRight: '16px'
         }}
+        onClick={() => {
+          rotateIndicator();
+          toggleDropdown();
+        }}
       >
         <Typography
           sx={{
@@ -139,7 +156,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
             lineHeight: '24px',
             fontWeight: '400',
             color: networkColor(currentNetwork),
-            textTransform:'capitalize'
+            textTransform: 'capitalize'
           }}
         >
           {currentNetwork}
@@ -207,30 +224,31 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
                 Testnet
               </Typography>
             </ListItemButton>
-
-            <ListItemButton
-              onClick={() => switchNetwork('previewnet')}
-              sx={{
-                padding: '4px 8px',
-                width: '100%',
-                '&:hover': {
-                  color: networkColor('previewnet')
-                }
-              }}
-            >
-              <Typography
+            {sandboxEnable &&
+              <ListItemButton
+                onClick={() => switchNetwork('previewnet')}
                 sx={{
-                  fontSize: '12px',
-                  lineHeight: '16px',
-                  fontWeight: '400',
+                  padding: '4px 8px',
+                  width: '100%',
                   '&:hover': {
                     color: networkColor('previewnet')
                   }
                 }}
               >
-                Previewnet
-              </Typography>
-            </ListItemButton>
+                <Typography
+                  sx={{
+                    fontSize: '12px',
+                    lineHeight: '16px',
+                    fontWeight: '400',
+                    '&:hover': {
+                      color: networkColor('previewnet')
+                    }
+                  }}
+                >
+                  Previewnet
+                </Typography>
+              </ListItemButton>
+            }
           </ListItem>
         }
 

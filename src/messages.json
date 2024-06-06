@@ -359,7 +359,7 @@
     "message": "QR Code"
   },
   "Shown__your__QR__code__to__receive__transactions": {
-    "message": "Shown your QR code to receive transactions."
+    "message": "Scan the QR code to send assets to this account on Flow."
   },
   "Make__sure__you__are__using__the__correct__network": {
     "message": "Make sure you are using the correct network. Send only testnet assets to this deposit address."
@@ -1268,7 +1268,7 @@
     "message": "Enable the Path to EVM on Flow"
   },
   "Would_you_like_to_move": {
-    "message": "Would you like to move your assets to  "
+    "message": "Would you like to move your assets to your "
   },
   "lowercaseaccount": {
     "message": "account"

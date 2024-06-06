@@ -163,7 +163,7 @@ const NoStake = (props: NoStakeProps) => {
                 }}
                 variant="body2"
               >
-                Stake Flow
+                Stake FLOW
               </Typography>
             </Box>
           </Box>
@@ -217,7 +217,7 @@ const NoStake = (props: NoStakeProps) => {
                 >
                   Earn Rewards{' '}
                 </Typography>{' '}
-                when you stake your Flow
+                when you stake your FLOW
               </Typography>
             </Box>
 

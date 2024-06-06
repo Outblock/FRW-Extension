@@ -12,7 +12,6 @@ import { useLocation, useHistory } from 'react-router-dom';
 import NavBar from './NavBar';
 import { useWallet } from 'ui/utils';
 import { LLTestnetIndicator } from 'ui/FRWComponent';
-import { LLFlownsPop } from '@/ui/FRWComponent/LLFlownsPop';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -44,7 +43,6 @@ const Dashboard = ({ value, setValue }) => {
   const theme = useTheme();
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [domain, setDomain] = useState<string>('');
-  const [flownsPop, setFlownsPop] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   const handleChangeIndex = (index) => {
@@ -53,19 +51,13 @@ const Dashboard = ({ value, setValue }) => {
 
   const fetchAll = async () => {
     setLoading(true)
-    const [network, userDomain, popStat] = await Promise.all([
+    const [network, userDomain] = await Promise.all([
       wallet.getNetwork(),
       wallet.fetchUserDomain(),
-      wallet.fetchPopStat()
     ]);
 
     setNetwork(network);
     setDomain(userDomain);
-
-    const address = await wallet.getCurrentAddress();
-    if (address) {
-      setFlownsPop(popStat);
-    }
     setLoading(false)
   };
 
@@ -111,17 +103,6 @@ const Dashboard = ({ value, setValue }) => {
           </TabPanel>
         </SwipeableViews>
         <NavBar value={value} setValue={setValue} />
-        {flownsPop &&
-          <LLFlownsPop
-            deleteBackupPop={flownsPop}
-            handleCloseIconClicked={() => setFlownsPop(false)}
-            handleCancelBtnClicked={() => setFlownsPop(false)}
-            handleNextBtnClicked={() => {
-              setFlownsPop(false);
-              history.push('/dashboard/flowns')
-            }}
-          />
-        }
       </Box>
     </div>
   );

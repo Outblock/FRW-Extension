@@ -95,16 +95,33 @@ class UserWallet {
     };
   };
 
-  setUserWallets = async (filteredData: Array<WalletResponse>, network: string) => {
-    for (const x in filteredData) {
-      const chainid = filteredData[x].chain_id;
-      const singleWallet = filteredData[x];
-      this.store.wallets[chainid] = [singleWallet];
+  setUserWallets = async (filteredData, network) => {
+    console.log('setUserWallets ', filteredData, this.store.wallets);
+  
+    // Initialize previewnet as empty
+    let previewnetExists = false;
+  
+    for (const wallet of filteredData) {
+      const chainId = wallet.chain_id;
+      this.store.wallets[chainId] = [wallet];
+      if (chainId === "previewnet") {
+        previewnetExists = true;
+      }
     }
-
-    const current = this.store.wallets[network][0].blockchain[0];
-    this.store.currentWallet = current;
+  
+    // Ensure previewnet is set to an empty array if it doesn't exist in filteredData
+    if (!previewnetExists) {
+      this.store.wallets["previewnet"] = [];
+    }
+  
+    if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
+      const current = this.store.wallets[network][0].blockchain[0];
+      this.store.currentWallet = current;
+    } else {
+      console.error(`No wallet found for network: ${network}`);
+    }
   };
+  
 
   setChildWallet = (wallet: ChildAccount) => {
     this.store.childAccount = wallet;
@@ -119,6 +136,7 @@ class UserWallet {
   };
 
   setCurrentWallet = (wallet: any, key: any, network: string) => {
+    console.log('setCurrentWallet ', wallet)
     if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
     } else if (key === 'evm') {
@@ -143,6 +161,7 @@ class UserWallet {
   };
 
   setNetwork = async (network: string) => {
+    console.log('setNetwork ', network)
     if (!this.store) {
       await this.init();
     }

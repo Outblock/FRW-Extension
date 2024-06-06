@@ -961,6 +961,7 @@ const Header = ({ loading }) => {
               emojis={emojis}
               networkColor={networkColor}
               evmLoading={evmLoading}
+              modeOn={modeOn}
             />
           }
           {appBarLabel(current)}

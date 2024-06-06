@@ -97,7 +97,7 @@ const MoveBoard = (props: MoveBoardProps) => {
             color='text'
             sx={{ fontSize: '12px', textAlign: 'center', lineHeight: '24px', padding: '0 65px', fontWeight: '400', color: '#FFFFFFCC' }}
           >
-            {chrome.i18n.getMessage('Would_you_like_to_move')}{`${childType === 'evm' ? 'FLOW' : 'EVM'}`} {chrome.i18n.getMessage('lowercaseaccount')}?
+            {chrome.i18n.getMessage('Would_you_like_to_move')}{`${childType === 'evm' ? 'FLOW' : 'EVM on FLOW'}`} {chrome.i18n.getMessage('lowercaseaccount')}?
           </Typography>
         </Box>
       </Box>

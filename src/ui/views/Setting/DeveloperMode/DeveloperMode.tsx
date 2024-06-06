@@ -193,6 +193,7 @@ const DeveloperMode = () => {
     //   setSandboxEnabled(true);
     // }
     const previewnet = await usewallet.checkPreviewnet() || [];
+    console.log('previewnet ', previewnet)
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }
