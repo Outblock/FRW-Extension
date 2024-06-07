@@ -57,7 +57,6 @@ class CoinList {
   };
 
   addCoin = (data: CoinItem, network: string, listType = 'coinItem') => {
-    console.log('network ,adcoin ', data, network)
     if (this.store[listType][network] === undefined) {
       this.store[listType][network] = {}
     }
@@ -65,7 +64,6 @@ class CoinList {
   };
 
   addCoins = (coins: CoinItem[], network: string, listType = 'coinItem') => {
-    console.log('network addCoins ', network, coins)
     if (coins.length === 0) {
       return;
     }
