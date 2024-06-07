@@ -51,6 +51,8 @@ const Dashboard = ({ value, setValue }) => {
 
   const fetchAll = async () => {
     setLoading(true)
+    //todo fix cadence loading
+    await wallet.getCadenceScripts();
     const [network, userDomain] = await Promise.all([
       wallet.getNetwork(),
       wallet.fetchUserDomain(),
