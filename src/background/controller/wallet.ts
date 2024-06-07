@@ -1587,33 +1587,44 @@ export class WalletController extends BaseController {
 
   queryEvmAddress = async (address: string): Promise<string | null> => {
     if (address.length > 20) {
-      return ''
+      return '';
     }
+
     let evmAddress = '';
     try {
       evmAddress = await this.getEvmAddress();
     } catch (error) {
+      await this.refreshEvmWallets();
       console.error('Error getting EVM address:', error);
     }
+
     if (evmAddress.length > 20) {
-      return evmAddress
+      return evmAddress;
+    } else {
+      await this.refreshEvmWallets();
     }
+
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
-      throw Error;
+      throw new Error('Network is not previewnet');
     }
 
-    const script = await getScripts('evm', 'getCoaAddr');
+    try {
+      const script = await getScripts('evm', 'getCoaAddr');
+      const result = await fcl.query({
+        cadence: script,
+        args: (arg, t) => [arg(address, t.Address)],
+      });
 
-    const result = await fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(address, t.Address)],
-    });
-    if (result) {
-      await this.setEvmAddress(result);
-      return result;
-    } else {
-      return null
+      if (result) {
+        await this.setEvmAddress(result);
+        return result;
+      } else {
+        return '';
+      }
+    } catch (error) {
+      console.error('Error querying the script or setting EVM address:', error);
+      return '';
     }
   };
 

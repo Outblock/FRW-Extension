@@ -36,7 +36,6 @@ const Enable = () => {
 
       setClaiming(false);
     }).catch((err) => {
-      console.log(err);
       setClaiming(false);
     });
 

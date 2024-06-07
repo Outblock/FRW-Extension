@@ -56,14 +56,14 @@ const SendEth = () => {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>(undefined);
-  const [secondAmount, setSecondAmount] = useState('12');
+  const [secondAmount, setSecondAmount] = useState('0');
   const [validated, setValidated] = useState<any>(null);
   const [userInfo, setUser] = useState<Contact>(userContact);
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
-  const [minAmount, setMinAmount] = useState<any>(12);
+  const [minAmount, setMinAmount] = useState<any>(0);
 
 
   const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
