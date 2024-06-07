@@ -1019,7 +1019,7 @@ export class WalletController extends BaseController {
 
   refreshCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
     try {
-      
+
 
       const network = await this.getNetwork();
       const now = new Date();
@@ -1659,6 +1659,55 @@ export class WalletController extends BaseController {
 
 
 
+
+  dapSendEvmTX = async (to: string, gas, value, data) => {
+    if (to.startsWith('0x')) {
+      to = to.substring(2);
+    }
+    const network = await this.getNetwork();
+    if (network !== 'previewnet') {
+      throw Error;
+    }
+    const script = await getScripts('evm', 'callContract');
+    const gasLimit = 30000000;
+    const dataBuffer = Buffer.from(data.slice(2), 'hex');
+    const dataArray = Uint8Array.from(dataBuffer);
+    const regularArray = Array.from(dataArray);
+
+    const amount = parseInt(value, 16) / 1e18;
+    const ufixAmount = amount.toFixed(8);
+
+
+    const result = await userWalletService.sendTransaction(script, [
+      fcl.arg(to, t.String),
+      fcl.arg(ufixAmount, t.UFix64),
+      fcl.arg(regularArray, t.Array(t.UInt8)),
+      fcl.arg(gasLimit, t.UInt64),
+    ]);
+    console.log('result 123', result)
+
+    console.log('result ', result)
+    const res = await fcl.tx(result).onceSealed();
+    console.log('res ', res)
+    const transactionExecutedEvent = res.events.find(event => event.type === "A.b6763b4399a888c8.EVM.TransactionExecuted");
+
+    if (transactionExecutedEvent) {
+      const hash = transactionExecutedEvent.data.hash;
+      console.log('Transaction Executed Hash:', hash);
+      return hash;
+    } else {
+      console.log('Transaction Executed event not found');
+    }
+
+
+    // const transaction = await fcl.tx(result).onceSealed();
+    // console.log('transaction ', transaction);
+
+    // return result;
+  };
+
+
+
   getBalance = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
     if (network !== 'previewnet') {
@@ -2260,7 +2309,7 @@ export class WalletController extends BaseController {
   }
 
   switchNetwork = async (network: string) => {
-    
+
     await userWalletService.setNetwork(network);
     eventBus.emit('switchNetwork', network);
     if (network === 'testnet') {
@@ -2305,7 +2354,7 @@ export class WalletController extends BaseController {
     if (address) {
       this.refreshTransaction(address, 15, 0);
     }
-    
+
     this.abort();
     const signal = this.abortController.signal;
     await this.refreshCoinList(5000, { signal });

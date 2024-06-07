@@ -226,7 +226,7 @@ class ProviderController extends BaseController {
     const value = transactionParams.value || '0.0';
     const dataValue = transactionParams.data || '0x';
 
-    const result = await Wallet.sendEvmTransaction(to, gas, value, dataValue);
+    const result = await Wallet.dapSendEvmTX(to, gas, value, dataValue);
     return result;
   };
 
