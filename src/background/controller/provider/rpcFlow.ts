@@ -14,6 +14,8 @@ const isSignApproval = (type: string) => {
   return SIGN_APPROVALS.includes(type);
 };
 
+const lockedOrigins = new Set<string>();
+
 const flow = new PromiseFlow();
 const flowContext = flow
   .use(async (ctx, next) => {
@@ -22,7 +24,6 @@ const flowContext = flow
       data: { method },
     } = ctx.request;
     ctx.mapMethod = underline2Camelcase(method);
-    console.log('providerController ', providerController)
     if (!providerController[ctx.mapMethod]) {
       // TODO: make rpc whitelist
       // if (method.startsWith('eth_') || method === 'net_version') {
@@ -40,14 +41,30 @@ const flowContext = flow
   })
   .use(async (ctx, next) => {
     console.log('ctx1 ', ctx)
-    const { mapMethod } = ctx;
+    const {
+      request: {
+        session: { origin,},
+      },
+      mapMethod,
+    } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
       // check lock
       const isUnlock = keyringService.memStore.getState().isUnlocked;
+      const site = permissionService.getConnectedSite(origin);
+      if (mapMethod === 'ethAccounts' && (!site || !isUnlock)) {
+        throw new Error('Origin not connected. Please connect first.');
+      }
 
       if (!isUnlock) {
         ctx.request.requestedApproval = true;
-        await notificationService.requestApproval({ lock: true });
+        lockedOrigins.add(origin);
+        try {
+          await notificationService.requestApproval({ lock: true });
+          lockedOrigins.delete(origin);
+        } catch (e) {
+          lockedOrigins.delete(origin);
+          throw e;
+        }
       }
     }
 
@@ -60,23 +77,24 @@ const flowContext = flow
       },
       mapMethod,
     } = ctx;
-    console.log('ctx2 ', ctx)
     // check connect
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
+
       if (!permissionService.hasPermission(origin)) {
         ctx.request.requestedApproval = true;
-        const { defaultChain } = await notificationService.requestApproval(
+        const {
+          defaultChain,
+          signPermission,
+        } = await notificationService.requestApproval(
           {
             params: { origin, name, icon },
             approvalComponent: 'EthConnect',
           },
           { height: 599 }
         );
-
         permissionService.addConnectedSite(origin, name, icon, defaultChain);
       }
     }
-    const site = permissionService.getConnectedSite(origin);
 
     return next();
   })

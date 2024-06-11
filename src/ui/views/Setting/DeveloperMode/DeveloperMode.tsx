@@ -22,6 +22,9 @@ import { useWallet } from 'ui/utils';
 import { storage } from '@/background/webapi';
 import { LLHeader, LLPrimaryButton } from '@/ui/FRWComponent';
 import { Presets } from 'react-component-transition';
+import { nanoid } from 'nanoid';
+import { Message } from 'utils';
+import { v4 as uuid } from 'uuid';
 
 const useStyles = makeStyles(() => ({
   arrowback: {
@@ -176,7 +179,8 @@ const DeveloperMode = () => {
   const classes = useStyles();
   const history = useHistory();
   const [modeOn, setModeOn] = useState(false);
-  const [evmOn, setEvmOn] = useState(true);
+  const [scriptElement, setScriptElement] = useState<any>(null);
+  const [injectMode, setInjectMode] = useState(false);
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
 
@@ -252,11 +256,81 @@ const DeveloperMode = () => {
     // }
   };
 
-  // const switchEVMMode = async () => {
-  //   setEvmOn(!evmOn);
-  //   storage.set('evmMode', !evmOn);
-  //   window.location.reload();
+
+  // const channelName = nanoid();
+
+
+  // const injectProviderScript = async (isDefaultWallet) => {
+  //   await localStorage.setItem('frw:channelName', channelName);
+  //   await localStorage.setItem('frw:isDefaultWallet', isDefaultWallet);
+  //   await localStorage.setItem('frw:uuid', uuid());
+
+  //   console.log(localStorage.getItem('frw:channelName'));
+
+  //   const container = document.head || document.documentElement;
+  //   const scriptElement = document.createElement('script');
+
+  //   scriptElement.id = "injectedScript";
+  //   scriptElement.setAttribute('src', chrome.runtime.getURL('pageProvider.js'));
+
+  //   container.insertBefore(scriptElement, container.children[0]);
+
+  //   return scriptElement;
   // };
+
+  // const switchInject = async () => {
+  //   const injectStatus = await localStorage.getItem('frw:injectSetting');
+  //   const newInjectMode = injectStatus !== 'true';
+  //   console.log('newInjectMode ', newInjectMode);
+  //   setInjectMode(newInjectMode);
+  //   await localStorage.setItem('frw:injectSetting', newInjectMode ? 'true' : 'false');
+
+  //   chrome.tabs.query({ url: ["http://*/*", "https://*/*"] }, (tabs) => {
+
+  //     tabs.forEach((tab) => {
+  //       if (!tab.id) {
+  //         console.error('No tab ID available');
+  //         return;
+  //       }
+  //       if (newInjectMode) {
+  //         chrome.scripting.executeScript({
+  //           target: { tabId: tab.id },
+  //           files: ["content-script.js"],
+  //         }).catch((error) => console.error('Error injecting script:', error));
+  //       } else {
+  //         chrome.scripting.executeScript({
+  //           target: { tabId: tab.id },
+  //           func: removeInjectedScript,
+  //         }).catch((error) => console.error('Error removing script:', error));
+  //       }
+  //     });
+  //   });
+  // };
+
+  // function removeInjectedScript() {
+  //   const scriptElement = document.getElementById("injectedScript");
+  //   if (scriptElement) {
+  //     scriptElement.remove();
+  //   }
+  //   localStorage.removeItem('frw:channelName');
+  //   localStorage.removeItem('frw:isDefaultWallet');
+  //   localStorage.removeItem('frw:uuid');
+  // }
+
+  // useEffect(() => {
+  //   const initializeInjectMode = async () => {
+  //     const injectStatus = await localStorage.getItem('frw:injectSetting');
+  //     const initialInjectMode = injectStatus === 'true';
+  //     setInjectMode(initialInjectMode);
+
+  //     if (initialInjectMode) {
+  //       const script = await injectProviderScript(true);
+  //       setScriptElement(script);
+  //     }
+  //   };
+
+  //   initializeInjectMode();
+  // }, []);
 
   const enableSandbox = async () => {
     setLoading(true)
@@ -552,9 +626,10 @@ const DeveloperMode = () => {
                   )}
                 </Box>
               </CardActionArea>
-            </Box>
 
-            {/* <Typography
+              {/* </Box>
+
+            <Typography
               variant="h6"
               color="neutral.contrastText"
               sx={{
@@ -562,24 +637,26 @@ const DeveloperMode = () => {
                 marginLeft: '18px',
               }}
             >
-              Other
+              {chrome.i18n.getMessage('EVM_on_flow')}
             </Typography>
+
+
             <Box className={classes.developerBox}>
               <Typography
                 variant="body1"
                 color="neutral.contrastText"
                 style={{ weight: 600 }}
               >
-                EVM on Flow
+                Inject EVM dApp
               </Typography>
               <SwitchUnstyled
-                checked={evmOn}
+                checked={injectMode}
                 component={Root}
                 onChange={() => {
-                  switchEVMMode();
+                  switchInject();
                 }}
-              />
-            </Box> */}
+              /> */}
+            </Box>
           </Box>
         )}
       </Presets.TransitionFade>

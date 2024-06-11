@@ -5,31 +5,31 @@ import { v4 as uuid } from 'uuid';
 const channelName = nanoid();
 
 
-
 const injectProviderScript = async (isDefaultWallet) => {
-  // the script element with src won't execute immediately
-  // use inline script element instead!
+  // Set local storage variables
   await localStorage.setItem('frw:channelName', channelName);
-  await localStorage.setItem('frw:isDefaultWallet', 'true');
+  await localStorage.setItem('frw:isDefaultWallet', isDefaultWallet);
   await localStorage.setItem('frw:uuid', uuid());
-  console.log(localStorage.getItem("frw:channelName"))
+
+  console.log(localStorage.getItem('frw:channelName'));
+
   const container = document.head || document.documentElement;
-  const ele = document.createElement('script');
-  // in prevent of webpack optimized code do some magic(e.g. double/sigle quote wrap),
-  // seperate content assignment to two line
-  // use AssetReplacePlugin to replace pageprovider content
-  ele.setAttribute('src', chrome.runtime.getURL('pageProvider.js'));
-  console.log('ele frw', ele.src);
-  container.insertBefore(ele, container.children[0]);
-  container.removeChild(ele);
+  const scriptElement = document.createElement('script');
+  scriptElement.id = "injectedScript";
+  scriptElement.setAttribute('src', chrome.runtime.getURL('pageProvider.js'));
+
+  container.insertBefore(scriptElement, container.children[0]);
+
+  return scriptElement;
 };
 
-injectProviderScript(false);
+
+injectProviderScript(true); // Initial call to check and inject if needed
+
 
 const initListener = (channelName: string) => {
   const { BroadcastChannelMessage, PortMessage } = Message;
   const pm = new PortMessage().connect();
-  console.log('channelName ', channelName);
   const bcm = new BroadcastChannelMessage(channelName).listen((data) =>
     pm.request(data)
   );
