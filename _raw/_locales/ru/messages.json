@@ -61,6 +61,12 @@
   "Account": {
     "message": "Аккаунт"
   },
+  "Acc__list": {
+    "message": "账户列表"
+  },
+  "Profile": {
+    "message": "Список аккаунтов"
+  },
   "Wallet": {
     "message": "Кошелек"
   },
@@ -1256,10 +1262,10 @@
     "message": "Переместить"
   },
   "multi_vm": {
-    "message": "Мульти-ВМ кошелек"
+    "message": "EVM аккаунт"
   },
   "main_wallet": {
-    "message": "Основные кошельки"
+    "message": "Основные аккаунт"
   },
   "edit_wallet": {
     "message": "Редактировать кошелек"
@@ -1305,5 +1311,8 @@
   },
   "import_account": {
     "message": "Импортировать аккаунт"
+  },
+  "Import__Profile": {
+    "message": "Импортировать профиль"
   }
 }

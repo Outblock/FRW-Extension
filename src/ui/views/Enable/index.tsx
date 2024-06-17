@@ -44,7 +44,6 @@ const Enable = () => {
 
   const getUsername = async () => {
     const storageData = await wallet.getCoinList(expiry_time);
-    console.log('storageData ', storageData)
     const flowToken = storageData.find(token => token.unit === 'flow');
     if (flowToken!.balance >= 0.002) {
       setEnough(true);

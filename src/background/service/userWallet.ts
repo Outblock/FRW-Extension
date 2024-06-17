@@ -96,11 +96,10 @@ class UserWallet {
   };
 
   setUserWallets = async (filteredData, network) => {
-    console.log('setUserWallets ', filteredData, this.store.wallets);
-  
+
     // Initialize previewnet as empty
     let previewnetExists = false;
-  
+
     for (const wallet of filteredData) {
       const chainId = wallet.chain_id;
       this.store.wallets[chainId] = [wallet];
@@ -108,12 +107,12 @@ class UserWallet {
         previewnetExists = true;
       }
     }
-  
+
     // Ensure previewnet is set to an empty array if it doesn't exist in filteredData
     if (!previewnetExists) {
       this.store.wallets["previewnet"] = [];
     }
-  
+
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
       const current = this.store.wallets[network][0].blockchain[0];
       this.store.currentWallet = current;
@@ -121,7 +120,7 @@ class UserWallet {
       console.error(`No wallet found for network: ${network}`);
     }
   };
-  
+
 
   setChildWallet = (wallet: ChildAccount) => {
     this.store.childAccount = wallet;
@@ -258,7 +257,7 @@ class UserWallet {
     const txID = await fcl.mutate({
       cadence: cadence,
       args: (arg, t) => args,
-      proposer: this.authorizationFunction,
+      proposer: this.proposerAuthFunction,
       authorizations: [this.authorizationFunction],
       payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
       limit: 9999,
@@ -368,6 +367,43 @@ class UserWallet {
     return signature;
   };
 
+  signProposer = async (signable: any): Promise<string> => {
+    const tx = signable.voucher;
+    const message = signable.message;
+    const envelope = await openapiService.signProposer(tx, message);
+    console.log('envelope ', envelope)
+    const signature = envelope.envelopeSigs.sig;
+    return signature;
+  };
+
+  proposerAuthFunction = async (account: any = {}) => {
+    // authorization function need to return an account
+    const proposer = await openapiService.getProposer();
+    console.log('proposer ', proposer);
+    const address = fcl.withPrefix(proposer.data.address);
+    const ADDRESS = fcl.withPrefix(address);
+    // TODO: FIX THIS
+    const KEY_ID = proposer.data.keyIndex;
+    return {
+      ...account, // bunch of defaults in here, we want to overload some of them though
+      tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
+      addr: fcl.sansPrefix(ADDRESS), // the address of the signatory, currently it needs to be without a prefix right now
+      keyId: Number(KEY_ID), // this is the keyId for the accounts registered key that will be used to sign, make extra sure this is a number and not a string
+      signingFunction: async (signable) => {
+        // Singing functions are passed a signable and need to return a composite signature
+        // signable.message is a hex string of what needs to be signed.
+        console.log('signable ', signable);
+        const signature = await this.signProposer(signable);
+        return {
+          addr: fcl.withPrefix(ADDRESS), // needs to be the same as the account.addr but this time with a prefix, eventually they will both be with a prefix
+          keyId: Number(KEY_ID), // needs to be the same as account.keyId, once again make sure its a number and not a string
+          signature: signature, // this needs to be a hex string of the signature, where signable.message is the hex value that needs to be signed
+        };
+      },
+    };
+  };
+
+
   payerAuthFunction = async (account: any = {}) => {
     console.log('payer ', account);
     // authorization function need to return an account
@@ -384,7 +420,7 @@ class UserWallet {
       signingFunction: async (signable) => {
         // Singing functions are passed a signable and need to return a composite signature
         // signable.message is a hex string of what needs to be signed.
-        const signature = await this.signPayer(signable);
+        const signature = await this.signProposer(signable);
         return {
           addr: fcl.withPrefix(ADDRESS), // needs to be the same as the account.addr but this time with a prefix, eventually they will both be with a prefix
           keyId: Number(KEY_ID), // needs to be the same as account.keyId, once again make sure its a number and not a string

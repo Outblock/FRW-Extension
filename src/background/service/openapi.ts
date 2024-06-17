@@ -532,24 +532,32 @@ class OpenApiService {
   };
 
   getTokenPrices = async () => {
-    const { data = [] } = await this.sendRequest(
-      'GET',
-      `/api/prices`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
 
-    if (pricesMap && pricesMap['FLOW']) {
+
+    const tokenPriceMap = await storage.getExpiry('pricesMap');
+    if (tokenPriceMap) {
+      return tokenPriceMap;
+    } else {
+      const { data = [] } = await this.sendRequest(
+        'GET',
+        `/api/prices`,
+        {},
+        {},
+        WEB_NEXT_URL
+      );
+
+      if (pricesMap && pricesMap['FLOW']) {
+        return pricesMap;
+      }
+      data.map((d) => {
+        const { rateToUSD, symbol } = d;
+        const key = symbol.toUpperCase();
+        pricesMap[key] = rateToUSD.toFixed(4);
+      });
+      await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
       return pricesMap;
     }
-    data.map((d) => {
-      const { rateToUSD, symbol } = d;
-      const key = symbol.toUpperCase();
-      pricesMap[key] = rateToUSD.toFixed(4);
-    });
 
-    return pricesMap;
   };
 
   getPricesBySymbol = async (symbol: string, data) => {
@@ -845,6 +853,40 @@ class OpenApiService {
       '/signAsPayer',
       {},
       { transaction, message: messages },
+      baseURL
+    );
+    // (config.method, config.path, {}, { transaction, message: messages });
+    return data;
+  };
+
+  signProposer = async (transaction, message: string) => {
+    const messages = {
+      envelope_message: message,
+    };
+    const config = this.store.config.sign_payer;
+    const baseURL = getFirbaseFunctionUrl();
+    // 'http://localhost:5001/lilico-dev/us-central1'
+    const data = await this.sendRequest(
+      'POST',
+      '/signAsProposer',
+      {},
+      { transaction, message: messages },
+      baseURL
+    );
+    // (config.method, config.path, {}, { transaction, message: messages });
+    return data;
+  };
+
+  getProposer = async () => {
+
+    const config = this.store.config.sign_payer;
+    const baseURL = getFirbaseFunctionUrl();
+    // 'http://localhost:5001/lilico-dev/us-central1'
+    const data = await this.sendRequest(
+      'GET',
+      '/getProposer',
+      {},
+      {},
       baseURL
     );
     // (config.method, config.path, {}, { transaction, message: messages });
@@ -1279,7 +1321,6 @@ class OpenApiService {
     // FIX ME: Get defaultTokenList from firebase remote config
     const tokenList = await remoteFetch.nftCollection();
 
-    console.log('getNFTCollectionInfo -->', contract_name, tokenList);
     // const network = await userWalletService.getNetwork();
     return tokenList.find((item) => item.id === contract_name);
   };
@@ -1288,7 +1329,6 @@ class OpenApiService {
     remoteFetch
       .remoteConfig()
       .then((res) => {
-        console.log('getNFTCollectionInfo -->', res);
         return res.features.swap;
       })
       .catch((err) => {
@@ -1423,7 +1463,7 @@ class OpenApiService {
 
     const tokenList = await this.getTokenListFromGithub(network);
     let values;
-    
+
     try {
       values = await this.isTokenListEnabled(address);
     } catch (error) {

@@ -10,10 +10,10 @@ import { switchChainNotice } from "./pageProvider/interceptors/switchChain";
 import { switchWalletNotice } from "./pageProvider/interceptors/switchWallet";
 import { getProviderMode, patchProvider } from "./utils/metamask";
 
-declare const __rabby__channelName;
-declare const __rabby__isDefaultWallet;
-declare const __rabby__uuid;
-declare const __rabby__isOpera;
+declare const __frw__channelName;
+declare const __frw__isDefaultWallet;
+declare const __frw__uuid;
+declare const __frw__isOpera;
 
 const log = (event, ...args) => {
   if (process.env.NODE_ENV !== "production") {
@@ -26,14 +26,14 @@ const log = (event, ...args) => {
 };
 
 let channelName =
-  typeof __rabby__channelName !== "undefined" ? __rabby__channelName : "";
+  typeof __frw__channelName !== "undefined" ? __frw__channelName : "";
 let isDefaultWallet =
-  typeof __rabby__isDefaultWallet !== "undefined"
-    ? __rabby__isDefaultWallet
+  typeof __frw__isDefaultWallet !== "undefined"
+    ? __frw__isDefaultWallet
     : false;
 let isOpera =
-  typeof __rabby__isOpera !== "undefined" ? __rabby__isOpera : false;
-let uuid = typeof __rabby__uuid !== "undefined" ? __rabby__uuid : "";
+  typeof __frw__isOpera !== "undefined" ? __frw__isOpera : false;
+let uuid = typeof __frw__uuid !== "undefined" ? __frw__uuid : "";
 
 const getParams = () => {
   if (localStorage.getItem("frw:channelName")) {
@@ -91,9 +91,9 @@ export class EthereumProvider extends EventEmitter {
    * @deprecated
    */
   networkVersion: string | null = null;
-  isRabby = true;
+  isFrw = true;
   isMetaMask = true;
-  _isRabby = true;
+  _isFrw = true;
 
   _isReady = false;
   _isConnected = false;
@@ -338,7 +338,7 @@ declare global {
     ethereum: EthereumProvider;
     web3: any;
     frw: EthereumProvider;
-    rabbyWalletRouter: {
+    flowWalletRouter: {
       frwProvider: EthereumProvider;
       lastInjectedProvider?: EthereumProvider;
       currentProvider: EthereumProvider;
@@ -355,7 +355,7 @@ const frwProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
     if (
       typeof prop === "string" &&
-      ["on", "isRabby", "isMetaMask", "_isRabby"].includes(prop)
+      ["on", "isFrw", "isMetaMask", "_isFrw"].includes(prop)
     ) {
       delete target[prop];
     }
@@ -409,14 +409,14 @@ const initProvider = () => {
         },
         ethereum: {
           get() {
-            return window.rabbyWalletRouter.currentProvider;
+            return window.flowWalletRouter.currentProvider;
           },
           set(newProvider) {
-            window.rabbyWalletRouter.addProvider(newProvider);
+            window.flowWalletRouter.addProvider(newProvider);
           },
           configurable: false,
         },
-        rabbyWalletRouter: {
+        flowWalletRouter: {
           value: {
             frwProvider,
             lastInjectedProvider: window.ethereum,
@@ -427,21 +427,21 @@ const initProvider = () => {
             ],
             setDefaultProvider(frwAsDefault: boolean) {
               if (frwAsDefault) {
-                window.rabbyWalletRouter.currentProvider = window.frw;
+                window.flowWalletRouter.currentProvider = window.frw;
               } else {
                 const nonDefaultProvider =
-                  window.rabbyWalletRouter.lastInjectedProvider ??
+                  window.flowWalletRouter.lastInjectedProvider ??
                   window.ethereum;
-                window.rabbyWalletRouter.currentProvider = nonDefaultProvider;
+                window.flowWalletRouter.currentProvider = nonDefaultProvider;
               }
             },
             addProvider(provider) {
-              if (!window.rabbyWalletRouter.providers.includes(provider)) {
-                window.rabbyWalletRouter.providers.push(provider);
+              if (!window.flowWalletRouter.providers.includes(provider)) {
+                window.flowWalletRouter.providers.push(provider);
               }
               if (frwProvider !== provider) {
                 requestHasOtherProvider();
-                window.rabbyWalletRouter.lastInjectedProvider = provider;
+                window.flowWalletRouter.lastInjectedProvider = provider;
               }
             },
           },
@@ -469,7 +469,7 @@ if (isOpera) {
 }
 
 requestIsDefaultWallet().then((frwAsDefault) => {
-  window.rabbyWalletRouter?.setDefaultProvider(frwAsDefault);
+  window.flowWalletRouter?.setDefaultProvider(frwAsDefault);
   if (frwAsDefault) {
     window.ethereum = frwProvider;
   }
@@ -479,8 +479,8 @@ const announceEip6963Provider = (provider: EthereumProvider) => {
   const info: EIP6963ProviderInfo = {
     uuid: uuid,
     name: "Flow Wallet",
-    icon: "https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png",
-    rdns: "github.com/Outblock/FRW-Extension",
+    icon: "https://link.wallet.flow.com/logo.png",
+    rdns: "com.flowfoundation.wallet",
   };
 
   window.dispatchEvent(

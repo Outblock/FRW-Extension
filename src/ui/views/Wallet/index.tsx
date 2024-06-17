@@ -186,7 +186,6 @@ const WalletTab = ({ network }) => {
     // const remote = await fetchRemoteConfig.remoteConfig();
     // console.log('remote ', remote)
 
-    console.log('childType ', childType)
     if (!isActive && childType !== 'evm') {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
@@ -194,7 +193,6 @@ const WalletTab = ({ network }) => {
       }
     }
 
-    console.log('childType ', childType)
     if (childType === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
       sortWallet(storageData);

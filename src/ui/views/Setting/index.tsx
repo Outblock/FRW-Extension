@@ -97,7 +97,7 @@ const SettingTab = () => {
               <ListItemIcon sx={{ minWidth: '25px' }}>
                 <IconAccount className={classes.icon} color='#59A1DB' />
               </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Account')} />
+              <ListItemText primary={chrome.i18n.getMessage('Profile')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
                 <IconEnd size={12} />
               </ListItemIcon>
@@ -116,7 +116,7 @@ const SettingTab = () => {
               <ListItemIcon sx={{ minWidth: '25px' }}>
                 <IconWallet className={classes.icon} color='#59A1DB' />
               </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Wallet')} />
+              <ListItemText primary={chrome.i18n.getMessage('Acc__list')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
                 <IconEnd size={12} />
               </ListItemIcon>

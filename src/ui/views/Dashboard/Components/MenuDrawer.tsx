@@ -463,7 +463,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 color='text'
                 sx={{ fontSize: '12px' }}
               >
-                {chrome.i18n.getMessage('Import__Wallet')}
+                {chrome.i18n.getMessage('Import__Profile')}
               </Typography>
             </ListItemButton>
           </ListItem>

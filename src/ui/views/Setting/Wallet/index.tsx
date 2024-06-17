@@ -120,7 +120,7 @@ const Wallet = () => {
   return (
     <div className="page">
 
-      <LLHeader title={chrome.i18n.getMessage('Wallet_List')} help={false} />
+      <LLHeader title={chrome.i18n.getMessage('Acc__list')} help={false} />
       <Box sx={{ justifyContent: 'center', alignItems: 'center', width: '100%', px: '18px', }}>
 
         <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#787878', margin: '20px 0 8px' }}>

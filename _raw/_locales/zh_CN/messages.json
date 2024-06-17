@@ -61,6 +61,12 @@
   "Account": {
     "message": "账户"
   },
+  "Acc__list": {
+    "message": "账户列表"
+  },
+  "Profile": {
+    "message": "账户"
+  },
   "Wallet": {
     "message": "钱包"
   },
@@ -1256,10 +1262,10 @@
     "message": "移动"
   },
   "multi_vm": {
-    "message": "复数虚拟钱包"
+    "message": "EVM 账户"
   },
   "main_wallet": {
-    "message": "主要钱包"
+    "message": "主账户"
   },
   "edit_wallet": {
     "message": "编辑钱包"
@@ -1304,6 +1310,9 @@
     "message": "余额"
   },
   "import_account": {
+    "message": "导入账户"
+  },
+  "Import__Profile": {
     "message": "导入账户"
   }
 }

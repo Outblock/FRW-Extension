@@ -61,6 +61,12 @@
   "Account": {
     "message": "アカウント"
   },
+  "Acc__list": {
+    "message": "アカウントリスト"
+  },
+  "Profile": {
+    "message": "プロファイル"
+  },
   "Wallet": {
     "message": "ウォレット"
   },
@@ -1256,10 +1262,10 @@
     "message": "移動"
   },
   "multi_vm": {
-    "message": "マルチVMウォレット"
+    "message": "EVMアカウント"
   },
   "main_wallet": {
-    "message": "メインウォレット"
+    "message": "メインアカウント"
   },
   "edit_wallet": {
     "message": "ウォレットを編集"
@@ -1305,5 +1311,8 @@
   },
   "import_account": {
     "message": "アカウントをインポート"
+  },
+  "Import__Profile": {
+    "message": "プロファイルをインポート"
   }
 }

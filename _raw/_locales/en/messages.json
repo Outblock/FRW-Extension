@@ -61,6 +61,12 @@
   "Account": {
     "message": "Account"
   },
+  "Acc__list": {
+    "message": "Account List"
+  },
+  "Profile": {
+    "message": "Profile"
+  },
   "Wallet": {
     "message": "Wallet"
   },
@@ -1124,7 +1130,7 @@
     "message": "We can't find your address on flow with this key. Please check your input and try again."
   },
   "Add_account": {
-    "message": "Add Account"
+    "message": "Add Profile"
   },
   "Private__key_valid": {
     "message": "Privatekey is valid"
@@ -1256,10 +1262,10 @@
     "message": "Move"
   },
   "multi_vm": {
-    "message": "Multi VM Wallet"
+    "message": "EVM Account"
   },
   "main_wallet": {
-    "message": "Main Wallets"
+    "message": "Main Account"
   },
   "edit_wallet": {
     "message": "Edit Wallet"
@@ -1305,5 +1311,8 @@
   },
   "import_account" :{
     "message": "Import Account"
+  },
+  "Import__Profile": {
+    "message": "Import Profile"
   }
 }

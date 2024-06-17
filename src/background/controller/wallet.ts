@@ -57,6 +57,7 @@ import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 import emoji from 'background/utils/emoji.json';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
+import { F } from 'ts-toolbelt';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -922,7 +923,6 @@ export class WalletController extends BaseController {
     // }).catch((err) => {
     //   console.log(err)
     // })
-    console.log('res fts ', result);
 
     return result;
   };
@@ -1000,8 +1000,16 @@ export class WalletController extends BaseController {
     const price = await openapiService.getPricesBySymbol(tokenSymbol, data);
 
     switch (token) {
-      case 'flow':
-        return await openapiService.getTokenPrice('flow');
+      case 'flow': {
+        const flowTokenPrice = await storage.getExpiry('flowTokenPrice');
+        if (flowTokenPrice) {
+          return flowTokenPrice;
+        } else {
+          const result = await openapiService.getTokenPrice('flow');
+          await storage.setExpiry('flowTokenPrice', result, 300000); // 5 minutes in milliseconds
+          return result;
+        }
+      }
       case 'usdc':
         return await openapiService.getUSDCPrice();
       case 'fusd':
@@ -1095,6 +1103,121 @@ export class WalletController extends BaseController {
       throw err;
     }
   };
+
+  fetchTokenList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
+    const network = await this.getNetwork();
+    try {
+      const now = new Date();
+      const exp = _expiry + now.getTime();
+      coinListService.setExpiry(exp);
+
+      const tokenList = await openapiService.getEnabledTokenList(network);
+      return tokenList;
+    } catch (err) {
+      if (err.message === 'Operation aborted') {
+        console.log('fetchTokenList operation aborted.');
+      } else {
+        console.error('fetchTokenList encountered an error:', err);
+      }
+      throw err;
+    }
+  }
+
+  fetchBalance = async ({ signal } = { signal: new AbortController().signal }) => {
+
+
+    const network = await this.getNetwork();
+    const tokenList = await openapiService.getEnabledTokenList(network);
+    try {
+      const address = await this.getCurrentAddress();
+      let allBalanceMap;
+
+      try {
+        allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
+      } catch (error) {
+        console.error('Error fetching token list balance:');
+        throw new Error('Failed to fetch token list balance');
+      }
+
+      const data = await openapiService.getTokenPrices();
+
+      // Map over tokenList to get prices and handle errors individually
+      const pricesPromises = tokenList.map(async (token) => {
+        try {
+          return await this.tokenPrice(token.symbol, data);
+        } catch (error) {
+          console.error(`Error fetching price for token ${token.symbol}:`, error);
+          return null;
+        }
+      });
+
+      const pricesResults = await Promise.allSettled(pricesPromises);
+
+      // Extract fulfilled prices
+      const allPrice = pricesResults.map(result => result.status === 'fulfilled' ? result.value : null);
+
+      const coins = tokenList.map((token, index) => {
+        const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
+        return {
+          coin: token.name,
+          unit: token.symbol,
+          icon: token['logoURI'] || '',
+          balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
+          price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
+          change24h: allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
+            ? 0
+            : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
+          total: allPrice[index] === null ? 0 : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
+        };
+      });
+      coins.sort((a, b) => {
+        if (b.total === a.total) {
+          return b.balance - a.balance;
+        } else {
+          return b.total - a.total;
+        }
+      });
+
+      // Add all coins at once
+      if (signal.aborted) throw new Error('Operation aborted');
+
+      coinListService.addCoins(coins, network);
+      return coins;
+    } catch (err) {
+      if (err.message === 'Operation aborted') {
+        console.log('fetchBalance operation aborted.');
+      } else {
+        console.error('fetchBalance encountered an error:', err);
+      }
+      throw err;
+    }
+  }
+
+  fetchCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
+
+    const network = await this.getNetwork();
+    try {
+      await this.fetchTokenList(_expiry, { signal });
+      await this.fetchBalance({ signal });
+
+      // const allTokens = await openapiService.getAllTokenInfo();
+      // const enabledSymbols = tokenList.map((token) => token.symbol);
+      // const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
+      // console.log('disableSymbols are these ', disableSymbols, enabledSymbols, coins)
+      // disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
+
+      const coinListResult = coinListService.listCoins(network);
+      return coinListResult;
+    } catch (err) {
+      if (err.message === 'Operation aborted') {
+        console.log('refreshCoinList operation aborted.');
+      } else {
+        console.error('refreshCoinList encountered an error:', err);
+      }
+      throw err;
+    }
+  }
+
 
 
   refreshEvmList = async (_expiry = 5000) => {
@@ -1205,7 +1328,6 @@ export class WalletController extends BaseController {
   };
 
   setCurrentCoin = async (coinName: string) => {
-    console.log('set currentCoin ', coinName)
     await coinListService.setCurrentCoin(coinName);
   };
 
@@ -1654,7 +1776,6 @@ export class WalletController extends BaseController {
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
-    console.log('result ', result)
     const res = await fcl.tx(result).onceSealed();
     console.log('res ', res)
     for (const event of res.events) {
@@ -1695,9 +1816,7 @@ export class WalletController extends BaseController {
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
-    console.log('result 123', result)
 
-    console.log('result ', result)
     const res = await fcl.tx(result).onceSealed();
     console.log('res ', res)
     const transactionExecutedEvent = res.events.find(event => event.type === "A.b6763b4399a888c8.EVM.TransactionExecuted");
@@ -1819,9 +1938,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     console.log('inbox');
 
-    console.log('this is address ', address);
 
-    console.log('this is symbol ', symbol);
     const token = await openapiService.getTokenInfo(symbol);
     const script = await getScripts('ft', 'transferTokens');
 
@@ -2126,7 +2243,6 @@ export class WalletController extends BaseController {
     id: any,
     token: any
   ): Promise<string> => {
-    console.log(token, id);
     const script = await getScripts('domain', 'sendInboxNFT');
 
     return await userWalletService.sendTransaction(
@@ -2656,7 +2772,6 @@ export class WalletController extends BaseController {
       offset,
       network
     );
-    console.log('result  ---- ', result.collection.display);
     result['info'] = result.collection;
     // result['info']['collectionDisplay']['name'] = result.collection.display.name
     // result['nftCount'] = result.collection.nftCount
@@ -2683,7 +2798,6 @@ export class WalletController extends BaseController {
 
     const now = new Date();
     const exp = 1000 * 60 * 60 * 1 + now.getTime();
-    console.log('catstorage ', now, catStorage);
     if (
       catStorage &&
       catStorage['expiry'] &&
@@ -2693,12 +2807,10 @@ export class WalletController extends BaseController {
     }
 
     const data = (await openapiService.nftCatalog()) ?? [];
-    console.log('data expired ');
     const catalogData = {
       data: data,
       expiry: exp,
     };
-    storage.set('catalogData', catalogData);
     return data;
   };
 
@@ -2740,7 +2852,6 @@ export class WalletController extends BaseController {
         network,
       };
       storage.set('cadenceScripts', scripts);
-      console.log(scripts, 'scripts ====');
 
       return cadence;
     } catch (error) {
@@ -2753,7 +2864,6 @@ export class WalletController extends BaseController {
 
     const now = new Date();
     const exp = 1000 * 60 * 60 * 1 + now.getTime();
-    console.log('swapConfig ', now, swapStorage);
     if (
       swapStorage &&
       swapStorage['expiry'] &&
@@ -2850,9 +2960,7 @@ export class WalletController extends BaseController {
   getPayerAddressAndKeyId = async () => {
     try {
       const config = await fetchConfig.remoteConfig();
-      console.log('config config', config);
       const network = await this.getNetwork();
-      console.log(network, 'network================', config.payer[network]);
       return config.payer[network];
     } catch {
       const network = await this.getNetwork();
@@ -2868,6 +2976,10 @@ export class WalletController extends BaseController {
 
   signPayer = async (signable): Promise<string> => {
     return await userWalletService.signPayer(signable);
+  };
+
+  signProposer = async (signable): Promise<string> => {
+    return await userWalletService.signProposer(signable);
   };
 
   updateProfilePreference = async (privacy: number) => {
@@ -2980,7 +3092,6 @@ export class WalletController extends BaseController {
   createFlowSandboxAddress = async (network) => {
     const account = await getStoragedAccount();
     const { hashAlgo, signAlgo, pubKey, weight } = account;
-    console.log('loggedInAccounts[accountIndex]; ==>', account);
 
     const accountKey = {
       public_key: pubKey,

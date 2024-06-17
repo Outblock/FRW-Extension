@@ -340,7 +340,7 @@ const WalletDetail = () => {
   return (
     <div className='page' style={{ display: 'flex', flexDirection: 'column' }}>
 
-      <LLHeader title={chrome.i18n.getMessage('Wallet')} help={false} />
+      <LLHeader title={chrome.i18n.getMessage('Account')} help={false} />
 
       <Box px='20px' sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1, }}>
         <Box>
