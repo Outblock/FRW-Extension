@@ -54,7 +54,7 @@ const Popup = (props: TransferConfirmationProps) => {
             color='text'
             sx={{ fontSize: '18px', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
           >
-            {chrome.i18n.getMessage('Accounts')}
+            {chrome.i18n.getMessage('Profile')}
           </Typography>
           <Box onClick={props.handleCancelBtnClicked}>
             <IconButton>

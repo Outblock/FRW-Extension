@@ -31,7 +31,6 @@ export const getStoragedAccount = async () => {
   const currentId = await storage.get('currentId') || null;
   const loggedInAccounts = await storage.get('loggedInAccounts') || [];
   console.log('loggedInAccounts ', loggedInAccounts)
-  console.log('accountIndex ', accountIndex)
   console.log('currentId ', currentId)
   let account;
 

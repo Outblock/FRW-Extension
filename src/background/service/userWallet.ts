@@ -257,7 +257,7 @@ class UserWallet {
     const txID = await fcl.mutate({
       cadence: cadence,
       args: (arg, t) => args,
-      proposer: this.proposerAuthFunction,
+      proposer: this.authorizationFunction,
       authorizations: [this.authorizationFunction],
       payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
       limit: 9999,
@@ -305,7 +305,6 @@ class UserWallet {
       signInAnonymously(auth);
       return;
     }
-    console.log('404 idtoken ', idToken);
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(
@@ -420,7 +419,7 @@ class UserWallet {
       signingFunction: async (signable) => {
         // Singing functions are passed a signable and need to return a composite signature
         // signable.message is a hex string of what needs to be signed.
-        const signature = await this.signProposer(signable);
+        const signature = await this.signPayer(signable);
         return {
           addr: fcl.withPrefix(ADDRESS), // needs to be the same as the account.addr but this time with a prefix, eventually they will both be with a prefix
           keyId: Number(KEY_ID), // needs to be the same as account.keyId, once again make sure its a number and not a string
