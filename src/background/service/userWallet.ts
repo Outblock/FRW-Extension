@@ -37,6 +37,7 @@ class UserWallet {
           testnet: [],
           crescendo: [],
           previewnet: [],
+          testnetMigration: [],
         },
         childAccount: {},
         currentWallet: {
@@ -70,6 +71,7 @@ class UserWallet {
         testnet: [],
         crescendo: [],
         previewnet: [],
+        testnetMigration: [],
       },
       childAccount: {},
       currentWallet: {
@@ -99,6 +101,7 @@ class UserWallet {
 
     // Initialize previewnet as empty
     let previewnetExists = false;
+    let tmigrationExists = false;
 
     for (const wallet of filteredData) {
       const chainId = wallet.chain_id;
@@ -106,11 +109,17 @@ class UserWallet {
       if (chainId === "previewnet") {
         previewnetExists = true;
       }
+      if (chainId === "testnetMigration") {
+        tmigrationExists = true;
+      }
     }
 
     // Ensure previewnet is set to an empty array if it doesn't exist in filteredData
     if (!previewnetExists) {
       this.store.wallets["previewnet"] = [];
+    }
+    if (!tmigrationExists) {
+      this.store.wallets["testnetMigration"] = [];
     }
 
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
@@ -157,6 +166,10 @@ class UserWallet {
 
   checkPreviewnet = () => {
     return this.store.wallets['previewnet'];
+  };
+
+  checkTestnetMigration = () => {
+    return this.store.wallets['testnetMigration'];
   };
 
   setNetwork = async (network: string) => {

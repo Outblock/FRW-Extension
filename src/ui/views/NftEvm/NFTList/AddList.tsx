@@ -103,13 +103,9 @@ const AddList = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/previewnet/flow/nfts.json`
-      );
-      const res = await response.json();
-      console.log('nftList ', res)
-      setCollections(res.tokens);
-      return res.tokens;
+      const response = await usewallet.fetchPreviewNetNft();
+      setCollections(response);
+      return response;
     } finally {
       setLoading(false);
     }

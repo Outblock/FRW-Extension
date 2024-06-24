@@ -188,6 +188,8 @@ const DeveloperMode = () => {
 
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
+  const [isMigrationEnabled, setMigrationEnabled] = useState(false);
+
   const [showError, setShowError] = useState(false);
 
   const loadNetwork = async () => {
@@ -200,6 +202,11 @@ const DeveloperMode = () => {
     console.log('previewnet ', previewnet)
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
+    }
+    const testnetMigration = await usewallet.checkTestnetMigration() || [];
+    console.log('previewnet ', testnetMigration)
+    if (testnetMigration.length > 0) {
+      setMigrationEnabled(true);
     }
 
     setNetwork(network);
@@ -228,6 +235,9 @@ const DeveloperMode = () => {
     //   return;
     // }
     if (network === 'previewnet' && !isSandboxEnabled) {
+      return;
+    }
+    if (network === 'testnetMigration' && !isMigrationEnabled) {
       return;
     }
 
@@ -350,6 +360,24 @@ const DeveloperMode = () => {
     }
   };
 
+  const enableTestnetMigration = async () => {
+    setLoading(true)
+    try {
+      const { data } = await usewallet.createFlowSandboxAddress('testnetMigration');
+      await usewallet.pollingTrnasaction(data, 'testnetMigration')
+      await usewallet.refreshUserWallets();
+      const previewnet = await usewallet.checkTestnetMigration() || [];
+      if (previewnet.length > 0) {
+        setMigrationEnabled(true);
+      }
+      await switchNetwork('testnetMigration')
+      // await usewallet.setDashIndex(0);
+      // history.push('/dashboard?activity=1');
+    } finally {
+      setLoading(false)
+    }
+  };
+
   const handleErrorClose = (
     event?: React.SyntheticEvent | Event,
     reason?: string
@@ -368,6 +396,28 @@ const DeveloperMode = () => {
     return (
       <LLPrimaryButton
         onClick={enableSandbox}
+        sx={{
+          backgroundColor: '#CCAF21',
+          padding: '2px 3px',
+          fontSize: '12px',
+          color: '#000',
+          fontWeight: '600',
+          borderRadius: '30px',
+          textTransform: 'initial',
+        }}
+        label={chrome.i18n.getMessage('Enable')}
+      />
+    )
+  }
+
+  const enableTMigration = () => {
+    if (loading) {
+      return (<CircularProgress size={18} color="primary" />)
+    }
+
+    return (
+      <LLPrimaryButton
+        onClick={enableTestnetMigration}
         sx={{
           backgroundColor: '#CCAF21',
           padding: '2px 3px',
@@ -489,28 +539,6 @@ const DeveloperMode = () => {
               </CardActionArea>
 
               <Divider sx={{ width: '90%', margin: '0 auto' }} />
-
-              {/* <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('crescendo')}>
-              <Box className={classes.checkboxRow}>
-                <FormControlLabel
-                  label={chrome.i18n.getMessage('Crescendo')}
-                  control={
-                    <Checkbox
-                      size='small'
-                      icon={<CircleOutlinedIcon />}
-                      checkedIcon={<CheckCircleIcon sx={{color:'#CCAF21'}} />}
-                      value='crescendo'
-                      checked={currentNetwork==='crescendo'}
-                      onChange={()=>switchNetwork('crescendo')}
-                    />
-                  }
-                  disabled={!isSandboxEnabled}
-                />
-
-                {isSandboxEnabled && currentNetwork==='crescendo' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
-                {!isSandboxEnabled && <LLPrimaryButton onClick={enableSandbox} sx={{backgroundColor: '#CCAF21', padding: '2px 3px', fontSize: '12px', color: '#000', fontWeight: '600', borderRadius: '30px', textTransform: 'initial'}} label={chrome.i18n.getMessage('Enable')}/> }
-              </Box>
-            </CardActionArea> */}
               <CardActionArea
                 className={classes.modeSelection}
                 onClick={() => switchNetwork('previewnet')}
@@ -545,6 +573,45 @@ const DeveloperMode = () => {
                   )}
                   {!isSandboxEnabled && (
                     enableButton()
+                  )}
+                </Box>
+              </CardActionArea>
+
+              <Divider sx={{ width: '90%', margin: '0 auto' }} />
+              <CardActionArea
+                className={classes.modeSelection}
+                onClick={() => switchNetwork('testnetMigration')}
+              >
+                <Box className={classes.checkboxRow}>
+                  <FormControlLabel
+                    label='TestnetMigration'
+                    control={
+                      <Checkbox
+                        size="small"
+                        icon={<CircleOutlinedIcon />}
+                        checkedIcon={
+                          <CheckCircleIcon sx={{ color: '#CCAF21' }} />
+                        }
+                        value="testnetMigration"
+                        checked={currentNetwork === 'testnetMigration'}
+                        onChange={() => switchNetwork('testnetMigration')}
+                      />
+                    }
+                    disabled={!isMigrationEnabled}
+                  />
+
+                  {isMigrationEnabled && currentNetwork === 'testnetMigration' && (
+                    <Typography
+                      component="div"
+                      variant="body1"
+                      color="text.nonselect"
+                      sx={{ margin: 'auto 0' }}
+                    >
+                      {chrome.i18n.getMessage('Selected')}
+                    </Typography>
+                  )}
+                  {!isMigrationEnabled && (
+                    enableTMigration()
                   )}
                 </Box>
               </CardActionArea>

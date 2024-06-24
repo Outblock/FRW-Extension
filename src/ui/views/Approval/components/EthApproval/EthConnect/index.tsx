@@ -10,6 +10,7 @@ import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
 import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
 import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
 import theme from 'ui/style/LLTheme';
+import EthMove from '../EthMove';
 import {
   LLPrimaryButton,
   LLSecondaryButton,
@@ -39,7 +40,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   const [opener, setOpener] = useState<number | undefined>(undefined)
   const [defaultChain, setDefaultChain] = useState('FLOW');
   const [host, setHost] = useState('')
-  const [title, setTitle] = useState('')
+  const [showMoveBoard, setMoveBoard] = useState(true)
   const [msgNetwork, setMsgNetwork] = useState('testnet')
   const [isEvm, setIsEvm] = useState(false)
   const [currentNetwork, setCurrent] = useState('testnet')
@@ -299,6 +300,18 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
             />
           </Stack>
         </Box>}
+      {
+        showMoveBoard && (
+          <EthMove
+            showMoveBoard={showMoveBoard}
+            handleCloseIconClicked={() => setMoveBoard(false)}
+            handleCancelBtnClicked={() => setMoveBoard(false)}
+            handleAddBtnClicked={() => {
+              setMoveBoard(false);
+            }}
+          />
+        )
+      }
     </Box>
   );
 

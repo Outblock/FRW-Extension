@@ -1422,6 +1422,9 @@ class OpenApiService {
     if (childType === 'evm') {
       chainType = 'evm';
     }
+    if (network === 'testnetMigration') {
+      network = 'testnet';
+    }
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
     if (gitToken) {
       return gitToken;

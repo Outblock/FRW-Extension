@@ -12,6 +12,7 @@ interface NFTCollectionNetwork {
   testnet: NFTCollectionData[];
   crescendo: NFTCollectionData[];
   previewnet: NFTCollectionData[];
+  testnetMigration: NFTCollectionData[];
 }
 
 interface NFTCollectionListNetwork{
@@ -19,12 +20,14 @@ interface NFTCollectionListNetwork{
   testnet: NFTCollectionList[];
   crescendo: NFTCollectionData[];
   previewnet: NFTCollectionData[];
+  testnetMigration: NFTCollectionData[];
 }
 interface NFTNetwork {
   mainnet: NFTData;
   testnet: NFTData;
   crescendo: NFTData;
   previewnet: NFTData;
+  testnetMigration: NFTData;
 }
 
 // const empty: Contact = {
@@ -64,18 +67,24 @@ class NFT {
             nfts: [],
             nftCount: 0,
           },
+          testnetMigration: {
+            nfts: [],
+            nftCount: 0,
+          },
         },
         collectionList: {
           testnet: [],
           mainnet: [],
           crescendo:[],
           previewnet:[],
+          testnetMigration: [],
         },
         collection: {
           testnet: [],
           mainnet: [],
           crescendo: [],
           previewnet: [],
+          testnetMigration: [],
         },
         expiry: 2648570077405,
       },
@@ -163,12 +172,17 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
+      testnetMigration: {
+        nfts: [],
+        nftCount: 0,
+      },
     }
 
     this.store.collection = {
       testnet: [],
       mainnet: [],
       crescendo: [],
+      testnetMigration: [],
       previewnet: []
     }
 
@@ -194,6 +208,10 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
+      testnetMigration: {
+        nfts: [],
+        nftCount: 0,
+      },
     }
   }
 
@@ -202,6 +220,7 @@ class NFT {
       testnet: [],
       mainnet: [],
       crescendo: [],
+      testnetMigration: [],
       previewnet: []
     }
   }

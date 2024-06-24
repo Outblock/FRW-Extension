@@ -222,7 +222,7 @@ const SendAmount = () => {
 
           <Box sx={{ display: 'flex', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
             <Button
-              // onClick={() => {}}
+              onClick={history.goBack}
               variant="contained"
               // @ts-expect-error custom color
               color="neutral"

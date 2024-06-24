@@ -45,7 +45,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
   const web3 = new Web3(provider);
-  const erc721Contract = new web3.eth.Contract(erc721, "0xdafbac220f0d24541d126cd42b694c3f42df97fe");
+  const erc721Contract = new web3.eth.Contract(erc721, props.data.nft.contractEvmAddress);
 
   const startCount = () => {
     console.log('props.data ', props.data)
@@ -158,7 +158,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const encodedData = erc721Contract.methods.safeTransferFrom(data, props.data.contact.address, props.data.nft.id).encodeABI();
     const gas = '1312d00';
     setSending(true);
-    wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.nft.contractEvmAddress ? props.data.nft.contractEvmAddress : 'dafbac220f0d24541d126cd42b694c3f42df97fe', encodedData, gas).then(async (txID) => {
+    wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.nft.contractEvmAddress, encodedData, gas).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);

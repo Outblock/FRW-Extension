@@ -40,6 +40,8 @@ const NftEvm = () => {
   };
 
   const requestCadenceNft = async () => {
+    const nftList = await wallet.fetchPreviewNetNft();
+    console.log('nftList ', nftList)
     const activeChild = await wallet.getActiveWallet();
     if (activeChild === 'evm') {
       setIsEvm('evm')
@@ -51,18 +53,19 @@ const NftEvm = () => {
       const cadenceResult = await wallet.requestCadenceNft();
       let resultData = [];
       if (cadenceResult.length) {
+        console.log('cadenceResult ', cadenceResult)
         const collection = await wallet.requestCollectionInfo(cadenceResult[0].collection.id);
-        resultData = await convertToReactComponent(collection);
+        const result = getObjectById(nftList, cadenceResult[0].collection.id);
+        resultData = await convertToReactComponent(collection, result);
       }
 
       setNftList(resultData);
     }
 
+  };
 
-
-
-
-
+  const getObjectById = (array, id) => {
+    return array.find(item => item.id === id);
   };
 
   const convertToNftCatalogModel = (data) => {
@@ -102,9 +105,8 @@ const NftEvm = () => {
     return convertedData;
   }
 
-  const convertToReactComponent = (data) => {
+  const convertToReactComponent = async (data, nftResult) => {
     const { nfts } = data;
-
     return nfts.map(nft => ({
       id: nft.id,
       name: nft.name,
@@ -119,6 +121,7 @@ const NftEvm = () => {
       collectionSquareImage: nft.collectionSquareImage,
       collectionBannerImage: nft.collectionBannerImage,
       collectionExternalURL: nft.collectionExternalURL,
+      contractEvmAddress: nftResult.evmAddress,
       royalties: nft.royalties.cutInfos.map(cutInfo => ({
         receiver: cutInfo.receiver,
         cut: cutInfo.cut,

@@ -1305,7 +1305,53 @@ export class WalletController extends BaseController {
 
     const evmList = await openapiService.getEvmNFT(address);
     return evmList;
-  }
+  };
+
+  reqeustEvmNftList = async () => {
+
+    try {
+      // Check if the nftList is already in storage and not expired
+      const cachedNFTList = await storage.getExpiry('evmnftList');
+      if (cachedNFTList) {
+        return cachedNFTList;
+      } else {
+        // Fetch the nftList from the API
+        const nftList = await openapiService.evmNFTList();
+        // Cache the nftList with a one-hour expiry (3600000 milliseconds)
+        await storage.setExpiry('evmnftList', nftList, 3600000); 
+        return nftList;
+      }
+    } catch (error) {
+      console.error('Error fetching NFT list:', error);
+      throw error;
+    }
+  };
+
+  fetchPreviewNetNft = async () => {
+
+    try {
+      // Check if the nftList is already in storage and not expired
+      const cachedNFTList = await storage.getExpiry('previewNetNftList');
+      if (cachedNFTList) {
+        return cachedNFTList;
+      } else {
+        // Fetch the nftList from the API
+        const response = await fetch(
+          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/previewnet/flow/nfts.json`
+        );
+        const res = await response.json();
+        console.log('nftList ', res)
+        const nftList = res.tokens;
+        // Cache the nftList with a one-hour expiry (3600000 milliseconds)
+        await storage.setExpiry('previewNetNftList', nftList, 3600000); 
+        return nftList;
+      }
+    } catch (error) {
+      console.error('Error fetching NFT list:', error);
+      throw error;
+    }
+  };
+
 
   requestCadenceNft = async () => {
     const network = await this.getNetwork();
@@ -3116,6 +3162,11 @@ export class WalletController extends BaseController {
 
   checkPreviewnet = async () => {
     const result = await userWalletService.checkPreviewnet();
+    return result;
+  };
+
+  checkTestnetMigration = async () => {
+    const result = await userWalletService.checkTestnetMigration();
     return result;
   };
 
