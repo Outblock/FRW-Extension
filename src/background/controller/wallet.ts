@@ -44,6 +44,7 @@ import {
   fclMainnetConfig,
   fclCrescendoConfig,
   fclPreviewnetConfig,
+  fclTestnetMigrationConfig,
 } from '../fclConfig';
 import { notification, storage } from 'background/webapi';
 import { NFTData, NFTModel } from '../service/networkModel';
@@ -2489,7 +2490,9 @@ export class WalletController extends BaseController {
       await fclTestnetConfig();
     } else if (network == 'mainnet') {
       await fclMainnetConfig();
-    } else {
+    } else if (network == 'testnetMigration') {
+      await fclTestnetMigrationConfig();
+    }else {
       // await fclCrescendoConfig();
       await fclPreviewnetConfig();
     }
@@ -2865,7 +2868,11 @@ export class WalletController extends BaseController {
       const cadenceScrpts = await storage.get('cadenceScripts');
       const now = new Date();
       const exp = 1000 * 60 * 60 * 1 + now.getTime();
-      const network = await userWalletService.getNetwork();
+      let network = await userWalletService.getNetwork();
+
+      if (network === 'testnetMigration') {
+        network = 'testnet'
+      }
 
       if (
         cadenceScrpts &&

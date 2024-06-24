@@ -41,6 +41,7 @@ import {
   fclMainnetConfig,
   fclCrescendoConfig,
   fclPreviewnetConfig,
+  fclTestnetMigrationConfig
 } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
@@ -108,6 +109,9 @@ async function fclSetup() {
       break;
     case 'previewnet':
       await fclPreviewnetConfig();
+      break;
+    case 'testnetMigration':
+      await fclTestnetMigrationConfig();
       break;
   }
 }
@@ -313,7 +317,7 @@ const handlePreAuthz = async (id) => {
   const payer = await walletController.getPayerAddressAndKeyId();
   const address = await userWalletService.getCurrentAddress();
   const network = await userWalletService.getNetwork();
-    
+
   const ki = await storage.get('keyIndex');
   const keyIndex = Number(ki);
   const services = preAuthzServiceDefinition(
@@ -378,7 +382,7 @@ const extMessageHandler = (msg, sender, sendResponse) => {
     (service?.endpoint ===
       'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html' ||
       service?.endpoint ===
-        'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
+      'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
   ) {
     chrome.tabs
       .query({

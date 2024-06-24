@@ -108,7 +108,7 @@ export const fclPreviewnetConfig = async () => {
 export const fclTestnetMigrationConfig = async () => {
   fcl
     .config()
-    .put('accessNode.api', 'https://rest-migrationtestnet.onflow.org/v1')
+    .put('accessNode.api', 'https://rest-migrationtestnet.onflow.org')
     .put('sdk.transport', httpSend)
     .put('0xLockedTokens', '0x95e019a17d0e23d7')
     .put('0xFind', '0xa16ab1d0abde3625')
