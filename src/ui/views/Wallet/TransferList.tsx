@@ -175,7 +175,7 @@ const TransferList = ({ setCount }) => {
       {!isLoading
         ?
         <Box>
-          {transaction.length ?
+          {transaction && transaction.length ?
             <> {
               (transaction || []).map((tx: any, index) => {
                 return (
