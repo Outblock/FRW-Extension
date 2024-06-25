@@ -2871,7 +2871,7 @@ export class WalletController extends BaseController {
       let network = await userWalletService.getNetwork();
 
       if (network === 'testnetMigration') {
-        network = 'testnet'
+        network = 'testnet-migration'
       }
 
       if (
