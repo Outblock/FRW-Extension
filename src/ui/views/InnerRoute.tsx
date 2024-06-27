@@ -41,7 +41,7 @@ import Linked from './Setting/Linked';
 import LinkedDetail from './Setting/Linked/LinkedDetail';
 import Account from './Setting/Account';
 import DeveloperMode from './Setting/DeveloperMode/DeveloperMode';
-import Devices from './Setting/Devices/Devices';
+import Connect from './Setting/Connect';
 import DeviceInfo from './Setting/Devices/DeviceInfo';
 import WalletList from './Setting/Wallet';
 import WalletDetail from './Setting/Wallet/WalletDetail';
@@ -262,9 +262,9 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/setting/developerMode`}>
             <DeveloperMode />
           </PrivateRoute>
-          {/* <PrivateRoute path={`${props.match.url}/setting/devices`}>
-            <Devices />
-          </PrivateRoute> */}
+          <PrivateRoute path={`${props.match.url}/setting/connect`}>
+            <Connect />
+          </PrivateRoute>
           <PrivateRoute path={`${props.match.url}/setting/deviceinfo`}>
             <DeviceInfo />
           </PrivateRoute>

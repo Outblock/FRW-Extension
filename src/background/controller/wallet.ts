@@ -2873,7 +2873,7 @@ export class WalletController extends BaseController {
       if (network === 'testnetMigration') {
         network = 'testnet-migration'
       }
-
+      console.log('cadenceScrpts ================== ', cadenceScrpts)
       if (
         cadenceScrpts &&
         cadenceScrpts['expiry'] &&

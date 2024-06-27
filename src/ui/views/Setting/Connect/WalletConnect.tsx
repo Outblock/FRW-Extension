@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Core } from '@walletconnect/core'
-import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
+import { Web3Wallet, Web3WalletTypes } from '@walletconnect/props.web3wallet'
 import { formatJsonRpcResult } from '@walletconnect/jsonrpc-utils'
 import { getSdkError } from '@walletconnect/utils'
 import { DeviceInfo, DeviceInfoRequest, AccountKey } from 'background/service/networkModel';
@@ -26,12 +26,8 @@ import { styled } from '@mui/material/styles';
 import { FCLWalletConnectMethod } from '@/ui/utils/type';
 import { useWallet } from 'ui/utils';
 import { useForm, FieldValues } from 'react-hook-form';
-import micone from '../../../FRWAssets/image/micone.png';
-import licon from '../../../FRWAssets/image/licon.png';
-import dicon from '../../../FRWAssets/image/dicon.png';
 import closeCircle from '../../../FRWAssets/image/closeCircle.png';
 import { useHistory } from 'react-router-dom';
-import QrScannerComponent from './QrScannerComponent'
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -46,15 +42,17 @@ const StyledInput = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-interface RevokePageProps {
+interface WalletConnectProps {
   isAddAddressOpen: boolean;
   handleCloseIconClicked: () => void;
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
+  web3wallet: Web3Wallet; 
+  sessions: any[]; 
+  setSession: (session: any) => void; 
 }
 
-
-const WalletConnect = (props: RevokePageProps) => {
+const WalletConnect = (props: WalletConnectProps) => {
 
   const usewallet = useWallet();
 
@@ -68,43 +66,16 @@ const WalletConnect = (props: RevokePageProps) => {
     mode: 'all',
   });
   const [syncing, setSyncing] = useState(false);
-  const [Uri, setUri] = useState('');
   const [showApprove, setShowApprove] = useState<boolean>(false);
 
   const [namespaceObject, setNamespace] = useState<any>();
 
   const [proposer, setProposer] = useState<any>();
 
+
   const [ID, setId] = useState<any>();
 
-  const [web3wallet, setWeb3Wallet] = useState<any>(null);
-  const [showSyncing, setSyncPage] = useState<boolean>(false);
 
-
-  useEffect(() => {
-    const createWeb3Wallet = async () => {
-      try {
-        const wallet = await Web3Wallet.init({
-          core: new Core({
-            projectId: process.env.WC_PROJECTID,
-          }),
-          metadata: {
-            name: 'Flow Walllet',
-            description: 'Digital wallet created for everyone.',
-            url: 'https://fcw-link.lilico.app',
-            icons: ['https://fcw-link.lilico.app/logo.png']
-          },
-        });
-        setWeb3Wallet(wallet);    
-        const walletParing = await wallet.core.pairing.updateExpiry({ topic: "4c493f14d9e33226f8cac6a611950abb7ad4721bc0325c1b325c694cc4b2736f", expiry: 60 })
-        const pairings = wallet.core.pairing.getPairings()
-        console.log('walletParing ', walletParing, pairings)
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    createWeb3Wallet();
-  }, []);
 
   async function onSessionProposal({ id, params }: Web3WalletTypes.SessionProposal) {
     console.log('params ', params)
@@ -138,135 +109,20 @@ const WalletConnect = (props: RevokePageProps) => {
 
   async function onSessionRequest({ topic, params, id }: Web3WalletTypes.SessionRequest) {
     console.log('session request ', params)
-    if (params.request.method === FCLWalletConnectMethod.accountInfo) {
-
-      try {
-
-        const userInfo = await usewallet.getUserInfo(false);
-        const wallet = await usewallet.getUserWallets();
-        const address = wallet[0].blockchain[0].address;
-
-
-        // Respond with an empty message
-        const jsonString = {
-          'userId': userInfo.user_id,
-          'userAvatar': userInfo.avatar,
-          'userName': userInfo.username,
-          'walletAddress': address
-        }
-        const response = {
-          'method': FCLWalletConnectMethod.accountInfo,
-          'data': jsonString,
-          status: '',
-          message: '',
-        };
-
-
-        const result = JSON.stringify(response);
-        console.log('send back account response ', response)
-        await web3wallet.respondSessionRequest({ topic, requestId: id, response: formatJsonRpcResult(id, result) });
-
-
-
-
-        // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
-      } catch (error) {
-        console.error('[WALLET] Respond Error: [addDeviceInfo]', error);
-
-      }
-
-    }
-    if (params.request.method === FCLWalletConnectMethod.addDeviceInfo) {
-
-      try {
-        const accountKeyData = params.request.params.data.accountKey;
-
-        console.log('response ', accountKeyData)
-        const publicKey = accountKeyData.publicKey || accountKeyData.public_key;
-        const signAlgo = accountKeyData.signAlgo || accountKeyData.sign_algo;
-        const hashAlgo = accountKeyData.hashAlgo || accountKeyData.hash_algo;
-
-        await usewallet.addKeyToAccount(publicKey, signAlgo, hashAlgo, accountKeyData.weight)
-
-        console.log('response ', params)
-
-        // Extracting and mapping the deviceInfo
-        const deviceInfoData = params.request.params.data.deviceInfo;
-        const deviceInfo: DeviceInfoRequest = {
-          device_id: deviceInfoData.deviceId || deviceInfoData.device_id,
-          ip: deviceInfoData.ip,
-          name: deviceInfoData.name,
-          type: deviceInfoData.type,
-          user_agent: deviceInfoData.userAgent || deviceInfoData.user_agent,
-          country: deviceInfoData.country,
-          countryCode: deviceInfoData.countryCode,
-          city: deviceInfoData.city,
-          lat: deviceInfoData.lat,
-          lon: deviceInfoData.lon,
-          timezone: deviceInfoData.timezone,
-          zip: deviceInfoData.zip
-        };
-
-        // Extracting and mapping the accountKey
-        const accountKey: AccountKey = {
-          sign_algo: signAlgo,
-          public_key: publicKey,
-          weight: accountKeyData.weight,
-          hash_algo: hashAlgo
-        };
-        const requestParams: DeviceInfo = {
-          account_key: accountKey,
-          device_info: deviceInfo
-        }
-        usewallet.openapi.synceDevice(requestParams)
-          .then((res) => {
-            console.log('sync response ', res);
-            if (res.status === 200) {
-              // Wait for 5 seconds before sending the response
-              setTimeout(async () => {
-                try {
-                  const response = formatJsonRpcResult(id, '');
-                  await web3wallet.respondSessionRequest({ topic, requestId: id, response });
-                  setSyncing(false);
-                  setSyncPage(false);
-                  setShowApprove(false);
-
-                  props.handleCloseIconClicked();
-                } catch (error) {
-                  console.error('Error in sending session response:', error);
-                }
-              }, 5000); // 5000 milliseconds = 5 seconds
-            }
-          })
-          .catch((err) => {
-            console.log('Error in syncDevice:', err);
-          });
-
-
-
-        // Router.route(to: RouteMap.RestoreLogin.syncDevice(register));
-      } catch (error) {
-        console.error('[WALLET] Respond Error: [addDeviceInfo]', error);
-
-      }
-
-    }
-
-
   }
 
   const handleFilterAndSearch = async (e) => {
     try {
       const keyword = e.target.value;
       console.log('keyword', keyword);
-      console.log('web3wallet ', web3wallet);
+      console.log('props.web3wallet ', props.web3wallet);
 
-      if (web3wallet) {
+      if (props.web3wallet) {
 
-        web3wallet.on('session_proposal', onSessionProposal)
+        props.web3wallet.on('session_proposal', onSessionProposal)
 
-        web3wallet.on('session_request', onSessionRequest)
-        const res = await web3wallet.pair({ uri: keyword })
+        props.web3wallet.on('session_request', onSessionRequest)
+        const res = await props.web3wallet.pair({ uri: keyword })
 
       } else {
         console.log('Web3Wallet is not initialized');
@@ -287,7 +143,7 @@ const WalletConnect = (props: RevokePageProps) => {
   const approveProposal = async () => {
     console.log('ID ', ID)
     setSyncing(true);
-    await web3wallet.approveSession({
+    await props.web3wallet.approveSession({
       id: ID,
       namespaces: namespaceObject
     });
@@ -296,7 +152,7 @@ const WalletConnect = (props: RevokePageProps) => {
 
   const cancelProposal = async () => {
     console.log('ID ', ID)
-    await web3wallet.rejectSession({
+    await props.web3wallet.rejectSession({
       id: ID,
       reason: getSdkError('USER_REJECTED_METHODS')
     })
@@ -304,8 +160,11 @@ const WalletConnect = (props: RevokePageProps) => {
   };
 
 
-  const setUrl = (data: string) => {
-    handleFilterAndSearch({ target: { value: data } })
+  const deleteTopic = async (data: string) => {
+    await props.web3wallet.core.pairing.disconnect({ topic: data })
+    const pairings = props.web3wallet.core.pairing.getPairings()
+    console.log('walletParing ', pairings)
+    props.setSession(pairings)
   }
 
 
@@ -335,17 +194,27 @@ const WalletConnect = (props: RevokePageProps) => {
       >
         <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>{chrome.i18n.getMessage('Link_Mobile_Device')}</Typography>
       </Box>
-      <Box sx={{ display: 'flex', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img style={{ height: '40px', width: '40px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={dicon} />
-          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>{chrome.i18n.getMessage('Desktop_Device')}</Typography>
-        </Box>
-        <img style={{ width: '108px', height: '8px', marginTop: '20px' }} src={licon} />
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img style={{ height: '40px', width: '40px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={micone} />
-          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>{chrome.i18n.getMessage('Mobile_Device')}</Typography>
-        </Box>
 
+      <Box>
+        {props.sessions.map((session, index) => (
+          <Box key={index} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px' }}>
+            <Typography>{session.peerMetadata ? session.peerMetadata.name : 'Unknown Session'}</Typography>
+            <Typography>Topic: {session.topic}</Typography>
+            <Typography>Protocol: {session.relay.protocol}</Typography>
+            <Typography>Expiry: {new Date(session.expiry * 1000).toLocaleString()}</Typography>
+            <Typography>Active: {session.active ? 'Yes' : 'No'}</Typography>
+            {session.peerMetadata && (
+              <>
+                <Typography>Description: {session.peerMetadata.description}</Typography>
+                <Typography>URL: {session.peerMetadata.url}</Typography>
+                {session.peerMetadata.icons && session.peerMetadata.icons.length > 0 && (
+                  <img src={session.peerMetadata.icons[0]} alt={session.peerMetadata.name} style={{ width: '50px', height: '50px' }} />
+                )}
+              </>
+            )}
+            <Button onClick={() => deleteTopic(session.topic)}>Delete</Button>
+          </Box>
+        ))}
       </Box>
       <Box sx={{ marginTop: '24px', width: '339px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}></Box>
 
@@ -375,7 +244,6 @@ const WalletConnect = (props: RevokePageProps) => {
           }}
           onError={(error) => console.log(error?.message)}
         /> */}
-        <QrScannerComponent setUrl={setUrl} />
 
       </Box>
       <Typography color='error.main' sx={{ margin: '8px auto 60px', color: 'rgba(255, 255, 255, 0.40)', fontSize: '12px', fontWeight: 400, width: '250px' }}>
@@ -414,6 +282,7 @@ const WalletConnect = (props: RevokePageProps) => {
       >
         <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>{chrome.i18n.getMessage('Wallet_Confirmation')}</Typography>
       </Box>
+
       {proposer &&
 
 
@@ -425,6 +294,7 @@ const WalletConnect = (props: RevokePageProps) => {
           borderRadius: '12px',
           height: '100%'
         }}>
+
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', margin: '0 18px 18px', gap: '18px' }}>
             <Divider />
             <Typography sx={{ textAlign: 'center', fontWeight: '700', fontSize: '16px', color: '#E6E6E6' }} >{chrome.i18n.getMessage('Allow')} {proposer.name} {chrome.i18n.getMessage('to_connect')}</Typography>
