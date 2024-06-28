@@ -3234,6 +3234,8 @@ export class WalletController extends BaseController {
     const testnetAddress = userWalletService.getUserWallets('testnet');
     const result = await openapiService.checkMigrationNetwork(testnetAddress[0].blockchain[0].address);
     if (result && result.address) {
+      testnetAddress[0].blockchain[0].chain_id = 'testnetMigration';
+      testnetAddress[0].chain_id = 'testnetMigration';
       await userWalletService.setUserTestnetMigration(testnetAddress);
     }
     console.log('setMigration ', result);

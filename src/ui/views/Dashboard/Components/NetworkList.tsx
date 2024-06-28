@@ -69,7 +69,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
       case 'previewnet':
         return previewnetIndicator;
       default:
-        return ''; // Default to mainnet if no match
+        return previewnetIndicator; // Default to mainnet if no match
     }
   };
 
@@ -139,7 +139,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
           borderRadius: '24px',
           cursor: 'pointer',
           height: '24px',
-          maxWidth: '110px',
+          maxWidth: 'auto',
           backgroundColor: bgColor(currentNetwork),
           marginRight: '16px'
         }}
