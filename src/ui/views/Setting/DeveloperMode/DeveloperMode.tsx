@@ -410,28 +410,6 @@ const DeveloperMode = () => {
     )
   }
 
-  const enableTMigration = () => {
-    if (loading) {
-      return (<CircularProgress size={18} color="primary" />)
-    }
-
-    return (
-      <LLPrimaryButton
-        onClick={enableTestnetMigration}
-        sx={{
-          backgroundColor: '#CCAF21',
-          padding: '2px 3px',
-          fontSize: '12px',
-          color: '#000',
-          fontWeight: '600',
-          borderRadius: '30px',
-          textTransform: 'initial',
-        }}
-        label={chrome.i18n.getMessage('Enable')}
-      />
-    )
-  }
-
   return (
     <div className="page">
       <LLHeader
@@ -577,44 +555,46 @@ const DeveloperMode = () => {
                 </Box>
               </CardActionArea>
 
-              <Divider sx={{ width: '90%', margin: '0 auto' }} />
-              <CardActionArea
-                className={classes.modeSelection}
-                onClick={() => switchNetwork('testnetMigration')}
-              >
-                <Box className={classes.checkboxRow}>
-                  <FormControlLabel
-                    label='TestnetMigration'
-                    control={
-                      <Checkbox
-                        size="small"
-                        icon={<CircleOutlinedIcon />}
-                        checkedIcon={
-                          <CheckCircleIcon sx={{ color: '#CCAF21' }} />
-                        }
-                        value="testnetMigration"
-                        checked={currentNetwork === 'testnetMigration'}
-                        onChange={() => switchNetwork('testnetMigration')}
-                      />
-                    }
-                    disabled={!isMigrationEnabled}
-                  />
+              {isMigrationEnabled &&
 
-                  {isMigrationEnabled && currentNetwork === 'testnetMigration' && (
-                    <Typography
-                      component="div"
-                      variant="body1"
-                      color="text.nonselect"
-                      sx={{ margin: 'auto 0' }}
-                    >
-                      {chrome.i18n.getMessage('Selected')}
-                    </Typography>
-                  )}
-                  {!isMigrationEnabled && (
-                    enableTMigration()
-                  )}
-                </Box>
-              </CardActionArea>
+                <Divider sx={{ width: '90%', margin: '0 auto' }} />
+              }
+              {isMigrationEnabled &&
+                <CardActionArea
+                  className={classes.modeSelection}
+                  onClick={() => switchNetwork('testnetMigration')}
+                >
+                  <Box className={classes.checkboxRow}>
+                    <FormControlLabel
+                      label='TestnetMigration'
+                      control={
+                        <Checkbox
+                          size="small"
+                          icon={<CircleOutlinedIcon />}
+                          checkedIcon={
+                            <CheckCircleIcon sx={{ color: '#22BAD0' }} />
+                          }
+                          value="testnetMigration"
+                          checked={currentNetwork === 'testnetMigration'}
+                          onChange={() => switchNetwork('testnetMigration')}
+                        />
+                      }
+                      disabled={!isMigrationEnabled}
+                    />
+
+                    {isMigrationEnabled && currentNetwork === 'testnetMigration' && (
+                      <Typography
+                        component="div"
+                        variant="body1"
+                        color="text.nonselect"
+                        sx={{ margin: 'auto 0' }}
+                      >
+                        {chrome.i18n.getMessage('Selected')}
+                      </Typography>
+                    )}
+                  </Box>
+                </CardActionArea>
+              }
             </Box>
 
             <Typography

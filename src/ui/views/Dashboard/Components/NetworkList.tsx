@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Box, List, ListItemButton, Typography, Drawer, IconButton, ListItem, ListItemIcon, ListItemText, Divider, CardMedia } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box, ListItemButton, Typography, ListItem, ListItemIcon, CardMedia } from '@mui/material';
 import { useWallet } from 'ui/utils';
-import { formatString, isValidEthereumAddress } from 'ui/utils/address';
-import { useHistory } from 'react-router-dom';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
-import importIcon from 'ui/FRWAssets/svg/importIcon.svg';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { makeStyles } from '@mui/styles';
-import { UserInfoResponse } from 'background/service/networkModel';
-import sideMore from '../../../FRWAssets/svg/sideMore.svg';
 import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
 import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
 import previewnetIndicator from '../../../FRWAssets/svg/previewnetArrow.svg';
 import networkLink from '../../../FRWAssets/svg/networkLink.svg';
 
-import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
 
 const NetworkList = ({ networkColor, currentNetwork }) => {
 
@@ -24,6 +13,8 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
   const usewallet = useWallet();
   const [showDropdown, setShowDropdown] = useState(false);
   const [sandboxEnable, setSandboxEnabled] = useState(false);
+
+  const [isMigrationEnabled, setMigrationEnabled] = useState(false);
   const [indicatorRotation, setIndicatorRotation] = useState(180); // Initial rotation angle
 
   const toggleDropdown = () => {
@@ -35,6 +26,12 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
     const previewnet = await usewallet.checkPreviewnet() || [];
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
+    }
+
+
+    const migration = await usewallet.checkTestnetMigration() || [];
+    if (migration.length > 0) {
+      setMigrationEnabled(true);
     }
 
   }
@@ -72,7 +69,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
       case 'previewnet':
         return previewnetIndicator;
       default:
-        return mainnetIndicator; // Default to mainnet if no match
+        return ''; // Default to mainnet if no match
     }
   };
 
@@ -87,6 +84,8 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
         return '#CCAF2114';
       case 'previewnet':
         return '#CCAF2114';
+      case 'testnetMigration':
+        return '#22BAD014';
     }
   };
   return (
@@ -246,6 +245,32 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
                   }}
                 >
                   Previewnet
+                </Typography>
+              </ListItemButton>
+            }
+
+            {isMigrationEnabled &&
+              <ListItemButton
+                onClick={() => switchNetwork('testnetMigration')}
+                sx={{
+                  padding: '4px 8px',
+                  width: '100%',
+                  '&:hover': {
+                    color: networkColor('testnetMigration')
+                  }
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '12px',
+                    lineHeight: '16px',
+                    fontWeight: '400',
+                    '&:hover': {
+                      color: networkColor('testnetMigration')
+                    }
+                  }}
+                >
+                  Testnet Migration
                 </Typography>
               </ListItemButton>
             }

@@ -1319,7 +1319,7 @@ export class WalletController extends BaseController {
         // Fetch the nftList from the API
         const nftList = await openapiService.evmNFTList();
         // Cache the nftList with a one-hour expiry (3600000 milliseconds)
-        await storage.setExpiry('evmnftList', nftList, 3600000); 
+        await storage.setExpiry('evmnftList', nftList, 3600000);
         return nftList;
       }
     } catch (error) {
@@ -1344,7 +1344,7 @@ export class WalletController extends BaseController {
         console.log('nftList ', res)
         const nftList = res.tokens;
         // Cache the nftList with a one-hour expiry (3600000 milliseconds)
-        await storage.setExpiry('previewNetNftList', nftList, 3600000); 
+        await storage.setExpiry('previewNetNftList', nftList, 3600000);
         return nftList;
       }
     } catch (error) {
@@ -2492,7 +2492,7 @@ export class WalletController extends BaseController {
       await fclMainnetConfig();
     } else if (network == 'testnetMigration') {
       await fclTestnetMigrationConfig();
-    }else {
+    } else {
       // await fclCrescendoConfig();
       await fclPreviewnetConfig();
     }
@@ -3225,6 +3225,18 @@ export class WalletController extends BaseController {
     await storage.set(`${currentId}emoji`, emojires)
 
     return emojires;
+  };
+
+
+
+
+  setMigration = async () => {
+    const testnetAddress = userWalletService.getUserWallets('testnet');
+    const result = await openapiService.checkMigrationNetwork(testnetAddress[0].blockchain[0].address);
+    if (result && result.address) {
+      await userWalletService.setUserTestnetMigration(testnetAddress);
+    }
+    console.log('setMigration ', result);
   };
 }
 

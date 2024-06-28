@@ -2131,6 +2131,7 @@ class OpenApiService {
     return response.json();
   };
 
+
   putDeviceInfo = async (walletData) => {
     try {
       const testnetId = walletData.find(
@@ -2236,6 +2237,15 @@ class OpenApiService {
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
+  };
+
+  checkMigrationNetwork = async (address: string) => {
+
+    const response = await fetch(
+      `https://rest-migrationtestnet.onflow.org/v1/accounts/${address}`
+    );
+
+    return response.json();
   };
 }
 

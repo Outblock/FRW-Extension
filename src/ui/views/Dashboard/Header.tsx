@@ -105,6 +105,8 @@ const Header = ({ loading }) => {
 
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
+  const [isMigrationEnabled, setMigrationEnabled] = useState(false);
+
   const [flowBalance, setFlowBalance] = useState(0);
 
   const [modeAnonymous, setModeAnonymous] = useState(false);
@@ -167,6 +169,11 @@ const Header = ({ loading }) => {
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }
+
+    const migration = (await usewallet.checkTestnetMigration()) || [];
+    if (migration.length > 0) {
+      setMigrationEnabled(true);
+    }
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
@@ -206,7 +213,7 @@ const Header = ({ loading }) => {
       await setCurrent(currentWallet);
     }
 
-
+    await usewallet.setMigration();
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
@@ -363,6 +370,8 @@ const Header = ({ loading }) => {
         return '#CCAF21';
       case 'previewnet':
         return '#CCAF21';
+      case 'testnetMigration':
+        return '#22BAD0';
     }
   };
 
@@ -470,7 +479,7 @@ const Header = ({ loading }) => {
               variant="body1"
               component="span"
               fontWeight={'semi-bold'}
-              sx={{fontSize:'12px'}}
+              sx={{ fontSize: '12px' }}
               display="flex"
               color={
                 props.props_id == currentWallet
@@ -764,6 +773,53 @@ const Header = ({ loading }) => {
               </ListItemButton>
             </ListItem>
           )}
+          {isMigrationEnabled && (
+            <ListItem
+              disablePadding
+              key="testnetMigration"
+              secondaryAction={
+                !crescendoAvailable && (
+                  <ListItemText>
+                    <Typography
+                      variant="caption"
+                      component="span"
+                      display="inline"
+                      color="error.main"
+                    >
+                      {chrome.i18n.getMessage('Unavailable')}
+                    </Typography>
+                  </ListItemText>
+                )
+              }
+              onClick={() => {
+                switchNetwork('testnetMigration');
+              }}
+            >
+              <ListItemButton>
+                <ListItemIcon>
+                  <FiberManualRecordIcon
+                    style={{
+                      color: networkColor('testnetMigration'),
+                      fontSize: '10px',
+                      marginLeft: '10px',
+                      marginRight: '10px',
+                      opacity: currentNetwork == 'testnetMigration' ? '1' : '0.1',
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText>
+                  <Typography
+                    variant="body1"
+                    component="span"
+                    display="inline"
+                    color="text"
+                  >
+                    Testnet Migration
+                  </Typography>
+                </ListItemText>
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
       </>
     );
@@ -914,8 +970,8 @@ const Header = ({ loading }) => {
                 sx={{
                   border: isPending
                     ? ''
-                    : currentNetwork == 'testnet'
-                      ? '2px solid #FF8A00'
+                    : currentNetwork !== 'mainnet'
+                      ? `2px solid ${networkColor(currentNetwork)}`
                       : isSandbox
                         ? '2px solid #CCAF21'
                         : '2px solid #282828',
