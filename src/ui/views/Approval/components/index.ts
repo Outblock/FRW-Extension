@@ -6,4 +6,4 @@ export { default as EthConnect } from './EthApproval/EthConnect';
 export { default as EthConfirm } from './EthApproval/EthConfirm';
 export { default as EthEnable } from './EthApproval/EthEnable';
 export { default as EthMove } from './EthApproval/EthMove';
-
+export { default as EthSwitch } from './EthApproval/EthSwitch';

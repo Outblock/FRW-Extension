@@ -8,6 +8,7 @@ import { PromiseFlow, underline2Camelcase } from 'background/utils';
 import { EVENTS } from 'consts';
 import providerController from './controller';
 import eventBus from '@/eventBus';
+import Wallet from '../wallet';
 
 const isSignApproval = (type: string) => {
   const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx', 'EthConfirm'];
@@ -43,7 +44,7 @@ const flowContext = flow
     console.log('ctx1 ', ctx)
     const {
       request: {
-        session: { origin,},
+        session: { origin, },
       },
       mapMethod,
     } = ctx;
@@ -65,6 +66,19 @@ const flowContext = flow
           lockedOrigins.delete(origin);
           throw e;
         }
+      }
+
+
+      const network = await Wallet.getNetwork();
+
+      if (network !== 'previewnet') {
+        await notificationService.requestApproval(
+          {
+            params: { origin },
+            approvalComponent: 'EthSwitch',
+          },
+          { height: 599 }
+        );
       }
     }
 
