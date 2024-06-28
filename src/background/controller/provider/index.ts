@@ -10,7 +10,6 @@ tab.on('tabRemove', (id) => {
 });
 
 export default async (req) => {
-  console.log('requesting rpc ', req)
   const {
     data: { method },
   } = req;

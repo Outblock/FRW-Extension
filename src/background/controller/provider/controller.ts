@@ -145,7 +145,7 @@ class ProviderController extends BaseController {
         if (previewnet.length === 0) {
           throw new Error('Previewnet wallet is empty.');
         }
-        await Wallet.switchNetwork('previewnet');
+        return;
       }
       // Attempt to query the previewnet address
       currentWallet = await Wallet.getCurrentWallet();
@@ -244,7 +244,7 @@ class ProviderController extends BaseController {
         if (previewnet.length === 0) {
           throw new Error('Previewnet wallet is empty.');
         }
-        await Wallet.switchNetwork('previewnet');
+        return;
       }
       // Attempt to query the previewnet address
       currentWallet = await Wallet.getCurrentWallet();
