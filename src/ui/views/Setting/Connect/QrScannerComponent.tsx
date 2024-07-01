@@ -17,7 +17,8 @@ import SignClient from '@walletconnect/sign-client';
 import { PairingTypes, SessionTypes } from '@walletconnect/types';
 import * as bip39 from 'bip39';
 import closeCircle from '../../../FRWAssets/image/closeCircle.png';
-import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
+import { QRCode } from 'react-qrcode-logo';
+import lilo from 'ui/FRWAssets/image/lilo.png';
 
 
 
@@ -191,21 +192,21 @@ const QrScannerComponent = (props: WalletConnectProps) => {
 
 
   const pingTopic = async (data: string) => {
-    await web3wallet.core.pairing.ping({ topic: data })
+    await web3wallet.ping({ topic: data })
     const pairings = web3wallet.session.getAll()
     console.log('walletParing ', pairings)
-    setSessions(pairings)
+    // setSessions(pairings)
   }
 
 
   async function sendTopic(topic: string) {
     console.log(web3wallet)
     web3wallet.request({
-      topic: 'c3139eaf4d0701df43cb2edf7679aadc645cbac98e6888c847f104c46c4b7eac',
+      topic: topic,
       chainId: `flow:${currentNetwork}`,
       request: {
         method: FCLWalletConnectMethod.accountInfo,
-        params: [],
+        params: ['123123123'],
       },
     }).then(async (result: any) => {
       console.log('result ', result);
@@ -259,6 +260,15 @@ const QrScannerComponent = (props: WalletConnectProps) => {
             >
               {Uri}
             </Typography>
+            <QRCode
+              size={237}
+              style={{ height: 'auto', maxWidth: '100%', width: '100%', borderRadius: '24px' }}
+              value={Uri}
+              logoImage={lilo}
+              eyeColor={'#41CC5D'}
+              eyeRadius={24}
+              quietZone={20}
+            />
           </Box>
         }
 
