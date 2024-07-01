@@ -4,6 +4,7 @@ import { useWallet } from 'ui/utils';
 import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
 import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
 import previewnetIndicator from '../../../FRWAssets/svg/previewnetArrow.svg';
+import testnetMigrationArrow from '../../../FRWAssets/svg/testnetMigrationArrow.svg';
 import networkLink from '../../../FRWAssets/svg/networkLink.svg';
 
 
@@ -68,6 +69,8 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
         return testnetIndicator;
       case 'previewnet':
         return previewnetIndicator;
+      case 'testnetMigration':
+        return testnetMigrationArrow;
       default:
         return previewnetIndicator; // Default to mainnet if no match
     }

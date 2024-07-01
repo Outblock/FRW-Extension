@@ -93,6 +93,21 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
 
   }, [currentNetwork])
 
+  const networkColor = (network: string) => {
+    switch (network) {
+      case 'mainnet':
+        return '#41CC5D';
+      case 'testnet':
+        return '#FF8A00';
+      case 'crescendo':
+        return '#CCAF21';
+      case 'previewnet':
+        return '#CCAF21';
+      case 'testnetMigration':
+        return '#22BAD0';
+    }
+  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -114,12 +129,12 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         <Stack direction="column" spacing="18px" sx={{ justifyContent: 'space-between', width: '100%' }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={currentNetwork === 'testnet' ? testnetsvg : mainnetsvg} />
+              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(currentNetwork), objectFit: 'cover' }} src={testnetsvg} />
               <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{currentNetwork}</Typography>
             </Box>
             <img style={{ width: '116px' }} src={Link} />
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={msgNetwork === 'testnet' ? testnetsvg : mainnetsvg} />
+              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor('previewnet'), objectFit: 'cover' }} src={mainnetsvg} />
               <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{'Previewnet'}</Typography>
             </Box>
 
