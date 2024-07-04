@@ -270,7 +270,7 @@ const NftEvm = () => {
               }
             }>{chrome.i18n.getMessage('List')}</StyledTab>
           </TabsListStyle>
-          {childType !== 'evm' &&
+          {!childType &&
             <Box component='span'>
               <Button
                 component={Link}

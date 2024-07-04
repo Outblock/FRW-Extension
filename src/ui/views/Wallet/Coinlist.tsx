@@ -138,7 +138,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      {childType !== 'evm' &&
+      {!childType &&
         <Box sx={{ display: 'flex', px: '12px', pt: '4px' }}>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton onClick={() => history.push('dashboard/tokenList')}>
