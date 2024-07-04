@@ -184,6 +184,7 @@ const Header = ({ loading }) => {
   const freshUserWallet = async () => {
     const wallet = await usewallet.getUserWallets();
     const fData = wallet.filter((item) => item.blockchain !== null);
+
     // putDeviceInfo(fData);
     await setWallet(fData);
     if (initialStart) {
@@ -213,13 +214,17 @@ const Header = ({ loading }) => {
       await setCurrent(currentWallet);
     }
 
-    await usewallet.setMigration();
+    try {
+      await usewallet.setMigration();
+    } catch (error) {
+      console.error('Error during setMigration:', error);
+    }
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
     const isChild = await usewallet.getActiveWallet();
 
-    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild)
+    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
     if (!isChild) {
       setFlowBalance(keys.balance);
     } else {
