@@ -23,6 +23,7 @@ import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import SearchIcon from '@mui/icons-material/Search';
 import { useHistory } from 'react-router-dom';
 import AddressBookList from './AddressBookList';
+import AccountsList from './AccountsList';
 import SearchList from './SearchList';
 import RecentList from './RecentList';
 import { Contact } from 'background/service/networkModel';
@@ -35,7 +36,7 @@ import IconAbout from '../../../components/iconfont/IconAbout';
 export enum SendPageTabOptions {
   Recent = 'Recent',
   AddressBook = 'AddressBook',
-  // Accounts = 'Accounts',
+  Accounts = 'Accounts',
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -189,6 +190,7 @@ const Send = () => {
         a.contact_name.toLowerCase().localeCompare(b.contact_name.toLowerCase())
       );
 
+      console.log('sortedContacts ', sortedContacts)
 
       setRecentContacts(recent);
       setSortedContacts(sortedContacts);
@@ -532,9 +534,18 @@ const Send = () => {
                     }
                   />
                 </TabPanel>
-                {/* <TabPanel value={tabValue} index={2} dir={theme.direction}>
-                  <Typography>{SendPageTabOptions.Accounts}</Typography>
-                </TabPanel> */}
+                <TabPanel value={tabValue} index={2} dir={theme.direction}>
+                  <AccountsList
+                    filteredContacts={filteredContacts}
+                    isLoading={isLoading}
+                    handleClick={(eachgroup)=> 
+                      history.push({
+                        pathname: '/dashboard/wallet/sendAmount',
+                        state: { contact: eachgroup },
+                      })
+                    }
+                  />
+                </TabPanel>
               </SwipeableViews>
             </Box>
           </div>
