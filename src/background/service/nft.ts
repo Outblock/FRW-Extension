@@ -12,7 +12,7 @@ interface NFTCollectionNetwork {
   testnet: NFTCollectionData[];
   crescendo: NFTCollectionData[];
   previewnet: NFTCollectionData[];
-  testnetMigration: NFTCollectionData[];
+  migrationTestnet: NFTCollectionData[];
 }
 
 interface NFTCollectionListNetwork{
@@ -20,14 +20,14 @@ interface NFTCollectionListNetwork{
   testnet: NFTCollectionList[];
   crescendo: NFTCollectionData[];
   previewnet: NFTCollectionData[];
-  testnetMigration: NFTCollectionData[];
+  migrationTestnet: NFTCollectionData[];
 }
 interface NFTNetwork {
   mainnet: NFTData;
   testnet: NFTData;
   crescendo: NFTData;
   previewnet: NFTData;
-  testnetMigration: NFTData;
+  migrationTestnet: NFTData;
 }
 
 // const empty: Contact = {
@@ -67,7 +67,7 @@ class NFT {
             nfts: [],
             nftCount: 0,
           },
-          testnetMigration: {
+          migrationTestnet: {
             nfts: [],
             nftCount: 0,
           },
@@ -77,14 +77,14 @@ class NFT {
           mainnet: [],
           crescendo:[],
           previewnet:[],
-          testnetMigration: [],
+          migrationTestnet: [],
         },
         collection: {
           testnet: [],
           mainnet: [],
           crescendo: [],
           previewnet: [],
-          testnetMigration: [],
+          migrationTestnet: [],
         },
         expiry: 2648570077405,
       },
@@ -172,7 +172,7 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
-      testnetMigration: {
+      migrationTestnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -182,7 +182,7 @@ class NFT {
       testnet: [],
       mainnet: [],
       crescendo: [],
-      testnetMigration: [],
+      migrationTestnet: [],
       previewnet: []
     }
 
@@ -208,7 +208,7 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
-      testnetMigration: {
+      migrationTestnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -220,7 +220,7 @@ class NFT {
       testnet: [],
       mainnet: [],
       crescendo: [],
-      testnetMigration: [],
+      migrationTestnet: [],
       previewnet: []
     }
   }

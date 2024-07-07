@@ -37,7 +37,7 @@ class UserWallet {
           testnet: [],
           crescendo: [],
           previewnet: [],
-          testnetMigration: [],
+          migrationTestnet: [],
         },
         childAccount: {},
         currentWallet: {
@@ -71,7 +71,7 @@ class UserWallet {
         testnet: [],
         crescendo: [],
         previewnet: [],
-        testnetMigration: [],
+        migrationTestnet: [],
       },
       childAccount: {},
       currentWallet: {
@@ -124,8 +124,9 @@ class UserWallet {
     }
   };
 
-  setUserTestnetMigration = (wallet) => {
-    this.store.wallets["testnetMigration"] = wallet;
+  setUserTestnetMigration = (wallet, testnetAddress) => {
+    this.store.wallets["migrationTestnet"] = wallet;
+    this.store.wallets["testnet"] = testnetAddress;
   };
 
   setChildWallet = (wallet: ChildAccount) => {
@@ -154,6 +155,7 @@ class UserWallet {
   };
 
   getUserWallets = (network: string) => {
+    console.log('userWallet ', network, this.store.wallets)
     return this.store.wallets[network];
   };
 
@@ -166,7 +168,7 @@ class UserWallet {
   };
 
   checkTestnetMigration = () => {
-    return this.store.wallets['testnetMigration'];
+    return this.store.wallets['migrationTestnet'];
   };
 
   setNetwork = async (network: string) => {

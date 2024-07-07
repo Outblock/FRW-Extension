@@ -110,7 +110,7 @@ async function fclSetup() {
     case 'previewnet':
       await fclPreviewnetConfig();
       break;
-    case 'testnetMigration':
+    case 'migrationTestnet':
       await fclTestnetMigrationConfig();
       break;
   }

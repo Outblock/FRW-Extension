@@ -183,6 +183,7 @@ const Header = ({ loading }) => {
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.getUserWallets();
+    console.log('wallet fresh ', wallet)
     const fData = wallet.filter((item) => item.blockchain !== null);
 
     // putDeviceInfo(fData);
@@ -375,7 +376,7 @@ const Header = ({ loading }) => {
         return '#CCAF21';
       case 'previewnet':
         return '#CCAF21';
-      case 'testnetMigration':
+      case 'migrationTestnet':
         return '#22BAD0';
     }
   };
@@ -781,7 +782,7 @@ const Header = ({ loading }) => {
           {isMigrationEnabled && (
             <ListItem
               disablePadding
-              key="testnetMigration"
+              key="migrationTestnet"
               secondaryAction={
                 !crescendoAvailable && (
                   <ListItemText>
@@ -797,18 +798,18 @@ const Header = ({ loading }) => {
                 )
               }
               onClick={() => {
-                switchNetwork('testnetMigration');
+                switchNetwork('migrationTestnet');
               }}
             >
               <ListItemButton>
                 <ListItemIcon>
                   <FiberManualRecordIcon
                     style={{
-                      color: networkColor('testnetMigration'),
+                      color: networkColor('migrationTestnet'),
                       fontSize: '10px',
                       marginLeft: '10px',
                       marginRight: '10px',
-                      opacity: currentNetwork == 'testnetMigration' ? '1' : '0.1',
+                      opacity: currentNetwork == 'migrationTestnet' ? '1' : '0.1',
                     }}
                   />
                 </ListItemIcon>

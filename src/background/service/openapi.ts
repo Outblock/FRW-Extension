@@ -786,6 +786,7 @@ class OpenApiService {
   userWalletV2 = async () => {
     const config = this.store.config.user_wallet_v2;
     const data = await this.sendRequest(config.method, config.path);
+    console.log('data ', data)
     return data;
   };
 
@@ -1422,7 +1423,7 @@ class OpenApiService {
     if (childType === 'evm') {
       chainType = 'evm';
     }
-    if (network === 'testnetMigration') {
+    if (network === 'migrationTestnet') {
       network = 'testnet-migration';
     }
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);

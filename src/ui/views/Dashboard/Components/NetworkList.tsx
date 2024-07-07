@@ -69,7 +69,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
         return testnetIndicator;
       case 'previewnet':
         return previewnetIndicator;
-      case 'testnetMigration':
+      case 'migrationTestnet':
         return testnetMigrationArrow;
       default:
         return previewnetIndicator; // Default to mainnet if no match
@@ -87,7 +87,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
         return '#CCAF2114';
       case 'previewnet':
         return '#CCAF2114';
-      case 'testnetMigration':
+      case 'migrationTestnet':
         return '#22BAD014';
     }
   };
@@ -254,12 +254,12 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
 
             {isMigrationEnabled &&
               <ListItemButton
-                onClick={() => switchNetwork('testnetMigration')}
+                onClick={() => switchNetwork('migrationTestnet')}
                 sx={{
                   padding: '4px 8px',
                   width: '100%',
                   '&:hover': {
-                    color: networkColor('testnetMigration')
+                    color: networkColor('migrationTestnet')
                   }
                 }}
               >
@@ -269,7 +269,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
                     lineHeight: '16px',
                     fontWeight: '400',
                     '&:hover': {
-                      color: networkColor('testnetMigration')
+                      color: networkColor('migrationTestnet')
                     }
                   }}
                 >

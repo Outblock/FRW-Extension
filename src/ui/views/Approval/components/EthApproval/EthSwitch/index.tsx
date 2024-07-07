@@ -103,7 +103,7 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         return '#CCAF21';
       case 'previewnet':
         return '#CCAF21';
-      case 'testnetMigration':
+      case 'migrationTestnet':
         return '#22BAD0';
     }
   };

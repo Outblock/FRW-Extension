@@ -203,9 +203,9 @@ const DeveloperMode = () => {
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
     }
-    const testnetMigration = await usewallet.checkTestnetMigration() || [];
-    console.log('previewnet ', testnetMigration)
-    if (testnetMigration.length > 0) {
+    const migrationTestnet = await usewallet.checkTestnetMigration() || [];
+    console.log('previewnet ', migrationTestnet)
+    if (migrationTestnet.length > 0) {
       setMigrationEnabled(true);
     }
 
@@ -237,7 +237,7 @@ const DeveloperMode = () => {
     if (network === 'previewnet' && !isSandboxEnabled) {
       return;
     }
-    if (network === 'testnetMigration' && !isMigrationEnabled) {
+    if (network === 'migrationTestnet' && !isMigrationEnabled) {
       return;
     }
 
@@ -363,14 +363,14 @@ const DeveloperMode = () => {
   const enableTestnetMigration = async () => {
     setLoading(true)
     try {
-      const { data } = await usewallet.createFlowSandboxAddress('testnetMigration');
-      await usewallet.pollingTrnasaction(data, 'testnetMigration')
+      const { data } = await usewallet.createFlowSandboxAddress('migrationTestnet');
+      await usewallet.pollingTrnasaction(data, 'migrationTestnet')
       await usewallet.refreshUserWallets();
       const previewnet = await usewallet.checkTestnetMigration() || [];
       if (previewnet.length > 0) {
         setMigrationEnabled(true);
       }
-      await switchNetwork('testnetMigration')
+      await switchNetwork('migrationTestnet')
       // await usewallet.setDashIndex(0);
       // history.push('/dashboard?activity=1');
     } finally {
@@ -562,7 +562,7 @@ const DeveloperMode = () => {
               {isMigrationEnabled &&
                 <CardActionArea
                   className={classes.modeSelection}
-                  onClick={() => switchNetwork('testnetMigration')}
+                  onClick={() => switchNetwork('migrationTestnet')}
                 >
                   <Box className={classes.checkboxRow}>
                     <FormControlLabel
@@ -574,15 +574,15 @@ const DeveloperMode = () => {
                           checkedIcon={
                             <CheckCircleIcon sx={{ color: '#22BAD0' }} />
                           }
-                          value="testnetMigration"
-                          checked={currentNetwork === 'testnetMigration'}
-                          onChange={() => switchNetwork('testnetMigration')}
+                          value="migrationTestnet"
+                          checked={currentNetwork === 'migrationTestnet'}
+                          onChange={() => switchNetwork('migrationTestnet')}
                         />
                       }
                       disabled={!isMigrationEnabled}
                     />
 
-                    {isMigrationEnabled && currentNetwork === 'testnetMigration' && (
+                    {isMigrationEnabled && currentNetwork === 'migrationTestnet' && (
                       <Typography
                         component="div"
                         variant="body1"

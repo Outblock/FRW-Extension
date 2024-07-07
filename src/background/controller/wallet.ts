@@ -1442,6 +1442,7 @@ export class WalletController extends BaseController {
     const filteredData = v2data.data.wallets.filter(
       (item) => item.blockchain !== null
     );
+    console.log('v2data refreshed wallets ', filteredData)
 
     if (!active) {
       userInfoService.addUserId(v2data.data.id);
@@ -1453,6 +1454,7 @@ export class WalletController extends BaseController {
 
   getUserWallets = async () => {
     const network = await this.getNetwork();
+    console.log('getuser wallet network ', network)
     const wallets = await userWalletService.getUserWallets(network);
     if (!wallets[0]) {
       await this.refreshUserWallets();
@@ -2490,7 +2492,7 @@ export class WalletController extends BaseController {
       await fclTestnetConfig();
     } else if (network == 'mainnet') {
       await fclMainnetConfig();
-    } else if (network == 'testnetMigration') {
+    } else if (network == 'migrationTestnet') {
       await fclTestnetMigrationConfig();
     } else {
       // await fclCrescendoConfig();
@@ -2870,7 +2872,7 @@ export class WalletController extends BaseController {
       const exp = 1000 * 60 * 60 * 1 + now.getTime();
       let network = await userWalletService.getNetwork();
 
-      if (network === 'testnetMigration') {
+      if (network === 'migrationTestnet') {
         network = 'testnet-migration'
       }
 
@@ -3232,11 +3234,14 @@ export class WalletController extends BaseController {
 
   setMigration = async () => {
     const testnetAddress = userWalletService.getUserWallets('testnet');
-    const result = await openapiService.checkMigrationNetwork(testnetAddress[0].blockchain[0].address);
+    const migrationTestnetAddress = testnetAddress
+    const result = await openapiService.checkMigrationNetwork(migrationTestnetAddress[0].blockchain[0].address);
     if (result && result.address) {
-      testnetAddress[0].blockchain[0].chain_id = 'testnetMigration';
-      testnetAddress[0].chain_id = 'testnetMigration';
-      await userWalletService.setUserTestnetMigration(testnetAddress);
+      migrationTestnetAddress[0].blockchain[0].chain_id = 'migrationTestnet';
+      migrationTestnetAddress[0].chain_id = 'migrationTestnet';
+      testnetAddress[0].blockchain[0].chain_id = 'testnet';
+      testnetAddress[0].chain_id = 'testnet';
+      await userWalletService.setUserTestnetMigration(migrationTestnetAddress, testnetAddress);
     }
     console.log('setMigration ', result);
   };
