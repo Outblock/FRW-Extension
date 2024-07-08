@@ -1938,6 +1938,15 @@ export class WalletController extends BaseController {
     ]);
   };
 
+  unlinkChildAccountV2 = async (address: string): Promise<string> => {
+    const network = await this.getNetwork();
+    const script = await getScripts('hybridCustody', 'unlinkChildAccount');
+
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(address, t.Address),
+    ]);
+  };
+
   editChildAccount = async (
     address: string,
     name: string,

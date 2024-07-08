@@ -71,7 +71,7 @@ const LinkedDetail = () => {
   const [isEdit, setEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [availableFt, setFt] = useState<TicketToken[]>([]);
-  const [availableNft, setNft] = useState<AvailableNFT[]>([]);
+  const [availableNft, setNft] = useState<any[]>([]);
   const [hideEmpty, setHide] = useState<boolean>(false);
   const [nftCatalog, setCatalog] = useState<any[]>([]);
   const [value, setValue] = useState('one');
@@ -141,80 +141,81 @@ const LinkedDetail = () => {
 
   const nftContent = () => (
     <Box sx={{ fontSize: '14px', color: '#FFFFFF', marginTop: '8px' }}>
-      {availableNft.map((item, index) => {
-        if ((hideEmpty && item.idList.length > 0) || !hideEmpty) {
-          const imagePath = item.display?.squareImage ?? (nftCatalog.find(cat => cat.contract_name === item.id.split('.')[2])?.logo);
-          const name = item.display?.name ?? item.id.split('.')[2];
-          const collectedText = chrome.i18n.getMessage('Collected');
+      {availableNft.length &&
 
-          return (
-            <Box
-              sx={{
-                display: 'flex',
-                height: '64px',
-                marginTop: '8px',
-                padding: '16px 20px',
-                borderRadius: '16px',
-                backgroundColor: '#292929',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-              key={index}
-              onClick={() =>
-                history.push({
-                  pathname: `/dashboard/nested/collectiondetail/${key + '.' + item.path.split('/')[2] + '.' + item.idList.length + '.linked'}`,
-                  state: {
-                    collection: item,
-                    ownerAddress: key,
-                  },
-                })
-              }
-            >
-              <img
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '32px'
-                }}
-                src={imagePath}
-                alt={name}
-              />
-              <Typography
+        availableNft.map((item, index) => {
+          if ((hideEmpty) || !hideEmpty) {
+            const imagePath = item.thumbnail;
+            const name = item.name;
+            const collectedText = chrome.i18n.getMessage('Collected');
+
+            return (
+              <Box
                 sx={{
-                  color: '#FFF',
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  fontStyle: 'normal',
-                  fontWeight: 600,
-                  lineHeight: '18px',
-                  textTransform: 'capitalize',
-                  marginLeft: '8px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: '50%',
+                  display: 'flex',
+                  height: '64px',
+                  marginTop: '8px',
+                  padding: '16px 20px',
+                  borderRadius: '16px',
+                  backgroundColor: '#292929',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                 }}
+                key={index}
+                onClick={() =>
+                  history.push({
+                    pathname: `/dashboard/nested/collectiondetail/${key + '.' + item.collectionName + '.' + item.resourceID + '.linked'}`,
+                    state: {
+                      collection: item,
+                      ownerAddress: key,
+                    },
+                  })
+                }
               >
-                {name}
-              </Typography>
-              <Box sx={{ flex: 1 }}></Box>
-              <Typography
-                sx={{
-                  color: '#BABABA',
-                  textAlign: 'right',
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontStyle: 'normal',
-                  fontWeight: 600,
-                  lineHeight: '20px',
-                  alignItems: 'center',
-                }}
-              >
-                {item.idList.length} {collectedText}
-              </Typography>
-              {item.idList.length > 0 && (
-                <CardMedia
+                <img
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '32px'
+                  }}
+                  src={imagePath}
+                  alt={name}
+                />
+                <Typography
+                  sx={{
+                    color: '#FFF',
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    lineHeight: '18px',
+                    textTransform: 'capitalize',
+                    marginLeft: '8px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '50%',
+                    alignItems: 'center',
+                  }}
+                >
+                  {name}
+                </Typography>
+                <Box sx={{ flex: 1 }}></Box>
+                <Typography
+                  sx={{
+                    color: '#BABABA',
+                    textAlign: 'right',
+                    fontFamily: 'Inter',
+                    fontSize: 12,
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    lineHeight: '20px',
+                    alignItems: 'center',
+                  }}
+                >
+                  {collectedText}
+                </Typography>
+                {<CardMedia
                   sx={{
                     width: '4px',
                     height: '8px',
@@ -222,13 +223,14 @@ const LinkedDetail = () => {
                     alignItems: 'center',
                   }}
                   image={IconNext}
-                />
-              )}
-            </Box>
-          );
-        }
+                />}
+              </Box>
+            );
+          }
 
-      })}
+        })
+
+      }
     </Box>
   );
 
@@ -468,15 +470,15 @@ const LinkedDetail = () => {
               >
                 {chrome.i18n.getMessage('Accessible')}
               </Typography>
-              <Box sx={{flexGrow:'1'}}></Box>
+              <Box sx={{ flexGrow: '1' }}></Box>
               <CardActionArea
                 onClick={() => toggleHide()}
-                sx={{width:'auto'}}
+                sx={{ width: 'auto' }}
               >
                 <Box>
                   <FormControlLabel
                     label={
-                      <Typography variant="body2" sx={{ fontSize: '12px', color: '#5e5e5e',marginRight:'0px' }}>
+                      <Typography variant="body2" sx={{ fontSize: '12px', color: '#5e5e5e', marginRight: '0px' }}>
                         {chrome.i18n.getMessage('Hide_Empty_collection')}
                       </Typography>
                     }
@@ -486,7 +488,7 @@ const LinkedDetail = () => {
                         icon={<CircleOutlinedIcon
                           sx={{ width: '16px', height: '16px' }}
                         />}
-                        sx={{ paddingLeft:'10px' }}
+                        sx={{ paddingLeft: '10px' }}
                         checkedIcon={<CheckCircleIcon color={'#41CC5D'} />}
                         value='mainnet'
                         checked={hideEmpty}
