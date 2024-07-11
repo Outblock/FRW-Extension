@@ -139,6 +139,7 @@ const TokenDetail = () => {
               setMoveOpen={setMoveOpen}
               tokenInfo={tokenInfo}
               network={network}
+              childType={childType}
             />
           }
           {token === 'flow' && <StackingCard network={network} />}
