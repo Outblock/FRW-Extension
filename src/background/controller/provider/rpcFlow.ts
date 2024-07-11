@@ -3,6 +3,7 @@ import {
   keyringService,
   notificationService,
   permissionService,
+  userWalletService,
 } from 'background/service';
 import { PromiseFlow, underline2Camelcase } from 'background/utils';
 import { EVENTS } from 'consts';
@@ -49,7 +50,12 @@ const flowContext = flow
       mapMethod,
     } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-      // check lock
+
+      const hasEvm = userWalletService.checkPreviewnet();
+      console.log('hasEvm checkpreview ', hasEvm)
+      if (!hasEvm.length) {
+        throw new Error('previewnet must has at least one account.');
+      }
       const isUnlock = keyringService.memStore.getState().isUnlocked;
       const site = permissionService.getConnectedSite(origin);
       if (mapMethod === 'ethAccounts' && (!site || !isUnlock)) {
