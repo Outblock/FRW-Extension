@@ -151,7 +151,6 @@ const Deposit = () => {
         "color": "placeholder",
         "blockchain": [wallets]
       }]
-      console.log(' result ', result)
       setUserWallets(
         result.map((ele, idx) => ({
           id: idx,
@@ -161,11 +160,12 @@ const Deposit = () => {
       );
     } else if (isChild) {
       setIsActive(false);
+      console.log('childresp ', childresp, isChild)
       setUserWallets(
         Object.keys(childresp).map((key, index) => ({
           id: index,
-          name: childresp[key].name,
-          address: key,
+          name: key,
+          address: isChild,
         }))
       );
     } else {

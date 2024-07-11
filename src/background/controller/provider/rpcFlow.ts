@@ -62,6 +62,13 @@ const flowContext = flow
         throw new Error('Origin not connected. Please connect first.');
       }
 
+
+      const network = await Wallet.getNetwork();
+
+      if (network !== 'previewnet') {
+        throw new Error('Network not in previewnet.');
+      }
+
       if (!isUnlock) {
         ctx.request.requestedApproval = true;
         lockedOrigins.add(origin);
@@ -72,19 +79,6 @@ const flowContext = flow
           lockedOrigins.delete(origin);
           throw e;
         }
-      }
-
-
-      const network = await Wallet.getNetwork();
-
-      if (network !== 'previewnet') {
-        await notificationService.requestApproval(
-          {
-            params: { origin },
-            approvalComponent: 'EthSwitch',
-          },
-          { height: 599 }
-        );
       }
     }
 
