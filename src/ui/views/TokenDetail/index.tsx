@@ -10,6 +10,7 @@ import StackingCard from './StackingCard';
 import PriceCard from './PriceCard';
 import ClaimTokenCard from './ClaimTokenCard';
 import MoveFromEvm from '../EvmMove/MoveFromEvm';
+import MoveFromChild from '../EvmMove/MoveFromChild';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
@@ -91,6 +92,48 @@ const TokenDetail = () => {
     setChildType(result);
   };
 
+  const renderMoveComponent = () => {
+    if (childType === 'evm') {
+      return (
+        <MoveFromEvm
+          isConfirmationOpen={moveOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => setMoveOpen(false)}
+          handleCancelBtnClicked={() => setMoveOpen(false)}
+          handleAddBtnClicked={() => {
+            setMoveOpen(false);
+          }}
+        />
+      );
+    } else if (childType) {
+      return (
+        <MoveFromChild
+          isConfirmationOpen={moveOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => setMoveOpen(false)}
+          handleCancelBtnClicked={() => setMoveOpen(false)}
+          handleAddBtnClicked={() => {
+            setMoveOpen(false);
+          }}
+        />
+      );
+
+    }
+    else {
+      return (
+        <MoveFromFlow
+          isConfirmationOpen={moveOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => setMoveOpen(false)}
+          handleCancelBtnClicked={() => setMoveOpen(false)}
+          handleAddBtnClicked={() => {
+            setMoveOpen(false);
+          }}
+        />
+      );
+    }
+  };
+
 
   useEffect(() => {
     loadNetwork();
@@ -162,29 +205,9 @@ const TokenDetail = () => {
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           )}
-          {moveOpen && (
-            childType === 'evm' ? (
-              <MoveFromEvm
-                isConfirmationOpen={moveOpen}
-                data={{ amount: 0 }}
-                handleCloseIconClicked={() => setMoveOpen(false)}
-                handleCancelBtnClicked={() => setMoveOpen(false)}
-                handleAddBtnClicked={() => {
-                  setMoveOpen(false);
-                }}
-              />
-            ) : (
-              <MoveFromFlow
-                isConfirmationOpen={moveOpen}
-                data={{ amount: 0 }}
-                handleCloseIconClicked={() => setMoveOpen(false)}
-                handleCancelBtnClicked={() => setMoveOpen(false)}
-                handleAddBtnClicked={() => {
-                  setMoveOpen(false);
-                }}
-              />
-            )
-          )}
+          {
+            moveOpen && renderMoveComponent()
+          }
 
         </div>
       </div>

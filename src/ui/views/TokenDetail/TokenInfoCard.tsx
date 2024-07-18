@@ -64,7 +64,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   const moveToken = () => {
     if (data) {
       wallet.setCurrentCoin(data?.symbol);
-      evmEnabled ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })
+      (evmEnabled || childType) ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })
     }
   }
 
@@ -121,7 +121,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
               </Box>
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
-            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && network === 'previewnet') &&
+            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && (network === 'previewnet' || childType)) &&
               <ButtonBase
                 onClick={() => moveToken()}
               >
@@ -147,7 +147,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>${(balance * price).toFixed(3)} {chrome.i18n.getMessage('USD')}</Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
-            { (!childType || childType === 'evm') && <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />}
+            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />
             <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={() => history.push('/dashboard/wallet/deposit')} label={chrome.i18n.getMessage('Deposit')} fullWidth />
           </Box>
         </>

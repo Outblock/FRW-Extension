@@ -1533,6 +1533,20 @@ export class WalletController extends BaseController {
     return withPrefix(address);
   };
 
+  getMainAddress = async () => {
+
+    const network = await this.getNetwork();
+    const address = await userWalletService.getMainWallet(network);
+    if (!address) {
+      const data = this.refreshUserWallets();
+      return withPrefix(data[0].blockchain[0].address);
+    } else if (address.length < 3) {
+      const data = this.refreshUserWallets();
+      return withPrefix(data[0].blockchain[0].address);
+    }
+    return withPrefix(address);
+  };
+
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
     return await userWalletService.sendTransaction(cadence, args);
   };
@@ -2161,6 +2175,116 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionPublicType>', token.path.public_type)
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
       []
+    );
+  };
+
+  moveFTfromChild = async (
+    childAddress: string,
+    path: string,
+    amount: string,
+    symbol:string
+  ): Promise<string> => {
+    const token = await openapiService.getTokenInfo(symbol);
+    if (!token) {
+      throw new Error(`Invaild token name - ${symbol}`);
+    }
+    const script = await getScripts('hybridCustody', 'transferChildFT');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<Token>', token.contractName)
+        .replaceAll('<TokenBalancePath>', token.path.balance)
+        .replaceAll('<TokenReceiverPath>', token.path.receiver)
+        .replaceAll('<TokenStoragePath>', token.path.vault)
+        .replaceAll('<TokenAddress>', token.address),
+      [
+        fcl.arg(childAddress, t.Address),
+        fcl.arg(path, t.String),
+        fcl.arg(amount, t.UFix64),
+      ]
+    );
+  };
+
+  sendFTfromChild = async (
+    childAddress: string,
+    receiver: string,
+    path: string,
+    amount: string,
+    symbol:string
+  ): Promise<string> => {
+    console.log('script is this ', childAddress)
+    const token = await openapiService.getTokenInfo(symbol);
+    if (!token) {
+      throw new Error(`Invaild token name - ${symbol}`);
+    }
+
+    const script = await getScripts('hybridCustody', 'sendChildFT');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<Token>', token.contractName)
+        .replaceAll('<TokenBalancePath>', token.path.balance)
+        .replaceAll('<TokenReceiverPath>', token.path.receiver)
+        .replaceAll('<TokenStoragePath>', token.path.vault)
+        .replaceAll('<TokenAddress>', token.address),
+      [
+        fcl.arg(childAddress, t.Address),
+        fcl.arg(receiver, t.Address),
+        fcl.arg(path, t.String),
+        fcl.arg(amount, t.UFix64),
+      ]
+    );
+  };
+
+  moveNFTfromChild = async (
+    nftContractAddress: string,
+    nftContractName: string,
+    ids: number,
+    token
+  ): Promise<string> => {
+    console.log('script is this ', nftContractAddress)
+
+    const script = await getScripts('hybridCustody', 'transferChildNFT');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(nftContractAddress, t.Address),
+        fcl.arg(nftContractName, t.String),
+        fcl.arg(ids, t.UInt64),
+      ]
+    );
+  };
+
+  sendNFTfromChild = async (
+    linkedAddress: string,
+    receiverAddress: string,
+    nftContractName: string,
+    ids: number,
+    token
+  ): Promise<string> => {
+    console.log('script is this ', receiverAddress)
+
+    const script = await getScripts('hybridCustody', 'sendChildNFT');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(linkedAddress, t.Address),
+        fcl.arg(receiverAddress, t.Address),
+        fcl.arg(nftContractName, t.String),
+        fcl.arg(ids, t.UInt64),
+      ]
     );
   };
 
@@ -2899,7 +3023,7 @@ export class WalletController extends BaseController {
 
       const cadenceScriptsV2 = (await openapiService.cadenceScriptsV2()) ?? {};
       // const { scripts, version } = cadenceScriptsV2;
-
+      console.log('cadenceScriptsV2 ', cadenceScriptsV2)
       // const cadenceVersion = cadenceScriptsV2.version;
       const cadence = cadenceScriptsV2.scripts[network]
 

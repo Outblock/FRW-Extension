@@ -94,9 +94,9 @@ export const isSameAddress = (a: string, b: string) => {
 export const getScripts = async (folder: string, scriptName: string) => {
   const { data } = await storage.get('cadenceScripts');
   const files = data[folder];
+  // console.log(files, 'files ============');
 
   const script = files[scriptName];
-  // console.log(script, 'script ============');
   return Buffer.from(script, 'base64').toString('utf-8');
 };
 

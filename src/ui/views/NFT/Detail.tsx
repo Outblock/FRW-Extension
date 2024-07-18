@@ -8,17 +8,18 @@ import {
   Container,
   Box,
   IconButton,
-  Menu,
-  MenuItem
+  Button,
+  CardMedia
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import { PostMedia, MatchMediaType } from '@/ui/utils/url';
 import { saveAs } from 'file-saver'
-import SendIcon from 'ui/FRWAssets/svg/send.svg';
+import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
+import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
-import { Link } from 'react-router-dom';
+import MoveNftConfirmation from './SendNFT/MoveNftConfirmation';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {
@@ -86,6 +87,17 @@ interface NFTDetailState {
 }
 
 const Detail = () => {
+
+  const emptyContact = {
+    address: '',
+    contact_name: '',
+    avatar: '',
+    domain: {
+      domain_type: 0,
+      value: '',
+    }
+  };
+
   const classes = useStyles();
   const location = useLocation();
   const history = useHistory();
@@ -93,33 +105,64 @@ const Detail = () => {
   const [nftDetail, setDetail] = useState<any>(null);
   const [metadata, setMetadata] = useState<any>(null);
   const [mediaLoading, setMediaLoading] = useState(true);
-  const [contractInfo, setContractInfo] = useState<any>(null);
   const [ownerAddress, setOwnerAddress] = useState<any>(null);
   const [media, setMedia] = useState<PostMedia | null>(null);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [moveOpen, setMoveOpen] = useState<boolean>(true);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const [moveOpen, setMoveOpen] = useState<boolean>(false);
+  const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
+  const [contactOne, setContactOne] = useState<any>(emptyContact);
+  const [contactTwo, setContactTwo] = useState<any>(emptyContact);
+  const [nftDetailState, setNftDetailState] = useState({ nft: null, media: null, ownerAddress: null, index: null });
 
-
-
-  const fetchNft = async () => {
+  useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
-    await usewallet.setDashIndex(1);
     if (savedState) {
       const nftDetail = JSON.parse(savedState);
       setDetail(nftDetail.nft);
       setMedia(nftDetail.media);
       setOwnerAddress(nftDetail.ownerAddress);
       setMetadata(nftDetail.nft);
-      const contractList = await usewallet.openapi.getAllNft();
-      const filteredCollections = returnFilteredCollections(contractList, nftDetail.nft)
-      if (filteredCollections.length > 0) {
-        setContractInfo(filteredCollections[0])
-      }
     }
+  }, []);
+
+
+  const fetchNft = async () => {
+    const userInfo = await usewallet.getUserInfo(false);
+    const currentAddress = await usewallet.getCurrentAddress();
+    const userWallets = await usewallet.getUserWallets();
+    console.log('userWallets ', userWallets);
+    const parentAddress = userWallets[0].blockchain[0].address;
+    const isChild = await usewallet.getActiveWallet();
+    console.log('currentAddress  ', isChild, currentAddress);
+    const userTemplate = {
+      avatar: userInfo.avatar,
+      domain: {
+        domain_type: 0,
+        value: '',
+      }
+    };
+
+    let userOne, userTwo;
+
+    if (isChild) {
+      userOne = {
+        ...userTemplate,
+        address: currentAddress,
+        contact_name: 'linked',
+      };
+      userTwo = {
+        ...userTemplate,
+        address: parentAddress,
+        contact_name: userInfo.nickname,
+      };
+    }
+    setContactOne(userOne);
+    setContactTwo(userTwo);
+
+    console.log('userInfo ', userInfo)
+    setEvmEnabled(isChild ? true : false);
+
+
+    await usewallet.setDashIndex(1);
   }
 
   const replaceIPFS = (url: string | null): string => {
@@ -141,12 +184,6 @@ const Detail = () => {
   useEffect(() => {
     fetchNft();
   }, []);
-
-  const returnFilteredCollections = (contractList, NFT) => {
-    return contractList.filter(
-      (collection) => collection.name == NFT.collectionName
-    );
-  }
 
   const downloadImage = (image_url, title) => {
     saveAs(image_url, title) // Put your image url here.
@@ -234,9 +271,11 @@ const Detail = () => {
 
   return (
     <StyledEngineProvider injectFirst>
-      <div className='page' style={{ display: 'flex', flexDirection: 'column' }}>
+      <Box className='page' style={{ display: 'flex', position: 'relative', flexDirection: 'column' }}>
         <Box className={classes.iconbox}>
-          <IconButton onClick={() => history.goBack()} className={classes.arrowback}>
+          <IconButton onClick={() => history.push({
+            pathname: `/dashboard`
+          })} className={classes.arrowback}>
             <ArrowBackIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
           {/* {
@@ -279,8 +318,8 @@ const Detail = () => {
                     {media?.title}
                   </Typography>
 
-                  {contractInfo &&
-                    <a href={contractInfo.official_website} target='_blank' >
+                  {nftDetail &&
+                    <a href={nftDetail.externalURL} target='_blank' >
                       <Typography
                         component="div"
                         color="text.secondary"
@@ -289,8 +328,8 @@ const Detail = () => {
                         flexDirection='row'
                         alignItems='center'
                       >
-                        <img src={contractInfo.logo} width='20px' style={{ marginRight: '6px', borderRadius: '50%' }} />
-                        {contractInfo.name}
+                        <img src={nftDetail.collectionSquareImage} width='20px' style={{ marginRight: '6px', borderRadius: '50%' }} />
+                        {nftDetail.collectionContractName}
                         <ArrowForwardOutlinedIcon sx={{ color: 'icon.navi', marginLeft: '6px', mt: 0, fontSize: '20px', padding: 0 }} />
                       </Typography>
                     </a>
@@ -299,7 +338,7 @@ const Detail = () => {
                 <Box sx={{ mt: 0, mr: 0, pr: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <IconButton
                     sx={{
-                      backgroundColor: 'neutral2.main',
+                      backgroundColor: '#FFFFFF33',
                       p: '8px',
                       aspectRatio: '1 / 1'
                       // mr: '10px',
@@ -309,18 +348,6 @@ const Detail = () => {
                     <SaveAltIcon color="primary" />
                   </IconButton>
 
-                  {!(contractInfo?.contract_name === 'Domains' && media?.title?.includes('.meow')) &&
-                    <IconButton
-                      sx={{ backgroundColor: 'neutral2.main', p: '12px', aspectRatio: '1 / 1' }}
-                      onClick={() => history.push({
-                        pathname: '/dashboard/nft/send',
-                        state: { nft: nftDetail, media: media, contract: contractInfo }
-                      })}
-                    >
-                      {/* <IosShareOutlinedIcon color="primary" /> */}
-                      <img src={SendIcon} style={{ width: '20px', height: '20px' }} />
-                    </IconButton>
-                  }
                 </Box>
               </Box>
             </Box>
@@ -346,7 +373,65 @@ const Detail = () => {
             </Container>
           </Container>
         }
-      </div>
+        <Box sx={{ height: '42px', position: 'fixed', bottom: '32px', right: '18px' }}>
+          {!(nftDetail?.collectionContractName === 'Domains' && media?.title?.includes('.meow')) &&
+            <Button
+              sx={{
+                backgroundColor: '#FFFFFF33',
+                p: '12px',
+                color: '#fff',
+                borderRadius: '12px',
+                height: '42px',
+                fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
+                filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
+                backdropFilter: 'blur(6px)'
+              }}
+              onClick={() => history.push({
+                pathname: '/dashboard/nft/send/',
+                state: { nft: nftDetail, media: media, contract: nftDetail }
+              })}
+            >
+              {/* <IosShareOutlinedIcon color="primary" /> */}
+              <CardMedia image={SendIcon} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
+              {chrome.i18n.getMessage('Send')}
+            </Button>
+          }
+
+          {(nftDetail?.collectionID && evmEnabled) &&
+            <Button
+              sx={{
+                backgroundColor: '#FFFFFF33',
+                p: '12px',
+                color: '#fff',
+                borderRadius: '12px',
+                height: '42px',
+                marginLeft: '8px',
+                fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
+                filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
+                backdropFilter: 'blur(6px)'
+              }}
+              onClick={() => setMoveOpen(true)}
+            >
+              {/* <IosShareOutlinedIcon color="primary" /> */}
+              <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
+              {chrome.i18n.getMessage('Move')}
+            </Button>
+          }
+        </Box>
+        {moveOpen &&
+          <MoveNftConfirmation
+            isConfirmationOpen={moveOpen}
+            data={{
+              contact: contactTwo, userContact: contactOne, nft: nftDetail, contract: nftDetail, media: media
+            }}
+            handleCloseIconClicked={() => setMoveOpen(false)}
+            handleCancelBtnClicked={() => setMoveOpen(false)}
+            handleAddBtnClicked={() => {
+              setMoveOpen(false);
+            }}
+          />
+        }
+      </Box>
     </StyledEngineProvider>
   );
 };

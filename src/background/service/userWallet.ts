@@ -349,7 +349,7 @@ class UserWallet {
 
   authorizationFunction = async (account: any = {}) => {
     // authorization function need to return an account
-    const address = fcl.withPrefix(await wallet.getCurrentAddress());
+    const address = fcl.withPrefix(await wallet.getMainAddress());
     const ADDRESS = fcl.withPrefix(address);
     // TODO: FIX THIS
     const KEY_ID = await storage.get('keyIndex') || 0;
