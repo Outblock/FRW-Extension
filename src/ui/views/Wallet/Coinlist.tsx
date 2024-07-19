@@ -64,6 +64,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   };
 
   const StartListItemText = (props) => {
+    console.log('props ', props)
     return (
       <ListItemText
         disableTypography={true}
@@ -85,7 +86,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               {(ableFt.some(item => {
                 const parts = item.id.split('.');
                 return parts[2] && parts[2].includes(props.coin);
-              }) || isActive) ?
+              }) || isActive || props.primary.toLowerCase() === 'flow') ?
                 <Box
                   sx={{ display: 'flex' }}
                 >
