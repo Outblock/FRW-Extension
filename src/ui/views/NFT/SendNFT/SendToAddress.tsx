@@ -18,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import { useHistory, useLocation } from 'react-router-dom';
 import AddressBookList from '../../Send/AddressBookList';
+import AccountsList from '../../Send/AccountsList';
 import SearchList from '../../Send/SearchList';
 import RecentList from '../../Send/RecentList';
 import { Contact } from 'background/service/networkModel';
@@ -33,7 +34,7 @@ import { LLHeader } from '@/ui/FRWComponent';
 export enum SendPageTabOptions {
   Recent = 'Recent',
   AddressBook = 'AddressBook',
-  // Accounts = 'Accounts',
+  Accounts = 'Accounts',
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -505,9 +506,16 @@ const SendToAddress = () => {
                     }}
                   />
                 </TabPanel>
-                {/* <TabPanel value={tabValue} index={2} dir={theme.direction}>
-                  <Typography>{SendPageTabOptions.Accounts}</Typography>
-                </TabPanel> */}
+                <TabPanel value={tabValue} index={2} dir={theme.direction}>
+                  <AccountsList
+                    filteredContacts={filteredContacts}
+                    isLoading={isLoading}
+                    handleClick={(eachgroup) => {
+                      searchResult = eachgroup
+                      setConfirmationOpen(true)
+                    }}
+                  />
+                </TabPanel>
               </SwipeableViews>
             </Box>
           </div>

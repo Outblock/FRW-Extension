@@ -18,3 +18,7 @@ export * from './LLSwap';
 export * from './FRWHoldButton';
 export * from './CredentialBox';
 export * from './FRWProfileCard';
+export * from './FRWDropdownProfileCard'
+export * from './FRWChildProfile'
+export * from './FRWProfile'
+export * from './FWContactCard'

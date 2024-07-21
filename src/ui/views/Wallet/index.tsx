@@ -374,31 +374,31 @@ const WalletTab = ({ network }) => {
           }}
         >
           <Box sx={{ display: 'flex', gap: '2px', width: network === 'previewnet' ? 'auto' : '100%', }}>
-            {isActive && (
-              <Button
-                color="info3"
-                variant="contained"
-                onMouseEnter={() => setSendHover(true)}
-                onMouseLeave={() => setSendHover(false)}
-                onClick={() => history.push('/dashboard/wallet/send')}
-                sx={{
-                  height: '36px',
-                  borderTopLeftRadius: '24px',
-                  borderBottomLeftRadius: '24px',
-                  borderTopRightRadius: '0',
-                  borderBottomRightRadius: '0',
-                  px: '12px !important',
-                  minWidth: '56px',
-                  width: sendHover ? '100%' : '56px',
-                  textTransform: 'capitalize !important',
-                  flex: network === 'previewnet' ? 'auto' : '1',
-                  transition: 'width 0.3s ease-in-out'
-                }}
-              >
-                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={sendIcon} />
-                {sendHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Send')}</Typography>}
-              </Button>
-            )}
+
+            <Button
+              color="info3"
+              variant="contained"
+              onMouseEnter={() => setSendHover(true)}
+              onMouseLeave={() => setSendHover(false)}
+              onClick={() => history.push('/dashboard/wallet/send')}
+              sx={{
+                height: '36px',
+                borderTopLeftRadius: '24px',
+                borderBottomLeftRadius: '24px',
+                borderTopRightRadius: '0',
+                borderBottomRightRadius: '0',
+                px: '12px !important',
+                minWidth: '56px',
+                width: sendHover ? '100%' : '56px',
+                textTransform: 'capitalize !important',
+                flex: network === 'previewnet' ? 'auto' : '1',
+                transition: 'width 0.3s ease-in-out'
+              }}
+            >
+              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={sendIcon} />
+              {sendHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Send')}</Typography>}
+            </Button>
+
             {isActive && (
               <Button
                 color="info3"
@@ -427,6 +427,7 @@ const WalletTab = ({ network }) => {
                 {swapHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Swap')}</Typography>}
               </Button>
             )}
+
             <Button
               color="info3"
               variant="contained"
@@ -434,8 +435,8 @@ const WalletTab = ({ network }) => {
                 height: '36px',
                 px: '12px !important',
                 minWidth: '56px',
-                borderTopLeftRadius: isActive? '0px' : '24px',
-                borderBottomLeftRadius: isActive? '0px' :  '24px',
+                borderTopRightRadius: isActive ? '0px' : '24px',
+                borderBottomRightRadius: isActive ? '0px' : '24px',
                 width: receiveHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
                 flex: network === 'previewnet' ? 'auto' : '1',
@@ -448,29 +449,31 @@ const WalletTab = ({ network }) => {
               <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={receiveIcon} />
               {receiveHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Receive')}</Typography>}
             </Button>
-            <Button
-              color="info3"
-              variant="contained"
-              sx={{
-                height: '36px',
-                borderTopRightRadius: '24px',
-                borderBottomRightRadius: '24px',
-                borderTopLeftRadius: '0px',
-                borderBottomLeftRadius: '0px',
-                px: '12px !important',
-                minWidth: '56px',
-                width: buyHover ? '100%' : '56px',
-                textTransform: 'capitalize !important',
-                flex: network === 'previewnet' ? 'auto' : '1',
-                transition: 'width 0.3s ease-in-out'
-              }}
-              onMouseEnter={() => setBuyHover(true)}
-              onMouseLeave={() => setBuyHover(false)}
-              onClick={() => setOnRamp(true)}
-            >
-              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={buyIcon} />
-              {buyHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Buy')}</Typography>}
-            </Button>
+            {isActive &&
+              <Button
+                color="info3"
+                variant="contained"
+                sx={{
+                  height: '36px',
+                  borderTopRightRadius: '24px',
+                  borderBottomRightRadius: '24px',
+                  borderTopLeftRadius: '0px',
+                  borderBottomLeftRadius: '0px',
+                  px: '12px !important',
+                  minWidth: '56px',
+                  width: buyHover ? '100%' : '56px',
+                  textTransform: 'capitalize !important',
+                  flex: network === 'previewnet' ? 'auto' : '1',
+                  transition: 'width 0.3s ease-in-out'
+                }}
+                onMouseEnter={() => setBuyHover(true)}
+                onMouseLeave={() => setBuyHover(false)}
+                onClick={() => setOnRamp(true)}
+              >
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={buyIcon} />
+                {buyHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Buy')}</Typography>}
+              </Button>
+            }
           </Box>
 
           {network === 'previewnet' &&

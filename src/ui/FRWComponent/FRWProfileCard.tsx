@@ -6,21 +6,6 @@ import { makeStyles } from '@mui/styles';
 import { useWallet, formatAddress } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
-const useStyles = makeStyles(() => ({
-  ContactCardAvatar: {
-    mr: '13px',
-    color: 'primary.main',
-    backgroundColor: 'neutral.main',
-  },
-  ContactCardContainer: {
-    display: 'flex',
-    // border: '1px solid #4C4C4C',
-    // borderRadius: '8px',
-    // padding: ''
-    alignItems: 'center',
-    px: '18px',
-  },
-}));
 
 const tempEmoji = {
   "emoji": "🥥",

@@ -20,6 +20,7 @@ import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
 import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
 import MoveNftConfirmation from './SendNFT/MoveNftConfirmation';
+import MovefromParent from './SendNFT/MovefromParent';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {
@@ -108,7 +109,7 @@ const Detail = () => {
   const [ownerAddress, setOwnerAddress] = useState<any>(null);
   const [media, setMedia] = useState<PostMedia | null>(null);
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
-  const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
+  const [childActive, setChildActive] = useState<boolean>(false);
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
   const [nftDetailState, setNftDetailState] = useState({ nft: null, media: null, ownerAddress: null, index: null });
@@ -154,12 +155,24 @@ const Detail = () => {
         address: parentAddress,
         contact_name: userInfo.nickname,
       };
+    } else {
+      userOne = {
+        ...userTemplate,
+        address: currentAddress,
+        contact_name: userInfo.nickname,
+      };
+      userTwo = {
+        ...userTemplate,
+        address: parentAddress,
+        contact_name: userInfo.nickname,
+      };
+
     }
     setContactOne(userOne);
     setContactTwo(userTwo);
 
     console.log('userInfo ', userInfo)
-    setEvmEnabled(isChild ? true : false);
+    setChildActive(isChild ? true : false);
 
 
     await usewallet.setDashIndex(1);
@@ -397,7 +410,7 @@ const Detail = () => {
             </Button>
           }
 
-          {(nftDetail?.collectionID && evmEnabled) &&
+          {(nftDetail?.collectionID) &&
             <Button
               sx={{
                 backgroundColor: '#FFFFFF33',
@@ -418,19 +431,44 @@ const Detail = () => {
             </Button>
           }
         </Box>
-        {moveOpen &&
-          <MoveNftConfirmation
-            isConfirmationOpen={moveOpen}
-            data={{
-              contact: contactTwo, userContact: contactOne, nft: nftDetail, contract: nftDetail, media: media
-            }}
-            handleCloseIconClicked={() => setMoveOpen(false)}
-            handleCancelBtnClicked={() => setMoveOpen(false)}
-            handleAddBtnClicked={() => {
-              setMoveOpen(false);
-            }}
-          />
+        {
+          moveOpen && (
+            childActive ? (
+              <MoveNftConfirmation
+                isConfirmationOpen={moveOpen}
+                data={{
+                  contact: contactTwo,
+                  userContact: contactOne,
+                  nft: nftDetail,
+                  contract: nftDetail,
+                  media: media
+                }}
+                handleCloseIconClicked={() => setMoveOpen(false)}
+                handleCancelBtnClicked={() => setMoveOpen(false)}
+                handleAddBtnClicked={() => {
+                  setMoveOpen(false);
+                }}
+              />
+            ) : (
+              <MovefromParent
+                isConfirmationOpen={moveOpen}
+                data={{
+                  contact: contactTwo,
+                  userContact: contactOne,
+                  nft: nftDetail,
+                  contract: nftDetail,
+                  media: media
+                }}
+                handleCloseIconClicked={() => setMoveOpen(false)}
+                handleCancelBtnClicked={() => setMoveOpen(false)}
+                handleAddBtnClicked={() => {
+                  setMoveOpen(false);
+                }}
+              />
+            )
+          )
         }
+
       </Box>
     </StyledEngineProvider>
   );

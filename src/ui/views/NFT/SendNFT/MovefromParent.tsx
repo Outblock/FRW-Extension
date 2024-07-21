@@ -9,14 +9,14 @@ import {
   Grid,
   CardMedia,
   IconButton,
-  Button
+  Button, MenuItem, Select, FormControl, InputLabel
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { FRWProfileCard, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -31,17 +31,20 @@ interface SendNFTConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
-const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
+const MovefromParent = (props: SendNFTConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
+  const [childWallets, setChildWallets] = useState({});
+  const [selectedAccount, setSelectedChildAccount] = useState({});
   const [count, setCount] = useState(0);
-  const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
+
 
   const startCount = () => {
+    console.log('props.data ', props.data)
     let count = 0;
     let intervalId;
     if (props.data.contact.address) {
@@ -83,67 +86,50 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   }
 
   const sendNFT = async () => {
-    setSending(true);
-    const isChild = await wallet.getActiveWallet();
-    if (isChild) {
-      sendChildNft();
-    } else {
-      try {
-        const childresp = await wallet.checkUserChildAccount();
-        console.log('wallet ', props.data)
-        const containsKey = props.data.contact.address in childresp;
-        let txID = ''
-        if (containsKey) {
-
-
-          const privatePath = props.data.contract.path.private_path;
-          console.log('privatePath ', privatePath)
-          const lastPart = privatePath.split('/').pop();
-          txID = await wallet.sendNFTtoChild(props.data.contact.address, lastPart, parseInt(props.data.nft.id), props.data.contract)
-
-        }
-        else if (props.data.contract.contract_name.trim() == 'TopShot') {
-          txID = await wallet.sendNBANFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
-        } else {
-          txID = await wallet.sendInboxNFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
-        }
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
-        await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
-        props.handleAddBtnClicked();
-      } catch (error) {
-        console.log(error);
-        setFailed(true);
-        setSending(false);
-      } finally {
-        setSending(false);
-      }
-    }
+    // setSending(true);
+    console.log('props send ', props.data)
+    await moveNFTToFlow();
 
   }
 
-  const sendChildNft = async () => {
+
+
+
+  const returnFilteredCollections = (contractList, NFT) => {
+    return contractList.filter(
+      (collection) => collection.name == NFT.collectionName
+    );
+  }
+
+
+
+  const moveNFTToFlow = async () => {
     setSending(true);
-    try {
-      let txID = ''
-      console.log('props.data ', props.data)
-      const privatePath = props.data.contract.path.private_path;
-      const lastPart = privatePath.split('/').pop();
-      txID = await wallet.sendNFTfromChild(props.data.userContact.address, props.data.contact.address, lastPart, parseInt(props.data.nft.id), props.data.contract)
-      await wallet.setRecent(props.data.contact);
-      wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
+    // setSending(true);
+    console.log('props send ', props.data.userContact.address, props.data.nft.collectionContractName, props.data.nft.id)
+    const contractList = await wallet.openapi.getAllNft();
+    console.log('contractList ', contractList)
+    const filteredCollections = returnFilteredCollections(contractList, props.data.nft)
+    console.log('filteredCollections ', filteredCollections)
+
+    const privatePath = filteredCollections[0].path.private_path;
+    console.log('privatePath ', privatePath)
+    const lastPart = privatePath.split('/').pop();
+
+    wallet.sendNFTtoChild(selectedAccount['address'], lastPart, props.data.nft.id, filteredCollections[0]).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
+      props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
+      setSending(false);
       history.push('/dashboard?activity=1');
-      props.handleAddBtnClicked();
-    } catch (error) {
-      console.log(error);
+    }).catch((err) => {
+      console.log('err ', err)
+      setSending(false);
       setFailed(true);
-      setSending(false);
-    } finally {
-      setSending(false);
-    }
-  }
+    })
+
+  };
+
 
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {
@@ -162,6 +148,15 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     }
   }, [props.data.contact]);
 
+  const getChildResp = async () => {
+    const childresp = await wallet.checkUserChildAccount();
+    setChildWallets(childresp)
+    console.log('childResp ', childresp)
+  }
+
+  useEffect(() => {
+    getChildResp();
+  }, []);
 
   const renderContent = () => {
     const getUri = () => {
@@ -230,7 +225,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
                 fontWeight="bold"
                 fontSize="20px"
               >
-                {chrome.i18n.getMessage('Send')} NFT
+                {chrome.i18n.getMessage('Move')} NFT
               </Typography>
             }
           </Grid>
@@ -243,47 +238,30 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </IconButton>
           </Grid>
         </Grid>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-          <FRWProfile contact={props.data.userContact} />
-          <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {colorArray.map((color, index) => (
-              <Box sx={{ mx: '5px' }} key={index}>
-                {(count === index) ?
-                  <CardMedia sx={{ width: '8px', height: '12px', }} image={IconNext} /> :
-                  <Box key={index} sx={{ height: '5px', width: '5px', borderRadius: '5px', backgroundColor: color }} />
-                }
-              </Box>
-            ))}
-          </Box>
-          <LLProfile contact={props.data.contact} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
+          <FRWProfileCard contact={props.data.userContact} />
+          <Box sx={{ height: '8px' }}></Box>
+          {childWallets && <FRWDropdownProfileCard contact={selectedAccount} contacts={childWallets} setSelectedChildAccount={setSelectedChildAccount}/> }
+          
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-start', px: '13px', py: '16px', backgroundColor: '#333333', borderRadius: '16px', my: '10px' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start', mx: '25px', px: '14px', py: '16px', backgroundColor: '#181818', borderBottomRightRadius: '16px', borderBottomLeftRadius: '16px', mt: '-16px', mb: '42px' }}>
           <Stack direction="row" spacing={1}>
             {(props.data.media && props.data.media?.type === MatchMediaType.IMAGE && props.data.media?.videoURL != null) ?
               getMedia() :
               getUri()
             }
           </Stack>
-          <Stack direction="column" spacing={1} sx={{ ml: '18px' }}>
-            <Typography color='neutral.contrastText' sx={{ fontSize: '18px', fontWeight: '700' }}>{props.data.media && props.data.media?.title}</Typography>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.contract && props.data.contract.logo} />
-              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.contract && props.data.contract.name}</Typography>
+          <Stack direction="column" spacing={1} sx={{ ml: '14px' }}>
+            <Typography color='neutral.contrastText' sx={{ fontSize: '14px', fontWeight: '700' }}>{props.data.media && props.data.media?.title}</Typography>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', marginTop: '0px !important' }}>
+              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block', fontSize: '14px' }}>{props.data.contract && props.data.contract.name}</Typography>
               <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
             </Stack>
           </Stack>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        {/* <Stack direction="row" spacing={1} sx={{marginBottom: '33px'}}>
-          <LLPrimaryButton
-            label="Send"
-            onClick={sendNFT}
-            fullWidth
-            type="submit"
-          />
-        </Stack> */}
         {occupied &&
           <Presets.TransitionSlideUp>
             <Box
@@ -306,7 +284,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </Box>
           </Presets.TransitionSlideUp>
         }
-
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}
@@ -319,7 +296,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             textTransform: 'capitalize',
             display: 'flex',
             gap: '12px',
-            marginBottom: '33px'
+            mb: '33px'
           }}
         >
           {sending ? (
@@ -330,7 +307,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
                 sx={{ fontWeight: 'bold' }}
                 color="text.primary"
               >
-                {chrome.i18n.getMessage('Sending')}
+                {chrome.i18n.getMessage('Working_on_it')}
               </Typography>
             </>
           ) :
@@ -349,7 +326,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
                   sx={{ fontWeight: 'bold' }}
                   color="text.primary"
                 >
-                  {chrome.i18n.getMessage('Send')}
+                  {chrome.i18n.getMessage('Move')}
                 </Typography>
               }
             </>
@@ -367,7 +344,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
       open={props.isConfirmationOpen}
       transitionDuration={300}
       PaperProps={{
-        sx: { width: '100%', height: '65%', bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
+        sx: { width: '100%', height: '457px', bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
       }}
     >
       {renderContent()}
@@ -375,4 +352,4 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   );
 };
 
-export default SendNFTConfirmation;
+export default MovefromParent;

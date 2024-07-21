@@ -16,7 +16,7 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { FRWProfileCard } from 'ui/FRWComponent';
+import { FRWProfileCard, FRWChildProfile } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -38,6 +38,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const [failed, setFailed] = useState(false);
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
+  const [childWallet, setChildWallet] = useState(null);
   const [count, setCount] = useState(0);
 
 
@@ -115,7 +116,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     const lastPart = privatePath.split('/').pop();
 
     wallet.moveNFTfromChild(props.data.userContact.address, lastPart, props.data.nft.id, filteredCollections[0]).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`,);
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
       setSending(false);
@@ -146,8 +147,20 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     }
   }, [props.data.contact]);
 
+  
+
+  const getChildResp = async () => {
+    if (props.data.userContact) {
+      const childresp = await wallet.checkUserChildAccount();
+      console.log('childResp ',childresp, childresp[props.data.userContact.address])
+      setChildWallet(childresp[props.data.userContact.address])
+
+    }
+  }
+
   useEffect(() => {
     console.log('props.data ', props.data)
+    getChildResp();
   }, []);
 
 
@@ -232,7 +245,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           </Grid>
         </Grid>
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-          <FRWProfileCard contact={props.data.userContact} />
+          {childWallet && <FRWChildProfile contact={childWallet} address={props.data.userContact.address} />}
           <Box sx={{ height: '8px' }}></Box>
           <FRWProfileCard contact={props.data.contact} />
         </Box>

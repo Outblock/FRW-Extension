@@ -227,7 +227,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         {(isValidEthereumAddress(props.evmAddress) || Object.keys(props.childAccounts).length > 0) &&
           <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}>{chrome.i18n.getMessage('Linked_Account')}</Typography>
         }
-        <Box sx={{display:'flex', flexDirection:'column',overflowY:'scroll', paddingBottom:'16px'}}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'scroll', paddingBottom: '16px' }}>
           {isValidEthereumAddress(props.evmAddress) && (
             <ListItem
               sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px 0', cursor: 'pointer' }}
@@ -308,8 +308,12 @@ const MenuDrawer = (props: MenuDrawerProps) => {
             </ListItem>)}
 
           {Object.keys(props.childAccounts).map((key, index) => (
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', padding: '16px 16px 0', cursor: 'pointer' }}
+            <ListItem
+              sx={{
+                display: 'flex', justifyContent: 'space-between', padding: '8px 16px 8px', cursor: 'pointer', '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08) !important'
+                }
+              }}
               key={index}
               onClick={() => props.setWallets({
                 name: props.childAccounts[key]?.name ?? key,
@@ -319,8 +323,10 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 id: 1
               }, key)}
             >
-              <Box
-                sx={{ mb: 0, display: 'flex', alignItems: 'center', background: 'none !important' }}
+              <ListItemButton
+                sx={{
+                  mb: 0, padding: '0', display: 'flex', alignItems: 'center', background: 'none !important',
+                }}
                 className={props.current['address'] === key ? classes.active : ''}
               >
                 <CardMedia
@@ -373,8 +379,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                     {key}
                   </Typography>
                 </Box>
-              </Box>
-            </Box>
+              </ListItemButton>
+            </ListItem>
           ))}
         </Box>
         {/* <ListItem disablePadding>

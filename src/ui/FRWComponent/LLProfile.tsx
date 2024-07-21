@@ -5,21 +5,6 @@ import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
 import { formatAddress } from 'ui/utils';
 
-const useStyles = makeStyles(() => ({
-  ContactCardAvatar: {
-    mr: '13px',
-    color: 'primary.main',
-    backgroundColor: 'neutral.main',
-  },
-  ContactCardContainer: {
-    display: 'flex',
-    // border: '1px solid #4C4C4C',
-    // borderRadius: '8px',
-    // padding: ''
-    alignItems: 'center',
-    px: '18px',
-  },
-}));
 
 export const LLProfile = ({ contact, isLoading = false }) => {
 
@@ -67,7 +52,6 @@ export const LLProfile = ({ contact, isLoading = false }) => {
             alt={contact.contact_name}
             src={DomainLogo() || contact.avatar}
             sx={{
-              mr: '13px',
               color: 'primary.main',
               backgroundColor: '#484848',
               width: '40px',

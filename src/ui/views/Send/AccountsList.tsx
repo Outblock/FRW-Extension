@@ -8,7 +8,7 @@ import {
   Box,
 } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import { LLContactCard } from '../../FRWComponent';
+import { LLContactCard, FWContactCard } from '../../FRWComponent';
 import { useHistory } from 'react-router-dom';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from '@/ui/utils/address';
@@ -65,7 +65,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
     }
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     const cAccountArray = convertObjectToContactArray(childresp)
-    const wdArray = convertArrayToContactArray(walletData)
+    const wdArray = await convertArrayToContactArray(walletData)
     console.log('childresp ', wdArray)
     setChildAccount(cAccountArray);
     
@@ -83,20 +83,23 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
       address: address,
       contact_type: 1,
       domain: {
-        domain_type: 0,
+        domain_type: 999,
         value: data[address].description
       }
     }));
   }
 
-  function convertArrayToContactArray(array) {
+  async function convertArrayToContactArray(array) {
+    const emojiList = await usewallet.getEmoji();
+    console.log('emojiList ', emojiList)
     return array.map((item, index) => ({
       id: item.id,
-      contact_name: item.name || item.address,
-      username: item.name.toLowerCase().replace(/\s+/g, ''),
-      avatar: '',
+      contact_name: emojiList[0].name,
+      username: emojiList[0].name,
+      avatar: emojiList[0].emoji,
       address: item.address,
       contact_type: 1,
+      bgColor:emojiList[0].bgcolor,
       domain: {
         domain_type: 0,
         value: ''
@@ -135,7 +138,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
                   handleClick(eachgroup)
                 }
               >
-                <LLContactCard
+                <FWContactCard
                   contact={eachgroup}
                   hideCloseButton={true}
                   key={index}

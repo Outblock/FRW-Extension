@@ -2182,7 +2182,7 @@ export class WalletController extends BaseController {
     childAddress: string,
     path: string,
     amount: string,
-    symbol:string
+    symbol: string
   ): Promise<string> => {
     const token = await openapiService.getTokenInfo(symbol);
     if (!token) {
@@ -2210,7 +2210,7 @@ export class WalletController extends BaseController {
     receiver: string,
     path: string,
     amount: string,
-    symbol:string
+    symbol: string
   ): Promise<string> => {
     console.log('script is this ', childAddress)
     const token = await openapiService.getTokenInfo(symbol);
@@ -2283,6 +2283,31 @@ export class WalletController extends BaseController {
         fcl.arg(linkedAddress, t.Address),
         fcl.arg(receiverAddress, t.Address),
         fcl.arg(nftContractName, t.String),
+        fcl.arg(ids, t.UInt64),
+      ]
+    );
+  };
+
+  sendNFTtoChild = async (
+    linkedAddress: string,
+    path: string,
+    ids: number,
+    token
+  ): Promise<string> => {
+    console.log('script is this ', token)
+
+    const script = await getScripts('hybridCustody', 'transferNFTToChild');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(linkedAddress, t.Address),
+        fcl.arg(path, t.String),
         fcl.arg(ids, t.UInt64),
       ]
     );
