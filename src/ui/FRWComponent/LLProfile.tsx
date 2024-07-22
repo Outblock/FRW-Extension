@@ -66,12 +66,8 @@ export const LLProfile = ({ contact, isLoading = false }) => {
         }
         {!isLoading?
           <Typography variant="body2" sx={{ textAlign: 'start' }}>
-            {contact.domain?.value || formatAddress(contact.contact_name)}{' '}
-            {contact.username && contact.username !== '' && (
-              <Box display="inline" color="info.main">
-                {contact.username !== '' ? ' (@' + contact.username + ')' : ''}
-              </Box>
-            )}
+            {contact.domain?.value || formatAddress(contact.contact_name)}
+
           </Typography>: (
             <Skeleton variant="text" width={45} height={15} />
           )}

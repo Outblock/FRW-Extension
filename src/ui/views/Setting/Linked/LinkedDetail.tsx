@@ -22,6 +22,7 @@ import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import IconCopy from '../../../../components/iconfont/IconCopy';
 import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
+import { Link } from 'react-router-dom';
 import { useWallet } from 'ui/utils';
 // import '../../Unlock/style.css';
 import { LLSecondaryButton } from '@/ui/FRWComponent';
@@ -127,11 +128,56 @@ const LinkedDetail = () => {
 
   const toggleEdit = () => {
     setEdit(!isEdit);
-  }
+  };
 
   const toggleHide = () => {
     setHide(!hideEmpty);
-  }
+  };
+
+  const navigateWithState = (data, media, index, ownerAddress) => {
+    const state = { nft: data, media: media, index: index, ownerAddress: ownerAddress };
+    const transformedState = transformSavedState(state);
+    localStorage.setItem('nftDetailState', JSON.stringify(transformedState));
+  };
+
+  const transformSavedState = (savedState) => {
+    const transformed = {
+      nft: {
+        id: savedState.nft.resourceID,
+        name: savedState.nft.name,
+        description: savedState.nft.description,
+        thumbnail: savedState.nft.thumbnail,
+        externalURL: savedState.nft.collectionURL,
+        contractAddress: '', 
+        collectionID: savedState.nft.collectionName,
+        collectionName: savedState.nft.collectionName,
+        collectionContractName: savedState.nft.collectionName,
+        collectionDescription: savedState.nft.collectionDescription,
+        collectionSquareImage: savedState.nft.thumbnail, 
+        collectionBannerImage: '',
+        collectionExternalURL: savedState.nft.collectionURL,
+        royalties: [], 
+        traits: [], 
+        postMedia: {
+          image: savedState.media,
+          isSvg: false, 
+          description: savedState.nft.description,
+          title: savedState.nft.name
+        },
+        unique_id: `${savedState.nft.collectionName}_${savedState.nft.resourceID}`
+      },
+      media: {
+        image: savedState.media,
+        isSvg: false,
+        description: savedState.nft.description,
+        title: savedState.nft.name
+      },
+      index: savedState.index,
+      ownerAddress: savedState.ownerAddress
+    };
+  
+    return transformed;
+  };
 
   useEffect(() => {
     getUserInfo();
@@ -150,7 +196,8 @@ const LinkedDetail = () => {
             const collectedText = chrome.i18n.getMessage('Collected');
 
             return (
-              <Box
+              <CardActionArea
+                component={Link}
                 sx={{
                   display: 'flex',
                   height: '64px',
@@ -162,15 +209,9 @@ const LinkedDetail = () => {
                   alignItems: 'center',
                 }}
                 key={index}
-                onClick={() =>
-                  history.push({
-                    pathname: `/dashboard/nested/collectiondetail/${key + '.' + item.collectionName + '.' + item.resourceID + '.linked'}`,
-                    state: {
-                      collection: item,
-                      ownerAddress: key,
-                    },
-                  })
-                }
+
+                to={{ pathname: `/dashboard/nested/nftdetail/${index}`, state: { nft: item, media: imagePath, index: index, ownerAddress: key } }}
+                onClick={() => navigateWithState(item, imagePath, index, key)}
               >
                 <img
                   style={{
@@ -224,7 +265,7 @@ const LinkedDetail = () => {
                   }}
                   image={IconNext}
                 />}
-              </Box>
+              </CardActionArea>
             );
           }
 

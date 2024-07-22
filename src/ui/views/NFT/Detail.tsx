@@ -116,6 +116,7 @@ const Detail = () => {
 
   useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
+    console.log('savedState ', savedState)
     if (savedState) {
       const nftDetail = JSON.parse(savedState);
       setDetail(nftDetail.nft);
@@ -183,7 +184,7 @@ const Detail = () => {
       return ''
     }
 
-    const lilicoEndpoint = 'https://lilico.infura-ipfs.io/ipfs/'
+    const lilicoEndpoint = 'https://gateway.pinata.cloud/ipfs/'
 
     const replacedURL = url
       .replace('ipfs://', lilicoEndpoint)
@@ -286,9 +287,7 @@ const Detail = () => {
     <StyledEngineProvider injectFirst>
       <Box className='page' style={{ display: 'flex', position: 'relative', flexDirection: 'column' }}>
         <Box className={classes.iconbox}>
-          <IconButton onClick={() => history.push({
-            pathname: `/dashboard`
-          })} className={classes.arrowback}>
+          <IconButton onClick={() => history.goBack()} className={classes.arrowback}>
             <ArrowBackIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
           {/* {

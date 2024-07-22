@@ -73,7 +73,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
       return ''
     }
 
-    const lilicoEndpoint = 'https://lilico.infura-ipfs.io/ipfs/'
+    const lilicoEndpoint = 'https://gateway.pinata.cloud/ipfs/'
 
     const replacedURL = url
       .replace('ipfs://', lilicoEndpoint)
