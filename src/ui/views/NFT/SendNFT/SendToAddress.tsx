@@ -195,9 +195,20 @@ const SendToAddress = () => {
     await wallet.setDashIndex(1);
     const info = await wallet.getUserInfo(false);
     const currentWallet = await wallet.getCurrentWallet();
-    userContact.address = withPrefix(currentWallet.address) || '';
-    userContact.avatar = info.avatar;
-    userContact.contact_name = info.username;
+    
+    const isChild = await wallet.getActiveWallet();
+    if (isChild) {
+      const childResp = await wallet.checkUserChildAccount();
+      const cwallet = childResp[currentWallet.address!];
+      userContact.address = withPrefix(currentWallet.address!) || '';
+      userContact.avatar = cwallet.thumbnail.url;
+      userContact.contact_name = cwallet.name;
+    } else {
+      userContact.address = withPrefix(currentWallet.address) || '';
+      userContact.avatar = info.avatar;
+      userContact.contact_name = info.username;
+
+    }
     setUser(userContact);
   }
 

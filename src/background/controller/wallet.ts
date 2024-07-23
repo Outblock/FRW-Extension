@@ -867,22 +867,35 @@ export class WalletController extends BaseController {
   };
 
   checkUserChildAccount = async () => {
-    try {
-      const network = await this.getNetwork();
-      let meta: any = {};
-      let result: any = {};
-      const address = await userWalletService.getMainWallet(network);
-      if (network !== 'crescendo' && network !== 'previewnet') {
-        result = await openapiService.checkChildAccountMeta(address);
+    const cacheKey = 'checkUserChildAccount';
+    const ttl = 5 * 60 * 1000; // 5 minutes in milliseconds
+  
+    // Try to get the cached result
+    let meta = await storage.getExpiry(cacheKey);
+  
+    if (!meta) {
+      try {
+        const network = await this.getNetwork();
+        let result = {};
+        const address = await userWalletService.getMainWallet(network);
+  
+        if (network !== 'crescendo' && network !== 'previewnet') {
+          result = await openapiService.checkChildAccountMeta(address);
+        }
+  
+        if (result) {
+          meta = result;
+  
+          // Store the result in the cache with an expiry
+          await storage.setExpiry(cacheKey, meta, ttl);
+        }
+      } catch (error) {
+        console.error('Error occurred:', error);
+        return {}; // Return an empty object in case of an error
       }
-      if (result) {
-        meta = result;
-      }
-      return meta;
-    } catch (error) {
-      console.error('Error occurred:', error);
-      return {}; // Return an empty object in case of an error
     }
+  
+    return meta;
   };
 
   checkAccessibleNft = async (childAccount) => {

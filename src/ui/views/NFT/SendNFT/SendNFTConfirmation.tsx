@@ -38,6 +38,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [failed, setFailed] = useState(false);
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
+  const [isChild, setIsChild] = useState(false);
   const [count, setCount] = useState(0);
   const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
 
@@ -84,7 +85,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const sendNFT = async () => {
     setSending(true);
-    const isChild = await wallet.getActiveWallet();
     if (isChild) {
       sendChildNft();
     } else {
@@ -161,6 +161,16 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
       chrome.runtime.onMessage.removeListener(transactionDoneHanlder)
     }
   }, [props.data.contact]);
+
+  const checkChild = async () => {
+    const ischild = await wallet.getActiveWallet();
+    setIsChild(ischild)
+    console.log('props ', props.data)
+  }
+
+  useEffect(() => {
+    checkChild();
+  }, []);
 
 
   const renderContent = () => {
@@ -244,7 +254,11 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Grid>
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-          <FRWProfile contact={props.data.userContact} />
+          {isChild ?
+            <LLProfile contact={props.data.userContact} /> :
+            <FRWProfile contact={props.data.userContact} />
+
+          }
           <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {colorArray.map((color, index) => (
               <Box sx={{ mx: '5px' }} key={index}>

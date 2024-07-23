@@ -117,7 +117,6 @@ const Detail = () => {
 
   useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
-    console.log('savedState ', savedState)
     if (savedState) {
       const nftDetail = JSON.parse(savedState);
       setDetail(nftDetail.nft);
@@ -150,11 +149,20 @@ const Detail = () => {
     let userOne, userTwo;
 
     if (isChild) {
+      const childResp = await usewallet.checkUserChildAccount();
+      const wallet = childResp[currentAddress!];
+      console.log('checkUserChildAccount ', childResp)
       userOne = {
-        ...userTemplate,
+
+        avatar: wallet.thumbnail.url,
+        domain: {
+          domain_type: 0,
+          value: '',
+        },
         address: currentAddress,
-        contact_name: 'linked',
+        contact_name: wallet.name,
       };
+      console.log('checkUserChildAccount ', userOne)
       userTwo = {
         ...userTemplate,
         address: parentAddress,
