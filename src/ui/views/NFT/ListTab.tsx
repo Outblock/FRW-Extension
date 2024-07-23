@@ -223,6 +223,9 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   };
 
   const checkContractAddressInCollections = (nft) => {
+    if (props.isActive) {
+      return true
+    }
     const contractAddressWithout0x = nft.collection.address.slice(2);
     console.log('nft is ', contractAddressWithout0x)
     return props.activeCollection.some(collection => {

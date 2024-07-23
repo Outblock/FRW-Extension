@@ -288,6 +288,9 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
     return collection.split('.')[1];
   };
   const checkContractAddressInCollections = (nft) => {
+    if (props.isActive) {
+      return true
+    }
     const contractAddressWithout0x = nft.contractAddress.slice(2);
     console.log('nft is ', contractAddressWithout0x)
     return props.activeCollection.some(collection => {
