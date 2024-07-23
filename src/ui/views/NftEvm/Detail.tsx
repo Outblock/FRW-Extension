@@ -112,7 +112,7 @@ const Detail = () => {
   const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
-  const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
+  const [isAccessibleNft, setisAccessibleNft] = useState<any>(true);
   const [nftDetailState, setNftDetailState] = useState({ nft: null, media: null, ownerAddress: null, index: null });
 
   useEffect(() => {
