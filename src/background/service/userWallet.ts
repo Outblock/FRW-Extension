@@ -142,11 +142,9 @@ class UserWallet {
   };
 
   setCurrentWallet = (wallet: any, key: any, network: string) => {
-    console.log('setCurrentWallet ', wallet)
     if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
     } else if (key === 'evm') {
-      console.log('setCurrentWallet ', wallet, key)
       this.store.evmWallet.address = wallet.address;
     } else {
       const current = this.store.wallets[network][0].blockchain[0];
@@ -155,7 +153,6 @@ class UserWallet {
   };
 
   getUserWallets = (network: string) => {
-    console.log('userWallet ', network, this.store.wallets)
     return this.store.wallets[network];
   };
 

@@ -20,6 +20,7 @@ import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
 import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
 import MoveNftConfirmation from './SendNFT/MoveNftConfirmation';
+import nft from '@/background/service/nft';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {
@@ -111,6 +112,7 @@ const Detail = () => {
   const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
+  const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
   const [nftDetailState, setNftDetailState] = useState({ nft: null, media: null, ownerAddress: null, index: null });
 
   useEffect(() => {
@@ -121,6 +123,9 @@ const Detail = () => {
       setMedia(nftDetail.media);
       setOwnerAddress(nftDetail.ownerAddress);
       setMetadata(nftDetail.nft);
+      if (nftDetail.isAccessibleNft) {
+        setisAccessibleNft(nftDetail.isAccessibleNft)
+      }
     }
   }, []);
 
@@ -382,51 +387,53 @@ const Detail = () => {
             </Container>
           </Container>
         }
-        <Box sx={{ height: '42px', position: 'fixed', bottom: '32px', right: '18px' }}>
-          {!(nftDetail?.collectionContractName === 'Domains' && media?.title?.includes('.meow')) &&
-            <Button
-              sx={{
-                backgroundColor: '#FFFFFF33',
-                p: '12px',
-                color: '#fff',
-                borderRadius: '12px',
-                height: '42px',
-                fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
-                filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
-                backdropFilter: 'blur(6px)'
-              }}
-              onClick={() => history.push({
-                pathname: '/dashboard/nftevm/send/',
-                state: { nft: nftDetail, media: media, contract: nftDetail }
-              })}
-            >
-              {/* <IosShareOutlinedIcon color="primary" /> */}
-              <CardMedia image={SendIcon} sx={{ width: '20px', height: '20px', color: '#fff',marginRight: '8px'}} />
-              {chrome.i18n.getMessage('Send')}
-            </Button>
-          }
+        {isAccessibleNft &&
+          <Box sx={{ height: '42px', position: 'fixed', bottom: '32px', right: '18px' }}>
+            {!(nftDetail?.collectionContractName === 'Domains' && media?.title?.includes('.meow')) &&
+              <Button
+                sx={{
+                  backgroundColor: '#FFFFFF33',
+                  p: '12px',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  height: '42px',
+                  fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
+                  filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
+                  backdropFilter: 'blur(6px)'
+                }}
+                onClick={() => history.push({
+                  pathname: '/dashboard/nftevm/send/',
+                  state: { nft: nftDetail, media: media, contract: nftDetail }
+                })}
+              >
+                {/* <IosShareOutlinedIcon color="primary" /> */}
+                <CardMedia image={SendIcon} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
+                {chrome.i18n.getMessage('Send')}
+              </Button>
+            }
 
-          {(nftDetail?.collectionID) &&
-            <Button
-              sx={{
-                backgroundColor: '#FFFFFF33',
-                p: '12px',
-                color: '#fff',
-                borderRadius: '12px',
-                height: '42px',
-                marginLeft: '8px',
-                fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
-                filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
-                backdropFilter: 'blur(6px)'
-              }}
-              onClick={() => evmEnabled ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })}
-            >
-              {/* <IosShareOutlinedIcon color="primary" /> */}
-              <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
-              {chrome.i18n.getMessage('Move')}
-            </Button>
-          }
-        </Box>
+            {(nftDetail?.collectionID) &&
+              <Button
+                sx={{
+                  backgroundColor: '#FFFFFF33',
+                  p: '12px',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  height: '42px',
+                  marginLeft: '8px',
+                  fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
+                  filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
+                  backdropFilter: 'blur(6px)'
+                }}
+                onClick={() => evmEnabled ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })}
+              >
+                {/* <IosShareOutlinedIcon color="primary" /> */}
+                <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
+                {chrome.i18n.getMessage('Move')}
+              </Button>
+            }
+          </Box>
+        }
         <MoveNftConfirmation
           isConfirmationOpen={moveOpen}
           data={{

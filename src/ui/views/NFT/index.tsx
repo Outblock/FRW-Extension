@@ -21,6 +21,7 @@ const NFTTab = () => {
   const [isAddAddressOpen, setIsAddAddressOpen] = useState<boolean>(false);
   const [nftCount, setCount] = useState<number>(0);
   const [accessible, setAccessible] = useState<any>([]);
+  const [activeCollection, setActiveCollection] = useState<any>([]);
   const [isActive, setIsActive] = useState(true);
   const gridRef = useRef<any>(null);
   const listRef = useRef<any>(null);
@@ -41,8 +42,16 @@ const NFTTab = () => {
     const address = await wallet.getCurrentAddress();
     // const flowCoins = fetchRemoteConfig.flowCoins();
     // console.log(flowCoins);
+    // console.log('active check permission ', active)
     if (isChild) {
       setChildType(isChild);
+      
+
+      const parentaddress = await wallet.getMainWallet();
+
+      const activec = await wallet.getChildAccountAllowTypes(parentaddress, address!);
+      console.log('active check permission ', activec)
+      setActiveCollection(activec)
       const nftResult = await wallet.checkAccessibleNft(address);
       if (nftResult) {
         setAccessible(nftResult);
@@ -254,6 +263,7 @@ const NFTTab = () => {
             ref={gridRef}
             accessible={accessible}
             isActive={isActive}
+            activeCollection={activeCollection}
           />
         </TabPanelStyle>
         <TabPanelStyle value={1} sx={{ width: '100%' }}>
@@ -263,6 +273,7 @@ const NFTTab = () => {
             ref={listRef}
             accessible={accessible}
             isActive={isActive}
+            activeCollection={activeCollection}
           />
         </TabPanelStyle>
       </Tabs>

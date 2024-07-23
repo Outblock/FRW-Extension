@@ -887,9 +887,7 @@ export class WalletController extends BaseController {
 
   checkAccessibleNft = async (childAccount) => {
     try {
-      const network = await this.getNetwork();
 
-      const address = await userWalletService.getMainWallet(network);
       // const res = await openapiService.checkChildAccount(address);
       // const nfts = await openapiService.queryAccessible(
       //   '0x84221fe0294044d7',
@@ -2297,7 +2295,6 @@ export class WalletController extends BaseController {
     console.log('script is this ', token)
 
     const script = await getScripts('hybridCustody', 'transferNFTToChild');
-    console.log('script is this ', script)
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
@@ -2313,6 +2310,39 @@ export class WalletController extends BaseController {
     );
   };
 
+  getChildAccountAllowTypes = async (
+    parent: string,
+    child: string,
+  ): Promise<string> => {
+    console.log('parent is this ', parent, child)
+
+    const script = await getScripts('hybridCustody', 'getChildAccountAllowTypes');
+    const result = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(parent, t.Address), arg(child, t.Address)],
+    });
+    return result
+  };
+
+  
+
+  checkChildLinkedVault = async (
+    parent: string,
+    child: string,
+    path: string,
+  ): Promise<string> => {
+    console.log('parent is this ', parent, child, path)
+
+    const script = await getScripts('hybridCustody', 'checkChildLinkedVaults');
+    console.log('script is this ', script)
+    const result = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(parent, t.Address), arg(child, t.Address), fcl.arg(path, t.String)],
+    });
+    console.log('result is this ', result)
+    return result
+  };
+  
   batchBridgeNftToEvm = async (
     nftContractAddress: string,
     nftContractName: string,
@@ -3401,7 +3431,6 @@ export class WalletController extends BaseController {
       testnetAddress[0].chain_id = 'testnet';
       await userWalletService.setUserTestnetMigration(migrationTestnetAddress, testnetAddress);
     }
-    console.log('setMigration ', result);
   };
 }
 

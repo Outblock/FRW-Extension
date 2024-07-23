@@ -23,6 +23,7 @@ interface ListTabProps {
   setCount: (count: any) => void;
   accessible: any;
   isActive: boolean;
+  activeCollection: any;
 }
 
 
@@ -135,32 +136,30 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
 
 
   const CollectionView = (data) => {
-    console.log('props  ', props)
+    const handleClick = () => {
+      history.push({
+        pathname: `/dashboard/nested/collectiondetail/${data.ownerAddress}.${data.contract_name}.${data.count}`,
+        state: {
+          collection: data,
+          ownerAddress: data.ownerAddress,
+          accessible: props.accessible
+        }
+      });
+    };
     return (
       <Card sx={{ borderRadius: '12px' }} className={classes.collectionCard}>
         <CardActionArea
-          sx={{ backgroundColor: 'background.paper', borderRadius: '12px' }}
+          sx={{ backgroundColor: 'background.paper', borderRadius: '12px',paddingRight:'8px'  }}
           className={classes.actionarea}
-          onClick={() =>
-            history.push({
-              pathname: `/dashboard/nested/collectiondetail/${data.ownerAddress + '.' + data.contract_name + '.' + data.count
-                }`,
-              state: {
-                collection: data,
-                ownerAddress: data.ownerAddress,
-                accessible: props.accessible
-              }
-            })
-          }
-
+          onClick={data.isAccessible && handleClick}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row'}}>
             <CardMedia
               component="img"
               sx={{
                 width: '48px',
                 height: '48px',
-                margin: '8px',
+                padding: '8px',
                 borderRadius: '12px',
                 justifyContent: 'center',
               }}
@@ -178,16 +177,35 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                   >
                     {data.name}
                   </Typography>
+                  {data.isAccessible ?
 
+                    <Typography
+                      variant="body1"
+                      sx={{ fontSize: '14px' }}
+                      color="#B2B2B2"
+                      component="div"
+                    >
+                      {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
+                    </Typography>
+                    :
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        color: 'neutral.text',
+                        fontSize: '10px',
+                        width:'80px',
+                        fontFamily: 'Inter, sans-serif',
+                        backgroundColor: 'neutral1.light'
+                      }}
+                    >
+                      {chrome.i18n.getMessage('Inaccessible')}
+                    </Box>
 
-                  <Typography
-                    variant="body1"
-                    sx={{ fontSize: '14px' }}
-                    color="#B2B2B2"
-                    component="div"
-                  >
-                    {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
-                  </Typography>
+                  }
                 </Grid>
                 <Grid item>
                   <ArrowForwardIcon color="primary" sx={{ mt: '12px' }} />
@@ -200,7 +218,21 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
     );
   };
 
+  const extractContractAddress = (collection) => {
+    return collection.split('.')[1];
+  };
+
+  const checkContractAddressInCollections = (nft) => {
+    const contractAddressWithout0x = nft.collection.address.slice(2);
+    console.log('nft is ', contractAddressWithout0x)
+    return props.activeCollection.some(collection => {
+      const extractedAddress = extractContractAddress(collection);
+      return extractedAddress === contractAddressWithout0x;
+    });
+  };
+
   const createListCard = (props, index) => {
+    const isAccessible = checkContractAddressInCollections(props)
     return (
       <CollectionView
         name={props.collection.name}
@@ -211,6 +243,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
         index={index}
         contract_name={props.collection.id}
         ownerAddress={ownerAddress}
+        isAccessible={isAccessible}
       />
     );
   };

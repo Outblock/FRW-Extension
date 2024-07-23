@@ -177,13 +177,13 @@ const Header = ({ loading }) => {
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
+    console.log('childresp ', childresp)
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
   };
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.getUserWallets();
-    console.log('wallet fresh ', wallet)
     const fData = wallet.filter((item) => item.blockchain !== null);
 
     // putDeviceInfo(fData);
