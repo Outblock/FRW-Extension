@@ -2727,6 +2727,7 @@ export class WalletController extends BaseController {
   refreshAll = async () => {
     await this.refreshUserWallets();
     this.clearNFT();
+    this.clearChildAccount();
     this.refreshAddressBook();
     await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
@@ -2742,6 +2743,10 @@ export class WalletController extends BaseController {
   getNetwork = async (): Promise<string> => {
     return await userWalletService.getNetwork();
   };
+
+  clearChildAccount = () => {
+    storage.remove('checkUserChildAccount');
+  }
 
   getEvmEnabled = async (): Promise<boolean> => {
     const address = await this.getEvmAddress();
