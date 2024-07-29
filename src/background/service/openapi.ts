@@ -2145,9 +2145,10 @@ class OpenApiService {
       const installationId = await this.getInstallationId();
       // console.log('location ', userlocation);
       const userlocation = result.data;
+
       await this.addDevice({
-        wallet_id: mainnetId.toString(),
-        wallettest_id: testnetId.toString(),
+        wallet_id: mainnetId ? mainnetId.toString() : '',
+        wallettest_id: testnetId ? testnetId.toString() : '',
         device_info: {
           city: userlocation.city,
           continent: userlocation.country,

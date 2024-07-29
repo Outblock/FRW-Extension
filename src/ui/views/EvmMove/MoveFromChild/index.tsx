@@ -117,10 +117,12 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
     userContact.contact_name = info.username;
     setUser(userContact);
 
+    const childResp = await usewallet.checkUserChildAccount();
+    const cwallet = childResp[currentAddress!];
+    childContact.address = withPrefix(currentAddress!) || '';
+    childContact.avatar = cwallet.thumbnail.url;
+    childContact.contact_name = cwallet.name;
 
-    childContact.address = withPrefix(currentAddress) || '';
-    childContact.avatar = info.avatar;
-    childContact.contact_name = info.username;
     setChildUser(childContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
@@ -207,6 +209,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
           <TransferFrom
             wallet={childAddress}
             userInfo={childUserInfo}
+            isChild={true}
           />
         }
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', my: '-21px', zIndex: '99' }}>

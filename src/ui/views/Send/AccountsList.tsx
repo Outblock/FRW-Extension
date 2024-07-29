@@ -84,7 +84,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
       contact_type: 1,
       domain: {
         domain_type: 999,
-        value: data[address].description
+        value: data[address].name
       }
     }));
   }

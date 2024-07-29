@@ -200,7 +200,7 @@ const NFTTab = () => {
           }
         </Box>
 
-        {process.env.NODE_ENV !== 'production' &&
+        {process.env.NODE_ENV === 'produssction' &&
           <Box
             sx={{
               display: 'flex',

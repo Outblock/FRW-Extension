@@ -223,6 +223,7 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
       setTotal(response.nftCount);
     } finally {
       setNFTLoading(false);
+      setHasMore(false);
     }
   };
 
@@ -241,7 +242,8 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
     } catch (e) {
       console.log('e ->', e)
     } finally {
-      // setNFTLoading(false);
+      setNFTLoading(false);
+      setHasMore(false);
     }
   };
 
@@ -285,13 +287,13 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
   }, []);
 
   const extractContractAddress = (collection) => {
-    return collection.split('.')[1];
+    return collection.split('.')[2];
   };
   const checkContractAddressInCollections = (nft) => {
     if (props.isActive) {
       return true
     }
-    const contractAddressWithout0x = nft.contractAddress.slice(2);
+    const contractAddressWithout0x = nft.collectionContractName;
     console.log('nft is ', contractAddressWithout0x)
     return props.activeCollection.some(collection => {
       const extractedAddress = extractContractAddress(collection);

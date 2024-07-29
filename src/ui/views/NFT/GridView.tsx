@@ -96,7 +96,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const GridView = ({ data, accessible, blockList, index, ownerAddress, isAccessibleNft = true }) => {
+const GridView = ({ data, accessible, blockList, index, ownerAddress, isAccessibleNft = true, fromLinked = false }) => {
   const classes = useStyles();
   const [loaded, setLoaded] = useState(false);
   const [isAccessible, setAccessible] = useState(true);
@@ -195,7 +195,7 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress, isAccessib
     <Card className={classes.card} elevation={0}>
       <CardActionArea component={Link}
         className={classes.actionarea}
-        to={{ pathname: `/dashboard/nested/nftdetail/${index}`, state: { nft: data, media: media, index: index, ownerAddress: ownerAddress } }}
+        to={{ pathname: `/dashboard/nested/${fromLinked ? 'linkednftdetail' : 'nftdetail'}/${index}`, state: { nft: data, media: media, index: index, ownerAddress: ownerAddress } }}
         onClick={() => navigateWithState(data, media, index, ownerAddress, isAccessibleNft)}
       >
         <CardMedia className={classes.cardmedia}>

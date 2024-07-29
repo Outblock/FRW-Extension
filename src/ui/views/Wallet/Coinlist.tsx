@@ -86,7 +86,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               {(ableFt.some(item => {
                 const parts = item.id.split('.');
                 return parts[2] && parts[2].includes(props.coin);
-              }) || isActive || props.primary.toLowerCase() === 'flow') ?
+              }) || isActive ) ?
                 <Box
                   sx={{ display: 'flex' }}
                 >

@@ -16,7 +16,7 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { LLProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import eventBus from '@/eventBus';
 import InfoIcon from '@mui/icons-material/Info';
@@ -177,6 +177,13 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     }
   }, []);
 
+
+  const isEmoji = (char) => {
+    // Regular expression to match most emojis
+    const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
+    return emojiRegex.test(char);
+  };
+
   const renderContent = () => (
     <Box
       px="18px"
@@ -230,7 +237,11 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         </Grid>
       </Grid>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-        <LLProfile contact={props.data.userContact} />
+        {props.data.childType ?
+          <LLProfile contact={props.data.userContact} />
+          :
+          <FRWProfile contact={props.data.userContact} />
+        }
         <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {colorArray.map((color, index) => (
             <Box sx={{ mx: '5px' }} key={index}>
@@ -241,7 +252,11 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
             </Box>
           ))}
         </Box>
-        <LLProfile contact={props.data.contact} />
+        {isEmoji(props.data.contact.avatar) ?
+          <FRWProfile contact={props.data.contact} />
+          :
+          <LLProfile contact={props.data.contact} />
+        }
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', px: '13px', py: '16px', backgroundColor: '#333333', borderRadius: '16px', my: '10px' }}>

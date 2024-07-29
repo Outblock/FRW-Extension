@@ -121,6 +121,7 @@ interface NFTDetailState {
   nft: any;
   media: MatchMedia;
   index: number;
+  linked?: string;
 }
 
 const SendToAddress = () => {
@@ -156,6 +157,7 @@ const SendToAddress = () => {
   const [contractInfo, setContractInfo] = useState<any>(null);
   const [nftDetail, setDetail] = useState<any>(null);
   const [media, setMedia] = useState<MatchMedia | null>(null);
+  const state = location.state as NFTDetailState;
 
   const fetchAddressBook = async () => {
     try {
@@ -195,12 +197,19 @@ const SendToAddress = () => {
     await wallet.setDashIndex(1);
     const info = await wallet.getUserInfo(false);
     const currentWallet = await wallet.getCurrentWallet();
-    
+    const linked = state.linked
+    console.log(';linked ', linked)
     const isChild = await wallet.getActiveWallet();
     if (isChild) {
       const childResp = await wallet.checkUserChildAccount();
       const cwallet = childResp[currentWallet.address!];
       userContact.address = withPrefix(currentWallet.address!) || '';
+      userContact.avatar = cwallet.thumbnail.url;
+      userContact.contact_name = cwallet.name;
+    } else if (linked) {
+      const childResp = await wallet.checkUserChildAccount();
+      const cwallet = childResp[linked!];
+      userContact.address = withPrefix(linked!) || '';
       userContact.avatar = cwallet.thumbnail.url;
       userContact.contact_name = cwallet.name;
     } else {
@@ -209,11 +218,11 @@ const SendToAddress = () => {
       userContact.contact_name = info.username;
 
     }
+    console.log('userContact ', userContact)
     setUser(userContact);
   }
 
   const fetchNFTInfo = async () => {
-    const state = location.state as NFTDetailState;
 
     const NFT = state.nft;
 
@@ -607,7 +616,7 @@ const SendToAddress = () => {
         )}
         <SendNFTConfirmation
           isConfirmationOpen={isConfirmationOpen}
-          data={{contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media}}
+          data={{contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media, linked: state.linked}}
           handleCloseIconClicked={() => setConfirmationOpen(false)}
           handleCancelBtnClicked={() => setConfirmationOpen(false)}
           handleAddBtnClicked={() => {

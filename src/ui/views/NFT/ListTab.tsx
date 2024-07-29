@@ -17,6 +17,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useEffect, useState } from 'react';
 import { useWallet } from '@/ui/utils/WalletContext';
 import EmptyStatus from './EmptyStatus';
+import placeholder from 'ui/FRWAssets/image/placeholder.png';
 
 interface ListTabProps {
   data: any;
@@ -162,8 +163,9 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                 padding: '8px',
                 borderRadius: '12px',
                 justifyContent: 'center',
+                mt:'8px',
               }}
-              image={data.logo}
+              image={data.logo || placeholder}
               alt={data.name}
             />
             <CardContent sx={{ flex: '1 0 auto', padding: '8px 4px' }}>
@@ -219,23 +221,27 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   };
 
   const extractContractAddress = (collection) => {
-    return collection.split('.')[1];
+    return collection.split('.')[2];
   };
 
   const checkContractAddressInCollections = (nft) => {
     if (props.isActive) {
       return true
     }
-    const contractAddressWithout0x = nft.collection.address.slice(2);
-    console.log('nft is ', contractAddressWithout0x)
-    return props.activeCollection.some(collection => {
+    const contractAddressWithout0x = nft.collection.contract_name;
+    const isActiveCollect =  props.activeCollection.some(collection => {
       const extractedAddress = extractContractAddress(collection);
+      if (extractedAddress === contractAddressWithout0x) {
+        console.log('nft is ', contractAddressWithout0x, extractedAddress, )
+      }
       return extractedAddress === contractAddressWithout0x;
     });
+    return isActiveCollect;
   };
 
   const createListCard = (props, index) => {
     const isAccessible = checkContractAddressInCollections(props)
+    console.log('isAccessible ', isAccessible, props)
     return (
       <CollectionView
         name={props.collection.name}

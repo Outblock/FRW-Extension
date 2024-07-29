@@ -2326,7 +2326,7 @@ export class WalletController extends BaseController {
   getChildAccountAllowTypes = async (
     parent: string,
     child: string,
-  ): Promise<string> => {
+  ) => {
     console.log('parent is this ', parent, child)
 
     const script = await getScripts('hybridCustody', 'getChildAccountAllowTypes');

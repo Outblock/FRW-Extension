@@ -85,7 +85,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const sendNFT = async () => {
     setSending(true);
-    if (isChild) {
+    if (isChild || props.data.linked) {
       sendChildNft();
     } else {
       try {
@@ -167,6 +167,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     setIsChild(ischild)
     console.log('props ', props.data)
   }
+
+
+  const isEmoji = (char) => {
+    // Regular expression to match most emojis
+    const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
+    return emojiRegex.test(char);
+  };
+
 
   useEffect(() => {
     checkChild();
@@ -254,7 +262,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Grid>
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-          {isChild ?
+          {(isChild || props.data.linked) ?
             <LLProfile contact={props.data.userContact} /> :
             <FRWProfile contact={props.data.userContact} />
 
@@ -269,7 +277,11 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
               </Box>
             ))}
           </Box>
-          <LLProfile contact={props.data.contact} />
+          {isEmoji(props.data.contact.avatar) ?
+            <FRWProfile contact={props.data.contact} />
+            :
+            <LLProfile contact={props.data.contact} />
+          }
         </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', px: '13px', py: '16px', backgroundColor: '#333333', borderRadius: '16px', my: '10px' }}>

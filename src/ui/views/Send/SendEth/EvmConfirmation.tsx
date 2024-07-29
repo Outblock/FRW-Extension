@@ -15,7 +15,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { LLSpinner,
 } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { LLProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';

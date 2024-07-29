@@ -14,7 +14,7 @@ const tempEmoji = {
   "bgcolor": "#FFE4C4"
 };
 
-const TransferFrom = ({ wallet, userInfo }) => {
+const TransferFrom = ({ wallet, userInfo, isChild = false }) => {
 
   const usewallet = useWallet();
   const [emoji, setEmoji] = useState(tempEmoji);
@@ -48,12 +48,18 @@ const TransferFrom = ({ wallet, userInfo }) => {
             <Box sx={{
               display: 'flex', height: '40px', width: '40px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emoji['bgcolor'], marginRight: '12px'
             }}>
-              <Typography sx={{ fontSize: '28px', fontWeight: '600' }}>
-                {emoji.emoji}
-              </Typography>
+              {isChild ?
+                <CardMedia sx={{ height: '28px', width: '28px', borderRadius: '28px', }} image={userInfo.avatar} />
+
+                :
+                <Typography sx={{ fontSize: '28px', fontWeight: '600' }}>
+                  {emoji.emoji}
+                </Typography>
+
+              }
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', padding: '16px 0' }}>
-              <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>{emoji.name}</Typography>
+              <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>{isChild ? userInfo.contact_name : emoji.name}</Typography>
               <Typography sx={{ fontSize: '12px', fontWeight: '400', color: '#FFFFFFCC' }}>{userInfo.address}</Typography>
             </Box>
 

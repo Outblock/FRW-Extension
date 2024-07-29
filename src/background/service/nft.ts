@@ -15,7 +15,7 @@ interface NFTCollectionNetwork {
   migrationTestnet: NFTCollectionData[];
 }
 
-interface NFTCollectionListNetwork{
+interface NFTCollectionListNetwork {
   mainnet: NFTCollectionList[];
   testnet: NFTCollectionList[];
   crescendo: NFTCollectionData[];
@@ -51,7 +51,7 @@ class NFT {
       name: 'nftv2',
       template: {
         nft: {
-          testnet:{
+          testnet: {
             nfts: [],
             nftCount: 0,
           },
@@ -75,8 +75,8 @@ class NFT {
         collectionList: {
           testnet: [],
           mainnet: [],
-          crescendo:[],
-          previewnet:[],
+          crescendo: [],
+          previewnet: [],
           migrationTestnet: [],
         },
         collection: {
@@ -132,7 +132,7 @@ class NFT {
     this.deleteSingleCollection(data.name, network);
     this.store.collection[network].push({
       name: data.name,
-      nfts:list,
+      nfts: list,
       nfrCount: data.nftCount,
     })
   };
@@ -156,7 +156,7 @@ class NFT {
       await this.init();
     }
     this.store.nft = {
-      testnet:{
+      testnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -191,8 +191,8 @@ class NFT {
   };
 
   clearNFTList = () => {
-    this.store.nft= {
-      testnet:{
+    this.store.nft = {
+      testnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -216,13 +216,7 @@ class NFT {
   }
 
   clearNFTCollection = () => {
-    this.store.collection = {
-      testnet: [],
-      mainnet: [],
-      crescendo: [],
-      migrationTestnet: [],
-      previewnet: []
-    }
+    this.clear();
   }
 
 }

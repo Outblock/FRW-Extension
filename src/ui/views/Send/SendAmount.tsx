@@ -84,9 +84,18 @@ const SendAmount = () => {
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
-    userContact.address = withPrefix(wallet.address) || '';
-    userContact.avatar = info.avatar;
-    userContact.contact_name = info.username;
+    const isChild = await usewallet.getActiveWallet();
+    if (isChild) {
+      const childResp = await usewallet.checkUserChildAccount();
+      const cwallet = childResp[wallet.address!];
+      userContact.address = withPrefix(wallet.address!) || '';
+      userContact.avatar = cwallet.thumbnail.url;
+      userContact.contact_name = cwallet.name;
+    } else {
+      userContact.address = withPrefix(wallet.address) || '';
+      userContact.avatar = info.avatar;
+      userContact.contact_name = info.username;
+    }
     const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
     setMinAmount(minAmount);
     setUser(userContact);

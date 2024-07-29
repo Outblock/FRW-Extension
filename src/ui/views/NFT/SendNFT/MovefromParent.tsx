@@ -39,7 +39,7 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
   const [childWallets, setChildWallets] = useState({});
-  const [selectedAccount, setSelectedChildAccount] = useState({});
+  const [selectedAccount, setSelectedChildAccount] = useState(null);
   const [count, setCount] = useState(0);
 
 
@@ -116,7 +116,7 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
     console.log('privatePath ', privatePath)
     const lastPart = privatePath.split('/').pop();
 
-    wallet.sendNFTtoChild(selectedAccount['address'], lastPart, props.data.nft.id, filteredCollections[0]).then(async (txID) => {
+    wallet.sendNFTtoChild(selectedAccount!['address'], lastPart, props.data.nft.id, filteredCollections[0]).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
@@ -151,7 +151,10 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   const getChildResp = async () => {
     const childresp = await wallet.checkUserChildAccount();
     setChildWallets(childresp)
-    console.log('childResp ', childresp)
+    const firstWalletAddress = Object.keys(childresp)[0];
+    if (firstWalletAddress) {
+      setSelectedChildAccount(childresp[firstWalletAddress]);
+    }
   }
 
   useEffect(() => {
@@ -241,8 +244,8 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
           <FRWProfileCard contact={props.data.userContact} />
           <Box sx={{ height: '8px' }}></Box>
-          {childWallets && <FRWDropdownProfileCard contact={selectedAccount} contacts={childWallets} setSelectedChildAccount={setSelectedChildAccount}/> }
-          
+          {selectedAccount && <FRWDropdownProfileCard contact={selectedAccount} contacts={childWallets} setSelectedChildAccount={setSelectedChildAccount} />}
+
         </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', mx: '25px', px: '14px', py: '16px', backgroundColor: '#181818', borderBottomRightRadius: '16px', borderBottomLeftRadius: '16px', mt: '-16px', mb: '42px' }}>
@@ -255,7 +258,8 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
           <Stack direction="column" spacing={1} sx={{ ml: '14px' }}>
             <Typography color='neutral.contrastText' sx={{ fontSize: '14px', fontWeight: '700' }}>{props.data.media && props.data.media?.title}</Typography>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', marginTop: '0px !important' }}>
-              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block', fontSize: '14px' }}>{props.data.contract && props.data.contract.name}</Typography>
+              <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.contract && props.data.contract.collectionSquareImage} />
+              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.contract && props.data.contract.collectionContractName}</Typography>
               <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
             </Stack>
           </Stack>

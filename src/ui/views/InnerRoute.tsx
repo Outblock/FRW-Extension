@@ -39,6 +39,8 @@ import AddEvmList from './NftEvm/NFTList/AddList';
 import About from './Setting/About/About';
 import Linked from './Setting/Linked';
 import LinkedDetail from './Setting/Linked/LinkedDetail';
+import LinkedCollection from './Setting/Linked/LinkedCollection';
+import LinkedNftDetail from './Setting/Linked/LinkedNftDetail';
 import Account from './Setting/Account';
 import DeveloperMode from './Setting/DeveloperMode/DeveloperMode';
 import Devices from './Setting/Devices/Devices';
@@ -192,6 +194,12 @@ const Inner = (props) => {
           </PrivateRoute>
 
           <PrivateRoute
+            path={`${props.match.url}/nested/linked/collectiondetail/:collection_address_name`}
+          >
+            <LinkedCollection />
+          </PrivateRoute>
+
+          <PrivateRoute
             path={`${props.match.url}/nested/evm/evmcollectiondetail/:collection_address_name`}
           >
             <CollectionDetailEvm />
@@ -199,6 +207,10 @@ const Inner = (props) => {
 
           <PrivateRoute path={`${props.match.url}/nested/nftdetail/:id`}>
             <Detail />
+          </PrivateRoute>
+
+          <PrivateRoute path={`${props.match.url}/nested/linkednftdetail/:id`}>
+            <LinkedNftDetail />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/nft/send`}>

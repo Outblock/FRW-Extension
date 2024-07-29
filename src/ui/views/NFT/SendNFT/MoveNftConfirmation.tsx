@@ -147,12 +147,12 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     }
   }, [props.data.contact]);
 
-  
+
 
   const getChildResp = async () => {
     if (props.data.userContact) {
       const childresp = await wallet.checkUserChildAccount();
-      console.log('childResp ',childresp, childresp[props.data.userContact.address])
+      console.log('childResp ', childresp, childresp[props.data.userContact.address])
       setChildWallet(childresp[props.data.userContact.address])
 
     }
@@ -260,7 +260,8 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           <Stack direction="column" spacing={1} sx={{ ml: '14px' }}>
             <Typography color='neutral.contrastText' sx={{ fontSize: '14px', fontWeight: '700' }}>{props.data.media && props.data.media?.title}</Typography>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', marginTop: '0px !important' }}>
-              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block', fontSize: '14px' }}>{props.data.contract && props.data.contract.name}</Typography>
+              <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.contract && props.data.contract.collectionSquareImage} />
+              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.contract && props.data.contract.collectionContractName}</Typography>
               <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
             </Stack>
           </Stack>

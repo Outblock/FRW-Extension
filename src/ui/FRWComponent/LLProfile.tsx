@@ -8,22 +8,6 @@ import { formatAddress } from 'ui/utils';
 
 export const LLProfile = ({ contact, isLoading = false }) => {
 
-  const DomainLogo = () => {
-    if (contact.domain?.value === '') {
-      return undefined;
-    }
-    switch (contact.domain?.domain_type) {
-      case 0:
-        return 'https://raw.githubusercontent.com/Outblock/Assets/main/dapp/find/logo.png';
-      case 1:
-        return 'https://raw.githubusercontent.com/Outblock/Assets/main/dapp/flowns/logo.png';
-      case 2:
-        return 'https://lilico.app/logo.png';
-      default:
-        return undefined;
-    }
-  };
-
   const getName = (name: string) => {
     if (!name) {
       return '0x'
@@ -50,7 +34,7 @@ export const LLProfile = ({ contact, isLoading = false }) => {
         
           <Avatar
             alt={contact.contact_name}
-            src={DomainLogo() || contact.avatar}
+            src={contact.avatar}
             sx={{
               color: 'primary.main',
               backgroundColor: '#484848',

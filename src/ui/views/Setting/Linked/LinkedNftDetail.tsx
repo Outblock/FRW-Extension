@@ -19,8 +19,8 @@ import { saveAs } from 'file-saver'
 import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
 import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
-import MoveNftConfirmation from './SendNFT/MoveNftConfirmation';
-import MovefromParent from './SendNFT/MovefromParent';
+import MoveNftConfirmation from '../../NFT/SendNFT/MoveNftConfirmation';
+import MovefromParent from '../../NFT/SendNFT/MovefromParent';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {
@@ -87,7 +87,7 @@ interface NFTDetailState {
   ownerAddress: any
 }
 
-const Detail = () => {
+const LinkedNftDetail = () => {
 
   const emptyContact = {
     address: '',
@@ -126,17 +126,19 @@ const Detail = () => {
       if (nftDetail.isAccessibleNft) {
         setisAccessibleNft(nftDetail.isAccessibleNft)
       }
+
+      fetchNft(nftDetail.ownerAddress);
     }
   }, []);
 
 
-  const fetchNft = async () => {
+  const fetchNft = async (ownerAddresss) => {
     const userInfo = await usewallet.getUserInfo(false);
-    const currentAddress = await usewallet.getCurrentAddress();
+    const currentAddress = ownerAddresss;
     const userWallets = await usewallet.getUserWallets();
     console.log('userWallets ', userWallets);
     const parentAddress = userWallets[0].blockchain[0].address;
-    const isChild = await usewallet.getActiveWallet();
+    const isChild = true;
     console.log('currentAddress  ', isChild, currentAddress);
     const userTemplate = {
       avatar: userInfo.avatar,
@@ -146,41 +148,28 @@ const Detail = () => {
       }
     };
 
-    let userOne, userTwo;
 
-    if (isChild) {
-      const childResp = await usewallet.checkUserChildAccount();
-      const wallet = childResp[currentAddress!];
-      console.log('checkUserChildAccount ', childResp)
-      userOne = {
 
-        avatar: wallet.thumbnail.url,
-        domain: {
-          domain_type: 0,
-          value: '',
-        },
-        address: currentAddress,
-        contact_name: wallet.name,
-      };
-      console.log('checkUserChildAccount ', userOne)
-      userTwo = {
-        ...userTemplate,
-        address: parentAddress,
-        contact_name: userInfo.nickname,
-      };
-    } else {
-      userOne = {
-        ...userTemplate,
-        address: currentAddress,
-        contact_name: userInfo.nickname,
-      };
-      userTwo = {
-        ...userTemplate,
-        address: parentAddress,
-        contact_name: userInfo.nickname,
-      };
+    const childResp = await usewallet.checkUserChildAccount();
+    const wallet = childResp[currentAddress!];
+    console.log('checkUserChildAccount ', childResp)
+    const userOne = {
 
-    }
+      avatar: wallet.thumbnail.url,
+      domain: {
+        domain_type: 0,
+        value: '',
+      },
+      address: currentAddress,
+      contact_name: wallet.name,
+    };
+    console.log('checkUserChildAccount ', userOne)
+    const userTwo = {
+      ...userTemplate,
+      address: parentAddress,
+      contact_name: userInfo.nickname,
+    };
+
     setContactOne(userOne);
     setContactTwo(userTwo);
 
@@ -206,10 +195,6 @@ const Detail = () => {
 
     return replacedURL
   }
-
-  useEffect(() => {
-    fetchNft();
-  }, []);
 
   const downloadImage = (image_url, title) => {
     saveAs(image_url, title) // Put your image url here.
@@ -414,7 +399,7 @@ const Detail = () => {
               disabled={!isAccessibleNft}
               onClick={() => history.push({
                 pathname: '/dashboard/nft/send/',
-                state: { nft: nftDetail, media: media, contract: nftDetail }
+                state: { nft: nftDetail, media: media, contract: nftDetail, linked: ownerAddress }
               })}
             >
               {/* <IosShareOutlinedIcon color="primary" /> */}
@@ -448,39 +433,21 @@ const Detail = () => {
 
         {
           moveOpen && (
-            childActive ? (
-              <MoveNftConfirmation
-                isConfirmationOpen={moveOpen}
-                data={{
-                  contact: contactTwo,
-                  userContact: contactOne,
-                  nft: nftDetail,
-                  contract: nftDetail,
-                  media: media
-                }}
-                handleCloseIconClicked={() => setMoveOpen(false)}
-                handleCancelBtnClicked={() => setMoveOpen(false)}
-                handleAddBtnClicked={() => {
-                  setMoveOpen(false);
-                }}
-              />
-            ) : (
-              <MovefromParent
-                isConfirmationOpen={moveOpen}
-                data={{
-                  contact: contactTwo,
-                  userContact: contactOne,
-                  nft: nftDetail,
-                  contract: nftDetail,
-                  media: media
-                }}
-                handleCloseIconClicked={() => setMoveOpen(false)}
-                handleCancelBtnClicked={() => setMoveOpen(false)}
-                handleAddBtnClicked={() => {
-                  setMoveOpen(false);
-                }}
-              />
-            )
+            <MoveNftConfirmation
+              isConfirmationOpen={moveOpen}
+              data={{
+                contact: contactTwo,
+                userContact: contactOne,
+                nft: nftDetail,
+                contract: nftDetail,
+                media: media
+              }}
+              handleCloseIconClicked={() => setMoveOpen(false)}
+              handleCancelBtnClicked={() => setMoveOpen(false)}
+              handleAddBtnClicked={() => {
+                setMoveOpen(false);
+              }}
+            />
           )
         }
 
@@ -489,4 +456,4 @@ const Detail = () => {
   );
 };
 
-export default Detail;
+export default LinkedNftDetail;

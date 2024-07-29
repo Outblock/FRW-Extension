@@ -57,6 +57,7 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
     }
   }
 
+
   useEffect(() => {
     getEmoji();
   }, [contact]);
