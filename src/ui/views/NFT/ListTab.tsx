@@ -135,6 +135,26 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   }, [props.data.ownerAddress]);
 
 
+  const extractContractAddress = (collection) => {
+    return collection.split('.')[2];
+  };
+
+  const checkContractAddressInCollections = (nft) => {
+    if (props.isActive) {
+      return true
+    }
+    const contractAddressWithout0x = nft.collection.contract_name;
+    const isActiveCollect =  props.activeCollection.some(collection => {
+      const extractedAddress = extractContractAddress(collection);
+      if (extractedAddress === contractAddressWithout0x) {
+        console.log('nft is ', contractAddressWithout0x, extractedAddress, )
+      }
+      return extractedAddress === contractAddressWithout0x;
+    });
+    return isActiveCollect;
+  };
+
+
 
   const CollectionView = (data) => {
     const handleClick = () => {
@@ -218,25 +238,6 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
         </CardActionArea>
       </Card>
     );
-  };
-
-  const extractContractAddress = (collection) => {
-    return collection.split('.')[2];
-  };
-
-  const checkContractAddressInCollections = (nft) => {
-    if (props.isActive) {
-      return true
-    }
-    const contractAddressWithout0x = nft.collection.contract_name;
-    const isActiveCollect =  props.activeCollection.some(collection => {
-      const extractedAddress = extractContractAddress(collection);
-      if (extractedAddress === contractAddressWithout0x) {
-        console.log('nft is ', contractAddressWithout0x, extractedAddress, )
-      }
-      return extractedAddress === contractAddressWithout0x;
-    });
-    return isActiveCollect;
   };
 
   const createListCard = (props, index) => {

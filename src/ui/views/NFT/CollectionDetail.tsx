@@ -274,57 +274,7 @@ const CollectionDetail = (props) => {
 
   const getCollection = async (ownerAddress, collection, offset = 0) => {
     console.log('collection_info ', collection_info)
-    if (collection_info[3]) {
-      const result: Result = {
-        info: {
-          collectionDisplay: {
-            name: 'Some collection name',
-            squareImage: {
-              file: {
-                url: 'https://example.com/image.jpg'
-              }
-            },
-            externalURL: '',
-          }
-        },
-        nftCount: 0,
-        nfts: [{
-          id: '5838655',
-          name: '',
-          description: '',
-          thumbnail: '',
-          postMedia: {
-            title: 'string',
-            description: 'string',
-            image: 'string',
-            video: 'string',
-          },
-          unique_id: ''
-        }]
-      };
-      const res = await usewallet.getCollectionApi(ownerAddress, collection, offset);
-      result.nfts = res.nfts.map((nft) => ({
-        id: nft.id,
-        name: nft.name,
-        description: nft.description,
-        thumbnail: nft.thumbnail,     
-        postMedia: {
-          title: nft.name,
-          description: nft.description,
-          image: nft.thumbnail,
-          video: '',
-        },
-        unique_id: nft.id,
-      }));
-
-      result['info']['collectionDisplay']['name'] = res.collection.display.name
-      result['info']['collectionDisplay']['squareImage']['file']['url'] = res.collection.display.squareImage
-      result['nftCount'] = res.collection.nftCount
-      console.log('res.collection.display.name ', result)
-      return result;
-    } else {
-      return await usewallet.getSingleCollection(ownerAddress, collection, offset);
-    }
+    return await usewallet.getSingleCollection(ownerAddress, collection, offset);
   }
 
 

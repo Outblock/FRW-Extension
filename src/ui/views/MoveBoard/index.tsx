@@ -10,6 +10,8 @@ import moveft from 'ui/FRWAssets/image/moveft.png';
 import movenft from 'ui/FRWAssets/image/movenft.png';
 import MoveNfts from './MoveNfts';
 import MoveEvm from './MoveEvm';
+import MoveToChild from './MoveToChild';
+import MoveFromChild from './MoveFromChild';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import MoveFromEvm from '../EvmMove/MoveFromEvm';
 import { add } from 'lodash';
@@ -33,11 +35,14 @@ const MoveBoard = (props: MoveBoardProps) => {
   const [showSelectNft, setSelectBoard] = useState<boolean>(false);
   const [moveFtOpen, setMoveFt] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
+  const [network, setNetwork] = useState<string>('');
 
   // console.log('props.loggedInAccounts', props.current)
 
   const requestChildType = async () => {
     const result = await usewallet.getActiveWallet();
+    const currentNetwork = await usewallet.getNetwork();
+    setNetwork(currentNetwork)
     setChildType(result);
   };
 
@@ -49,6 +54,54 @@ const MoveBoard = (props: MoveBoardProps) => {
   useEffect(() => {
     requestChildType();
   }, [])
+
+  const renderMoveComponent = () => {
+    if (network === 'previewnet') {
+      return (
+        <MoveNfts
+          showMoveBoard={showSelectNft}
+          handleCloseIconClicked={() => setSelectBoard(false)}
+          handleCancelBtnClicked={() => setSelectBoard(false)}
+          handleAddBtnClicked={() => setSelectBoard(false)}
+          handleReturnHome={() => props.handleCancelBtnClicked()}
+        />
+      );
+    }
+
+    if (childType === 'evm') {
+      return (
+        <MoveEvm
+          showMoveBoard={showSelectNft}
+          handleCloseIconClicked={() => setSelectBoard(false)}
+          handleCancelBtnClicked={() => setSelectBoard(false)}
+          handleAddBtnClicked={() => setSelectBoard(false)}
+          handleReturnHome={() => props.handleCancelBtnClicked()}
+        />
+      );
+    }
+
+    if (childType && childType !== 'evm') {
+      return (
+        <MoveFromChild
+          showMoveBoard={showSelectNft}
+          handleCloseIconClicked={() => setSelectBoard(false)}
+          handleCancelBtnClicked={() => setSelectBoard(false)}
+          handleAddBtnClicked={() => setSelectBoard(false)}
+          handleReturnHome={() => props.handleCancelBtnClicked()}
+        />
+      );
+    }
+
+    return (
+      <MoveToChild
+        showMoveBoard={showSelectNft}
+        handleCloseIconClicked={() => setSelectBoard(false)}
+        handleCancelBtnClicked={() => setSelectBoard(false)}
+        handleAddBtnClicked={() => setSelectBoard(false)}
+        handleReturnHome={() => props.handleCancelBtnClicked()}
+      />
+    );
+  };
 
   return (
     <Drawer
@@ -148,27 +201,7 @@ const MoveBoard = (props: MoveBoardProps) => {
           </Typography>
         </Button>
       </Box>
-      {showSelectNft && (
-        <>
-          {childType === 'evm' ? (
-            <MoveEvm
-              showMoveBoard={showSelectNft}
-              handleCloseIconClicked={() => setSelectBoard(false)}
-              handleCancelBtnClicked={() => setSelectBoard(false)}
-              handleAddBtnClicked={() => setSelectBoard(false)}
-              handleReturnHome={() => props.handleCancelBtnClicked()}
-            />
-          ) : (
-            <MoveNfts
-              showMoveBoard={showSelectNft}
-              handleCloseIconClicked={() => setSelectBoard(false)}
-              handleCancelBtnClicked={() => setSelectBoard(false)}
-              handleAddBtnClicked={() => setSelectBoard(false)}
-              handleReturnHome={() => props.handleCancelBtnClicked()}
-            />
-          )}
-        </>
-      )}
+      {showSelectNft && renderMoveComponent()}
 
       {moveFtOpen && (
         childType === 'evm' ? (

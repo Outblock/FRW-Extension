@@ -869,23 +869,23 @@ export class WalletController extends BaseController {
   checkUserChildAccount = async () => {
     const cacheKey = 'checkUserChildAccount';
     const ttl = 5 * 60 * 1000; // 5 minutes in milliseconds
-  
+
     // Try to get the cached result
     let meta = await storage.getExpiry(cacheKey);
-  
+
     if (!meta) {
       try {
         const network = await this.getNetwork();
         let result = {};
         const address = await userWalletService.getMainWallet(network);
-  
+
         if (network !== 'crescendo' && network !== 'previewnet') {
           result = await openapiService.checkChildAccountMeta(address);
         }
-  
+
         if (result) {
           meta = result;
-  
+
           // Store the result in the cache with an expiry
           await storage.setExpiry(cacheKey, meta, ttl);
         }
@@ -894,7 +894,7 @@ export class WalletController extends BaseController {
         return {}; // Return an empty object in case of an error
       }
     }
-  
+
     return meta;
   };
 
@@ -1366,6 +1366,14 @@ export class WalletController extends BaseController {
 
 
   requestCadenceNft = async () => {
+    const network = await this.getNetwork();
+    const address = await this.getCurrentAddress();
+    const NFTList = await openapiService.getNFTCadenceList(address!, network);
+    return NFTList;
+  };
+
+
+  requestMainNft = async () => {
     const network = await this.getNetwork();
     const address = await this.getCurrentAddress();
     const NFTList = await openapiService.getNFTCadenceList(address!, network);
@@ -2337,7 +2345,7 @@ export class WalletController extends BaseController {
     return result
   };
 
-  
+
 
   checkChildLinkedVault = async (
     parent: string,
@@ -2355,7 +2363,7 @@ export class WalletController extends BaseController {
     console.log('result is this ', result)
     return result
   };
-  
+
   batchBridgeNftToEvm = async (
     nftContractAddress: string,
     nftContractName: string,
@@ -2374,6 +2382,8 @@ export class WalletController extends BaseController {
     );
   };
 
+
+
   batchBridgeNftFromEvm = async (
     nftContractAddress: string,
     nftContractName: string,
@@ -2388,6 +2398,58 @@ export class WalletController extends BaseController {
         fcl.arg(nftContractAddress, t.Address),
         fcl.arg(nftContractName, t.String),
         fcl.arg(ids, t.Array(t.UInt256)),
+      ]
+    );
+  };
+
+
+
+  batchTransferNFTToChild = async (
+    childAddr: string,
+    identifier: string,
+    ids: Array<number>,
+    token
+  ): Promise<string> => {
+
+    const script = await getScripts('hybridCustody', 'batchTransferNFTToChild');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(childAddr, t.Address),
+        fcl.arg(identifier, t.String),
+        fcl.arg(ids, t.Array(t.UInt64)),
+      ]
+    );
+  };
+
+
+
+  batchTransferChildNft = async (
+    childAddr: string,
+    identifier: string,
+    ids: Array<number>,
+    token
+  ): Promise<string> => {
+
+    const script = await getScripts('hybridCustody', 'batchTransferChildNFT');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(childAddr, t.Address),
+        fcl.arg(identifier, t.String),
+        fcl.arg(ids, t.Array(t.UInt64)),
       ]
     );
   };

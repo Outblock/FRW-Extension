@@ -10,7 +10,7 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import EmptyStatus from '../../NftEvm/EmptyStatus';
-import AccountBox from '../AccountBox';
+import AccountMainBox from '../AccountMainBox';
 import selected from 'ui/FRWAssets/svg/selected.svg';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 
@@ -25,7 +25,7 @@ interface MoveBoardProps {
 }
 
 
-const MoveNfts = (props: MoveBoardProps) => {
+const MoveToChild = (props: MoveBoardProps) => {
 
 
   const usewallet = useWallet();
@@ -40,6 +40,7 @@ const MoveNfts = (props: MoveBoardProps) => {
   const [failed, setFailed] = useState(false);
   const [errorOpen, setShowError] = useState(false);
   const [selectCollection, setSelectCollection] = useState(false);
+  const [selectedAccount, setSelectedChildAccount] = useState(null);
   const [currentCollection, setCurrentCollection] = useState<any>({
     CollectionName: '',
     NftCount: 0,
@@ -65,14 +66,44 @@ const MoveNfts = (props: MoveBoardProps) => {
 
   };
 
+
+  const fetchCollectionCache = async (address: string) => {
+    try {
+      const list = await usewallet.getCollectionCache();
+      if (list && list.length > 0) {
+        return list;
+      } else {
+        const list = await fetchLatestCollection(address);
+        return list;
+      }
+    } catch {
+      fetchLatestCollection(address);
+    } finally {
+      console.log('done')
+    }
+  };
+
+  const fetchLatestCollection = async (address: string) => {
+    try {
+      const list = await usewallet.refreshCollection(address);
+      if (list && list.length > 0) {
+        return list
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  };
+
+
   const requestCadenceNft = async () => {
     setIsLoading(true);
     try {
-      const cadenceResult = await usewallet.requestCadenceNft();
-      console.log('nfts ->', cadenceResult)
-      setSelected(cadenceResult[0].collection.id);
+      const address = await usewallet.getCurrentAddress();
+      const cadenceResult = await fetchCollectionCache(address!);
+      console.log('cadenceResult ', cadenceResult)
+      setSelected(cadenceResult![0].collection.id);
 
-      const extractedObjects = cadenceResult.map(obj => {
+      const extractedObjects = cadenceResult!.map(obj => {
         return {
           CollectionName: obj.collection.contract_name,
           NftCount: obj.count,
@@ -96,7 +127,8 @@ const MoveNfts = (props: MoveBoardProps) => {
   const requestCollectionInfo = async () => {
     if (selectedCollection) {
       try {
-        const cadenceResult = await usewallet.requestCollectionInfo(selectedCollection);
+        const address = await usewallet.getCurrentAddress();
+        const cadenceResult = await usewallet.getSingleCollection(address!, selectedCollection, 0);
         setCollectionDetail(cadenceResult);
         console.log('setCollectionDetail ', cadenceResult);
       } catch (error) {
@@ -130,14 +162,17 @@ const MoveNfts = (props: MoveBoardProps) => {
 
   const moveNFT = async () => {
     setSending(true);
-    usewallet.batchBridgeNftToEvm(collectionDetail.collection.address, collectionDetail.collection.contract_name, nftIdArray).then(async (txID) => {
+    console.log('collectionDetail ', selectedAccount, nftIdArray)
+    const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
+    usewallet.batchTransferNFTToChild(selectedAccount!['address'], lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();
       await usewallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log('err ', err)
       setSending(false);
       setFailed(true);
     })
@@ -158,6 +193,22 @@ const MoveNfts = (props: MoveBoardProps) => {
     setIsLoading(true);
     findCollectionByContractName();
   }, [collectionList, selectedCollection])
+
+  const replaceIPFS = (url: string | null): string => {
+    if (!url) {
+      return ''
+    }
+
+    const lilicoEndpoint = 'https://gateway.pinata.cloud/ipfs/'
+
+    const replacedURL = url
+      .replace('ipfs://', lilicoEndpoint)
+      .replace('https://ipfs.infura.io/ipfs/', lilicoEndpoint)
+      .replace('https://ipfs.io/ipfs/', lilicoEndpoint)
+      .replace('https://lilico.app/api/ipfs/', lilicoEndpoint)
+
+    return replacedURL
+  }
 
   return (
     <Drawer
@@ -191,7 +242,7 @@ const MoveNfts = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
-      <AccountBox isEvm={false} />
+      <AccountMainBox isChild={false} setSelectedChildAccount={setSelectedChildAccount} selectedAccount={selectedAccount}/>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography
@@ -255,7 +306,7 @@ const MoveNfts = (props: MoveBoardProps) => {
                     height="84px"
                     width="84px"
                     sx={{ borderRadius: '16px', }}
-                    image={nft.thumbnail}
+                    image={replaceIPFS(nft.thumbnail)}
                     title={nft.name}
                   />
                 </Button>
@@ -389,4 +440,4 @@ const MoveNfts = (props: MoveBoardProps) => {
 }
 
 
-export default MoveNfts;
+export default MoveToChild;

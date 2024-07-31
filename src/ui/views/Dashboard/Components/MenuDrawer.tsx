@@ -128,6 +128,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     }
   };
 
+  const hasChildAccounts = props.childAccounts && Object.keys(props.childAccounts).length > 0;
+
 
   useEffect(() => {
     console.log('props.walletList ', props.walletList)
@@ -224,9 +226,11 @@ const MenuDrawer = (props: MenuDrawerProps) => {
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
         </Box>
         {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
-        {(isValidEthereumAddress(props.evmAddress) || Object.keys(props.childAccounts).length > 0) &&
-          <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}>{chrome.i18n.getMessage('Linked_Account')}</Typography>
-        }
+        {(isValidEthereumAddress(props.evmAddress) || hasChildAccounts) && (
+          <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}>
+            {chrome.i18n.getMessage('Linked_Account')}
+          </Typography>
+        )}
         <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'scroll', paddingBottom: '16px' }}>
           {isValidEthereumAddress(props.evmAddress) && (
             <ListItem
@@ -307,7 +311,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
               </ListItemButton>
             </ListItem>)}
 
-          {Object.keys(props.childAccounts).map((key, index) => (
+          {props.childAccounts && Object.keys(props.childAccounts).map((key, index) => (
             <ListItem
               sx={{
                 display: 'flex', justifyContent: 'space-between', padding: '8px 16px 8px', cursor: 'pointer', '&:hover': {

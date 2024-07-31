@@ -261,24 +261,7 @@ const WalletTab = ({ network }) => {
   }, []);
 
   const goMoveBoard = async () => {
-    if (childType === 'evm') {
-      setMoveBoard(true);
-      return
-    }
-    try {
-      const evmAddress = await wallet.queryEvmAddress(address);
-      console.log('evm queryEvmAddress', evmAddress);
-      const evmison = isValidEthereumAddress(evmAddress);
-
-      if (evmison) {
-        setMoveBoard(true);
-      } else {
-        history.push({ pathname: '/dashboard/enable' });
-      }
-    } catch (error) {
-      console.error('Error querying EVM address:', error);
-      history.push({ pathname: '/dashboard/enable' });
-    }
+    setMoveBoard(true);
   };
 
   const filteredCoinData = coinData.filter((coin) => {
@@ -475,27 +458,19 @@ const WalletTab = ({ network }) => {
               </Button>
             }
           </Box>
-
-          {network === 'previewnet' &&
-            <Box sx={{ flex: '1' }}>
-            </Box>
-          }
-          {network === 'previewnet' &&
-
-            <Box>
-              <Button
-                color="info3"
-                variant="contained"
-                onClick={() => goMoveBoard()}
-                sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
-              >
-                <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
-                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>{chrome.i18n.getMessage('Move')}</Typography>
-              </Button>
-            </Box>
-
-
-          }
+          <Box sx={{ flex: '1' }}>
+          </Box>
+          <Box>
+            <Button
+              color="info3"
+              variant="contained"
+              onClick={() => goMoveBoard()}
+              sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
+            >
+              <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
+              <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>{chrome.i18n.getMessage('Move')}</Typography>
+            </Button>
+          </Box>
 
         </Box>
         <Tabs

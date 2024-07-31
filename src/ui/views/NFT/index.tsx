@@ -50,7 +50,6 @@ const NFTTab = () => {
       const parentaddress = await wallet.getMainWallet();
 
       const activec = await wallet.getChildAccountAllowTypes(parentaddress, address!);
-      console.log('active check permission ', activec)
       setActiveCollection(activec)
       const nftResult = await wallet.checkAccessibleNft(address);
       if (nftResult) {

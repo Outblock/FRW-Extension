@@ -27,7 +27,7 @@ interface TransferConfirmationProps {
 }
 
 
-const MoveFromFlow = (props: TransferConfirmationProps) => {
+const MoveFromChild = (props: TransferConfirmationProps) => {
 
   enum ENV {
     Mainnet = 'mainnet',
@@ -286,4 +286,4 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
 }
 
 
-export default MoveFromFlow;
+export default MoveFromChild;
