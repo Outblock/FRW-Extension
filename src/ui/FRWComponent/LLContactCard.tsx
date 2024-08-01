@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
-import { useWallet, formatAddress } from 'ui/utils';
+import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
@@ -69,12 +69,7 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
       });
     }
   };
-  
-  const isEmoji = (char) => {
-    // Regular expression to match most emojis
-    const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
-    return emojiRegex.test(char);
-  };
+
 
   return (
     <ThemeProvider theme={theme}>

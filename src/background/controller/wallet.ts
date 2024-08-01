@@ -2470,6 +2470,32 @@ export class WalletController extends BaseController {
     );
   };
 
+  sendChildNFTToChild = async (
+    childAddr: string,
+    receiver: string,
+    identifier: string,
+    ids: Array<number>,
+    token
+  ): Promise<string> => {
+
+    const script = await getScripts('hybridCustody', 'batchSendChildNFTToChild');
+    console.log('script is this ', script)
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(childAddr, t.Address),
+        fcl.arg(receiver, t.Address),
+        fcl.arg(identifier, t.String),
+        fcl.arg(ids, t.Array(t.UInt64)),
+      ]
+    );
+  };
+
   bridgeNftToEvmAddress = async (
     nftContractAddress: string,
     nftContractName: string,

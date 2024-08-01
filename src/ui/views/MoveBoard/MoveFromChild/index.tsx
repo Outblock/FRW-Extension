@@ -61,7 +61,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
   const findCollectionByContractName = () => {
     if (collectionList) {
       const collection = collectionList.find(collection => collection.id === selectedCollection);
-      console.log('setCurrentCollection ', collection)
       setCurrentCollection(collection);
     }
 
@@ -106,7 +105,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
       const cadenceResult = await fetchCollectionCache(address!);
       const filteredCadenceResult = cadenceResult.filter(nft => checkContractAddressInCollections(nft, activec));
 
-      console.log('cadenceResult ', filteredCadenceResult)
       setSelected(filteredCadenceResult![0].collection.id);
       setActiveCollection(activec);
 
@@ -137,7 +135,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
         const address = await usewallet.getCurrentAddress();
         const cadenceResult = await usewallet.getSingleCollection(address!, selectedCollection, 0);
         setCollectionDetail(cadenceResult);
-        console.log('setCollectionDetail ', cadenceResult);
       } catch (error) {
         console.error('Error requesting collection info:', error);
         setCollectionDetail(null);
@@ -168,11 +165,41 @@ const MoveFromChild = (props: MoveBoardProps) => {
   };
 
   const moveNFT = async () => {
+    const parentAddress = await usewallet.getMainAddress();
+    console.log('selectedAccount ', selectedAccount, parentAddress)
+    if (parentAddress === selectedAccount!['address']) {
+      moveToParent();
+    } else {
+      moveToChild();
+    }
+  }
+
+  const moveToParent = async () => {
     setSending(true);
     console.log('collectionDetail ', collectionDetail, nftIdArray)
     const address = await usewallet.getCurrentAddress();
     const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
     usewallet.batchTransferChildNft(address!, lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
+      props.handleReturnHome();
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log('err ', err)
+      setSending(false);
+      setFailed(true);
+    })
+
+  };
+
+  const moveToChild = async () => {
+    setSending(true);
+    console.log('collectionDetail ', collectionDetail, nftIdArray)
+    const address = await usewallet.getCurrentAddress();
+    const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
+    usewallet.sendChildNFTToChild(address!,selectedAccount!['address'], lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();
@@ -197,12 +224,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
   const checkContractAddressInCollections = (nft, activec) => {
     const contractAddressWithout0x = nft.collection.contract_name;
     const isActiveCollect =  activec.some(collection => {
-      console.log('cadenceResult ', collection, contractAddressWithout0x)
       const extractedAddress = extractContractAddress(collection);
-      console.log('cadenceResult ', extractedAddress, contractAddressWithout0x)
-      if (extractedAddress === contractAddressWithout0x) {
-        console.log('nft is ', contractAddressWithout0x, extractedAddress, )
-      }
       return extractedAddress === contractAddressWithout0x;
     });
     return isActiveCollect;

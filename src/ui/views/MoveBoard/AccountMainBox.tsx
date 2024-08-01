@@ -13,7 +13,7 @@ import emoji from 'background/utils/emoji.json';
 import { storage } from '@/background/webapi';
 
 
-function AccountMainBox({ isChild,setSelectedChildAccount, selectedAccount  }) {
+function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
   const usewallet = useWallet();
   const userContact = {
     contact_name: '',
@@ -32,21 +32,37 @@ function AccountMainBox({ isChild,setSelectedChildAccount, selectedAccount  }) {
     const parentAddress = await usewallet.getMainAddress();
     const address = await usewallet.getCurrentAddress();
     const childResp = await usewallet.checkUserChildAccount();
-
-    setChildWallets(childResp);
     const emojires = await usewallet.getEmoji();
 
     if (isChild) {
+      const newWallet = {
+        [parentAddress!]: {
+          "name": emojires[0].name,
+          "description": emojires[0].name,
+          "thumbnail": {
+            "url": emojires[0].emoji
+          }
+        }
+      };
+      const walletList = { ...childResp, ...newWallet }
+      delete walletList[address!];
+
+      setChildWallets(walletList);
       const wallet = childResp[address!];
-      console.log('checkUserChildAccount ', childResp)
 
       userContact.avatar = wallet.thumbnail.url;
       userContact.contact_name = wallet.name;
+      const firstWalletAddress = Object.keys(childResp)[0];
+      if (firstWalletAddress) {
+        setSelectedChildAccount(childResp[firstWalletAddress]);
+      }
+      console.log('firstWalletAddress ', firstWalletAddress, userContact)
       setUser(userContact);
       setFirst(address!)
       setSecond(parentAddress!)
       setSecondEmoji(emojires[0])
     } else {
+      setChildWallets(childResp);
       const firstWalletAddress = Object.keys(childResp)[0];
       if (firstWalletAddress) {
         setSelectedChildAccount(childResp[firstWalletAddress]);
@@ -77,14 +93,14 @@ function AccountMainBox({ isChild,setSelectedChildAccount, selectedAccount  }) {
               display: 'flex', height: '20px', width: '20px', borderRadius: '20px', justifyContent: 'center', alignItems: 'center', backgroundColor: firstEmoji ? firstEmoji['bgcolor'] : 'none', marginRight: '4px'
             }}>
               {firstEmoji ?
-                <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>
+                <Typography sx={{ fontSize: '12px', fontWeight: '400' }}>
                   {firstEmoji.emoji}
                 </Typography>
                 :
                 <CardMedia sx={{ margin: '0 auto', width: '20px', height: '20px', borderRadius: '20px', display: 'block' }} image={userInfo.avatar} />
               }
             </Box>
-            <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>
+            <Typography sx={{ fontSize: '12px', fontWeight: '400' }}>
               {firstEmoji ? firstEmoji.name : userInfo.contact_name}
             </Typography>
           </Box>
@@ -97,25 +113,13 @@ function AccountMainBox({ isChild,setSelectedChildAccount, selectedAccount  }) {
         </Box>
         <Box sx={{ padding: '8px 12px', height: '60px', flex: '1', backgroundColor: '#2C2C2C', borderRadius: '12px' }}>
           {isChild ? (
-            <>
-              {secondEmoji && (
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                  <Box sx={{
-                    display: 'flex', height: '20px', width: '20px', borderRadius: '20px', justifyContent: 'center', alignItems: 'center', backgroundColor: secondEmoji['bgcolor'], marginRight: '4px'
-                  }}>
-                    <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>
-                      {secondEmoji.emoji}
-                    </Typography>
-                  </Box>
-                  <Typography sx={{ fontSize: '14px', fontWeight: '600' }}>
-                    {secondEmoji.name}
-                  </Typography>
-                </Box>
-              )}
-              <Typography sx={{ fontSize: '10px', fontWeight: '400' }}>
-                {second}
-              </Typography>
-            </>
+            selectedAccount && (
+              <FWDropDownProfile
+                contact={selectedAccount}
+                contacts={childWallets}
+                setSelectedChildAccount={setSelectedChildAccount}
+              />
+            )
           ) : (
             selectedAccount && (
               <FWDropDownProfile

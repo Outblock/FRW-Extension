@@ -3,7 +3,7 @@ import { Box, Typography, Avatar, Skeleton, Select, MenuItem, FormControl, Input
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
-import { useWallet, formatAddress } from 'ui/utils';
+import { useWallet, isEmoji } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
 
@@ -77,13 +77,34 @@ export const FWDropDownProfile = ({ contact, contacts, setSelectedChildAccount, 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
 
                 <Box sx={{ display: 'flex', }}>
-                  <Avatar src={contacts[address].thumbnail.url} sx={{ height: '20px', width: '20px', borderRadius: '20px', marginRight: '4px' }} />
-                  <Typography sx={{ textAlign: 'start', color: '#FFFFFF', fontSize: '12px' }}>
+                  {isEmoji(contacts[address].thumbnail.url) ? (
+                    <Typography
+                      sx={{
+                        mr: '4px',
+                        color: 'primary.main',
+                        backgroundColor: '#484848',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '50%',
+                        fontSize: '20px', // Adjust font size to fit within the box
+                      }}
+                    >
+                      {contacts[address].thumbnail.url}
+                    </Typography>
+                  ) : (
+                    <Avatar src={contacts[address].thumbnail.url} sx={{ height: '20px', width: '20px', borderRadius: '20px', marginRight: '4px' }} />
+                  )
+                  }
+
+                  <Typography sx={{ textAlign: 'start', color: '#FFFFFF', fontSize: '12px', fontWeight: '400' }}>
                     {contacts[address].name}
                   </Typography>
                 </Box>
                 <Typography
-                  sx={{ lineHeight: '1', textAlign: 'start', fontSize: '12px', fontWeight: '400' }}
+                  sx={{ lineHeight: '1', textAlign: 'start', fontSize: '10px', fontWeight: '400' }}
                   color="#FFFFFFCC"
                 >
                   {address}

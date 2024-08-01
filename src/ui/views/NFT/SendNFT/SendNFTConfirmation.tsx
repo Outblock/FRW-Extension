@@ -15,7 +15,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
+import { useWallet, isEmoji } from 'ui/utils';
 import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
@@ -168,12 +168,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     console.log('props ', props.data)
   }
 
-
-  const isEmoji = (char) => {
-    // Regular expression to match most emojis
-    const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
-    return emojiRegex.test(char);
-  };
 
 
   useEffect(() => {

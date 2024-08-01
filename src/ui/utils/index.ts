@@ -54,6 +54,13 @@ export const hex2Text = (hex: string) => {
   }
 };
 
+export const isEmoji = (char) => {
+  // Regular expression to match most emojis
+  const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
+  return emojiRegex.test(char);
+};
+
+
 export const hexToUint8Array = (hexString: string) => {
   if (hexString.startsWith('0x')) {
     hexString = hexString.substring(2);

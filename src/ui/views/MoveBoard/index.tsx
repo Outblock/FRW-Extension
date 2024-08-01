@@ -14,6 +14,7 @@ import MoveToChild from './MoveToChild';
 import MoveFromChild from './MoveFromChild';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import MoveFromEvm from '../EvmMove/MoveFromEvm';
+import MoveFromChildFT from '../EvmMove/MoveFromChild';
 import { add } from 'lodash';
 
 
@@ -101,6 +102,48 @@ const MoveBoard = (props: MoveBoardProps) => {
         handleReturnHome={() => props.handleCancelBtnClicked()}
       />
     );
+  };
+
+  const renderMoveFT = () => {
+    if (childType === 'evm') {
+      return (
+        <MoveFromEvm
+          isConfirmationOpen={moveFtOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => closeFullPage()}
+          handleCancelBtnClicked={() => setMoveFt(false)}
+          handleAddBtnClicked={() => {
+            setMoveFt(false);
+          }}
+        />
+      );
+    } else if (childType) {
+      return (
+        <MoveFromChildFT
+          isConfirmationOpen={moveFtOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => closeFullPage()}
+          handleCancelBtnClicked={() => setMoveFt(false)}
+          handleAddBtnClicked={() => {
+            setMoveFt(false);
+          }}
+        />
+      );
+
+    }
+    else {
+      return (
+        <MoveFromFlow
+          isConfirmationOpen={moveFtOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => closeFullPage()}
+          handleCancelBtnClicked={() => setMoveFt(false)}
+          handleAddBtnClicked={() => {
+            setMoveFt(false);
+          }}
+        />
+      );
+    }
   };
 
   return (
@@ -203,29 +246,7 @@ const MoveBoard = (props: MoveBoardProps) => {
       </Box>
       {showSelectNft && renderMoveComponent()}
 
-      {moveFtOpen && (
-        childType === 'evm' ? (
-          <MoveFromEvm
-            isConfirmationOpen={moveFtOpen}
-            data={{ amount: 0 }}
-            handleCloseIconClicked={() => closeFullPage()}
-            handleCancelBtnClicked={() => setMoveFt(false)}
-            handleAddBtnClicked={() => {
-              setMoveFt(false);
-            }}
-          />
-        ) : (
-          <MoveFromFlow
-            isConfirmationOpen={moveFtOpen}
-            data={{ amount: 0 }}
-            handleCloseIconClicked={() => closeFullPage()}
-            handleCancelBtnClicked={() => setMoveFt(false)}
-            handleAddBtnClicked={() => {
-              setMoveFt(false);
-            }}
-          />
-        )
-      )}
+      {moveFtOpen && renderMoveFT()}
 
 
     </Drawer>

@@ -10,18 +10,9 @@ import { groupBy, isEmpty } from 'lodash';
 import { LLContactCard, FWContactCard } from '../../FRWComponent';
 import { useHistory } from 'react-router-dom';
 import EmptyAddress from 'ui/assets/EmptyAddress.svg';
-import { useWallet } from 'ui/utils';
+import { isEmoji } from 'ui/utils';
 
 const RecentList = ({ filteredContacts, isLoading, handleClick }) => {
-
-
-
-
-  const isEmoji = (char) => {
-    // Regular expression to match most emojis
-    const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
-    return emojiRegex.test(char);
-  };
 
 
 

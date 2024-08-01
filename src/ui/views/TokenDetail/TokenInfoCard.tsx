@@ -36,11 +36,8 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
       setData(tokenInfo!);
 
       setIsActive(true);
-      if (isChild) {
-        setAccessible(false);
-      }
+      setAccessible(true);
       if (isChild === 'evm') {
-        setAccessible(true);
         const coins = await wallet.getCoinList();
         const thisCoin = coins.filter(coin => coin.unit.toLowerCase() === token);
         const balance = thisCoin[0].balance
@@ -67,7 +64,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   const moveToken = () => {
     if (data) {
       wallet.setCurrentCoin(data?.symbol);
-      (evmEnabled) ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })
+      setMoveOpen(true)
     }
   }
 
@@ -124,7 +121,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
               </Box>
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
-            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && (network === 'previewnet')) &&
+            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow')) &&
               <ButtonBase
                 onClick={() => moveToken()}
               >

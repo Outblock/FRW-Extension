@@ -15,7 +15,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
+import { useWallet, isEmoji } from 'ui/utils';
 import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import eventBus from '@/eventBus';
@@ -176,13 +176,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       chrome.runtime.onMessage.removeListener(transactionDoneHanlder)
     }
   }, []);
-
-
-  const isEmoji = (char) => {
-    // Regular expression to match most emojis
-    const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
-    return emojiRegex.test(char);
-  };
 
   const renderContent = () => (
     <Box
