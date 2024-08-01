@@ -835,10 +835,25 @@ export class WalletController extends BaseController {
   fetchUserInfo = async () => {
     const result = await openapiService.userInfo();
     const info = result['data'];
-    info.avatar = this.addTokenForFirebaseImage(info.avatar);
+    const avatar = this.addTokenForFirebaseImage(info.avatar);
+
+    const updatedUrl = this.replaceAvatarUrl(avatar);
+
+    info.avatar = updatedUrl;
     userInfoService.addUserInfo(info);
     return info;
   };
+
+  replaceAvatarUrl = (url) => {
+    const baseUrl = "https://source.boringavatars.com/";
+    const newBaseUrl = "https://lilico.app/api/avatar/";
+
+    if (url.startsWith(baseUrl)) {
+      return url.replace(baseUrl, newBaseUrl);
+    }
+
+    return url;
+  }
 
   addTokenForFirebaseImage = (avatar: string): string => {
     if (!avatar) {
@@ -1070,6 +1085,7 @@ export class WalletController extends BaseController {
 
       const pricesResults = await Promise.allSettled(pricesPromises);
 
+
       // Extract fulfilled prices
       const allPrice = pricesResults.map(result => result.status === 'fulfilled' ? result.value : null);
 
@@ -1224,7 +1240,7 @@ export class WalletController extends BaseController {
       if (err.message === 'Operation aborted') {
         console.log('refreshCoinList operation aborted.');
       } else {
-        console.error('refreshCoinList encountered an error:', err);
+        console.error('fetch coinlist encountered an error:', err);
       }
       throw err;
     }

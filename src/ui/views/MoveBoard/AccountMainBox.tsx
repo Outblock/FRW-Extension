@@ -29,7 +29,7 @@ function AccountMainBox({ isChild,setSelectedChildAccount, selectedAccount  }) {
 
   const requestAddress = async () => {
 
-    let parentAddress = await usewallet.getMainAddress();
+    const parentAddress = await usewallet.getMainAddress();
     const address = await usewallet.getCurrentAddress();
     const childResp = await usewallet.checkUserChildAccount();
 

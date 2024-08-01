@@ -65,6 +65,7 @@ class CoinList {
 
   addCoins = (coins: CoinItem[], network: string, listType = 'coinItem') => {
     if (coins.length === 0) {
+      this.store[listType][network] = {};
       return;
     }
     this.store[listType][network] = {};
@@ -98,6 +99,9 @@ class CoinList {
     return this.store.currentCoin;
   };
   listCoins = (network: string , listType = 'coinItem'): CoinItem[] => {
+    if (!this.store[listType] || !this.store[listType][network]) {
+      return [];
+    }
     const list = Object.values(this.store[listType][network]);
     return list.filter((item): item is CoinItem => !!item) || [];
   };

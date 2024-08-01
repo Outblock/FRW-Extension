@@ -6,7 +6,7 @@ import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { useWallet } from 'ui/utils';
 
 const FetchAvatar = ({ username }) => {
-  const [avatar, setAvatar] = useState(`https://source.boringavatars.com/beam/120/${username}?colors=FFDD32,FC814A,7678ED,B3DEE2,BCF0DA`);
+  const [avatar, setAvatar] = useState(`https://lilico.app/api/avatar/beam/120/${username}?colors=FFDD32,FC814A,7678ED,B3DEE2,BCF0DA`);
   const wallet = useWallet();
 
   const fetchUserAvatar = async (username) => {
