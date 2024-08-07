@@ -90,14 +90,17 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     } else {
       try {
         const childresp = await wallet.checkUserChildAccount();
-        console.log('wallet ', props.data)
-        const containsKey = props.data.contact.address in childresp;
-        let txID = ''
+        let containsKey = false;
+
+        if (childresp) {
+          containsKey = Object.prototype.hasOwnProperty.call(childresp, props.data.contact.address);
+        }
+
+        let txID = '';
         if (containsKey) {
 
 
           const privatePath = props.data.contract.path.private_path;
-          console.log('privatePath ', privatePath)
           const lastPart = privatePath.split('/').pop();
           txID = await wallet.sendNFTtoChild(props.data.contact.address, lastPart, parseInt(props.data.nft.id), props.data.contract)
 

@@ -11,7 +11,7 @@ import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 import { useHistory } from 'react-router-dom';
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
-const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, tokenInfo, network, childType }) => {
+const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, tokenInfo, network, childType, childAccount }) => {
   const wallet = useWallet();
   const history = useHistory();
   const isMounted = useRef(true);
@@ -121,7 +121,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
               </Box>
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
-            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow')) &&
+            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier )) &&
               <ButtonBase
                 onClick={() => moveToken()}
               >

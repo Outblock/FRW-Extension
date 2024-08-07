@@ -59,6 +59,7 @@ const WalletTab = ({ network }) => {
   const [balance, setBalance] = useState<string>('$0.00');
   const [childType, setChildType] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [childAccount, setChildAccount] = useState<any>({});
   const [txCount, setTxCount] = useState('');
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -238,6 +239,8 @@ const WalletTab = ({ network }) => {
 
   const fetchChildState = async () => {
     const isChild = await wallet.getActiveWallet();
+    const childresp = await wallet.checkUserChildAccount();
+    setChildAccount(childresp);
     await setChildType(isChild);
     if (isChild && isChild !== 'evm') {
       await setIsActive(false);
@@ -458,19 +461,27 @@ const WalletTab = ({ network }) => {
               </Button>
             }
           </Box>
-          <Box sx={{ flex: '1' }}>
-          </Box>
-          <Box>
-            <Button
-              color="info3"
-              variant="contained"
-              onClick={() => goMoveBoard()}
-              sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
-            >
-              <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
-              <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>{chrome.i18n.getMessage('Move')}</Typography>
-            </Button>
-          </Box>
+
+          {network === 'previewnet' || (childAccount && Object.keys(childAccount).length > 0) > 0 &&
+            <Box sx={{ flex: '1' }}>
+            </Box>
+          }
+          {network === 'previewnet' || (childAccount && Object.keys(childAccount).length > 0) > 0 &&
+
+            <Box>
+              <Button
+                color="info3"
+                variant="contained"
+                onClick={() => goMoveBoard()}
+                sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
+              >
+                <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
+                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>{chrome.i18n.getMessage('Move')}</Typography>
+              </Button>
+            </Box>
+
+
+          }
 
         </Box>
         <Tabs

@@ -931,43 +931,28 @@ class OpenApiService {
     return data;
   };
 
-  getNFTListV2 = async (address: string, offset: number, limit: number) => {
-    const alchemyAPI = (await storage.get('alchemyAPI')) || false;
-    const config = alchemyAPI
-      ? this.store.config.nft_list_v2
-      : this.store.config.nft_list_lilico_v2;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-      offset,
-      limit,
-    });
-    return data;
-  };
+  // getNFTListV2 = async (address: string, offset: number, limit: number) => {
+  //   const alchemyAPI = (await storage.get('alchemyAPI')) || false;
+  //   const config = alchemyAPI
+  //     ? this.store.config.nft_list_v2
+  //     : this.store.config.nft_list_lilico_v2;
+  //   const data = await this.sendRequest(config.method, config.path, {
+  //     address,
+  //     offset,
+  //     limit,
+  //   });
+  //   return data;
+  // };
 
-  getNFTCollectionV2 = async (address: string) => {
-    // const alchemyAPI = await storage.get('alchemyAPI') || false
-    const config = this.store.config.nft_collections_lilico_v2;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-    });
-    return data;
-  };
+  // getNFTCollectionV2 = async (address: string) => {
+  //   // const alchemyAPI = await storage.get('alchemyAPI') || false
+  //   const config = this.store.config.nft_collections_lilico_v2;
+  //   const data = await this.sendRequest(config.method, config.path, {
+  //     address,
+  //   });
+  //   return data;
+  // };
 
-  getSingleCollectionV2 = async (
-    address: string,
-    contract: string,
-    offset: number
-  ) => {
-    // const alchemyAPI = await storage.get('alchemyAPI') || false
-    const config = this.store.config.nft_collections_single_v2;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-      contractName: contract,
-      offset,
-      limit: 24,
-    });
-    return data;
-  };
 
   getNFTMetadata = async (
     address: string,
@@ -1469,7 +1454,12 @@ class OpenApiService {
     let values;
 
     try {
-      values = await this.isTokenListEnabled(address);
+      const isChild = await userWalletService.getActiveWallet();
+      if (isChild) {
+        values = await this.isLinkedAccountTokenListEnabled(address);
+      } else {
+        values = await this.isTokenListEnabled(address);
+      }
     } catch (error) {
       console.error(`Error isTokenListEnabled token:`);
       values = {}
@@ -1522,6 +1512,16 @@ class OpenApiService {
 
   isTokenListEnabled = async (address: string) => {
     const script = await getScripts('ft', 'isTokenListEnabled');
+    const isEnabledList = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(address, t.Address)],
+    });
+    return isEnabledList;
+  };
+
+
+  isLinkedAccountTokenListEnabled = async (address: string) => {
+    const script = await getScripts('ft', 'isLinkedAccountTokenListEnabled');
     const isEnabledList = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
@@ -2241,13 +2241,20 @@ class OpenApiService {
     return { otherAccounts, wallet, loggedInAccounts };
   };
 
-  checkMigrationNetwork = async (address: string) => {
+  checkMigrationNetwork = async (address) => {
+    try {
+      const response = await fetch(
+        `https://rest-migrationtestnet.onflow.org/v1/accounts/${address}`
+      );
 
-    const response = await fetch(
-      `https://rest-migrationtestnet.onflow.org/v1/accounts/${address}`
-    );
+      if (!response.ok) {
+        return {};
+      }
 
-    return response.json();
+      return await response.json();
+    } catch (error) {
+      return {};
+    }
   };
 }
 

@@ -1489,7 +1489,6 @@ export class WalletController extends BaseController {
 
   getUserWallets = async () => {
     const network = await this.getNetwork();
-    console.log('getuser wallet network ', network)
     const wallets = await userWalletService.getUserWallets(network);
     if (!wallets[0]) {
       await this.refreshUserWallets();
@@ -3004,7 +3003,6 @@ export class WalletController extends BaseController {
     // change the address to real address after testing complete
     // const address = await this.getCurrentAddress();
     const limit = 24;
-    // const {data} = await openapiService.getNFTListV2(address!, offset, limit);
     const data = await openapiService.nftCatalogList(address!, limit, offset);
     const nfts = data.nfts;
     if (!nfts) {
@@ -3079,7 +3077,6 @@ export class WalletController extends BaseController {
     contract: string,
     offset = 0
   ) => {
-    // const {data} = await openapiService.getSingleCollectionV2(address!, contract, offset)
     const data = await openapiService.nftCatalogCollectionList(
       address!,
       contract,
@@ -3125,7 +3122,6 @@ export class WalletController extends BaseController {
 
   getCollectionApi = async (address: string, contract: string, offset = 0) => {
     const network = await this.getNetwork();
-    // const {data} = await openapiService.getSingleCollectionV2(address!, contract, offset)
     const result = await openapiService.nftCollectionApiPaging(
       address!,
       contract,
@@ -3144,7 +3140,6 @@ export class WalletController extends BaseController {
     // change the address to real address after testing complete
     // const address = await this.getCurrentAddress();
     const network = await this.getNetwork();
-    // const {data} = await openapiService.getNFTCollectionV2(address!)
     const data = await openapiService.nftCatalogCollections(address!);
     if (!data) {
       return [];

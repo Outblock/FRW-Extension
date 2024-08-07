@@ -3,7 +3,7 @@ import { Box, Button, ListItemButton, Typography, Drawer, IconButton, ListItem, 
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
+import ErrorModel from '../../FRWComponent/PopupModal/errorModel';
 import moveftbg from 'ui/FRWAssets/svg/moveftbg.svg';
 import movenftbg from 'ui/FRWAssets/svg/movenftbg.svg';
 import moveft from 'ui/FRWAssets/image/moveft.png';
@@ -37,6 +37,7 @@ const MoveBoard = (props: MoveBoardProps) => {
   const [moveFtOpen, setMoveFt] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
   const [network, setNetwork] = useState<string>('');
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   // console.log('props.loggedInAccounts', props.current)
 
@@ -117,7 +118,7 @@ const MoveBoard = (props: MoveBoardProps) => {
           }}
         />
       );
-    } else if (childType) {
+    } else if (network === 'previewnet') {
       return (
         <MoveFromChildFT
           isConfirmationOpen={moveFtOpen}
@@ -133,18 +134,18 @@ const MoveBoard = (props: MoveBoardProps) => {
     }
     else {
       return (
-        <MoveFromFlow
-          isConfirmationOpen={moveFtOpen}
-          data={{ amount: 0 }}
-          handleCloseIconClicked={() => closeFullPage()}
-          handleCancelBtnClicked={() => setMoveFt(false)}
-          handleAddBtnClicked={() => {
+        <ErrorModel
+          isOpen={moveFtOpen}
+          onOpenChange={() => {
             setMoveFt(false);
           }}
+          errorName={'Feature coming soon'}
+          errorMessage={'Feature coming soon'}
         />
       );
     }
   };
+
 
   return (
     <Drawer

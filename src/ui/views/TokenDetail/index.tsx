@@ -48,6 +48,7 @@ const TokenDetail = () => {
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
   const [tokenInfo, setTokenInfo] = useState<any>(undefined);
   const [providers, setProviders] = useState<PriceProvider[]>([]);
+  const [childAccount, setChildAccount] = useState<any>({});
   const [childType, setChildType] = useState<string>('');
 
   const Header = () => {
@@ -89,6 +90,8 @@ const TokenDetail = () => {
 
   const requestChildType = async () => {
     const result = await wallet.getActiveWallet();
+    const childresp = await wallet.checkUserChildAccount();
+    setChildAccount(childresp);
     setChildType(result);
   };
 
@@ -183,6 +186,7 @@ const TokenDetail = () => {
               tokenInfo={tokenInfo}
               network={network}
               childType={childType}
+              childAccount={childAccount}
             />
           }
           {token === 'flow' && <StackingCard network={network} />}

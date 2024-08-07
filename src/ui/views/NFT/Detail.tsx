@@ -113,7 +113,7 @@ const Detail = () => {
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
   const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
-  const [nftDetailState, setNftDetailState] = useState({ nft: null, media: null, ownerAddress: null, index: null });
+  const [childAccount, setChildAccount] = useState({});
 
   useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
@@ -131,6 +131,8 @@ const Detail = () => {
 
 
   const fetchNft = async () => {
+    const childResp = await usewallet.checkUserChildAccount();
+    setChildAccount(childResp)
     const userInfo = await usewallet.getUserInfo(false);
     const currentAddress = await usewallet.getCurrentAddress();
     const userWallets = await usewallet.getUserWallets();
@@ -149,7 +151,6 @@ const Detail = () => {
     let userOne, userTwo;
 
     if (isChild) {
-      const childResp = await usewallet.checkUserChildAccount();
       const wallet = childResp[currentAddress!];
       console.log('checkUserChildAccount ', childResp)
       userOne = {
@@ -423,7 +424,7 @@ const Detail = () => {
             </Button>
           }
 
-          {(nftDetail?.collectionID) &&
+          {(nftDetail?.collectionID && Object.keys(childAccount!).length > 0) &&
             <Button
               sx={{
                 backgroundColor: '#FFFFFF33',

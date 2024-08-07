@@ -69,7 +69,7 @@ export const FWDropDownProfile = ({ contact, contacts, setSelectedChildAccount, 
             },
             '& .MuiOutlinedInput-notchedOutline': {
               border: 'none'
-            }, height: '40px'
+            }, height: '100%'
           }}
         >
           {Object.keys(contacts).map((address) => (

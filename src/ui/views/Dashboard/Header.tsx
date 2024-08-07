@@ -214,12 +214,6 @@ const Header = ({ loading }) => {
     } else {
       await setCurrent(currentWallet);
     }
-
-    try {
-      await usewallet.setMigration();
-    } catch (error) {
-      console.error('Error during setMigration:', error);
-    }
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
@@ -239,6 +233,12 @@ const Header = ({ loading }) => {
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
+
+    try {
+      await usewallet.setMigration();
+    } catch (error) {
+      console.error('Error during setMigration:', error);
+    }
     // usewallet.checkUserDomain(wallet.username);
   };
   const switchAccount = async (account) => {

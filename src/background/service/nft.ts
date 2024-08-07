@@ -186,6 +186,14 @@ class NFT {
       previewnet: []
     }
 
+    this.store.collectionList = {
+      testnet: [],
+      mainnet: [],
+      crescendo: [],
+      migrationTestnet: [],
+      previewnet: []
+    }
+
     storage.remove('nftv2')
     storage.remove('nft')
   };
