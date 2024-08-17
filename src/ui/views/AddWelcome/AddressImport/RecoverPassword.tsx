@@ -167,13 +167,11 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
   const signMnemonic = async (accountKey) => {
     try {
       const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
-      console.log('result ->', result)
       setLoading(false);
       const userInfo = await wallet.getUserInfo(true);
       setUsername(userInfo.username)
       login();
     } catch (error) {
-      console.log(error);
       setLoading(false);
       if (error.message === 'NoUserFound') {
         setImport(false);

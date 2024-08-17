@@ -32,7 +32,6 @@ const Popup = (props: TransferConfirmationProps) => {
   const usewallet = useWallet();
   const history = useHistory();
   const [viewmore, setMore] = useState<boolean>(false);
-  // console.log('props.loggedInAccounts', props.current)
 
   return (
     <Drawer

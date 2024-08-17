@@ -56,11 +56,9 @@ const MoveEvm = (props: MoveBoardProps) => {
   };
 
   const updateCurrentCollection = async () => {
-    console.log('selectedShow ', collectionList, cadenceNft)
     if (collectionList && cadenceNft) {
       const collection = collectionList.find(collection => collection.id === selectedCollection);
       const selectedShow = cadenceNft.find(collection => collection.name === selectedCollection);
-      console.log('selectedShow ', selectedShow)
       setCollectionDetail(collection);
       setCollectionInfo(selectedShow);
     }
@@ -70,7 +68,6 @@ const MoveEvm = (props: MoveBoardProps) => {
     const cadenceResult = await usewallet.reqeustEvmNft();
     const tokensWithNfts = cadenceResult.filter(token => token.nftIds && token.nftIds.length > 0);
     const filteredData = tokensWithNfts.filter(item => item.flowIdentifier);
-    console.log('filteredData ', filteredData)
     if (filteredData.length > 0) {
       setSelected(filteredData[0].name);
       const extractedObjects = filteredData.map(obj => {

@@ -81,10 +81,8 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const wallet = await usewallet.getMainWallet();
-    console.log('wallet ', wallet, props.data)
     const network = await usewallet.getNetwork();
     const token = await usewallet.getCurrentCoin();
-    console.log('getCurrentCoin ', token);
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
@@ -93,7 +91,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     setEvmAddress(evmWallet.address);
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
-    console.log('coinList ', evmWallet)
     const tokenResult = await usewallet.openapi.getTokenInfo(token, network);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase());
     setCoinInfo(coinInfo!);
@@ -131,7 +128,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
   const bridgeToken = async () => {
     setLoading(true);
     const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
-    console.log('tokenInfo ', tokenResult)
     const flowIdentifier = tokenResult!['flowIdentifier'].split('.');
     const address = '0x' + flowIdentifier[1]
     const contractName = flowIdentifier[2]
@@ -158,7 +154,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
 
   const handleMove = async () => {
-    console.log('currentCoin ', currentCoin)
     if (currentCoin.toLowerCase() === 'flow') {
       moveToken();
     } else {

@@ -44,7 +44,6 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[2].value;
 
-      console.log('inputValue ', inputValue)
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
 
       console.log('address ', address)

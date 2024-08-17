@@ -161,3 +161,8 @@ export const EVENTS = {
     TX_CONFIRMED: 'TransactionConfirmed',
   },
 };
+
+export const EVM_ENDPOINT = {
+  testnet: 'https://testnet.evm.nodes.onflow.org',
+  previewnet: 'https://previewnet.evm.nodes.onflow.org',
+};

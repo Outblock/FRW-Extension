@@ -160,7 +160,6 @@ const Deposit = () => {
       );
     } else if (isChild) {
       setIsActive(false);
-      console.log('childresp ', childresp, isChild)
       setUserWallets(
         Object.keys(childresp).map((key, index) => ({
           id: index,
@@ -171,7 +170,6 @@ const Deposit = () => {
     } else {
       setIsActive(true);
       const wallets = await wallet.getUserWallets();
-      console.log('wallets ', wallets)
       setUserWallets(
         wallets.map((ele, idx) => ({
           id: idx,

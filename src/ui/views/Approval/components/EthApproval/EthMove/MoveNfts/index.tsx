@@ -58,7 +58,6 @@ const MoveNfts = (props: MoveBoardProps) => {
   const findCollectionByContractName = () => {
     if (collectionList) {
       const collection = collectionList.find(collection => collection.id === selectedCollection);
-      console.log('setCurrentCollection ', collection)
       setCurrentCollection(collection);
     }
 
@@ -96,7 +95,6 @@ const MoveNfts = (props: MoveBoardProps) => {
       try {
         const cadenceResult = await usewallet.requestCollectionInfo(selectedCollection);
         setCollectionDetail(cadenceResult);
-        console.log('setCollectionDetail ', cadenceResult);
       } catch (error) {
         console.error('Error requesting collection info:', error);
         setCollectionDetail(null);

@@ -104,14 +104,12 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
   const signMnemonic= async () => {
     try {
       const result = await wallet.signInWithMnemonic(mnemonic);
-      console.log('result ->', result)
       setSignLoading(false);
       confirmMnemonic(mnemonic);
       const userInfo = await wallet.getUserInfo(true);
       setUsername(userInfo.username)
       handleClick();
     } catch (error) {
-      console.log(error);
       setSignLoading(false);
       if (error.message === 'NoUserFound') {
         setShowDialog(true)
@@ -127,14 +125,12 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
     const privateKey = pk.replace(/^0x/, '');
     try {
       const result = await wallet.signInWithPrivatekey(privateKey);
-      console.log('result ->', result)
       setSignLoading(false);
       confirmPk(privateKey);
       const userInfo = await wallet.getUserInfo(true);
       setUsername(userInfo.username)
       handleClick();
     } catch (error) {
-      console.log(error);
       setSignLoading(false);
       if (error.message === 'NoUserFound') {
         setShowDialog(true)

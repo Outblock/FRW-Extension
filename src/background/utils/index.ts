@@ -96,9 +96,7 @@ export const getScripts = async (folder: string, scriptName: string) => {
   const { data } = await storage.get('cadenceScripts');
   const files = data[folder];
   const script = files[scriptName];
-  console.log('scriptscript script', script)
   const scriptString = Buffer.from(script, 'base64').toString('utf-8');
-  console.log('scriptString scriptString', scriptString)
   const modifiedScriptString = scriptString
     .replaceAll('<platform_info>', `Extension-${version}`);
   return modifiedScriptString;

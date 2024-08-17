@@ -3,7 +3,7 @@ import { Box, Typography, Avatar, Skeleton, Select, MenuItem, FormControl, Input
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
-import { useWallet, isEmoji } from 'ui/utils';
+import { useWallet, isEmoji, formatAddress } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
 
@@ -107,7 +107,7 @@ export const FWDropDownProfile = ({ contact, contacts, setSelectedChildAccount, 
                   sx={{ lineHeight: '1', textAlign: 'start', fontSize: '10px', fontWeight: '400' }}
                   color="#FFFFFFCC"
                 >
-                  {address}
+                  {formatAddress(address)}
                 </Typography>
               </Box>
             </MenuItem>

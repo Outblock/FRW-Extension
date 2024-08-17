@@ -35,6 +35,7 @@ export const fclTestnetConfig = async () => {
     .put('0xFlowFees', '0x912d5440f7e3769e')
     .put('0xMetadataViews', '0x631e88ae7f1d7c20')
     .put('0xFlowEVMBridge', '0x715c57f7a59bc39b')
+    .put('0xEVM', '0x8c5303eaa26202d6')
     .put('flow.network', 'testnet')
     .put('flow.auditors', ['0xf78bfc12d0a786dc']);
     
@@ -56,6 +57,7 @@ export const fclMainnetConfig = async () => {
     .put('0xNonFungibleToken', '0x1d7e57aa55817448')
     .put('0xMetadataViews', '0x1d7e57aa55817448')
     .put('0xFlowEVMBridge', '0x715c57f7a59bc39b')
+    .put('0xEVM', '0xe467b9dd11fa00df')
     .put('0xFlowFees', '0xf919ee77447b7497')
     .put('flow.network', 'mainnet')
     .put('flow.auditors', ['0xfd100e39d50a13e6']);

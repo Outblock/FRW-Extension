@@ -166,7 +166,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
 
   const moveNFT = async () => {
     const parentAddress = await usewallet.getMainAddress();
-    console.log('selectedAccount ', selectedAccount, parentAddress)
     if (parentAddress === selectedAccount!['address']) {
       moveToParent();
     } else {
@@ -176,7 +175,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
 
   const moveToParent = async () => {
     setSending(true);
-    console.log('collectionDetail ', collectionDetail, nftIdArray)
     const address = await usewallet.getCurrentAddress();
     const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
     usewallet.batchTransferChildNft(address!, lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {
@@ -196,7 +194,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
 
   const moveToChild = async () => {
     setSending(true);
-    console.log('collectionDetail ', collectionDetail, nftIdArray)
     const address = await usewallet.getCurrentAddress();
     const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
     usewallet.sendChildNFTToChild(address!,selectedAccount!['address'], lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {

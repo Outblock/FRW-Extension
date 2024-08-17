@@ -169,7 +169,6 @@ class UserWallet {
   };
 
   setNetwork = async (network: string) => {
-    console.log('setNetwork ', network)
     if (!this.store) {
       await this.init();
     }
@@ -243,7 +242,6 @@ class UserWallet {
   };
 
   setEvmAddress = (address: string,) => {
-    console.log('setEvmAddress ', this.store)
     if (address.length > 20) {
       this.store.evmWallet.address = address;
     } else {

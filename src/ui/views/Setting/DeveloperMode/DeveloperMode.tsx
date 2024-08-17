@@ -234,7 +234,7 @@ const DeveloperMode = () => {
     // if (network === 'crescendo' && !isSandboxEnabled) {
     //   return;
     // }
-    if (network === 'previewnet' && !isSandboxEnabled) {
+    if ((network === 'previewnet' ) && !isSandboxEnabled) {
       return;
     }
     if (network === 'migrationTestnet' && !isMigrationEnabled) {
@@ -539,7 +539,7 @@ const DeveloperMode = () => {
                     disabled={!isSandboxEnabled}
                   />
 
-                  {isSandboxEnabled && currentNetwork === 'previewnet' && (
+                  {isSandboxEnabled && (currentNetwork === 'previewnet') && (
                     <Typography
                       component="div"
                       variant="body1"

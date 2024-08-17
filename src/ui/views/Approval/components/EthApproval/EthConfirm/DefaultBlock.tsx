@@ -31,17 +31,14 @@ export const DefaultBlock = ({ title, host, auditor, expanded, data, method, log
 
   const getContract = async () => {
     const script = await getScripts('evm', 'callContract');
-    console.log('script ', script)
     setContract(script)
   };
 
   const hexToString = (hex) => {
-    console.log('hex ', hex)
     let str = '';
     for (let i = 0; i < hex.length; i += 2) {
       str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     }
-    console.log('str ', str)
     return str;
   };
 

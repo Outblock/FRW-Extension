@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import { useWallet } from 'ui/utils';
-import { formatString } from 'ui/utils/address';
+import { useWallet, formatAddress} from 'ui/utils';
+import { ensureEvmAddressPrefix } from 'ui/utils/address';
 import {
   Typography,
   Box,
@@ -33,6 +33,8 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
     const address = await usewallet.getCurrentAddress();
     const childResp = await usewallet.checkUserChildAccount();
     const emojires = await usewallet.getEmoji();
+    const evmWallet = await usewallet.getEvmWallet();
+    const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
 
     if (isChild) {
       const newWallet = {
@@ -44,15 +46,29 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
           }
         }
       };
-      const walletList = { ...childResp, ...newWallet }
-      delete walletList[address!];
 
+      let evmWallet = {};
+      if (evmAddress) {
+        evmWallet = {
+          [evmAddress!]: {
+            "name": emojires[1].name,
+            "description": emojires[1].name,
+            "thumbnail": {
+              "url": emojires[1].emoji
+            }
+          }
+        };
+      }
+
+      // Merge wallet lists
+      const walletList = { ...childResp, ...newWallet, ...evmWallet };
+      delete walletList[address!];
+      const firstWalletAddress = Object.keys(walletList)[0]; 
+      const wallet = walletList[firstWalletAddress];  
       setChildWallets(walletList);
-      const wallet = childResp[address!];
 
       userContact.avatar = wallet.thumbnail.url;
       userContact.contact_name = wallet.name;
-      const firstWalletAddress = Object.keys(childResp)[0];
       if (firstWalletAddress) {
         setSelectedChildAccount(childResp[firstWalletAddress]);
       }
@@ -62,10 +78,24 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
       setSecond(parentAddress!)
       setSecondEmoji(emojires[0])
     } else {
-      setChildWallets(childResp);
-      const firstWalletAddress = Object.keys(childResp)[0];
+
+      let evmWallet = {};
+      if (evmAddress) {
+        evmWallet = {
+          [evmAddress!]: {
+            "name": emojires[1].name,
+            "description": emojires[1].name,
+            "thumbnail": {
+              "url": emojires[1].emoji
+            }
+          }
+        };
+      }
+      const walletList = { ...childResp, ...evmWallet };
+      setChildWallets(walletList);
+      const firstWalletAddress = Object.keys(walletList)[0];
       if (firstWalletAddress) {
-        setSelectedChildAccount(childResp[firstWalletAddress]);
+        setSelectedChildAccount(walletList[firstWalletAddress]);
       }
       setFirst(parentAddress!)
       setSecond(address!)

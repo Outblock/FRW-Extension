@@ -1008,7 +1008,6 @@ export class WalletController extends BaseController {
     const now = new Date();
     const expiry = coinListService.getExpiry();
     let childType = await userWalletService.getActiveWallet();
-    console.log('childType ', childType)
     childType = childType === 'evm' ? 'evm' : 'coinItem';
     // compare the expiry time of the item with the current time
     if (now.getTime() > expiry) {
@@ -1489,6 +1488,7 @@ export class WalletController extends BaseController {
 
   getUserWallets = async () => {
     const network = await this.getNetwork();
+    console.log('network getUserWallets ', network)
     const wallets = await userWalletService.getUserWallets(network);
     if (!wallets[0]) {
       await this.refreshUserWallets();
@@ -1589,7 +1589,8 @@ export class WalletController extends BaseController {
 
   createCOA = async (amount = '0.0'): Promise<string> => {
     const network = await this.getNetwork();
-    if (network !== 'previewnet') {
+
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
 
     }
@@ -1610,7 +1611,8 @@ export class WalletController extends BaseController {
 
   createCoaEmpty = async (): Promise<string> => {
     const network = await this.getNetwork();
-    if (network !== 'previewnet') {
+
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
 
     }
@@ -1630,7 +1632,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet') {
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     const script = await getScripts('evm', 'transferFlowToEvmAddress');
@@ -1655,7 +1657,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet') {
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
 
@@ -1690,7 +1692,7 @@ export class WalletController extends BaseController {
     // Convert the formatted amount to an integer
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
 
-    if (network !== 'previewnet') {
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
 
@@ -1714,7 +1716,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet') {
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     const script = await getScripts('evm', 'withdrawCoa');
@@ -1737,7 +1739,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet') {
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     const script = await getScripts('evm', 'fundCoa');
@@ -1759,7 +1761,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet') {
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     const script = await getScripts('bridge', 'bridgeTokensToEvm');
@@ -1785,7 +1787,7 @@ export class WalletController extends BaseController {
     // Convert the formatted amount to an integer
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
 
-    if (network !== 'previewnet') {
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     const script = await getScripts('bridge', 'bridgeTokensFromEvm');
@@ -1824,7 +1826,8 @@ export class WalletController extends BaseController {
     }
 
     const network = await this.getNetwork();
-    if (network !== 'previewnet') {
+
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw new Error('Network is not previewnet');
     }
 
@@ -1854,7 +1857,8 @@ export class WalletController extends BaseController {
       to = to.substring(2);
     }
     const network = await this.getNetwork();
-    if (network !== 'previewnet') {
+
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     const script = await getScripts('evm', 'callContract');
@@ -1894,7 +1898,8 @@ export class WalletController extends BaseController {
       to = to.substring(2);
     }
     const network = await this.getNetwork();
-    if (network !== 'previewnet') {
+
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     const script = await getScripts('evm', 'callContract');
@@ -1937,7 +1942,8 @@ export class WalletController extends BaseController {
 
   getBalance = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
-    if (network !== 'previewnet') {
+
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
     if (hexEncodedAddress.startsWith('0x')) {
@@ -1964,7 +1970,8 @@ export class WalletController extends BaseController {
 
   getNonce = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
-    if (network !== 'previewnet') {
+
+    if (network !== 'previewnet' && network !== 'testnet') {
       throw Error;
     }
 
@@ -2079,7 +2086,6 @@ export class WalletController extends BaseController {
     hashAlgorithm: number,
     weight: number
   ): Promise<string> => {
-    console.log('this is weight ', weight);
     return await userWalletService.sendTransaction(
       `
       import Crypto
@@ -2223,7 +2229,7 @@ export class WalletController extends BaseController {
       throw new Error(`Invaild token name - ${symbol}`);
     }
     const script = await getScripts('hybridCustody', 'transferChildFT');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
@@ -2246,14 +2252,13 @@ export class WalletController extends BaseController {
     amount: string,
     symbol: string
   ): Promise<string> => {
-    console.log('script is this ', childAddress)
     const token = await openapiService.getTokenInfo(symbol);
     if (!token) {
       throw new Error(`Invaild token name - ${symbol}`);
     }
 
     const script = await getScripts('hybridCustody', 'sendChildFT');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
@@ -2279,7 +2284,7 @@ export class WalletController extends BaseController {
     console.log('script is this ', nftContractAddress)
 
     const script = await getScripts('hybridCustody', 'transferChildNFT');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
@@ -2302,10 +2307,9 @@ export class WalletController extends BaseController {
     ids: number,
     token
   ): Promise<string> => {
-    console.log('script is this ', receiverAddress)
 
     const script = await getScripts('hybridCustody', 'sendChildNFT');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
@@ -2328,7 +2332,6 @@ export class WalletController extends BaseController {
     ids: number,
     token
   ): Promise<string> => {
-    console.log('script is this ', token)
 
     const script = await getScripts('hybridCustody', 'transferNFTToChild');
     return await userWalletService.sendTransaction(
@@ -2367,15 +2370,13 @@ export class WalletController extends BaseController {
     child: string,
     path: string,
   ): Promise<string> => {
-    console.log('parent is this ', parent, child, path)
 
     const script = await getScripts('hybridCustody', 'checkChildLinkedVaults');
-    console.log('script is this ', script)
+
     const result = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(parent, t.Address), arg(child, t.Address), fcl.arg(path, t.String)],
     });
-    console.log('result is this ', result)
     return result
   };
 
@@ -2386,7 +2387,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
 
     const script = await getScripts('bridge', 'batchBridgeNFTToEvm');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script,
       [
@@ -2406,7 +2407,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
 
     const script = await getScripts('bridge', 'batchBridgeNFTFromEvm');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script,
       [
@@ -2427,7 +2428,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
 
     const script = await getScripts('hybridCustody', 'batchTransferNFTToChild');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
@@ -2453,7 +2454,6 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
 
     const script = await getScripts('hybridCustody', 'batchTransferChildNFT');
-    console.log('script is this ', script)
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
@@ -2478,7 +2478,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
 
     const script = await getScripts('hybridCustody', 'batchSendChildNFTToChild');
-    console.log('script is this ', script)
+
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
@@ -2505,7 +2505,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
 
     const script = await getScripts('bridge', 'bridgeNFTToEvmAddress');
-    console.log('script is this ', script)
+
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
@@ -2832,6 +2832,7 @@ export class WalletController extends BaseController {
     this.clearNFT();
     this.clearChildAccount();
     this.refreshAddressBook();
+    this.refreshEvmWallets();
     await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
     if (address) {
@@ -3538,14 +3539,21 @@ export class WalletController extends BaseController {
 
 
   setMigration = async () => {
-    const testnetAddress = userWalletService.getUserWallets('testnet');
-    const migrationTestnetAddress = testnetAddress
+    const testnetAddress = JSON.parse(JSON.stringify(userWalletService.getUserWallets('testnet')));
+    const migrationTestnetAddress = JSON.parse(JSON.stringify(testnetAddress));
+
     const result = await openapiService.checkMigrationNetwork(migrationTestnetAddress[0].blockchain[0].address);
+
     if (result && result.address) {
+      // Update chain_id to 'migrationTestnet' for migrationTestnetAddress
       migrationTestnetAddress[0].blockchain[0].chain_id = 'migrationTestnet';
       migrationTestnetAddress[0].chain_id = 'migrationTestnet';
+
+      // Ensure testnetAddress keeps 'testnet' as chain_id
       testnetAddress[0].blockchain[0].chain_id = 'testnet';
       testnetAddress[0].chain_id = 'testnet';
+
+      // Set the updated addresses in the user wallet service
       await userWalletService.setUserTestnetMigration(migrationTestnetAddress, testnetAddress);
     }
   };

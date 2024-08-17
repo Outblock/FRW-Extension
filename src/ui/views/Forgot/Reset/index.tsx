@@ -114,7 +114,6 @@ const Reset = () => {
   };
 
   useEffect(() => {
-    console.log('wallet');
     loadView();
   }, []);
 

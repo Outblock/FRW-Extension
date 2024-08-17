@@ -64,7 +64,6 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   };
 
   const StartListItemText = (props) => {
-    console.log('props ', props)
     return (
       <ListItemText
         disableTypography={true}

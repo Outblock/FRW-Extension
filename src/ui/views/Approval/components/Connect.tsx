@@ -174,7 +174,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     const network = await wallet.getNetwork();
     console.log(' msgNetwork ', msgNetwork, network, showSwitch)
     setCurrent(network);
-    if (msgNetwork !== network && msgNetwork) {
+    if ((msgNetwork !== network && msgNetwork) && network !== 'migrationTestnet') {
       setShowSwitch(true);
     } else {
       setShowSwitch(false);

@@ -32,7 +32,6 @@ const NavBar = ({ value, setValue }) => {
     if (isChild) {
       setIsChild(true)
     }
-    console.log(dashIndex);
     setValue(dashIndex);
   };
 

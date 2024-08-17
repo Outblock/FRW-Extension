@@ -56,7 +56,7 @@ const Wallet = () => {
     const wallet = await usewallet.getUserWallets();
     const fectechdWallet = await fetchBalances(wallet);
     const network = await usewallet.getNetwork();
-    if (network === 'previewnet') {
+    if (network === 'previewnet' || network === 'testnet') {
       const evmWallet = await usewallet.getEvmWallet();
       const filteredEvm = [evmWallet].filter(
         evm => evm.address

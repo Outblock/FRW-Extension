@@ -112,7 +112,7 @@ const TransferAmount = ({ amount, setAmount, secondAmount, setSecondAmount, exce
   const handleMaxClick = () => {
     if (coinInfo) {
       if (coinInfo.unit.toLowerCase() === 'flow') {
-        setAmount(coinInfo.balance - 0.001)
+        setAmount(coinInfo.balance - minAmount)
       } else {
         // const minimumValue = minAmount > 0.001 ? minAmount : 0.001;
         const newAmount = coinInfo.balance - 0;

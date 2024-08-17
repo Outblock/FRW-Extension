@@ -11,7 +11,7 @@ import {
 } from 'background/service';
 import Wallet from '../wallet';
 import BaseController from '../base';
-import { Account } from 'background/service/preference';
+import { EVM_ENDPOINT } from 'consts';
 import { stringToHex } from 'web3-utils';
 import {
   normalize as normalizeAddress,
@@ -140,11 +140,8 @@ class ProviderController extends BaseController {
 
     let currentWallet;
     try {
-      if (network !== 'previewnet') {
-        const previewnet = await Wallet.checkPreviewnet() || [];
-        if (previewnet.length === 0) {
-          throw new Error('Previewnet wallet is empty.');
-        }
+
+      if (network !== 'previewnet' && network !== 'testnet') {
         return;
       }
       // Attempt to query the previewnet address
@@ -195,7 +192,9 @@ class ProviderController extends BaseController {
     return account;
   };
   ethEstimateGas = async ({ data }) => {
-    const url = 'https://previewnet.evm.nodes.onflow.org'
+
+    const network = await Wallet.getNetwork();
+    const url = EVM_ENDPOINT[network]
     const provider = new ethers.JsonRpcProvider(url)
     const gas = await provider.estimateGas({
       from: data.params[0].from,
@@ -239,11 +238,8 @@ class ProviderController extends BaseController {
 
     let currentWallet;
     try {
-      if (network !== 'previewnet') {
-        const previewnet = await Wallet.checkPreviewnet() || [];
-        if (previewnet.length === 0) {
-          throw new Error('Previewnet wallet is empty.');
-        }
+
+      if (network !== 'previewnet' && network !== 'testnet') {
         return;
       }
       // Attempt to query the previewnet address
@@ -329,7 +325,12 @@ class ProviderController extends BaseController {
     return normalizeAddress(address).toLowerCase();
   };
 
-  ethChainId = ({ session }) => {
+  ethChainId = async ({ session }) => {
+
+    const network = await Wallet.getNetwork();
+    if (network ==='testnet') {
+      return 545;
+    }
     return 646;
   };
 }

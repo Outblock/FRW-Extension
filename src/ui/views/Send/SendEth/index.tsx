@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
 import { useHistory, useLocation } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import {EVM_ENDPOINT} from 'consts';
 import { CoinItem } from 'background/service/coinList';
 import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
@@ -64,11 +64,10 @@ const SendEth = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
   const [minAmount, setMinAmount] = useState<any>(0);
+  const [erc20Contract, setErc20Contract] = useState<any>(null);
+  const [web3, setWeb3] = useState<any>(null);
 
 
-  const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
-  const web3 = new Web3(provider);
-  const erc20Contract = new web3.eth.Contract(erc20ABI, "0x7cd84a6b988859202cbb3e92830fff28813b9341");
 
 
   const setUserWallet = async () => {
@@ -77,7 +76,13 @@ const SendEth = () => {
     const token = await usewallet.getCurrentCoin();
     console.log('token getCurrentCoin', token)
     const wallet = await usewallet.getEvmWallet();
+    const mainWallet = await usewallet.getMainWallet();
     const network = await usewallet.getNetwork();
+    const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
+    const web3Instance = new Web3(provider);
+    setWeb3(web3Instance);
+    const contractInstance = new web3Instance.eth.Contract(erc20ABI, "0x7cd84a6b988859202cbb3e92830fff28813b9341");
+    setErc20Contract(contractInstance);
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
@@ -90,15 +95,31 @@ const SendEth = () => {
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
-    userContact.address = withPrefix(wallet.address) || '';
+    if (childType === 'evm' ) {
+      userContact.address = withPrefix(wallet.address) || '';
+    } else {
+      userContact.address = withPrefix(mainWallet) || '';
+
+    }
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
-    const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
-    setMinAmount(minAmount);
+    setUserMinAmount();
     setUser(userContact);
 
 
 
+  };
+
+  const setUserMinAmount = async () => {
+    try {
+      // Try fetching the min amount from the API
+      const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
+      setMinAmount(minAmount);
+    } catch (error) {
+      // If there's an error, set the min amount to 0.001
+      console.error('Error fetching min amount:', error);
+      setMinAmount(0.001);
+    }
   };
 
 

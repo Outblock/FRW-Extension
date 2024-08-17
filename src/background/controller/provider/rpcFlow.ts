@@ -65,8 +65,8 @@ const flowContext = flow
 
       const network = await Wallet.getNetwork();
 
-      if (network !== 'previewnet') {
-        throw new Error('Network not in previewnet.');
+      if (network !== 'previewnet' && network !== 'testnet') {
+        throw new Error('Network not in previewnet or testnet.');
       }
 
       if (!isUnlock) {

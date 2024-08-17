@@ -119,7 +119,6 @@ onAuthStateChanged(auth, (user) => {
 
 const fclSetup = async () => {
   const network = await userWalletService.getNetwork();
-  console.log('network is ', network);
   switch (network) {
     case 'mainnet':
       await fclMainnetConfig();

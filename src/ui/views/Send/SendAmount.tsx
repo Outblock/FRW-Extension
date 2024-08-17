@@ -96,9 +96,20 @@ const SendAmount = () => {
       userContact.avatar = info.avatar;
       userContact.contact_name = info.username;
     }
-    const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
-    setMinAmount(minAmount);
+    setUserMinAmount();
     setUser(userContact);
+  };
+
+  const setUserMinAmount = async () => {
+    try {
+      // Try fetching the min amount from the API
+      const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
+      setMinAmount(minAmount);
+    } catch (error) {
+      // If there's an error, set the min amount to 0.001
+      console.error('Error fetching min amount:', error);
+      setMinAmount(0.001);
+    }
   };
 
 

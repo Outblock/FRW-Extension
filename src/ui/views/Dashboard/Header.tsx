@@ -135,6 +135,7 @@ const Header = ({ loading }) => {
   };
 
   const wallets = (data) => {
+    console.log('userwallet ', data, currentNetwork)
     let sortData = data;
     const walletName = domain ? domain : 'Wallet';
     if (!Array.isArray(sortData)) {
@@ -177,13 +178,13 @@ const Header = ({ loading }) => {
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    console.log('childresp ', childresp)
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
   };
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.getUserWallets();
+    console.log('wallet -----> ', wallet)
     const fData = wallet.filter((item) => item.blockchain !== null);
 
     // putDeviceInfo(fData);
@@ -198,7 +199,7 @@ const Header = ({ loading }) => {
     const currentWallet = await usewallet.getCurrentWallet();
     const childType = await usewallet.getActiveWallet();
     const network = await usewallet.getNetwork();
-    if (network === 'previewnet' && currentWallet.address) {
+    if ((network === 'previewnet' || network === 'testnet') && currentWallet.address) {
       usewallet.queryEvmAddress(currentWallet.address).then((res) => {
         setEvmAddress(res!);
         setEvmLoading(false);
@@ -341,7 +342,6 @@ const Header = ({ loading }) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const result = await chrome.storage.session.get('transactionPending');
-    console.log('pending tx ->', result);
     const now = new Date();
     if (result.transactionPending?.date) {
       const diff = now.getTime() - result.transactionPending.date.getTime();
@@ -832,6 +832,7 @@ const Header = ({ loading }) => {
   };
 
   const createWalletList = (props) => {
+    console.log('props ', props)
     return (
       <List component="nav" key={props.id}>
         <WalletFunction

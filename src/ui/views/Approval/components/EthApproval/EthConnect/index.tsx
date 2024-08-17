@@ -54,20 +54,13 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   const init = async () => {
 
     const network = await wallet.getNetwork();
-    console.log('currentWallet network ', network)
 
     let currentWallet;
     try {
-      console.log('switchNetwork network ', network)
-      if (network !== 'previewnet') {
-        const previewnet = await wallet.checkPreviewnet() || [];
-        console.log('switchNetwork previewnet ', previewnet)
-        if (previewnet.length === 0) {
-          throw new Error('Previewnet wallet is empty.');
-        }
-        await wallet.switchNetwork('previewnet');
+
+      if (network !== 'previewnet' && network !== 'testnet') {
+        await wallet.switchNetwork('testnet');
       }
-      console.log('query network')
       // Attempt to query the previewnet address
       currentWallet = await wallet.getCurrentWallet();
     } catch (error) {

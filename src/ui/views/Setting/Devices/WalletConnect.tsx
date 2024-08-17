@@ -107,11 +107,13 @@ const WalletConnect = (props: RevokePageProps) => {
   async function onSessionProposal({ id, params }: Web3WalletTypes.SessionProposal) {
     console.log('params ', params)
     try {
+      const wallet = await usewallet.getUserWallets();
+      const address = wallet[0].blockchain[0].address;
       // ------- namespaces builder util ------------ //
       const namespaces = Object.entries(params.requiredNamespaces).map(([key, namespace]) => {
         const caip2Namespace = key;
         const proposalNamespace = namespace;
-        const accounts = proposalNamespace.chains?.map(chain => `${chain}:0x7e5d2312899dcf9f`) || [];
+        const accounts = proposalNamespace.chains?.map(chain => `${chain}:${address}`) || [];
         return {
           [caip2Namespace]: {
             chains: proposalNamespace.chains,

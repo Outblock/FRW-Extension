@@ -113,7 +113,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     }
 
     const network = props.currentNetwork;
-    if (network === 'previewnet') {
+    console.log('network ', network)
+    if (network === 'previewnet' || network === 'testnet') {
       setEvmMode(true);
     } else {
       setEvmMode(false);
@@ -121,6 +122,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   };
 
   const getEvmAddress = async () => {
+    console.log('network ', props.evmLoading, props.evmAddress)
     if (isValidEthereumAddress(props.evmAddress)) {
       const result = await usewallet.getBalance(props.evmAddress);
       const readBalance = parseFloat(result) / 1e18
@@ -132,7 +134,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
 
 
   useEffect(() => {
-    console.log('props.walletList ', props.walletList)
     checkEvmMode();
   }, []);
 

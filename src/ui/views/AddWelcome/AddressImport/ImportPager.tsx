@@ -51,14 +51,12 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
   const handleImport = async (accountKey?: any) => {
-    console.log('account key ', accountKey)
     if (accountKey.length > 1) {
       setAccounts(accountKey);
       setImport(true);
     } else {
       setAccounts(accountKey)
       const result = await wallet.openapi.checkImport(accountKey[0].pubK);
-      console.log('result ', result)
       if (result.status === 409) {
         goPassword();
       } else {

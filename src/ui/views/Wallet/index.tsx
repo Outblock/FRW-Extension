@@ -69,7 +69,7 @@ const WalletTab = ({ network }) => {
   const [sendHover, setSendHover] = useState(false);
   const [swapHover, setSwapHover] = useState(false);
   const [receiveHover, setReceiveHover] = useState(false);
-  const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
+  const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
   const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
 
   const [incLink, _] = useState(
@@ -91,6 +91,7 @@ const WalletTab = ({ network }) => {
   const setUserAddress = async () => {
     let data = '';
     try {
+      console.log('setuserAddres ', childType)
       if (childType === 'evm') {
         data = await wallet.getEvmAddress();
       } else {
@@ -134,7 +135,13 @@ const WalletTab = ({ network }) => {
   };
 
   const refreshWithRetry = async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
+    console.log('coinData address ', address, childStateLoading)
+    if (childStateLoading) {
+      console.log("childStateLoading.");
+      return;
+    }
     try {
+
       const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
       console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
 
@@ -155,19 +162,21 @@ const WalletTab = ({ network }) => {
           refreshWithRetry(expiry_time, retryCount + 1);
         }, delay);
       } else {
-        wallet.refreshCoinList(expiry_time).then((res) => {
-          if (res.length === 0 && retryCount < maxRetries) {
-            console.log(`No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
-            setTimeout(() => {
-              refreshWithRetry(expiry_time, retryCount + 1);
-            }, delay);
-          } else {
-            console.log(`res found, refreshedCoinlist`, res);
-            sortWallet(res);
-          }
-        }).catch((err) => {
-          console.error(`Error getCoinList price for token:`, err);
-        });
+        wallet.refreshCoinList(expiry_time)
+          .then((res) => {
+            if (res.length === 0 && retryCount < maxRetries) {
+              console.log(`No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
+              setTimeout(() => {
+                refreshWithRetry(expiry_time, retryCount + 1);
+              }, delay);
+            } else {
+              console.log(`res found, refreshedCoinlist`, res);
+              sortWallet(res);
+            }
+          })
+          .catch((err) => {
+            console.error(`Error getting CoinList price for token:`, err);
+          });
       }
     }
   };
@@ -184,9 +193,15 @@ const WalletTab = ({ network }) => {
   };
 
   const fetchWallet = async () => {
-    // const remote = await fetchRemoteConfig.remoteConfig();
-    // console.log('remote ', remote)
+    // If childType is 'evm', handle it first
+    if (childType === 'evm') {
+      const storageData = await wallet.refreshEvmList(expiry_time);
+      console.log('childType EVM ', storageData);
+      sortWallet(storageData);
+      return; 
+    }
 
+    // If not 'evm', check if it's active or not
     if (!isActive && childType !== 'evm') {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
@@ -194,21 +209,17 @@ const WalletTab = ({ network }) => {
       }
     }
 
-    if (childType === 'evm') {
-      const storageData = await wallet.refreshEvmList(expiry_time);
-      sortWallet(storageData);
-    } else {
-      try {
-        const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-        console.log('refreshCoinList result', refreshedCoinlist)
-        if (refreshedCoinlist.length === 0) {
-          refreshWithRetry(expiry_time);
-        } else {
-          sortWallet(refreshedCoinlist)
-        }
-      } catch (error) {
+    // Handle all non-evm and non-active cases here
+    try {
+      const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
+      console.log('refreshCoinList result', refreshedCoinlist);
+      if (refreshedCoinlist.length === 0) {
         refreshWithRetry(expiry_time);
+      } else {
+        sortWallet(refreshedCoinlist);
       }
+    } catch (error) {
+      refreshWithRetry(expiry_time);
     }
   };
 
@@ -216,7 +227,6 @@ const WalletTab = ({ network }) => {
     const storageSwap = await wallet.getSwapConfig();
     setSwapConfig(storageSwap);
     const storageData = await wallet.getCoinList(expiry_time);
-    console.log('storageData ', storageData)
     sortWallet(storageData);
   };
 
@@ -238,15 +248,18 @@ const WalletTab = ({ network }) => {
   };
 
   const fetchChildState = async () => {
+    setChildStateLoading(true)
     const isChild = await wallet.getActiveWallet();
+    console.log('isChild ', isChild)
     const childresp = await wallet.checkUserChildAccount();
     setChildAccount(childresp);
-    await setChildType(isChild);
+    setChildType(isChild);
     if (isChild && isChild !== 'evm') {
       await setIsActive(false);
     } else {
       setIsActive(true);
     }
+    setChildStateLoading(false)
     return isChild;
   };
 
@@ -462,12 +475,12 @@ const WalletTab = ({ network }) => {
             }
           </Box>
 
-          {network === 'previewnet' || (childAccount && Object.keys(childAccount).length > 0) > 0 &&
+          {(network === 'previewnet' || network === 'testnet' || (childAccount && Object.keys(childAccount).length > 0)) && (
             <Box sx={{ flex: '1' }}>
             </Box>
-          }
-          {network === 'previewnet' || (childAccount && Object.keys(childAccount).length > 0) > 0 &&
+          )}
 
+          {(network === 'previewnet' || network === 'testnet' || (childAccount && Object.keys(childAccount).length > 0)) && (
             <Box>
               <Button
                 color="info3"
@@ -476,12 +489,12 @@ const WalletTab = ({ network }) => {
                 sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
               >
                 <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
-                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>{chrome.i18n.getMessage('Move')}</Typography>
+                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>
+                  {chrome.i18n.getMessage('Move')}
+                </Typography>
               </Button>
             </Box>
-
-
-          }
+          )}
 
         </Box>
         <Tabs

@@ -75,7 +75,6 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   const checkNetwork = async () => {
 
     const network = await wallet.getNetwork();
-    console.log(' msgNetwork ', msgNetwork, network, showSwitch)
     setCurrent(network);
     if (msgNetwork !== network && msgNetwork) {
       setShowSwitch(true);
@@ -83,7 +82,6 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
       setShowSwitch(false);
     }
     const address = await wallet.getCurrentAddress();
-    console.log('address currentAddress ', address)
     setCurrentAddress(address!);
   }
 

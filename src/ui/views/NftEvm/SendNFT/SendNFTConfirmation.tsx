@@ -15,6 +15,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {
   LLSpinner,
 } from 'ui/FRWComponent';
+import {EVM_ENDPOINT} from 'consts'
 import { useWallet } from 'ui/utils';
 import { LLProfile } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
@@ -42,10 +43,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
   const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
-
-  const provider = new Web3.providers.HttpProvider('https://previewnet.evm.nodes.onflow.org');
-  const web3 = new Web3(provider);
-  const erc721Contract = new web3.eth.Contract(erc721, props.data.nft.contractEvmAddress);
+  const [erc721Contract, setErcContract] = useState<any>(null);
+  const [web3, setWeb3] = useState<any>(null);
 
   const startCount = () => {
     console.log('props.data ', props.data)
@@ -217,8 +216,17 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     }
   }, [props.data.contact]);
 
+  const initializeContract = async () => {
+    const network = await wallet.getNetwork();
+    const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
+    const web3Instance = new Web3(provider);
+    setWeb3(web3Instance);
+    const contractInstance = new web3Instance.eth.Contract(erc721, props.data.nft.contractEvmAddress);
+    setErcContract(contractInstance);
+  };
+
   useEffect(() => {
-    console.log('props.data ', props.data)
+    initializeContract();
   }, []);
 
 

@@ -97,7 +97,6 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    console.log('getCurrentCoin ', token);
     const wallet = await usewallet.getMainWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
@@ -133,7 +132,6 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
   const moveToken = async () => {
     setLoading(true);
     const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
-    console.log('tokenResult ', tokenResult);
     usewallet.moveFTfromChild(childUserInfo!.address, 'flowTokenProvider', amount!, tokenResult!.name).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${childAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
@@ -148,7 +146,6 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
 
 
   const handleMove = async () => {
-    console.log('currentCoin ', currentCoin)
     moveToken();
   };
 
