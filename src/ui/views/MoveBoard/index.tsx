@@ -118,9 +118,9 @@ const MoveBoard = (props: MoveBoardProps) => {
           }}
         />
       );
-    } else if (network === 'previewnet') {
+    } else if (network === 'previewnet' || network === 'testnet') {
       return (
-        <MoveFromChildFT
+        <MoveFromFlow
           isConfirmationOpen={moveFtOpen}
           data={{ amount: 0 }}
           handleCloseIconClicked={() => closeFullPage()}

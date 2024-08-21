@@ -94,8 +94,8 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     setEvmAddress(evmWallet.address);
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
-    console.log('coinList ', evmWallet)
     const tokenResult = await usewallet.openapi.getTokenInfo(token, network);
+    console.log('tokenResult ', coinList, tokenResult)
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase());
     setCoinInfo(coinInfo!);
 

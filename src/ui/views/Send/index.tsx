@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 import { useWallet } from 'ui/utils';
 import { useTheme, styled } from '@mui/material/styles';
-import SwipeableViews from 'react-swipeable-views';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import SearchIcon from '@mui/icons-material/Search';
@@ -31,6 +30,7 @@ import { isEmpty } from 'lodash';
 import { makeStyles } from '@mui/styles';
 import { StyledEngineProvider } from '@mui/material/styles';
 import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
+import SwipeableViews from 'react-swipeable-views';
 import IconAbout from '../../../components/iconfont/IconAbout';
 
 export enum SendPageTabOptions {
@@ -116,7 +116,7 @@ interface TabPanelProps {
 let searchResult = {
   address: '',
   contact_name: '',
-  avatar:'',
+  avatar: '',
   domain: {
     domain_type: 0,
     value: '',
@@ -170,9 +170,9 @@ const Send = () => {
       const response = await wallet.getAddressBook();
       let recent = await wallet.getRecent();
       if (recent) {
-        recent.forEach((c)=>{
-          response.forEach((s)=>{
-            if(c.address === s.address && c.contact_name === s.contact_name){
+        recent.forEach((c) => {
+          response.forEach((s) => {
+            if (c.address === s.address && c.contact_name === s.contact_name) {
               c.type = 1;
             }
           })
@@ -223,8 +223,8 @@ const Send = () => {
     const fArray = searchContacts;
     let result = '';
     let group = '';
-    let keyword = keys 
-    if (keyword.includes('.')){
+    let keyword = keys
+    if (keyword.includes('.')) {
       keyword = keys.substring(0, keys.lastIndexOf('.'));
     }
     switch (searchType) {
@@ -247,7 +247,7 @@ const Send = () => {
     const domainRresult = {
       address: '',
       contact_name: '',
-      avatar:'',
+      avatar: '',
       domain: {
         domain_type: 0,
         value: '',
@@ -275,7 +275,7 @@ const Send = () => {
     const lilicoResult = {
       address: '',
       contact_name: '',
-      avatar:'',
+      avatar: '',
       domain: {
         domain_type: 0,
         value: '',
@@ -284,7 +284,7 @@ const Send = () => {
     if (result) {
       result.map((data) => {
         let address = data.address;
-        if(!reg.test(data.address)) { address = '0x' + data.address; }
+        if (!reg.test(data.address)) { address = '0x' + data.address; }
         lilicoResult['group'] = 'Flow Wallet user';
         lilicoResult.address = address;
         lilicoResult.contact_name = data.username;
@@ -321,7 +321,7 @@ const Send = () => {
     setIsLoading(false);
   };
 
-  const checkKey = async (e) =>{
+  const checkKey = async (e) => {
     if (e.code === 'Enter') {
       searchAll();
     }
@@ -351,14 +351,14 @@ const Send = () => {
 
 
     const checkAddress = keyword.trim()
-    if (isValidEthereumAddress(checkAddress)){
+    if (isValidEthereumAddress(checkAddress)) {
       if (filtered[0]) {
         searchResult = filtered[0]
       } else {
         searchResult.address = withPrefix(keyword) || keyword;
         searchResult.contact_name = withPrefix(checkAddress) || keyword;
         searchResult.avatar = '';
-          searchResult.type! = 4;
+        searchResult.type! = 4;
       }
       history.push({
         pathname: '/dashboard/wallet/sendeth',
@@ -374,7 +374,7 @@ const Send = () => {
         searchResult.address = withPrefix(keyword) || keyword;
         searchResult.contact_name = withPrefix(checkAddress) || keyword;
         searchResult.avatar = '';
-          searchResult.type! = 4;
+        searchResult.type! = 4;
       }
       history.push({
         pathname: '/dashboard/wallet/sendAmount',
@@ -400,6 +400,19 @@ const Send = () => {
     }
   };
 
+  const handleClick = (eachgroup) => {
+    const history = useHistory();
+
+    const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+
+    const pathname = isEvmAddress ? '/dashboard/wallet/sendEth' : '/dashboard/wallet/sendAmount';
+
+    history.push({
+      pathname: pathname,
+      state: { contact: eachgroup },
+    });
+  };
+
 
   return (
     <StyledEngineProvider injectFirst>
@@ -412,7 +425,7 @@ const Send = () => {
             px: '8px',
           }}
         >
-          <Grid item xs={1} sx={{display: 'flex', justifyContent: 'center'}}>
+          <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
             <IconButton onClick={() => history.push('/dashboard')}>
               <ArrowBackIcon sx={{ color: 'icon.navi' }} />
             </IconButton>
@@ -428,12 +441,12 @@ const Send = () => {
               {chrome.i18n.getMessage('Send_to')}
             </Typography>
           </Grid>
-          <Grid item xs={1} sx={{display: 'flex', justifyContent: 'center'}}>
+          <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
             <IconButton onClick={() => window.open('https://wallet.flow.com/contact', '_blank')}>
               <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
-                <HelpOutlineRoundedIcon  sx={{ color: 'icon.navi' }} />
+                <HelpOutlineRoundedIcon sx={{ color: 'icon.navi' }} />
               </Tooltip>
-            </IconButton> 
+            </IconButton>
           </Grid>
         </Grid>
         <div className={classes.inputWrapper}>
@@ -514,36 +527,48 @@ const Send = () => {
                   <RecentList
                     filteredContacts={recentContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup)=> 
+                    handleClick={(eachgroup) => {
+                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+
+                      const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
+
                       history.push({
-                        pathname: '/dashboard/wallet/sendAmount',
+                        pathname: pathname,
                         state: { contact: eachgroup },
-                      })
-                    }
+                      });
+                    }}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={1} dir={theme.direction}>
                   <AddressBookList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup)=> 
+                    handleClick={(eachgroup) => {
+                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+
+                      const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
+
                       history.push({
-                        pathname: '/dashboard/wallet/sendAmount',
+                        pathname: pathname,
                         state: { contact: eachgroup },
-                      })
-                    }
+                      });
+                    }}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={2} dir={theme.direction}>
                   <AccountsList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup)=> 
+                    handleClick={(eachgroup) => {
+                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+
+                      const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
+
                       history.push({
-                        pathname: '/dashboard/wallet/sendAmount',
+                        pathname: pathname,
                         state: { contact: eachgroup },
-                      })
-                    }
+                      });
+                    }}
                   />
                 </TabPanel>
               </SwipeableViews>
@@ -585,23 +610,27 @@ const Send = () => {
               </ListItem>
             }
 
-            {(!searched && !hasNoFilteredContacts) && 
-            <AddressBookList
-              filteredContacts={filteredContacts}
-              isLoading={isLoading}
-              handleClick={(eachgroup)=> 
-                history.push({
-                  pathname: '/dashboard/wallet/sendAmount',
-                  state: { contact: eachgroup },
-                })
-              }
-            />}
+            {(!searched && !hasNoFilteredContacts) &&
+              <AddressBookList
+                filteredContacts={filteredContacts}
+                isLoading={isLoading}
+                handleClick={(eachgroup) => {
+                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+
+                  const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
+
+                  history.push({
+                    pathname: pathname,
+                    state: { contact: eachgroup },
+                  });
+                }}
+              />}
 
             {(searched && !searchContacts.length) &&
-              <ListItem sx={{backgroundColor: '#000000'}}>
-                <ListItemAvatar sx={{ marginRight:'8px', minWidth:'20px'}}>
+              <ListItem sx={{ backgroundColor: '#000000' }}>
+                <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
                   {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
-                  <IconAbout size={20} color='#E54040'/>
+                  <IconAbout size={20} color='#E54040' />
                 </ListItemAvatar>
                 <ListItemText>
                   <Typography
@@ -619,12 +648,16 @@ const Send = () => {
                 searchContacts={searchContacts}
                 isLoading={isLoading}
                 handleClick={(eachgroup) => {
+                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+
+                  const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
+
                   history.push({
-                    pathname: '/dashboard/wallet/sendAmount',
+                    pathname: pathname,
                     state: { contact: eachgroup },
-                  })
+                  });
                 }}
-              /> 
+              />
             }
           </div>
         )}

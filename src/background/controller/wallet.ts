@@ -2980,6 +2980,7 @@ export class WalletController extends BaseController {
         );
       }
     } catch (err) {
+      console.log('listen erro ', err)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await chrome.storage.session.remove('transactionPending');

@@ -8,6 +8,7 @@ export enum FCLWalletConnectMethod {
   accountProof = 'flow_account_proof',
   accountInfo = 'frw_account_info',
   addDeviceInfo = 'frw_add_device_key',
+  proxysign = 'frw_proxy_sign',
 }
 
 // The initializer function can be converted into a function that takes a type and returns the corresponding enum value

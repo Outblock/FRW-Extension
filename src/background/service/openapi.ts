@@ -1105,7 +1105,7 @@ class OpenApiService {
       });
       return res;
     } catch (err) {
-      console.log('getChildAccountMeta err');
+      console.log('getChildAccountMeta err', err);
       return null;
     }
   };
@@ -1414,9 +1414,20 @@ class OpenApiService {
     if (gitToken) {
       return gitToken;
     } else {
-      const response = await fetch(
-        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-      );
+      let response
+      if (process.env.NODE_ENV === 'production'){
+        response = await fetch(
+          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
+        );
+      } else if (process.env.NODE_ENV !== 'production') {
+        response = await fetch(
+          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
+        );
+      } else {
+        response = await fetch(
+          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
+        );
+      }
       const res = await response.json();
       const { tokens = {} } = res;
       const hasFlowToken = tokens.some(token => token.symbol.toLowerCase().includes('flow'));

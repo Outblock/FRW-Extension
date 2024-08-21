@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
-import { useWallet, formatAddress, isEmoji } from 'ui/utils';
+import { useWallet, formatAddress } from 'ui/utils';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
@@ -24,21 +24,24 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoading = false }) => {
+export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoading = false }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
   const history = useHistory();
   const [contactAdd, setContactAdd] = useState(false);
 
+  const DomainLogo = () => {
+    if (contact.domain?.value === '') {
+      return undefined;
+    }
+  };
+
   const getName = (name: string) => {
-    console.log('contact ', contact)
     if (name.startsWith('0')) {
       return '0x'
-    } else if (name.length > 0){
-      return name[0].toUpperCase()
     } else {
-      return '0x'
+      return name[0].toUpperCase()
     }
   }
 
@@ -72,7 +75,6 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
     }
   };
 
-
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -89,42 +91,20 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
           },
         }}
       >
-        {!isLoading ? (
-          isEmoji(contact.avatar) ? (
-            <Typography
-              sx={{
-                mr: '13px',
-                color: 'primary.main',
-                backgroundColor: '#484848',
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                fontSize: '24px', // Adjust font size to fit within the box
-              }}
-            >
+        {!isLoading ?
+
+          <Box sx={{
+            display: 'flex',
+            mr: '13px', height: '40px', width: '40px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: contact['bgcolor'],
+          }}>
+            <Typography sx={{ fontSize: '28px', fontWeight: '600' }}>
               {contact.avatar}
             </Typography>
-          ) : (
-            <Avatar
-              alt={contact.contact_name}
-              src={contact.avatar}
-              sx={{
-                mr: '13px',
-                color: 'primary.main',
-                backgroundColor: '#484848',
-                width: '40px',
-                height: '40px',
-              }}
-            >
-              {getName(contact.contact_name)}
-            </Avatar>
+          </Box>
+          : (
+            <Skeleton variant="circular" width={40} height={40} />
           )
-        ) : (
-          <Skeleton variant="circular" width={40} height={40} />
-        )}
+        }
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {!isLoading ?
             <Typography variant="body1" sx={{ textAlign: 'start' }}>
@@ -153,7 +133,7 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
         {isSend ? (
           <IconButton onClick={(e) => {
             e.stopPropagation();
-            history.push('/dashboard/wallet/send')
+            history.push('/dashboard/wallet/sendeth')
           }}>
             <CardMedia sx={{ width: '11px', height: '11px' }} image={closex} />
           </IconButton>)

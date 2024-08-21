@@ -72,6 +72,7 @@ const SendAmount = () => {
     } else {
       wallet = await usewallet.getCurrentWallet();
     }
+    console.log('wallet ', wallet)
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
@@ -80,17 +81,26 @@ const SendAmount = () => {
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
     const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
+    console.log('coinInfo ', coinInfo)
 
     setCoinInfo(coinInfo!);
-
     const info = await usewallet.getUserInfo(false);
     const isChild = await usewallet.getActiveWallet();
+    console.log('isChild ', info, isChild)
     if (isChild) {
-      const childResp = await usewallet.checkUserChildAccount();
-      const cwallet = childResp[wallet.address!];
+      if (isChild !== 'evm') {
+        const childResp = await usewallet.checkUserChildAccount();
+        const cwallet = childResp[wallet.address!];
+        userContact.avatar = cwallet.thumbnail.url;
+        userContact.contact_name = cwallet.name;
+
+      }
       userContact.address = withPrefix(wallet.address!) || '';
-      userContact.avatar = cwallet.thumbnail.url;
-      userContact.contact_name = cwallet.name;
+      if (isChild === 'evm') {
+        userContact.avatar = '';
+        userContact.contact_name = 'evm';
+
+      }
     } else {
       userContact.address = withPrefix(wallet.address) || '';
       userContact.avatar = info.avatar;

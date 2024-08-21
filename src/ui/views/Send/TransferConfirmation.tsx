@@ -80,6 +80,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet.transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
+      console.log('send result ', txID, props.data)
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
@@ -230,11 +231,13 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         </Grid>
       </Grid>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-        {props.data.childType ?
+        {props.data.childType === 'evm' ? (
+          <FRWProfile contact={props.data.userContact} isLoading={false} isEvm={true} />
+        ) : props.data.childType ? (
           <LLProfile contact={props.data.userContact} />
-          :
+        ) : (
           <FRWProfile contact={props.data.userContact} />
-        }
+        )}
         <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {colorArray.map((color, index) => (
             <Box sx={{ mx: '5px' }} key={index}>

@@ -95,7 +95,8 @@ const SendEth = () => {
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
-    if (childType === 'evm' ) {
+    const ct = await usewallet.getActiveWallet();
+    if (ct === 'evm' ) {
       userContact.address = withPrefix(wallet.address) || '';
     } else {
       userContact.address = withPrefix(mainWallet) || '';

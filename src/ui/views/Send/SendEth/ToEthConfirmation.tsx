@@ -16,7 +16,7 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { LLProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import eventBus from '@/eventBus';
 import InfoIcon from '@mui/icons-material/Info';
@@ -192,7 +192,11 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
         </Grid>
       </Grid>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-        <LLProfile contact={props.data.userContact} />
+        {props.data.childType ?
+          <LLProfile contact={props.data.userContact} />
+          :
+          <FRWProfile contact={props.data.userContact} />
+        }
         <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {colorArray.map((color, index) => (
             <Box sx={{ mx: '5px' }} key={index}>

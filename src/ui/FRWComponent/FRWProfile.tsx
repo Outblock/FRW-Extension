@@ -13,15 +13,20 @@ const tempEmoji = {
   "bgcolor": "#FFE4C4"
 };
 
-export const FRWProfile = ({ contact, isLoading = false }) => {
+export const FRWProfile = ({ contact, isLoading = false, isEvm = false }) => {
 
   const usewallet = useWallet();
   const [emoji, setEmoji] = useState(tempEmoji);
 
-  
+
   const getEmoji = async () => {
+    console.log('contact contact ', contact)
     const emojiList = await usewallet.getEmoji();
-    setEmoji(emojiList[0])
+    if (isEvm) {
+      setEmoji(emojiList[1])
+    } else {
+      setEmoji(emojiList[0])
+    }
   }
 
   useEffect(() => {

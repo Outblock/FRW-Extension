@@ -8,7 +8,7 @@ import {
   Box,
 } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import { LLContactCard, FWContactCard } from '../../FRWComponent';
+import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
 import { useHistory } from 'react-router-dom';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from '@/ui/utils/address';
@@ -39,6 +39,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
     const wallet = await usewallet.getUserWallets();
     const fData = wallet.filter((item) => item.blockchain !== null);
     const currentNetwork = await usewallet.getNetwork();
+    const emojiList = await usewallet.getEmoji();
     let sortData = fData;
     if (!Array.isArray(sortData)) {
       sortData = [];
@@ -49,28 +50,35 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
     const walletData = (filteredData || []).map((wallet, index) => {
       return {
         id: index,
-        name: '',
+        contact_name: '',
         address: withPrefix(wallet.blockchain[0].address),
         key: index,
       };
     });
-    if (currentNetwork === 'previewnet' && walletData[0].address) {
+    const wdArray = await convertArrayToContactArray(walletData, emojiList)
+    console.log('walletData ', walletData, wallet)
+    const childresp: ChildAccount = await usewallet.checkUserChildAccount();
+    if (childresp) {
+      const cAccountArray = convertObjectToContactArray(childresp)
+      setChildAccount(cAccountArray);
+
+    }
+    console.log('childresp ', wdArray)
+
+    // putDeviceInfo(fData);
+    await setWalletList(wdArray);
+    if ((currentNetwork === 'previewnet' || currentNetwork === 'testnet') && walletData[0].address) {
       usewallet.queryEvmAddress(walletData[0].address).then((res) => {
         const evmData = walletData[0]
         evmData.address = res;
+        evmData['avatar'] = emojiList[1].emoji
+        evmData['contact_name'] = emojiList[1].name
+        evmData['bgcolor'] = emojiList[1].bgcolor
         setEvmAddress([evmData]);
       }).catch((err) => {
         console.log('evm error ', err)
       });
     }
-    const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    const cAccountArray = convertObjectToContactArray(childresp)
-    const wdArray = await convertArrayToContactArray(walletData)
-    console.log('childresp ', wdArray)
-    setChildAccount(cAccountArray);
-    
-    // putDeviceInfo(fData);
-    await setWalletList(wdArray);
 
   }
 
@@ -89,26 +97,35 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
     }));
   }
 
-  async function convertArrayToContactArray(array) {
-    const emojiList = await usewallet.getEmoji();
-    console.log('emojiList ', emojiList)
-    return array.map((item, index) => ({
-      id: item.id,
-      contact_name: emojiList[0].name,
-      username: emojiList[0].name,
-      avatar: emojiList[0].emoji,
-      address: item.address,
-      contact_type: 1,
-      bgColor:emojiList[0].bgcolor,
-      domain: {
-        domain_type: 0,
-        value: ''
-      }
-    }));
+  async function convertArrayToContactArray(array, emojiList) {
+    // Fetch emoji list
+
+    return array.map((item, index) => {
+
+      return {
+        id: item.id,
+        contact_name: emojiList[0].name, // Use the corresponding emoji name
+        username: emojiList[0].name, // Set username from emoji list
+        avatar: emojiList[0].emoji, // Set avatar from emoji list
+        address: item.address, // Use the address from the original array
+        contact_type: 1, // Keep the contact_type constant
+        bgColor: emojiList[0].bgcolor, // Set background color
+        domain: {
+          domain_type: 0, // Keep domain_type constant
+          value: ''
+        }
+      };
+    });
   }
 
 
+  const goEth = (group) => {
 
+    history.push({
+      pathname: '/dashboard/wallet/sendeth',
+      state: { contact: group },
+    })
+  }
 
   useEffect(() => {
     const group = groupBy(
@@ -172,10 +189,10 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
                 key={`card-${index}`}
                 sx={{ display: 'contents' }}
                 onClick={() =>
-                  handleClick(eachgroup)
+                  goEth(eachgroup)
                 }
               >
-                <LLContactCard
+                <LLContactEth
                   contact={eachgroup}
                   hideCloseButton={true}
                   key={index}
