@@ -97,6 +97,8 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setA
 
       try {
         const wallet = await SignClient.init({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore: Unreachable code error
           core: new Core({
             projectId: process.env.WC_PROJECTID,
           }),

@@ -86,6 +86,8 @@ const WalletConnect = (props: RevokePageProps) => {
     const createWeb3Wallet = async () => {
       try {
         const wallet = await Web3Wallet.init({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore: Unreachable code error
           core: new Core({
             projectId: process.env.WC_PROJECTID,
           }),

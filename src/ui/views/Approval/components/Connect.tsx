@@ -170,18 +170,23 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   }
 
   const checkNetwork = async () => {
+    const address = await wallet.getCurrentAddress();
+    console.log('address currentAddress ', address)
+    setCurrentAddress(address!);
 
     const network = await wallet.getNetwork();
+    if (network === 'migrationTestnet') {
+      setShowSwitch(false);
+      return
+    }
+    
     console.log(' msgNetwork ', msgNetwork, network, showSwitch)
     setCurrent(network);
-    if ((msgNetwork !== network && msgNetwork) && network !== 'migrationTestnet') {
+    if (msgNetwork !== network && msgNetwork) {
       setShowSwitch(true);
     } else {
       setShowSwitch(false);
     }
-    const address = await wallet.getCurrentAddress();
-    console.log('address currentAddress ', address)
-    setCurrentAddress(address!);
   }
 
 
