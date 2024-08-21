@@ -1419,9 +1419,13 @@ class OpenApiService {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );
-      } else if (process.env.NODE_ENV !== 'production') {
+      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm') {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
+        );
+      }else if (process.env.NODE_ENV !== 'production' && childType === 'evm') {
+        response = await fetch(
+          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );
       } else {
         response = await fetch(
