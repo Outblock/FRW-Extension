@@ -41,12 +41,14 @@ class Transaction {
           mainnet:[],
           crescendo: [],
           previewnet: [],
+          migrationTestnet: [],
           testnet:[],
         },
         pendingItem: {
           mainnet:[],
           crescendo: [],
           previewnet: [],
+          migrationTestnet: [],
           testnet:[],
         },
       },
@@ -61,12 +63,14 @@ class Transaction {
           crescendo: [],
           previewnet: [],
           testnet:[],
+          migrationTestnet: [],
         },
         pendingItem: {
           mainnet:[],
           testnet:[],
           crescendo: [],
           previewnet: [],
+          migrationTestnet: [],
         },
       },
     });
@@ -81,12 +85,14 @@ class Transaction {
         crescendo: [],
         previewnet: [],
         testnet:[],
+        migrationTestnet: [],
       },
       pendingItem: {
         mainnet:[],
         testnet:[],
         crescendo: [],
         previewnet: [],
+        migrationTestnet: [],
       }
     }
     this.session = {
@@ -97,17 +103,20 @@ class Transaction {
         testnet:[],
         crescendo: [],
         previewnet: [],
+        migrationTestnet: [],
       },
       pendingItem: {
         mainnet:[],
         testnet:[],
         crescendo: [],
         previewnet: [],
+        migrationTestnet: [],
       }
     }
   }
 
   setPending = (txId: string, address:string, network, icon, title) => {
+    console.log('this.session.pendingItem ', this.session.pendingItem)
     const txList = this.session.pendingItem[network];
     const items = txList.filter(txItem => txItem.hash === txId)
     if (items.length > 0) {
@@ -139,6 +148,7 @@ class Transaction {
     txItem.hash = txId;
     txItem.image = icon;
     txItem.title = title;
+    console.log('txItem ', txItem)
     txList.unshift(txItem);
     this.session.pendingItem[network] = txList;
   };

@@ -62,7 +62,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
   const createStake = () => {
     if (props.data.amount < 50) {
       notification.create(
-        `/`,
+        '/',
         'Not enough Flow',
         'A minimum of 50 Flow is required for staking',
       );
@@ -86,7 +86,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
   const createDelegate = () => {
     if (props.data.amount < 50) {
       notification.create(
-        `/`,
+        '/',
         'Not enough Flow',
         'A minimum of 50 Flow is required for staking',
       );
@@ -193,7 +193,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
             }}
             variant="body2"
           >
-            Stake Flow
+            Stake FLOW
           </Typography>
         </Box>
 

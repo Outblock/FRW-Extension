@@ -6,6 +6,8 @@ const ESLintWebpackPlugin = require('eslint-webpack-plugin');
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin');
 const FirebaseFixPlugin = require('./plugins/FirebaseFixPlugin');
 const { version } = require('../_raw/manifest.json');
+const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const paths = require('./paths');
 
@@ -18,7 +20,10 @@ const config = {
   entry: {
     background: paths.rootResolve('src/background/index.ts'),
     'content-script': paths.rootResolve('src/content-script/index.ts'),
-    // pageProvider: paths.rootResolve('src/content-script/pageProvider/index.ts'),
+    pageProvider: paths.rootResolve('src/content-script/pageProvider/eth/index.ts'),
+    // pageProvider: paths.rootResolve(
+    //   'node_modules/@rabby-wallet/page-provider/dist/index.js'
+    // ),
     ui: paths.rootResolve('src/ui/index.tsx'),
     script: paths.rootResolve('src/content-script/script.js'),
   },
@@ -29,6 +34,8 @@ const config = {
   },
   experiments: {
     topLevelAwait: true,
+    asyncWebAssembly: true,
+    syncWebAssembly: true
   },
   module: {
     rules: [
@@ -89,6 +96,24 @@ const config = {
           name: '[name].[ext]',
         },
       },
+      // {
+      //   test: /\.wasm$/,
+      //   include: path.resolve(__dirname, 'node_modules/@trustwallet/wallet-core/dist/lib'),
+      //   use: [{
+      //     loader: 'file-loader',
+      //     options: {
+      //       name: '[name].[ext]',
+      //       outputPath: '/',
+      //     },
+      //   }],
+      //   type: 'javascript/auto',
+
+      // },
+      {
+        test: /\.wasm$/,
+        type: 'webassembly/async',
+        include: /node_modules/,
+      },
       {
         test: /\.md$/,
         use: 'raw-loader',
@@ -111,6 +136,11 @@ const config = {
     new FirebaseFixPlugin(),
     new ESLintWebpackPlugin({
       extensions: ['ts', 'tsx', 'js', 'jsx'],
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: 'node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm', to: 'wallet-core.wasm' }
+      ],
     }),
     new HtmlWebpackPlugin({
       inject: true,
@@ -160,6 +190,8 @@ const config = {
       crypto: require.resolve('crypto-browserify'),
       os: require.resolve('os-browserify/browser'),
       path: require.resolve('path-browserify'),
+      "fs": false,
+      "fs/promises": false,
     },
     extensions: ['.js', 'jsx', '.ts', '.tsx'],
   },

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FlowReference-dev",
+  "name": "FlowWallet-dev",
   "short_name": "__MSG_appName__",
-  "version": "2.0.4",
+  "version": "2.3.8",
   "default_locale": "en",
   "description": "__MSG_appDescription__",
   "icons": {
@@ -24,7 +24,7 @@
       "128": "images/icon-128.png"
     },
     "default_popup": "popup.html",
-    "default_title": "Flow Reference Wallet"
+    "default_title": "Flow Wallet"
   },
   "author": "https://core.flow.com/",
   "background": {
@@ -44,18 +44,22 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self' 'wasm-unsafe-eval';"
   },
   "permissions": [
     "storage",
     "activeTab",
     "tabs",
     "notifications",
-    "identity"
+    "identity",
+    "camera",
+    "videoCapture"
   ],
   "web_accessible_resources": [
     {
       "resources": [
+        "node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm",
+        "pageProvider.js",
         "user-media-permission.html"
       ],
       "matches": [

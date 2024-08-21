@@ -12,19 +12,22 @@ interface NFTCollectionNetwork {
   testnet: NFTCollectionData[];
   crescendo: NFTCollectionData[];
   previewnet: NFTCollectionData[];
+  migrationTestnet: NFTCollectionData[];
 }
 
-interface NFTCollectionListNetwork{
+interface NFTCollectionListNetwork {
   mainnet: NFTCollectionList[];
   testnet: NFTCollectionList[];
   crescendo: NFTCollectionData[];
   previewnet: NFTCollectionData[];
+  migrationTestnet: NFTCollectionData[];
 }
 interface NFTNetwork {
   mainnet: NFTData;
   testnet: NFTData;
   crescendo: NFTData;
   previewnet: NFTData;
+  migrationTestnet: NFTData;
 }
 
 // const empty: Contact = {
@@ -48,7 +51,7 @@ class NFT {
       name: 'nftv2',
       template: {
         nft: {
-          testnet:{
+          testnet: {
             nfts: [],
             nftCount: 0,
           },
@@ -64,18 +67,24 @@ class NFT {
             nfts: [],
             nftCount: 0,
           },
+          migrationTestnet: {
+            nfts: [],
+            nftCount: 0,
+          },
         },
         collectionList: {
           testnet: [],
           mainnet: [],
-          crescendo:[],
-          previewnet:[],
+          crescendo: [],
+          previewnet: [],
+          migrationTestnet: [],
         },
         collection: {
           testnet: [],
           mainnet: [],
           crescendo: [],
           previewnet: [],
+          migrationTestnet: [],
         },
         expiry: 2648570077405,
       },
@@ -123,7 +132,7 @@ class NFT {
     this.deleteSingleCollection(data.name, network);
     this.store.collection[network].push({
       name: data.name,
-      nfts:list,
+      nfts: list,
       nfrCount: data.nftCount,
     })
   };
@@ -138,7 +147,7 @@ class NFT {
   };
 
   setCollectionList = (data: Array<any>, network: string) => {
-    console.log("setCollectionList ->", data, network, this.store, this.store.collectionList);
+    console.log('setCollectionList ->', data, network, this.store, this.store.collectionList);
     this.store.collectionList[network] = data;
   };
 
@@ -147,7 +156,7 @@ class NFT {
       await this.init();
     }
     this.store.nft = {
-      testnet:{
+      testnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -163,12 +172,25 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
+      migrationTestnet: {
+        nfts: [],
+        nftCount: 0,
+      },
     }
 
     this.store.collection = {
       testnet: [],
       mainnet: [],
       crescendo: [],
+      migrationTestnet: [],
+      previewnet: []
+    }
+
+    this.store.collectionList = {
+      testnet: [],
+      mainnet: [],
+      crescendo: [],
+      migrationTestnet: [],
       previewnet: []
     }
 
@@ -177,8 +199,8 @@ class NFT {
   };
 
   clearNFTList = () => {
-    this.store.nft= {
-      testnet:{
+    this.store.nft = {
+      testnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -194,16 +216,15 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
+      migrationTestnet: {
+        nfts: [],
+        nftCount: 0,
+      },
     }
   }
 
   clearNFTCollection = () => {
-    this.store.collection = {
-      testnet: [],
-      mainnet: [],
-      crescendo: [],
-      previewnet: []
-    }
+    this.clear();
   }
 
 }

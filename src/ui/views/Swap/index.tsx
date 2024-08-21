@@ -418,7 +418,6 @@ const Swap = () => {
 
             <Button
               onClick={() => {setConfirmationOpen(true)}}
-              // disabled={true}
               variant="contained"
               color="success"
               size="large"

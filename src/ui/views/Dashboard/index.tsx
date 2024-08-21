@@ -5,13 +5,13 @@ import { useTheme } from '@mui/material/styles';
 import SwipeableViews from 'react-swipeable-views';
 import WalletTab from '../Wallet';
 import NFTTab from '../NFT';
+import NftEvm from '../NftEvm';
 import Staking from '../Staking';
 import SettingTab from '../Setting';
 import { useLocation, useHistory } from 'react-router-dom';
 import NavBar from './NavBar';
 import { useWallet } from 'ui/utils';
 import { LLTestnetIndicator } from 'ui/FRWComponent';
-import { LLFlownsPop } from '@/ui/FRWComponent/LLFlownsPop';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -43,26 +43,24 @@ const Dashboard = ({ value, setValue }) => {
   const theme = useTheme();
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [domain, setDomain] = useState<string>('');
-  const [flownsPop, setFlownsPop] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const handleChangeIndex = (index) => {
     setValue(index);
   };
 
   const fetchAll = async () => {
-    const [network, userDomain, popStat] = await Promise.all([
+    setLoading(true)
+    //todo fix cadence loading
+    await wallet.getCadenceScripts();
+    const [network, userDomain] = await Promise.all([
       wallet.getNetwork(),
       wallet.fetchUserDomain(),
-      wallet.fetchPopStat()
     ]);
 
     setNetwork(network);
     setDomain(userDomain);
-
-    const address = await wallet.getCurrentAddress();
-    if (address) {
-      setFlownsPop(popStat);
-    }
+    setLoading(false)
   };
 
 
@@ -93,7 +91,11 @@ const Dashboard = ({ value, setValue }) => {
             <WalletTab network={currentNetwork} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <NFTTab />
+            {currentNetwork === 'previewnet' ?
+              <NftEvm />
+              :
+              <NFTTab />
+            }
           </TabPanel>
           <TabPanel value={value} index={2}>
             <Staking />
@@ -103,17 +105,6 @@ const Dashboard = ({ value, setValue }) => {
           </TabPanel>
         </SwipeableViews>
         <NavBar value={value} setValue={setValue} />
-        {flownsPop &&
-          <LLFlownsPop
-            deleteBackupPop={flownsPop}
-            handleCloseIconClicked={() => setFlownsPop(false)}
-            handleCancelBtnClicked={() => setFlownsPop(false)}
-            handleNextBtnClicked={() => {
-              setFlownsPop(false);
-              history.push('/dashboard/flowns')
-            }}
-          />
-        }
       </Box>
     </div>
   );

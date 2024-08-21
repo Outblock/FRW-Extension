@@ -14,6 +14,7 @@ import {
   FormControlLabel,
   Alert,
   Snackbar,
+  CircularProgress,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
@@ -21,6 +22,9 @@ import { useWallet } from 'ui/utils';
 import { storage } from '@/background/webapi';
 import { LLHeader, LLPrimaryButton } from '@/ui/FRWComponent';
 import { Presets } from 'react-component-transition';
+import { nanoid } from 'nanoid';
+import { Message } from 'utils';
+import { v4 as uuid } from 'uuid';
 
 const useStyles = makeStyles(() => ({
   arrowback: {
@@ -78,6 +82,7 @@ const useStyles = makeStyles(() => ({
     alignContent: 'space-between',
     justifyContent: 'space-between',
     padding: '20px 24px',
+    alignItems: 'center'
   },
   modeSelection: {
     width: '100%',
@@ -174,10 +179,16 @@ const DeveloperMode = () => {
   const classes = useStyles();
   const history = useHistory();
   const [modeOn, setModeOn] = useState(false);
+  const [scriptElement, setScriptElement] = useState<any>(null);
+  const [injectMode, setInjectMode] = useState(false);
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
 
+  const [loading, setLoading] = useState(false);
+
   const [isSandboxEnabled, setSandboxEnabled] = useState(false);
+
+  const [isMigrationEnabled, setMigrationEnabled] = useState(false);
 
   const [showError, setShowError] = useState(false);
 
@@ -187,9 +198,15 @@ const DeveloperMode = () => {
     // if (crescendo.length > 0) {
     //   setSandboxEnabled(true);
     // }
-    const previewnet = await usewallet.checkPreviewnet();
+    const previewnet = await usewallet.checkPreviewnet() || [];
+    console.log('previewnet ', previewnet)
     if (previewnet.length > 0) {
       setSandboxEnabled(true);
+    }
+    const migrationTestnet = await usewallet.checkTestnetMigration() || [];
+    console.log('previewnet ', migrationTestnet)
+    if (migrationTestnet.length > 0) {
+      setMigrationEnabled(true);
     }
 
     setNetwork(network);
@@ -217,7 +234,10 @@ const DeveloperMode = () => {
     // if (network === 'crescendo' && !isSandboxEnabled) {
     //   return;
     // }
-    if (network === 'previewnet' && !isSandboxEnabled) {
+    if ((network === 'previewnet' ) && !isSandboxEnabled) {
+      return;
+    }
+    if (network === 'migrationTestnet' && !isMigrationEnabled) {
       return;
     }
 
@@ -246,10 +266,116 @@ const DeveloperMode = () => {
     // }
   };
 
+
+  // const channelName = nanoid();
+
+
+  // const injectProviderScript = async (isDefaultWallet) => {
+  //   await localStorage.setItem('frw:channelName', channelName);
+  //   await localStorage.setItem('frw:isDefaultWallet', isDefaultWallet);
+  //   await localStorage.setItem('frw:uuid', uuid());
+
+  //   console.log(localStorage.getItem('frw:channelName'));
+
+  //   const container = document.head || document.documentElement;
+  //   const scriptElement = document.createElement('script');
+
+  //   scriptElement.id = "injectedScript";
+  //   scriptElement.setAttribute('src', chrome.runtime.getURL('pageProvider.js'));
+
+  //   container.insertBefore(scriptElement, container.children[0]);
+
+  //   return scriptElement;
+  // };
+
+  // const switchInject = async () => {
+  //   const injectStatus = await localStorage.getItem('frw:injectSetting');
+  //   const newInjectMode = injectStatus !== 'true';
+  //   console.log('newInjectMode ', newInjectMode);
+  //   setInjectMode(newInjectMode);
+  //   await localStorage.setItem('frw:injectSetting', newInjectMode ? 'true' : 'false');
+
+  //   chrome.tabs.query({ url: ["http://*/*", "https://*/*"] }, (tabs) => {
+
+  //     tabs.forEach((tab) => {
+  //       if (!tab.id) {
+  //         console.error('No tab ID available');
+  //         return;
+  //       }
+  //       if (newInjectMode) {
+  //         chrome.scripting.executeScript({
+  //           target: { tabId: tab.id },
+  //           files: ["content-script.js"],
+  //         }).catch((error) => console.error('Error injecting script:', error));
+  //       } else {
+  //         chrome.scripting.executeScript({
+  //           target: { tabId: tab.id },
+  //           func: removeInjectedScript,
+  //         }).catch((error) => console.error('Error removing script:', error));
+  //       }
+  //     });
+  //   });
+  // };
+
+  // function removeInjectedScript() {
+  //   const scriptElement = document.getElementById("injectedScript");
+  //   if (scriptElement) {
+  //     scriptElement.remove();
+  //   }
+  //   localStorage.removeItem('frw:channelName');
+  //   localStorage.removeItem('frw:isDefaultWallet');
+  //   localStorage.removeItem('frw:uuid');
+  // }
+
+  // useEffect(() => {
+  //   const initializeInjectMode = async () => {
+  //     const injectStatus = await localStorage.getItem('frw:injectSetting');
+  //     const initialInjectMode = injectStatus === 'true';
+  //     setInjectMode(initialInjectMode);
+
+  //     if (initialInjectMode) {
+  //       const script = await injectProviderScript(true);
+  //       setScriptElement(script);
+  //     }
+  //   };
+
+  //   initializeInjectMode();
+  // }, []);
+
   const enableSandbox = async () => {
-    const data = await usewallet.createFlowSandboxAddress('previewnet');
-    await usewallet.setDashIndex(0);
-    history.push('/dashboard?activity=1');
+    setLoading(true)
+    try {
+      const { data } = await usewallet.createFlowSandboxAddress('previewnet');
+      await usewallet.pollingTrnasaction(data, 'previewnet')
+      await usewallet.refreshUserWallets();
+      const previewnet = await usewallet.checkPreviewnet() || [];
+      if (previewnet.length > 0) {
+        setSandboxEnabled(true);
+      }
+      await switchNetwork('previewnet')
+      // await usewallet.setDashIndex(0);
+      // history.push('/dashboard?activity=1');
+    } finally {
+      setLoading(false)
+    }
+  };
+
+  const enableTestnetMigration = async () => {
+    setLoading(true)
+    try {
+      const { data } = await usewallet.createFlowSandboxAddress('migrationTestnet');
+      await usewallet.pollingTrnasaction(data, 'migrationTestnet')
+      await usewallet.refreshUserWallets();
+      const previewnet = await usewallet.checkTestnetMigration() || [];
+      if (previewnet.length > 0) {
+        setMigrationEnabled(true);
+      }
+      await switchNetwork('migrationTestnet')
+      // await usewallet.setDashIndex(0);
+      // history.push('/dashboard?activity=1');
+    } finally {
+      setLoading(false)
+    }
   };
 
   const handleErrorClose = (
@@ -261,6 +387,28 @@ const DeveloperMode = () => {
     }
     setShowError(false);
   };
+
+  const enableButton = () => {
+    if (loading) {
+      return (<CircularProgress size={18} color="primary" />)
+    }
+
+    return (
+      <LLPrimaryButton
+        onClick={enableSandbox}
+        sx={{
+          backgroundColor: '#CCAF21',
+          padding: '2px 3px',
+          fontSize: '12px',
+          color: '#000',
+          fontWeight: '600',
+          borderRadius: '30px',
+          textTransform: 'initial',
+        }}
+        label={chrome.i18n.getMessage('Enable')}
+      />
+    )
+  }
 
   return (
     <div className="page">
@@ -369,28 +517,6 @@ const DeveloperMode = () => {
               </CardActionArea>
 
               <Divider sx={{ width: '90%', margin: '0 auto' }} />
-
-              {/* <CardActionArea className={classes.modeSelection} onClick={()=>switchNetwork('crescendo')}>
-              <Box className={classes.checkboxRow}>
-                <FormControlLabel
-                  label={chrome.i18n.getMessage('Crescendo')}
-                  control={
-                    <Checkbox
-                      size='small'
-                      icon={<CircleOutlinedIcon />}
-                      checkedIcon={<CheckCircleIcon sx={{color:'#CCAF21'}} />}
-                      value='crescendo'
-                      checked={currentNetwork==='crescendo'}
-                      onChange={()=>switchNetwork('crescendo')}
-                    />
-                  }
-                  disabled={!isSandboxEnabled}
-                />
-
-                {isSandboxEnabled && currentNetwork==='crescendo' && <Typography component='div' variant='body1' color='text.nonselect' sx={{margin: 'auto 0'}}>{chrome.i18n.getMessage('Selected')}</Typography>}
-                {!isSandboxEnabled && <LLPrimaryButton onClick={enableSandbox} sx={{backgroundColor: '#CCAF21', padding: '2px 3px', fontSize: '12px', color: '#000', fontWeight: '600', borderRadius: '30px', textTransform: 'initial'}} label={chrome.i18n.getMessage('Enable')}/> }
-              </Box>
-            </CardActionArea> */}
               <CardActionArea
                 className={classes.modeSelection}
                 onClick={() => switchNetwork('previewnet')}
@@ -413,7 +539,7 @@ const DeveloperMode = () => {
                     disabled={!isSandboxEnabled}
                   />
 
-                  {isSandboxEnabled && currentNetwork === 'previewnet' && (
+                  {isSandboxEnabled && (currentNetwork === 'previewnet') && (
                     <Typography
                       component="div"
                       variant="body1"
@@ -424,22 +550,51 @@ const DeveloperMode = () => {
                     </Typography>
                   )}
                   {!isSandboxEnabled && (
-                    <LLPrimaryButton
-                      onClick={enableSandbox}
-                      sx={{
-                        backgroundColor: '#CCAF21',
-                        padding: '2px 3px',
-                        fontSize: '12px',
-                        color: '#000',
-                        fontWeight: '600',
-                        borderRadius: '30px',
-                        textTransform: 'initial',
-                      }}
-                      label={chrome.i18n.getMessage('Enable')}
-                    />
+                    enableButton()
                   )}
                 </Box>
               </CardActionArea>
+
+              {isMigrationEnabled &&
+
+                <Divider sx={{ width: '90%', margin: '0 auto' }} />
+              }
+              {isMigrationEnabled &&
+                <CardActionArea
+                  className={classes.modeSelection}
+                  onClick={() => switchNetwork('migrationTestnet')}
+                >
+                  <Box className={classes.checkboxRow}>
+                    <FormControlLabel
+                      label='TestnetMigration'
+                      control={
+                        <Checkbox
+                          size="small"
+                          icon={<CircleOutlinedIcon />}
+                          checkedIcon={
+                            <CheckCircleIcon sx={{ color: '#22BAD0' }} />
+                          }
+                          value="migrationTestnet"
+                          checked={currentNetwork === 'migrationTestnet'}
+                          onChange={() => switchNetwork('migrationTestnet')}
+                        />
+                      }
+                      disabled={!isMigrationEnabled}
+                    />
+
+                    {isMigrationEnabled && currentNetwork === 'migrationTestnet' && (
+                      <Typography
+                        component="div"
+                        variant="body1"
+                        color="text.nonselect"
+                        sx={{ margin: 'auto 0' }}
+                      >
+                        {chrome.i18n.getMessage('Selected')}
+                      </Typography>
+                    )}
+                  </Box>
+                </CardActionArea>
+              }
             </Box>
 
             <Typography
@@ -518,6 +673,36 @@ const DeveloperMode = () => {
                   )}
                 </Box>
               </CardActionArea>
+
+              {/* </Box>
+
+            <Typography
+              variant="h6"
+              color="neutral.contrastText"
+              sx={{
+                weight: 500,
+                marginLeft: '18px',
+              }}
+            >
+              {chrome.i18n.getMessage('EVM_on_flow')}
+            </Typography>
+
+
+            <Box className={classes.developerBox}>
+              <Typography
+                variant="body1"
+                color="neutral.contrastText"
+                style={{ weight: 600 }}
+              >
+                Inject EVM dApp
+              </Typography>
+              <SwitchUnstyled
+                checked={injectMode}
+                component={Root}
+                onChange={() => {
+                  switchInject();
+                }}
+              /> */}
             </Box>
           </Box>
         )}

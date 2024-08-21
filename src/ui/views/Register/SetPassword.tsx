@@ -23,7 +23,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../style/LLTheme';
-import { useWallet } from 'ui/utils';
+import { useWallet, saveIndex } from 'ui/utils';
 import { AccountKey } from 'background/service/networkModel';
 import HDWallet from 'ethereum-hdwallet';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -145,7 +145,6 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
   const [isCheck, setCheck] = useState(false);
   const [isLoading, setLoading] = useState(false);
   // TODO: FIX ME
-  // Disable recaptcha for now
   const [notBot, setNotBot] = useState(true);
 
   const [errMessage, setErrorMessage] = useState('Something wrong, please try again');
@@ -224,6 +223,8 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
 
   const register = async () => {
     setLoading(true);
+
+    await saveIndex(username);
     const accountKey = getAccountKey(mnemonic);
     wallet.openapi
       .register(accountKey, username)

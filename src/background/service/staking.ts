@@ -2,7 +2,6 @@ import { createPersistStore, getScripts } from 'background/utils';
 import * as t from '@onflow/types';
 import * as fcl from '@onflow/fcl'
 import * as secp from '@noble/secp256k1';
-import HDWallet from 'ethereum-hdwallet';
 import { keyringService, openapiService, userWalletService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';

@@ -7,7 +7,6 @@ import { Stack, Box, Typography, Divider, Accordion, AccordionSummary, Accordion
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import theme from 'ui/style/LLTheme';
 import * as fcl from '@onflow/fcl';
-import * as sdk from '@onflow/sdk'
 import {
   LLPrimaryButton,
   LLSecondaryButton,
@@ -103,7 +102,6 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
     // const account = await wallet.getCurrentAccount();
     const network = await wallet.getNetwork();
     const result = await wallet.openapi.getTransactionTemplate(cadence, network)
-    console.log('fetchTxInfo ->', result);
     if (result != null) {
       setAuditor(result)
       setExpanded(false)

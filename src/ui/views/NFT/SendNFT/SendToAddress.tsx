@@ -18,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import { useHistory, useLocation } from 'react-router-dom';
 import AddressBookList from '../../Send/AddressBookList';
+import AccountsList from '../../Send/AccountsList';
 import SearchList from '../../Send/SearchList';
 import RecentList from '../../Send/RecentList';
 import { Contact } from 'background/service/networkModel';
@@ -33,7 +34,7 @@ import { LLHeader } from '@/ui/FRWComponent';
 export enum SendPageTabOptions {
   Recent = 'Recent',
   AddressBook = 'AddressBook',
-  // Accounts = 'Accounts',
+  Accounts = 'Accounts',
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -120,6 +121,7 @@ interface NFTDetailState {
   nft: any;
   media: MatchMedia;
   index: number;
+  linked?: string;
 }
 
 const SendToAddress = () => {
@@ -155,6 +157,7 @@ const SendToAddress = () => {
   const [contractInfo, setContractInfo] = useState<any>(null);
   const [nftDetail, setDetail] = useState<any>(null);
   const [media, setMedia] = useState<MatchMedia | null>(null);
+  const state = location.state as NFTDetailState;
 
   const fetchAddressBook = async () => {
     try {
@@ -194,14 +197,32 @@ const SendToAddress = () => {
     await wallet.setDashIndex(1);
     const info = await wallet.getUserInfo(false);
     const currentWallet = await wallet.getCurrentWallet();
-    userContact.address = withPrefix(currentWallet.address) || '';
-    userContact.avatar = info.avatar;
-    userContact.contact_name = info.username;
+    const linked = state.linked
+    console.log(';linked ', linked)
+    const isChild = await wallet.getActiveWallet();
+    if (isChild) {
+      const childResp = await wallet.checkUserChildAccount();
+      const cwallet = childResp[currentWallet.address!];
+      userContact.address = withPrefix(currentWallet.address!) || '';
+      userContact.avatar = cwallet.thumbnail.url;
+      userContact.contact_name = cwallet.name;
+    } else if (linked) {
+      const childResp = await wallet.checkUserChildAccount();
+      const cwallet = childResp[linked!];
+      userContact.address = withPrefix(linked!) || '';
+      userContact.avatar = cwallet.thumbnail.url;
+      userContact.contact_name = cwallet.name;
+    } else {
+      userContact.address = withPrefix(currentWallet.address) || '';
+      userContact.avatar = info.avatar;
+      userContact.contact_name = info.username;
+
+    }
+    console.log('userContact ', userContact)
     setUser(userContact);
   }
 
   const fetchNFTInfo = async () => {
-    const state = location.state as NFTDetailState;
 
     const NFT = state.nft;
 
@@ -210,7 +231,10 @@ const SendToAddress = () => {
     setMedia(media);
    
     const contractList = await wallet.openapi.getAllNft();
+    console.log('contractList ', contractList)
+    console.log('NFT ', NFT)
     const filteredCollections = returnFilteredCollections(contractList, NFT)
+    console.log('filteredCollections ', filteredCollections)
     if (filteredCollections.length > 0) {
       setContractInfo(filteredCollections[0])
     }
@@ -309,7 +333,7 @@ const SendToAddress = () => {
       result.map((data) => {
         let address = data.address;
         if(!reg.test(data.address)) { address = '0x' + data.address; }
-        lilicoResult['group'] = 'Flow Reference user';
+        lilicoResult['group'] = 'Flow Wallet user';
         lilicoResult.address = address;
         lilicoResult.contact_name = data.username;
         lilicoResult.domain!.domain_type = 999;
@@ -502,9 +526,16 @@ const SendToAddress = () => {
                     }}
                   />
                 </TabPanel>
-                {/* <TabPanel value={tabValue} index={2} dir={theme.direction}>
-                  <Typography>{SendPageTabOptions.Accounts}</Typography>
-                </TabPanel> */}
+                <TabPanel value={tabValue} index={2} dir={theme.direction}>
+                  <AccountsList
+                    filteredContacts={filteredContacts}
+                    isLoading={isLoading}
+                    handleClick={(eachgroup) => {
+                      searchResult = eachgroup
+                      setConfirmationOpen(true)
+                    }}
+                  />
+                </TabPanel>
               </SwipeableViews>
             </Box>
           </div>
@@ -585,7 +616,7 @@ const SendToAddress = () => {
         )}
         <SendNFTConfirmation
           isConfirmationOpen={isConfirmationOpen}
-          data={{contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media}}
+          data={{contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media, linked: state.linked}}
           handleCloseIconClicked={() => setConfirmationOpen(false)}
           handleCancelBtnClicked={() => setConfirmationOpen(false)}
           handleAddBtnClicked={() => {

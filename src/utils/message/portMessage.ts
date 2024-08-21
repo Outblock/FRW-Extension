@@ -39,7 +39,6 @@ class PortMessage extends Message {
         this.onRequest(data);
       }
     });
-
     return this;
   };
 
