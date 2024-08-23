@@ -232,10 +232,12 @@ const WalletTab = ({ network }) => {
 
 
   const handleStorageData = async (storageData) => {
+    console.log('storageData ', storageData)
     if (storageData) {
       const uniqueTokens = storageData.filter((token, index, self) =>
         index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
       );
+      console.log('uniqueTokens ', uniqueTokens)
       await setCoinData(uniqueTokens);
       let sum = 0;
       storageData

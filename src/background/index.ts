@@ -39,7 +39,6 @@ import {
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclCrescendoConfig,
   fclPreviewnetConfig,
   fclTestnetMigrationConfig
 } from './fclConfig';
@@ -103,9 +102,6 @@ async function fclSetup() {
       break;
     case 'testnet':
       await fclTestnetConfig();
-      break;
-    case 'crescendo':
-      await fclCrescendoConfig();
       break;
     case 'previewnet':
       await fclPreviewnetConfig();

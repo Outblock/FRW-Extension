@@ -59,7 +59,6 @@ import { storage } from '@/background/webapi';
 import {
   fclMainnetConfig,
   fclTestnetConfig,
-  fclCrescendoConfig,
 } from '../fclConfig';
 
 import { walletController } from '../controller';
@@ -125,9 +124,6 @@ const fclSetup = async () => {
       break;
     case 'testnet':
       await fclTestnetConfig();
-      break;
-    case 'crescendo':
-      await fclCrescendoConfig();
       break;
   }
 };

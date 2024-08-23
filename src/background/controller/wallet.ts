@@ -42,7 +42,6 @@ import * as fcl from '@onflow/fcl';
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclCrescendoConfig,
   fclPreviewnetConfig,
   fclTestnetMigrationConfig,
 } from '../fclConfig';
@@ -2799,7 +2798,6 @@ export class WalletController extends BaseController {
     } else if (network == 'migrationTestnet') {
       await fclTestnetMigrationConfig();
     } else {
-      // await fclCrescendoConfig();
       await fclPreviewnetConfig();
     }
     this.refreshAll();
