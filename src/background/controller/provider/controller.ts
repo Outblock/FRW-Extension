@@ -301,6 +301,45 @@ class ProviderController extends BaseController {
     return result;
   };
 
+  walletSwitchEthereumChain = async (data) => {
+    const chainId = data?.request?.data?.params[0]?.chainId;
+    console.log('data ', data);
+
+    const network = await Wallet.getNetwork();
+
+    switch (chainId) {
+      case '0x286': // 646 in decimal corresponds to previewnet
+        console.log('Switch to Previewnet');
+        if (network !== 'previewnet') {
+          Wallet.switchNetwork('previewnet');
+        }
+        // Add logic to switch to previewnet
+        break;
+
+      case '0x221': // 545 in decimal corresponds to testnet
+        console.log('Switch to Testnet');
+        if (network !== 'testnet') {
+          Wallet.switchNetwork('testnet');
+        }
+        // Add logic to switch to testnet
+        break;
+
+      case '0x2eb': // 747 in decimal corresponds to mainnet
+        console.log('Switch to Mainnet');
+        if (network !== 'mainnet') {
+          Wallet.switchNetwork('mainnet');
+        }
+        // Add lo
+        // Add logic to switch to mainnet
+        break;
+
+      default:
+        console.log(`Unknown chainId: ${chainId}`);
+        Wallet.switchNetwork('previewnet');
+        break;
+    }
+  };
+
   personalSign = async ({ data, approvalRes, session }) => {
     if (!data.params) return;
     const [string, from] = data.params;
@@ -328,7 +367,7 @@ class ProviderController extends BaseController {
   ethChainId = async ({ session }) => {
 
     const network = await Wallet.getNetwork();
-    if (network ==='testnet') {
+    if (network === 'testnet') {
       return 545;
     }
     return 646;

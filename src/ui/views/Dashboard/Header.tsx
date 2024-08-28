@@ -324,7 +324,9 @@ const Header = ({ loading }) => {
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
     // TODO: replace it with better UX
+    history.push('/dashboard')
     window.location.reload();
+
   };
 
   const transactionHanlder = (request) => {
@@ -455,6 +457,7 @@ const Header = ({ loading }) => {
     toggleUsernameDrawer();
 
     // TODO: replace it with better UX
+    history.push('/dashboard')
     window.location.reload();
   };
 
@@ -832,7 +835,6 @@ const Header = ({ loading }) => {
   };
 
   const createWalletList = (props) => {
-    console.log('props ', props)
     return (
       <List component="nav" key={props.id}>
         <WalletFunction

@@ -9,6 +9,7 @@ export { default as userInfoService } from './user';
 export { default as coinListService } from './coinList';
 export { default as addressBookService } from './addressBook';
 export { default as userWalletService } from './userWallet';
+export { default as proxyService } from './proxy';
 export { default as transactionService } from './transaction';
 export { default as passwordService } from './password';
 export { default as nftService } from './nft';

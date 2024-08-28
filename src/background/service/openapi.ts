@@ -735,6 +735,31 @@ class OpenApiService {
     return result;
   };
 
+  proxyKey = async (
+    token: any,
+    userId: any,
+  ) => {
+    if (token) {
+      await this._signWithCustom(token);
+      await storage.set('currentId', userId);
+    }
+    return;
+  };
+
+  proxytoken = async () => {
+    // Default options are marked with *
+
+    const app = getApp(process.env.NODE_ENV!);
+
+    // Wait for firebase auth to complete
+    await waitForAuthInit();
+
+    await signInAnonymously(auth);
+    const anonymousUser = await getAuth(app).currentUser;
+    const idToken = await anonymousUser?.getIdToken();
+    return idToken;
+  }
+
   importKey = async (
     account_key: any,
     device_info: any,
@@ -1411,7 +1436,7 @@ class OpenApiService {
       return gitToken;
     } else {
       let response
-      if (process.env.NODE_ENV === 'production'){
+      if (process.env.NODE_ENV === 'production') {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );
@@ -1419,7 +1444,7 @@ class OpenApiService {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
         );
-      }else if (process.env.NODE_ENV !== 'production' && childType === 'evm') {
+      } else if (process.env.NODE_ENV !== 'production' && childType === 'evm') {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );

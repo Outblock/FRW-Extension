@@ -234,7 +234,7 @@ const DeveloperMode = () => {
     // if (network === 'crescendo' && !isSandboxEnabled) {
     //   return;
     // }
-    if ((network === 'previewnet' ) && !isSandboxEnabled) {
+    if ((network === 'previewnet') && !isSandboxEnabled) {
       return;
     }
     if (network === 'migrationTestnet' && !isMigrationEnabled) {
@@ -246,6 +246,7 @@ const DeveloperMode = () => {
 
     if (currentNetwork !== network) {
       // TODO: replace it with better UX
+      
       window.location.reload();
     }
   };
@@ -258,12 +259,6 @@ const DeveloperMode = () => {
   const switchDeveloperMode = async () => {
     setModeOn(!modeOn);
     storage.set('developerMode', !modeOn);
-    // window.location.reload();
-    // if (modeOn == true) {
-    //   switchNetwork('mainnet')
-    // } else {
-    //   window.location.reload();
-    // }
   };
 
 

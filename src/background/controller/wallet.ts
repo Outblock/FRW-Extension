@@ -18,6 +18,7 @@ import {
   passwordService,
   flownsService,
   stakingService,
+  proxyService,
 } from 'background/service';
 import BN from 'bignumber.js';
 import { openIndexPage } from 'background/webapi/tab';
@@ -68,6 +69,7 @@ export class WalletController extends BaseController {
   /* wallet */
   boot = (password) => keyringService.boot(password);
   isBooted = () => keyringService.isBooted();
+  loadMemStore = () => keyringService.loadMemStore();
   verifyPassword = (password: string) =>
     keyringService.verifyPassword(password);
 
@@ -511,6 +513,15 @@ export class WalletController extends BaseController {
     await keyringService.clearKeyrings();
 
     const keyring = await keyringService.createKeyringWithMnemonics(mnemonic);
+    keyringService.removePreMnemonics();
+    return this._setCurrentAccountFromKeyring(keyring);
+  };
+
+  createKeyringWithProxy = async (publicKey) => {
+    // TODO: NEED REVISIT HERE:
+    await keyringService.clearKeyrings();
+
+    const keyring = await keyringService.importPublicKey(publicKey);
     keyringService.removePreMnemonics();
     return this._setCurrentAccountFromKeyring(keyring);
   };
@@ -2762,6 +2773,14 @@ export class WalletController extends BaseController {
 
   signInWithPrivatekey = async (pk: string, replaceUser = true) => {
     return userWalletService.sigInWithPk(pk, replaceUser);
+  };
+
+  signInWithProxy = async (token: string, user: string) => {
+    return proxyService.proxySign(token, user);
+  };
+
+  requestProxyToken = async () => {
+    return proxyService.requestJwt();
   };
 
   signInV3 = async (

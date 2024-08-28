@@ -6,12 +6,15 @@ import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
 import previewnetIndicator from '../../../FRWAssets/svg/previewnetArrow.svg';
 import testnetMigrationArrow from '../../../FRWAssets/svg/testnetMigrationArrow.svg';
 import networkLink from '../../../FRWAssets/svg/networkLink.svg';
+import { useHistory } from 'react-router-dom';
 
 
 const NetworkList = ({ networkColor, currentNetwork }) => {
 
 
   const usewallet = useWallet();
+
+  const history = useHistory();
   const [showDropdown, setShowDropdown] = useState(false);
   const [sandboxEnable, setSandboxEnabled] = useState(false);
 
@@ -57,6 +60,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
 
     if (currentNetwork !== network) {
       // TODO: replace it with better UX
+      history.push('/dashboard')
       window.location.reload();
     }
   };
