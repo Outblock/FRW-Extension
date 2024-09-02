@@ -22,6 +22,7 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import { ensureEvmAddressPrefix } from '@/ui/utils/address';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -145,10 +146,31 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
 
   const getChildResp = async () => {
     const childresp = await wallet.checkUserChildAccount();
-    setChildWallets(childresp)
-    const firstWalletAddress = Object.keys(childresp)[0];
+    const ewallet: any = await wallet.getEvmWallet();
+    const emojires = await wallet.getEmoji();
+    let evmAddress
+    if (ewallet.address) {
+      evmAddress = ensureEvmAddressPrefix(ewallet.address)
+    }
+    let evmWallet = {}
+    if (evmAddress) {
+      evmWallet = {
+        [evmAddress!]: {
+          "name": emojires[1].name,
+          "description": emojires[1].name,
+          "thumbnail": {
+            "url": emojires[1].emoji
+          }
+        }
+      };
+    }
+
+    // Merge wallet lists
+    const walletList = { ...childresp, ...evmWallet };
+    setChildWallets(walletList)
+    const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {
-      setSelectedChildAccount(childresp[firstWalletAddress]);
+      setSelectedChildAccount(walletList[firstWalletAddress]);
     }
   }
 

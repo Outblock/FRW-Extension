@@ -113,7 +113,6 @@ const Detail = () => {
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
   const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
-  const [childAccount, setChildAccount] = useState({});
 
   useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
@@ -132,7 +131,6 @@ const Detail = () => {
 
   const fetchNft = async () => {
     const childResp = await usewallet.checkUserChildAccount();
-    setChildAccount(childResp)
     const userInfo = await usewallet.getUserInfo(false);
     const currentAddress = await usewallet.getCurrentAddress();
     const userWallets = await usewallet.getUserWallets();
@@ -303,29 +301,6 @@ const Detail = () => {
           <IconButton onClick={() => history.goBack()} className={classes.arrowback}>
             <ArrowBackIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
-          {/* {
-            nftDetail && 
-            <>
-              <IconButton onClick={handleClick} className={classes.extendMore}>
-                <MoreHorizIcon sx={{ color: 'icon.navi'}} />
-              </IconButton>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-              >
-                <MenuItem onClick={handleClose}>
-                  <a href={'https://lilico.app/nft/' + ownerAddress +'/'+ nftDetail.contract.address +'/'+ nftDetail.contract.name + '?tokenId=' + nftDetail.id.tokenId} target="_blank">
-                Share
-                  </a>
-                </MenuItem>
-              </Menu>
-            </>
-          } */}
         </Box>
 
         {nftDetail &&
@@ -424,27 +399,25 @@ const Detail = () => {
             </Button>
           }
 
-          {(nftDetail?.collectionID && Object.keys(childAccount!).length > 0) &&
-            <Button
-              sx={{
-                backgroundColor: '#FFFFFF33',
-                p: '12px',
-                color: '#fff',
-                borderRadius: '12px',
-                height: '42px',
-                marginLeft: '8px',
-                fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
-                filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
-                backdropFilter: 'blur(6px)'
-              }}
-              disabled={!isAccessibleNft}
-              onClick={() => setMoveOpen(true)}
-            >
-              {/* <IosShareOutlinedIcon color="primary" /> */}
-              <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
-              {chrome.i18n.getMessage('Move')}
-            </Button>
-          }
+          <Button
+            sx={{
+              backgroundColor: '#FFFFFF33',
+              p: '12px',
+              color: '#fff',
+              borderRadius: '12px',
+              height: '42px',
+              marginLeft: '8px',
+              fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
+              filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
+              backdropFilter: 'blur(6px)'
+            }}
+            disabled={!isAccessibleNft}
+            onClick={() => setMoveOpen(true)}
+          >
+            {/* <IosShareOutlinedIcon color="primary" /> */}
+            <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
+            {chrome.i18n.getMessage('Move')}
+          </Button>
         </Box>
 
         {

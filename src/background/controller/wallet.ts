@@ -2208,6 +2208,8 @@ export class WalletController extends BaseController {
     const script = await getScripts('collection', 'enableNFTStorage');
     if (token['contractName']){
       token.contract_name = token['contractName']
+      token.path.storage_path = token['path']['storage']
+      token.path.public_path = token['path']['public']
     }
     return await userWalletService.sendTransaction(
       script

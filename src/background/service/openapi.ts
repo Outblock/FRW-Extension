@@ -2012,7 +2012,7 @@ class OpenApiService {
   nftCatalogCollections = async (address: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/nft/id?address=${address}`,
+      `/api/v2/nft/id?address=${address}`,
       {},
       {},
       WEB_NEXT_URL
@@ -2028,7 +2028,7 @@ class OpenApiService {
   ) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}`,
+      `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}`,
       {},
       {},
       WEB_NEXT_URL
