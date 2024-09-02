@@ -2001,7 +2001,7 @@ class OpenApiService {
   nftCatalogList = async (address: string, limit: any, offset: any) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/nft/list?address=${address}&limit=${limit}&offset=${offset}`,
+      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}`,
       {},
       {},
       WEB_NEXT_URL
