@@ -73,38 +73,37 @@ class Proxy {
     const pairings = signwallet.core.pairing.getPairings()
 
     console.log('signwallet ', pairings)
-
-    console.log('topic ', topic)
     const currentNetwork = await wallet.getNetwork();
-    signwallet.request({
-      topic: topic,
-      chainId: `flow:${currentNetwork}`,
-      request: {
-        method: FCLWalletConnectMethod.proxysign,
-        params: {
-          method: FCLWalletConnectMethod.proxysign,
-          data: {
-            "topic": topic,
-            "params": {
-              cadence,
-              args,
-            },
-            "method": FCLWalletConnectMethod.proxysign,
-            "chainId": currentNetwork,
-            "requestId": 200200,
-            "metaData": {}
-          }
-        },
+    const params = {
+      method: 'flow_sign_payer',
+      "topic": topic,
+      "params": {
+        cadence,
+        args,
       },
-    }).then(async (result: any) => {
+      "chainId": currentNetwork,
+      "requestId": 200200,
+      "metaData": {}
+    }
+    console.log('topic ', params)
+    try {
+      const result: string = await signwallet.request({
+        topic: topic,
+        chainId: `flow:${currentNetwork}`,
+        request: {
+          method: FCLWalletConnectMethod.proxysign,
+          params: params,
+        },
+      });
+
       console.log(result);
       const jsonObject = JSON.parse(result);
       console.log(jsonObject);
-      return result
-    }).catch((error) => {
+      return result;
+    } catch (error) {
       console.error('Error in first wallet request:', error);
-      return error
-    });
+      return error;
+    }
 
 
   }

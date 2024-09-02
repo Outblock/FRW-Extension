@@ -1440,7 +1440,7 @@ class OpenApiService {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );
-      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm' && (network === 'testnet' || network ==='mainnet')) {
+      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm' && (network === 'testnet' || network === 'mainnet')) {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
         );
@@ -1998,10 +1998,10 @@ class OpenApiService {
     return data;
   };
 
-  nftCatalogList = async (address: string, limit: any, offset: any) => {
+  nftCatalogList = async (address: string, limit: any, offset: any, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}`,
+      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
       {},
       {},
       WEB_NEXT_URL
@@ -2009,10 +2009,10 @@ class OpenApiService {
     return data;
   };
 
-  nftCatalogCollections = async (address: string) => {
+  nftCatalogCollections = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/v2/nft/id?address=${address}`,
+      `/api/v2/nft/id?address=${address}&network=${network}`,
       {},
       {},
       WEB_NEXT_URL
@@ -2024,11 +2024,12 @@ class OpenApiService {
     address: string,
     contractName: string,
     limit: any,
-    offset: any
+    offset: any,
+    network: string
   ) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}`,
+      `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}&network=${network}`,
       {},
       {},
       WEB_NEXT_URL

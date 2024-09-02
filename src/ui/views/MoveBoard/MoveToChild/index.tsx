@@ -162,9 +162,8 @@ const MoveToChild = (props: MoveBoardProps) => {
 
   const moveNFT = async () => {
     setSending(true);
-    console.log('collectionDetail ', selectedAccount, nftIdArray)
-    const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
-    usewallet.batchTransferNFTToChild(selectedAccount!['address'], lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {
+    console.log('collectionDetail ', selectedAccount, nftIdArray, collectionDetail)
+    usewallet.batchTransferNFTToChild(selectedAccount!['address'], '', nftIdArray, collectionDetail.collection).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();

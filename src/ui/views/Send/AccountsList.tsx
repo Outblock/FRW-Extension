@@ -24,7 +24,7 @@ type ChildAccount = {
   };
 };
 
-const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
+const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
 
 
   const usewallet = useWallet();
@@ -68,18 +68,15 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
     // putDeviceInfo(fData);
     await setWalletList(wdArray);
     if ((currentNetwork === 'previewnet' || currentNetwork === 'testnet') && walletData[0].address) {
-      usewallet.queryEvmAddress(walletData[0].address).then((res) => {
-        const evmData = walletData[0]
-        evmData.address = res;
-        evmData['avatar'] = emojiList[1].emoji
-        evmData['contact_name'] = emojiList[1].name
-        evmData['bgcolor'] = emojiList[1].bgcolor
-        setEvmAddress([evmData]);
-      }).catch((err) => {
-        console.log('evm error ', err)
-      });
-    }
+      const evmWallet = await usewallet.queryEvmAddress(walletData[0].address);
+      const evmData = walletData[0]
+      evmData.address = evmWallet;
+      evmData['avatar'] = emojiList[1].emoji
+      evmData['contact_name'] = emojiList[1].name
+      evmData['bgcolor'] = emojiList[1].bgcolor
+      setEvmAddress([evmData]);
 
+    }
   }
 
   function convertObjectToContactArray(data) {
@@ -120,11 +117,14 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
 
 
   const goEth = (group) => {
+    if (isSend) {
 
-    history.push({
-      pathname: '/dashboard/wallet/sendeth',
-      state: { contact: group },
-    })
+      history.push({
+        pathname: '/dashboard/wallet/sendeth',
+        state: { contact: group },
+      })
+
+    }
   }
 
   useEffect(() => {
@@ -188,9 +188,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
               <ButtonBase
                 key={`card-${index}`}
                 sx={{ display: 'contents' }}
-                onClick={() =>
-                  goEth(eachgroup)
-                }
+                onClick={() => isSend ? goEth(eachgroup) : handleClick(eachgroup)}
+
               >
                 <LLContactEth
                   contact={eachgroup}

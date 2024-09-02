@@ -99,10 +99,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         let txID = '';
         if (containsKey) {
 
-
-          const privatePath = props.data.contract.path.private_path;
-          const lastPart = privatePath.split('/').pop();
-          txID = await wallet.sendNFTtoChild(props.data.contact.address, lastPart, parseInt(props.data.nft.id), props.data.contract)
+          txID = await wallet.sendNFTtoChild(props.data.contact.address, '', parseInt(props.data.nft.id), props.data.contract)
 
         }
         else if (props.data.contract.contract_name.trim() == 'TopShot') {
@@ -131,9 +128,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     try {
       let txID = ''
       console.log('props.data ', props.data)
-      const privatePath = props.data.contract.path.private_path;
-      const lastPart = privatePath.split('/').pop();
-      txID = await wallet.sendNFTfromChild(props.data.userContact.address, props.data.contact.address, lastPart, parseInt(props.data.nft.id), props.data.contract)
+
+      txID = await wallet.sendNFTfromChild(props.data.userContact.address, props.data.contact.address, '', parseInt(props.data.nft.id), props.data.contract)
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
       await wallet.setDashIndex(0);

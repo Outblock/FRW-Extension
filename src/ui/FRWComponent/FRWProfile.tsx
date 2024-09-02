@@ -3,7 +3,7 @@ import { Box, Typography, Avatar, Skeleton } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
-import { useWallet, formatAddress } from 'ui/utils';
+import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 
 
 
@@ -50,7 +50,7 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false }) => {
             display: 'flex', height: '40px', width: '40px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emoji['bgcolor'],
           }}>
             <Typography sx={{ fontSize: '28px', fontWeight: '600' }}>
-              {emoji.emoji}
+              {isEmoji(contact.avatar) ? contact.avatar : emoji.emoji}
             </Typography>
           </Box>
           : (
@@ -59,7 +59,7 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false }) => {
         }
         {!isLoading ?
           <Typography sx={{ textAlign: 'start', color: '#FFFFFF', fontSize: '12px' }}>
-            {emoji.name}
+            {isEmoji(contact.avatar) ? contact.contact_name : emoji.name}
           </Typography> : (
             <Skeleton variant="text" width={45} height={15} />
           )}

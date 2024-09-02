@@ -86,7 +86,7 @@ interface TabPanelProps {
 let searchResult = {
   address: '',
   contact_name: '',
-  avatar:'',
+  avatar: '',
   domain: {
     domain_type: 0,
     value: '',
@@ -164,9 +164,9 @@ const SendToAddress = () => {
       const response = await wallet.getAddressBook();
       let recent = await wallet.getRecent();
       if (recent) {
-        recent.forEach((c)=>{
-          response.forEach((s)=>{
-            if(c.address === s.address && c.contact_name === s.contact_name){
+        recent.forEach((c) => {
+          response.forEach((s) => {
+            if (c.address === s.address && c.contact_name === s.contact_name) {
               c.type = 1;
             }
           })
@@ -229,7 +229,7 @@ const SendToAddress = () => {
     const media = state.media;
     setDetail(NFT);
     setMedia(media);
-   
+
     const contractList = await wallet.openapi.getAllNft();
     console.log('contractList ', contractList)
     console.log('NFT ', NFT)
@@ -270,8 +270,8 @@ const SendToAddress = () => {
     const fArray = searchContacts;
     let result = '';
     let group = '';
-    let keyword = keys 
-    if (keyword.includes('.')){
+    let keyword = keys
+    if (keyword.includes('.')) {
       keyword = keys.substring(0, keys.lastIndexOf('.'));
     }
     switch (searchType) {
@@ -294,7 +294,7 @@ const SendToAddress = () => {
     const domainRresult = {
       address: '',
       contact_name: '',
-      avatar:'',
+      avatar: '',
       domain: {
         domain_type: 0,
         value: '',
@@ -323,7 +323,7 @@ const SendToAddress = () => {
     const lilicoResult = {
       address: '',
       contact_name: '',
-      avatar:'',
+      avatar: '',
       domain: {
         domain_type: 0,
         value: '',
@@ -332,7 +332,7 @@ const SendToAddress = () => {
     if (result) {
       result.map((data) => {
         let address = data.address;
-        if(!reg.test(data.address)) { address = '0x' + data.address; }
+        if (!reg.test(data.address)) { address = '0x' + data.address; }
         lilicoResult['group'] = 'Flow Wallet user';
         lilicoResult.address = address;
         lilicoResult.contact_name = data.username;
@@ -369,7 +369,7 @@ const SendToAddress = () => {
     setIsLoading(false);
   };
 
-  const checkKey = async (e) =>{
+  const checkKey = async (e) => {
     if (e.code === 'Enter') {
       searchAll();
     }
@@ -405,7 +405,7 @@ const SendToAddress = () => {
         searchResult.address = withPrefix(keyword) || keyword;
         searchResult.contact_name = withPrefix(checkAddress) || keyword;
         searchResult.avatar = '';
-          searchResult.type! = 4;
+        searchResult.type! = 4;
       }
       setConfirmationOpen(true)
     }
@@ -534,6 +534,7 @@ const SendToAddress = () => {
                       searchResult = eachgroup
                       setConfirmationOpen(true)
                     }}
+                    isSend={false}
                   />
                 </TabPanel>
               </SwipeableViews>
@@ -575,21 +576,21 @@ const SendToAddress = () => {
               </ListItem>
             }
 
-            {(!searched && !hasNoFilteredContacts) && 
-            <AddressBookList
-              filteredContacts={filteredContacts}
-              isLoading={isLoading}
-              handleClick={(eachgroup) => {
-                searchResult = eachgroup
-                setConfirmationOpen(true)
-              }}
-            />}
+            {(!searched && !hasNoFilteredContacts) &&
+              <AddressBookList
+                filteredContacts={filteredContacts}
+                isLoading={isLoading}
+                handleClick={(eachgroup) => {
+                  searchResult = eachgroup
+                  setConfirmationOpen(true)
+                }}
+              />}
 
             {(searched && !searchContacts.length) &&
-              <ListItem sx={{backgroundColor: '#000000'}}>
+              <ListItem sx={{ backgroundColor: '#000000' }}>
                 <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
                   {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
-                  <IconAbout size={20} color='#E54040'/>
+                  <IconAbout size={20} color='#E54040' />
                 </ListItemAvatar>
                 <ListItemText>
                   <Typography
@@ -610,13 +611,13 @@ const SendToAddress = () => {
                   searchResult = eachgroup
                   setConfirmationOpen(true)
                 }}
-              /> 
+              />
             }
           </div>
         )}
         <SendNFTConfirmation
           isConfirmationOpen={isConfirmationOpen}
-          data={{contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media, linked: state.linked}}
+          data={{ contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media, linked: state.linked }}
           handleCloseIconClicked={() => setConfirmationOpen(false)}
           handleCancelBtnClicked={() => setConfirmationOpen(false)}
           handleAddBtnClicked={() => {

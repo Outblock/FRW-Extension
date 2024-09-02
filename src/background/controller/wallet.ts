@@ -3016,7 +3016,8 @@ export class WalletController extends BaseController {
     // change the address to real address after testing complete
     // const address = await this.getCurrentAddress();
     const limit = 24;
-    const data = await openapiService.nftCatalogList(address!, limit, offset);
+    const network = await this.getNetwork();
+    const data = await openapiService.nftCatalogList(address!, limit, offset, network);
     const nfts = data.nfts;
     if (!nfts) {
       return {
@@ -3031,7 +3032,6 @@ export class WalletController extends BaseController {
       return [...new Map(arr.map((item) => [item[key], item])).values()];
     }
     const unique_nfts = getUniqueListBy(nfts, 'unique_id');
-    const network = await this.getNetwork();
     const result = { nfts: unique_nfts, nftCount: data.nftCount };
     nftService.setNft(result, network);
     return result;
@@ -3090,11 +3090,13 @@ export class WalletController extends BaseController {
     contract: string,
     offset = 0
   ) => {
+    const network = await this.getNetwork();
     const data = await openapiService.nftCatalogCollectionList(
       address!,
       contract,
       24,
-      offset
+      offset,
+      network
     );
 
     data.nfts.map((nft) => {
@@ -3153,7 +3155,7 @@ export class WalletController extends BaseController {
     // change the address to real address after testing complete
     // const address = await this.getCurrentAddress();
     const network = await this.getNetwork();
-    const data = await openapiService.nftCatalogCollections(address!);
+    const data = await openapiService.nftCatalogCollections(address!, network);
     if (!data) {
       return [];
     }

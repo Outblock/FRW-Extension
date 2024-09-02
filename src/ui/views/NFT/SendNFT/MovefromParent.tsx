@@ -109,10 +109,8 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
     const contractList = await wallet.openapi.getAllNft();
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft)
 
-    const privatePath = filteredCollections[0].path.private_path;
-    const lastPart = privatePath.split('/').pop();
 
-    wallet.sendNFTtoChild(selectedAccount!['address'], lastPart, props.data.nft.id, filteredCollections[0]).then(async (txID) => {
+    wallet.sendNFTtoChild(selectedAccount!['address'], '', props.data.nft.id, filteredCollections[0]).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);

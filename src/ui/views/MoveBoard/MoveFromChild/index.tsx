@@ -176,8 +176,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
   const moveToParent = async () => {
     setSending(true);
     const address = await usewallet.getCurrentAddress();
-    const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
-    usewallet.batchTransferChildNft(address!, lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {
+    usewallet.batchTransferChildNft(address!, '', nftIdArray, collectionDetail.collection).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();
@@ -195,8 +194,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
   const moveToChild = async () => {
     setSending(true);
     const address = await usewallet.getCurrentAddress();
-    const lastPart = collectionDetail.collection.path.private_path.split('/').pop();
-    usewallet.sendChildNFTToChild(address!,selectedAccount!['address'], lastPart, nftIdArray, collectionDetail.collection).then(async (txID) => {
+    usewallet.sendChildNFTToChild(address!,selectedAccount!['address'], '', nftIdArray, collectionDetail.collection).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();

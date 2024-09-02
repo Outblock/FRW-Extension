@@ -3,7 +3,7 @@ import { Box, Typography, Avatar, Skeleton, Select, MenuItem, FormControl, Input
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
-import { useWallet, formatAddress } from 'ui/utils';
+import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
 
@@ -74,7 +74,7 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
           width: '100%'
         }}
       >
-        <FormControl sx={{ flexGrow: 1, border: 'none', padding: 0}}>
+        <FormControl sx={{ flexGrow: 1, border: 'none', padding: 0 }}>
           <Select
             labelId="child-wallet-select-label"
             value={selectedChild}
@@ -89,13 +89,48 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
               },
               '& .MuiOutlinedInput-notchedOutline': {
                 border: 'none'
-              },height:'40px' 
+              }, height: '40px'
             }}
           >
             {Object.keys(contacts).map((address) => (
               <MenuItem key={address} value={address}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Avatar src={contacts[address].thumbnail.url} sx={{ height: '40px', width: '40px', borderRadius: '12px', marginRight: '12px' }} />
+                  {!isLoading ? (
+                    isEmoji(contacts[address].thumbnail.url) ? (
+                      <Typography
+                        sx={{
+                          mr: '13px',
+                          color: 'primary.main',
+                          backgroundColor: '#484848',
+                          width: '40px',
+                          height: '40px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '50%',
+                          fontSize: '24px', // Adjust font size to fit within the box
+                        }}
+                      >
+                        {contacts[address].thumbnail.url}
+                      </Typography>
+                    ) : (
+                      <Avatar
+                        alt={contacts[address]}
+                        src={contacts[address].thumbnail.url}
+                        sx={{
+                          mr: '13px',
+                          color: 'primary.main',
+                          backgroundColor: '#484848',
+                          width: '40px',
+                          height: '40px',
+                        }}
+                      >
+                        {getName(contacts[address].name)}
+                      </Avatar>
+                    )
+                  ) : (
+                    <Skeleton variant="circular" width={40} height={40} />
+                  )}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                     <Typography sx={{ textAlign: 'start', color: '#FFFFFF', fontSize: '12px' }}>
                       {contacts[address].name}
@@ -104,7 +139,7 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
                       sx={{ lineHeight: '1', textAlign: 'start', fontSize: '12px', fontWeight: '400' }}
                       color="#FFFFFFCC"
                     >
-                      {address}
+                      {formatAddress(address)}
                     </Typography>
                   </Box>
                 </Box>
