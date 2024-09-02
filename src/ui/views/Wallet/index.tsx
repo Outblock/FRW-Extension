@@ -196,7 +196,6 @@ const WalletTab = ({ network }) => {
     // If childType is 'evm', handle it first
     if (childType === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
-      console.log('childType EVM ', storageData);
       sortWallet(storageData);
       return; 
     }

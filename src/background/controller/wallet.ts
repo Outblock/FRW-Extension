@@ -1281,7 +1281,9 @@ export class WalletController extends BaseController {
     const address = await this.getEvmAddress();
     const allBalanceMap = await openapiService.getEvmFT(
       address || '0x',
+      network
     );
+
     const flowBalance = await this.getBalance(address);
 
 
@@ -2204,7 +2206,9 @@ export class WalletController extends BaseController {
 
   enableNFTStorageLocal = async (token: NFTModel) => {
     const script = await getScripts('collection', 'enableNFTStorage');
-
+    if (token['contractName']){
+      token.contract_name = token['contractName']
+    }
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)

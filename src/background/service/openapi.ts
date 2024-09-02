@@ -2092,10 +2092,10 @@ class OpenApiService {
     return data;
   };
 
-  getEvmFT = async (address: string) => {
+  getEvmFT = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/evm/${address}/fts`,
+      `/api/v2/evm/${address}/fts?network=${network}`,
       {},
       {},
       WEB_NEXT_URL
