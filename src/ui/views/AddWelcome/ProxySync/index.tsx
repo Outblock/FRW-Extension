@@ -27,6 +27,7 @@ const ProxySync = () => {
   const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
   const [publickey, setPubkey] = useState('');
+  const [mnemonic, setMnemonic] = useState('');
   const [username, setUsername] = useState('');
   const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
@@ -80,13 +81,14 @@ const ProxySync = () => {
         return <ProxyQr
           handleClick={goNext}
           savedUsername={username}
-          confirmMnemonic={setPubkey}
+          confirmMnemonic={setMnemonic}
+          confirmPk={setPubkey}
           setUsername={getUsername}
           setAccountKey={setAccountKey}
           setDeviceInfo={setDeviceInfo}
         />;
       case 1:
-        return <SetPassword handleClick={goNext} publickey={publickey} username={username} setUsername={getUsername} accountKey={accountKey} deviceInfo={deviceInfo} />;
+        return <SetPassword handleClick={goNext} mnemonic={mnemonic} publickey={publickey} username={username} setUsername={getUsername} accountKey={accountKey} deviceInfo={deviceInfo} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:

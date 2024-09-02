@@ -1440,7 +1440,7 @@ class OpenApiService {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );
-      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm') {
+      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm' && (network === 'testnet' || network ==='mainnet')) {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
         );
@@ -1474,6 +1474,29 @@ class OpenApiService {
         })
       }
       storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+      return tokens;
+    }
+  };
+
+  getNFTListFromGithub = async (network: string) => {
+    const childType = await userWalletService.getActiveWallet();
+    let chainType = 'flow'
+    if (childType === 'evm') {
+      chainType = 'evm';
+    }
+    if (network === 'migrationTestnet') {
+      network = 'testnet-migration';
+    }
+    const gitToken = await storage.getExpiry(`GitNFTList${network}${chainType}`);
+    if (gitToken) {
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/nfts.json`
+      );
+      const res = await response.json();
+      const { tokens = {} } = res;
+      storage.setExpiry(`GitNFTList${network}${chainType}`, tokens, 600000);
       return tokens;
     }
   };

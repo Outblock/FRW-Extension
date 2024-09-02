@@ -122,11 +122,11 @@ const AddWelcome = () => {
               </Button>
 
 
-              {/* <Button
+              <Button
                 variant="contained"
                 color="secondary"
                 component={Link}
-                to="/add"
+                to="/proxysync"
                 size="large"
                 sx={{
                   display: 'flex',
@@ -154,9 +154,9 @@ const AddWelcome = () => {
                     }
                   }}
                 >
-                  {chrome.i18n.getMessage('Import_your_wallet')}
+                  Proxy
                 </Typography>
-              </Button> */}
+              </Button>
 
               <Button
                 variant="contained"

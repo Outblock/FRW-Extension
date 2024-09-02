@@ -25,6 +25,7 @@ import Web3 from 'web3';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import { storage } from '../../webapi';
+import { error } from 'console';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission
@@ -313,30 +314,24 @@ class ProviderController extends BaseController {
         if (network !== 'previewnet') {
           Wallet.switchNetwork('previewnet');
         }
-        // Add logic to switch to previewnet
-        break;
+        return null;
 
       case '0x221': // 545 in decimal corresponds to testnet
         console.log('Switch to Testnet');
         if (network !== 'testnet') {
           Wallet.switchNetwork('testnet');
         }
-        // Add logic to switch to testnet
-        break;
+        return null;
 
       case '0x2eb': // 747 in decimal corresponds to mainnet
         console.log('Switch to Mainnet');
         if (network !== 'mainnet') {
           Wallet.switchNetwork('mainnet');
         }
-        // Add lo
-        // Add logic to switch to mainnet
-        break;
-
+        return null;
       default:
-        console.log(`Unknown chainId: ${chainId}`);
-        Wallet.switchNetwork('previewnet');
-        break;
+        console.log(`Unsupported ChainId: ${chainId}`);
+        return new Error(`Unsupported ChainId: ${chainId}`);
     }
   };
 

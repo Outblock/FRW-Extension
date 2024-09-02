@@ -2,7 +2,7 @@ import { createPersistStore } from 'background/utils';
 import { WalletResponse, BlockchainResponse, ChildAccount, DeviceInfoRequest } from './networkModel';
 import * as fcl from '@onflow/fcl';
 import * as secp from '@noble/secp256k1';
-import { keyringService, openapiService } from 'background/service';
+import { keyringService, openapiService, proxyService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
@@ -259,17 +259,22 @@ class UserWallet {
   };
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
-
-    const allowed = await wallet.allowLilicoPay();
-    const txID = await fcl.mutate({
-      cadence: cadence,
-      args: (arg, t) => args,
-      proposer: this.authorizationFunction,
-      authorizations: [this.authorizationFunction],
-      payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
-      limit: 9999,
-    });
-    return txID;
+    //add proxy
+    const isProxy = await proxyService.checkProxy();
+    if (isProxy) {
+      return await proxyService.proxySignRequest(cadence, args);
+    } else {
+      const allowed = await wallet.allowLilicoPay();
+      const txID = await fcl.mutate({
+        cadence: cadence,
+        args: (arg, t) => args,
+        proposer: this.authorizationFunction,
+        authorizations: [this.authorizationFunction],
+        payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
+        limit: 9999,
+      });
+      return txID;
+    }
   };
 
   sign = async (signableMessage: string): Promise<string> => {

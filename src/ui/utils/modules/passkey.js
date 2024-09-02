@@ -51,14 +51,26 @@ const pk2PubKey = async (pk) => {
   };
 };
 
+const formPubKey = async (pubKey) => {
+
+  return {
+    P256: {
+      pubK: pubKey,
+    },
+    SECP256K1: {
+      pubK: pubKey,
+    },
+  };
+};
+
 const seed2PubKey = async (seed) => {
   const { HDWallet, Curve } = await initWasm();
-  
-  const accountIndex = await storage.get('currentAccountIndex') || 0;
-  const pathKey = `user${accountIndex}_path`;
-  const phraseKey = `user${accountIndex}_phrase`;
-  const path = await storage.get(pathKey)  || FLOW_BIP44_PATH;
-  const passphrase = await storage.get(phraseKey)  || '';
+
+  const currentId = await storage.get('currentId') || 0;
+  const pathKey = `user${currentId}_path`;
+  const phraseKey = `user${currentId}_phrase`;
+  const path = await storage.get(pathKey) || FLOW_BIP44_PATH;
+  const passphrase = await storage.get(phraseKey) || '';
   // console.log('pathpathpath ', path)
   // console.log('pathKey ', pathKey)
   // console.log('phraseKey ', phraseKey)
@@ -89,8 +101,8 @@ const seed2PubKey = async (seed) => {
 const seed2PubKeyTemp = async (seed) => {
   const { HDWallet, Curve } = await initWasm();
 
-  const path = await storage.get('temp_path')  || FLOW_BIP44_PATH;
-  const passphrase = await storage.get('temp_phrase')  || '';
+  const path = await storage.get('temp_path') || FLOW_BIP44_PATH;
+  const passphrase = await storage.get('temp_phrase') || '';
   console.log('pathpathpath ', path)
   console.log('passphrase ', passphrase)
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
@@ -278,5 +290,6 @@ export {
   seed2PubKey,
   signMessageHash,
   signWithKey,
-  seed2PubKeyTemp
+  seed2PubKeyTemp,
+  formPubKey
 };

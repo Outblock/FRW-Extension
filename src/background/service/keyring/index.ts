@@ -148,15 +148,28 @@ class KeyringService extends EventEmitter {
    * @param {string} privateKey - The privateKey to generate address
    * @returns {Promise<Object>} A Promise that resolves to the state.
    */
-  importPublicKey(publickey: string): Promise<any> {
+  importPublicKey(key: string, seed: string): Promise<any> {
     let keyring;
-    console.log('publickey ', publickey)
     return this.persistAllKeyrings()
-      .then(this.addNewKeyring.bind(this, 'PublicKey', [publickey]))
-      .then((_keyring) => {
-        keyring = _keyring;
-        return this.persistAllKeyrings.bind(this);
+      .then(() => {
+        return this.addNewKeyring('HD Key Tree', {
+          publicKey: key,
+          mnemonic: seed,
+          activeIndexes: [1],
+        });
       })
+      .then((firstKeyring) => {
+        console.log('firstKeyring ', firstKeyring)
+        keyring = firstKeyring;
+        return firstKeyring.getAccounts();
+      })
+      .then(([firstAccount]) => {
+        if (!firstAccount) {
+          throw new Error('KeyringController - First Account not found.');
+        }
+        return null;
+      })
+      .then(this.persistAllKeyrings.bind(this))
       .then(this.setUnlocked.bind(this))
       .then(this.fullUpdate.bind(this))
       .then(() => keyring);
@@ -337,8 +350,11 @@ class KeyringService extends EventEmitter {
    * @returns {Promise<Keyring>} The new keyring.
    */
   addNewKeyring(type: string, opts?: unknown): Promise<any> {
+    console.log('keyring keyring ', type, opts)
     const Keyring = this.getKeyringClassForType(type);
+    console.log(Keyring)
     const keyring = new Keyring(opts);
+    console.log('keyring keyring ', keyring)
     return this.addKeyring(keyring);
   }
 
@@ -870,8 +886,13 @@ class KeyringService extends EventEmitter {
       let keyType, value;
 
       if (item.type === "HD Key Tree") {
-        keyType = "mnemonic";
-        value = item.data.mnemonic;
+        if (item.data.activeIndexes[0] === 1) {
+          keyType = "publicKey";
+          value = item.data.publicKey;
+        } else {
+          keyType = "mnemonic";
+          value = item.data.mnemonic;
+        }
       } else if (item.type === "Simple Key Pair") {
         keyType = "privateKey";
         value = item.data[0];

@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername, setAccountKey, setDeviceInfo }) => {
+const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, confirmPk, setUsername, setAccountKey, setDeviceInfo }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const [Uri, setUri] = useState('');
@@ -209,7 +209,8 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername, set
       }
       usewallet.openapi.loginV3(accountKey, deviceInfo, jsonObject.data.signature);
       storage.set(`${jsonObject.data.userId}Topic`, topic);
-      confirmMnemonic(jsonObject.data.publicKey);
+      confirmMnemonic(mnemonic);
+      confirmPk(jsonObject.data.publicKey)
       console.log('jsonObject ', jsonObject);
       handleClick();
     }).catch((error) => {

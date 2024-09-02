@@ -132,7 +132,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, publickey, username, setUsername, accountKey, deviceInfo }) => {
+const SetPassword = ({ handleClick, mnemonic, publickey, username, setUsername, accountKey, deviceInfo }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -219,7 +219,7 @@ const SetPassword = ({ handleClick, publickey, username, setUsername, accountKey
     await saveIndex(userInfo.username);
     try {
       await wallet.boot(password);
-      await wallet.createKeyringWithProxy(publickey);
+      await wallet.createKeyringWithProxy(publickey, mnemonic);
       setLoading(false);
       handleClick();
     } catch (e) {

@@ -54,7 +54,7 @@ import { getApp } from 'firebase/app';
 import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
-import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
+import { pk2PubKey, seed2PubKey, formPubKey } from '../../ui/utils/modules/passkey';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 import emoji from 'background/utils/emoji.json';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
@@ -181,12 +181,18 @@ export class WalletController extends BaseController {
 
     // only password is correct then we store it
     await passwordService.setPassword(password);
+    const keyrings = await keyringService.getKeyring();
+    for (const keyring of keyrings) {
+      if (keyring.activeIndexes[0] === 1) { 
+        await proxyService.proxyLoginRequest();
+      } else {
+        const pubKey = await this.getPubKey();
+        await userWalletService.switchLogin(pubKey);
+
+      }
+    }
 
     sessionService.broadcastEvent('unlock');
-    // const keyrings = await this.getKeyrings(password);
-    // const keys = this.extractKeys(keyrings);
-    const pubKey = await this.getPubKey();
-    await userWalletService.switchLogin(pubKey);
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
     // }
@@ -461,7 +467,13 @@ export class WalletController extends BaseController {
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
     for (const keyring of keyrings) {
-      if (keyring.mnemonic) {
+      if (keyring.activeIndexes[0] === 1) {
+        // If publicKey is found, extract it and break the loop
+        const serialized = await keyring.serialize();
+        const publicKey = serialized.publicKey;
+        pubKTuple = await formPubKey(publicKey);
+        break;
+      } else if (keyring.mnemonic) {
         // If mnemonic is found, extract it and break the loop
         const serialized = await keyring.serialize();
         const mnemonic = serialized.mnemonic;
@@ -517,11 +529,11 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyring);
   };
 
-  createKeyringWithProxy = async (publicKey) => {
+  createKeyringWithProxy = async (publicKey, mnemonic) => {
     // TODO: NEED REVISIT HERE:
     await keyringService.clearKeyrings();
 
-    const keyring = await keyringService.importPublicKey(publicKey);
+    const keyring = await keyringService.importPublicKey(publicKey, mnemonic);
     keyringService.removePreMnemonics();
     return this._setCurrentAccountFromKeyring(keyring);
   };
@@ -1642,9 +1654,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
     const script = await getScripts('evm', 'transferFlowToEvmAddress');
     if (recipientEVMAddressHex.startsWith('0x')) {
       recipientEVMAddressHex = recipientEVMAddressHex.substring(2);
@@ -1667,9 +1677,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
 
     const script = await getScripts('bridge', 'bridgeTokensToEvmAddress');
     if (contractEVMAddress.startsWith('0x')) {
@@ -1702,9 +1710,7 @@ export class WalletController extends BaseController {
     // Convert the formatted amount to an integer
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
 
     const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlow');
     console.log('tokenContractAddress ', tokenContractAddress, tokenContractName, integerAmount, receiver)
@@ -1725,10 +1731,6 @@ export class WalletController extends BaseController {
   withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
-
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
     const script = await getScripts('evm', 'withdrawCoa');
 
     return await userWalletService.sendTransaction(
@@ -1749,9 +1751,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
     const script = await getScripts('evm', 'fundCoa');
 
     return await userWalletService.sendTransaction(
@@ -1771,9 +1771,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
     const script = await getScripts('bridge', 'bridgeTokensToEvm');
 
     return await userWalletService.sendTransaction(
@@ -1797,9 +1795,7 @@ export class WalletController extends BaseController {
     // Convert the formatted amount to an integer
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
     const script = await getScripts('bridge', 'bridgeTokensFromEvm');
 
     return await userWalletService.sendTransaction(
@@ -1868,9 +1864,7 @@ export class WalletController extends BaseController {
     }
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
     const script = await getScripts('evm', 'callContract');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
@@ -1909,9 +1903,7 @@ export class WalletController extends BaseController {
     }
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
     const script = await getScripts('evm', 'callContract');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
@@ -1953,9 +1945,7 @@ export class WalletController extends BaseController {
   getBalance = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
     if (hexEncodedAddress.startsWith('0x')) {
       hexEncodedAddress = hexEncodedAddress.substring(2);
     }
@@ -1981,9 +1971,7 @@ export class WalletController extends BaseController {
   getNonce = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+    
 
     const script = await getScripts('evm', 'getNonce');
 
