@@ -60,7 +60,6 @@ const NFTTab = () => {
       setIsActive(true);
     }
     // setAddress(address);
-    setAddress(address);
   }
 
   const fetchPreferedTab = async () => {
