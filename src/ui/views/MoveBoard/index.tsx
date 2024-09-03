@@ -118,7 +118,7 @@ const MoveBoard = (props: MoveBoardProps) => {
           }}
         />
       );
-    } else if (network === 'previewnet' || network === 'testnet') {
+    } else {
       return (
         <MoveFromFlow
           isConfirmationOpen={moveFtOpen}
@@ -131,18 +131,6 @@ const MoveBoard = (props: MoveBoardProps) => {
         />
       );
 
-    }
-    else {
-      return (
-        <ErrorModel
-          isOpen={moveFtOpen}
-          onOpenChange={() => {
-            setMoveFt(false);
-          }}
-          errorName={'Feature coming soon'}
-          errorMessage={'Feature coming soon'}
-        />
-      );
     }
   };
 

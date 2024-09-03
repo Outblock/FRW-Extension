@@ -40,7 +40,7 @@ const NftEvm = () => {
   };
 
   const requestCadenceNft = async () => {
-    const nftList = await wallet.fetchPreviewNetNft();
+    const nftList = await wallet.openapi.getAllNft();
     console.log('nftList ', nftList)
     const activeChild = await wallet.getActiveWallet();
     if (activeChild === 'evm') {

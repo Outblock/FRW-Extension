@@ -56,16 +56,14 @@ const Wallet = () => {
     const wallet = await usewallet.getUserWallets();
     const fectechdWallet = await fetchBalances(wallet);
     const network = await usewallet.getNetwork();
-    if (network === 'previewnet' || network === 'testnet') {
-      const evmWallet = await usewallet.getEvmWallet();
-      const filteredEvm = [evmWallet].filter(
-        evm => evm.address
+    const evmWallet = await usewallet.getEvmWallet();
+    const filteredEvm = [evmWallet].filter(
+      evm => evm.address
 
-      );
-      if (filteredEvm.length > 0) {
-        const fetchedEvm = await fetchEvmBalances(transformData(filteredEvm));
-        setEvmList(fetchedEvm)
-      }
+    );
+    if (filteredEvm.length > 0) {
+      const fetchedEvm = await fetchEvmBalances(transformData(filteredEvm));
+      setEvmList(fetchedEvm)
     }
     setEmojis(emojires);
     setWallet(fectechdWallet);

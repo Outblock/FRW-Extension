@@ -114,11 +114,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
 
     const network = props.currentNetwork;
     console.log('network ', network)
-    if (network === 'previewnet' || network === 'testnet') {
-      setEvmMode(true);
-    } else {
-      setEvmMode(false);
-    }
+    setEvmMode(true);
   };
 
   const getEvmAddress = async () => {

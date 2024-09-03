@@ -20,7 +20,6 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false }) => {
 
 
   const getEmoji = async () => {
-    console.log('contact contact ', contact)
     const emojiList = await usewallet.getEmoji();
     if (isEvm) {
       setEmoji(emojiList[1])

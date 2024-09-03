@@ -1488,16 +1488,16 @@ class OpenApiService {
       network = 'testnet-migration';
     }
     const gitToken = await storage.getExpiry(`GitNFTList${network}${chainType}`);
-    if (gitToken) {
+    if (gitToken && gitToken.length > 0) {
       return gitToken;
     } else {
       const response = await fetch(
         `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/nfts.json`
       );
       const res = await response.json();
-      const { tokens = {} } = res;
-      storage.setExpiry(`GitNFTList${network}${chainType}`, tokens, 600000);
-      return tokens;
+      const { data = {} } = res;
+      storage.setExpiry(`GitNFTList${network}${chainType}`, data, 600000);
+      return data;
     }
   };
 

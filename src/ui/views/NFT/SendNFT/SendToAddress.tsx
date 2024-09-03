@@ -615,15 +615,17 @@ const SendToAddress = () => {
             }
           </div>
         )}
-        <SendNFTConfirmation
-          isConfirmationOpen={isConfirmationOpen}
-          data={{ contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media, linked: state.linked }}
-          handleCloseIconClicked={() => setConfirmationOpen(false)}
-          handleCancelBtnClicked={() => setConfirmationOpen(false)}
-          handleAddBtnClicked={() => {
-            setConfirmationOpen(false);
-          }}
-        />
+        {isConfirmationOpen &&
+          <SendNFTConfirmation
+            isConfirmationOpen={isConfirmationOpen}
+            data={{ contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media, linked: state.linked }}
+            handleCloseIconClicked={() => setConfirmationOpen(false)}
+            handleCancelBtnClicked={() => setConfirmationOpen(false)}
+            handleAddBtnClicked={() => {
+              setConfirmationOpen(false);
+            }}
+          />
+        }
       </div>
     </StyledEngineProvider>
   );

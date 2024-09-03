@@ -22,7 +22,7 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
-import { ensureEvmAddressPrefix } from '@/ui/utils/address';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -96,10 +96,11 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
 
 
   const returnFilteredCollections = (contractList, NFT) => {
+    console.log('contractList ', contractList, NFT)
     return contractList.filter(
       (collection) => collection.name == NFT.collectionName
     );
-  }
+  };
 
 
 
@@ -108,16 +109,38 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
     // setSending(true);
     const contractList = await wallet.openapi.getAllNft();
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft)
+    console.log('selectedAccount ', selectedAccount)
+    console.log('filteredCollections ', filteredCollections)
+
+    if (isValidEthereumAddress(selectedAccount!['address'])) {
+      await moveNFTToEvm();
+    } else {
+      wallet.sendNFTtoChild(selectedAccount!['address'], '', props.data.nft.id, filteredCollections[0]).then(async (txID) => {
+        wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
+        props.handleCloseIconClicked();
+        await wallet.setDashIndex(0);
+        setSending(false);
+        history.push('/dashboard?activity=1');
+      }).catch((err) => {
+        console.log('err ', err)
+        setSending(false);
+        setFailed(true);
+      })
+    }
 
 
-    wallet.sendNFTtoChild(selectedAccount!['address'], '', props.data.nft.id, filteredCollections[0]).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
+
+  };
+
+  const moveNFTToEvm = async () => {
+    setSending(true);
+    wallet.batchBridgeNftToEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch((err) => {
-      console.log('err ', err)
+    }).catch(() => {
       setSending(false);
       setFailed(true);
     })

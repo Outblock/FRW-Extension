@@ -76,14 +76,14 @@ class Proxy {
     const currentNetwork = await wallet.getNetwork();
     const params = {
       method: 'flow_sign_payer',
-      "topic": topic,
-      "params": {
+      topic: topic,
+      params: {
         cadence,
         args,
       },
-      "chainId": currentNetwork,
-      "requestId": 200200,
-      "metaData": {}
+      chainId: currentNetwork,
+      requestId: 200200,
+      metaData: {}
     }
     console.log('topic ', params)
     try {
@@ -92,7 +92,7 @@ class Proxy {
         chainId: `flow:${currentNetwork}`,
         request: {
           method: FCLWalletConnectMethod.proxysign,
-          params: params,
+          params: JSON.stringify(params),
         },
       });
 

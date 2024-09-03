@@ -197,7 +197,7 @@ const WalletTab = ({ network }) => {
     if (childType === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
       sortWallet(storageData);
-      return; 
+      return;
     }
 
     // If not 'evm', check if it's active or not
@@ -476,26 +476,22 @@ const WalletTab = ({ network }) => {
             }
           </Box>
 
-          {(network === 'previewnet' || network === 'testnet' || (childAccount && Object.keys(childAccount).length > 0)) && (
-            <Box sx={{ flex: '1' }}>
-            </Box>
-          )}
+          <Box sx={{ flex: '1' }}>
+          </Box>
 
-          {(network === 'previewnet' || network === 'testnet' || (childAccount && Object.keys(childAccount).length > 0)) && (
-            <Box>
-              <Button
-                color="info3"
-                variant="contained"
-                onClick={() => goMoveBoard()}
-                sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
-              >
-                <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
-                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>
-                  {chrome.i18n.getMessage('Move')}
-                </Typography>
-              </Button>
-            </Box>
-          )}
+          <Box>
+            <Button
+              color="info3"
+              variant="contained"
+              onClick={() => goMoveBoard()}
+              sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
+            >
+              <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
+              <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>
+                {chrome.i18n.getMessage('Move')}
+              </Typography>
+            </Button>
+          </Box>
 
         </Box>
         <Tabs

@@ -67,7 +67,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
 
     // putDeviceInfo(fData);
     await setWalletList(wdArray);
-    if ((currentNetwork === 'previewnet' || currentNetwork === 'testnet') && walletData[0].address) {
+    if (walletData[0].address) {
       const evmWallet = await usewallet.queryEvmAddress(walletData[0].address);
       const evmData = walletData[0]
       evmData.address = evmWallet;
