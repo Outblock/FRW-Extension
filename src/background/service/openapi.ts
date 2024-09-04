@@ -1512,9 +1512,9 @@ class OpenApiService {
 
     try {
       const isChild = await userWalletService.getActiveWallet();
-      if (isChild) {
+      if (isChild && isChild !== 'evm') {
         values = await this.isLinkedAccountTokenListEnabled(address);
-      } else {
+      } else if (!isChild) {
         values = await this.isTokenListEnabled(address);
       }
     } catch (error) {

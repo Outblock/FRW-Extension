@@ -914,9 +914,10 @@ export class WalletController extends BaseController {
       try {
         const network = await this.getNetwork();
         let result = {};
-        const address = await userWalletService.getMainWallet(network);
+        const address = await userWalletService.getMainWallet(network)
+        const activeChild = await this.getActiveWallet();
 
-        if (network !== 'crescendo' && network !== 'previewnet') {
+        if (network !== 'previewnet' && activeChild !== 'evm') {
           result = await openapiService.checkChildAccountMeta(address);
         }
 
