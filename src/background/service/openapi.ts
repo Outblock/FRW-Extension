@@ -1126,7 +1126,6 @@ class OpenApiService {
       });
       return res;
     } catch (err) {
-      console.log('getChildAccountMeta err', err);
       return null;
     }
   };
@@ -2096,7 +2095,7 @@ class OpenApiService {
   getEvmFT = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/v2/evm/${address}/fts?network=${network}`,
+      `/api/evm/${address}/fts?network=${network}`,
       {},
       {},
       WEB_NEXT_URL
