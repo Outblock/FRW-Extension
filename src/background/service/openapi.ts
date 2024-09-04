@@ -360,6 +360,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'put',
     params: ['device_info', 'wallet_id', 'wallettest_id '],
   },
+  add_device_v3: {
+    path: '/v3/user/device',
+    method: 'put',
+    params: ['device_info', 'wallet_id', 'wallettest_id '],
+  },
   get_location: {
     path: '/v1/user/location',
     method: 'get',
@@ -1255,7 +1260,7 @@ class OpenApiService {
   };
 
   addDevice = async (params) => {
-    const config = this.store.config.add_device;
+    const config = this.store.config.add_device_v3;
     const data = await this.sendRequest(config.method, config.path, {}, params);
 
     return data;
@@ -2199,33 +2204,18 @@ class OpenApiService {
       const mainnetId = walletData.find(
         (item) => item.chain_id === 'mainnet'
       )?.id;
-      const result = await this.getLocation();
       const installationId = await this.getInstallationId();
       // console.log('location ', userlocation);
-      const userlocation = result.data;
 
       await this.addDevice({
         wallet_id: mainnetId ? mainnetId.toString() : '',
         wallettest_id: testnetId ? testnetId.toString() : '',
         device_info: {
-          city: userlocation.city,
-          continent: userlocation.country,
-          continentCode: userlocation.countryCode,
-          country: userlocation.country,
-          countryCode: userlocation.countryCode,
-          currency: userlocation.countryCode,
           device_id: installationId,
           district: '',
-          ip: userlocation.query,
-          isp: userlocation.as,
-          lat: userlocation.lat,
-          lon: userlocation.lon,
           name: 'FRW Chrome Extension',
-          org: userlocation.org,
-          regionName: userlocation.regionName,
           type: '2',
           user_agent: 'Chrome',
-          zip: userlocation.zip,
         },
       });
     } catch (error) {

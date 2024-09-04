@@ -1280,6 +1280,11 @@ export class WalletController extends BaseController {
     const tokenList = await openapiService.getTokenListFromGithub(network);
 
     const address = await this.getEvmAddress();
+    if (!isValidEthereumAddress(address)) {
+      
+      return new Error("Invalid Ethereum address");
+    }
+
     const allBalanceMap = await openapiService.getEvmFT(
       address || '0x',
       network
