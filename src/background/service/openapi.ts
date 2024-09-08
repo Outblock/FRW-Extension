@@ -538,13 +538,20 @@ class OpenApiService {
     if (tokenPriceMap) {
       return tokenPriceMap;
     } else {
-      const { data = [] } = await this.sendRequest(
-        'GET',
-        `/api/prices`,
-        {},
-        {},
-        WEB_NEXT_URL
-      );
+      let data: any = [];
+      try {
+        const response = await this.sendRequest(
+          'GET',
+          `/api/prices`,
+          {},
+          {},
+          WEB_NEXT_URL
+        );
+        data = response.data || [];  // Ensure data is set to an empty array if response.data is undefined
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+        data = [];  // Set data to empty array in case of an error
+      }
 
       if (pricesMap && pricesMap['FLOW']) {
         return pricesMap;

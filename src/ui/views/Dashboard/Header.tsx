@@ -202,7 +202,8 @@ const Header = ({ loading }) => {
       usewallet.queryEvmAddress(currentWallet.address).then((res) => {
         setEvmAddress(res!);
         setEvmLoading(false);
-      }).catch(() => {
+      }).catch((err) => {
+        console.log('queryEvmAddress err ', err)
         setEvmLoading(false);
       });
     }

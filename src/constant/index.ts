@@ -164,6 +164,7 @@ export const EVENTS = {
 };
 
 export const EVM_ENDPOINT = {
+  mainnet: 'https://mainnet.evm.nodes.onflow.org',
   testnet: 'https://testnet.evm.nodes.onflow.org',
   previewnet: 'https://previewnet.evm.nodes.onflow.org',
 };

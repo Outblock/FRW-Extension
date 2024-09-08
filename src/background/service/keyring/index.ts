@@ -749,7 +749,9 @@ class KeyringService extends EventEmitter {
         }
 
         // Update both vault and deepVault
-        this.store.updateState({ vault: vaultArray });
+        if (vaultArray && vaultArray.length > 0) {
+          this.store.updateState({ vault: vaultArray });
+        }
         if (deepVaultArray && deepVaultArray.length > 0) {
           await storage.set('deepVault', deepVaultArray); // Save deepVault in storage
         }

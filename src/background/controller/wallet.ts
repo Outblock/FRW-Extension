@@ -1094,11 +1094,14 @@ export class WalletController extends BaseController {
         throw new Error('Failed to fetch token list balance');
       }
       const data = await openapiService.getTokenPrices();
-
       // Map over tokenList to get prices and handle errors individually
       const pricesPromises = tokenList.map(async (token) => {
         try {
-          return await this.tokenPrice(token.symbol, data);
+          if (Object.keys(data).length === 0 && data.constructor === Object) {
+            return { price: { last: '0.0', change: { percentage: '0.0' } } }
+          } else {
+            return await this.tokenPrice(token.symbol, data);
+          }
         } catch (error) {
           console.error(`Error fetching price for token ${token.symbol}:`, error);
           return null;
@@ -1296,7 +1299,7 @@ export class WalletController extends BaseController {
     const mergeBalances = (tokenList, allBalanceMap, flowBalance) => {
       return tokenList.map(token => {
         const balanceInfo = allBalanceMap.find(balance => balance.address === token.address);
-        let balance = balanceInfo ? (Number(balanceInfo.balance)) : null;
+        let balance = balanceInfo ? (Number(balanceInfo.balance) / 1e18) : null;
         // If the token unit is 'flow', set the balance to flowBalance
         if (token.symbol.toLowerCase() === 'flow') {
           balance = flowBalance / 1e18;
@@ -1641,11 +1644,6 @@ export class WalletController extends BaseController {
   createCoaEmpty = async (): Promise<string> => {
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-
-    }
-
     const script = await getScripts('evm', 'createCoaEmpty');
 
     return await userWalletService.sendTransaction(
@@ -1837,13 +1835,6 @@ export class WalletController extends BaseController {
     } else {
       await this.refreshEvmWallets();
     }
-
-    const network = await this.getNetwork();
-
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw new Error('Network is not previewnet');
-    }
-
     try {
       const script = await getScripts('evm', 'getCoaAddr');
       const result = await fcl.query({
@@ -3215,7 +3206,6 @@ export class WalletController extends BaseController {
 
       const cadenceScriptsV2 = (await openapiService.cadenceScriptsV2()) ?? {};
       // const { scripts, version } = cadenceScriptsV2;
-      console.log('cadenceScriptsV2 ', cadenceScriptsV2)
       // const cadenceVersion = cadenceScriptsV2.version;
       const cadence = cadenceScriptsV2.scripts[network]
 

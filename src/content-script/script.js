@@ -29,7 +29,7 @@ const service = {
     address: '0x33f75ff0b830dcec',
     name: 'Flow Wallet',
     icon: 'https://lilico.app/frw-logo.png',
-    description: 'A wallet created for everyoen',
+    description: 'A wallet created for everyone',
   },
 }
 
