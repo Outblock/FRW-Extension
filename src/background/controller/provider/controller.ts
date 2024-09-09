@@ -137,15 +137,8 @@ class ProviderController extends BaseController {
       throw ethErrors.provider.unauthorized();
     }
 
-    const network = await Wallet.getNetwork();
-
     let currentWallet;
     try {
-
-      if (network !== 'previewnet' && network !== 'testnet') {
-        return;
-      }
-      // Attempt to query the previewnet address
       currentWallet = await Wallet.getCurrentWallet();
     } catch (error) {
       // If an error occurs, request approval
@@ -309,12 +302,6 @@ class ProviderController extends BaseController {
     const network = await Wallet.getNetwork();
 
     switch (chainId) {
-      case '0x286': // 646 in decimal corresponds to previewnet
-        console.log('Switch to Previewnet');
-        if (network !== 'previewnet') {
-          Wallet.switchNetwork('previewnet');
-        }
-        return null;
 
       case '0x221': // 545 in decimal corresponds to testnet
         console.log('Switch to Testnet');

@@ -3,8 +3,6 @@ import { Box, ListItemButton, Typography, ListItem, ListItemIcon, CardMedia } fr
 import { useWallet } from 'ui/utils';
 import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
 import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
-import previewnetIndicator from '../../../FRWAssets/svg/previewnetArrow.svg';
-import testnetMigrationArrow from '../../../FRWAssets/svg/testnetMigrationArrow.svg';
 import networkLink from '../../../FRWAssets/svg/networkLink.svg';
 import { useHistory } from 'react-router-dom';
 
@@ -16,36 +14,13 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
 
   const history = useHistory();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [sandboxEnable, setSandboxEnabled] = useState(false);
 
-  const [isMigrationEnabled, setMigrationEnabled] = useState(false);
   const [indicatorRotation, setIndicatorRotation] = useState(180); // Initial rotation angle
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
-  const checkPreviewnet = async () => {
-
-    const previewnet = await usewallet.checkPreviewnet() || [];
-    if (previewnet.length > 0) {
-      setSandboxEnabled(true);
-    }
-
-
-    const migration = await usewallet.checkTestnetMigration() || [];
-    if (migration.length > 0) {
-      setMigrationEnabled(true);
-    }
-
-  }
-
-
-
-
-  useEffect(() => {
-    checkPreviewnet();
-  }, [currentNetwork]);
 
   const rotateIndicator = () => {
     setIndicatorRotation(indicatorRotation === 180 ? 0 : 180); // Toggle rotation angle
@@ -71,12 +46,8 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
         return mainnetIndicator;
       case 'testnet':
         return testnetIndicator;
-      case 'previewnet':
-        return previewnetIndicator;
-      case 'migrationTestnet':
-        return testnetMigrationArrow;
       default:
-        return previewnetIndicator; // Default to mainnet if no match
+        return mainnetIndicator; // Default to mainnet if no match
     }
   };
 
@@ -89,10 +60,6 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
         return '#FF8A0014';
       case 'crescendo':
         return '#CCAF2114';
-      case 'previewnet':
-        return '#CCAF2114';
-      case 'migrationTestnet':
-        return '#22BAD014';
     }
   };
   return (
@@ -230,57 +197,6 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
                 Testnet
               </Typography>
             </ListItemButton>
-            {sandboxEnable &&
-              <ListItemButton
-                onClick={() => switchNetwork('previewnet')}
-                sx={{
-                  padding: '4px 8px',
-                  width: '100%',
-                  '&:hover': {
-                    color: networkColor('previewnet')
-                  }
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: '12px',
-                    lineHeight: '16px',
-                    fontWeight: '400',
-                    '&:hover': {
-                      color: networkColor('previewnet')
-                    }
-                  }}
-                >
-                  Previewnet
-                </Typography>
-              </ListItemButton>
-            }
-
-            {isMigrationEnabled &&
-              <ListItemButton
-                onClick={() => switchNetwork('migrationTestnet')}
-                sx={{
-                  padding: '4px 8px',
-                  width: '100%',
-                  '&:hover': {
-                    color: networkColor('migrationTestnet')
-                  }
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: '12px',
-                    lineHeight: '16px',
-                    fontWeight: '400',
-                    '&:hover': {
-                      color: networkColor('migrationTestnet')
-                    }
-                  }}
-                >
-                  Testnet Migration
-                </Typography>
-              </ListItemButton>
-            }
           </ListItem>
         }
 

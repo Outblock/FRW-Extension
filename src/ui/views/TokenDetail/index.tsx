@@ -191,10 +191,7 @@ const TokenDetail = () => {
           }
           {token === 'flow' && <StackingCard network={network} />}
           {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
-          {network !== 'previewnet' ||
-            (token === 'flow' && (
-              <ClaimTokenCard token={token} />
-            ))}
+          <ClaimTokenCard token={token} />
           {providers?.length > 0 && (
             <PriceCard
               token={token}

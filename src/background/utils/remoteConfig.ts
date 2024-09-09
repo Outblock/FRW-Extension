@@ -29,9 +29,6 @@ class fetchRemoteConfig {
     },
     testnet: {
       result:{}, expireTime:0
-    },
-    previewnet: {
-      result:{}, expireTime:0
     }
   };
   configState: CacheState = {result:{}, expireTime:0};

@@ -40,15 +40,11 @@ class Transaction {
         transactionItem: {
           mainnet:[],
           crescendo: [],
-          previewnet: [],
-          migrationTestnet: [],
           testnet:[],
         },
         pendingItem: {
           mainnet:[],
           crescendo: [],
-          previewnet: [],
-          migrationTestnet: [],
           testnet:[],
         },
       },
@@ -61,16 +57,12 @@ class Transaction {
         transactionItem: {
           mainnet:[],
           crescendo: [],
-          previewnet: [],
           testnet:[],
-          migrationTestnet: [],
         },
         pendingItem: {
           mainnet:[],
           testnet:[],
           crescendo: [],
-          previewnet: [],
-          migrationTestnet: [],
         },
       },
     });
@@ -83,16 +75,12 @@ class Transaction {
       transactionItem: {
         mainnet:[],
         crescendo: [],
-        previewnet: [],
         testnet:[],
-        migrationTestnet: [],
       },
       pendingItem: {
         mainnet:[],
         testnet:[],
         crescendo: [],
-        previewnet: [],
-        migrationTestnet: [],
       }
     }
     this.session = {
@@ -102,15 +90,11 @@ class Transaction {
         mainnet:[],
         testnet:[],
         crescendo: [],
-        previewnet: [],
-        migrationTestnet: [],
       },
       pendingItem: {
         mainnet:[],
         testnet:[],
         crescendo: [],
-        previewnet: [],
-        migrationTestnet: [],
       }
     }
   }

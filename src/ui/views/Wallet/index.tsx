@@ -373,7 +373,7 @@ const WalletTab = ({ network }) => {
             mb: '20px',
           }}
         >
-          <Box sx={{ display: 'flex', gap: '2px', width: network === 'previewnet' ? 'auto' : '100%', }}>
+          <Box sx={{ display: 'flex', gap: '2px', width: '100%', }}>
 
             <Button
               color="info3"
@@ -391,7 +391,7 @@ const WalletTab = ({ network }) => {
                 minWidth: '56px',
                 width: sendHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
-                flex: network === 'previewnet' ? 'auto' : '1',
+                flex:'1',
                 transition: 'width 0.3s ease-in-out'
               }}
             >
@@ -410,7 +410,7 @@ const WalletTab = ({ network }) => {
                   borderRadius: '0px',
                   width: swapHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
-                  flex: network === 'previewnet' ? 'auto' : '1',
+                  flex: '1',
                   transition: 'width 0.3s ease-in-out'
                 }}
                 onMouseEnter={() => setSwapHover(true)}
@@ -439,7 +439,7 @@ const WalletTab = ({ network }) => {
                 borderBottomRightRadius: isActive ? '0px' : '24px',
                 width: receiveHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
-                flex: network === 'previewnet' ? 'auto' : '1',
+                flex:  '1',
                 transition: 'width 0.3s ease-in-out'
               }}
               onMouseEnter={() => setReceiveHover(true)}
@@ -463,7 +463,7 @@ const WalletTab = ({ network }) => {
                   minWidth: '56px',
                   width: buyHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
-                  flex: network === 'previewnet' ? 'auto' : '1',
+                  flex: '1',
                   transition: 'width 0.3s ease-in-out'
                 }}
                 onMouseEnter={() => setBuyHover(true)}

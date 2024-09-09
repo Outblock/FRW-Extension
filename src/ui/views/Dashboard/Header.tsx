@@ -100,12 +100,9 @@ const Header = ({ loading }) => {
   const [domain, setDomain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
-  const [crescendoAvailable, setSandboxnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
 
-  const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
-  const [isMigrationEnabled, setMigrationEnabled] = useState(false);
 
   const [flowBalance, setFlowBalance] = useState(0);
 
@@ -166,15 +163,6 @@ const Header = ({ loading }) => {
       setModeAnonymous(true);
     }
 
-    const previewnet = (await usewallet.checkPreviewnet()) || [];
-    if (previewnet.length > 0) {
-      setSandboxEnabled(true);
-    }
-
-    const migration = (await usewallet.checkTestnetMigration()) || [];
-    if (migration.length > 0) {
-      setMigrationEnabled(true);
-    }
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
@@ -235,11 +223,6 @@ const Header = ({ loading }) => {
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
 
-    try {
-      await usewallet.setMigration();
-    } catch (error) {
-      console.error('Error during setMigration:', error);
-    }
     // usewallet.checkUserDomain(wallet.username);
   };
   const switchAccount = async (account) => {
@@ -260,13 +243,8 @@ const Header = ({ loading }) => {
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
     setIsSandbox(false);
-    // if (network === 'crescendo') {
-    //   setIsSandbox(true);
-    // }
-    if (network === 'previewnet') {
-      setEvmLoading(true);
-      await setIsSandbox(true);
-    }
+
+    setEvmLoading(true);
     await setNetwork(network);
   }
 
@@ -376,10 +354,6 @@ const Header = ({ loading }) => {
         return '#FF8A00';
       case 'crescendo':
         return '#CCAF21';
-      case 'previewnet':
-        return '#CCAF21';
-      case 'migrationTestnet':
-        return '#22BAD0';
     }
   };
 
@@ -441,8 +415,6 @@ const Header = ({ loading }) => {
     setTestnetAvailable(testnetAvailable);
     // const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
     // setSandboxnetAvailable(crescendoAvailable)
-    const previewAvailable = await usewallet.openapi.pingNetwork('previewnet');
-    setSandboxnetAvailable(previewAvailable);
   };
 
   useEffect(() => {
@@ -735,100 +707,6 @@ const Header = ({ loading }) => {
             </ListItemButton>
           </ListItem>
           } */}
-          {isSandboxEnabled && (
-            <ListItem
-              disablePadding
-              key="previewnet"
-              secondaryAction={
-                !crescendoAvailable && (
-                  <ListItemText>
-                    <Typography
-                      variant="caption"
-                      component="span"
-                      display="inline"
-                      color="error.main"
-                    >
-                      {chrome.i18n.getMessage('Unavailable')}
-                    </Typography>
-                  </ListItemText>
-                )
-              }
-              onClick={() => {
-                switchNetwork('previewnet');
-              }}
-            >
-              <ListItemButton>
-                <ListItemIcon>
-                  <FiberManualRecordIcon
-                    style={{
-                      color: networkColor('previewnet'),
-                      fontSize: '10px',
-                      marginLeft: '10px',
-                      marginRight: '10px',
-                      opacity: currentNetwork == 'previewnet' ? '1' : '0.1',
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    display="inline"
-                    color="text"
-                  >
-                    {chrome.i18n.getMessage('Previewnet')}
-                  </Typography>
-                </ListItemText>
-              </ListItemButton>
-            </ListItem>
-          )}
-          {isMigrationEnabled && (
-            <ListItem
-              disablePadding
-              key="migrationTestnet"
-              secondaryAction={
-                !crescendoAvailable && (
-                  <ListItemText>
-                    <Typography
-                      variant="caption"
-                      component="span"
-                      display="inline"
-                      color="error.main"
-                    >
-                      {chrome.i18n.getMessage('Unavailable')}
-                    </Typography>
-                  </ListItemText>
-                )
-              }
-              onClick={() => {
-                switchNetwork('migrationTestnet');
-              }}
-            >
-              <ListItemButton>
-                <ListItemIcon>
-                  <FiberManualRecordIcon
-                    style={{
-                      color: networkColor('migrationTestnet'),
-                      fontSize: '10px',
-                      marginLeft: '10px',
-                      marginRight: '10px',
-                      opacity: currentNetwork == 'migrationTestnet' ? '1' : '0.1',
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    display="inline"
-                    color="text"
-                  >
-                    Testnet Migration
-                  </Typography>
-                </ListItemText>
-              </ListItemButton>
-            </ListItem>
-          )}
         </List>
       </>
     );

@@ -59,13 +59,6 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   };
 
   const handleSwitchNetwork = async () => {
-    wallet.switchNetwork('previewnet');
-
-    if (currentNetwork !== 'previewnet') {
-      // TODO: replace it with better UX
-      setCurrent('previewnet');
-      setMsgNetwork('previewnet');
-    }
     resolveApproval({
       defaultChain: 'FLOW',
       signPermission: 'MAINNET_AND_TESTNET',
@@ -99,10 +92,6 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         return '#FF8A00';
       case 'crescendo':
         return '#CCAF21';
-      case 'previewnet':
-        return '#CCAF21';
-      case 'migrationTestnet':
-        return '#22BAD0';
     }
   };
 

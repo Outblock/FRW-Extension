@@ -51,22 +51,15 @@ const flowContext = flow
     } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
 
-      const hasEvm = userWalletService.checkPreviewnet();
+      const hasEvm = userWalletService.getActiveWallet();
       console.log('hasEvm checkpreview ', hasEvm)
       if (!hasEvm.length) {
-        throw new Error('previewnet must has at least one account.');
+        throw new Error('evm must has at least one account.');
       }
       const isUnlock = keyringService.memStore.getState().isUnlocked;
       const site = permissionService.getConnectedSite(origin);
       if (mapMethod === 'ethAccounts' && (!site || !isUnlock)) {
         throw new Error('Origin not connected. Please connect first.');
-      }
-
-
-      const network = await Wallet.getNetwork();
-
-      if (network !== 'previewnet' && network !== 'testnet') {
-        throw new Error('Network not in previewnet or testnet.');
       }
 
       if (!isUnlock) {

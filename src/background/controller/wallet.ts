@@ -43,8 +43,6 @@ import * as fcl from '@onflow/fcl';
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclPreviewnetConfig,
-  fclTestnetMigrationConfig,
 } from '../fclConfig';
 import { notification, storage } from 'background/webapi';
 import { NFTData, NFTModel } from '../service/networkModel';
@@ -917,7 +915,7 @@ export class WalletController extends BaseController {
         const address = await userWalletService.getMainWallet(network)
         const activeChild = await this.getActiveWallet();
 
-        if (network !== 'previewnet' && activeChild !== 'evm') {
+        if (activeChild !== 'evm') {
           result = await openapiService.checkChildAccountMeta(address);
         }
 
@@ -1620,12 +1618,7 @@ export class WalletController extends BaseController {
 
 
   createCOA = async (amount = '0.0'): Promise<string> => {
-    const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-
-    }
     const formattedAmount = parseFloat(amount).toFixed(8);
 
     const script = await getScripts('evm', 'createCoa');
@@ -2804,11 +2797,7 @@ export class WalletController extends BaseController {
       await fclTestnetConfig();
     } else if (network == 'mainnet') {
       await fclMainnetConfig();
-    } else if (network == 'migrationTestnet') {
-      await fclTestnetMigrationConfig();
-    } else {
-      await fclPreviewnetConfig();
-    }
+    } 
     this.refreshAll();
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -2888,9 +2877,6 @@ export class WalletController extends BaseController {
         break;
       case 'crescendo':
         baseURL = 'https://flow-view-source.vercel.app/crescendo';
-        break;
-      case 'previewnet':
-        baseURL = 'https://previewnet.flowdiver.io';
         break;
     }
     return baseURL;
@@ -3186,12 +3172,7 @@ export class WalletController extends BaseController {
       const cadenceScrpts = await storage.get('cadenceScripts');
       const now = new Date();
       const exp = 1000 * 60 * 60 * 1 + now.getTime();
-      let network = await userWalletService.getNetwork();
-
-      if (network === 'migrationTestnet') {
-        network = 'testnet-migration'
-      }
-
+      const network = await userWalletService.getNetwork();
       if (
         cadenceScrpts &&
         cadenceScrpts['expiry'] &&
@@ -3484,15 +3465,7 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  checkPreviewnet = async () => {
-    const result = await userWalletService.checkPreviewnet();
-    return result;
-  };
 
-  checkTestnetMigration = async () => {
-    const result = await userWalletService.checkTestnetMigration();
-    return result;
-  };
 
   getAccount = async () => {
     const address = await this.getCurrentAddress();
@@ -3545,27 +3518,6 @@ export class WalletController extends BaseController {
   };
 
 
-
-
-  setMigration = async () => {
-    const testnetAddress = JSON.parse(JSON.stringify(userWalletService.getUserWallets('testnet')));
-    const migrationTestnetAddress = JSON.parse(JSON.stringify(testnetAddress));
-
-    const result = await openapiService.checkMigrationNetwork(migrationTestnetAddress[0].blockchain[0].address);
-
-    if (result && result.address) {
-      // Update chain_id to 'migrationTestnet' for migrationTestnetAddress
-      migrationTestnetAddress[0].blockchain[0].chain_id = 'migrationTestnet';
-      migrationTestnetAddress[0].chain_id = 'migrationTestnet';
-
-      // Ensure testnetAddress keeps 'testnet' as chain_id
-      testnetAddress[0].blockchain[0].chain_id = 'testnet';
-      testnetAddress[0].chain_id = 'testnet';
-
-      // Set the updated addresses in the user wallet service
-      await userWalletService.setUserTestnetMigration(migrationTestnetAddress, testnetAddress);
-    }
-  };
 }
 
 export default new WalletController();

@@ -39,8 +39,6 @@ import {
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclPreviewnetConfig,
-  fclTestnetMigrationConfig
 } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
@@ -102,12 +100,6 @@ async function fclSetup() {
       break;
     case 'testnet':
       await fclTestnetConfig();
-      break;
-    case 'previewnet':
-      await fclPreviewnetConfig();
-      break;
-    case 'migrationTestnet':
-      await fclTestnetMigrationConfig();
       break;
   }
 }

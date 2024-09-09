@@ -175,10 +175,6 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     setCurrentAddress(address!);
 
     const network = await wallet.getNetwork();
-    if (network === 'migrationTestnet') {
-      setShowSwitch(false);
-      return
-    }
     
     console.log(' msgNetwork ', msgNetwork, network, showSwitch)
     setCurrent(network);
@@ -254,10 +250,6 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         return '#FF8A00';
       case 'crescendo':
         return '#CCAF21';
-      case 'previewnet':
-        return '#CCAF21';
-      case 'migrationTestnet':
-        return '#22BAD0';
     }
   };
 

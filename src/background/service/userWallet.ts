@@ -36,8 +36,6 @@ class UserWallet {
           mainnet: [],
           testnet: [],
           crescendo: [],
-          previewnet: [],
-          migrationTestnet: [],
         },
         childAccount: {},
         currentWallet: {
@@ -70,8 +68,6 @@ class UserWallet {
         mainnet: [],
         testnet: [],
         crescendo: [],
-        previewnet: [],
-        migrationTestnet: [],
       },
       childAccount: {},
       currentWallet: {
@@ -99,22 +95,10 @@ class UserWallet {
 
   setUserWallets = async (filteredData, network) => {
 
-    // Initialize previewnet as empty
-    let previewnetExists = false;
-
     for (const wallet of filteredData) {
       const chainId = wallet.chain_id;
       this.store.wallets[chainId] = [wallet];
-      if (chainId === "previewnet") {
-        previewnetExists = true;
-      }
     }
-
-    // Ensure previewnet is set to an empty array if it doesn't exist in filteredData
-    if (!previewnetExists) {
-      this.store.wallets["previewnet"] = [];
-    }
-
 
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
       const current = this.store.wallets[network][0].blockchain[0];
@@ -124,10 +108,6 @@ class UserWallet {
     }
   };
 
-  setUserTestnetMigration = (wallet, testnetAddress) => {
-    this.store.wallets["migrationTestnet"] = wallet;
-    this.store.wallets["testnet"] = testnetAddress;
-  };
 
   setChildWallet = (wallet: ChildAccount) => {
     this.store.childAccount = wallet;
@@ -158,14 +138,6 @@ class UserWallet {
 
   checkCrescendo = () => {
     return this.store.wallets['crescendo'];
-  };
-
-  checkPreviewnet = () => {
-    return this.store.wallets['previewnet'];
-  };
-
-  checkTestnetMigration = () => {
-    return this.store.wallets['migrationTestnet'];
   };
 
   setNetwork = async (network: string) => {

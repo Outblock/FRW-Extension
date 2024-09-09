@@ -64,7 +64,6 @@ export interface CollectionItem {
     mainnet?: string;
     testnet?: string;
     crescendo?: string;
-    previewnet?: string;
   };
   contract_name?: string;
   banner?: string;

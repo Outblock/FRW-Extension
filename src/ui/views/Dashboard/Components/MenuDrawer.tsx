@@ -11,10 +11,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { makeStyles } from '@mui/styles';
 import { UserInfoResponse } from 'background/service/networkModel';
 import sideMore from '../../../FRWAssets/svg/sideMore.svg';
-import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
-import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
-import previewnetIndicator from '../../../FRWAssets/svg/previewnetArrow.svg';
-import networkLink from '../../../FRWAssets/svg/networkLink.svg';
+
 
 import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
 import NetworkList from './NetworkList';

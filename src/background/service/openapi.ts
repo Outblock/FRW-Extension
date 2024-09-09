@@ -1439,9 +1439,6 @@ class OpenApiService {
     if (childType === 'evm') {
       chainType = 'evm';
     }
-    if (network === 'migrationTestnet') {
-      network = 'testnet-migration';
-    }
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
     if (gitToken) {
       return gitToken;
@@ -1494,9 +1491,6 @@ class OpenApiService {
     let chainType = 'flow'
     if (childType === 'evm') {
       chainType = 'evm';
-    }
-    if (network === 'migrationTestnet') {
-      network = 'testnet-migration';
     }
     const gitToken = await storage.getExpiry(`GitNFTList${network}${chainType}`);
     if (gitToken && gitToken.length > 0) {
@@ -2137,7 +2131,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceList = async (address: string, network = 'previewnet', offset = 0, limit = 5) => {
+  getNFTCadenceList = async (address: string, network = 'mainnet', offset = 0, limit = 5) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/id?network=${network}&address=${address}`,
@@ -2148,7 +2142,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceCollection = async (address: string, network = 'previewnet', identifier, offset = 0, limit = 24) => {
+  getNFTCadenceCollection = async (address: string, network = 'mainnet', identifier, offset = 0, limit = 24) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
@@ -2159,7 +2153,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTV2CollectionList = async (address: string, network = 'previewnet',) => {
+  getNFTV2CollectionList = async (address: string, network = 'mainnet',) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collections?network=${network}&address=${address}`,
@@ -2294,22 +2288,6 @@ class OpenApiService {
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
-  };
-
-  checkMigrationNetwork = async (address) => {
-    try {
-      const response = await fetch(
-        `https://rest-migrationtestnet.onflow.org/v1/accounts/${address}`
-      );
-
-      if (!response.ok) {
-        return {};
-      }
-
-      return await response.json();
-    } catch (error) {
-      return {};
-    }
   };
 }
 

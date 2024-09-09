@@ -49,24 +49,6 @@ const fallbackContracts = {
     "0xEVM": "0x8c5303eaa26202d6",
     "0xFlowEVMBridge": "0xdfc20aee650fcbdf"
   },
-  "previewnet": {
-    "0xFlowEVMBridge": "0x634acef27f871527",
-    "0xFlowFees": "0xab086ce9cc29fc80",
-    "0xFlowIDTableStaking": "0xb6763b4399a888c8",
-    "0xFlowTableStaking": "0xb6763b4399a888c8",
-    "0xFlowToken": "0x4445e7ad11568276",
-    "0xFungibleToken": "0xa0225e7000ac82a9",
-    "0xHybridCustody": "0x294e44e1ec6993c6",
-    "0xLockedTokens": "0x95e019a17d0e23d7",
-    "0xMetadataViews": "0xb6763b4399a888c8",
-    "0xNonFungibleToken": "0xb6763b4399a888c8",
-    "0xStakingCollection": "0x95e019a17d0e23d7",
-    "0xFlowStakingCollection": "0x95e019a17d0e23d7",
-    "0xStakingProxy": "0x7aad92e5a0715d21",
-    "0xSwapError": "0xddb929038d45d4b3",
-    "0xSwapRouter": "0x2f8af5ed05bbde0d",
-    "0xEVM": "0xb6763b4399a888c8"
-  },
   "sandboxnet": {
     "0xDomains": "0x8998b29311d1f3da",
     "0xFlowFees": "0xe92c2039bbe9da96",
@@ -142,41 +124,6 @@ export const fclTestnetConfig = async () => {
   for (const key in testnetContracts) {
     if (Object.prototype.hasOwnProperty.call(testnetContracts, key)) {
       config.put(key, testnetContracts[key]);
-    }
-  }
-};
-
-// Configure FCL for Previewnet
-export const fclPreviewnetConfig = async () => {
-  const contracts = await fetchContracts();
-  const previewnetContracts = contracts.previewnet || fallbackContracts.previewnet;
-
-  const config = fcl.config()
-    .put('accessNode.api', 'https://rest-previewnet.onflow.org')
-    .put('sdk.transport', httpSend)
-    .put('flow.network', 'previewnet');
-
-  for (const key in previewnetContracts) {
-    if (Object.prototype.hasOwnProperty.call(previewnetContracts, key)) {
-      config.put(key, previewnetContracts[key]);
-    }
-  }
-};
-
-
-// Configure FCL for Migration Testnet
-export const fclTestnetMigrationConfig = async () => {
-  const contracts = await fetchContracts();
-  const migrationTestnetContracts = contracts.migrationTestnet || fallbackContracts.testnet;
-
-  const config = fcl.config()
-    .put('accessNode.api', 'https://rest-migrationtestnet.onflow.org')
-    .put('sdk.transport', httpSend)
-    .put('flow.network', 'migrationtestnet');
-
-  for (const key in migrationTestnetContracts) {
-    if (Object.prototype.hasOwnProperty.call(migrationTestnetContracts, key)) {
-      config.put(key, migrationTestnetContracts[key]);
     }
   }
 };
