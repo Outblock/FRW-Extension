@@ -33,9 +33,13 @@ class Proxy {
     const password = keyringService.password;
     const keyrings = await wallet.getKeyrings(password || '');
     for (const keyring of keyrings) {
-      console.log(keyring)
-      if (keyring.activeIndexes[0] === 1) {
-        return true;
+      console.log('checkProxy')
+      if (keyring.type === 'HD Key Tree') {
+        if (keyring.activeIndexes[0] === 1 ) {
+          console.log('checkProxy is true');
+          return true;
+
+        }
       } else {
         return false;
       }

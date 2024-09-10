@@ -425,7 +425,7 @@ const Detail = () => {
                   filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
                   backdropFilter: 'blur(6px)'
                 }}
-                onClick={() => evmEnabled ? setMoveOpen(true) : history.push({ pathname: '/dashboard/enable' })}
+                onClick={() => setMoveOpen(true)}
               >
                 {/* <IosShareOutlinedIcon color="primary" /> */}
                 <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />

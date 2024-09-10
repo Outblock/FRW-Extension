@@ -41,7 +41,6 @@ const NftEvm = () => {
 
   const requestCadenceNft = async () => {
     const nftList = await wallet.openapi.getAllNft();
-    console.log('nftList ', nftList)
     const activeChild = await wallet.getActiveWallet();
     if (activeChild === 'evm') {
       setIsEvm('evm')
@@ -140,27 +139,10 @@ const NftEvm = () => {
 
 
   const loadNFTs = async () => {
-    const isChild = await wallet.getActiveWallet();
-    let address = ''
-    if (isChild === 'evm') {
-      setChildType('evm')
-      address = await wallet.getEvmAddress();
-    } else {
-
-      address = await wallet.getCurrentAddress();
-    }
+    const mainAddress = await wallet.getMainAddress();
+    const address = await wallet.queryEvmAddress(mainAddress!);
     // const flowCoins = fetchRemoteConfig.flowCoins();
-
-    console.log('address ', address);
-    if (isChild) {
-      const nftResult = await wallet.checkAccessibleNft(address);
-      if (nftResult) {
-        setAccessible(nftResult);
-      }
-      setIsActive(false);
-    } else {
-      setIsActive(true);
-    }
+    setIsActive(false);
     // setAddress(address);
     setAddress(address);
   }

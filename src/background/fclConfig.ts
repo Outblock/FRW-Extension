@@ -26,7 +26,8 @@ const fallbackContracts = {
     "0xStakingProxy": "0x62430cf28c26d095",
     "0xSwapError": "0xb78ef7afa52ff906",
     "0xSwapRouter": "0xa6850776a94e6551",
-    "0xEVM": "0xe467b9dd11fa00df"
+    "0xEVM": "0xe467b9dd11fa00df",
+    "0xFlowEVMBridge": "0x1e4aa0b87d10b141"
   },
   "testnet": {
     "0xDomains": "0xb05b2abb42335e88",

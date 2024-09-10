@@ -108,14 +108,11 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     } else {
       setIsEvm(false)
     }
-
-    const network = props.currentNetwork;
-    console.log('network ', network)
     setEvmMode(true);
   };
 
   const getEvmAddress = async () => {
-    console.log('network ', props.evmLoading, props.evmAddress)
+    console.log('getEvmAddress ', props.evmLoading, props.evmAddress)
     if (isValidEthereumAddress(props.evmAddress)) {
       const result = await usewallet.getBalance(props.evmAddress);
       const readBalance = parseFloat(result) / 1e18
@@ -228,7 +225,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'scroll', paddingBottom: '16px' }}>
           {isValidEthereumAddress(props.evmAddress) && (
             <ListItem
-              sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px 0', cursor: 'pointer' }}
+              sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px 0 0', cursor: 'pointer' }}
               onClick={() => props.setWallets({
                 name: 'evm',
                 address: props.evmAddress,

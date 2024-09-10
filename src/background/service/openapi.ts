@@ -2120,10 +2120,10 @@ class OpenApiService {
     return data;
   };
 
-  getEvmNFT = async (address: string) => {
+  getEvmNFT = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/evm/${address}/nfts`,
+      `/api/evm/${address}/nfts?network=${network}`,
       {},
       {},
       WEB_NEXT_URL

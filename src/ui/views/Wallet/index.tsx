@@ -399,7 +399,7 @@ const WalletTab = ({ network }) => {
               {sendHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Send')}</Typography>}
             </Button>
 
-            {isActive && (
+            {/* {isActive && (
               <Button
                 color="info3"
                 variant="contained"
@@ -426,7 +426,7 @@ const WalletTab = ({ network }) => {
                 <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={swapIcon} />
                 {swapHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Swap')}</Typography>}
               </Button>
-            )}
+            )} */}
 
             <Button
               color="info3"

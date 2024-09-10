@@ -233,6 +233,7 @@ class UserWallet {
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
     //add proxy
     const isProxy = await proxyService.checkProxy();
+    console.log('isProxy ', isProxy)
     if (isProxy) {
       return await proxyService.proxySignRequest(cadence, args);
     } else {
