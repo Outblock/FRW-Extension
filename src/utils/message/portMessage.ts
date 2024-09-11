@@ -12,10 +12,8 @@ class PortMessage extends Message {
   }
 
   connect = (name?: string) => {
-    // console.log('PortMessage connect 2 ->', name)
     this.port = chrome.runtime.connect('', name ? { name } : undefined);
     this.port.onMessage.addListener(({ _type_, data }) => {
-      // console.log('PortMessage connect ->', _type_, data)
       if (_type_ === `${this._EVENT_PRE}message`) {
         this.emit('message', data);
         return;
@@ -34,7 +32,6 @@ class PortMessage extends Message {
     if (!this.port) return;
     this.listenCallback = listenCallback;
     this.port.onMessage.addListener(({ _type_, data }) => {
-      // console.log('PortMessage listen ->', _type_, data)
       if (_type_ === `${this._EVENT_PRE}request`) {
         this.onRequest(data);
       }
@@ -44,7 +41,6 @@ class PortMessage extends Message {
 
   send = (type, data) => {
     if (!this.port) return;
-    // console.log('PortMessage send', this.port, type, data, this._EVENT_PRE);
     try {
       this.port.postMessage({ _type_: `${this._EVENT_PRE}${type}`, data });
     } catch (e) {

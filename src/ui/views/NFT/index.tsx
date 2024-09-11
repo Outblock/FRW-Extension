@@ -42,8 +42,6 @@ const NFTTab = () => {
     const address = await wallet.getCurrentAddress();
     setAddress(address);
     // const flowCoins = fetchRemoteConfig.flowCoins();
-    // console.log(flowCoins);
-    // console.log('active check permission ', active)
     if (isChild) {
       setChildType(isChild);
       

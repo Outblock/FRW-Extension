@@ -75,7 +75,6 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
       if (firstWalletAddress) {
         setSelectedChildAccount(childResp[firstWalletAddress]);
       }
-      console.log('firstWalletAddress ', firstWalletAddress, userContact)
       setUser(userContact);
       setFirst(address!)
       setSecond(parentAddress!)

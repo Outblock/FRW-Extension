@@ -100,7 +100,6 @@ const MoveToChild = (props: MoveBoardProps) => {
     try {
       const address = await usewallet.getCurrentAddress();
       const cadenceResult = await fetchCollectionCache(address!);
-      console.log('cadenceResult ', cadenceResult)
       setSelected(cadenceResult![0].collection.id);
 
       const extractedObjects = cadenceResult!.map(obj => {

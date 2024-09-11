@@ -350,11 +350,8 @@ class KeyringService extends EventEmitter {
    * @returns {Promise<Keyring>} The new keyring.
    */
   addNewKeyring(type: string, opts?: unknown): Promise<any> {
-    console.log('keyring keyring ', type, opts)
     const Keyring = this.getKeyringClassForType(type);
-    console.log(Keyring)
     const keyring = new Keyring(opts);
-    console.log('keyring keyring ', keyring)
     return this.addKeyring(keyring);
   }
 
@@ -677,7 +674,6 @@ class KeyringService extends EventEmitter {
     }
     return Promise.all(
       this.keyrings.map((keyring) => {
-        console.log('keyring ', keyring)
         return Promise.all([keyring.type, keyring.serialize()]).then(
           (serializedKeyringArray) => {
             // Label the output values on each serialized Keyring:

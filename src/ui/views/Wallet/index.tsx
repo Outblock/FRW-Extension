@@ -67,7 +67,7 @@ const WalletTab = ({ network }) => {
   const [showMoveBoard, setMoveBoard] = useState(false);
   const [buyHover, setBuyHover] = useState(false);
   const [sendHover, setSendHover] = useState(false);
-  const [swapHover, setSwapHover] = useState(false);
+  const [canMoveChild, setCanMoveChild] = useState(false);
   const [receiveHover, setReceiveHover] = useState(false);
   const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
   const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
@@ -91,7 +91,6 @@ const WalletTab = ({ network }) => {
   const setUserAddress = async () => {
     let data = '';
     try {
-      console.log('setuserAddres ', childType)
       if (childType === 'evm') {
         data = await wallet.getEvmAddress();
       } else {
@@ -211,7 +210,6 @@ const WalletTab = ({ network }) => {
     // Handle all non-evm and non-active cases here
     try {
       const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-      console.log('refreshCoinList result', refreshedCoinlist);
       if (refreshedCoinlist.length === 0) {
         refreshWithRetry(expiry_time);
       } else {
@@ -231,12 +229,10 @@ const WalletTab = ({ network }) => {
 
 
   const handleStorageData = async (storageData) => {
-    console.log('storageData ', storageData)
     if (storageData) {
       const uniqueTokens = storageData.filter((token, index, self) =>
         index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
       );
-      console.log('uniqueTokens ', uniqueTokens)
       await setCoinData(uniqueTokens);
       let sum = 0;
       storageData
@@ -251,7 +247,6 @@ const WalletTab = ({ network }) => {
   const fetchChildState = async () => {
     setChildStateLoading(true)
     const isChild = await wallet.getActiveWallet();
-    console.log('isChild ', isChild)
     const childresp = await wallet.checkUserChildAccount();
     setChildAccount(childresp);
     setChildType(isChild);
@@ -301,6 +296,15 @@ const WalletTab = ({ network }) => {
   useEffect(() => {
     setUserAddress();
   }, [childType]);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const result = await wallet.checkCanMoveChild();
+      setCanMoveChild(result);
+    };
+
+    checkPermission();
+  }, []);
 
   return (
     <Box
@@ -391,7 +395,7 @@ const WalletTab = ({ network }) => {
                 minWidth: '56px',
                 width: sendHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
-                flex:'1',
+                flex: '1',
                 transition: 'width 0.3s ease-in-out'
               }}
             >
@@ -439,7 +443,7 @@ const WalletTab = ({ network }) => {
                 borderBottomRightRadius: isActive ? '0px' : '24px',
                 width: receiveHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
-                flex:  '1',
+                flex: '1',
                 transition: 'width 0.3s ease-in-out'
               }}
               onMouseEnter={() => setReceiveHover(true)}
@@ -475,23 +479,30 @@ const WalletTab = ({ network }) => {
               </Button>
             }
           </Box>
+          {canMoveChild
+            &&
 
-          <Box sx={{ flex: '1' }}>
-          </Box>
 
-          <Box>
-            <Button
-              color="info3"
-              variant="contained"
-              onClick={() => goMoveBoard()}
-              sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
-            >
-              <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
-              <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>
-                {chrome.i18n.getMessage('Move')}
-              </Typography>
-            </Button>
-          </Box>
+            <Box sx={{ flex: '1 1 5px' }}>
+            </Box>
+          }
+          {canMoveChild
+            &&
+
+            <Box>
+              <Button
+                color="info3"
+                variant="contained"
+                onClick={() => goMoveBoard()}
+                sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
+              >
+                <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
+                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>
+                  {chrome.i18n.getMessage('Move')}
+                </Typography>
+              </Button>
+            </Box>
+          }
 
         </Box>
         <Tabs

@@ -210,7 +210,6 @@ const Swap = () => {
       const token1Address = `A.${token1.address[network].slice(2)}.${token1.contract_name}`
       try {
         const result = await usewallet.openapi.swapEstimate(network,token0Address,token1Address,amount);
-        console.log(result)
         let price : any = result.data.tokenOutAmount / parseFloat(result.data.tokenInAmount);
         price = (Math.round(price * 1000) / 1000).toFixed(3)
         setPrice(price);

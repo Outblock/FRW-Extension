@@ -164,7 +164,6 @@ class UserWallet {
   };
 
   refreshEvm = () => {
-    console.log('refreshEvm ')
     this.store.evmWallet = {
       name: '',
       address: '',
@@ -232,22 +231,16 @@ class UserWallet {
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
     //add proxy
-    const isProxy = await proxyService.checkProxy();
-    console.log('isProxy ', isProxy)
-    if (isProxy) {
-      return await proxyService.proxySignRequest(cadence, args);
-    } else {
-      const allowed = await wallet.allowLilicoPay();
-      const txID = await fcl.mutate({
-        cadence: cadence,
-        args: (arg, t) => args,
-        proposer: this.authorizationFunction,
-        authorizations: [this.authorizationFunction],
-        payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
-        limit: 9999,
-      });
-      return txID;
-    }
+    const allowed = await wallet.allowLilicoPay();
+    const txID = await fcl.mutate({
+      cadence: cadence,
+      args: (arg, t) => args,
+      proposer: this.authorizationFunction,
+      authorizations: [this.authorizationFunction],
+      payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
+      limit: 9999,
+    });
+    return txID;
   };
 
   sign = async (signableMessage: string): Promise<string> => {
@@ -355,7 +348,6 @@ class UserWallet {
     const tx = signable.voucher;
     const message = signable.message;
     const envelope = await openapiService.signProposer(tx, message);
-    console.log('envelope ', envelope)
     const signature = envelope.envelopeSigs.sig;
     return signature;
   };
@@ -363,7 +355,6 @@ class UserWallet {
   proposerAuthFunction = async (account: any = {}) => {
     // authorization function need to return an account
     const proposer = await openapiService.getProposer();
-    console.log('proposer ', proposer);
     const address = fcl.withPrefix(proposer.data.address);
     const ADDRESS = fcl.withPrefix(address);
     // TODO: FIX THIS
@@ -376,7 +367,6 @@ class UserWallet {
       signingFunction: async (signable) => {
         // Singing functions are passed a signable and need to return a composite signature
         // signable.message is a hex string of what needs to be signed.
-        console.log('signable ', signable);
         const signature = await this.signProposer(signable);
         return {
           addr: fcl.withPrefix(ADDRESS), // needs to be the same as the account.addr but this time with a prefix, eventually they will both be with a prefix
@@ -389,7 +379,6 @@ class UserWallet {
 
 
   payerAuthFunction = async (account: any = {}) => {
-    console.log('payer ', account);
     // authorization function need to return an account
     const payer = await wallet.getPayerAddressAndKeyId();
     const address = fcl.withPrefix(payer.address);

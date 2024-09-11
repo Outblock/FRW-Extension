@@ -41,7 +41,6 @@ const ProxySync = () => {
   };
 
   const loadView = async () => {
-    // console.log(wallet);
     wallet.getCurrentAccount().then((res) => {
       if (res) {
         history.push('/');
@@ -97,7 +96,6 @@ const ProxySync = () => {
   };
 
   useEffect(() => {
-    console.log('wallet');
     loadView();
   }, []);
 

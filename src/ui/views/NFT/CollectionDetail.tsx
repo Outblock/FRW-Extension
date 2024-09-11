@@ -203,7 +203,7 @@ const CollectionDetail = (props) => {
     try {
       const res = await getCollection(address, collection_name);
       console.log('res   ', res)
-      setInfo(res.info);
+      setInfo(res.collection);
       setTotal(res.nftCount);
       setLists(res.nfts);
     } catch (err) {
@@ -248,7 +248,6 @@ const CollectionDetail = (props) => {
   }
 
   const getCollection = async (ownerAddress, collection, offset = 0) => {
-    console.log('collection_info ', collection_info)
     return await usewallet.getSingleCollection(ownerAddress, collection, offset);
   }
 
@@ -305,7 +304,7 @@ const CollectionDetail = (props) => {
               </Grid>
               <Grid item sx={{ ml: 0, pl: '18px' }}>
                 <Typography component="div" color="text.primary" variant="h6">
-                  {truncate(info?.collectionDisplay?.name || info.contractName, 16)}
+                  {truncate(info?.name || info.contract_name, 16)}
                 </Typography>
 
                 <Tooltip title={chrome.i18n.getMessage('Refresh')} arrow>

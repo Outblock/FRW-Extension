@@ -68,7 +68,6 @@ const NftEvm = () => {
   };
 
   const convertToNftCatalogModel = (data) => {
-    console.log('data', data);
 
     const convertedData = data.flatMap(item =>
       item.nfts.map(nft => {

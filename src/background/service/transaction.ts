@@ -100,7 +100,6 @@ class Transaction {
   }
 
   setPending = (txId: string, address:string, network, icon, title) => {
-    console.log('this.session.pendingItem ', this.session.pendingItem)
     const txList = this.session.pendingItem[network];
     const items = txList.filter(txItem => txItem.hash === txId)
     if (items.length > 0) {

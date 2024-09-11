@@ -128,7 +128,6 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, confirmPk, setUs
             const session = await approval()
             await onSessionConnected(session);
 
-            console.log('session ', session);
             sendRequest(wallet, session.topic);
 
             // onSessionConnect(session)
@@ -138,7 +137,6 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, confirmPk, setUs
           console.error(e)
         }
         await setWeb3Wallet(wallet);
-        console.log('web3wallet', web3wallet);
       } catch (e) {
         console.error(e);
       }

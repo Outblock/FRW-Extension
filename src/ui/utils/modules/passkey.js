@@ -66,11 +66,18 @@ const formPubKey = async (pubKey) => {
 const seed2PubKey = async (seed) => {
   const { HDWallet, Curve } = await initWasm();
 
-  const currentId = await storage.get('currentId') || 0;
-  const pathKey = `user${currentId}_path`;
-  const phraseKey = `user${currentId}_phrase`;
-  const path = await storage.get(pathKey) || FLOW_BIP44_PATH;
-  const passphrase = await storage.get(phraseKey) || '';
+  const currentId = (await storage.get('currentId')) ?? 0;
+  const accountIndex = (await storage.get('currentAccountIndex')) ?? 0;
+  const pathKeyIndex = `user${accountIndex}_path`;
+  const phraseKeyIndex = `user${accountIndex}_phrase`;
+  
+  
+  const pathKeyId = `user${currentId}_path`;
+  const phraseKeyId = `user${currentId}_phrase`;
+    
+  const path = (await storage.get(pathKeyId)) ?? (await storage.get(pathKeyIndex)) ?? FLOW_BIP44_PATH;
+  
+  const passphrase = (await storage.get(phraseKeyId)) ?? (await storage.get(phraseKeyIndex)) ?? '';
   // console.log('pathpathpath ', path)
   // console.log('pathKey ', pathKey)
   // console.log('phraseKey ', phraseKey)

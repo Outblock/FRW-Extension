@@ -43,7 +43,6 @@ const Googledrive = ({ setErrorMessage, setShowError }) => {
 
     try {
       const accounts = await wallets.loadBackupAccounts();
-      console.log('accounts ', accounts)
 
       localStorage.setItem('backupAccounts', JSON.stringify(accounts));
     

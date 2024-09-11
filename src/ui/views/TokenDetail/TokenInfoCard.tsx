@@ -20,6 +20,17 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   const [data, setData] = useState<TokenInfo | undefined>(undefined);
   const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
 
+  const [canMoveChild, setCanMoveChild] = useState(false);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const result = await wallet.checkCanMoveChild();
+      setCanMoveChild(result);
+    };
+    
+    checkPermission();
+  }, []);
+
   const toSend = async () => {
     await wallet.setCurrentCoin(token);
     history.push('/dashboard/wallet/send');
@@ -34,7 +45,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
     const timerId = setTimeout(async () => {
       if (!isMounted.current) return;  // Early exit if component is not mounted
       setData(tokenInfo!);
-
+      console.log('tokenInfo ', tokenInfo)
       setIsActive(true);
       setAccessible(true);
       if (isChild === 'evm') {
@@ -121,7 +132,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
               </Box>
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
-            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier )) &&
+            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow' ) && canMoveChild) &&
               <ButtonBase
                 onClick={() => moveToken()}
               >

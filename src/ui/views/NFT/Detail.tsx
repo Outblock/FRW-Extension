@@ -113,6 +113,17 @@ const Detail = () => {
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
   const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
+  const [canMoveChild, setCanMoveChild] = useState(false);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const result = await usewallet.checkCanMoveChild();
+      setCanMoveChild(result);
+    };
+
+    checkPermission();
+  }, []);
+
 
   useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
@@ -134,10 +145,8 @@ const Detail = () => {
     const userInfo = await usewallet.getUserInfo(false);
     const currentAddress = await usewallet.getCurrentAddress();
     const userWallets = await usewallet.getUserWallets();
-    console.log('userWallets ', userWallets);
     const parentAddress = userWallets[0].blockchain[0].address;
     const isChild = await usewallet.getActiveWallet();
-    console.log('currentAddress  ', isChild, currentAddress);
     const userTemplate = {
       avatar: userInfo.avatar,
       domain: {
@@ -150,7 +159,6 @@ const Detail = () => {
 
     if (isChild) {
       const wallet = childResp[currentAddress!];
-      console.log('checkUserChildAccount ', childResp)
       userOne = {
 
         avatar: wallet.thumbnail.url,
@@ -161,7 +169,6 @@ const Detail = () => {
         address: currentAddress,
         contact_name: wallet.name,
       };
-      console.log('checkUserChildAccount ', userOne)
       userTwo = {
         ...userTemplate,
         address: parentAddress,
@@ -183,7 +190,6 @@ const Detail = () => {
     setContactOne(userOne);
     setContactTwo(userTwo);
 
-    console.log('userInfo ', userInfo)
     setChildActive(isChild ? true : false);
 
 
@@ -398,26 +404,27 @@ const Detail = () => {
               {chrome.i18n.getMessage('Send')}
             </Button>
           }
-
-          <Button
-            sx={{
-              backgroundColor: '#FFFFFF33',
-              p: '12px',
-              color: '#fff',
-              borderRadius: '12px',
-              height: '42px',
-              marginLeft: '8px',
-              fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
-              filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
-              backdropFilter: 'blur(6px)'
-            }}
-            disabled={!isAccessibleNft}
-            onClick={() => setMoveOpen(true)}
-          >
-            {/* <IosShareOutlinedIcon color="primary" /> */}
-            <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
-            {chrome.i18n.getMessage('Move')}
-          </Button>
+          {canMoveChild &&
+            <Button
+              sx={{
+                backgroundColor: '#FFFFFF33',
+                p: '12px',
+                color: '#fff',
+                borderRadius: '12px',
+                height: '42px',
+                marginLeft: '8px',
+                fill: 'var(--Special-Color-White-2, rgba(255, 255, 255, 0.20))',
+                filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.24))',
+                backdropFilter: 'blur(6px)'
+              }}
+              disabled={!isAccessibleNft}
+              onClick={() => setMoveOpen(true)}
+            >
+              {/* <IosShareOutlinedIcon color="primary" /> */}
+              <CardMedia image={DetailMove} sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }} />
+              {chrome.i18n.getMessage('Move')}
+            </Button>
+          }
         </Box>
 
         {

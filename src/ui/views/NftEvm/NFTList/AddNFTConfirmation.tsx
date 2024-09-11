@@ -46,7 +46,6 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
       }
       props.handleAddBtnClicked();
     } catch (err) {
-      console.log('enableStorage-> 2222');
       console.log('err ->', err);
       setSending(false)
     }

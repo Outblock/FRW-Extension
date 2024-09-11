@@ -70,7 +70,6 @@ const GoogleImport = () => {
     const backupAccounts = localStorage.getItem('backupAccounts');
     if (backupAccounts) {
       const accountList = JSON.parse(backupAccounts);
-      console.log('accounts 111 ', accountList)
       setAccounts(accountList)
     } else {
       setAccounts(users)

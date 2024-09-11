@@ -212,7 +212,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
   const [helperText, setHelperText] = useState(<div />);
 
   const handleImport = async () => {
-    console.log('account key ', accounts)
     setLoading(true);
     if (accounts.length > 1) {
       setLoading(true);
@@ -225,7 +224,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
       }
       const result = await wallet.openapi.getLocation();
       const installationId = await wallet.openapi.getInstallationId();
-      // console.log('location ', userlocation);
       const userlocation = result.data
       const device_info = {
         'city': userlocation.city,

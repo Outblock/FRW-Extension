@@ -179,22 +179,8 @@ export class WalletController extends BaseController {
 
     // only password is correct then we store it
     await passwordService.setPassword(password);
-    const keyrings = await keyringService.getKeyring();
-    for (const keyring of keyrings) {
-      if (keyring.type === 'HD Key Tree') {
-        if (keyring.activeIndexes[0] === 1) {
-          await proxyService.proxyLoginRequest();
-        } else {
-          const pubKey = await this.getPubKey();
-          await userWalletService.switchLogin(pubKey);
-
-        }
-      } else {
-        const pubKey = await this.getPubKey();
-        await userWalletService.switchLogin(pubKey);
-
-      }
-    }
+    const pubKey = await this.getPubKey();
+    await userWalletService.switchLogin(pubKey);
 
     sessionService.broadcastEvent('unlock');
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
@@ -469,9 +455,7 @@ export class WalletController extends BaseController {
   getPubKey = async () => {
     let privateKey;
     let pubKTuple;
-    console.log('pubKTuple is this', pubKTuple);
     const keyrings = await keyringService.getKeyring();
-    console.log('keyrings is this', keyrings);
     for (const keyring of keyrings) {
       if (
         keyring.type === 'Simple Key Pair'
@@ -1096,6 +1080,7 @@ export class WalletController extends BaseController {
 
       let allBalanceMap;
       try {
+        console.log('fetch allBalanceMap ')
         allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
       } catch (error) {
         console.error('Error fetching token list balance:');
@@ -1520,7 +1505,6 @@ export class WalletController extends BaseController {
     const filteredData = v2data.data.wallets.filter(
       (item) => item.blockchain !== null
     );
-    console.log('v2data refreshed wallets ', filteredData)
 
     if (!active) {
       userInfoService.addUserId(v2data.data.id);
@@ -1532,7 +1516,6 @@ export class WalletController extends BaseController {
 
   getUserWallets = async () => {
     const network = await this.getNetwork();
-    console.log('network getUserWallets ', network)
     const wallets = await userWalletService.getUserWallets(network);
     if (!wallets[0]) {
       await this.refreshUserWallets();
@@ -1861,6 +1844,24 @@ export class WalletController extends BaseController {
     }
   };
 
+  checkCanMoveChild = async () => {
+    const mainAddress = await this.getMainAddress();
+    const isChild = await this.getActiveWallet();
+    if (!isChild) {
+      const evmAddress = await this.queryEvmAddress(mainAddress!);
+      const childResp = await this.checkUserChildAccount();
+      const isEmptyObject = (obj: any) => {
+        return Object.keys(obj).length === 0 && obj.constructor === Object;
+      };
+      if (evmAddress !== '' || !isEmptyObject(childResp)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
 
 
   sendEvmTransaction = async (to: string, gas, value, data) => {
@@ -1887,7 +1888,6 @@ export class WalletController extends BaseController {
       fcl.arg(gasLimit, t.UInt64),
     ]);
     const res = await fcl.tx(result).onceSealed();
-    console.log('res ', res)
     for (const event of res.events) {
       if (event.data.transactionHash) {
         return event.data.transactionHash;
@@ -2052,7 +2052,6 @@ export class WalletController extends BaseController {
     address: string,
     amount: string
   ): Promise<string> => {
-    console.log('inbox');
 
 
     const token = await openapiService.getTokenInfo(symbol);
@@ -2063,7 +2062,6 @@ export class WalletController extends BaseController {
     }
     const network = await this.getNetwork();
 
-    console.log('this is network ', network);
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
@@ -2360,7 +2358,6 @@ export class WalletController extends BaseController {
     parent: string,
     child: string,
   ) => {
-    console.log('parent is this ', parent, child)
 
     const script = await getScripts('hybridCustody', 'getChildAccountAllowTypes');
     const result = await fcl.query({

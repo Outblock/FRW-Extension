@@ -181,7 +181,6 @@ class Staking {
       script,
       [fcl.arg(node, t.String), fcl.arg(delegate, t.UInt32), fcl.arg(amount, t.UFix64),]
     );
-    console.log(result);
     return result;
   }
 

@@ -81,6 +81,8 @@ const Header = ({ loading }) => {
 
   const [isLoading, setLoading] = useState(loading);
 
+  const [mainAddressLoading, setMainLoading] = useState(true);
+
   const [evmLoading, setEvmLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const [userWallet, setWallet] = useState<any>(null);
@@ -132,7 +134,6 @@ const Header = ({ loading }) => {
   };
 
   const wallets = (data) => {
-    console.log('userwallet ', data, currentNetwork)
     let sortData = data;
     const walletName = domain ? domain : 'Wallet';
     if (!Array.isArray(sortData)) {
@@ -206,8 +207,10 @@ const Header = ({ loading }) => {
       const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
       evmWallet.address = evmAddress
       await setCurrent(evmWallet);
+      setMainLoading(false);
     } else {
       await setCurrent(currentWallet);
+      setMainLoading(false);
     }
 
     const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
@@ -301,6 +304,7 @@ const Header = ({ loading }) => {
     await usewallet.setActiveWallet(walletInfo, key);
     const currentWallet = await usewallet.getCurrentWallet();
     setCurrent(currentWallet);
+    setMainLoading(false);
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
     // TODO: replace it with better UX
@@ -790,7 +794,7 @@ const Header = ({ loading }) => {
           } */}
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
-        {!isLoading && props && props.address ? (
+        {!mainAddressLoading && props && props.address ? (
           <Tooltip title={chrome.i18n.getMessage('Copy__Address')} arrow>
             <Button
               onClick={() => {

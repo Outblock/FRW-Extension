@@ -103,7 +103,6 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
   const [media, setGetMediea] = useState<PostMedia | null>(null);
 
   const fecthMedia = async () => {
-    console.log('data ', data)
     setGetMediea(data.postMedia)
     if (accessible) {
       accessible.forEach(item => {
