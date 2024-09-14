@@ -307,14 +307,27 @@ class ProviderController extends BaseController {
       case '0x221': // 545 in decimal corresponds to testnet
         console.log('Switch to Testnet');
         if (network !== 'testnet') {
-          Wallet.switchNetwork('testnet');
+
+          await notificationService.requestApproval(
+            {
+              params: { origin, target: 'testnet' },
+              approvalComponent: 'EthSwitch',
+            },
+            { height: 599 }
+          );
         }
         return null;
 
       case '0x2eb': // 747 in decimal corresponds to mainnet
         console.log('Switch to Mainnet');
         if (network !== 'mainnet') {
-          Wallet.switchNetwork('mainnet');
+          await notificationService.requestApproval(
+            {
+              params: { origin, target: 'mainnet' },
+              approvalComponent: 'EthSwitch',
+            },
+            { height: 599 }
+          );
         }
         return null;
       default:

@@ -15,6 +15,7 @@ import MoveFromChild from './MoveFromChild';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import MoveFromEvm from '../EvmMove/MoveFromEvm';
 import MoveFromChildFT from '../EvmMove/MoveFromChild';
+import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { add } from 'lodash';
 
 
@@ -37,7 +38,7 @@ const MoveBoard = (props: MoveBoardProps) => {
   const [moveFtOpen, setMoveFt] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
   const [network, setNetwork] = useState<string>('');
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
 
   // console.log('props.loggedInAccounts', props.current)
 
@@ -155,6 +156,7 @@ const MoveBoard = (props: MoveBoardProps) => {
           </Box>
         </Box>
 
+
         <Box
           sx={{
             justifyContent: 'space-between',
@@ -213,7 +215,12 @@ const MoveBoard = (props: MoveBoardProps) => {
             },
           }}
           onClick={() => {
-            setMoveFt(true);
+            if (childType && childType !== 'evm') {
+              setAlertOpen(true)
+            } else {
+              setMoveFt(true);
+
+            }
           }}>
           <CardMedia component="img" sx={{ width: '140px', height: 'auto', display: 'inline', }} image={moveft} />
           <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600', textTransform: 'capitalize' }}>
@@ -221,6 +228,13 @@ const MoveBoard = (props: MoveBoardProps) => {
           </Typography>
         </Button>
       </Box>
+
+      {network === 'mainnet' && (
+        <LLComingSoon
+          alertOpen={alertOpen}
+          handleCloseIconClicked={() => setAlertOpen(false)}
+        />
+      )}
       {showSelectNft && renderMoveComponent()}
 
       {moveFtOpen && renderMoveFT()}

@@ -27,7 +27,7 @@ interface ConnectProps {
   // defaultChain: CHAINS_ENUM;
 }
 
-const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
+const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
   const { state } = useLocation<{
     showChainsModal?: boolean;
   }>();
@@ -59,6 +59,13 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   };
 
   const handleSwitchNetwork = async () => {
+    wallet.switchNetwork(target);
+
+    if (currentNetwork !== target) {
+      // TODO: replace it with better UX
+      setCurrent(target);
+      setMsgNetwork(target);
+    }
     resolveApproval({
       defaultChain: 'FLOW',
       signPermission: 'MAINNET_AND_TESTNET',
@@ -66,10 +73,11 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   }
 
   const checkNetwork = async () => {
+    console.log('target ', target)
 
     const network = await wallet.getNetwork();
     setCurrent(network);
-    if (msgNetwork !== network && msgNetwork) {
+    if (target !== network && target) {
       setShowSwitch(true);
     } else {
       setShowSwitch(false);
@@ -121,8 +129,8 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
             </Box>
             <img style={{ width: '116px' }} src={Link} />
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(currentNetwork), objectFit: 'cover' }} src={mainnetsvg} />
-              <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{currentNetwork}</Typography>
+              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(target), objectFit: 'cover' }} src={mainnetsvg} />
+              <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{target}</Typography>
             </Box>
 
           </Box>

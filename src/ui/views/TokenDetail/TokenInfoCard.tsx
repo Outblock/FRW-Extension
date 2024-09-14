@@ -11,7 +11,7 @@ import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 import { useHistory } from 'react-router-dom';
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
-const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, tokenInfo, network, childType, childAccount }) => {
+const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, tokenInfo, network, childType, childAccount, setAlertOpen }) => {
   const wallet = useWallet();
   const history = useHistory();
   const isMounted = useRef(true);
@@ -73,7 +73,9 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   };
 
   const moveToken = () => {
-    if (data) {
+    if (childType && childType !== 'evm') {
+      setAlertOpen(true)
+    } else if (data) {
       wallet.setCurrentCoin(data?.symbol);
       setMoveOpen(true)
     }
