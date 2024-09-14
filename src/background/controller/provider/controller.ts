@@ -18,7 +18,8 @@ import {
   recoverPersonalSignature,
 } from 'eth-sig-util';
 import { ethers } from "ethers";
-import { sha256, isHexString, ecsign, bufferToHex } from "ethereumjs-util";
+import { sha256, isHexString, ecsign, intToHex } from "ethereumjs-util";
+import BigNumber from 'bignumber.js';
 import RLP from 'rlp';
 import HDWallet from 'ethereum-hdwallet';
 import Web3 from 'web3';
@@ -117,9 +118,9 @@ async function signMessage(keyring, msgParams, opts = {}) {
   const signAlgo = await storage.get('signAlgo');
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(signableData, signAlgo, hashAlgo, privateKey);
-  const currentWallet = await Wallet.getCurrentWallet();
+  const currentWallet = await Wallet.getMainWallet();
 
-  const addressHex = currentWallet.address;
+  const addressHex = currentWallet;
   const addressBuffer = Buffer.from(addressHex.slice(2), 'hex');
   const addressArray = Uint8Array.from(addressBuffer);
 
@@ -139,7 +140,7 @@ class ProviderController extends BaseController {
 
     let currentWallet;
     try {
-      currentWallet = await Wallet.getCurrentWallet();
+      currentWallet = await Wallet.getMainWallet();
     } catch (error) {
       // If an error occurs, request approval
       console.error('Error querying EVM address:', error);
@@ -155,13 +156,11 @@ class ProviderController extends BaseController {
       return []
     }
 
-    // const currentWallet = await Wallet.getCurrentWallet();
-    // let res = await Wallet.queryEvmAddress(currentWallet.address);
 
     let res: string | null;
     try {
       // Attempt to query the EVM address
-      res = await Wallet.queryEvmAddress(currentWallet.address);
+      res = await Wallet.queryEvmAddress(currentWallet);
       console.log('Query successful:', res);
     } catch (error) {
       // If an error occurs, request approval
@@ -175,7 +174,7 @@ class ProviderController extends BaseController {
         { height: 599 }
       );
 
-      res = await Wallet.queryEvmAddress(currentWallet.address);
+      res = await Wallet.queryEvmAddress(currentWallet);
     }
 
     res = ensureEvmAddressPrefix(res);
@@ -232,7 +231,7 @@ class ProviderController extends BaseController {
     try {
 
       // Attempt to query the currentNetwork address
-      currentWallet = await Wallet.getCurrentWallet();
+      currentWallet = await Wallet.getMainWallet();
     } catch (error) {
       // If an error occurs, request approval
       console.error('Error querying EVM address:', error);
@@ -248,12 +247,10 @@ class ProviderController extends BaseController {
       return
     }
 
-    // const currentWallet = await Wallet.getCurrentWallet();
-    // const res = await Wallet.queryEvmAddress(currentWallet.address);
     let res: string | null;
     try {
       // Attempt to query the EVM address
-      res = await Wallet.queryEvmAddress(currentWallet.address);
+      res = await Wallet.queryEvmAddress(currentWallet);
       console.log('Query successful:', res);
     } catch (error) {
       // If an error occurs, request approval
@@ -267,7 +264,7 @@ class ProviderController extends BaseController {
         { height: 599 }
       );
 
-      res = await Wallet.queryEvmAddress(currentWallet.address);
+      res = await Wallet.queryEvmAddress(currentWallet);
     }
 
     const account = res ? [res.toLowerCase()] : [];
@@ -290,11 +287,20 @@ class ProviderController extends BaseController {
     return result;
   };
 
-  walletSwitchEthereumChain = async (data) => {
-    const chainId = data?.request?.data?.params[0]?.chainId;
-    console.log('data ', data);
-
+  walletSwitchEthereumChain = async ({
+    data: {
+      params: [chainParams],
+    },
+    session: { origin },
+  }) => {
+    let chainId = chainParams.chainId;
     const network = await Wallet.getNetwork();
+    if (typeof chainId === 'number') {
+      chainId = intToHex(chainId).toLowerCase();
+    } else {
+      chainId = `0x${new BigNumber(chainId).toString(16).toLowerCase()}`;
+    }
+
 
     switch (chainId) {
 
@@ -346,8 +352,9 @@ class ProviderController extends BaseController {
     const network = await Wallet.getNetwork();
     if (network === 'testnet') {
       return 545;
+    } else {
+      return 747;
     }
-    return 646;
   };
 }
 

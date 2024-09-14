@@ -113,7 +113,7 @@ const Detail = () => {
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
   const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
-  const [canMoveChild, setCanMoveChild] = useState(false);
+  const [canMoveChild, setCanMoveChild] = useState(true);
 
   useEffect(() => {
     const checkPermission = async () => {

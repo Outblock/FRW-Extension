@@ -20,14 +20,14 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   const [data, setData] = useState<TokenInfo | undefined>(undefined);
   const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
 
-  const [canMoveChild, setCanMoveChild] = useState(false);
+  const [canMoveChild, setCanMoveChild] = useState(true);
 
   useEffect(() => {
     const checkPermission = async () => {
       const result = await wallet.checkCanMoveChild();
       setCanMoveChild(result);
     };
-    
+
     checkPermission();
   }, []);
 
@@ -132,7 +132,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
               </Box>
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
-            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow' ) && canMoveChild) &&
+            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && canMoveChild) &&
               <ButtonBase
                 onClick={() => moveToken()}
               >
@@ -158,7 +158,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>${(balance * price).toFixed(3)} {chrome.i18n.getMessage('USD')}</Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
-            <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />
+            {(!childType || childType === 'evm') && <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />}
             <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={() => history.push('/dashboard/wallet/deposit')} label={chrome.i18n.getMessage('Deposit')} fullWidth />
           </Box>
         </>
