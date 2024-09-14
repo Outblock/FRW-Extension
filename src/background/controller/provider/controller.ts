@@ -231,7 +231,7 @@ class ProviderController extends BaseController {
     let currentWallet;
     try {
 
-      // Attempt to query the previewnet address
+      // Attempt to query the currentNetwork address
       currentWallet = await Wallet.getCurrentWallet();
     } catch (error) {
       // If an error occurs, request approval

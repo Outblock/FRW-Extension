@@ -110,7 +110,7 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
           <Divider />
           <Typography sx={{ textAlign: 'center', fontSize: '20px', color: '#E6E6E6' }} >Allow this site to switch  <br />the network?</Typography>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', marginTop: '18px' }}>
-            <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>This action will change your current network from <Typography sx={{ display: 'inline', color: '#E6E6E6' }}  > {currentNetwork}</Typography> to <Typography sx={{ display: 'inline', color: '#E6E6E6' }} > {'Previewnet'}</Typography>.</Typography>
+            <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>This action will change your current network from <Typography sx={{ display: 'inline', color: '#E6E6E6' }}  > {currentNetwork}</Typography> to <Typography sx={{ display: 'inline', color: '#E6E6E6' }} > {currentNetwork}</Typography>.</Typography>
           </Stack>
         </Box>
         <Stack direction="column" spacing="18px" sx={{ justifyContent: 'space-between', width: '100%' }}>
@@ -121,8 +121,8 @@ const EthSwitch = ({ params: { icon, origin, tabId } }: ConnectProps) => {
             </Box>
             <img style={{ width: '116px' }} src={Link} />
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor('previewnet'), objectFit: 'cover' }} src={mainnetsvg} />
-              <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{'Previewnet'}</Typography>
+              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(currentNetwork), objectFit: 'cover' }} src={mainnetsvg} />
+              <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{currentNetwork}</Typography>
             </Box>
 
           </Box>

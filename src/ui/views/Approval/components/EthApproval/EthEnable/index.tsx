@@ -89,7 +89,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', margin: '18px', gap: '8px' }}>
-            <Typography sx={{ textTransform: 'uppercase', fontSize: '18px' }} variant="body1" color="text.secondary">Previewnet is not enabled</Typography>
+            <Typography sx={{ textTransform: 'uppercase', fontSize: '18px' }} variant="body1" color="text.secondary">EVM is not enabled</Typography>
             <CardMedia component="img" sx={{ width: '196px', height: '196px' }} image={enableBg} />
             <Typography
               variant="subtitle1"
@@ -102,7 +102,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
               }}
               color="error"
             >
-              Previewnet not enabled, please go back to extension and enable it first.
+              EVM not enabled, please go back to extension and enable it first.
             </Typography>
           </Box>
 

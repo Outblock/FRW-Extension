@@ -58,18 +58,6 @@ const MoveBoard = (props: MoveBoardProps) => {
   }, [])
 
   const renderMoveComponent = () => {
-    if (network === 'previewnet') {
-      return (
-        <MoveNfts
-          showMoveBoard={showSelectNft}
-          handleCloseIconClicked={() => setSelectBoard(false)}
-          handleCancelBtnClicked={() => setSelectBoard(false)}
-          handleAddBtnClicked={() => setSelectBoard(false)}
-          handleReturnHome={() => props.handleCancelBtnClicked()}
-        />
-      );
-    }
-
     if (childType === 'evm') {
       return (
         <MoveEvm
