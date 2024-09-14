@@ -11,7 +11,7 @@ import { groupBy, isEmpty } from 'lodash';
 import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
 import { useHistory } from 'react-router-dom';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from '@/ui/utils/address';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import EmptyAddress from 'ui/assets/EmptyAddress.svg';
 
 type ChildAccount = {
@@ -56,7 +56,6 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
       };
     });
     const wdArray = await convertArrayToContactArray(walletData, emojiList)
-    console.log('walletData ', walletData, wallet)
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     if (childresp) {
       const cAccountArray = convertObjectToContactArray(childresp)
@@ -68,13 +67,18 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     // putDeviceInfo(fData);
     await setWalletList(wdArray);
     if (walletData[0].address) {
-      const evmWallet = await usewallet.queryEvmAddress(walletData[0].address);
-      const evmData = walletData[0]
-      evmData.address = evmWallet;
-      evmData['avatar'] = emojiList[1].emoji
-      evmData['contact_name'] = emojiList[1].name
-      evmData['bgcolor'] = emojiList[1].bgcolor
-      setEvmAddress([evmData]);
+      const evmAddress = await usewallet.queryEvmAddress(walletData[0].address!);
+
+      if (isValidEthereumAddress(evmAddress)) {
+
+        const evmWallet = evmAddress;
+        const evmData = walletData[0]
+        evmData.address = evmWallet;
+        evmData['avatar'] = emojiList[1].emoji
+        evmData['contact_name'] = emojiList[1].name
+        evmData['bgcolor'] = emojiList[1].bgcolor
+        setEvmAddress([evmData]);
+      }
 
     }
   }
@@ -165,18 +169,20 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
           </List>
         ))
       )}
-      <ListSubheader
-        sx={{
-          lineHeight: '18px',
-          marginTop: '0px',
-          marginBottom: '0px',
-          backgroundColor: '#000000',
-          textTransform: 'capitalize',
-          py: '4px',
-        }}
-      >
-        {chrome.i18n.getMessage('Linked_Account')}
-      </ListSubheader>
+      {(!isEmpty(evmAddress) || !isEmpty(childAccounts)) &&
+        <ListSubheader
+          sx={{
+            lineHeight: '18px',
+            marginTop: '0px',
+            marginBottom: '0px',
+            backgroundColor: '#000000',
+            textTransform: 'capitalize',
+            py: '4px',
+          }}
+        >
+          {chrome.i18n.getMessage('Linked_Account')}
+        </ListSubheader>
+      }
       {!isEmpty(evmAddress) && (
         evmAddress.map((eachgroup, index) => (
           <List

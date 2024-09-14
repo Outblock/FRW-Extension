@@ -50,7 +50,6 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
   const [logo, setLogo] = useState('')
   const [evmAddress, setEvmAddress] = useState('')
   const init = async () => {
-    wallet.switchNetwork('previewnet');
     setLogo(icon);
     const site = await wallet.getSite(origin);
     const collectList: { name: string; logo_url: string }[] = [];

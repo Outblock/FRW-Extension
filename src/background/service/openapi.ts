@@ -818,7 +818,6 @@ class OpenApiService {
   userWalletV2 = async () => {
     const config = this.store.config.user_wallet_v2;
     const data = await this.sendRequest(config.method, config.path);
-    console.log('data ', data)
     return data;
   };
 
@@ -1440,6 +1439,7 @@ class OpenApiService {
       chainType = 'evm';
     }
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    // const gitToken = null
     if (gitToken) {
       return gitToken;
     } else {
@@ -1463,8 +1463,7 @@ class OpenApiService {
       }
       const res = await response.json();
       const { tokens = {} } = res;
-      const hasFlowToken = tokens.some(token => token.symbol.toLowerCase().includes('flow'));
-
+      const hasFlowToken = tokens.some(token => token.symbol.toLowerCase() === 'flow');
       if (!hasFlowToken) {
         tokens.push({
           name: 'Flow',
@@ -1515,9 +1514,8 @@ class OpenApiService {
 
     const tokenList = await this.getTokenListFromGithub(network);
     let values;
-
+    const isChild = await userWalletService.getActiveWallet();
     try {
-      const isChild = await userWalletService.getActiveWallet();
       if (isChild && isChild !== 'evm') {
         values = await this.isLinkedAccountTokenListEnabled(address);
       } else if (!isChild) {
@@ -1530,13 +1528,16 @@ class OpenApiService {
 
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
-    tokenList.forEach((token) => {
-      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
-      // console.log(tokenMap,'tokenMap',values)
-      if (values[tokenId] == true) {
-        tokenMap[token.name] = token;
-      }
-    });
+    if (isChild !== 'evm') {
+      tokenList.forEach((token) => {
+        const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
+        // console.log(tokenMap,'tokenMap',values)
+        if (values[tokenId] == true) {
+          tokenMap[token.name] = token;
+        }
+      });
+
+    }
 
     // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))
     // return values

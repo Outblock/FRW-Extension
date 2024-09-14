@@ -228,14 +228,9 @@ class ProviderController extends BaseController {
       return [];
     }
 
-    const network = await Wallet.getNetwork();
-
     let currentWallet;
     try {
 
-      if (network !== 'previewnet' && network !== 'testnet') {
-        return;
-      }
       // Attempt to query the previewnet address
       currentWallet = await Wallet.getCurrentWallet();
     } catch (error) {
