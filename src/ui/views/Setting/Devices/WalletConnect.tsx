@@ -262,11 +262,9 @@ const WalletConnect = (props: RevokePageProps) => {
       const keyword = e.target.value;
       console.log('keyword', keyword);
       console.log('web3wallet ', web3wallet);
-
+      
       if (web3wallet) {
-
         web3wallet.on('session_proposal', onSessionProposal)
-
         web3wallet.on('session_request', onSessionRequest)
         const res = await web3wallet.pair({ uri: keyword })
 
@@ -274,7 +272,6 @@ const WalletConnect = (props: RevokePageProps) => {
         console.log('Web3Wallet is not initialized');
       }
     } catch (error) {
-
       console.log(error, 'wc connect error')
     }
 
