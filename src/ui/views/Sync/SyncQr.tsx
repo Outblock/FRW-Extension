@@ -97,11 +97,13 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
 
       try {
         const wallet = await SignClient.init({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore: Unreachable code error
           core: new Core({
             projectId: process.env.WC_PROJECTID,
           }),
           metadata: {
-            name: 'Flow Reference Walllet',
+            name: 'Flow Walllet',
             description: 'Digital wallet created for everyone.',
             url: 'https://fcw-link.lilico.app',
             icons: ['https://fcw-link.lilico.app/logo.png']
@@ -185,7 +187,6 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
 
 
   async function sendRequest(wallet: SignClient, topic: string) {
-    console.log(wallet)
     wallet.request({
       topic: topic,
       chainId: `flow:${currentNetwork}`,
@@ -194,13 +195,10 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
         params: [],
       },
     }).then(async (result: any) => {
-      console.log('result ', result);
       const jsonObject = JSON.parse(result);
-      console.log('jsonObject ', jsonObject);
       if (jsonObject.method === FCLWalletConnectMethod.accountInfo) {
         const accountKey: AccountKey = getAccountKey();
         const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
-        console.log('sent ->', accountKey)
 
         wallet.request({
           topic: topic,
@@ -265,7 +263,6 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
   const getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
     const result = await usewallet.openapi.getLocation();
     const installationId = await usewallet.openapi.getInstallationId();
-    // console.log('location ', userlocation);
     const userlocation = result.data
     const deviceInfo: DeviceInfoRequest = {
 
@@ -345,7 +342,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
               }}
             >
               {chrome.i18n.getMessage('Sync_')} <span style={{ display: 'inline-block', width: '353px' }}>
-                {chrome.i18n.getMessage('Flow_Core')}</span>
+                {chrome.i18n.getMessage('Lilico')}</span>
             </Typography>
 
             <Typography

@@ -9,7 +9,6 @@ const AllSet = ({ handleClick }) => {
 
   const removeTempPass = () => {
     storage.set('tempPassword', '');
-    
   };
 
   useEffect(() => {

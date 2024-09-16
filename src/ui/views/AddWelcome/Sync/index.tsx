@@ -8,7 +8,7 @@ import theme from '../../../style/LLTheme';
 import RegisterHeader from '../AddRegister/RegisterHeader';
 import AllSet from '../AddRegister/AllSet';
 import SetPassword from './SetPassword';
-import SyncQr from './SyncQr'
+import SyncQr from './SyncQr';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
@@ -32,6 +32,8 @@ const Sync = () => {
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
   const [loading, setLoading] = useState(false);
+  const [accountKey, setAccountKey] = useState<any>(null);
+  const [deviceInfo, setDeviceInfo] = useState<any>(null);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
@@ -80,9 +82,11 @@ const Sync = () => {
           savedUsername={username}
           confirmMnemonic={setMnemonic}
           setUsername={getUsername}
+          setAccountKey={setAccountKey}
+          setDeviceInfo={setDeviceInfo}
         />;
       case 1:
-        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
+        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} setUsername={getUsername} accountKey={accountKey} deviceInfo={deviceInfo} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:

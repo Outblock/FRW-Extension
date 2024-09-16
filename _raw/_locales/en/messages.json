@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Flow Reference Wallet",
+    "message": "Flow Wallet",
     "description": "Application Name"
   },
   "appDescription": {
@@ -61,6 +61,12 @@
   "Account": {
     "message": "Account"
   },
+  "Acc__list": {
+    "message": "Account List"
+  },
+  "Profile": {
+    "message": "Profile"
+  },
   "Wallet": {
     "message": "Wallet"
   },
@@ -77,7 +83,7 @@
     "message": "Anonymous"
   },
   "Other__Lilico__users__cannot__search__for__your__username": {
-    "message": "Other Flow Reference Wallet users cannot search for your username."
+    "message": "Other Flow Wallet users cannot search for your username."
   },
   "Private__Key": {
     "message": "Private Key"
@@ -197,7 +203,7 @@
     "message": "Previewnet"
   },
   "Transaction__Monitor": {
-    "message": "Transaction Monitor"
+    "message": "Block Explorer"
   },
   "Flowdiver": {
     "message": "Flowdiver"
@@ -227,7 +233,7 @@
     "message": "Do not share your private key!"
   },
   "If__someone__has__your__private__key": {
-    "message": "If someone has your private key, they will  <br/>have full access to your wallet. "
+    "message": "If someone has your private key, they will have full access to your wallet. "
   },
   "COPY": {
     "message": "COPY"
@@ -236,7 +242,7 @@
     "message": "Do not share your secret phrase!"
   },
   "If__someone__has__your__secret__phrase": {
-    "message": "If someone has your secret phrase, they will  <br/>have full control of your wallet."
+    "message": "If someone has your secret phrase, they will have full control of your wallet."
   },
   "Done": {
     "message": "Done"
@@ -245,7 +251,7 @@
     "message": "Are you sure you want to reset your wallet?"
   },
   "Removing__the__wallet__from__Lilico__does__not__remove__the__wallet__from__Flow__blockchain": {
-    "message": "Removing the wallet from Flow Reference Wallet does not remove the wallet from Flow blockchain. You can import your wallet again using your Recovery Phrase or Google Drive Backup."
+    "message": "Removing the wallet from Flow Wallet does not remove the wallet from Flow blockchain. You can import your wallet again using your Recovery Phrase or Google Drive Backup."
   },
   "Reset": {
     "message": "Reset"
@@ -269,7 +275,7 @@
     "message": "Security"
   },
   "Allow__lilico__to__pay__the__gas__fee": {
-    "message": "Allow Flow Reference Wallet to pay the gas fee for all my transactions."
+    "message": "Allow Flow Wallet to pay the gas fee for all my transactions."
   },
   "This__feature__has__been__disabled__temporarily": {
     "message": "This feature has been disabled temporarily"
@@ -344,7 +350,7 @@
     "message": "SCRIPT"
   },
   "lilico__covers__this__gas__fee__for__you": {
-    "message": "Flow Reference Wallet covers this gas fee for you "
+    "message": "Flow Wallet covers this gas fee for you "
   },
   "SIGN__MESSAGE": {
     "message": "SIGN MESSAGE"
@@ -371,7 +377,7 @@
     "message": "Choose Provider"
   },
   "Shown__your__QR__code__to__receive__transactions": {
-    "message": "Shown your QR code to receive funds on flow blockchain"
+    "message": "Scan the QR code to send assets to this account on Flow."
   },
   "Make__sure__you__are__using__the__correct__network": {
     "message": "Make sure you are using the correct network. Send only testnet assets to this deposit address."
@@ -524,7 +530,7 @@
     "message": "Launch My Wallet"
   },
   "Start__exploring__with__Lilico__now": {
-    "message": "Start exploring with Flow Reference Wallet now!"
+    "message": "Start exploring with Flow Wallet now!"
   },
   "all__set": {
     "message": "all set"
@@ -533,10 +539,10 @@
     "message": "You're"
   },
   "Flow_Core": {
-    "message": "Flow Reference Wallet"
+    "message": "Flow Wallet"
   },
   "Lilico": {
-    "message": "Flow Reference Wallet"
+    "message": "Flow Wallets"
   },
   "and__Pin": {
     "message": "and Pin"
@@ -569,7 +575,7 @@
     "message": "Pick Your "
   },
   "Your__username__will__be__used__to__send__and__receive": {
-    "message": "Your username will be used to send and receive tokens with your friends on Flow Reference Wallet."
+    "message": "Your username will be used to send and receive tokens with your friends on Flow Wallet."
   },
   "Okay__I__have__saved__it__properly": {
     "message": "Okay, I have saved it properly"
@@ -623,10 +629,10 @@
     "message": "Terms of Service"
   },
   "Lilico__uses__this__password__to__protect__your__recovery__phrase": {
-    "message": "Flow Reference Wallet uses this password to protect your recovery phrase."
+    "message": "Flow Wallet uses this password to protect your recovery phrase."
   },
   "I__agree__to__Lilico": {
-    "message": "I agree to Flow Reference Wallet's"
+    "message": "I agree to Flow Wallet's"
   },
   "Try__again": {
     "message": "Try again"
@@ -634,8 +640,11 @@
   "Welcome__Back": {
     "message": "Welcome Back, "
   },
+  "Welcome__Back__import": {
+    "message": "Welcome Back "
+  },
   "Use__the__same__Google__Drive__password": {
-    "message": "Use the same Google Drive password to secure Flow Reference Wallet"
+    "message": "Use the same Google Drive password to secure Flow Wallet"
   },
   "Please__enter__your__password__to__decrypt": {
     "message": "Please enter your password to decrypt your wallet backup."
@@ -662,13 +671,13 @@
     "message": "Review"
   },
   "Write__down__this__phrase__in__this__exact__order__and__keep__them__safe": {
-    "message": "Write down this phrase in this exact order and make sure to keep them somewhere safe!"
+    "message": "Write down your recovery phrase in its exact order and make sure to keep it somewhere safe"
   },
   "Please_select_the_word_one_by_one_refering_to_its_order": {
     "message": "Please select the word one by one refering to its order."
   },
   "Please__notice__that__If__you__lose__you__can__not__access": {
-    "message": "Please notice that If you lose recovery phrases, you can not access your account forever."
+    "message": "If you lose your recovery phrase, you will not be able to regain access to your account."
   },
   "Select_the_word_at": {
     "message": "Select the word at"
@@ -683,7 +692,7 @@
     "message": " all set"
   },
   "You_can_start_experiencing_Lilico_now": {
-    "message": "You can start experiencing Flow Reference Wallet now!"
+    "message": "You can start experiencing Flow Wallet now!"
   },
   "Back_up": {
     "message": "Back Up"
@@ -719,7 +728,7 @@
     "message": "I agree to the "
   },
   "of_Lilico_Wallet": {
-    "message": " of Flow Reference Wallet."
+    "message": " of Flow Wallet."
   },
   "Login": {
     "message": "Login"
@@ -818,7 +827,7 @@
     "message": "Cannot login"
   },
   "Welcome_to_lilico": {
-    "message": "Welcome to Flow Reference Wallet"
+    "message": "Welcome to Flow Wallet"
   },
   "Flow": {
     "message": "Flow"
@@ -1058,13 +1067,13 @@
     "message": "Private key is invalid"
   },
   "Open_your_Flow_Reference_on_Mobil": {
-    "message": "Open your Flow Reference Wallet on Mobile app and Scan the QR Code to Sync your Wallet."
+    "message": "Open your Flow Wallet mobile app and scan the QR code to sync your wallets. Syncing your Flow Wallets allows your Flow account to be used across your Flow Wallet apps."
   },
   "Sync_": {
     "message": "Sync"
   },
   "Note_Your_recovery_phrase_will_not": {
-    "message": "Note: Your recovery phrase will NEVER go through Flow Reference Wallet's server. It is end-to-end encrypted and we can never read it."
+    "message": "Note: Your recovery phrase will NEVER go through Flow Wallet's server. It is end-to-end encrypted and we can never read it."
   },
   "Scan_Successfully": {
     "message": "Scan Successfully"
@@ -1082,7 +1091,7 @@
     "message": "Import Wallets"
   },
   "Support_Flow_Wallet_Blocto": {
-    "message": "Support seed phrase, keystore and raw key"
+    "message": "From Seed Phrase, Keystore or Raw Key"
   },
   "A_crypto_wallet_on_Flow": {
     "message": "A crypto wallet on Flow built for"
@@ -1100,10 +1109,10 @@
     "message": "Private Key"
   },
   "You_can_import_the": {
-    "message": "You can import the json file from other wallet (eg. Blocto)"
+    "message": "Paste the JSON contents of the keystore from another wallet (eg: Blocto)"
   },
   "Enter_password_for_json_file": {
-    "message": "Enter password for json file"
+    "message": "Enter the password for the JSON file / keystore"
   },
   "Enter_your_flow_address": {
     "message": "Enter your flow address (Optional)"
@@ -1121,7 +1130,7 @@
     "message": "We can't find your address on flow with this key. Please check your input and try again."
   },
   "Add_account": {
-    "message": "Add Account"
+    "message": "Add Profile"
   },
   "Private__key_valid": {
     "message": "Privatekey is valid"
@@ -1139,13 +1148,13 @@
     "message": "Restore"
   },
   "Having_trouble": {
-    "message": "Having Trouble to Login?"
+    "message": "Having issues Logging in?"
   },
   "Reset_my_wallet": {
-    "message": "Reset My Wallet"
+    "message": "Reset Wallet"
   },
   "If_you_have_your_recovery_phrase": {
-    "message": "If you have your recovery phrase or private key, you can reset and restore your wallet."
+    "message": "If you have your recovery phrase or private key, you can reset and restore your account."
   },
   "Retrieve_local_sensitive_data": {
     "message": "Retrieve local sensitive data "
@@ -1194,5 +1203,116 @@
   },
   "Loading": {
     "message": "Loading..."
+  },
+  "Application": {
+    "message": "Application"
+  },
+  "IP_Address": {
+    "message": "IP Address"
+  },
+  "Location": {
+    "message": "Location"
+  },
+  "Date": {
+    "message": "Date"
+  },
+  "Link_Flow_Reference_Wallet_Mobile_by_Scanning": {
+    "message": "Link Flow Wallet Mobile by Scanning the QR code"
+  },
+  "Current_Sessions": {
+    "message": "Current Sessions"
+  },
+  "Active_Sessions": {
+    "message": "Active Sessions"
+  },
+  "Online": {
+    "message": "Online"
+  },
+  "Wallet_Confirmation": {
+    "message": "Wallet Confirmation"
+  },
+  "Sync_Mobile_Device": {
+    "message": "Sync Mobile Device"
+  },
+  "Link_Mobile_Device": {
+    "message": "Link Mobile Device"
+  },
+  "Desktop_Device": {
+    "message": "Desktop Device"
+  },
+  "Mobile_Device": {
+    "message": "Mobile Device"
+  },
+  "Scan_QR_code_to_active": {
+    "message": "Scan QR code to active your mobile device"
+  },
+  "lease_allow_the_camera_permission": {
+    "message": "lease allow the camera permission through the top right extension view web permissions setting."
+  },
+  "Allow": {
+    "message": "Allow"
+  },
+  "to_connect": {
+    "message": "to connect?"
+  },
+  "Devices": {
+    "message": "Devices"
+  },
+  "Move": {
+    "message": "Move"
+  },
+  "multi_vm": {
+    "message": "EVM Account"
+  },
+  "main_wallet": {
+    "message": "Main Account"
+  },
+  "edit_wallet": {
+    "message": "Edit Wallet"
+  },
+  "move_tokens": {
+    "message": "Move Tokens"
+  },
+  "move_assets": {
+    "message": "Move Assets"
+  },
+  "select_collection": {
+    "message": "Select Collection"
+  },
+  "select": {
+    "message": "Select"
+  },
+  "collection": {
+    "message": "Collection"
+  },
+  "Cannot_move_more": {
+    "message": "Cannot move more than 9 NFTs"
+  },
+  "manage_multi_assets_seamlessly": {
+    "message": "Manage multi-VM assets seamlessly."
+  },
+  "path_to_enable": {
+    "message": "Enable the path to "
+  },
+  "EVM_on_flow": {
+    "message": "EVM on Flow"
+  },
+  "enable_the_path_to_evm_on_flow": {
+    "message": "Enable the Path to EVM on Flow"
+  },
+  "Would_you_like_to_move": {
+    "message": "Would you like to move your assets to your "
+  },
+  "lowercaseaccount": {
+    "message": "account"
+  },
+  "balance": {
+    "message": "Balance"
+  },
+  "import_account" :{
+    "message": "Import Account"
+  },
+  "Import__Profile": {
+    "message": "Import Profile"
   }
 }

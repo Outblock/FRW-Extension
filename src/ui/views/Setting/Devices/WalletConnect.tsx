@@ -86,6 +86,8 @@ const WalletConnect = (props: RevokePageProps) => {
     const createWeb3Wallet = async () => {
       try {
         const wallet = await Web3Wallet.init({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore: Unreachable code error
           core: new Core({
             projectId: process.env.WC_PROJECTID,
           }),
@@ -96,7 +98,6 @@ const WalletConnect = (props: RevokePageProps) => {
             icons: ['https://fcw-link.lilico.app/logo.png']
           },
         });
-        console.log('web3walletadress', wallet);
         setWeb3Wallet(wallet);
       } catch (e) {
         console.error(e);
@@ -108,11 +109,13 @@ const WalletConnect = (props: RevokePageProps) => {
   async function onSessionProposal({ id, params }: Web3WalletTypes.SessionProposal) {
     console.log('params ', params)
     try {
+      const wallet = await usewallet.getUserWallets();
+      const address = wallet[0].blockchain[0].address;
       // ------- namespaces builder util ------------ //
       const namespaces = Object.entries(params.requiredNamespaces).map(([key, namespace]) => {
         const caip2Namespace = key;
         const proposalNamespace = namespace;
-        const accounts = proposalNamespace.chains?.map(chain => `${chain}:0x7e5d2312899dcf9f`) || [];
+        const accounts = proposalNamespace.chains?.map(chain => `${chain}:${address}`) || [];
         return {
           [caip2Namespace]: {
             chains: proposalNamespace.chains,
@@ -128,9 +131,7 @@ const WalletConnect = (props: RevokePageProps) => {
       // ------- end namespaces builder util ------------ //
       setNamespace(namespaces);
     } catch (error) {
-      console.log('error ', error)
     }
-    console.log(' id ', id)
     setProposer(params.proposer.metadata);
     setId(id);
     showApproveWindow();
@@ -261,11 +262,9 @@ const WalletConnect = (props: RevokePageProps) => {
       const keyword = e.target.value;
       console.log('keyword', keyword);
       console.log('web3wallet ', web3wallet);
-
+      
       if (web3wallet) {
-
         web3wallet.on('session_proposal', onSessionProposal)
-
         web3wallet.on('session_request', onSessionRequest)
         const res = await web3wallet.pair({ uri: keyword })
 
@@ -273,7 +272,6 @@ const WalletConnect = (props: RevokePageProps) => {
         console.log('Web3Wallet is not initialized');
       }
     } catch (error) {
-      
       console.log(error, 'wc connect error')
     }
 
@@ -334,17 +332,17 @@ const WalletConnect = (props: RevokePageProps) => {
         sx={{ margin: '20px 0' }}
         onClick={props.handleCloseIconClicked}
       >
-        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>Link Mobile Device</Typography>
+        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>{chrome.i18n.getMessage('Link_Mobile_Device')}</Typography>
       </Box>
       <Box sx={{ display: 'flex', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img style={{ height: '40px', width: '40px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={dicon} />
-          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>Desktop Device</Typography>
+          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>{chrome.i18n.getMessage('Desktop_Device')}</Typography>
         </Box>
         <img style={{ width: '108px', height: '8px', marginTop: '20px' }} src={licon} />
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img style={{ height: '40px', width: '40px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={micone} />
-          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>Mobile Device</Typography>
+          <Typography sx={{ fontSize: '14px', color: '#579AF2', fontWeight: '400', width: '100%', pt: '4px', textAlign: 'center' }}>{chrome.i18n.getMessage('Mobile_Device')}</Typography>
         </Box>
 
       </Box>
@@ -380,7 +378,7 @@ const WalletConnect = (props: RevokePageProps) => {
 
       </Box>
       <Typography color='error.main' sx={{ margin: '8px auto 60px', color: 'rgba(255, 255, 255, 0.40)', fontSize: '12px', fontWeight: 400, width: '250px' }}>
-        Scan QR code to active your mobile device
+        {chrome.i18n.getMessage('Scan_QR_code_to_active')}
       </Typography>
 
     </Box>
@@ -413,7 +411,7 @@ const WalletConnect = (props: RevokePageProps) => {
       <Box
         sx={{ margin: '20px 0' }}
       >
-        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>Wallet Confirmation</Typography>
+        <Typography sx={{ fontWeight: '700', fontSize: '18px' }}>{chrome.i18n.getMessage('Wallet_Confirmation')}</Typography>
       </Box>
       {proposer &&
 
@@ -428,7 +426,7 @@ const WalletConnect = (props: RevokePageProps) => {
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', margin: '0 18px 18px', gap: '18px' }}>
             <Divider />
-            <Typography sx={{ textAlign: 'center', fontWeight: '700', fontSize: '16px', color: '#E6E6E6' }} >Allow {proposer.name} to connect?</Typography>
+            <Typography sx={{ textAlign: 'center', fontWeight: '700', fontSize: '16px', color: '#E6E6E6' }} >{chrome.i18n.getMessage('Allow')} {proposer.name} {chrome.i18n.getMessage('to_connect')}</Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={proposer.icons} />
               <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>{proposer.description}</Typography>
@@ -442,7 +440,7 @@ const WalletConnect = (props: RevokePageProps) => {
               onClick={() => cancelProposal()}
             />
             <LLPrimaryButton
-              label={syncing ? 'Approving...' : 'Approve'}
+              label={syncing ? 'Approving...' : `${chrome.i18n.getMessage('Approve')}`}
               fullWidth
               type="submit"
               onClick={() => approveProposal()}

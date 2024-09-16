@@ -132,7 +132,6 @@ class Flowns {
     const messagePayload = sdk.encodeTransactionPayload(tx);
     const response = await openapiService.flownsTransaction(tx, messagePayload);
 
-    console.log('sendTransaction ->', response)
 
     return response.data;
   };

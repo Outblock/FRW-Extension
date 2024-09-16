@@ -193,7 +193,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
             }}
             variant="body2"
           >
-            Stake Flow
+            Stake FLOW
           </Typography>
         </Box>
 

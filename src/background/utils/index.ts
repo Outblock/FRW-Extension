@@ -3,6 +3,7 @@ import pageStateCache from '../service/pageStateCache';
 export { default as createPersistStore } from './persisitStore';
 export { default as createSessionStore } from './sessionStore';
 import { storage } from '@/background/webapi';
+import { version } from '@/../package.json';
 
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
@@ -94,11 +95,11 @@ export const isSameAddress = (a: string, b: string) => {
 export const getScripts = async (folder: string, scriptName: string) => {
   const { data } = await storage.get('cadenceScripts');
   const files = data[folder];
-
   const script = files[scriptName];
-  // console.log(script, 'script ============');
-
-  return Buffer.from(script, 'base64').toString('utf-8');
+  const scriptString = Buffer.from(script, 'base64').toString('utf-8');
+  const modifiedScriptString = scriptString
+    .replaceAll('<platform_info>', `Extension-${version}`);
+  return modifiedScriptString;
 };
 
 export const findKeyAndInfo = (keys, publicKey) => {

@@ -35,7 +35,6 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
     const tempArray = selectedPhrase;
     tempArray[i] = v;
     setSelect([...tempArray]);
-    console.log(selectedPhrase);
   };
 
   const checkMatch = () => {

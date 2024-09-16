@@ -98,7 +98,7 @@ const About = () => {
             component="div"
             sx={{ textAlign: 'center', fontWeight: 600, mt: '5px' }}
           >
-            Flow Reference Wallet
+            Flow Wallet
           </Typography>
         </a>
         <Typography
@@ -210,8 +210,8 @@ const About = () => {
           color="text.secondary"
         >
           {chrome.i18n.getMessage('Made__by')}
-          <a href="https://outblock.io" target="_blank">
-            Outblock
+          <a href="https://flow.com" target="_blank">
+            Flow Foundation
           </a>
           {chrome.i18n.getMessage('outblock__made')}
         </Typography>

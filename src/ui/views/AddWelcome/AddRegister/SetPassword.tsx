@@ -136,10 +136,8 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
   const wallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   const [password, setPassword] = useState(tempPassword);
-  const [confirmPassword, setConfirmPassword] = useState(tempPassword);
   const [isCheck, setCheck] = useState(false);
   const [isLoading, setLoading] = useState(false);
   // TODO: FIX ME
@@ -280,7 +278,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               className={classes.inputBox}
               fullWidth
               disableUnderline
-              
+              readOnly={!(password.length < 8)}
               onChange={(event) => {
                 setPassword(event.target.value);
               }}
@@ -302,41 +300,6 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
             <Presets.TransitionSlideUp
               style={{ marginBottom: '24px' }}>
               {password && helperText}
-            </Presets.TransitionSlideUp>
-            <Input
-              sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
-              id="pass2"
-              type={isConfirmPasswordVisible ? 'text' : 'password'}
-              name="password2"
-              placeholder={chrome.i18n.getMessage('Confirm__your__password')}
-              value={confirmPassword}
-              className={classes.inputBox2}
-              fullWidth
-              disableUnderline
-              
-              onChange={(event) => {
-                setPassword(event.target.value);
-              }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() =>
-                      setConfirmPasswordVisible(!isConfirmPasswordVisible)
-                    }
-                  >
-                    {isConfirmPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <Presets.TransitionSlideUp
-              style={{ height: '40px', display: 'flex' }}
-            >
-              {confirmPassword && helperMatch}
             </Presets.TransitionSlideUp>
           </FormGroup>
         </Box>

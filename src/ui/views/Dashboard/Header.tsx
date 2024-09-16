@@ -20,30 +20,26 @@ import {
   CircularProgress,
   CardMedia,
 } from '@mui/material';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
-import logo from '../../../../_raw/images/icon-128.png';
 import Tooltip from '@mui/material/Tooltip';
-import { useWallet } from 'ui/utils';
+import { useWallet, formatAddress } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
-import { withPrefix } from '@/ui/utils/address';
+import { withPrefix, ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { StyledEngineProvider } from '@mui/material/styles';
 import eventBus from '@/eventBus';
-import LLComingSoon from '../../FRWComponent/LLComingSoonWarning';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
-import sideMore from '../../FRWAssets/svg/sideMore.svg';
 import Popup from './Components/Popup';
+import MenuDrawer from './Components/MenuDrawer';
+import { profileHooks } from 'ui/utils/profileHooks'
+import { P } from 'ts-toolbelt/out/Object/_api';
+import { Network } from 'ethers';
 
 const useStyles = makeStyles(() => ({
   appBar: {
     zIndex: 1399,
-  },
-  menuDrawer: {
-    zIndex: '1400 !important',
   },
   paper: {
     background: '#282828',
@@ -64,17 +60,37 @@ type ChildAccount = {
   };
 };
 
+const tempEmoji = [
+  {
+    "emoji": "🥥",
+    "name": "Coconut",
+    "bgcolor": "#FFE4C4"
+  },
+  {
+    "emoji": "🥑",
+    "name": "Avocado",
+    "bgcolor": "#98FB98"
+  }
+];
+
 const Header = ({ loading }) => {
+
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
 
   const [isLoading, setLoading] = useState(loading);
+
+  const [mainAddressLoading, setMainLoading] = useState(true);
+
+  const [evmLoading, setEvmLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const [userWallet, setWallet] = useState<any>(null);
   const [currentWallet, setCurrentWallet] = useState(0);
   const [current, setCurrent] = useState({});
   const [currentNetwork, setNetwork] = useState('mainnet');
+  const [emojis, setEmojis] = useState(tempEmoji);
+
   const [isSandbox, setIsSandbox] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
   const [otherAccounts, setOtherAccounts] = useState<any>(null);
@@ -82,14 +98,15 @@ const Header = ({ loading }) => {
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [modeOn, setModeOn] = useState(false);
   // const [unread, setUnread] = useState(0);
-  const [alertOpen, setAlertOpen] = useState<boolean>(false);
-  const [domain, setDomain] = useState('');
 
+  const [domain, setDomain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
-  const [crescendoAvailable, setSandboxnetAvailable] = useState(true);
+  const [evmAddress, setEvmAddress] = useState('');
 
-  const [isSandboxEnabled, setSandboxEnabled] = useState(false);
+
+
+  const [flowBalance, setFlowBalance] = useState(0);
 
   const [modeAnonymous, setModeAnonymous] = useState(false);
 
@@ -117,8 +134,12 @@ const Header = ({ loading }) => {
   };
 
   const wallets = (data) => {
+    let sortData = data;
     const walletName = domain ? domain : 'Wallet';
-    const filteredData = (data || []).filter((wallet, index) => {
+    if (!Array.isArray(sortData)) {
+      sortData = [];
+    }
+    const filteredData = (sortData || []).filter((wallet, index) => {
       return wallet.chain_id == currentNetwork;
     });
     return (filteredData || []).map((wallet, index) => {
@@ -134,63 +155,84 @@ const Header = ({ loading }) => {
   const [walletList, setWalletList] = useState([]);
 
   const fetchUserWallet = async () => {
-    const wallet = await usewallet.getUserWallets();
-    await setWallet(wallet);
+
     const userInfo = await usewallet.getUserInfo(false);
-    // const domain = await usewallet.fetchUserDomain();
     await setUserInfo(userInfo);
-    // await setDomain(domain);
     if (userInfo.private == 1) {
       setModeAnonymous(false);
     } else {
       setModeAnonymous(true);
     }
-    // if (domain) {
-    //   loadInbox();
-    // }
-    // const crescendo = await usewallet.checkCrescendo();
-    // if (crescendo.length > 0) {
-    //   setSandboxEnabled(true);
-    // }
-    const previewnet = (await usewallet.checkPreviewnet()) || [];
-    if (previewnet.length > 0) {
-      setSandboxEnabled(true);
-    }
+
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    console.log('childresp :', childresp);
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
   };
 
   const freshUserWallet = async () => {
-    const wallet = await usewallet.refreshUserWallets();
+    const wallet = await usewallet.getUserWallets();
+    console.log('wallet -----> ', wallet)
     const fData = wallet.filter((item) => item.blockchain !== null);
+
     // putDeviceInfo(fData);
+    await setWallet(fData);
     if (initialStart) {
       await usewallet.openapi.putDeviceInfo(fData);
       setInitial(false);
     }
-    await setWallet(fData);
   };
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
-    await setCurrent(currentWallet);
+    const mainAddress = await usewallet.getMainAddress();
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
-    const {otherAccounts, wallet, loggedInAccounts} = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData)
+    const isChild = await usewallet.getActiveWallet();
+    if (mainAddress) {
+      try {
+        const res = await usewallet.queryEvmAddress(mainAddress);
+        setEvmAddress(res!);
+      } catch (err) {
+        console.log('queryEvmAddress err', err);
+      } finally {
+        setEvmLoading(false);
+      }
+    }
+
+    if (isChild === 'evm') {
+      const evmWallet = await usewallet.getEvmWallet();
+      const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
+      evmWallet.address = evmAddress
+      await setCurrent(evmWallet);
+      setMainLoading(false);
+    } else {
+      await setCurrent(currentWallet);
+      setMainLoading(false);
+    }
+
+    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
+    if (!isChild) {
+      setFlowBalance(keys.balance);
+    } else {
+      usewallet.getUserWallets().then((res) => {
+        const address = res[0].blockchain[0].address;
+        usewallet.getFlowBalance(address).then((balance) => {
+          setFlowBalance(balance);
+        });
+      });
+    }
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
+
     // usewallet.checkUserDomain(wallet.username);
   };
   const switchAccount = async (account) => {
     const switchingTo =
       process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-    console.log('switch account ', account);
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
     if (account.id) {
       await storage.set('currentId', account.id);
@@ -199,20 +241,17 @@ const Header = ({ loading }) => {
     }
     await usewallet.lockWallet();
     history.push('/switchunlock');
+    await usewallet.clearWallet();
     await usewallet.switchNetwork(switchingTo);
   };
 
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
     setIsSandbox(false);
-    // if (network === 'crescendo') {
-    //   setIsSandbox(true);
-    // }
-    if (network === 'previewnet') {
-      setIsSandbox(true);
-    }
-    setNetwork(network);
-  };
+
+    setEvmLoading(true);
+    await setNetwork(network);
+  }
 
   // const loadInbox = async () => {
 
@@ -265,9 +304,13 @@ const Header = ({ loading }) => {
     await usewallet.setActiveWallet(walletInfo, key);
     const currentWallet = await usewallet.getCurrentWallet();
     setCurrent(currentWallet);
+    setMainLoading(false);
     usewallet.clearNFTCollection();
+    usewallet.clearCoinList();
     // TODO: replace it with better UX
+    history.push('/dashboard')
     window.location.reload();
+
   };
 
   const transactionHanlder = (request) => {
@@ -317,8 +360,6 @@ const Header = ({ loading }) => {
         return '#FF8A00';
       case 'crescendo':
         return '#CCAF21';
-      case 'previewnet':
-        return '#CCAF21';
     }
   };
 
@@ -327,15 +368,24 @@ const Header = ({ loading }) => {
     await usewallet.checkNetwork();
   };
 
+  const fetchProfile = async () => {
+    const emojires = await usewallet.getEmoji();
+    setEmojis(emojires);
+  }
   useEffect(() => {
+    loadNetwork();
     fetchUserWallet();
     loadDeveloperMode();
-    loadNetwork();
     checkPendingTx();
     checkAuthStatus();
+    fetchProfile();
 
     const addressDone = () => {
       fetchUserWallet();
+    };
+
+    const changeEmoji = () => {
+      fetchProfile();
     };
 
     const networkChanged = (network) => {
@@ -347,10 +397,12 @@ const Header = ({ loading }) => {
      * Fired when a message is sent from either an extension process or a content script.
      */
     eventBus.addEventListener('addressDone', addressDone);
+    eventBus.addEventListener('profileChanged', changeEmoji);
     eventBus.addEventListener('switchNetwork', networkChanged);
     return () => {
       eventBus.removeEventListener('addressDone', addressDone);
       eventBus.removeEventListener('switchNetwork', networkChanged);
+      eventBus.removeEventListener('profileChanged', changeEmoji);
       chrome.runtime.onMessage.removeListener(transactionHanlder);
     };
   }, []);
@@ -369,8 +421,6 @@ const Header = ({ loading }) => {
     setTestnetAvailable(testnetAvailable);
     // const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
     // setSandboxnetAvailable(crescendoAvailable)
-    const previewAvailable = await usewallet.openapi.pingNetwork('previewnet');
-    setSandboxnetAvailable(previewAvailable);
   };
 
   useEffect(() => {
@@ -385,66 +435,75 @@ const Header = ({ loading }) => {
     toggleUsernameDrawer();
 
     // TODO: replace it with better UX
+    history.push('/dashboard')
     window.location.reload();
   };
+
 
   const WalletFunction = (props) => {
     return (
       <ListItem
-        disablePadding
         onClick={() => {
           setWallets(null, null);
         }}
-        sx={{ mb: 0, paddingX: '20px' }}
+        sx={{ mb: 0, paddingX: '0', cursor: 'pointer' }}
       >
+
         <ListItemButton
-          sx={{ mb: 0 }}
-          className={current['address'] === props.address ? classes.active : ''}
+          sx={{ mb: 0, display: 'flex', px: '16px', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <ListItemText
-            primary={
-              <Typography
-                variant="body1"
-                component="span"
-                fontWeight={'semi-bold'}
-                display="flex"
-                color={
-                  props.props_id == currentWallet
-                    ? 'text.title'
-                    : 'text.nonselect'
-                }
-              >
-                {props.name}
-                {props.address == current['address'] && (
-                  <ListItemIcon
-                    style={{ display: 'flex', alignItems: 'center' }}
-                  >
-                    <FiberManualRecordIcon
-                      style={{
-                        fontSize: '10px',
-                        color: '#40C900',
-                        marginLeft: '10px',
-                      }}
-                    />
-                  </ListItemIcon>
-                )}
+          {emojis &&
+            < Box sx={{
+              display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emojis[0]['bgcolor'], marginRight: '12px'
+            }}>
+              <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
+                {emojis[0].emoji}
               </Typography>
-            }
-            secondary={
-              <Typography
-                variant="body1"
-                component="span"
-                // display="inline"
-                color={'text.nonselect'}
-                sx={{ fontSize: '13px', textTransform: 'lowercase' }}
-              >
-                {/* <span>{'  '}</span> */}
-                {props.address}
-              </Typography>
-            }
-          />
+            </Box>
+          }
+          <Box sx={{ display: 'flex', flexDirection: 'column', background: 'none' }}>
+            <Typography
+              variant="body1"
+              component="span"
+              fontWeight={'semi-bold'}
+              sx={{ fontSize: '12px' }}
+              display="flex"
+              color={
+                props.props_id == currentWallet
+                  ? 'text.title'
+                  : 'text.nonselect'
+              }
+            >
+              {emojis[0].name}
+              {props.address == current['address'] && (
+                <ListItemIcon
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <FiberManualRecordIcon
+                    style={{
+                      fontSize: '10px',
+                      color: '#40C900',
+                      marginLeft: '10px',
+                    }}
+                  />
+                </ListItemIcon>
+              )}
+            </Typography>
+            <Typography
+              variant="body1"
+              component="span"
+              // display="inline"
+              color={'text.nonselect'}
+              sx={{ fontSize: '12px', textTransform: 'uppercase' }}
+            >
+              {/* <span>{'  '}</span> */}
+              {(flowBalance / 100000000).toFixed(3)} FLOW
+            </Typography>
+          </Box>
+          <Box sx={{ flex: "1" }}></Box>
+          {/* <IconEnd size={12} /> */}
         </ListItemButton>
-      </ListItem>
+      </ListItem >
     );
   };
 
@@ -654,53 +713,6 @@ const Header = ({ loading }) => {
             </ListItemButton>
           </ListItem>
           } */}
-          {isSandboxEnabled && (
-            <ListItem
-              disablePadding
-              key="previewnet"
-              secondaryAction={
-                !crescendoAvailable && (
-                  <ListItemText>
-                    <Typography
-                      variant="caption"
-                      component="span"
-                      display="inline"
-                      color="error.main"
-                    >
-                      {chrome.i18n.getMessage('Unavailable')}
-                    </Typography>
-                  </ListItemText>
-                )
-              }
-              onClick={() => {
-                switchNetwork('previewnet');
-              }}
-            >
-              <ListItemButton>
-                <ListItemIcon>
-                  <FiberManualRecordIcon
-                    style={{
-                      color: networkColor('previewnet'),
-                      fontSize: '10px',
-                      marginLeft: '10px',
-                      marginRight: '10px',
-                      opacity: currentNetwork == 'previewnet' ? '1' : '0.1',
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    display="inline"
-                    color="text"
-                  >
-                    {chrome.i18n.getMessage('Previewnet')}
-                  </Typography>
-                </ListItemText>
-              </ListItemButton>
-            </ListItem>
-          )}
         </List>
       </>
     );
@@ -727,296 +739,6 @@ const Header = ({ loading }) => {
       )
     );
   };
-
-  const menuDrawer = (
-    <Drawer
-      open={drawer}
-      onClose={toggleDrawer}
-      className={classes.menuDrawer}
-      classes={{ paper: classes.paper }}
-      PaperProps={{ sx: { width: '75%' } }}
-    >
-      <List
-        sx={{
-          backgroundColor: '#282828',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-        }}
-      >
-        <ListItem
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-          }}
-        >
-          {userInfo && (
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <ListItemIcon>
-                <img src={userInfo!.avatar} width="48px" />
-              </ListItemIcon>
-              <ListItemText primary={userInfo!.username} />
-            </Box>
-          )}
-          <Box sx={{ paddingTop: '4px', px: '2px' }}>
-            {otherAccounts &&
-              otherAccounts.map((account, index) => (
-                <IconButton
-                  key={index}
-                  edge="end"
-                  aria-label="account"
-                  onClick={() => switchAccount(account)}
-                >
-                  <img
-                    src={account.avatar}
-                    alt={`Avatar of ${account.username}`}
-                    style={{ display: 'inline-block', width: '20px' }}
-                  />
-                </IconButton>
-              ))}
-            <IconButton edge="end" aria-label="close" onClick={togglePop}>
-              <img
-                style={{ display: 'inline-block', width: '24px' }}
-                src={sideMore}
-              />
-            </IconButton>
-          </Box>
-        </ListItem>
-        <Box sx={{ px: '16px' }}>
-          <Divider
-            sx={{ my: '10px', mx: '0px' }}
-            variant="middle"
-            color="#4C4C4C"
-          />
-        </Box>
-        {walletList.length > 0 && walletList.map(createWalletList)}
-        {Object.keys(childAccounts).map((key) => (
-          <ListItem
-            key={key}
-            disablePadding
-            sx={{ mb: 0, paddingX: '20px' }}
-            onClick={() =>
-              setWallets(
-                {
-                  name: childAccounts[key]?.name ?? key,
-                  address: key,
-                  chain_id: currentNetwork,
-                  coins: ['flow'],
-                  id: 1,
-                },
-                key
-              )
-            }
-          >
-            <ListItemButton
-              className={current['address'] === key ? classes.active : ''}
-              sx={{ mb: 0 }}
-            >
-              <ListItemIcon>
-                <img
-                  style={{
-                    borderRadius: '24px',
-                    marginLeft: '28px',
-                    marginRight: '4px',
-                    height: '24px',
-                    width: '24px',
-                    objectFit: 'cover',
-                  }}
-                  src={
-                    childAccounts[key]?.thumbnail?.url ??
-                    'https://lilico.app/placeholder-2.0.png'
-                  }
-                  alt={
-                    childAccounts[key]?.name ??
-                    chrome.i18n.getMessage('Linked_Account')
-                  }
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    color="#E6E6E6"
-                    fontSize={'10px'}
-                  >
-                    {childAccounts[key]?.name ?? key}
-                  </Typography>
-                }
-              />
-              {current['address'] === key && (
-                <ListItemIcon>
-                  <FiberManualRecordIcon
-                    style={{
-                      fontSize: '10px',
-                      color: '#40C900',
-                      marginLeft: '10px',
-                    }}
-                  />
-                </ListItemIcon>
-              )}
-            </ListItemButton>
-          </ListItem>
-        ))}
-        <Box sx={{ px: '16px' }}>
-          <Divider
-            sx={{ my: '10px', mx: '0px' }}
-            variant="middle"
-            color="#4C4C4C"
-          />
-        </Box>
-        {/* <ListItem disablePadding>
-          <ListItemButton onClick={() => {
-            toggleDrawer();
-            toggleUnread();
-            goToInbox();
-          }}>
-            <ListItemIcon>
-              <InboxIcon style={{
-                marginLeft: '4px',
-              }} />
-            </ListItemIcon>
-            <ListItemText primary={domain ? chrome.i18n.getMessage('Inbox') : chrome.i18n.getMessage('Enable__Inbox')} />
-            {unread ?
-              <Box
-                sx={{
-                  width: '32px',
-                  color: '#fff',
-                  textAlign: 'center',
-                  background: '#41CC5D',
-                  borderRadius: '12px',
-                }}
-              >
-                {unread}
-              </Box>
-              :
-              <Box></Box>
-            }
-          </ListItemButton>
-        </ListItem> */}
-        {/* <ListItem disablePadding>
-          <ListItemButton onClick={() => setAlertOpen(true)}>
-            <ListItemIcon
-              sx={{
-                width: '24px',
-                minWidth: '24px',
-                marginRight: '12px',
-              }}
-            >
-              <AddIcon style={{
-                marginLeft: '4px',
-              }} />
-            </ListItemIcon>
-            <ListItemText primary={chrome.i18n.getMessage('Import__Wallet')} />
-          </ListItemButton>
-        </ListItem> */}
-        {/* <ListItem disablePadding>
-          <ListItemButton component="a" href="/">
-            <ListItemIcon>
-              <LoginIcon />
-            </ListItemIcon>
-            <ListItemText primary="Import wallet" />
-          </ListItemButton>
-        </ListItem> */}
-        <Box
-          sx={{
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: 'column',
-            display: 'flex',
-            paddingLeft: '16px',
-            marginTop: 'auto',
-            marginBottom: '30px',
-          }}
-        >
-          {loggedInAccounts && (
-            <ListItem
-              disablePadding
-              onClick={async () => {
-                await usewallet.lockAdd();
-                // history.push('/add');
-              }}
-            >
-              <ListItemButton
-                sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}
-              >
-                <ListItemIcon
-                  sx={{
-                    width: '24px',
-                    minWidth: '24px',
-                    height: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginRight: '12px',
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    sx={{ width: '24px', height: '24px' }}
-                    image={popAdd}
-                  />
-                </ListItemIcon>
-                <Typography
-                  variant="body1"
-                  component="div"
-                  display="inline"
-                  color="text"
-                  sx={{ fontSize: '12px' }}
-                >
-                  {chrome.i18n.getMessage('Add_account')}
-                </Typography>
-              </ListItemButton>
-            </ListItem>
-          )}
-          <ListItem
-            sx={{ marginTop: '16px' }}
-            disablePadding
-            onClick={async () => {
-              await usewallet.lockWallet();
-              history.push('/unlock');
-            }}
-          >
-            <ListItemButton
-              sx={{ padding: '8px', margin: '0', borderRadius: '5px' }}
-            >
-              <ListItemIcon
-                sx={{
-                  width: '24px',
-                  minWidth: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px',
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  sx={{ width: '24px', height: '24px' }}
-                  image={popLock}
-                />
-              </ListItemIcon>
-              <Typography
-                variant="body1"
-                component="div"
-                display="inline"
-                color="text"
-                sx={{ fontSize: '12px' }}
-              >
-                {chrome.i18n.getMessage('Lock__Wallet')}
-              </Typography>
-            </ListItemButton>
-          </ListItem>
-        </Box>
-      </List>
-      <LLComingSoon
-        alertOpen={alertOpen}
-        handleCloseIconClicked={() => setAlertOpen(false)}
-      />
-    </Drawer>
-  );
 
   const usernameSelect = () => {
     return (
@@ -1072,7 +794,7 @@ const Header = ({ loading }) => {
           } */}
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
-        {!isLoading && props ? (
+        {!mainAddressLoading && props && props.address ? (
           <Tooltip title={chrome.i18n.getMessage('Copy__Address')} arrow>
             <Button
               onClick={() => {
@@ -1094,12 +816,8 @@ const Header = ({ loading }) => {
                   {props.name === 'Flow' ? 'Wallet' : props.name}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ textTransform: 'lowercase' }}
-                  >
-                    {props.address}
+                  <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
+                    {formatAddress(props.address)}
                   </Typography>
                   <IconCopy fill="icon.navi" width="12px" />
                 </Box>
@@ -1145,8 +863,8 @@ const Header = ({ loading }) => {
                 sx={{
                   border: isPending
                     ? ''
-                    : currentNetwork == 'testnet'
-                      ? '2px solid #FF8A00'
+                    : currentNetwork !== 'mainnet'
+                      ? `2px solid ${networkColor(currentNetwork)}`
                       : isSandbox
                         ? '2px solid #CCAF21'
                         : '2px solid #282828',
@@ -1174,7 +892,27 @@ const Header = ({ loading }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          {menuDrawer}
+          {userInfo &&
+            <MenuDrawer
+              userInfo={userInfo!}
+              drawer={drawer}
+              toggleDrawer={toggleDrawer}
+              otherAccounts={otherAccounts}
+              switchAccount={switchAccount}
+              togglePop={togglePop}
+              walletList={walletList}
+              childAccounts={childAccounts}
+              current={current}
+              createWalletList={createWalletList}
+              setWallets={setWallets}
+              currentNetwork={currentNetwork}
+              evmAddress={evmAddress}
+              emojis={emojis}
+              networkColor={networkColor}
+              evmLoading={evmLoading}
+              modeOn={modeOn}
+            />
+          }
           {appBarLabel(current)}
           {usernameSelect()}
           {userInfo && (

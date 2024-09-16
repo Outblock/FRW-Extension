@@ -23,7 +23,7 @@ import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
 import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
 dayjs.extend(relativeTime);
 
-const TransferList = ({setCount}) => {
+const TransferList = ({ setCount }) => {
   const wallet = useWallet();
   const [isLoading, setLoading] = useState(true);
   const [transaction, setTx] = useState([]);
@@ -56,7 +56,7 @@ const TransferList = ({setCount}) => {
     }
   }
 
-  
+
   const extMessageHandler = (req) => {
     if (req.msg === 'transferListReceived') {
       fetchTransaction();
@@ -74,7 +74,7 @@ const TransferList = ({setCount}) => {
     }
   }, []);
 
-  const timeConverter = (timeStamp:number) => {
+  const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp)
     if (String(timeStamp).length > 10) {
       time = dayjs(timeStamp)
@@ -94,7 +94,10 @@ const TransferList = ({setCount}) => {
               variant="body1"
               sx={{ fontSize: 14, fontWeight: '500', textAlign: 'end', color: isReceive && isFT ? 'success.main' : 'text.primary' }}
             >
-              {props.type == 1 ? ( (isReceive ? '+' : '-') + `${props.amount}`) : `${props.token}`}
+              {props.type == 1 ?
+                ((isReceive ? '+' : '-') + `${props.amount}`.replace(/^-/, '')) :
+                `${props.token}`
+              }
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -106,7 +109,7 @@ const TransferList = ({setCount}) => {
               variant="body1"
               sx={{ fontSize: 12, fontWeight: '500', textAlign: 'end', color: props.error ? '#E54040' : '#BABABA' }}
             >
-              {props.error? chrome.i18n.getMessage('Error') : props.status}
+              {props.error ? chrome.i18n.getMessage('Error') : props.status}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -122,8 +125,8 @@ const TransferList = ({setCount}) => {
         disableTypography={true}
         primary={
           !isLoading ? (
-            <Box sx={{display: 'flex', gap: '3px'}}>
-              {props.txType === 1 ? <CallMadeRoundedIcon sx={{color: 'info.main', width: '18px'}}/> : <CallReceivedRoundedIcon sx={{color: 'info.main', width: '18px'}}/> }
+            <Box sx={{ display: 'flex', gap: '3px' }}>
+              {props.txType === 1 ? <CallMadeRoundedIcon sx={{ color: 'info.main', width: '18px' }} /> : <CallReceivedRoundedIcon sx={{ color: 'info.main', width: '18px' }} />}
               <Typography
                 variant="body1"
                 sx={{ fontSize: 14, fontWeight: '500', textAlign: 'start' }}
@@ -152,7 +155,7 @@ const TransferList = ({setCount}) => {
                   fontSize: 10,
                   fontWeight: '500',
                   textAlign: 'start',
-                  color:'#41CC5D'
+                  color: '#41CC5D'
                 }}
               >
                 {(props.txType === 1 && props.receiver) && ` To ${props.receiver}`}
@@ -170,14 +173,14 @@ const TransferList = ({setCount}) => {
   return (
     <ThemeProvider theme={theme}>
       {!isLoading
-        ? 
+        ?
         <Box>
-          {transaction.length?
+          {transaction && transaction.length ?
             <> {
-              (transaction || []).map((tx: any) => {
+              (transaction || []).map((tx: any, index) => {
                 return (
                   <ListItem
-                    key={tx.time}
+                    key={index}
                     secondaryAction={
                       <EndListItemText
                         status={tx.status}
@@ -190,18 +193,19 @@ const TransferList = ({setCount}) => {
                     }
                     disablePadding
                   >
-                    <ListItemButton sx={{paddingRight:'0px'}} dense={true} onClick={() => {
-                      {monitor === 'flowscan' ?
-                        window.open(`${flowscanURL}/tx/${tx.hash}`):
-                        window.open(`${viewSource}/${tx.hash}`)
+                    <ListItemButton sx={{ paddingRight: '0px' }} dense={true} onClick={() => {
+                      {
+                        monitor === 'flowscan' ?
+                          window.open(`${flowscanURL}/tx/${tx.hash}`) :
+                          window.open(`${viewSource}/${tx.hash}`)
                       }
                     }}>
-                      <ListItemIcon sx={{borderRadius: '20px', marginRight: '12px', minWidth: '20px'}}>
+                      <ListItemIcon sx={{ borderRadius: '20px', marginRight: '12px', minWidth: '20px' }}>
                         {/* <MultipleStopIcon
                         fontSize="medium"
                         sx={{ color: '#fff', cursor: 'pointer', border: '1px solid', borderRadius: '35px' }}
                       /> */}
-                        <CardMedia sx={{ width:'30px', height:'30px', borderRadius: '15px'}} image={tx.image} />
+                        <CardMedia sx={{ width: '30px', height: '30px', borderRadius: '15px' }} image={tx.image} />
                       </ListItemIcon>
                       <StartListItemText
                         time={tx.time}
@@ -218,15 +222,15 @@ const TransferList = ({setCount}) => {
                 );
               })}
             {showButton &&
-            <Box sx={{width: '100%', my: '8px', display: 'flex', justifyContent: 'center'}}>
-              <Button variant="text" 
-                endIcon={<ChevronRightRoundedIcon />} 
-                onClick={() =>{ window.open(`${flowscanURL}/account/${address}`, '_blank')}}
-              >
-                <Typography variant="overline" color="text.secondary">
-                  {chrome.i18n.getMessage('View_more_transactions')}</Typography>
-              </Button>
-            </Box>
+                <Box sx={{ width: '100%', my: '8px', display: 'flex', justifyContent: 'center' }}>
+                  <Button variant="text"
+                    endIcon={<ChevronRightRoundedIcon />}
+                    onClick={() => { window.open(`${flowscanURL}/account/${address}`, '_blank') }}
+                  >
+                    <Typography variant="overline" color="text.secondary">
+                      {chrome.i18n.getMessage('View_more_transactions')}</Typography>
+                  </Button>
+                </Box>
             }
             </>
             :
@@ -235,13 +239,13 @@ const TransferList = ({setCount}) => {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                height:'100%',
-                backgroundColor:'#000',
+                height: '100%',
+                backgroundColor: '#000',
               }}>
-              <CardMedia sx={{ width:'100px', height:'102px', margin:'50px auto 0', }} image={activity} />
+              <CardMedia sx={{ width: '100px', height: '102px', margin: '50px auto 0', }} image={activity} />
               <Typography
                 variant="overline"
-                sx={{ lineHeight: '1', textAlign: 'center', color:'#5E5E5E', marginTop:'5px', fontSize:'16px' }}
+                sx={{ lineHeight: '1', textAlign: 'center', color: '#5E5E5E', marginTop: '5px', fontSize: '16px' }}
               >
                 {chrome.i18n.getMessage('No__Activity')}
               </Typography>

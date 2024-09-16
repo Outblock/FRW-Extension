@@ -5,6 +5,7 @@ import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
+import KeyPathInput from '../../../../FRWComponent/KeyPathInputs';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -41,17 +42,15 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
       setmnemonic(seed);
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[2].value;
-
-      console.log('inputValue ', inputValue)
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
 
-      console.log('address ', address)
-      const result = await findAddressWithSeed(seed, address)
+      const result = await findAddressWithSeed(seed, address, true)
       if (!result) {
         onOpen();
         return;
       }
-      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }))
+      
+      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }));
       onImport(accounts);
     } finally {
       setLoading(false);
@@ -74,7 +73,7 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
 
         />
 
-
+        <KeyPathInput />
         <Button
           className="registerButton"
           variant="contained"
@@ -88,7 +87,8 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex'
+            display: 'flex',
+            marginTop:'40px',
           }}
           disabled={isLoading || isSignLoading}
 

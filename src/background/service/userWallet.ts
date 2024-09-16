@@ -2,7 +2,7 @@ import { createPersistStore } from 'background/utils';
 import { WalletResponse, BlockchainResponse, ChildAccount, DeviceInfoRequest } from './networkModel';
 import * as fcl from '@onflow/fcl';
 import * as secp from '@noble/secp256k1';
-import { keyringService, openapiService } from 'background/service';
+import { keyringService, openapiService, proxyService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
@@ -12,19 +12,23 @@ import { getAuth, signInAnonymously } from '@firebase/auth';
 import { storage } from '../webapi';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 
+
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
   currentWallet: BlockchainResponse;
+  evmWallet: BlockchainResponse;
   childAccount: ChildAccount;
   network: string;
   monitor: string;
   activeChild: any;
+  evmEnabled: boolean;
 }
 
 class UserWallet {
   store!: UserWalletStore;
 
   init = async () => {
+
     this.store = await createPersistStore<UserWalletStore>({
       name: 'userWallets',
       template: {
@@ -32,17 +36,26 @@ class UserWallet {
           mainnet: [],
           testnet: [],
           crescendo: [],
-          previewnet: [],
         },
         childAccount: {},
         currentWallet: {
           name: '',
+          icon: '',
+          address: '',
+          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          id: 1,
+          coins: ['flow'],
+        },
+        evmWallet: {
+          name: '',
+          icon: '',
           address: '',
           chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
           id: 1,
           coins: ['flow'],
         },
         activeChild: null,
+        evmEnabled: false,
         monitor: 'flowscan',
         network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
       },
@@ -55,33 +68,46 @@ class UserWallet {
         mainnet: [],
         testnet: [],
         crescendo: [],
-        previewnet: [],
       },
       childAccount: {},
       currentWallet: {
         name: '',
         address: '',
+        icon: '',
+        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        id: 1,
+        coins: ['flow'],
+      },
+      evmWallet: {
+        name: '',
+        address: '',
+        icon: '',
         chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
         id: 1,
         coins: ['flow'],
       },
       activeChild: null,
+      evmEnabled: false,
       monitor: 'flowscan',
       network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
     };
   };
 
-  setUserWallets = async (filteredData: Array<WalletResponse>, network: string) => {
-    for (const x in filteredData) {
-      const chainid = filteredData[x].chain_id;
-      const singleWallet = filteredData[x];
-      this.store.wallets[chainid] = [singleWallet];
+  setUserWallets = async (filteredData, network) => {
+
+    for (const wallet of filteredData) {
+      const chainId = wallet.chain_id;
+      this.store.wallets[chainId] = [wallet];
     }
 
-    console.log('this.store.wallets data:', this.store.wallets);
-    const current = this.store.wallets[network][0].blockchain[0];
-    this.store.currentWallet = current;
+    if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
+      const current = this.store.wallets[network][0].blockchain[0];
+      this.store.currentWallet = current;
+    } else {
+      console.error(`No wallet found for network: ${network}`);
+    }
   };
+
 
   setChildWallet = (wallet: ChildAccount) => {
     this.store.childAccount = wallet;
@@ -96,8 +122,10 @@ class UserWallet {
   };
 
   setCurrentWallet = (wallet: any, key: any, network: string) => {
-    if (key) {
+    if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
+    } else if (key === 'evm') {
+      this.store.evmWallet.address = wallet.address;
     } else {
       const current = this.store.wallets[network][0].blockchain[0];
       this.store.currentWallet = current;
@@ -110,10 +138,6 @@ class UserWallet {
 
   checkCrescendo = () => {
     return this.store.wallets['crescendo'];
-  };
-
-  checkPreviewnet = () => {
-    return this.store.wallets['previewnet'];
   };
 
   setNetwork = async (network: string) => {
@@ -130,6 +154,26 @@ class UserWallet {
   setMonitor = (monitor: string) => {
     this.store.monitor = monitor;
   };
+
+  setEvmEnabled = (status: boolean) => {
+    this.store.evmEnabled = status;
+  };
+
+  getEvmEnabled = () => {
+    return this.store.evmEnabled;
+  };
+
+  refreshEvm = () => {
+    this.store.evmWallet = {
+      name: '',
+      address: '',
+      icon: '',
+      chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      id: 1,
+      coins: ['flow'],
+    }
+    this.store.evmEnabled = false
+  }
 
   getNetwork = async (): Promise<string> => {
     if (!this.store) {
@@ -164,6 +208,18 @@ class UserWallet {
     return this.store.currentWallet;
   };
 
+  getEvmWallet = () => {
+    return this.store.evmWallet;
+  };
+
+  setEvmAddress = (address: string,) => {
+    if (address.length > 20) {
+      this.store.evmWallet.address = address;
+    } else {
+      this.store.evmWallet.address = ''
+    }
+  };
+
   getMainWallet = (network: string) => {
     const wallet = this.store.wallets[network][0].blockchain[0];
     return withPrefix(wallet.address) || '';
@@ -174,7 +230,7 @@ class UserWallet {
   };
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
-
+    //add proxy
     const allowed = await wallet.allowLilicoPay();
     const txID = await fcl.mutate({
       cadence: cadence,
@@ -227,7 +283,6 @@ class UserWallet {
       signInAnonymously(auth);
       return;
     }
-    console.log('404 idtoken ', idToken);
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(
@@ -260,7 +315,7 @@ class UserWallet {
 
   authorizationFunction = async (account: any = {}) => {
     // authorization function need to return an account
-    const address = fcl.withPrefix(await wallet.getCurrentAddress());
+    const address = fcl.withPrefix(await wallet.getMainAddress());
     const ADDRESS = fcl.withPrefix(address);
     // TODO: FIX THIS
     const KEY_ID = await storage.get('keyIndex') || 0;
@@ -282,17 +337,48 @@ class UserWallet {
   };
 
   signPayer = async (signable: any): Promise<string> => {
-    console.log('signable ->', signable);
     const tx = signable.voucher;
     const message = signable.message;
     const envelope = await openapiService.signPayer(tx, message);
-    console.log('signPayer ->', envelope);
     const signature = envelope.envelopeSigs.sig;
     return signature;
   };
 
+  signProposer = async (signable: any): Promise<string> => {
+    const tx = signable.voucher;
+    const message = signable.message;
+    const envelope = await openapiService.signProposer(tx, message);
+    const signature = envelope.envelopeSigs.sig;
+    return signature;
+  };
+
+  proposerAuthFunction = async (account: any = {}) => {
+    // authorization function need to return an account
+    const proposer = await openapiService.getProposer();
+    const address = fcl.withPrefix(proposer.data.address);
+    const ADDRESS = fcl.withPrefix(address);
+    // TODO: FIX THIS
+    const KEY_ID = proposer.data.keyIndex;
+    return {
+      ...account, // bunch of defaults in here, we want to overload some of them though
+      tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
+      addr: fcl.sansPrefix(ADDRESS), // the address of the signatory, currently it needs to be without a prefix right now
+      keyId: Number(KEY_ID), // this is the keyId for the accounts registered key that will be used to sign, make extra sure this is a number and not a string
+      signingFunction: async (signable) => {
+        // Singing functions are passed a signable and need to return a composite signature
+        // signable.message is a hex string of what needs to be signed.
+        const signature = await this.signProposer(signable);
+        return {
+          addr: fcl.withPrefix(ADDRESS), // needs to be the same as the account.addr but this time with a prefix, eventually they will both be with a prefix
+          keyId: Number(KEY_ID), // needs to be the same as account.keyId, once again make sure its a number and not a string
+          signature: signature, // this needs to be a hex string of the signature, where signable.message is the hex value that needs to be signed
+        };
+      },
+    };
+  };
+
+
   payerAuthFunction = async (account: any = {}) => {
-    console.log('payer ', account);
     // authorization function need to return an account
     const payer = await wallet.getPayerAddressAndKeyId();
     const address = fcl.withPrefix(payer.address);
@@ -317,8 +403,8 @@ class UserWallet {
     };
   };
 
-  signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
-    const result = await findAddressWithSeed(mnemonic, '');
+  signInWithMnemonic = async (mnemonic: string, replaceUser = true, isTemp = true) => {
+    const result = await findAddressWithSeed(mnemonic, '', isTemp);
     if (!result) {
       throw new Error('No Address Found');
     }

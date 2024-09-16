@@ -4,7 +4,7 @@ import {
 } from 'consts';
 import { Account } from 'background/service/preference';
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => {};
+export const noop = () => { };
 
 export * from './WalletContext';
 export * from './WindowContext';
@@ -53,6 +53,33 @@ export const hex2Text = (hex: string) => {
     return hex;
   }
 };
+
+export const isEmoji = (char) => {
+  // Regular expression to match most emojis
+  const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
+  return emojiRegex.test(char);
+};
+
+
+export const hexToUint8Array = (hexString: string) => {
+  if (hexString.startsWith('0x')) {
+    hexString = hexString.substring(2);
+  }
+
+  if (hexString.length % 2 !== 0) {
+    hexString = '0' + hexString; // Pad with zero if odd
+  }
+
+  const arrayLength = hexString.length / 2;
+  const uint8Array = new Uint8Array(arrayLength);
+
+  for (let i = 0; i < arrayLength; i++) {
+    const byte = hexString.substr(i * 2, 2);
+    uint8Array[i] = parseInt(byte, 16);
+  }
+
+  return uint8Array;
+}
 
 export const getUITypeName = (): string => {
   const UIType = getUiType();
@@ -188,3 +215,10 @@ export function getStringFromSignAlgo(value: number): string {
       return 'unknown'; // Handle unknown values
   }
 }
+
+export const formatAddress = (address) => {
+  if (address && address.length >= 30) {
+    return `${address.substring(0, 6)}...${address.substring(address.length - 8)}`;
+  }
+  return address;
+};

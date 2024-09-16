@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_appName__",
   "short_name": "__MSG_appName__",
-  "version": "2.1.7",
+  "version": "2.4.9",
   "default_locale": "en",
   "description": "__MSG_appDescription__",
   "icons": {
@@ -24,7 +24,7 @@
       "128": "images/icon-128.png"
     },
     "default_popup": "popup.html",
-    "default_title": "Flow Reference Wallet"
+    "default_title": "Flow Wallet"
   },
   "author": "https://wallet.flow.com/",
   "background": {
@@ -60,6 +60,7 @@
     {
       "resources": [
         "node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm",
+        "pageProvider.js",
         "user-media-permission.html"
       ],
       "matches": [

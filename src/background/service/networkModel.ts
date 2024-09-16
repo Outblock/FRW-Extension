@@ -62,7 +62,6 @@ export enum FlowNetwork {
   mainnet = 'mainnet',
   testnet = 'testnet',
   crescendo = 'crescendo',
-  previewnet = 'previewnet',
 }
 
 export enum Period {
@@ -171,6 +170,7 @@ export interface BlockchainResponse {
   chain_id: string;
   coins: Array<string>;
   id: number;
+  icon: string;
 }
 
 interface Thumbnail {

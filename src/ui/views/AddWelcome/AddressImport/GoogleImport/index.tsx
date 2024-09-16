@@ -33,7 +33,7 @@ const GoogleImport = () => {
   const history = useHistory();
   const [activeIndex, onChange] = useState(0);
   const [mnemonic, setMnemonic] = useState('');
-  const [accounts, setAccounts] = useState<string[]>([]);
+  const [accounts, setAccounts] = useState<any[]>([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [direction, setDirection] = useState(Direction.Right);
@@ -67,7 +67,13 @@ const GoogleImport = () => {
     // const backupFile = await storage.get('googleBackup');
     // await setBackup(backupFile);
     const users = location.state.accounts;
-    setAccounts(users)
+    const backupAccounts = localStorage.getItem('backupAccounts');
+    if (backupAccounts) {
+      const accountList = JSON.parse(backupAccounts);
+      setAccounts(accountList)
+    } else {
+      setAccounts(users)
+    }
   };
 
   useEffect(() => {

@@ -46,70 +46,24 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   const wallet = useWallet();
 
 
-  const signIn = async (accountKey) => {
-    console.log('accountKey ', accountKey, mnemonic, pk)
-    setSignLoading(true);
-    if (accountKey[0].mnemonic) {
-      signMnemonic(accountKey);
-    } else {
-      signPk(accountKey);
-    }
-  };
-
-  const signMnemonic = async (accountKey) => {
-    try {
-      const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
-      console.log('result ->', result)
-      setSignLoading(false);
-      const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
-      goPassword();
-    } catch (error) {
-      console.log(error);
-      setSignLoading(false);
-      if (error.message === 'NoUserFound') {
-        setImport(false);
-      } else {
-        setKeyNew(false);
-      }
-    }
-  }
-
-  const signPk = async (accountKey) => {
-    try {
-      const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
-      console.log('result ->', result)
-      setSignLoading(false);
-      const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
-      goPassword();
-    } catch (error) {
-      console.log(error);
-      setSignLoading(false);
-      if (error.message === 'NoUserFound') {
-        setImport(false);
-      } else {
-        setKeyNew(false);
-      }
-    }
-  }
-
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
   };
 
   const handleImport = async (accountKey?: any) => {
-    console.log('account key ', accountKey)
     if (accountKey.length > 1) {
       setAccounts(accountKey);
       setImport(true);
     } else {
       setAccounts(accountKey)
       const result = await wallet.openapi.checkImport(accountKey[0].pubK);
-      console.log('result ', result)
       if (result.status === 409) {
-        signIn(accountKey);
+        goPassword();
       } else {
+        if (!accountKey[0].address) {
+          handleNotFoundPopup();
+          return
+        }
         handleClick();
       }
 
@@ -127,19 +81,13 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
   const handleAddressSelection = async (address) => {
-    console.log('handleAddressSelection ==>', address);
-    console.log(
-      'handleAddressSelection ==>',
-      accounts.filter((account) => account.address === address)[0],
-      accounts
-    );
     const account = accounts.filter(
       (account) => account.address === address
     )[0];
-    console.log('handleAddressSelection ==>', account);
     const result = await wallet.openapi.checkImport(account.pubK);
     if (result.status === 409) {
-      signIn([account]);
+      setAccounts([account]);
+      goPassword();
     } else {
       setAccounts([account]);
       handleClick();
@@ -148,7 +96,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
 
-  const handleRegister = async () => {
+  const handleNotFoundPopup = async () => {
     setAddressFound(!addressFound)
   };
   
@@ -168,10 +116,10 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
     <Box sx={{ padding: '0 16px 16px' }}>
       <Box sx={{ padding: '20px 24px' }}>
         <Typography variant="h4">
-          {chrome.i18n.getMessage('Import_Address')}
+          {chrome.i18n.getMessage('import_account')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Support_Flow_Wallet_and_private_key')}
+          {chrome.i18n.getMessage('Support_Flow_Wallet_Blocto')}
         </Typography>
       </Box>
 
@@ -185,13 +133,13 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
         <Googledrive setErrorMessage={setErrorMessage} setShowError={setShowError} />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <JsonImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={2}>
-        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
+        <SeedPhraseImport onOpen={handleNotFoundPopup} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={3}>
-        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <KeyImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       {!addressFound &&
         <ErrorModel

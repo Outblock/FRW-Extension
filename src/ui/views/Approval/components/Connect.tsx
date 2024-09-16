@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useApproval, useWallet } from 'ui/utils';
 // import { CHAINS_ENUM } from 'consts';
 import { ThemeProvider } from '@mui/system';
-import { Stack, Box, Typography, Divider } from '@mui/material';
+import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
 import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import theme from 'ui/style/LLTheme';
@@ -17,6 +17,8 @@ import { WalletUtils } from '@onflow/fcl'
 import Link from 'ui/FRWAssets/svg/link.svg';
 import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
 import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
+import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
+import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
 
 import { storage } from '@/background/webapi';
 
@@ -46,7 +48,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   const [msgNetwork, setMsgNetwork] = useState('testnet')
   const [showSwitch, setShowSwitch] = useState(false)
   const [currentNetwork, setCurrent] = useState('testnet')
-
+  const [currentAddress, setCurrentAddress] = useState('')
   const [approval, setApproval] = useState(false)
 
   // TODO: replace default logo
@@ -84,9 +86,8 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     setIsLoading(true);
     setApproval(true);
     const address = await wallet.getCurrentAddress();
-    const payer = await wallet.getPayerAddressAndKeyId()
-    const isEnabled = await wallet.allowLilicoPay()
-
+    const payer = await wallet.getPayerAddressAndKeyId();
+    const isEnabled = await wallet.allowLilicoPay();
     const network = await wallet.getNetwork();
 
     // TODO: FIXME Dynamic keyIndex
@@ -169,8 +170,12 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   }
 
   const checkNetwork = async () => {
+    const address = await wallet.getCurrentAddress();
+    console.log('address currentAddress ', address)
+    setCurrentAddress(address!);
 
     const network = await wallet.getNetwork();
+    
     console.log(' msgNetwork ', msgNetwork, network, showSwitch)
     setCurrent(network);
     if (msgNetwork !== network && msgNetwork) {
@@ -179,6 +184,8 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
       setShowSwitch(false);
     }
   }
+
+
   useEffect(() => {
     checkNetwork();
 
@@ -235,6 +242,17 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     }
   }
 
+  const networkColor = (network: string) => {
+    switch (network) {
+      case 'mainnet':
+        return '#41CC5D';
+      case 'testnet':
+        return '#FF8A00';
+      case 'crescendo':
+        return '#CCAF21';
+    }
+  };
+
   const renderContent = () => (
     <Box>
       {isLoading ? <LLConnectLoading logo={logo} /> :
@@ -264,6 +282,27 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
               <CheckCircleIcon size={20} color='#38B000' style={{ flexShrink: '0', marginTop: '5px' }} />
               <Typography>{chrome.i18n.getMessage('Connect__Body2')}</Typography>
             </Stack>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '18px 18px 24px', gap: '8px', width: '100%' }}>
+
+            <Box sx={{ borderRadius: '8px', padding: '12px 16px', backgroundColor: '#222222', flex: '1' }}>
+              <Box sx={{ display: 'flex' }}>
+                <CardMedia component="img" sx={{ height: '18px', width: '18px', borderRadius: '18px', backgroundColor: 'text.secondary', marginRight: '8px' }} image={flowgrey} />
+                <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>FLOW Address</Typography>
+              </Box>
+              <Box>
+                <Typography sx={{ color: '#FFFFFFCC', fontSize: '12px', marginTop: '10px' }}>{currentAddress}</Typography>
+              </Box>
+            </Box>
+            <Box sx={{ borderRadius: '8px', padding: '12px 16px', backgroundColor: '#222222', flex: '1' }}>
+              <Box sx={{ display: 'flex' }}>
+                <CardMedia component="img" sx={{ height: '18px', width: '18px', borderRadius: '18px', marginRight: '8px' }} image={linkGlobe} />
+                <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>{chrome.i18n.getMessage('Network')}</Typography>
+              </Box>
+              <Box>
+                <Typography sx={{ color: '#FFFFFFCC', fontSize: '12px', marginTop: '10px', textTransform: 'capitalize' }}>{currentNetwork}</Typography>
+              </Box>
+            </Box>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
@@ -296,20 +335,20 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
             <Divider />
-            <Typography sx={{  textAlign: 'center',fontSize:'20px', color:'#E6E6E6' }} >Allow this site to switch  <br/>the network?</Typography>
+            <Typography sx={{ textAlign: 'center', fontSize: '20px', color: '#E6E6E6' }} >Allow this site to switch  <br />the network?</Typography>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', marginTop: '18px' }}>
-              <Typography sx={{textAlign: 'center', color:'#BABABA',fontSize:'14px'}}>This action will change your current network from <Typography  sx={{  display:'inline',color:'#E6E6E6' }}  > {currentNetwork}</Typography> to <Typography  sx={{  display:'inline',color:'#E6E6E6' }} > {msgNetwork}</Typography>.</Typography>
+              <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>This action will change your current network from <Typography sx={{ display: 'inline', color: '#E6E6E6' }}  > {currentNetwork}</Typography> to <Typography sx={{ display: 'inline', color: '#E6E6E6' }} > {msgNetwork}</Typography>.</Typography>
             </Stack>
           </Box>
           <Stack direction="column" spacing="18px" sx={{ justifyContent: 'space-between', width: '100%' }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={currentNetwork === 'testnet' ? testnetsvg : mainnetsvg} />
+                <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(currentNetwork), objectFit: 'cover' }} src={testnetsvg} />
                 <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{currentNetwork}</Typography>
               </Box>
-              <img style={{width:'116px'}} src={Link} />
+              <img style={{ width: '116px' }} src={Link} />
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img style={{ height: '60px', width: '60px', borderRadius: '30px', backgroundColor: 'text.secondary', objectFit: 'cover' }} src={msgNetwork === 'testnet' ? testnetsvg : mainnetsvg} />
+                <img style={{ height: '60px', width: '60px', padding:'18px',borderRadius: '30px', backgroundColor: networkColor(msgNetwork), objectFit: 'cover' }} src={mainnetsvg} />
                 <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{msgNetwork}</Typography>
               </Box>
 

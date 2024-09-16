@@ -11,20 +11,17 @@ interface NFTCollectionNetwork {
   mainnet: NFTCollectionData[];
   testnet: NFTCollectionData[];
   crescendo: NFTCollectionData[];
-  previewnet: NFTCollectionData[];
 }
 
-interface NFTCollectionListNetwork{
+interface NFTCollectionListNetwork {
   mainnet: NFTCollectionList[];
   testnet: NFTCollectionList[];
   crescendo: NFTCollectionData[];
-  previewnet: NFTCollectionData[];
 }
 interface NFTNetwork {
   mainnet: NFTData;
   testnet: NFTData;
   crescendo: NFTData;
-  previewnet: NFTData;
 }
 
 // const empty: Contact = {
@@ -48,7 +45,7 @@ class NFT {
       name: 'nftv2',
       template: {
         nft: {
-          testnet:{
+          testnet: {
             nfts: [],
             nftCount: 0,
           },
@@ -60,22 +57,16 @@ class NFT {
             nfts: [],
             nftCount: 0,
           },
-          previewnet: {
-            nfts: [],
-            nftCount: 0,
-          },
         },
         collectionList: {
           testnet: [],
           mainnet: [],
-          crescendo:[],
-          previewnet:[],
+          crescendo: [],
         },
         collection: {
           testnet: [],
           mainnet: [],
           crescendo: [],
-          previewnet: [],
         },
         expiry: 2648570077405,
       },
@@ -123,7 +114,7 @@ class NFT {
     this.deleteSingleCollection(data.name, network);
     this.store.collection[network].push({
       name: data.name,
-      nfts:list,
+      nfts: list,
       nfrCount: data.nftCount,
     })
   };
@@ -147,7 +138,7 @@ class NFT {
       await this.init();
     }
     this.store.nft = {
-      testnet:{
+      testnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -159,17 +150,19 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
-      previewnet: {
-        nfts: [],
-        nftCount: 0,
-      },
+
     }
 
     this.store.collection = {
       testnet: [],
       mainnet: [],
       crescendo: [],
-      previewnet: []
+    }
+
+    this.store.collectionList = {
+      testnet: [],
+      mainnet: [],
+      crescendo: [],
     }
 
     storage.remove('nftv2')
@@ -177,8 +170,8 @@ class NFT {
   };
 
   clearNFTList = () => {
-    this.store.nft= {
-      testnet:{
+    this.store.nft = {
+      testnet: {
         nfts: [],
         nftCount: 0,
       },
@@ -190,20 +183,11 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
-      previewnet: {
-        nfts: [],
-        nftCount: 0,
-      },
     }
   }
 
   clearNFTCollection = () => {
-    this.store.collection = {
-      testnet: [],
-      mainnet: [],
-      crescendo: [],
-      previewnet: []
-    }
+    this.clear();
   }
 
 }

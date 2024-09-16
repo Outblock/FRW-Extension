@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import {
@@ -80,6 +80,21 @@ const SettingTab = () => {
   const { url } = useRouteMatch();
   const classes = useStyles()
   const wallet = useWallet();
+  const [isActive, setIsActive] = useState(false);
+
+  const checkIsActive = async () => {
+    // setSending(true);
+    const activeChild = await wallet.getActiveWallet();
+    if (activeChild) {
+      setIsActive(activeChild)
+    }
+
+  }
+
+  
+  useEffect(() => {
+    checkIsActive();
+  }, []);
 
   return (
     <div className="page">
@@ -97,7 +112,7 @@ const SettingTab = () => {
               <ListItemIcon sx={{ minWidth: '25px' }}>
                 <IconAccount className={classes.icon} color='#59A1DB' />
               </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Account')} />
+              <ListItemText primary={chrome.i18n.getMessage('Profile')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
                 <IconEnd size={12} />
               </ListItemIcon>
@@ -116,7 +131,7 @@ const SettingTab = () => {
               <ListItemIcon sx={{ minWidth: '25px' }}>
                 <IconWallet className={classes.icon} color='#59A1DB' />
               </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Wallet')} />
+              <ListItemText primary={chrome.i18n.getMessage('Acc__list')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
                 <IconEnd size={12} />
               </ListItemIcon>
@@ -144,26 +159,33 @@ const SettingTab = () => {
           </ListItem>
 
           <Divider sx={{ width: '90%' }} variant="middle" />
+          {!isActive &&
 
-          <ListItem
-            button
-            component={Link}
-            to='/dashboard/setting/linked'
-            disablePadding
-            className={classes.listItem}
-          >
-            <ListItemButton className={classes.itemButton}>
-              <ListItemIcon sx={{ minWidth: '25px' }}>
-                <CardMedia className={classes.icon} sx={{ height: '16px', width: '16px' }} image={IconLink} />
-              </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Linked_Account')} />
-              <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                <IconEnd size={12} />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
+            <ListItem
+              button
+              component={Link}
+              to='/dashboard/setting/linked'
+              disablePadding
+              className={classes.listItem}
+            >
+              <ListItemButton className={classes.itemButton}>
+                <ListItemIcon sx={{ minWidth: '25px' }}>
+                  <CardMedia className={classes.icon} sx={{ height: '16px', width: '16px' }} image={IconLink} />
+                </ListItemIcon>
+                <ListItemText primary={chrome.i18n.getMessage('Linked_Account')} />
+                <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                  <IconEnd size={12} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
 
-          <Divider sx={{ width: '90%' }} variant="middle" />
+          }
+
+          {!isActive &&
+
+            <Divider sx={{ width: '90%' }} variant="middle" />
+
+          }
 
           <ListItem
             button
@@ -246,7 +268,7 @@ const SettingTab = () => {
               <ListItemIcon sx={{ minWidth: '25px' }}>
                 <CardMedia className={classes.icon} sx={{height:'16px',width:'19px', marginRight:'13px'}} image={Device} />
               </ListItemIcon>
-              <ListItemText primary={'Devices'} />
+              <ListItemText primary={chrome.i18n.getMessage('Devices')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
                 <IconEnd size={12} />
               </ListItemIcon>

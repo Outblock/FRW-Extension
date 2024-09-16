@@ -1,6 +1,4 @@
 import { useEffect, useState, useContext } from 'react';
-import { findAddressWithSeed } from '../../utils/modules/findAddressWithPK';
-import { KEY_TYPE } from '../../utils/modules/constants';
 import React from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
 import SeedPhraseImport from './importComponent/SeedPhrase';
@@ -11,7 +9,6 @@ import ImportAddressModel from '../../FRWComponent/PopupModal/importAddressModal
 
 import ErrorModel from '../../FRWComponent/PopupModal/errorModel';
 import { useWallet } from 'ui/utils';
-import * as bip39 from 'bip39';
 import { storage } from '@/background/webapi';
 
 function TabPanel(props) {
@@ -108,6 +105,10 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
       if (result.status === 409) {
         signIn(accountKey);
       } else {
+        if (!accountKey[0].address) {
+          handleNotFoundPopup();
+          return
+        }
         handleClick();
       }
 
@@ -126,16 +127,9 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
   const handleAddressSelection = async (address) => {
-    console.log('handleAddressSelection ==>', address);
-    console.log(
-      'handleAddressSelection ==>',
-      accounts.filter((account) => account.address === address)[0],
-      accounts
-    );
     const account = accounts.filter(
       (account) => account.address === address
     )[0];
-    console.log('handleAddressSelection ==>', account);
     const result = await wallet.openapi.checkImport(account.pubK);
     if (result.status === 409) {
       signIn([account]);
@@ -147,7 +141,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
 
-  const handleRegister = async () => {
+  const handleNotFoundPopup = async () => {
     setAddressFound(!addressFound)
   };
 
@@ -166,10 +160,10 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
     <Box sx={{ padding: '0 16px 16px' }}>
       <Box sx={{ padding: '20px 24px' }}>
         <Typography variant="h4">
-          {chrome.i18n.getMessage('Import_Address')}
+          {chrome.i18n.getMessage('import_account')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Support_Flow_Wallet_and_private_key')}
+          {chrome.i18n.getMessage('Support_Flow_Wallet_Blocto')}
         </Typography>
       </Box>
 
@@ -183,13 +177,13 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
         <Googledrive setErrorMessage={setErrorMessage} setShowError={setShowError} />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <JsonImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <JsonImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={2}>
-        <SeedPhraseImport onOpen={handleRegister} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
+        <SeedPhraseImport onOpen={handleNotFoundPopup} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
       </TabPanel>
       <TabPanel value={selectedTab} index={3}>
-        <KeyImport onOpen={handleRegister} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <KeyImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
       </TabPanel>
       {!addressFound &&
         <ErrorModel

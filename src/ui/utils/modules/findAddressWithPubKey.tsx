@@ -19,7 +19,7 @@ export const findAddressWithKey = async (pubKeyHex, address) => {
 }
 
 export default async function getAddressByIndexer(publicKey) {
-  const url = `https://key-indexer.production.flow.com/key/${publicKey}`;
+  const url = `https://production.key-indexer.flow.com/key/${publicKey}`;
   const result = await fetch(url);
   const json = await result.json();
   return json

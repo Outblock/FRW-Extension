@@ -2,9 +2,10 @@ import { useEffect, useState, useContext } from 'react';
 import { findAddressWithSeed } from '../../../utils/modules/findAddressWithPK';
 import { KEY_TYPE } from '../../../utils/modules/constants';
 import React from 'react';
-import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
+import { Box, Button, Typography, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
+import KeyPathInput from '../../../FRWComponent/KeyPathInputs';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -29,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
 const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
@@ -42,11 +44,10 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[2].value;
 
-      console.log('inputValue ', inputValue)
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
 
       console.log('address ', address)
-      const result = await findAddressWithSeed(seed, address)
+      const result = await findAddressWithSeed(seed, address, true)
       if (!result) {
         onOpen();
         return;
@@ -74,6 +75,8 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
 
         />
 
+        <KeyPathInput />
+
 
         <Button
           className="registerButton"
@@ -88,7 +91,8 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex'
+            display: 'flex',
+            marginTop:'40px',
           }}
           disabled={isLoading || isSignLoading}
 

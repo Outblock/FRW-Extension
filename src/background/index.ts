@@ -39,8 +39,6 @@ import {
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclCrescendoConfig,
-  fclPreviewnetConfig,
 } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
@@ -102,12 +100,6 @@ async function fclSetup() {
       break;
     case 'testnet':
       await fclTestnetConfig();
-      break;
-    case 'crescendo':
-      await fclCrescendoConfig();
-      break;
-    case 'previewnet':
-      await fclPreviewnetConfig();
       break;
   }
 }
@@ -191,7 +183,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 chrome.runtime.onConnect.addListener((port) => {
   // openapiService.getConfig();
 
-  // console.log('chrome.runtime.onConnect ->', port);
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -313,7 +304,7 @@ const handlePreAuthz = async (id) => {
   const payer = await walletController.getPayerAddressAndKeyId();
   const address = await userWalletService.getCurrentAddress();
   const network = await userWalletService.getNetwork();
-    
+
   const ki = await storage.get('keyIndex');
   const keyIndex = Number(ki);
   const services = preAuthzServiceDefinition(
@@ -378,7 +369,7 @@ const extMessageHandler = (msg, sender, sendResponse) => {
     (service?.endpoint ===
       'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html' ||
       service?.endpoint ===
-        'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
+      'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
   ) {
     chrome.tabs
       .query({

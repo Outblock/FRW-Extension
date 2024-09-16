@@ -38,7 +38,6 @@ const Sync = () => {
   };
 
   const loadView = async () => {
-    // console.log(wallet);
     wallet.getCurrentAccount().then((res) => {
       if (res) {
         history.push('/');
@@ -91,7 +90,6 @@ const Sync = () => {
   };
 
   useEffect(() => {
-    console.log('wallet');
     loadView();
   }, []);
 

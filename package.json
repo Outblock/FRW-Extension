@@ -1,6 +1,6 @@
 {
   "name": "FlowReferenceWallet",
-  "version": "2.1.7",
+  "version": "2.4.9",
   "description": "Digital wallet created for everyone.",
   "scripts": {
     "prepare:dev": "node ./build/prepareManifest.js dev",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.1.0",
+    "@debank/common": "^0.3.60",
     "@dnd-kit/core": "^4.0.3",
     "@dnd-kit/sortable": "^5.1.0",
     "@dnd-kit/utilities": "^3.0.2",
@@ -45,6 +46,7 @@
     "@rabby-wallet/eth-lattice-keyring": "^0.4.2",
     "@rabby-wallet/eth-simple-keyring": "^4.2.1",
     "@rabby-wallet/eth-watch-keyring": "^1.0.0",
+    "@rabby-wallet/page-provider": "^0.3.2",
     "@sentry/browser": "^6.7.2",
     "@sentry/react": "^6.7.2",
     "@sentry/tracing": "^6.7.2",
@@ -78,8 +80,8 @@
     "eth-rpc-errors": "^4.0.3",
     "eth-sig-util": "^3.0.1",
     "ethereum-hdwallet": "^0.0.26",
-    "ethereumjs-util": "^7.1.2",
-    "ethers": "^5.4.2",
+    "ethereumjs-util": "^7.1.5",
+    "ethers": "^6.12.0",
     "events": "^3.3.0",
     "file-saver": "^2.0.5",
     "firebase": "^10.0.0",
@@ -117,6 +119,7 @@
     "recharts": "^2.1.9",
     "reflect-metadata": "^0.1.13",
     "remark-gfm": "^3.0.1",
+    "rlp": "^3.0.0",
     "secp256k1": "^4.0.2",
     "sha3": "^2.1.4",
     "stream-browserify": "^3.0.0",
@@ -124,7 +127,8 @@
     "ts-toolbelt": "^9.6.0",
     "util": "^0.12.3",
     "wagmi": "^1.4.6",
-    "web3-utils": "^4.1.0",
+    "web3": "^4.7.0",
+    "web3-utils": "^4.2.2",
     "yarn": "^1.22.18",
     "zxcvbn": "^4.4.2"
   },

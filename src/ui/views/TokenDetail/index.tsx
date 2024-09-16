@@ -9,11 +9,13 @@ import TokenInfoCard from './TokenInfoCard';
 import StackingCard from './StackingCard';
 import PriceCard from './PriceCard';
 import ClaimTokenCard from './ClaimTokenCard';
+import MoveFromEvm from '../EvmMove/MoveFromEvm';
+import MoveFromChild from '../EvmMove/MoveFromChild';
+import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { PriceProvider } from '@/background/service/networkModel';
+import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import tips from 'ui/FRWAssets/svg/tips.svg';
-import { last } from 'lodash';
 
 const useStyles = makeStyles(() => ({
   page: {
@@ -42,8 +44,12 @@ const TokenDetail = () => {
   const token = useParams<{ id: string }>().id.toLowerCase();
   const [network, setNetwork] = useState('mainnet');
   const [walletName, setCurrentWallet] = useState({ name: '' });
-  const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [moveOpen, setMoveOpen] = useState<boolean>(false);
+  const [tokenInfo, setTokenInfo] = useState<any>(undefined);
   const [providers, setProviders] = useState<PriceProvider[]>([]);
+  const [childAccount, setChildAccount] = useState<any>({});
+  const [childType, setChildType] = useState<string>('');
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
 
   const Header = () => {
     return (
@@ -61,10 +67,14 @@ const TokenDetail = () => {
 
   const getProvider = async () => {
     const result = await wallet.openapi.getPriceProvider(token);
-
+    const tokenResult = await wallet.openapi.getTokenInfo(token);
+    if (tokenResult) {
+      setTokenInfo(tokenResult);
+    }
     setProviders(result);
     if (result.length == 0) {
-      const price = await wallet.openapi.getPricesBySymbol(token);
+      const data = await wallet.openapi.getTokenPrices();
+      const price = await wallet.openapi.getPricesBySymbol(token, data);
       if (price) {
         setPrice(price);
       }
@@ -78,9 +88,60 @@ const TokenDetail = () => {
     setNetwork(network);
   };
 
+  const requestChildType = async () => {
+    const result = await wallet.getActiveWallet();
+    const childresp = await wallet.checkUserChildAccount();
+    setChildAccount(childresp);
+    setChildType(result);
+  };
+
+  const renderMoveComponent = () => {
+    if (childType === 'evm') {
+      return (
+        <MoveFromEvm
+          isConfirmationOpen={moveOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => setMoveOpen(false)}
+          handleCancelBtnClicked={() => setMoveOpen(false)}
+          handleAddBtnClicked={() => {
+            setMoveOpen(false);
+          }}
+        />
+      );
+    } else if (childType) {
+      return (
+        <MoveFromChild
+          isConfirmationOpen={moveOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => setMoveOpen(false)}
+          handleCancelBtnClicked={() => setMoveOpen(false)}
+          handleAddBtnClicked={() => {
+            setMoveOpen(false);
+          }}
+        />
+      );
+
+    }
+    else {
+      return (
+        <MoveFromFlow
+          isConfirmationOpen={moveOpen}
+          data={{ amount: 0 }}
+          handleCloseIconClicked={() => setMoveOpen(false)}
+          handleCancelBtnClicked={() => setMoveOpen(false)}
+          handleAddBtnClicked={() => {
+            setMoveOpen(false);
+          }}
+        />
+      );
+    }
+  };
+
+
   useEffect(() => {
     loadNetwork();
     getProvider();
+    requestChildType();
   }, []);
 
   return (
@@ -109,24 +170,29 @@ const TokenDetail = () => {
                   color: 'error.main',
                 }}
               >
-                Flow Reference Wallet doesn’t have access to {`${token}`} in
+                Flow Wallet doesn’t have access to {`${token}`} in
                 {`${walletName.name}`} Account, please check your linked account
                 settings.
               </Typography>
             </Box>
           )}
-          <TokenInfoCard
-            price={price}
-            token={token}
-            setAccessible={setAccessible}
-            accessible={accessible}
-          />
+          {tokenInfo &&
+            <TokenInfoCard
+              price={price}
+              token={token}
+              setAccessible={setAccessible}
+              accessible={accessible}
+              setMoveOpen={setMoveOpen}
+              tokenInfo={tokenInfo}
+              network={network}
+              childType={childType}
+              childAccount={childAccount}
+              setAlertOpen={setAlertOpen}
+            />
+          }
           {token === 'flow' && <StackingCard network={network} />}
           {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
-          {network === 'testnet' ||
-            (network === 'previewnet' && token === 'flow' && (
-              <ClaimTokenCard token={token} />
-            ))}
+          <ClaimTokenCard token={token} />
           {providers?.length > 0 && (
             <PriceCard
               token={token}
@@ -135,12 +201,16 @@ const TokenDetail = () => {
               providers={providers}
             />
           )}
-          {token === 'flow' && network === 'mainnet' && (
+          {
+            moveOpen && renderMoveComponent()
+          }
+          {network === 'mainnet' && (
             <LLComingSoon
               alertOpen={alertOpen}
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           )}
+
         </div>
       </div>
     </StyledEngineProvider>
