@@ -70,6 +70,7 @@ export const SAFE_RPC_METHODS = [
   'eth_uninstallFilter',
   'wallet_requestPermissions',
   'wallet_getPermissions',
+  'wallet_switchEthereumChain',
   'net_version',
 ];
 
@@ -163,6 +164,6 @@ export const EVENTS = {
 };
 
 export const EVM_ENDPOINT = {
+  mainnet: 'https://mainnet.evm.nodes.onflow.org',
   testnet: 'https://testnet.evm.nodes.onflow.org',
-  previewnet: 'https://previewnet.evm.nodes.onflow.org',
 };

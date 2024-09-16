@@ -169,13 +169,17 @@ const Send = () => {
     try {
       const response = await wallet.getAddressBook();
       let recent = await wallet.getRecent();
+      console.log('recent ', recent, response)
       if (recent) {
         recent.forEach((c) => {
-          response.forEach((s) => {
-            if (c.address === s.address && c.contact_name === s.contact_name) {
-              c.type = 1;
-            }
-          })
+          if (response) {
+            response.forEach((s) => {
+              if (c.address === s.address && c.contact_name === s.contact_name) {
+                c.type = 1;
+              }
+            })
+
+          }
         })
       } else {
         recent = [];
@@ -185,10 +189,12 @@ const Send = () => {
       if (recent.length < 1) {
         setTabValue(1)
       }
-
-      const sortedContacts = response.sort((a, b) =>
-        a.contact_name.toLowerCase().localeCompare(b.contact_name.toLowerCase())
-      );
+      let sortedContacts = [] 
+      if (response) {
+        sortedContacts = response.sort((a, b) =>
+          a.contact_name.toLowerCase().localeCompare(b.contact_name.toLowerCase())
+        );
+      }
 
       console.log('sortedContacts ', sortedContacts)
 

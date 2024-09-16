@@ -263,7 +263,6 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
   const getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
     const result = await usewallet.openapi.getLocation();
     const installationId = await usewallet.openapi.getInstallationId();
-    // console.log('location ', userlocation);
     const userlocation = result.data
     const deviceInfo: DeviceInfoRequest = {
 

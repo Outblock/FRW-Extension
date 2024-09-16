@@ -11,23 +11,17 @@ interface NFTCollectionNetwork {
   mainnet: NFTCollectionData[];
   testnet: NFTCollectionData[];
   crescendo: NFTCollectionData[];
-  previewnet: NFTCollectionData[];
-  migrationTestnet: NFTCollectionData[];
 }
 
 interface NFTCollectionListNetwork {
   mainnet: NFTCollectionList[];
   testnet: NFTCollectionList[];
   crescendo: NFTCollectionData[];
-  previewnet: NFTCollectionData[];
-  migrationTestnet: NFTCollectionData[];
 }
 interface NFTNetwork {
   mainnet: NFTData;
   testnet: NFTData;
   crescendo: NFTData;
-  previewnet: NFTData;
-  migrationTestnet: NFTData;
 }
 
 // const empty: Contact = {
@@ -63,28 +57,16 @@ class NFT {
             nfts: [],
             nftCount: 0,
           },
-          previewnet: {
-            nfts: [],
-            nftCount: 0,
-          },
-          migrationTestnet: {
-            nfts: [],
-            nftCount: 0,
-          },
         },
         collectionList: {
           testnet: [],
           mainnet: [],
           crescendo: [],
-          previewnet: [],
-          migrationTestnet: [],
         },
         collection: {
           testnet: [],
           mainnet: [],
           crescendo: [],
-          previewnet: [],
-          migrationTestnet: [],
         },
         expiry: 2648570077405,
       },
@@ -168,30 +150,19 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
-      previewnet: {
-        nfts: [],
-        nftCount: 0,
-      },
-      migrationTestnet: {
-        nfts: [],
-        nftCount: 0,
-      },
+
     }
 
     this.store.collection = {
       testnet: [],
       mainnet: [],
       crescendo: [],
-      migrationTestnet: [],
-      previewnet: []
     }
 
     this.store.collectionList = {
       testnet: [],
       mainnet: [],
       crescendo: [],
-      migrationTestnet: [],
-      previewnet: []
     }
 
     storage.remove('nftv2')
@@ -209,14 +180,6 @@ class NFT {
         nftCount: 0,
       },
       crescendo: {
-        nfts: [],
-        nftCount: 0,
-      },
-      previewnet: {
-        nfts: [],
-        nftCount: 0,
-      },
-      migrationTestnet: {
         nfts: [],
         nftCount: 0,
       },

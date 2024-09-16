@@ -45,7 +45,6 @@ const StakingPage = () => {
       'mainnet': '0x1654653399040a61',
       'testnet': '0x7e60df042a9c0868',
       'crescendo': '0x7e60df042a9c0868',
-      'previewnet': '0x4445e7ad11568276'
     },
     'contract_name': 'FlowToken',
     'storage_path': {

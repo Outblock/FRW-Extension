@@ -7,6 +7,7 @@ import AddressImport from './AddressImport';
 import AddRegister from './AddWelcome/AddRegister';
 import AddImport from './AddWelcome/AddressImport';
 import AddSync from './AddWelcome/Sync';
+// import ProxySync from './AddWelcome/ProxySync';
 import AddWelcome from './AddWelcome';
 import GoogleImport from './AddressImport/GoogleImport';
 import AddGoogle from './AddWelcome/AddressImport/GoogleImport';
@@ -78,6 +79,7 @@ const Main = () => {
           <Route exact path="/addressimport" component={AddressImport} />
           <Route exact path="/recover" component={RecoverRegister} />
           <Route exact path="/addregister" component={AddRegister} />
+          {/* <Route exact path="/proxysync" component={ProxySync} /> */}
           <Route exact path="/addimport" component={AddImport} />
           <Route exact path="/addsync" component={AddSync} />
           <Route exact path="/addwelcome" component={AddWelcome} />

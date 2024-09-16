@@ -59,7 +59,6 @@ import { storage } from '@/background/webapi';
 import {
   fclMainnetConfig,
   fclTestnetConfig,
-  fclCrescendoConfig,
 } from '../fclConfig';
 
 import { walletController } from '../controller';
@@ -125,9 +124,6 @@ const fclSetup = async () => {
       break;
     case 'testnet':
       await fclTestnetConfig();
-      break;
-    case 'crescendo':
-      await fclCrescendoConfig();
       break;
   }
 };
@@ -364,6 +360,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'put',
     params: ['device_info', 'wallet_id', 'wallettest_id '],
   },
+  add_device_v3: {
+    path: '/v3/user/device',
+    method: 'put',
+    params: ['device_info', 'wallet_id', 'wallettest_id '],
+  },
   get_location: {
     path: '/v1/user/location',
     method: 'get',
@@ -537,13 +538,20 @@ class OpenApiService {
     if (tokenPriceMap) {
       return tokenPriceMap;
     } else {
-      const { data = [] } = await this.sendRequest(
-        'GET',
-        `/api/prices`,
-        {},
-        {},
-        WEB_NEXT_URL
-      );
+      let data: any = [];
+      try {
+        const response = await this.sendRequest(
+          'GET',
+          `/api/prices`,
+          {},
+          {},
+          WEB_NEXT_URL
+        );
+        data = response.data || [];  // Ensure data is set to an empty array if response.data is undefined
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+        data = [];  // Set data to empty array in case of an error
+      }
 
       if (pricesMap && pricesMap['FLOW']) {
         return pricesMap;
@@ -739,6 +747,31 @@ class OpenApiService {
     return result;
   };
 
+  proxyKey = async (
+    token: any,
+    userId: any,
+  ) => {
+    if (token) {
+      await this._signWithCustom(token);
+      await storage.set('currentId', userId);
+    }
+    return;
+  };
+
+  proxytoken = async () => {
+    // Default options are marked with *
+
+    const app = getApp(process.env.NODE_ENV!);
+
+    // Wait for firebase auth to complete
+    await waitForAuthInit();
+
+    await signInAnonymously(auth);
+    const anonymousUser = await getAuth(app).currentUser;
+    const idToken = await anonymousUser?.getIdToken();
+    return idToken;
+  }
+
   importKey = async (
     account_key: any,
     device_info: any,
@@ -785,7 +818,6 @@ class OpenApiService {
   userWalletV2 = async () => {
     const config = this.store.config.user_wallet_v2;
     const data = await this.sendRequest(config.method, config.path);
-    console.log('data ', data)
     return data;
   };
 
@@ -1105,7 +1137,6 @@ class OpenApiService {
       });
       return res;
     } catch (err) {
-      console.log('getChildAccountMeta err', err);
       return null;
     }
   };
@@ -1235,7 +1266,7 @@ class OpenApiService {
   };
 
   addDevice = async (params) => {
-    const config = this.store.config.add_device;
+    const config = this.store.config.add_device_v3;
     const data = await this.sendRequest(config.method, config.path, {}, params);
 
     return data;
@@ -1407,23 +1438,21 @@ class OpenApiService {
     if (childType === 'evm') {
       chainType = 'evm';
     }
-    if (network === 'migrationTestnet') {
-      network = 'testnet-migration';
-    }
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    // const gitToken = null
     if (gitToken) {
       return gitToken;
     } else {
       let response
-      if (process.env.NODE_ENV === 'production'){
+      if (process.env.NODE_ENV === 'production') {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );
-      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm') {
+      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm' && (network === 'testnet' || network === 'mainnet')) {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
         );
-      }else if (process.env.NODE_ENV !== 'production' && childType === 'evm') {
+      } else if (process.env.NODE_ENV !== 'production' && childType === 'evm') {
         response = await fetch(
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
         );
@@ -1434,8 +1463,7 @@ class OpenApiService {
       }
       const res = await response.json();
       const { tokens = {} } = res;
-      const hasFlowToken = tokens.some(token => token.symbol.toLowerCase().includes('flow'));
-
+      const hasFlowToken = tokens.some(token => token.symbol.toLowerCase() === 'flow');
       if (!hasFlowToken) {
         tokens.push({
           name: 'Flow',
@@ -1457,6 +1485,26 @@ class OpenApiService {
     }
   };
 
+  getNFTListFromGithub = async (network: string) => {
+    const childType = await userWalletService.getActiveWallet();
+    let chainType = 'flow'
+    if (childType === 'evm') {
+      chainType = 'evm';
+    }
+    const gitToken = await storage.getExpiry(`GitNFTList${network}${chainType}`);
+    if (gitToken && gitToken.length > 0) {
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/nfts.json`
+      );
+      const res = await response.json();
+      const { data = {} } = res;
+      storage.setExpiry(`GitNFTList${network}${chainType}`, data, 600000);
+      return data;
+    }
+  };
+
   getEnabledTokenList = async (network = '') => {
     // const tokenList = await remoteFetch.flowCoins();
     if (!network) {
@@ -1466,12 +1514,11 @@ class OpenApiService {
 
     const tokenList = await this.getTokenListFromGithub(network);
     let values;
-
+    const isChild = await userWalletService.getActiveWallet();
     try {
-      const isChild = await userWalletService.getActiveWallet();
-      if (isChild) {
+      if (isChild && isChild !== 'evm') {
         values = await this.isLinkedAccountTokenListEnabled(address);
-      } else {
+      } else if (!isChild) {
         values = await this.isTokenListEnabled(address);
       }
     } catch (error) {
@@ -1481,13 +1528,16 @@ class OpenApiService {
 
     const tokenItems: TokenInfo[] = [];
     const tokenMap = {};
-    tokenList.forEach((token) => {
-      const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
-      // console.log(tokenMap,'tokenMap',values)
-      if (values[tokenId] == true) {
-        tokenMap[token.name] = token;
-      }
-    });
+    if (isChild !== 'evm') {
+      tokenList.forEach((token) => {
+        const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
+        // console.log(tokenMap,'tokenMap',values)
+        if (values[tokenId] == true) {
+          tokenMap[token.name] = token;
+        }
+      });
+
+    }
 
     // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))
     // return values
@@ -1954,10 +2004,10 @@ class OpenApiService {
     return data;
   };
 
-  nftCatalogList = async (address: string, limit: any, offset: any) => {
+  nftCatalogList = async (address: string, limit: any, offset: any, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/nft/list?address=${address}&limit=${limit}&offset=${offset}`,
+      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
       {},
       {},
       WEB_NEXT_URL
@@ -1965,10 +2015,10 @@ class OpenApiService {
     return data;
   };
 
-  nftCatalogCollections = async (address: string) => {
+  nftCatalogCollections = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/nft/id?address=${address}`,
+      `/api/v2/nft/id?address=${address}&network=${network}`,
       {},
       {},
       WEB_NEXT_URL
@@ -1980,11 +2030,12 @@ class OpenApiService {
     address: string,
     contractName: string,
     limit: any,
-    offset: any
+    offset: any,
+    network: string
   ) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}`,
+      `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}&network=${network}`,
       {},
       {},
       WEB_NEXT_URL
@@ -2048,10 +2099,10 @@ class OpenApiService {
     return data;
   };
 
-  getEvmFT = async (address: string) => {
+  getEvmFT = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/evm/${address}/fts`,
+      `/api/evm/${address}/fts?network=${network}`,
       {},
       {},
       WEB_NEXT_URL
@@ -2070,10 +2121,10 @@ class OpenApiService {
     return data;
   };
 
-  getEvmNFT = async (address: string) => {
+  getEvmNFT = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/evm/${address}/nfts`,
+      `/api/evm/${address}/nfts?network=${network}`,
       {},
       {},
       WEB_NEXT_URL
@@ -2081,7 +2132,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceList = async (address: string, network = 'previewnet', offset = 0, limit = 5) => {
+  getNFTCadenceList = async (address: string, network = 'mainnet', offset = 0, limit = 5) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/id?network=${network}&address=${address}`,
@@ -2092,7 +2143,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceCollection = async (address: string, network = 'previewnet', identifier, offset = 0, limit = 24) => {
+  getNFTCadenceCollection = async (address: string, network = 'mainnet', identifier, offset = 0, limit = 24) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
@@ -2103,7 +2154,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTV2CollectionList = async (address: string, network = 'previewnet',) => {
+  getNFTV2CollectionList = async (address: string, network = 'mainnet',) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collections?network=${network}&address=${address}`,
@@ -2155,33 +2206,18 @@ class OpenApiService {
       const mainnetId = walletData.find(
         (item) => item.chain_id === 'mainnet'
       )?.id;
-      const result = await this.getLocation();
       const installationId = await this.getInstallationId();
       // console.log('location ', userlocation);
-      const userlocation = result.data;
 
       await this.addDevice({
         wallet_id: mainnetId ? mainnetId.toString() : '',
         wallettest_id: testnetId ? testnetId.toString() : '',
         device_info: {
-          city: userlocation.city,
-          continent: userlocation.country,
-          continentCode: userlocation.countryCode,
-          country: userlocation.country,
-          countryCode: userlocation.countryCode,
-          currency: userlocation.countryCode,
           device_id: installationId,
           district: '',
-          ip: userlocation.query,
-          isp: userlocation.as,
-          lat: userlocation.lat,
-          lon: userlocation.lon,
           name: 'FRW Chrome Extension',
-          org: userlocation.org,
-          regionName: userlocation.regionName,
           type: '2',
           user_agent: 'Chrome',
-          zip: userlocation.zip,
         },
       });
     } catch (error) {
@@ -2253,22 +2289,6 @@ class OpenApiService {
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
-  };
-
-  checkMigrationNetwork = async (address) => {
-    try {
-      const response = await fetch(
-        `https://rest-migrationtestnet.onflow.org/v1/accounts/${address}`
-      );
-
-      if (!response.ok) {
-        return {};
-      }
-
-      return await response.json();
-    } catch (error) {
-      return {};
-    }
   };
 }
 

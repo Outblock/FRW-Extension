@@ -198,7 +198,6 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
 
 
   useEffect(() => {
-    console.log('fetchWalletCollection ->', props.data.ownerAddress);
     if (props.data.ownerAddress) {
       setAddress(props.data.ownerAddress);
     }

@@ -67,7 +67,7 @@ const WalletTab = ({ network }) => {
   const [showMoveBoard, setMoveBoard] = useState(false);
   const [buyHover, setBuyHover] = useState(false);
   const [sendHover, setSendHover] = useState(false);
-  const [swapHover, setSwapHover] = useState(false);
+  const [canMoveChild, setCanMoveChild] = useState(true);
   const [receiveHover, setReceiveHover] = useState(false);
   const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
   const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
@@ -91,7 +91,6 @@ const WalletTab = ({ network }) => {
   const setUserAddress = async () => {
     let data = '';
     try {
-      console.log('setuserAddres ', childType)
       if (childType === 'evm') {
         data = await wallet.getEvmAddress();
       } else {
@@ -196,9 +195,8 @@ const WalletTab = ({ network }) => {
     // If childType is 'evm', handle it first
     if (childType === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
-      console.log('childType EVM ', storageData);
       sortWallet(storageData);
-      return; 
+      return;
     }
 
     // If not 'evm', check if it's active or not
@@ -212,7 +210,6 @@ const WalletTab = ({ network }) => {
     // Handle all non-evm and non-active cases here
     try {
       const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-      console.log('refreshCoinList result', refreshedCoinlist);
       if (refreshedCoinlist.length === 0) {
         refreshWithRetry(expiry_time);
       } else {
@@ -250,7 +247,6 @@ const WalletTab = ({ network }) => {
   const fetchChildState = async () => {
     setChildStateLoading(true)
     const isChild = await wallet.getActiveWallet();
-    console.log('isChild ', isChild)
     const childresp = await wallet.checkUserChildAccount();
     setChildAccount(childresp);
     setChildType(isChild);
@@ -300,6 +296,15 @@ const WalletTab = ({ network }) => {
   useEffect(() => {
     setUserAddress();
   }, [childType]);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const result = await wallet.checkCanMoveChild();
+      setCanMoveChild(result);
+    };
+
+    checkPermission();
+  }, []);
 
   return (
     <Box
@@ -372,60 +377,34 @@ const WalletTab = ({ network }) => {
             mb: '20px',
           }}
         >
-          <Box sx={{ display: 'flex', gap: '2px', width: network === 'previewnet' ? 'auto' : '100%', }}>
-
-            <Button
-              color="info3"
-              variant="contained"
-              onMouseEnter={() => setSendHover(true)}
-              onMouseLeave={() => setSendHover(false)}
-              onClick={() => history.push('/dashboard/wallet/send')}
-              sx={{
-                height: '36px',
-                borderTopLeftRadius: '24px',
-                borderBottomLeftRadius: '24px',
-                borderTopRightRadius: '0',
-                borderBottomRightRadius: '0',
-                px: '12px !important',
-                minWidth: '56px',
-                width: sendHover ? '100%' : '56px',
-                textTransform: 'capitalize !important',
-                flex: network === 'previewnet' ? 'auto' : '1',
-                transition: 'width 0.3s ease-in-out'
-              }}
-            >
-              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={sendIcon} />
-              {sendHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Send')}</Typography>}
-            </Button>
-
-            {isActive && (
+          <Box sx={{ display: 'flex', gap: '2px', width: '100%', }}>
+            {(!childType || childType ==='' || childType === 'evm') &&
               <Button
                 color="info3"
                 variant="contained"
+                onMouseEnter={() => setSendHover(true)}
+                onMouseLeave={() => setSendHover(false)}
+                onClick={() => history.push('/dashboard/wallet/send')}
                 sx={{
                   height: '36px',
+                  borderTopLeftRadius: '24px',
+                  borderBottomLeftRadius: '24px',
+                  borderTopRightRadius: '0',
+                  borderBottomRightRadius: '0',
                   px: '12px !important',
                   minWidth: '56px',
-                  borderRadius: '0px',
-                  width: swapHover ? '100%' : '56px',
+                  width: sendHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
-                  flex: network === 'previewnet' ? 'auto' : '1',
+                  flex: '1',
                   transition: 'width 0.3s ease-in-out'
                 }}
-                onMouseEnter={() => setSwapHover(true)}
-                onMouseLeave={() => setSwapHover(false)}
-                onClick={() => {
-                  if (swapConfig) {
-                    history.push('/dashboard/wallet/swap');
-                  } else {
-                    window.open(incLink, '_blank', 'noopener,noreferrer');
-                  }
-                }}
               >
-                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={swapIcon} />
-                {swapHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Swap')}</Typography>}
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={sendIcon} />
+                {sendHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Send')}</Typography>}
               </Button>
-            )}
+
+            }
+
 
             <Button
               color="info3"
@@ -434,11 +413,13 @@ const WalletTab = ({ network }) => {
                 height: '36px',
                 px: '12px !important',
                 minWidth: '56px',
+                borderTopLeftRadius: (!childType || childType ==='' || childType === 'evm') ? '0px' :'24px',
+                borderBottomLeftRadius: (!childType || childType ==='' || childType === 'evm') ? '0px' :'24px',
                 borderTopRightRadius: isActive ? '0px' : '24px',
                 borderBottomRightRadius: isActive ? '0px' : '24px',
                 width: receiveHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
-                flex: network === 'previewnet' ? 'auto' : '1',
+                flex: '1',
                 transition: 'width 0.3s ease-in-out'
               }}
               onMouseEnter={() => setReceiveHover(true)}
@@ -462,7 +443,7 @@ const WalletTab = ({ network }) => {
                   minWidth: '56px',
                   width: buyHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
-                  flex: network === 'previewnet' ? 'auto' : '1',
+                  flex: '1',
                   transition: 'width 0.3s ease-in-out'
                 }}
                 onMouseEnter={() => setBuyHover(true)}
@@ -474,13 +455,16 @@ const WalletTab = ({ network }) => {
               </Button>
             }
           </Box>
+          {canMoveChild
+            &&
 
-          {(network === 'previewnet' || network === 'testnet' || (childAccount && Object.keys(childAccount).length > 0)) && (
-            <Box sx={{ flex: '1' }}>
+
+            <Box sx={{ flex: '1 1 5px' }}>
             </Box>
-          )}
+          }
+          {canMoveChild
+            &&
 
-          {(network === 'previewnet' || network === 'testnet' || (childAccount && Object.keys(childAccount).length > 0)) && (
             <Box>
               <Button
                 color="info3"
@@ -494,7 +478,7 @@ const WalletTab = ({ network }) => {
                 </Typography>
               </Button>
             </Box>
-          )}
+          }
 
         </Box>
         <Tabs

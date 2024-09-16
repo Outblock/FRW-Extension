@@ -16,16 +16,9 @@ import { FCLWalletConnectMethod } from '@/ui/utils/type';
 import SignClient from '@walletconnect/sign-client';
 import { PairingTypes, SessionTypes } from '@walletconnect/types';
 import * as bip39 from 'bip39';
-import HDWallet from 'ethereum-hdwallet';
+import { storage } from 'background/webapi';
 import { QRCode } from 'react-qrcode-logo';
 import lilo from 'ui/FRWAssets/image/lilo.png';
-
-interface AccountKey {
-  hashAlgo: number;
-  publicKey: string;
-  signAlgo: number;
-  weight: number;
-}
 
 interface DeviceInfoRequest {
   deviceId: string;
@@ -73,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAccountKey, setDeviceInfo }) => {
+const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, confirmPk, setUsername, setAccountKey, setDeviceInfo }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const [Uri, setUri] = useState('');
@@ -118,6 +111,7 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setA
                 methods: [
                   FCLWalletConnectMethod.accountInfo,
                   FCLWalletConnectMethod.proxysign,
+                  FCLWalletConnectMethod.proxyaccount,
                   FCLWalletConnectMethod.addDeviceInfo
                 ],
                 chains: [`flow:${currentNetwork}`],
@@ -134,7 +128,6 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setA
             const session = await approval()
             await onSessionConnected(session);
 
-            console.log('session ', session);
             sendRequest(wallet, session.topic);
 
             // onSessionConnect(session)
@@ -144,7 +137,6 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setA
           console.error(e)
         }
         await setWeb3Wallet(wallet);
-        console.log('web3wallet', web3wallet);
       } catch (e) {
         console.error(e);
       }
@@ -189,60 +181,36 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setA
 
   async function sendRequest(wallet: SignClient, topic: string) {
     console.log(wallet)
+    const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
+    const jwtToken = await usewallet.requestProxyToken();
     wallet.request({
       topic: topic,
       chainId: `flow:${currentNetwork}`,
       request: {
-        method: FCLWalletConnectMethod.proxysign,
-        params: [],
+        method: FCLWalletConnectMethod.proxyaccount,
+        params: {
+          method: FCLWalletConnectMethod.proxyaccount,
+          data: {
+            deviceInfo: deviceInfo,
+            jwt: jwtToken
+          }
+        },
       },
     }).then(async (result: any) => {
-      console.log('result ', result);
+      console.log(result);
       const jsonObject = JSON.parse(result);
-      console.log('jsonObject ', jsonObject);
-      if (jsonObject.method === FCLWalletConnectMethod.proxysign) {
-        const accountKey: AccountKey = getAccountKey();
-        const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
-        const ak = {
-          public_key: accountKey.publicKey,
-          hash_algo: accountKey.hashAlgo,
-          sign_algo: accountKey.signAlgo,
-          weight: accountKey.weight,
-        }
-        console.log('sent ->', accountKey)
-        confirmMnemonic(mnemonic);
-        setAccountKey(ak);
-        setDeviceInfo(deviceInfo);
-        wallet.request({
-          topic: topic,
-          chainId: `flow:${currentNetwork}`,
-          request: {
-            method: FCLWalletConnectMethod.addDeviceInfo,
-            params: {
-              method: '',
-              data: {
-                username: '',
-                accountKey: accountKey,
-                deviceInfo: deviceInfo
-              }
-            },
-          },
-        })
-          .then(async (sent) => {
-            handleClick();
-            // usewallet.signInV3(mnemonic, ak, deviceInfo).then(async (result) => {
-              
-            //   const userInfo = await usewallet.getUserInfo(true);
-            //   setUsername(userInfo.username);
-            //   handleClick();
-            // }).catch((error) => {
-            //   console.error('Error in sign in wallet request:', error);
-            // });
-          })
-          .catch((error) => {
-            console.error('Error in second wallet request:', error);
-          });
+      const accountKey = {
+        public_key: jsonObject.data.publicKey,
+        hash_algo: Number(jsonObject.data.hashAlgo),
+        sign_algo: Number(jsonObject.data.signAlgo),
+        weight : Number(jsonObject.data.weight)
       }
+      usewallet.openapi.loginV3(accountKey, deviceInfo, jsonObject.data.signature);
+      storage.set(`${jsonObject.data.userId}Topic`, topic);
+      confirmMnemonic(mnemonic);
+      confirmPk(jsonObject.data.publicKey)
+      console.log('jsonObject ', jsonObject);
+      handleClick();
     }).catch((error) => {
       console.error('Error in first wallet request:', error);
     });
@@ -250,23 +218,6 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setA
 
   }
 
-
-
-
-  const getAccountKey = () => {
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const publicKey = hdwallet
-      .derive("m/44'/539'/0'/0/0")
-      .getPublicKey()
-      .toString('hex');
-    const key: AccountKey = {
-      hashAlgo: 1,
-      signAlgo: 2,
-      weight: 1000,
-      publicKey: publicKey,
-    };
-    return key;
-  };
 
   const getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
     const result = await usewallet.openapi.getLocation();

@@ -18,6 +18,7 @@ import {
   passwordService,
   flownsService,
   stakingService,
+  proxyService,
 } from 'background/service';
 import BN from 'bignumber.js';
 import { openIndexPage } from 'background/webapi/tab';
@@ -42,9 +43,6 @@ import * as fcl from '@onflow/fcl';
 import {
   fclTestnetConfig,
   fclMainnetConfig,
-  fclCrescendoConfig,
-  fclPreviewnetConfig,
-  fclTestnetMigrationConfig,
 } from '../fclConfig';
 import { notification, storage } from 'background/webapi';
 import { NFTData, NFTModel } from '../service/networkModel';
@@ -54,7 +52,7 @@ import { getApp } from 'firebase/app';
 import { getAuth } from '@firebase/auth';
 import testnetCodes from '../service/swap/swap.deploy.config.testnet.json';
 import mainnetCodes from '../service/swap/swap.deploy.config.mainnet.json';
-import { pk2PubKey, seed2PubKey } from '../../ui/utils/modules/passkey';
+import { pk2PubKey, seed2PubKey, formPubKey } from '../../ui/utils/modules/passkey';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 import emoji from 'background/utils/emoji.json';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
@@ -69,6 +67,7 @@ export class WalletController extends BaseController {
   /* wallet */
   boot = (password) => keyringService.boot(password);
   isBooted = () => keyringService.isBooted();
+  loadMemStore = () => keyringService.loadMemStore();
   verifyPassword = (password: string) =>
     keyringService.verifyPassword(password);
 
@@ -180,12 +179,10 @@ export class WalletController extends BaseController {
 
     // only password is correct then we store it
     await passwordService.setPassword(password);
-
-    sessionService.broadcastEvent('unlock');
-    // const keyrings = await this.getKeyrings(password);
-    // const keys = this.extractKeys(keyrings);
     const pubKey = await this.getPubKey();
     await userWalletService.switchLogin(pubKey);
+
+    sessionService.broadcastEvent('unlock');
     // if (!alianNameInited && Object.values(alianNames).length === 0) {
     //   this.initAlianNames();
     // }
@@ -460,7 +457,20 @@ export class WalletController extends BaseController {
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
     for (const keyring of keyrings) {
-      if (keyring.mnemonic) {
+      if (
+        keyring.type === 'Simple Key Pair'
+      ) {
+        // If a private key is found, extract it and break the loop
+        privateKey = keyring.wallets[0].privateKey.toString('hex');
+        pubKTuple = await pk2PubKey(privateKey);
+        break;
+      } else if (keyring.activeIndexes[0] === 1) {
+        // If publicKey is found, extract it and break the loop
+        const serialized = await keyring.serialize();
+        const publicKey = serialized.publicKey;
+        pubKTuple = await formPubKey(publicKey);
+        break;
+      } else if (keyring.mnemonic) {
         // If mnemonic is found, extract it and break the loop
         const serialized = await keyring.serialize();
         const mnemonic = serialized.mnemonic;
@@ -512,6 +522,15 @@ export class WalletController extends BaseController {
     await keyringService.clearKeyrings();
 
     const keyring = await keyringService.createKeyringWithMnemonics(mnemonic);
+    keyringService.removePreMnemonics();
+    return this._setCurrentAccountFromKeyring(keyring);
+  };
+
+  createKeyringWithProxy = async (publicKey, mnemonic) => {
+    // TODO: NEED REVISIT HERE:
+    await keyringService.clearKeyrings();
+
+    const keyring = await keyringService.importPublicKey(publicKey, mnemonic);
     keyringService.removePreMnemonics();
     return this._setCurrentAccountFromKeyring(keyring);
   };
@@ -887,16 +906,12 @@ export class WalletController extends BaseController {
 
     // Try to get the cached result
     let meta = await storage.getExpiry(cacheKey);
-
     if (!meta) {
       try {
         const network = await this.getNetwork();
         let result = {};
         const address = await userWalletService.getMainWallet(network);
-
-        if (network !== 'crescendo' && network !== 'previewnet') {
-          result = await openapiService.checkChildAccountMeta(address);
-        }
+        result = await openapiService.checkChildAccountMeta(address);
 
         if (result) {
           meta = result;
@@ -1065,17 +1080,21 @@ export class WalletController extends BaseController {
 
       let allBalanceMap;
       try {
+        console.log('fetch allBalanceMap ')
         allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
       } catch (error) {
         console.error('Error fetching token list balance:');
         throw new Error('Failed to fetch token list balance');
       }
       const data = await openapiService.getTokenPrices();
-
       // Map over tokenList to get prices and handle errors individually
       const pricesPromises = tokenList.map(async (token) => {
         try {
-          return await this.tokenPrice(token.symbol, data);
+          if (Object.keys(data).length === 0 && data.constructor === Object) {
+            return { price: { last: '0.0', change: { percentage: '0.0' } } }
+          } else {
+            return await this.tokenPrice(token.symbol, data);
+          }
         } catch (error) {
           console.error(`Error fetching price for token ${token.symbol}:`, error);
           return null;
@@ -1257,9 +1276,16 @@ export class WalletController extends BaseController {
     const tokenList = await openapiService.getTokenListFromGithub(network);
 
     const address = await this.getEvmAddress();
+    if (!isValidEthereumAddress(address)) {
+
+      return new Error("Invalid Ethereum address");
+    }
+
     const allBalanceMap = await openapiService.getEvmFT(
       address || '0x',
+      network
     );
+
     const flowBalance = await this.getBalance(address);
 
 
@@ -1267,7 +1293,6 @@ export class WalletController extends BaseController {
       return tokenList.map(token => {
         const balanceInfo = allBalanceMap.find(balance => balance.address === token.address);
         let balance = balanceInfo ? (Number(balanceInfo.balance) / 1e18) : null;
-
         // If the token unit is 'flow', set the balance to flowBalance
         if (token.symbol.toLowerCase() === 'flow') {
           balance = flowBalance / 1e18;
@@ -1330,7 +1355,9 @@ export class WalletController extends BaseController {
   reqeustEvmNft = async () => {
     const address = await this.getEvmAddress();
 
-    const evmList = await openapiService.getEvmNFT(address);
+    const network = await this.getNetwork();
+
+    const evmList = await openapiService.getEvmNFT(address, network);
     return evmList;
   };
 
@@ -1363,8 +1390,10 @@ export class WalletController extends BaseController {
         return cachedNFTList;
       } else {
         // Fetch the nftList from the API
+
+        const network = await this.getNetwork();
         const response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/previewnet/flow/nfts.json`
+          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/nfts.json`
         );
         const res = await response.json();
         console.log('nftList ', res)
@@ -1476,7 +1505,6 @@ export class WalletController extends BaseController {
     const filteredData = v2data.data.wallets.filter(
       (item) => item.blockchain !== null
     );
-    console.log('v2data refreshed wallets ', filteredData)
 
     if (!active) {
       userInfoService.addUserId(v2data.data.id);
@@ -1488,7 +1516,6 @@ export class WalletController extends BaseController {
 
   getUserWallets = async () => {
     const network = await this.getNetwork();
-    console.log('network getUserWallets ', network)
     const wallets = await userWalletService.getUserWallets(network);
     if (!wallets[0]) {
       await this.refreshUserWallets();
@@ -1588,12 +1615,7 @@ export class WalletController extends BaseController {
 
 
   createCOA = async (amount = '0.0'): Promise<string> => {
-    const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-
-    }
     const formattedAmount = parseFloat(amount).toFixed(8);
 
     const script = await getScripts('evm', 'createCoa');
@@ -1612,11 +1634,6 @@ export class WalletController extends BaseController {
   createCoaEmpty = async (): Promise<string> => {
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-
-    }
-
     const script = await getScripts('evm', 'createCoaEmpty');
 
     return await userWalletService.sendTransaction(
@@ -1632,9 +1649,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
     const script = await getScripts('evm', 'transferFlowToEvmAddress');
     if (recipientEVMAddressHex.startsWith('0x')) {
       recipientEVMAddressHex = recipientEVMAddressHex.substring(2);
@@ -1657,9 +1672,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
 
     const script = await getScripts('bridge', 'bridgeTokensToEvmAddress');
     if (contractEVMAddress.startsWith('0x')) {
@@ -1692,9 +1705,7 @@ export class WalletController extends BaseController {
     // Convert the formatted amount to an integer
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
 
     const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlow');
     console.log('tokenContractAddress ', tokenContractAddress, tokenContractName, integerAmount, receiver)
@@ -1715,10 +1726,6 @@ export class WalletController extends BaseController {
   withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
-
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
     const script = await getScripts('evm', 'withdrawCoa');
 
     return await userWalletService.sendTransaction(
@@ -1739,9 +1746,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
     const script = await getScripts('evm', 'fundCoa');
 
     return await userWalletService.sendTransaction(
@@ -1761,9 +1766,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
     const script = await getScripts('bridge', 'bridgeTokensToEvm');
 
     return await userWalletService.sendTransaction(
@@ -1787,9 +1790,7 @@ export class WalletController extends BaseController {
     // Convert the formatted amount to an integer
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
     const script = await getScripts('bridge', 'bridgeTokensFromEvm');
 
     return await userWalletService.sendTransaction(
@@ -1824,13 +1825,6 @@ export class WalletController extends BaseController {
     } else {
       await this.refreshEvmWallets();
     }
-
-    const network = await this.getNetwork();
-
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw new Error('Network is not previewnet');
-    }
-
     try {
       const script = await getScripts('evm', 'getCoaAddr');
       const result = await fcl.query({
@@ -1850,6 +1844,24 @@ export class WalletController extends BaseController {
     }
   };
 
+  checkCanMoveChild = async () => {
+    const mainAddress = await this.getMainAddress();
+    const isChild = await this.getActiveWallet();
+    if (!isChild) {
+      const evmAddress = await this.queryEvmAddress(mainAddress!);
+      const childResp = await this.checkUserChildAccount();
+      const isEmptyObject = (obj: any) => {
+        return Object.keys(obj).length === 0 && obj.constructor === Object;
+      };
+      if (evmAddress !== '' || !isEmptyObject(childResp)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
 
 
   sendEvmTransaction = async (to: string, gas, value, data) => {
@@ -1858,9 +1870,7 @@ export class WalletController extends BaseController {
     }
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
     const script = await getScripts('evm', 'callContract');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
@@ -1878,7 +1888,6 @@ export class WalletController extends BaseController {
       fcl.arg(gasLimit, t.UInt64),
     ]);
     const res = await fcl.tx(result).onceSealed();
-    console.log('res ', res)
     for (const event of res.events) {
       if (event.data.transactionHash) {
         return event.data.transactionHash;
@@ -1899,9 +1908,7 @@ export class WalletController extends BaseController {
     }
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
     const script = await getScripts('evm', 'callContract');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
@@ -1943,9 +1950,7 @@ export class WalletController extends BaseController {
   getBalance = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
     if (hexEncodedAddress.startsWith('0x')) {
       hexEncodedAddress = hexEncodedAddress.substring(2);
     }
@@ -1971,9 +1976,7 @@ export class WalletController extends BaseController {
   getNonce = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
 
-    if (network !== 'previewnet' && network !== 'testnet') {
-      throw Error;
-    }
+
 
     const script = await getScripts('evm', 'getNonce');
 
@@ -2049,7 +2052,6 @@ export class WalletController extends BaseController {
     address: string,
     amount: string
   ): Promise<string> => {
-    console.log('inbox');
 
 
     const token = await openapiService.getTokenInfo(symbol);
@@ -2060,7 +2062,6 @@ export class WalletController extends BaseController {
     }
     const network = await this.getNetwork();
 
-    console.log('this is network ', network);
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
@@ -2206,7 +2207,11 @@ export class WalletController extends BaseController {
 
   enableNFTStorageLocal = async (token: NFTModel) => {
     const script = await getScripts('collection', 'enableNFTStorage');
-
+    if (token['contractName']) {
+      token.contract_name = token['contractName']
+      token.path.storage_path = token['path']['storage']
+      token.path.public_path = token['path']['public']
+    }
     return await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
@@ -2353,7 +2358,6 @@ export class WalletController extends BaseController {
     parent: string,
     child: string,
   ) => {
-    console.log('parent is this ', parent, child)
 
     const script = await getScripts('hybridCustody', 'getChildAccountAllowTypes');
     const result = await fcl.query({
@@ -2765,6 +2769,14 @@ export class WalletController extends BaseController {
     return userWalletService.sigInWithPk(pk, replaceUser);
   };
 
+  signInWithProxy = async (token: string, user: string) => {
+    return proxyService.proxySign(token, user);
+  };
+
+  requestProxyToken = async () => {
+    return proxyService.requestJwt();
+  };
+
   signInV3 = async (
     mnemonic: string,
     accountKey: any,
@@ -2796,11 +2808,6 @@ export class WalletController extends BaseController {
       await fclTestnetConfig();
     } else if (network == 'mainnet') {
       await fclMainnetConfig();
-    } else if (network == 'migrationTestnet') {
-      await fclTestnetMigrationConfig();
-    } else {
-      // await fclCrescendoConfig();
-      await fclPreviewnetConfig();
     }
     this.refreshAll();
 
@@ -2881,9 +2888,6 @@ export class WalletController extends BaseController {
         break;
       case 'crescendo':
         baseURL = 'https://flow-view-source.vercel.app/crescendo';
-        break;
-      case 'previewnet':
-        baseURL = 'https://previewnet.flowdiver.io';
         break;
     }
     return baseURL;
@@ -3005,7 +3009,8 @@ export class WalletController extends BaseController {
     // change the address to real address after testing complete
     // const address = await this.getCurrentAddress();
     const limit = 24;
-    const data = await openapiService.nftCatalogList(address!, limit, offset);
+    const network = await this.getNetwork();
+    const data = await openapiService.nftCatalogList(address!, limit, offset, network);
     const nfts = data.nfts;
     if (!nfts) {
       return {
@@ -3020,7 +3025,6 @@ export class WalletController extends BaseController {
       return [...new Map(arr.map((item) => [item[key], item])).values()];
     }
     const unique_nfts = getUniqueListBy(nfts, 'unique_id');
-    const network = await this.getNetwork();
     const result = { nfts: unique_nfts, nftCount: data.nftCount };
     nftService.setNft(result, network);
     return result;
@@ -3079,11 +3083,13 @@ export class WalletController extends BaseController {
     contract: string,
     offset = 0
   ) => {
+    const network = await this.getNetwork();
     const data = await openapiService.nftCatalogCollectionList(
       address!,
       contract,
       24,
-      offset
+      offset,
+      network
     );
 
     data.nfts.map((nft) => {
@@ -3142,7 +3148,7 @@ export class WalletController extends BaseController {
     // change the address to real address after testing complete
     // const address = await this.getCurrentAddress();
     const network = await this.getNetwork();
-    const data = await openapiService.nftCatalogCollections(address!);
+    const data = await openapiService.nftCatalogCollections(address!, network);
     if (!data) {
       return [];
     }
@@ -3177,12 +3183,7 @@ export class WalletController extends BaseController {
       const cadenceScrpts = await storage.get('cadenceScripts');
       const now = new Date();
       const exp = 1000 * 60 * 60 * 1 + now.getTime();
-      let network = await userWalletService.getNetwork();
-
-      if (network === 'migrationTestnet') {
-        network = 'testnet-migration'
-      }
-
+      const network = await userWalletService.getNetwork();
       if (
         cadenceScrpts &&
         cadenceScrpts['expiry'] &&
@@ -3197,7 +3198,6 @@ export class WalletController extends BaseController {
 
       const cadenceScriptsV2 = (await openapiService.cadenceScriptsV2()) ?? {};
       // const { scripts, version } = cadenceScriptsV2;
-      console.log('cadenceScriptsV2 ', cadenceScriptsV2)
       // const cadenceVersion = cadenceScriptsV2.version;
       const cadence = cadenceScriptsV2.scripts[network]
 
@@ -3476,15 +3476,7 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  checkPreviewnet = async () => {
-    const result = await userWalletService.checkPreviewnet();
-    return result;
-  };
 
-  checkTestnetMigration = async () => {
-    const result = await userWalletService.checkTestnetMigration();
-    return result;
-  };
 
   getAccount = async () => {
     const address = await this.getCurrentAddress();
@@ -3537,27 +3529,6 @@ export class WalletController extends BaseController {
   };
 
 
-
-
-  setMigration = async () => {
-    const testnetAddress = JSON.parse(JSON.stringify(userWalletService.getUserWallets('testnet')));
-    const migrationTestnetAddress = JSON.parse(JSON.stringify(testnetAddress));
-
-    const result = await openapiService.checkMigrationNetwork(migrationTestnetAddress[0].blockchain[0].address);
-
-    if (result && result.address) {
-      // Update chain_id to 'migrationTestnet' for migrationTestnetAddress
-      migrationTestnetAddress[0].blockchain[0].chain_id = 'migrationTestnet';
-      migrationTestnetAddress[0].chain_id = 'migrationTestnet';
-
-      // Ensure testnetAddress keeps 'testnet' as chain_id
-      testnetAddress[0].blockchain[0].chain_id = 'testnet';
-      testnetAddress[0].chain_id = 'testnet';
-
-      // Set the updated addresses in the user wallet service
-      await userWalletService.setUserTestnetMigration(migrationTestnetAddress, testnetAddress);
-    }
-  };
 }
 
 export default new WalletController();

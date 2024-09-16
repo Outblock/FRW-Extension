@@ -10,6 +10,7 @@ import { EVENTS } from 'consts';
 import providerController from './controller';
 import eventBus from '@/eventBus';
 import Wallet from '../wallet';
+import { isValidEthereumAddress } from '@/ui/utils/address';
 
 const isSignApproval = (type: string) => {
   const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx', 'EthConfirm'];
@@ -50,23 +51,25 @@ const flowContext = flow
       mapMethod,
     } = ctx;
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-
-      const hasEvm = userWalletService.checkPreviewnet();
-      console.log('hasEvm checkpreview ', hasEvm)
-      if (!hasEvm.length) {
-        throw new Error('previewnet must has at least one account.');
+      const mainwallet = await Wallet.getMainWallet();
+      const evmAddress = await Wallet.queryEvmAddress(mainwallet);
+      const currentNetwork = await Wallet.getNetwork();
+      if (!isValidEthereumAddress(evmAddress)) {
+        throw new Error('evm must has at least one account.');
+      } else {
+        const walletInfo = {
+          name: 'evm',
+          address: evmAddress,
+          chain_id: currentNetwork,
+          coins: ['flow'],
+          id: 1
+        }
+        await Wallet.setActiveWallet(walletInfo, 'evm');
       }
       const isUnlock = keyringService.memStore.getState().isUnlocked;
       const site = permissionService.getConnectedSite(origin);
       if (mapMethod === 'ethAccounts' && (!site || !isUnlock)) {
         throw new Error('Origin not connected. Please connect first.');
-      }
-
-
-      const network = await Wallet.getNetwork();
-
-      if (network !== 'previewnet' && network !== 'testnet') {
-        throw new Error('Network not in previewnet or testnet.');
       }
 
       if (!isUnlock) {

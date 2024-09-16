@@ -30,13 +30,11 @@ class CoinList {
         coinItem: {
           testnet: {},
           crescendo: {},
-          previewnet:{},
           mainnet: {},
         },
         evm: {
           testnet: {},
           crescendo: {},
-          previewnet:{},
           mainnet: {},
         },
         currentCoin: 'flow'

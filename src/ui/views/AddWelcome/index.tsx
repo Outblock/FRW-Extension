@@ -89,7 +89,7 @@ const AddWelcome = () => {
                 <Typography sx={{ color: 'primary.light', display: 'inline' }}>
                   <span> {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}</span>
                 </Typography>
-                
+
               </Typography>
 
 
@@ -121,12 +121,12 @@ const AddWelcome = () => {
                 </Typography>
               </Button>
 
-
-              {/* <Button
+              {/* 
+              <Button
                 variant="contained"
                 color="secondary"
                 component={Link}
-                to="/add"
+                to="/proxysync"
                 size="large"
                 sx={{
                   display: 'flex',
@@ -154,7 +154,7 @@ const AddWelcome = () => {
                     }
                   }}
                 >
-                  {chrome.i18n.getMessage('Import_your_wallet')}
+                  Proxy
                 </Typography>
               </Button> */}
 
@@ -217,7 +217,7 @@ const AddWelcome = () => {
                   }
                 }}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%', alignItems: 'center'}}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%', alignItems: 'center' }}>
                   <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
                   <Typography
                     variant="subtitle1"

@@ -117,7 +117,6 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   }, []);
 
   useEffect(() => {
-    console.log('props data ', props.data)
     if (props.data.coinInfo.unit) {
       setOccupied(false);
     }

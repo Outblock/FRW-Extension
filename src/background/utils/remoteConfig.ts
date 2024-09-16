@@ -29,9 +29,6 @@ class fetchRemoteConfig {
     },
     testnet: {
       result:{}, expireTime:0
-    },
-    previewnet: {
-      result:{}, expireTime:0
     }
   };
   configState: CacheState = {result:{}, expireTime:0};
@@ -71,7 +68,7 @@ class fetchRemoteConfig {
     }
     if (expire < now.getTime()) {
       try {
-        const result = await openapi.nftCollectionList();
+        const result = await openapi.getNFTListFromGithub(network);
         // fetch(`${baseURL}/fetchNFTList`);
         // const result = await coins.json();
         this.nftState[network].result = result;

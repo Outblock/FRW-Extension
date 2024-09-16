@@ -22,6 +22,7 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -87,7 +88,6 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
 
   const sendNFT = async () => {
     // setSending(true);
-    console.log('props send ', props.data)
     await moveNFTToFlow();
 
   }
@@ -96,34 +96,51 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
 
 
   const returnFilteredCollections = (contractList, NFT) => {
+    console.log('contractList ', contractList, NFT)
     return contractList.filter(
       (collection) => collection.name == NFT.collectionName
     );
-  }
+  };
 
 
 
   const moveNFTToFlow = async () => {
     setSending(true);
     // setSending(true);
-    console.log('props send ', props.data.userContact.address, props.data.nft.collectionContractName, props.data.nft.id)
     const contractList = await wallet.openapi.getAllNft();
-    console.log('contractList ', contractList)
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft)
+    console.log('selectedAccount ', selectedAccount)
     console.log('filteredCollections ', filteredCollections)
 
-    const privatePath = filteredCollections[0].path.private_path;
-    console.log('privatePath ', privatePath)
-    const lastPart = privatePath.split('/').pop();
+    if (isValidEthereumAddress(selectedAccount!['address'])) {
+      await moveNFTToEvm();
+    } else {
+      wallet.sendNFTtoChild(selectedAccount!['address'], '', props.data.nft.id, filteredCollections[0]).then(async (txID) => {
+        wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
+        props.handleCloseIconClicked();
+        await wallet.setDashIndex(0);
+        setSending(false);
+        history.push('/dashboard?activity=1');
+      }).catch((err) => {
+        console.log('err ', err)
+        setSending(false);
+        setFailed(true);
+      })
+    }
 
-    wallet.sendNFTtoChild(selectedAccount!['address'], lastPart, props.data.nft.id, filteredCollections[0]).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
+
+
+  };
+
+  const moveNFTToEvm = async () => {
+    setSending(true);
+    wallet.batchBridgeNftToEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch((err) => {
-      console.log('err ', err)
+    }).catch(() => {
       setSending(false);
       setFailed(true);
     })
@@ -150,10 +167,31 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
 
   const getChildResp = async () => {
     const childresp = await wallet.checkUserChildAccount();
-    setChildWallets(childresp)
-    const firstWalletAddress = Object.keys(childresp)[0];
+    const ewallet: any = await wallet.getEvmWallet();
+    const emojires = await wallet.getEmoji();
+    let evmAddress
+    if (ewallet.address) {
+      evmAddress = ensureEvmAddressPrefix(ewallet.address)
+    }
+    let evmWallet = {}
+    if (evmAddress) {
+      evmWallet = {
+        [evmAddress!]: {
+          "name": emojires[1].name,
+          "description": emojires[1].name,
+          "thumbnail": {
+            "url": emojires[1].emoji
+          }
+        }
+      };
+    }
+
+    // Merge wallet lists
+    const walletList = { ...childresp, ...evmWallet };
+    setChildWallets(walletList)
+    const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {
-      setSelectedChildAccount(childresp[firstWalletAddress]);
+      setSelectedChildAccount(walletList[firstWalletAddress]);
     }
   }
 

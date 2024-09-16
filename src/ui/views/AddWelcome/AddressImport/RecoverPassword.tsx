@@ -155,7 +155,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
   };
 
   const signIn = async () => {
-    console.log('accountKey ', accountKey, mnemonic, pk)
     setLoading(true);
     if (accountKey[0].mnemonic) {
       signMnemonic(accountKey);
@@ -184,7 +183,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
   const signPk = async (accountKey) => {
     try {
       const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
-      console.log('result ->', result)
       setLoading(false);
       const userInfo = await wallet.getUserInfo(true);
       setUsername(userInfo.username)

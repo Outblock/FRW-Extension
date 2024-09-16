@@ -78,6 +78,10 @@ class KeyringService extends EventEmitter {
     this.store = new ObservableStore(initState);
   }
 
+  loadMemStore() {
+    return this.memStore.getState()
+  }
+
   async boot(password: string) {
     this.password = password;
     const encryptBooted = await this.encryptor.encrypt(password, 'true');
@@ -132,6 +136,40 @@ class KeyringService extends EventEmitter {
         keyring = _keyring;
         return this.persistAllKeyrings.bind(this);
       })
+      .then(this.setUnlocked.bind(this))
+      .then(this.fullUpdate.bind(this))
+      .then(() => keyring);
+  }
+
+  /**
+   * Import Keychain using Proxy publickey
+   *
+   * @emits KeyringController#unlock
+   * @param {string} privateKey - The privateKey to generate address
+   * @returns {Promise<Object>} A Promise that resolves to the state.
+   */
+  importPublicKey(key: string, seed: string): Promise<any> {
+    let keyring;
+    return this.persistAllKeyrings()
+      .then(() => {
+        return this.addNewKeyring('HD Key Tree', {
+          publicKey: key,
+          mnemonic: seed,
+          activeIndexes: [1],
+        });
+      })
+      .then((firstKeyring) => {
+        console.log('firstKeyring ', firstKeyring)
+        keyring = firstKeyring;
+        return firstKeyring.getAccounts();
+      })
+      .then(([firstAccount]) => {
+        if (!firstAccount) {
+          throw new Error('KeyringController - First Account not found.');
+        }
+        return null;
+      })
+      .then(this.persistAllKeyrings.bind(this))
       .then(this.setUnlocked.bind(this))
       .then(this.fullUpdate.bind(this))
       .then(() => keyring);
@@ -658,47 +696,66 @@ class KeyringService extends EventEmitter {
         const currentId = await storage.get('currentId');
 
         const oldVault = this.store.getState().vault;
+        const deepVault = await storage.get('deepVault') || []; // Retrieve deepVault from storage
 
         const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
+        const deepVaultArray = Array.isArray(deepVault) ? deepVault : [deepVault]; // Ensure deepVault is treated as array
 
         // Handle the case when currentId is available
         if (currentId !== null && currentId !== undefined) {
-          // Find if an entry with currentId already exists
+          // Find if an entry with currentId already exists in both vault and deepVault
           const existingIndex = vaultArray.findIndex(entry =>
             entry !== null &&
             entry !== undefined &&
             Object.prototype.hasOwnProperty.call(entry, currentId)
           );
 
+          const existingDeepVaultIndex = deepVaultArray.findIndex(entry =>
+            entry !== null &&
+            entry !== undefined &&
+            Object.prototype.hasOwnProperty.call(entry, currentId)
+          );
 
           if (existingIndex !== -1) {
-            // Update existing entry
+            // Update existing entry in vault
             vaultArray[existingIndex][currentId] = encryptedString;
           } else {
-            // Add new entry
+            // Add new entry to vault
             const newEntry = {};
             newEntry[currentId] = encryptedString;
             vaultArray.push(newEntry);
           }
+
+          if (existingDeepVaultIndex !== -1) {
+            // Update existing entry in deepVault
+            deepVaultArray[existingDeepVaultIndex][currentId] = encryptedString;
+          } else {
+            // Add new entry to deepVault
+            const newDeepEntry = {};
+            newDeepEntry[currentId] = encryptedString;
+            deepVaultArray.push(newDeepEntry);
+          }
         } else {
           // Handle the case when currentId is not provided
           if (accountIndex < vaultArray.length) {
-            vaultArray[accountIndex] = encryptedString; // Update the element at the specified index
+            vaultArray[accountIndex] = encryptedString; // Update the element at the specified index in vault
           } else {
             vaultArray[0] = encryptedString;
           }
         }
 
-        // Remove the old entry at accountIndex if currentId was handled
-        // if (currentId !== null && currentId !== undefined && accountIndex < vaultArray.length) {
-        //   vaultArray.splice(accountIndex, 1);
-        // }
-
-        // Update the store's state with the new vault array
-        this.store.updateState({ vault: vaultArray });
+        // Update both vault and deepVault
+        if (vaultArray && vaultArray.length > 0) {
+          this.store.updateState({ vault: vaultArray });
+        }
+        if (deepVaultArray && deepVaultArray.length > 0) {
+          await storage.set('deepVault', deepVaultArray); // Save deepVault in storage
+        }
 
         return true;
       });
+
+
   }
 
   /**
@@ -778,6 +835,17 @@ class KeyringService extends EventEmitter {
   async retrievePk(password: string): Promise<any[]> {
     let vaultArray = this.store.getState().vault;
 
+    // If vault is unavailable or empty, retrieve from deepVault
+    if (!vaultArray || vaultArray.length === 0) {
+      console.warn("Vault not found, retrieving from deepVault...");
+      vaultArray = await storage.get('deepVault');
+
+      if (!vaultArray) {
+        throw new Error(i18n.t('Cannot unlock without a previous vault or deep vault'));
+      }
+    }
+
+
     // Ensure vaultArray is an array
     if (typeof vaultArray === 'string') {
       vaultArray = [vaultArray];
@@ -794,7 +862,7 @@ class KeyringService extends EventEmitter {
       } else if (typeof vaultEntry === 'string') {
         encryptedString = vaultEntry;
       } else {
-        continue; 
+        continue;
       }
 
       try {
@@ -816,8 +884,13 @@ class KeyringService extends EventEmitter {
       let keyType, value;
 
       if (item.type === "HD Key Tree") {
-        keyType = "mnemonic";
-        value = item.data.mnemonic;
+        if (item.data.activeIndexes[0] === 1) {
+          keyType = "publicKey";
+          value = item.data.publicKey;
+        } else {
+          keyType = "mnemonic";
+          value = item.data.mnemonic;
+        }
       } else if (item.type === "Simple Key Pair") {
         keyType = "privateKey";
         value = item.data[0];
@@ -826,7 +899,7 @@ class KeyringService extends EventEmitter {
       return { index, keyType, value };
     });
 
-    return extractedData; 
+    return extractedData;
   }
 
 

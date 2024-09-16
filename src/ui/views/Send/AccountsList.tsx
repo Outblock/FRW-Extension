@@ -11,7 +11,7 @@ import { groupBy, isEmpty } from 'lodash';
 import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
 import { useHistory } from 'react-router-dom';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from '@/ui/utils/address';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import EmptyAddress from 'ui/assets/EmptyAddress.svg';
 
 type ChildAccount = {
@@ -24,7 +24,7 @@ type ChildAccount = {
   };
 };
 
-const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
+const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
 
 
   const usewallet = useWallet();
@@ -56,7 +56,6 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
       };
     });
     const wdArray = await convertArrayToContactArray(walletData, emojiList)
-    console.log('walletData ', walletData, wallet)
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     if (childresp) {
       const cAccountArray = convertObjectToContactArray(childresp)
@@ -67,19 +66,21 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
 
     // putDeviceInfo(fData);
     await setWalletList(wdArray);
-    if ((currentNetwork === 'previewnet' || currentNetwork === 'testnet') && walletData[0].address) {
-      usewallet.queryEvmAddress(walletData[0].address).then((res) => {
+    if (walletData[0].address) {
+      const evmAddress = await usewallet.queryEvmAddress(walletData[0].address!);
+
+      if (isValidEthereumAddress(evmAddress)) {
+
+        const evmWallet = evmAddress;
         const evmData = walletData[0]
-        evmData.address = res;
+        evmData.address = evmWallet;
         evmData['avatar'] = emojiList[1].emoji
         evmData['contact_name'] = emojiList[1].name
         evmData['bgcolor'] = emojiList[1].bgcolor
         setEvmAddress([evmData]);
-      }).catch((err) => {
-        console.log('evm error ', err)
-      });
-    }
+      }
 
+    }
   }
 
   function convertObjectToContactArray(data) {
@@ -120,11 +121,14 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
 
 
   const goEth = (group) => {
+    if (isSend) {
 
-    history.push({
-      pathname: '/dashboard/wallet/sendeth',
-      state: { contact: group },
-    })
+      history.push({
+        pathname: '/dashboard/wallet/sendeth',
+        state: { contact: group },
+      })
+
+    }
   }
 
   useEffect(() => {
@@ -165,18 +169,20 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
           </List>
         ))
       )}
-      <ListSubheader
-        sx={{
-          lineHeight: '18px',
-          marginTop: '0px',
-          marginBottom: '0px',
-          backgroundColor: '#000000',
-          textTransform: 'capitalize',
-          py: '4px',
-        }}
-      >
-        {chrome.i18n.getMessage('Linked_Account')}
-      </ListSubheader>
+      {(!isEmpty(evmAddress) || !isEmpty(childAccounts)) &&
+        <ListSubheader
+          sx={{
+            lineHeight: '18px',
+            marginTop: '0px',
+            marginBottom: '0px',
+            backgroundColor: '#000000',
+            textTransform: 'capitalize',
+            py: '4px',
+          }}
+        >
+          {chrome.i18n.getMessage('Linked_Account')}
+        </ListSubheader>
+      }
       {!isEmpty(evmAddress) && (
         evmAddress.map((eachgroup, index) => (
           <List
@@ -188,9 +194,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick }) => {
               <ButtonBase
                 key={`card-${index}`}
                 sx={{ display: 'contents' }}
-                onClick={() =>
-                  goEth(eachgroup)
-                }
+                onClick={() => isSend ? goEth(eachgroup) : handleClick(eachgroup)}
+
               >
                 <LLContactEth
                   contact={eachgroup}

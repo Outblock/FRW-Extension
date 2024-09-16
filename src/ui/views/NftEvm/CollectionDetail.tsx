@@ -353,7 +353,7 @@ const CollectionDetail = (props) => {
               </Grid>
               <Grid item sx={{ ml: 0, pl: '18px' }}>
                 <Typography component="div" color="text.primary" variant="h6">
-                  {truncate(info?.collectionDisplay?.name || info.name, 16)}
+                  {truncate(info?.collectionDisplay?.name || info.contractName, 16)}
                 </Typography>
 
                 <Tooltip title={chrome.i18n.getMessage('Refresh')} arrow>

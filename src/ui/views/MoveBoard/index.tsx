@@ -15,6 +15,7 @@ import MoveFromChild from './MoveFromChild';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import MoveFromEvm from '../EvmMove/MoveFromEvm';
 import MoveFromChildFT from '../EvmMove/MoveFromChild';
+import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { add } from 'lodash';
 
 
@@ -37,7 +38,7 @@ const MoveBoard = (props: MoveBoardProps) => {
   const [moveFtOpen, setMoveFt] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
   const [network, setNetwork] = useState<string>('');
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
 
   // console.log('props.loggedInAccounts', props.current)
 
@@ -58,18 +59,6 @@ const MoveBoard = (props: MoveBoardProps) => {
   }, [])
 
   const renderMoveComponent = () => {
-    if (network === 'previewnet') {
-      return (
-        <MoveNfts
-          showMoveBoard={showSelectNft}
-          handleCloseIconClicked={() => setSelectBoard(false)}
-          handleCancelBtnClicked={() => setSelectBoard(false)}
-          handleAddBtnClicked={() => setSelectBoard(false)}
-          handleReturnHome={() => props.handleCancelBtnClicked()}
-        />
-      );
-    }
-
     if (childType === 'evm') {
       return (
         <MoveEvm
@@ -118,7 +107,7 @@ const MoveBoard = (props: MoveBoardProps) => {
           }}
         />
       );
-    } else if (network === 'previewnet' || network === 'testnet') {
+    } else {
       return (
         <MoveFromFlow
           isConfirmationOpen={moveFtOpen}
@@ -131,18 +120,6 @@ const MoveBoard = (props: MoveBoardProps) => {
         />
       );
 
-    }
-    else {
-      return (
-        <ErrorModel
-          isOpen={moveFtOpen}
-          onOpenChange={() => {
-            setMoveFt(false);
-          }}
-          errorName={'Feature coming soon'}
-          errorMessage={'Feature coming soon'}
-        />
-      );
     }
   };
 
@@ -178,6 +155,7 @@ const MoveBoard = (props: MoveBoardProps) => {
             </IconButton>
           </Box>
         </Box>
+
 
         <Box
           sx={{
@@ -237,7 +215,12 @@ const MoveBoard = (props: MoveBoardProps) => {
             },
           }}
           onClick={() => {
-            setMoveFt(true);
+            if (childType && childType !== 'evm') {
+              setAlertOpen(true)
+            } else {
+              setMoveFt(true);
+
+            }
           }}>
           <CardMedia component="img" sx={{ width: '140px', height: 'auto', display: 'inline', }} image={moveft} />
           <Typography sx={{ color: '#FFFFFF', fontSize: '14px', weight: '600', textTransform: 'capitalize' }}>
@@ -245,6 +228,13 @@ const MoveBoard = (props: MoveBoardProps) => {
           </Typography>
         </Button>
       </Box>
+
+      {network === 'mainnet' && (
+        <LLComingSoon
+          alertOpen={alertOpen}
+          handleCloseIconClicked={() => setAlertOpen(false)}
+        />
+      )}
       {showSelectNft && renderMoveComponent()}
 
       {moveFtOpen && renderMoveFT()}

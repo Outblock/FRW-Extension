@@ -8,7 +8,7 @@ import theme from '../../../style/LLTheme';
 import RegisterHeader from '../AddRegister/RegisterHeader';
 import AllSet from '../AddRegister/AllSet';
 import SetPassword from './SetPassword';
-import SyncQr from './SyncQr';
+import ProxyQr from './ProxyQr';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
@@ -22,10 +22,11 @@ enum Direction {
   Left,
 }
 
-const Sync = () => {
+const ProxySync = () => {
   const history = useHistory();
   const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
+  const [publickey, setPubkey] = useState('');
   const [mnemonic, setMnemonic] = useState('');
   const [username, setUsername] = useState('');
   const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
@@ -40,7 +41,6 @@ const Sync = () => {
   };
 
   const loadView = async () => {
-    // console.log(wallet);
     wallet.getCurrentAccount().then((res) => {
       if (res) {
         history.push('/');
@@ -77,16 +77,17 @@ const Sync = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <SyncQr
+        return <ProxyQr
           handleClick={goNext}
           savedUsername={username}
           confirmMnemonic={setMnemonic}
+          confirmPk={setPubkey}
           setUsername={getUsername}
           setAccountKey={setAccountKey}
           setDeviceInfo={setDeviceInfo}
         />;
       case 1:
-        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} setUsername={getUsername} accountKey={accountKey} deviceInfo={deviceInfo} />;
+        return <SetPassword handleClick={goNext} mnemonic={mnemonic} publickey={publickey} username={username} setUsername={getUsername} accountKey={accountKey} deviceInfo={deviceInfo} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:
@@ -95,7 +96,6 @@ const Sync = () => {
   };
 
   useEffect(() => {
-    console.log('wallet');
     loadView();
   }, []);
 
@@ -179,4 +179,4 @@ const Sync = () => {
   );
 };
 
-export default Sync;
+export default ProxySync;

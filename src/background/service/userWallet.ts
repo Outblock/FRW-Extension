@@ -2,7 +2,7 @@ import { createPersistStore } from 'background/utils';
 import { WalletResponse, BlockchainResponse, ChildAccount, DeviceInfoRequest } from './networkModel';
 import * as fcl from '@onflow/fcl';
 import * as secp from '@noble/secp256k1';
-import { keyringService, openapiService } from 'background/service';
+import { keyringService, openapiService, proxyService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
@@ -36,8 +36,6 @@ class UserWallet {
           mainnet: [],
           testnet: [],
           crescendo: [],
-          previewnet: [],
-          migrationTestnet: [],
         },
         childAccount: {},
         currentWallet: {
@@ -70,8 +68,6 @@ class UserWallet {
         mainnet: [],
         testnet: [],
         crescendo: [],
-        previewnet: [],
-        migrationTestnet: [],
       },
       childAccount: {},
       currentWallet: {
@@ -99,22 +95,10 @@ class UserWallet {
 
   setUserWallets = async (filteredData, network) => {
 
-    // Initialize previewnet as empty
-    let previewnetExists = false;
-
     for (const wallet of filteredData) {
       const chainId = wallet.chain_id;
       this.store.wallets[chainId] = [wallet];
-      if (chainId === "previewnet") {
-        previewnetExists = true;
-      }
     }
-
-    // Ensure previewnet is set to an empty array if it doesn't exist in filteredData
-    if (!previewnetExists) {
-      this.store.wallets["previewnet"] = [];
-    }
-
 
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
       const current = this.store.wallets[network][0].blockchain[0];
@@ -124,10 +108,6 @@ class UserWallet {
     }
   };
 
-  setUserTestnetMigration = (wallet, testnetAddress) => {
-    this.store.wallets["migrationTestnet"] = wallet;
-    this.store.wallets["testnet"] = testnetAddress;
-  };
 
   setChildWallet = (wallet: ChildAccount) => {
     this.store.childAccount = wallet;
@@ -160,14 +140,6 @@ class UserWallet {
     return this.store.wallets['crescendo'];
   };
 
-  checkPreviewnet = () => {
-    return this.store.wallets['previewnet'];
-  };
-
-  checkTestnetMigration = () => {
-    return this.store.wallets['migrationTestnet'];
-  };
-
   setNetwork = async (network: string) => {
     if (!this.store) {
       await this.init();
@@ -192,7 +164,6 @@ class UserWallet {
   };
 
   refreshEvm = () => {
-    console.log('refreshEvm ')
     this.store.evmWallet = {
       name: '',
       address: '',
@@ -259,7 +230,7 @@ class UserWallet {
   };
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
-
+    //add proxy
     const allowed = await wallet.allowLilicoPay();
     const txID = await fcl.mutate({
       cadence: cadence,
@@ -377,7 +348,6 @@ class UserWallet {
     const tx = signable.voucher;
     const message = signable.message;
     const envelope = await openapiService.signProposer(tx, message);
-    console.log('envelope ', envelope)
     const signature = envelope.envelopeSigs.sig;
     return signature;
   };
@@ -385,7 +355,6 @@ class UserWallet {
   proposerAuthFunction = async (account: any = {}) => {
     // authorization function need to return an account
     const proposer = await openapiService.getProposer();
-    console.log('proposer ', proposer);
     const address = fcl.withPrefix(proposer.data.address);
     const ADDRESS = fcl.withPrefix(address);
     // TODO: FIX THIS
@@ -398,7 +367,6 @@ class UserWallet {
       signingFunction: async (signable) => {
         // Singing functions are passed a signable and need to return a composite signature
         // signable.message is a hex string of what needs to be signed.
-        console.log('signable ', signable);
         const signature = await this.signProposer(signable);
         return {
           addr: fcl.withPrefix(ADDRESS), // needs to be the same as the account.addr but this time with a prefix, eventually they will both be with a prefix
@@ -411,7 +379,6 @@ class UserWallet {
 
 
   payerAuthFunction = async (account: any = {}) => {
-    console.log('payer ', account);
     // authorization function need to return an account
     const payer = await wallet.getPayerAddressAndKeyId();
     const address = fcl.withPrefix(payer.address);

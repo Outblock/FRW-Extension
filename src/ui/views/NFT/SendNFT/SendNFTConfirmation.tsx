@@ -22,6 +22,9 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import erc721 from 'background/utils/erc721.abi.json';
+import Web3 from 'web3';
+import { EVM_ENDPOINT } from 'consts'
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -39,7 +42,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
   const [isChild, setIsChild] = useState(false);
+  const [erc721Contract, setErcContract] = useState<any>(null);
   const [count, setCount] = useState(0);
+  const [web3, setWeb3] = useState<any>(null);
   const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
 
   const startCount = () => {
@@ -85,9 +90,24 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const sendNFT = async () => {
     setSending(true);
-    if (isChild || props.data.linked) {
+    const activeChild = await wallet.getActiveWallet();
+    const { address } = props.data.contact;
+    const isEvm = activeChild === 'evm';
+    const isEvmAddress = address.length > 20;
+    if (isEvm && isEvmAddress) {
+      console.log('send evm to evm');
+      await evmToEvm();
+    } else if (isEvm && !isEvmAddress) {
+      console.log('send evm to flow');
+      await evmToFlow();
+    } else if (!isEvm && isEvmAddress) {
+      console.log('send flow to evm');
+      await flowToEvm();
+    } else if (isChild || props.data.linked) {
+      console.log('send child nft');
       sendChildNft();
     } else {
+      console.log('send nft');
       try {
         const childresp = await wallet.checkUserChildAccount();
         let containsKey = false;
@@ -99,16 +119,13 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         let txID = '';
         if (containsKey) {
 
-
-          const privatePath = props.data.contract.path.private_path;
-          const lastPart = privatePath.split('/').pop();
-          txID = await wallet.sendNFTtoChild(props.data.contact.address, lastPart, parseInt(props.data.nft.id), props.data.contract)
+          txID = await wallet.sendNFTtoChild(props.data.contact.address, '', parseInt(props.data.nft.id), props.data.contract)
 
         }
         else if (props.data.contract.contract_name.trim() == 'TopShot') {
           txID = await wallet.sendNBANFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
         } else {
-          txID = await wallet.sendInboxNFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
+          txID = await wallet.sendNFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
         }
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
@@ -131,9 +148,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     try {
       let txID = ''
       console.log('props.data ', props.data)
-      const privatePath = props.data.contract.path.private_path;
-      const lastPart = privatePath.split('/').pop();
-      txID = await wallet.sendNFTfromChild(props.data.userContact.address, props.data.contact.address, lastPart, parseInt(props.data.nft.id), props.data.contract)
+
+      txID = await wallet.sendNFTfromChild(props.data.userContact.address, props.data.contact.address, '', parseInt(props.data.nft.id), props.data.contract)
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
       await wallet.setDashIndex(0);
@@ -146,6 +162,67 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     } finally {
       setSending(false);
     }
+  }
+
+  const removeHexPrefix = (address) => {
+    return address.startsWith('0x') ? address.slice(2) : address;
+  };
+
+  const evmToEvm = async () => {
+    setSending(true);
+    const data = await wallet.getEvmAddress();
+    const dataWithoutPrefix = removeHexPrefix(data);
+    const contactAddressWithoutPrefix = removeHexPrefix(props.data.contact.address);
+    const encodedData = erc721Contract.methods.safeTransferFrom(dataWithoutPrefix, contactAddressWithoutPrefix, props.data.nft.id).encodeABI();
+    const gas = '1312d00';
+
+    wallet.sendEvmTransaction(props.data.nft.contractEvmAddress, gas, 0, encodedData).then(async (txID) => {
+      await wallet.setRecent(props.data.contact);
+      wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.nft.collectionContractName} Sent`, `You have sent 1 ${props.data.nft.collectionContractName} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.nft.collectionSquareImage);
+      props.handleCloseIconClicked();
+      await wallet.setDashIndex(0);
+      setSending(false);
+      setTid(txID);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log('err ', err)
+      setSending(false);
+      setFailed(true);
+    })
+  }
+
+  const evmToFlow = async () => {
+    setSending(true);
+    wallet.bridgeNftFromEvmToFlow(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.contact.address).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
+      props.handleCloseIconClicked();
+      await wallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch(() => {
+      setSending(false);
+      setFailed(true);
+    })
+  }
+
+  const flowToEvm = async () => {
+    setSending(true);
+    console.log('props ', props)
+    const data = await wallet.getEvmAddress();
+    const encodedData = erc721Contract.methods.safeTransferFrom(data, props.data.contact.address, props.data.nft.id).encodeABI();
+    const gas = '1312d00';
+    setSending(true);
+    wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.contract.evmAddress, encodedData, gas).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
+      props.handleCloseIconClicked();
+      await wallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log('send flow to evm encounter error: ', err)
+      setSending(false);
+      setFailed(true);
+    })
   }
 
   const transactionDoneHanlder = (request) => {
@@ -168,12 +245,24 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const checkChild = async () => {
     const ischild = await wallet.getActiveWallet();
     setIsChild(ischild)
-    console.log('props ', props.data)
   }
+
+  const initializeContract = async () => {
+    const network = await wallet.getNetwork();
+    const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
+    const web3Instance = new Web3(provider);
+    console.log('web3Instance ', web3Instance);
+    setWeb3(web3Instance);
+    const contractInstance = new web3Instance.eth.Contract(erc721, props.data.nft.contractEvmAddress);
+    console.log('contractInstance ', contractInstance);
+    setErcContract(contractInstance);
+  };
+
 
 
 
   useEffect(() => {
+    initializeContract();
     checkChild();
   }, []);
 

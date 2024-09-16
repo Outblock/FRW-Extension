@@ -11,8 +11,7 @@ import {
   CardMedia,
   Box
 } from '@mui/material';
-import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
-import AppleIcon from '@mui/icons-material/Apple';
+import { isValidEthereumAddress } from 'ui/utils/address';
 import { storage } from 'background/webapi';
 import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 import { LLHeader } from '@/ui/FRWComponent';
@@ -56,16 +55,14 @@ const Wallet = () => {
     const wallet = await usewallet.getUserWallets();
     const fectechdWallet = await fetchBalances(wallet);
     const network = await usewallet.getNetwork();
-    if (network === 'previewnet' || network === 'testnet') {
-      const evmWallet = await usewallet.getEvmWallet();
-      const filteredEvm = [evmWallet].filter(
-        evm => evm.address
+    const evmWallet = await usewallet.getEvmWallet();
+    const filteredEvm = [evmWallet].filter(
+      evm => evm.address
 
-      );
-      if (filteredEvm.length > 0) {
-        const fetchedEvm = await fetchEvmBalances(transformData(filteredEvm));
-        setEvmList(fetchedEvm)
-      }
+    );
+    if (filteredEvm.length > 0) {
+      const fetchedEvm = await fetchEvmBalances(transformData(filteredEvm));
+      setEvmList(fetchedEvm)
     }
     setEmojis(emojires);
     setWallet(fectechdWallet);
@@ -104,7 +101,10 @@ const Wallet = () => {
   const fetchEvmBalances = async (wallet) => {
     const updatedData = await Promise.all(wallet.map(async (item) => {
       const blockchainData = await Promise.all(item.blockchain.map(async (bc) => {
-        const balance = await usewallet.getBalance(bc.address);
+        let balance = ''
+        if (isValidEthereumAddress(bc.address)) {
+          balance = await usewallet.getBalance(bc.address);
+        }
         return { ...bc, balance };
       }));
       return { ...item, blockchain: blockchainData };

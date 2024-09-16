@@ -81,6 +81,8 @@ const Header = ({ loading }) => {
 
   const [isLoading, setLoading] = useState(loading);
 
+  const [mainAddressLoading, setMainLoading] = useState(true);
+
   const [evmLoading, setEvmLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const [userWallet, setWallet] = useState<any>(null);
@@ -100,12 +102,9 @@ const Header = ({ loading }) => {
   const [domain, setDomain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
-  const [crescendoAvailable, setSandboxnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
 
-  const [isSandboxEnabled, setSandboxEnabled] = useState(false);
 
-  const [isMigrationEnabled, setMigrationEnabled] = useState(false);
 
   const [flowBalance, setFlowBalance] = useState(0);
 
@@ -135,7 +134,6 @@ const Header = ({ loading }) => {
   };
 
   const wallets = (data) => {
-    console.log('userwallet ', data, currentNetwork)
     let sortData = data;
     const walletName = domain ? domain : 'Wallet';
     if (!Array.isArray(sortData)) {
@@ -166,15 +164,6 @@ const Header = ({ loading }) => {
       setModeAnonymous(true);
     }
 
-    const previewnet = (await usewallet.checkPreviewnet()) || [];
-    if (previewnet.length > 0) {
-      setSandboxEnabled(true);
-    }
-
-    const migration = (await usewallet.checkTestnetMigration()) || [];
-    if (migration.length > 0) {
-      setMigrationEnabled(true);
-    }
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
@@ -197,28 +186,32 @@ const Header = ({ loading }) => {
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
-    const childType = await usewallet.getActiveWallet();
-    const network = await usewallet.getNetwork();
-    if ((network === 'previewnet' || network === 'testnet') && currentWallet.address) {
-      usewallet.queryEvmAddress(currentWallet.address).then((res) => {
-        setEvmAddress(res!);
-        setEvmLoading(false);
-      }).catch(() => {
-        setEvmLoading(false);
-      });
-    }
-    if (childType === 'evm') {
-      const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
-      evmWallet.address = evmAddress
-      await setCurrent(evmWallet);
-    } else {
-      await setCurrent(currentWallet);
-    }
+    const mainAddress = await usewallet.getMainAddress();
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     const walletData = await usewallet.getUserInfo(true);
     const isChild = await usewallet.getActiveWallet();
+    if (mainAddress) {
+      try {
+        const res = await usewallet.queryEvmAddress(mainAddress);
+        setEvmAddress(res!);
+      } catch (err) {
+        console.log('queryEvmAddress err', err);
+      } finally {
+        setEvmLoading(false);
+      }
+    }
+
+    if (isChild === 'evm') {
+      const evmWallet = await usewallet.getEvmWallet();
+      const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
+      evmWallet.address = evmAddress
+      await setCurrent(evmWallet);
+      setMainLoading(false);
+    } else {
+      await setCurrent(currentWallet);
+      setMainLoading(false);
+    }
 
     const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
     if (!isChild) {
@@ -235,11 +228,6 @@ const Header = ({ loading }) => {
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
 
-    try {
-      await usewallet.setMigration();
-    } catch (error) {
-      console.error('Error during setMigration:', error);
-    }
     // usewallet.checkUserDomain(wallet.username);
   };
   const switchAccount = async (account) => {
@@ -260,13 +248,8 @@ const Header = ({ loading }) => {
   const loadNetwork = async () => {
     const network = await usewallet.getNetwork();
     setIsSandbox(false);
-    // if (network === 'crescendo') {
-    //   setIsSandbox(true);
-    // }
-    if (network === 'previewnet') {
-      setEvmLoading(true);
-      await setIsSandbox(true);
-    }
+
+    setEvmLoading(true);
     await setNetwork(network);
   }
 
@@ -321,10 +304,13 @@ const Header = ({ loading }) => {
     await usewallet.setActiveWallet(walletInfo, key);
     const currentWallet = await usewallet.getCurrentWallet();
     setCurrent(currentWallet);
+    setMainLoading(false);
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
     // TODO: replace it with better UX
+    history.push('/dashboard')
     window.location.reload();
+
   };
 
   const transactionHanlder = (request) => {
@@ -374,10 +360,6 @@ const Header = ({ loading }) => {
         return '#FF8A00';
       case 'crescendo':
         return '#CCAF21';
-      case 'previewnet':
-        return '#CCAF21';
-      case 'migrationTestnet':
-        return '#22BAD0';
     }
   };
 
@@ -439,8 +421,6 @@ const Header = ({ loading }) => {
     setTestnetAvailable(testnetAvailable);
     // const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
     // setSandboxnetAvailable(crescendoAvailable)
-    const previewAvailable = await usewallet.openapi.pingNetwork('previewnet');
-    setSandboxnetAvailable(previewAvailable);
   };
 
   useEffect(() => {
@@ -455,6 +435,7 @@ const Header = ({ loading }) => {
     toggleUsernameDrawer();
 
     // TODO: replace it with better UX
+    history.push('/dashboard')
     window.location.reload();
   };
 
@@ -732,107 +713,12 @@ const Header = ({ loading }) => {
             </ListItemButton>
           </ListItem>
           } */}
-          {isSandboxEnabled && (
-            <ListItem
-              disablePadding
-              key="previewnet"
-              secondaryAction={
-                !crescendoAvailable && (
-                  <ListItemText>
-                    <Typography
-                      variant="caption"
-                      component="span"
-                      display="inline"
-                      color="error.main"
-                    >
-                      {chrome.i18n.getMessage('Unavailable')}
-                    </Typography>
-                  </ListItemText>
-                )
-              }
-              onClick={() => {
-                switchNetwork('previewnet');
-              }}
-            >
-              <ListItemButton>
-                <ListItemIcon>
-                  <FiberManualRecordIcon
-                    style={{
-                      color: networkColor('previewnet'),
-                      fontSize: '10px',
-                      marginLeft: '10px',
-                      marginRight: '10px',
-                      opacity: currentNetwork == 'previewnet' ? '1' : '0.1',
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    display="inline"
-                    color="text"
-                  >
-                    {chrome.i18n.getMessage('Previewnet')}
-                  </Typography>
-                </ListItemText>
-              </ListItemButton>
-            </ListItem>
-          )}
-          {isMigrationEnabled && (
-            <ListItem
-              disablePadding
-              key="migrationTestnet"
-              secondaryAction={
-                !crescendoAvailable && (
-                  <ListItemText>
-                    <Typography
-                      variant="caption"
-                      component="span"
-                      display="inline"
-                      color="error.main"
-                    >
-                      {chrome.i18n.getMessage('Unavailable')}
-                    </Typography>
-                  </ListItemText>
-                )
-              }
-              onClick={() => {
-                switchNetwork('migrationTestnet');
-              }}
-            >
-              <ListItemButton>
-                <ListItemIcon>
-                  <FiberManualRecordIcon
-                    style={{
-                      color: networkColor('migrationTestnet'),
-                      fontSize: '10px',
-                      marginLeft: '10px',
-                      marginRight: '10px',
-                      opacity: currentNetwork == 'migrationTestnet' ? '1' : '0.1',
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    display="inline"
-                    color="text"
-                  >
-                    Testnet Migration
-                  </Typography>
-                </ListItemText>
-              </ListItemButton>
-            </ListItem>
-          )}
         </List>
       </>
     );
   };
 
   const createWalletList = (props) => {
-    console.log('props ', props)
     return (
       <List component="nav" key={props.id}>
         <WalletFunction
@@ -908,7 +794,7 @@ const Header = ({ loading }) => {
           } */}
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
-        {!isLoading && props && props.address ? (
+        {!mainAddressLoading && props && props.address ? (
           <Tooltip title={chrome.i18n.getMessage('Copy__Address')} arrow>
             <Button
               onClick={() => {

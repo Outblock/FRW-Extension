@@ -44,6 +44,7 @@ const Dashboard = ({ value, setValue }) => {
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [domain, setDomain] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [isEvm, setIsEvm] = useState<boolean>(false);
 
   const handleChangeIndex = (index) => {
     setValue(index);
@@ -57,6 +58,11 @@ const Dashboard = ({ value, setValue }) => {
       wallet.getNetwork(),
       wallet.fetchUserDomain(),
     ]);
+    const isChild = await wallet.getActiveWallet(); 
+
+    if (isChild === 'evm') {
+      setIsEvm(true)
+    }
 
     setNetwork(network);
     setDomain(userDomain);
@@ -91,7 +97,7 @@ const Dashboard = ({ value, setValue }) => {
             <WalletTab network={currentNetwork} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            {currentNetwork === 'previewnet' ?
+            {isEvm ?
               <NftEvm />
               :
               <NFTTab />

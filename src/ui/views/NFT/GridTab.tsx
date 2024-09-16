@@ -203,7 +203,6 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
     setNFTLoading(true);
     try {
       const response = await usewallet.refreshNft(address, 0);
-      // console.log('fetchNFT ->', nfts, nftCount);
       if (response.nfts) {
         const newList: any[] = []
         response.nfts.forEach(item => {
@@ -273,7 +272,6 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
   )
 
   // const hasMore = (): boolean => {
-  //   console.log('hasMore ->', nfts.length, total, nfts && nfts.length < total);
   //   return nfts && nfts.length < total
   //   // return false;
   // }

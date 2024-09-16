@@ -34,7 +34,10 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
     const childResp = await usewallet.checkUserChildAccount();
     const emojires = await usewallet.getEmoji();
     const evmWallet = await usewallet.getEvmWallet();
-    const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
+    let evmAddress
+    if (evmWallet.address) {
+      evmAddress = ensureEvmAddressPrefix(evmWallet.address)
+    }
 
     if (isChild) {
       const newWallet = {
@@ -72,7 +75,6 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
       if (firstWalletAddress) {
         setSelectedChildAccount(childResp[firstWalletAddress]);
       }
-      console.log('firstWalletAddress ', firstWalletAddress, userContact)
       setUser(userContact);
       setFirst(address!)
       setSecond(parentAddress!)

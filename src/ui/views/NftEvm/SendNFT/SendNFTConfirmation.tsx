@@ -94,7 +94,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const { address } = props.data.contact;
     const isEvm = activeChild === 'evm';
     const isEvmAddress = address.length > 20;
-    console.log('props.data ', props.data, activeChild)
     if (isEvm && isEvmAddress) {
       console.log('send evm to evm');
       await evmToEvm();

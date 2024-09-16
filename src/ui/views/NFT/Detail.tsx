@@ -113,7 +113,17 @@ const Detail = () => {
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
   const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
-  const [childAccount, setChildAccount] = useState({});
+  const [canMoveChild, setCanMoveChild] = useState(true);
+
+  useEffect(() => {
+    const checkPermission = async () => {
+      const result = await usewallet.checkCanMoveChild();
+      setCanMoveChild(result);
+    };
+
+    checkPermission();
+  }, []);
+
 
   useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
@@ -132,14 +142,11 @@ const Detail = () => {
 
   const fetchNft = async () => {
     const childResp = await usewallet.checkUserChildAccount();
-    setChildAccount(childResp)
     const userInfo = await usewallet.getUserInfo(false);
     const currentAddress = await usewallet.getCurrentAddress();
     const userWallets = await usewallet.getUserWallets();
-    console.log('userWallets ', userWallets);
     const parentAddress = userWallets[0].blockchain[0].address;
     const isChild = await usewallet.getActiveWallet();
-    console.log('currentAddress  ', isChild, currentAddress);
     const userTemplate = {
       avatar: userInfo.avatar,
       domain: {
@@ -152,7 +159,6 @@ const Detail = () => {
 
     if (isChild) {
       const wallet = childResp[currentAddress!];
-      console.log('checkUserChildAccount ', childResp)
       userOne = {
 
         avatar: wallet.thumbnail.url,
@@ -163,7 +169,6 @@ const Detail = () => {
         address: currentAddress,
         contact_name: wallet.name,
       };
-      console.log('checkUserChildAccount ', userOne)
       userTwo = {
         ...userTemplate,
         address: parentAddress,
@@ -185,7 +190,6 @@ const Detail = () => {
     setContactOne(userOne);
     setContactTwo(userTwo);
 
-    console.log('userInfo ', userInfo)
     setChildActive(isChild ? true : false);
 
 
@@ -303,29 +307,6 @@ const Detail = () => {
           <IconButton onClick={() => history.goBack()} className={classes.arrowback}>
             <ArrowBackIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
-          {/* {
-            nftDetail && 
-            <>
-              <IconButton onClick={handleClick} className={classes.extendMore}>
-                <MoreHorizIcon sx={{ color: 'icon.navi'}} />
-              </IconButton>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-              >
-                <MenuItem onClick={handleClose}>
-                  <a href={'https://lilico.app/nft/' + ownerAddress +'/'+ nftDetail.contract.address +'/'+ nftDetail.contract.name + '?tokenId=' + nftDetail.id.tokenId} target="_blank">
-                Share
-                  </a>
-                </MenuItem>
-              </Menu>
-            </>
-          } */}
         </Box>
 
         {nftDetail &&
@@ -423,8 +404,7 @@ const Detail = () => {
               {chrome.i18n.getMessage('Send')}
             </Button>
           }
-
-          {(nftDetail?.collectionID && Object.keys(childAccount!).length > 0) &&
+          {canMoveChild &&
             <Button
               sx={{
                 backgroundColor: '#FFFFFF33',

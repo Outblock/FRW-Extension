@@ -137,7 +137,6 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   };
 
   const CollectionView = (data) => {
-    console.log('props  ', props)
     return (
       <Card sx={{ borderRadius: '12px' }} className={classes.collectionCard}>
         <CardActionArea
@@ -207,10 +206,9 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   const createListCard = (props, index) => {
     return (
       <CollectionView
-        name={props.collection.name}
-        logo={props.collection.logo}
-        // number={props.number}
-        key={props.collection.name}
+        name={props.collection ? props.collection.name : props.name}
+        logo={props.collection ? props.collection.logo : props.logo}
+        key={props.collection ? props.collection.name : props.name}
         count={props.count}
         index={index}
         contract_name={props.collection.id}
