@@ -1083,8 +1083,8 @@ export class WalletController extends BaseController {
         console.log('fetch allBalanceMap ')
         allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
       } catch (error) {
-        console.error('Error fetching token list balance:');
-        throw new Error('Failed to fetch token list balance');
+        console.error('Error refresh token list balance:', error);
+        throw new Error('Failed to refresh token list balance');
       }
       const data = await openapiService.getTokenPrices();
       // Map over tokenList to get prices and handle errors individually
@@ -1181,7 +1181,7 @@ export class WalletController extends BaseController {
       try {
         allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
       } catch (error) {
-        console.error('Error fetching token list balance:');
+        console.error('Error fetching token list balance:', error);
         throw new Error('Failed to fetch token list balance');
       }
 
@@ -2847,8 +2847,7 @@ export class WalletController extends BaseController {
     }
 
     this.abort();
-    const signal = this.abortController.signal;
-    await this.refreshCoinList(5000, { signal });
+    await this.refreshCoinList(5000);
   };
 
   getNetwork = async (): Promise<string> => {
