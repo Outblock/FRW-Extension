@@ -87,7 +87,7 @@ const AddList = () => {
   const fetchList = async (data) => {
     setStatusLoading(true)
     try {
-      const enabledList = await usewallet.openapi.getEnabledNFTList(data);
+      const enabledList = await usewallet.openapi.getEnabledNFTList();
       if (enabledList.length > 0) {
         data.map(item => { item.added = (enabledList.filter(enabled => enabled.contract_name === item.contract_name && enabled.address === item.address).length > 0)})
       }

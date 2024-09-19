@@ -1613,92 +1613,104 @@ class OpenApiService {
     return await googleSafeHostService.getBlockList(hosts, forceCheck);
   };
 
-  getEnabledNFTList = async (nftData) => {
-    const address = await userWalletService.getCurrentAddress();
-    const requestLength = 50;
-    const promises: any[] = [];
-    for (let i = 0; i < nftData.length; i += requestLength) {
-      const requestList = nftData.slice(i, i + requestLength);
-      promises.push(this.checkNFTListEnabledNew(address, requestList));
-    }
+  getEnabledNFTList = async () => {
 
-    const promiseResult = await Promise.all(promises);
+    const address = await userWalletService.getCurrentAddress();
+
+
+    const promiseResult = await this.checkNFTListEnabledNew(address);
     console.log(promiseResult, 'promiseResult');
-    const values: any[] = promiseResult.flat();
 
     // const network = await userWalletService.getNetwork();
     // const notEmptyTokenList = tokenList.filter(value => value.address[network] !== null && value.address[network] !== '' )
     // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))
-    const result = values
-      .map((value, index) => {
-        if (value) {
-          return nftData[index];
-        }
-        return null;
-      })
-      .filter((item) => item);
-    return result;
+    const resultArray = Object.entries(promiseResult)
+      .filter(([_, value]) => value === true)  // Only keep entries with a value of true
+      .map(([key, _]) => {
+        const [prefix, address, contractName] = key.split('.');
+        return {
+          address: `0x${address}`,
+          contract_name: contractName
+        };
+      });
+    console.log(promiseResult, 'values', resultArray);
+
+    return resultArray;
   };
 
-  checkNFTListEnabledNew = async (
-    address: string,
-    allTokens
-  ): Promise<NFTModel[]> => {
-    const tokenImports = allTokens
-      .map((token) =>
-        'import <Token> from <TokenAddress>'
-          .replaceAll('<Token>', token.contract_name)
-          .replaceAll('<TokenAddress>', token.address)
-      )
-      .join('\r\n');
-    const tokenFunctions = allTokens
-      .map((token) =>
-        `
-      pub fun check<Token>Vault(address: Address) : Bool {
-        let account = getAccount(address)
 
-        let vaultRef = account
-        .getCapability<&{NonFungibleToken.CollectionPublic}>(<TokenCollectionPublicPath>)
-        .check()
 
-        return vaultRef
-      }
-      `
-          .replaceAll('<TokenCollectionPublicPath>', token.path.public_path)
-          .replaceAll('<Token>', token.contract_name)
-          .replaceAll('<TokenAddress>', token.address)
-      )
-      .join('\r\n');
 
-    const tokenCalls = allTokens
-      .map((token) =>
-        `
-      check<Token>Vault(address: address)
-      `.replaceAll('<Token>', token.contract_name)
-      )
-      .join(',');
+  checkNFTListEnabledNew = async (address: string) => {
+    const script = await getScripts('nft', 'checkNFTListEnabled');
+    console.log('script checkNFTListEnabledNew ', script)
 
-    const cadence = `
-      import NonFungibleToken from 0xNonFungibleToken
-      <TokenImports>
-
-      <TokenFunctions>
-
-      pub fun main(address: Address) : [Bool] {
-        return [<TokenCall>]
-      }
-    `
-      .replaceAll('<TokenFunctions>', tokenFunctions)
-      .replaceAll('<TokenImports>', tokenImports)
-      .replaceAll('<TokenCall>', tokenCalls);
-
-    const enabledList = await fcl.query({
-      cadence: cadence,
+    const isEnabledList = await fcl.query({
+      cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-
-    return enabledList;
+    return isEnabledList;
   };
+
+  // checkNFTListEnabledNew = async (
+  //   address: string,
+  //   allTokens
+  // ): Promise<NFTModel[]> => {
+  //   const tokenImports = allTokens
+  //     .map((token) =>
+  //       'import <Token> from <TokenAddress>'
+  //         .replaceAll('<Token>', token.contract_name)
+  //         .replaceAll('<TokenAddress>', token.address)
+  //     )
+  //     .join('\r\n');
+  //   const tokenFunctions = allTokens
+  //     .map((token) =>
+  //       `
+  //     pub fun check<Token>Vault(address: Address) : Bool {
+  //       let account = getAccount(address)
+
+  //       let vaultRef = account
+  //       .getCapability<&{NonFungibleToken.CollectionPublic}>(<TokenCollectionPublicPath>)
+  //       .check()
+
+  //       return vaultRef
+  //     }
+  //     `
+  //         .replaceAll('<TokenCollectionPublicPath>', token.path.public_path)
+  //         .replaceAll('<Token>', token.contract_name)
+  //         .replaceAll('<TokenAddress>', token.address)
+  //     )
+  //     .join('\r\n');
+
+  //   const tokenCalls = allTokens
+  //     .map((token) =>
+  //       `
+  //     check<Token>Vault(address: address)
+  //     `.replaceAll('<Token>', token.contract_name)
+  //     )
+  //     .join(',');
+
+  //   const cadence = `
+  //     import NonFungibleToken from 0xNonFungibleToken
+  //     <TokenImports>
+
+  //     <TokenFunctions>
+
+  //     pub fun main(address: Address) : [Bool] {
+  //       return [<TokenCall>]
+  //     }
+  //   `
+  //     .replaceAll('<TokenFunctions>', tokenFunctions)
+  //     .replaceAll('<TokenImports>', tokenImports)
+  //     .replaceAll('<TokenCall>', tokenCalls);
+
+  //   const enabledList = await fcl.query({
+  //     cadence: cadence,
+  //     args: (arg, t) => [arg(address, t.Address)],
+  //   });
+
+  //   return enabledList;
+  // };
 
   checkNFTListEnabled = async (
     address: string,
