@@ -1292,7 +1292,7 @@ export class WalletController extends BaseController {
     const mergeBalances = (tokenList, allBalanceMap, flowBalance) => {
       return tokenList.map(token => {
         const balanceInfo = allBalanceMap.find(balance => balance.address === token.address);
-        let balance = balanceInfo ? (Number(balanceInfo.balance) / 1e18) : null;
+        let balance = balanceInfo ? (Number(balanceInfo.balance) / Math.pow(10, balanceInfo.decimals)) : null;
         // If the token unit is 'flow', set the balance to flowBalance
         if (token.symbol.toLowerCase() === 'flow') {
           balance = flowBalance / 1e18;
