@@ -1066,6 +1066,36 @@ export class WalletController extends BaseController {
     }
   };
 
+  private evmtokenPrice = async (tokeninfo, data) => {
+    const token = tokeninfo.symbol.toLowerCase();
+    const price = await openapiService.getPricesByEvmaddress(tokeninfo.address, data);
+
+    switch (token) {
+      case 'flow': {
+        const flowTokenPrice = await storage.getExpiry('flowTokenPrice');
+        if (flowTokenPrice) {
+          return flowTokenPrice;
+        } else {
+          const result = await openapiService.getTokenPrice('flow');
+          await storage.setExpiry('flowTokenPrice', result, 300000); // 5 minutes in milliseconds
+          return result;
+        }
+      }
+      case 'usdc':
+        return await openapiService.getUSDCPrice();
+      case 'fusd':
+        return Promise.resolve({
+          price: { last: '1.0', change: { percentage: '0.0' } },
+        });
+      default:
+        if (price) {
+          return { price: { last: price, change: { percentage: '0.0' } } };
+        } else {
+          return null;
+        }
+    }
+  };
+
   refreshCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
     try {
 
@@ -1308,8 +1338,8 @@ export class WalletController extends BaseController {
     };
 
     const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
-    const data = await openapiService.getTokenPrices();
-    const prices = tokenList.map((token) => this.tokenPrice(token.symbol, data));
+    const data = await openapiService.getTokenEvmPrices();
+    const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
 
     const allPrice = await Promise.all(prices);
 

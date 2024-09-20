@@ -40,31 +40,12 @@ const NftEvm = () => {
   };
 
   const requestCadenceNft = async () => {
-    const nftList = await wallet.openapi.getAllNft();
-    const activeChild = await wallet.getActiveWallet();
-    if (activeChild === 'evm') {
-      setIsEvm('evm')
-      const evmNftResult = await wallet.reqeustEvmNft();
-      const tokensWithNfts = evmNftResult.filter(token => token.nftIds && token.nftIds.length > 0);
-      const nftresult = await convertToNftCatalogModel(tokensWithNfts);
-      setNftList(nftresult);
-    } else {
-      const cadenceResult = await wallet.requestCadenceNft();
-      let resultData = [];
-      if (cadenceResult.length) {
-        console.log('cadenceResult ', cadenceResult)
-        const collection = await wallet.requestCollectionInfo(cadenceResult[0].collection.id);
-        const result = getObjectById(nftList, cadenceResult[0].collection.id);
-        resultData = await convertToReactComponent(collection, result);
-      }
+    setIsEvm('evm')
+    const evmNftResult = await wallet.reqeustEvmNft();
+    const tokensWithNfts = evmNftResult.filter(token => token.nftIds && token.nftIds.length > 0);
+    const nftresult = await convertToNftCatalogModel(tokensWithNfts);
+    setNftList(nftresult);
 
-      setNftList(resultData);
-    }
-
-  };
-
-  const getObjectById = (array, id) => {
-    return array.find(item => item.id === id);
   };
 
   const convertToNftCatalogModel = (data) => {
@@ -101,39 +82,6 @@ const NftEvm = () => {
 
     console.log('convertedData', convertedData);
     return convertedData;
-  }
-
-  const convertToReactComponent = async (data, nftResult) => {
-    const { nfts } = data;
-    return nfts.map(nft => ({
-      id: nft.id,
-      name: nft.name,
-      description: nft.description,
-      thumbnail: nft.thumbnail,
-      externalURL: nft.externalURL,
-      contractAddress: nft.contractAddress,
-      collectionID: nft.collectionID,
-      collectionName: nft.collectionName,
-      collectionContractName: nft.collectionContractName,
-      collectionDescription: nft.collectionDescription,
-      collectionSquareImage: nft.collectionSquareImage,
-      collectionBannerImage: nft.collectionBannerImage,
-      collectionExternalURL: nft.collectionExternalURL,
-      contractEvmAddress: nftResult.evmAddress,
-      royalties: nft.royalties.cutInfos.map(cutInfo => ({
-        receiver: cutInfo.receiver,
-        cut: cutInfo.cut,
-        description: cutInfo.description
-      })),
-      contractInfo: data.collection.path,
-      traits: nft.traits,
-      postMedia: {
-        image: nft.postMedia.image,
-        isSvg: nft.postMedia.isSvg,
-        description: nft.postMedia.description,
-        title: nft.postMedia.title
-      }
-    }));
   }
 
 

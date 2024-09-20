@@ -567,8 +567,49 @@ class OpenApiService {
 
   };
 
+  getTokenEvmPrices = async () => {
+
+
+    const tokenPriceMap = await storage.getExpiry('evmPrice');
+    if (tokenPriceMap) {
+      return tokenPriceMap;
+    } else {
+      let data: any = [];
+      try {
+        const response = await this.sendRequest(
+          'GET',
+          `/api/prices`,
+          {},
+          {},
+          WEB_NEXT_URL
+        );
+        data = response.data || [];  // Ensure data is set to an empty array if response.data is undefined
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+        data = [];  // Set data to empty array in case of an error
+      }
+
+      data.map((d) => {
+        const { rateToUSD } = d;
+        if (d.evmAddress) {
+          const key = d.evmAddress.toLowerCase();
+          pricesMap[key] = rateToUSD.toFixed(4);
+
+        }
+      });
+      await storage.setExpiry('evmPrice', pricesMap, 300000); // 5 minutes in milliseconds
+      return pricesMap;
+    }
+
+  };
+
   getPricesBySymbol = async (symbol: string, data) => {
     const key = symbol.toUpperCase();
+    return data[key];
+  };
+
+  getPricesByEvmaddress = async (address: string, data) => {
+    const key = address.toLowerCase();
     return data[key];
   };
 
@@ -2122,6 +2163,25 @@ class OpenApiService {
     return data;
   };
 
+
+  getEvmFTPrice = async () => {
+    const gitPrice = await storage.getExpiry(`EVMPrice`);
+
+    if (gitPrice) {
+      return gitPrice;
+    } else {
+      const { data } = await this.sendRequest(
+        'GET',
+        `/api/prices`,
+        {},
+        {},
+        WEB_NEXT_URL
+      );
+      storage.setExpiry(`EVMPrice`, data, 6000);
+      return data;
+    }
+  };
+
   evmNFTList = async () => {
     const { data } = await this.sendRequest(
       'GET',
@@ -2137,6 +2197,41 @@ class OpenApiService {
     const { data } = await this.sendRequest(
       'GET',
       `/api/evm/${address}/nfts?network=${network}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+  EvmNFTcollectionList = async (address: string, network: string, collectionIdentifier: string, limit, offset) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+
+  EvmNFTID = async (address: string, network: string) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v3/evm/nft/id?network=${network}&address=${address}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+
+  EvmNFTList = async (address: string, network: string, limit, offset) => {
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v3/evm/nft/list?network=${network}&address=${address}&limit=${limit}&offset=${offset}`,
       {},
       {},
       WEB_NEXT_URL
