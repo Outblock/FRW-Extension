@@ -100,11 +100,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     } else if (isEvm && !isEvmAddress) {
       console.log('send evm to flow');
       await evmToFlow();
-    } else if (!isEvm && isEvmAddress) {
-      console.log('send flow to evm');
-      await flowToEvm();
-    } else {
-      await flowToFlow();
     }
 
   }
@@ -121,7 +116,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const encodedData = erc721Contract.methods.safeTransferFrom(dataWithoutPrefix, contactAddressWithoutPrefix, props.data.nft.id).encodeABI();
     const gas = '1312d00';
 
-    wallet.sendEvmTransaction(props.data.nft.contractEvmAddress, gas, 0, encodedData).then(async (txID) => {
+    console.log('rops.data ', props.data)
+
+    wallet.sendEvmTransaction(props.data.nft.evmAddress, gas, 0, encodedData).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.nft.collectionContractName} Sent`, `You have sent 1 ${props.data.nft.collectionContractName} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.nft.collectionSquareImage);
       props.handleCloseIconClicked();
@@ -138,8 +135,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const evmToFlow = async () => {
     setSending(true);
-    wallet.bridgeNftFromEvmToFlow(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.contact.address).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
+    wallet.bridgeNftFromEvmToFlow(props.data.nft.contractAddress, props.data.nft.contractName, props.data.nft.id, props.data.contact.address).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.contractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
       setSending(false);
@@ -148,54 +145,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
       setSending(false);
       setFailed(true);
     })
-  }
-
-  const flowToEvm = async () => {
-    setSending(true);
-    const data = await wallet.getEvmAddress();
-    const encodedData = erc721Contract.methods.safeTransferFrom(data, props.data.contact.address, props.data.nft.id).encodeABI();
-    const gas = '1312d00';
-    setSending(true);
-    wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.nft.contractEvmAddress, encodedData, gas).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
-      props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch(() => {
-      setSending(false);
-      setFailed(true);
-    })
-  }
-
-  const flowToFlow = async () => {
-    setSending(true);
-    console.log('props.data ', props.data)
-    const contractTokenModel = {
-      contract_name: props.data.nft.collectionContractName,
-      address: props.data.nft.contractAddress,
-      path: props.data.nft.contractInfo,
-    }
-    console.log('props.data ', contractTokenModel)
-    try {
-      let txID = ''
-      if (props.data.nft.collectionContractName.trim() == 'TopShot') {
-        txID = await wallet.sendNBANFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
-      } else {
-        txID = await wallet.sendNFT(props.data.contact.address, parseInt(props.data.nft.id), contractTokenModel)
-      }
-      await wallet.setRecent(props.data.contact);
-      wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
-      await wallet.setDashIndex(0);
-      history.push('/dashboard?activity=1');
-      props.handleAddBtnClicked();
-    } catch (error) {
-      console.log(error);
-      setFailed(true);
-      setSending(false);
-    } finally {
-      setSending(false);
-    }
   }
 
   const transactionDoneHanlder = (request) => {
