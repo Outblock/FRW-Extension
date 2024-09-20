@@ -11,78 +11,32 @@ import GridTab from './GridTab';
 import ListTab from './ListTab';
 import EditNFTAddress from './EditNFTAddress';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import {
+  ensureEvmAddressPrefix,
+} from '@/ui/utils/address';
 
 const NftEvm = () => {
   const wallet = useWallet();
 
-  const [address, setAddress] = useState<string | null>('');
+  const [address, setAddress] = useState<string | null>(null);
   const [value, setValue] = useState(0);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
-  const [isAddAddressOpen, setIsAddAddressOpen] = useState<boolean>(false);
   const [nftCount, setCount] = useState<number>(0);
   const [accessible, setAccessible] = useState<any>([]);
   const [isActive, setIsActive] = useState(true);
-  const [nftList, setNftList] = useState<any>(null);
-  const [isEvm, setIsEvm] = useState<string>('');
   const gridRef = useRef<any>(null);
   const listRef = useRef<any>(null);
 
   useEffect(() => {
     fetchPreferedTab();
     loadNFTs();
-    requestCadenceNft();
   }, []);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
     storage.set('PreferredNFT', newValue);
   };
-
-  const requestCadenceNft = async () => {
-    setIsEvm('evm')
-    const evmNftResult = await wallet.reqeustEvmNft();
-    const tokensWithNfts = evmNftResult.filter(token => token.nftIds && token.nftIds.length > 0);
-    const nftresult = await convertToNftCatalogModel(tokensWithNfts);
-    setNftList(nftresult);
-
-  };
-
-  const convertToNftCatalogModel = (data) => {
-
-    const convertedData = data.flatMap(item =>
-      item.nfts.map(nft => {
-        const flowIdentifierParts = item.flowIdentifier ? item.flowIdentifier.split('.') : [];
-        return {
-          id: nft.id,
-          name: nft.name,
-          description: '',
-          thumbnail: nft.thumbnail,
-          externalURL: item.tokenURI,
-          contractEvmAddress: item.address,
-          contractAddress: flowIdentifierParts[1] ? '0x' + flowIdentifierParts[1] : '',
-          collectionID: item.flowIdentifier || '',
-          collectionName: item.name,
-          collectionContractName: flowIdentifierParts[2] || '',
-          collectionDescription: '',
-          collectionSquareImage: item.logoURI,
-          collectionBannerImage: '',
-          collectionExternalURL: '',
-          royalties: [],
-          traits: [],
-          postMedia: {
-            image: nft.thumbnail,
-            isSvg: false,
-            description: '',
-            title: nft.name,
-          },
-        };
-      })
-    );
-
-    console.log('convertedData', convertedData);
-    return convertedData;
-  }
 
 
   const loadNFTs = async () => {
@@ -91,7 +45,7 @@ const NftEvm = () => {
     // const flowCoins = fetchRemoteConfig.flowCoins();
     setIsActive(false);
     // setAddress(address);
-    setAddress(address);
+    setAddress(ensureEvmAddressPrefix(address));
   }
 
   const fetchPreferedTab = async () => {
@@ -199,75 +153,29 @@ const NftEvm = () => {
               }
             }>{chrome.i18n.getMessage('List')}</StyledTab>
           </TabsListStyle>
-          {!childType &&
-            <Box component='span'>
-              <Button
-                component={Link}
-                to='/dashboard/nested/evm/add_list'
-                variant='contained'
-                color='secondary'
-                sx={{
-                  width: '46px',
-                  height: '35px',
-                  borderRadius: '12px',
-                  minWidth: '46px',
-                  padding: '6px 9px',
-                  zIndex: 12,
-                  opacity: '0.24',
-                }}
-              >
-                <Typography color='#111111'
-                  sx={{
-                    fontWeight: '600',
-                    fontSize: '0.875rem',
-                    textTransform: 'none'
-                  }}
-                >
-                  {chrome.i18n.getMessage('Add')}
-                </Typography>
-              </Button>
-            </Box>
-          }
         </Box>
 
-        <EditNFTAddress
-          isAddAddressOpen={isAddAddressOpen}
-          handleCloseIconClicked={() => setIsAddAddressOpen(false)}
-          handleCancelBtnClicked={() => setIsAddAddressOpen(false)}
-          handleAddBtnClicked={() => {
-            wallet.clearNFT();
-            setIsAddAddressOpen(false);
-            gridRef!.current.reload();
-            listRef!.current?.reload();
-          }}
-          setAddress={setAddress}
-          address={address!}
-          isEdit={isEdit}
-        />
-
         <TabPanelStyle value={0} sx={{ width: '100%' }} id="scrollableTab">
-          {nftList &&
+          {address &&
             <GridTab
               setCount={setCount}
               data={{ ownerAddress: address }}
               ref={gridRef}
               accessible={accessible}
               isActive={isActive}
-              nftList={nftList}
             />
           }
         </TabPanelStyle>
         <TabPanelStyle value={1} sx={{ width: '100%' }}>
-          {nftList &&
+          {address &&
             <ListTab
               setCount={setCount}
               data={{ ownerAddress: address }}
               ref={listRef}
               accessible={accessible}
               isActive={isActive}
-              nftList={nftList}
-              isEvm={isEvm}
             />
+
           }
         </TabPanelStyle>
       </Tabs>

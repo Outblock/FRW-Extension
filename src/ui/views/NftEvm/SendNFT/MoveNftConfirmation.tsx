@@ -85,21 +85,16 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
   const sendNFT = async () => {
     // setSending(true);
-    const activeChild = await wallet.getActiveWallet();
-    const isEvm = activeChild === 'evm';
-    if (isEvm) {
-      await moveNFTToFlow();
-    } else {
-      await moveNFTToEvm();
-    }
+    moveNFTToFlow();
 
   }
 
 
   const moveNFTToFlow = async () => {
     setSending(true);
+    console.log('props.data ', props.data)
 
-    wallet.batchBridgeNftFromEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
+    wallet.batchBridgeNftFromEvm(props.data.nft.contractAddress.toLowerCase(), props.data.contract.name, [props.data.nft.id]).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
@@ -112,20 +107,6 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
   };
 
-  const moveNFTToEvm = async () => {
-    setSending(true);
-    wallet.batchBridgeNftToEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
-      props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch(() => {
-      setSending(false);
-      setFailed(true);
-    })
-
-  };
 
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {

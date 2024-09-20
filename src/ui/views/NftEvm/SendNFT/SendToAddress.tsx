@@ -29,11 +29,12 @@ import SendNFTConfirmation from './SendNFTConfirmation';
 import { MatchMedia } from '@/ui/utils/url';
 import IconAbout from '../../../../components/iconfont/IconAbout';
 import { LLHeader } from '@/ui/FRWComponent';
+import AccountsList from '../../Send/AccountsList';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
   AddressBook = 'AddressBook',
-  // Accounts = 'Accounts',
+  Accounts = 'Accounts',
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -484,9 +485,17 @@ const SendToAddress = () => {
                     }}
                   />
                 </TabPanel>
-                {/* <TabPanel value={tabValue} index={2} dir={theme.direction}>
-                  <Typography>{SendPageTabOptions.Accounts}</Typography>
-                </TabPanel> */}
+                <TabPanel value={tabValue} index={2} dir={theme.direction}>
+                  <AccountsList
+                    filteredContacts={filteredContacts}
+                    isLoading={isLoading}
+                    handleClick={(eachgroup) => {
+                      searchResult = eachgroup
+                      setConfirmationOpen(true)
+                    }}
+                    isSend={false}
+                  />
+                </TabPanel>
               </SwipeableViews>
             </Box>
           </div>

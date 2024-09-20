@@ -2204,7 +2204,8 @@ class OpenApiService {
     return data;
   };
 
-  EvmNFTcollectionList = async (address: string, network: string, collectionIdentifier: string, limit, offset) => {
+  EvmNFTcollectionList = async (address: string, collectionIdentifier: string, limit = 24, offset = 0) => {
+    const network = await userWalletService.getNetwork();
     const { data } = await this.sendRequest(
       'GET',
       `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
@@ -2216,7 +2217,8 @@ class OpenApiService {
   };
 
 
-  EvmNFTID = async (address: string, network: string) => {
+  EvmNFTID = async (address: string) => {
+    const network = await userWalletService.getNetwork();
     const { data } = await this.sendRequest(
       'GET',
       `/api/v3/evm/nft/id?network=${network}&address=${address}`,
@@ -2228,7 +2230,8 @@ class OpenApiService {
   };
 
 
-  EvmNFTList = async (address: string, network: string, limit, offset) => {
+  EvmNFTList = async (address: string, limit = 24, offset = 0) => {
+    const network = await userWalletService.getNetwork();
     const { data } = await this.sendRequest(
       'GET',
       `/api/v3/evm/nft/list?network=${network}&address=${address}&limit=${limit}&offset=${offset}`,
