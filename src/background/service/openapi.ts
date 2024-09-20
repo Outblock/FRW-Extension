@@ -2114,7 +2114,7 @@ class OpenApiService {
   getEvmFT = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/evm/${address}/fts?network=${network}`,
+      `/api/v3/evm/${address}/fts?network=${network}`,
       {},
       {},
       WEB_NEXT_URL

@@ -133,7 +133,7 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     const address = '0x' + flowIdentifier[1]
     const contractName = flowIdentifier[2]
 
-    usewallet.bridgeToFlow(address, contractName, amount).then(async (createRes) => {
+    usewallet.bridgeToFlow(address, contractName, amount, tokenResult).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');

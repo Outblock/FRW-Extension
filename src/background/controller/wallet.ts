@@ -1291,8 +1291,10 @@ export class WalletController extends BaseController {
 
     const mergeBalances = (tokenList, allBalanceMap, flowBalance) => {
       return tokenList.map(token => {
-        const balanceInfo = allBalanceMap.find(balance => balance.address === token.address);
-        let balance = balanceInfo ? (Number(balanceInfo.balance) / Math.pow(10, balanceInfo.decimals)) : null;
+        const balanceInfo = allBalanceMap.find(balance => {
+          return balance.address.toLowerCase() === token.address.toLowerCase();
+        });
+        let balance = balanceInfo ? (Number(balanceInfo.balance) / Math.pow(10, balanceInfo.decimals)) : 0;
         // If the token unit is 'flow', set the balance to flowBalance
         if (token.symbol.toLowerCase() === 'flow') {
           balance = flowBalance / 1e18;
@@ -1784,11 +1786,11 @@ export class WalletController extends BaseController {
 
 
 
-  bridgeToFlow = async (tokenContractAddress = '0x8920ffd3d8768daa', tokenContractName = 'ExampleToken', amount = '1.0'): Promise<string> => {
+  bridgeToFlow = async (tokenContractAddress = '0x8920ffd3d8768daa', tokenContractName = 'ExampleToken', amount = '1.0', tokenResult): Promise<string> => {
     const network = await this.getNetwork();
-    const formattedAmount = parseFloat(amount).toFixed(18);
+    const formattedAmount = parseFloat(amount).toFixed(tokenResult.decimals);
     // Convert the formatted amount to an integer
-    const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
+    const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, tokenResult.decimals));
 
 
     const script = await getScripts('bridge', 'bridgeTokensFromEvm');

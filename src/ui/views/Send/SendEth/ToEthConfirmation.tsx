@@ -99,7 +99,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     setSending(true);
     const encodedData = props.data.erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
     const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
-
+    console.log('tokenResult ', tokenResult)
     const address = tokenResult!.address;
     const gas = '1312d00';
     const value = parseFloat(props.data.amount).toFixed(8);
@@ -115,7 +115,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       setSending(false);
       setTid(txID);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log('transfer error: ', err)
       setSending(false);
       setFailed(true);
     })

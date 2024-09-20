@@ -93,7 +93,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       setSending(false);
       setTid(txID);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log('transfer error: ', err)
       setSending(false);
       setFailed(true);
     })
