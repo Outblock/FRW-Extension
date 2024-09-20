@@ -13,7 +13,7 @@ import emoji from 'background/utils/emoji.json';
 import { storage } from '@/background/webapi';
 
 
-function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
+function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm = false }) {
   const usewallet = useWallet();
   const userContact = {
     contact_name: '',
@@ -34,6 +34,7 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
     const childResp = await usewallet.checkUserChildAccount();
     const emojires = await usewallet.getEmoji();
     const evmWallet = await usewallet.getEvmWallet();
+    console.log('addressbox isChild ', isChild)
     let evmAddress
     if (evmWallet.address) {
       evmAddress = ensureEvmAddressPrefix(evmWallet.address)
@@ -50,18 +51,18 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount }) {
         }
       };
 
-      let evmWallet = {};
-      if (evmAddress) {
-        evmWallet = {
-          [evmAddress!]: {
-            "name": emojires[1].name,
-            "description": emojires[1].name,
-            "thumbnail": {
-              "url": emojires[1].emoji
-            }
-          }
-        };
-      }
+      const evmWallet = {};
+      // if (evmAddress) {
+      //   evmWallet = {
+      //     [evmAddress!]: {
+      //       "name": emojires[1].name,
+      //       "description": emojires[1].name,
+      //       "thumbnail": {
+      //         "url": emojires[1].emoji
+      //       }
+      //     }
+      //   };
+      // }
 
       // Merge wallet lists
       const walletList = { ...childResp, ...newWallet, ...evmWallet };

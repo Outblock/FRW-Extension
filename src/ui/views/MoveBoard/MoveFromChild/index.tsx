@@ -289,7 +289,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
-      <AccountMainBox isChild={true} setSelectedChildAccount={setSelectedChildAccount} selectedAccount={selectedAccount}/>
+      <AccountMainBox isChild={true} setSelectedChildAccount={setSelectedChildAccount} selectedAccount={selectedAccount} isEvm={false}/>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography

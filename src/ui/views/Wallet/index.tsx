@@ -67,6 +67,7 @@ const WalletTab = ({ network }) => {
   const [showMoveBoard, setMoveBoard] = useState(false);
   const [buyHover, setBuyHover] = useState(false);
   const [sendHover, setSendHover] = useState(false);
+  const [swapHover, setSwapHover] = useState(false);
   const [canMoveChild, setCanMoveChild] = useState(true);
   const [receiveHover, setReceiveHover] = useState(false);
   const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
@@ -378,7 +379,7 @@ const WalletTab = ({ network }) => {
           }}
         >
           <Box sx={{ display: 'flex', gap: '2px', width: '100%', }}>
-            {(!childType || childType ==='' || childType === 'evm') &&
+            {(!childType || childType === '' || childType === 'evm') &&
               <Button
                 color="info3"
                 variant="contained"
@@ -405,6 +406,31 @@ const WalletTab = ({ network }) => {
 
             }
 
+            {!childType && (
+              <Button
+                color="info3"
+                variant="contained"
+                sx={{
+                  height: '36px',
+                  px: '12px !important',
+                  minWidth: '56px',
+                  borderRadius: '0px',
+                  width: swapHover ? '100%' : '56px',
+                  textTransform: 'capitalize !important',
+                  flex: '1',
+                  transition: 'width 0.3s ease-in-out'
+                }}
+                onMouseEnter={() => setSwapHover(true)}
+                onMouseLeave={() => setSwapHover(false)}
+                onClick={() => {
+                  window.open(incLink, '_blank', 'noopener,noreferrer');
+                }}
+              >
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={swapIcon} />
+                {swapHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Swap')}</Typography>}
+              </Button>
+            )}
+
 
             <Button
               color="info3"
@@ -413,8 +439,8 @@ const WalletTab = ({ network }) => {
                 height: '36px',
                 px: '12px !important',
                 minWidth: '56px',
-                borderTopLeftRadius: (!childType || childType ==='' || childType === 'evm') ? '0px' :'24px',
-                borderBottomLeftRadius: (!childType || childType ==='' || childType === 'evm') ? '0px' :'24px',
+                borderTopLeftRadius: (!childType || childType === '' || childType === 'evm') ? '0px' : '24px',
+                borderBottomLeftRadius: (!childType || childType === '' || childType === 'evm') ? '0px' : '24px',
                 borderTopRightRadius: isActive ? '0px' : '24px',
                 borderBottomRightRadius: isActive ? '0px' : '24px',
                 width: receiveHover ? '100%' : '56px',
