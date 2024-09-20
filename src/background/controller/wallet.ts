@@ -1386,10 +1386,13 @@ export class WalletController extends BaseController {
 
   reqeustEvmNft = async () => {
     const address = await this.getEvmAddress();
+    const evmList = await openapiService.EvmNFTID(address);
+    return evmList;
+  };
 
-    const network = await this.getNetwork();
-
-    const evmList = await openapiService.getEvmNFT(address, network);
+  EvmNFTcollectionList = async (collection) => {
+    const address = await this.getEvmAddress();
+    const evmList = await openapiService.EvmNFTcollectionList(address, collection);
     return evmList;
   };
 

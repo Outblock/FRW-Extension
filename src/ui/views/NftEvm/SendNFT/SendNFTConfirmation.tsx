@@ -17,7 +17,7 @@ import {
 } from 'ui/FRWComponent';
 import {EVM_ENDPOINT} from 'consts'
 import { useWallet } from 'ui/utils';
-import { LLProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -259,7 +259,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Grid>
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-          <LLProfile contact={props.data.userContact} />
+          <FRWProfile isEvm={true} contact={props.data.userContact} />
           <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {colorArray.map((color, index) => (
               <Box sx={{ mx: '5px' }} key={index}>
@@ -286,7 +286,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </Stack>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
               <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.nft && props.data.nft.collectionSquareImage} />
-              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.nft && props.data.nft.collectionContractName}</Typography>
+              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.nft && props.data.nft.contractName}</Typography>
               <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
             </Stack>
           </Stack>
