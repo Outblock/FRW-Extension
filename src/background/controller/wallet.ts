@@ -1820,7 +1820,7 @@ export class WalletController extends BaseController {
     const formattedAmount = parseFloat(amount).toFixed(8);
 
 
-    const script = await getScripts('bridge', 'bridgeTokensToEvm');
+    const script = await getScripts('bridge', 'bridgeTokensToEvmV2');
 
     return await userWalletService.sendTransaction(
       script

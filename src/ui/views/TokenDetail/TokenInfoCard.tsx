@@ -134,7 +134,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
               </Box>
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
-            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && canMoveChild) &&
+            {(canMoveChild) &&
               <ButtonBase
                 onClick={() => moveToken()}
               >

@@ -186,16 +186,16 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
             alignItems: 'center',
             flexDirection: 'row',
             display: 'flex',
-            pb:'6px'
+            pb: '6px'
           }}
         >
           <Box sx={{ width: '40px' }}></Box>
-          <Box sx={{pt:'16px'}}>
+          <Box sx={{ pt: '16px' }}>
             <Typography sx={{ fontWeight: '700', fontFamily: 'e-Ukraine', fontSize: '20px' }}>
               {chrome.i18n.getMessage('move_tokens')}
             </Typography>
           </Box>
-          <Box sx={{pt:'14px'}} onClick={props.handleCancelBtnClicked}>
+          <Box sx={{ pt: '14px' }} onClick={props.handleCancelBtnClicked}>
             <IconButton>
               <CloseIcon
                 fontSize="medium"
