@@ -94,13 +94,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const { address } = props.data.contact;
     const isEvm = activeChild === 'evm';
     const isEvmAddress = address.length > 20;
-    if (isEvm && isEvmAddress) {
-      console.log('send evm to evm');
-      await evmToEvm();
-    } else if (isEvm && !isEvmAddress) {
-      console.log('send evm to flow');
-      await evmToFlow();
-    } else if (!isEvm && isEvmAddress) {
+    if (!isEvm && isEvmAddress) {
       console.log('send flow to evm');
       await flowToEvm();
     } else if (isChild || props.data.linked) {
@@ -167,43 +161,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const removeHexPrefix = (address) => {
     return address.startsWith('0x') ? address.slice(2) : address;
   };
-
-  const evmToEvm = async () => {
-    setSending(true);
-    const data = await wallet.getEvmAddress();
-    const dataWithoutPrefix = removeHexPrefix(data);
-    const contactAddressWithoutPrefix = removeHexPrefix(props.data.contact.address);
-    const encodedData = erc721Contract.methods.safeTransferFrom(dataWithoutPrefix, contactAddressWithoutPrefix, props.data.nft.id).encodeABI();
-    const gas = '1312d00';
-
-    wallet.sendEvmTransaction(props.data.nft.contractEvmAddress, gas, 0, encodedData).then(async (txID) => {
-      await wallet.setRecent(props.data.contact);
-      wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.nft.collectionContractName} Sent`, `You have sent 1 ${props.data.nft.collectionContractName} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.nft.collectionSquareImage);
-      props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
-      setSending(false);
-      setTid(txID);
-      history.push('/dashboard?activity=1');
-    }).catch((err) => {
-      console.log('err ', err)
-      setSending(false);
-      setFailed(true);
-    })
-  }
-
-  const evmToFlow = async () => {
-    setSending(true);
-    wallet.bridgeNftFromEvmToFlow(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.contact.address).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
-      props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch(() => {
-      setSending(false);
-      setFailed(true);
-    })
-  }
 
   const flowToEvm = async () => {
     setSending(true);

@@ -310,6 +310,7 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
         index={index}
         ownerAddress={ownerAddress}
         isAccessibleNft={isAccessibleNft}
+        collectionInfo={data}
       />
     );
   };

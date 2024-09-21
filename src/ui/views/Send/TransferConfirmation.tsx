@@ -142,12 +142,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
   const transferFt = async () => {
     const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
-    console.log('tokenResult ', props.data.amount)
-    const flowid = tokenResult!['flowIdentifier'].split('.');
-    const address = '0x' + flowid[1];
-    const contractName = flowid[2];
+    console.log('tokenResult ', tokenResult, props.data.amount)
 
-    wallet.transferFTFromEvm(address, contractName, props.data.amount, props.data.contact.address).then(async (txID) => {
+
+    wallet.transferFTFromEvm(tokenResult!['flowIdentifier'], props.data.amount, props.data.contact.address, tokenResult ).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);
       props.handleCloseIconClicked();

@@ -135,13 +135,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const evmToFlow = async () => {
     setSending(true);
-    wallet.bridgeNftFromEvmToFlow(props.data.nft.contractAddress, props.data.nft.contractName, props.data.nft.id, props.data.contact.address).then(async (txID) => {
+    wallet.bridgeNftFromEvmToFlow(props.data.nft.flowIdentifier, props.data.nft.id, props.data.contact.address).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.contractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log(err)
       setSending(false);
       setFailed(true);
     })

@@ -1734,22 +1734,40 @@ export class WalletController extends BaseController {
 
 
 
-  transferFTFromEvm = async (tokenContractAddress: string, tokenContractName: string, amount = '1.0', receiver: string): Promise<string> => {
+  transferFTToEvmV2 = async (vaultIdentifier: string, amount = '1.0', recipient): Promise<string> => {
     const network = await this.getNetwork();
-    const formattedAmount = parseFloat(amount).toFixed(18);
-    // Convert the formatted amount to an integer
-    const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, 18));
+    const formattedAmount = parseFloat(amount).toFixed(8);
 
 
 
-    const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlow');
-    console.log('tokenContractAddress ', tokenContractAddress, tokenContractName, integerAmount, receiver)
+    const script = await getScripts('bridge', 'bridgeTokensToEvmAddressV2');
+
     return await userWalletService.sendTransaction(
       script
       ,
       [
-        fcl.arg(tokenContractAddress, t.Address),
-        fcl.arg(tokenContractName, t.String),
+        fcl.arg(vaultIdentifier, t.String),
+        fcl.arg(formattedAmount, t.UFix64),
+        fcl.arg(recipient, t.String),
+      ]
+    );
+  };
+
+
+  transferFTFromEvm = async (flowidentifier: string, amount = '1.0', receiver: string, tokenResult): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(tokenResult.decimals);
+    // Convert the formatted amount to an integer
+    const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, tokenResult.decimals));
+
+
+
+    const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlowV2');
+    return await userWalletService.sendTransaction(
+      script
+      ,
+      [
+        fcl.arg(flowidentifier, t.String),
         fcl.arg(integerAmount, t.UInt256),
         fcl.arg(receiver, t.Address),
       ]
@@ -1797,7 +1815,7 @@ export class WalletController extends BaseController {
 
 
 
-  bridgeToEvm = async (tokenContractAddress = '0x8920ffd3d8768daa', tokenContractName = 'ExampleToken', amount = '1.0'): Promise<string> => {
+  bridgeToEvm = async (flowIndentifier, amount = '1.0'): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
@@ -1808,8 +1826,7 @@ export class WalletController extends BaseController {
       script
       ,
       [
-        fcl.arg(tokenContractAddress, t.Address),
-        fcl.arg(tokenContractName, t.String),
+        fcl.arg(flowIndentifier, t.String),
         fcl.arg(formattedAmount, t.UFix64),
       ]
 
@@ -1819,21 +1836,20 @@ export class WalletController extends BaseController {
 
 
 
-  bridgeToFlow = async (tokenContractAddress = '0x8920ffd3d8768daa', tokenContractName = 'ExampleToken', amount = '1.0', tokenResult): Promise<string> => {
+  bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(tokenResult.decimals);
     // Convert the formatted amount to an integer
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, tokenResult.decimals));
 
 
-    const script = await getScripts('bridge', 'bridgeTokensFromEvm');
+    const script = await getScripts('bridge', 'bridgeTokensFromEvmV2');
 
     return await userWalletService.sendTransaction(
       script
       ,
       [
-        fcl.arg(tokenContractAddress, t.Address),
-        fcl.arg(tokenContractName, t.String),
+        fcl.arg(flowIdentifier, t.String),
         fcl.arg(integerAmount, t.UInt256),
       ]
 
@@ -2420,38 +2436,33 @@ export class WalletController extends BaseController {
   };
 
   batchBridgeNftToEvm = async (
-    nftContractAddress: string,
-    nftContractName: string,
+    flowIdentifier: string,
     ids: Array<number>,
   ): Promise<string> => {
 
-    const script = await getScripts('bridge', 'batchBridgeNFTToEvm');
+    const script = await getScripts('bridge', 'batchBridgeNFTToEvmV2');
 
     return await userWalletService.sendTransaction(
       script,
       [
-        fcl.arg(nftContractAddress, t.Address),
-        fcl.arg(nftContractName, t.String),
+        fcl.arg(flowIdentifier, t.String),
         fcl.arg(ids, t.Array(t.UInt64)),
       ]
     );
   };
 
 
-
   batchBridgeNftFromEvm = async (
-    nftContractAddress: string,
-    nftContractName: string,
+    flowIdentifier: string,
     ids: Array<number>,
   ): Promise<string> => {
 
-    const script = await getScripts('bridge', 'batchBridgeNFTFromEvm');
+    const script = await getScripts('bridge', 'batchBridgeNFTFromEvmV2');
 
     return await userWalletService.sendTransaction(
       script,
       [
-        fcl.arg(nftContractAddress, t.Address),
-        fcl.arg(nftContractName, t.String),
+        fcl.arg(flowIdentifier, t.String),
         fcl.arg(ids, t.Array(t.UInt256)),
       ]
     );
@@ -2574,19 +2585,17 @@ export class WalletController extends BaseController {
 
 
   bridgeNftFromEvmToFlow = async (
-    nftContractAddress: string,
-    nftContractName: string,
+    flowIdentifier: string,
     ids: number,
     receiver: string,
   ): Promise<string> => {
 
-    const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlow');
+    const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlowV2');
 
     return await userWalletService.sendTransaction(
       script,
       [
-        fcl.arg(nftContractAddress, t.Address),
-        fcl.arg(nftContractName, t.String),
+        fcl.arg(flowIdentifier, t.String),
         fcl.arg(ids, t.UInt256),
         fcl.arg(receiver, t.Address),
       ]

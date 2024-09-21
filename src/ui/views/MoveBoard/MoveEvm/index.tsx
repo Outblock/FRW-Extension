@@ -61,7 +61,6 @@ const MoveEvm = (props: MoveBoardProps) => {
 
 
       const cadenceResult = await usewallet.EvmNFTcollectionList(selectedCollection);
-      console.log('collectionList ', selectedCollection, collectionList, cadenceNft, collection, cadenceResult)
       setCollectionDetail(collection);
       setCollectionInfo(cadenceResult);
     }
@@ -69,10 +68,8 @@ const MoveEvm = (props: MoveBoardProps) => {
 
   const requestCadenceNft = async () => {
     const cadenceResult = await usewallet.reqeustEvmNft();
-    console.log('cadenceResult ', cadenceResult)
     const tokensWithNfts = cadenceResult.filter(token => token.ids && token.ids.length > 0);
     const filteredData = tokensWithNfts.filter(item => item.collection.flowIdentifier);
-    console.log('filteredData ', tokensWithNfts, filteredData)
     if (filteredData.length > 0) {
       setSelected(filteredData[0].collection.name);
       const extractedObjects = filteredData.map(obj => {
@@ -84,9 +81,9 @@ const MoveEvm = (props: MoveBoardProps) => {
           id: obj.collection.name,
           address: flowIdentifierParts[1],
           logo: obj.collection.logo,
+          flowIdentifier: obj?.collection?.flowIdentifier || ''
         };
       });
-      console.log('extractedObjects ', extractedObjects)
       setCadenceNft(filteredData);
       setCollectionList(extractedObjects);
     } else {
@@ -118,15 +115,16 @@ const MoveEvm = (props: MoveBoardProps) => {
   const moveNFT = async () => {
     setSending(true);
     const collection = collectionList.find(collection => collection.id === selectedCollection);
-
-    usewallet.batchBridgeNftFromEvm(`0x${collection.address}`, collection.CollectionName, nftIdArray).then(async (txID) => {
+    console.log('collectionDetail ', collectionDetail)
+    usewallet.batchBridgeNftFromEvm(collection.flowIdentifier, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();
       await usewallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log(err)
       setSending(false);
       setFailed(true);
     })

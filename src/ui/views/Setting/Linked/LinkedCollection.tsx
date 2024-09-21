@@ -284,6 +284,7 @@ const LinkedCollection = (props) => {
         index={index}
         ownerAddress={ownerAddress}
         fromLinked={true}
+        collectionInfo={info}
       />
     );
   };

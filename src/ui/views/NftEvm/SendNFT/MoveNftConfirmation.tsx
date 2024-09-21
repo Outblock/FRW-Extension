@@ -94,7 +94,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     setSending(true);
     console.log('props.data ', props.data)
 
-    wallet.batchBridgeNftFromEvm(props.data.nft.contractAddress, props.data.nft.contractName, [props.data.nft.id]).then(async (txID) => {
+    wallet.batchBridgeNftFromEvm(props.data.nft.flowIdentifier, [props.data.nft.id]).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
