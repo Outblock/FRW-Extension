@@ -590,10 +590,15 @@ class OpenApiService {
       }
 
       data.map((d) => {
-        const { rateToUSD } = d;
         if (d.evmAddress) {
-          const key = d.evmAddress.toLowerCase();
-          pricesMap[key] = rateToUSD.toFixed(4);
+          const { rateToUSD, evmAddress } = d;
+          const key = evmAddress.toLowerCase();
+          pricesMap[key] = rateToUSD.toFixed(5);
+
+        } else {
+          const { rateToUSD, symbol } = d;
+          const key = symbol.toUpperCase();
+          pricesMap[key] = rateToUSD.toFixed(5);
 
         }
       });

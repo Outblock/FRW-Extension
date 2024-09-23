@@ -1342,7 +1342,6 @@ export class WalletController extends BaseController {
     const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
 
     const allPrice = await Promise.all(prices);
-
     const coins: CoinItem[] = mergedList.map((token, index) => {
       return {
         coin: token.name,
@@ -1370,6 +1369,7 @@ export class WalletController extends BaseController {
             ),
       };
     });
+
 
     coins
       .sort((a, b) => {
