@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, ListItemButton, Typography, ListItem, ListItemIcon, CardMedia } from '@mui/material';
 import { useWallet } from 'ui/utils';
 import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
@@ -17,9 +17,28 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
 
   const [indicatorRotation, setIndicatorRotation] = useState(180); // Initial rotation angle
 
+  const dropdownRef = useRef<HTMLLIElement>(null);
+
+
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    // Add event listener for clicks
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownRef]);
 
 
   const rotateIndicator = () => {
@@ -144,11 +163,14 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
           image={getIndicatorImage()}
         />
         {showDropdown &&
-          <ListItem disablePadding sx={{
-            position: 'absolute', width: 'auto', height: 'auto', display: 'flex', top: '28px', py: '4px', flexDirection: 'column', alignItems: 'flex-start', zIndex: '2000', textAlign: 'left',
-            left: '0',
-            backgroundColor: '#222222', borderRadius: '8px'
-          }}>
+          <ListItem
+            ref={dropdownRef}
+            disablePadding
+            sx={{
+              position: 'absolute', width: 'auto', height: 'auto', display: 'flex', top: '28px', py: '4px', flexDirection: 'column', alignItems: 'flex-start', zIndex: '2000', textAlign: 'left',
+              left: '0',
+              backgroundColor: '#222222', borderRadius: '8px'
+            }}>
 
             <ListItemButton
               onClick={() => switchNetwork('mainnet')}
