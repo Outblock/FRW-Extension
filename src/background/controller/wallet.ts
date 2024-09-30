@@ -1978,13 +1978,13 @@ export class WalletController extends BaseController {
     ]);
 
     const res = await fcl.tx(result).onceSealed();
-    console.log('res ', res)
     const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
 
     if (transactionExecutedEvent) {
-      const txid = transactionExecutedEvent.transactionId;
-      console.log('Transaction Executed txid:', txid);
-      return txid;
+      const hash = transactionExecutedEvent.data.hash;
+      const hashHexString = hash.map(num => parseInt(num).toString(16).padStart(2, '0')).join('');
+
+      return hashHexString;
     } else {
       console.log('Transaction Executed event not found');
     }

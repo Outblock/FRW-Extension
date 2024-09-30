@@ -24,6 +24,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
 import Tooltip from '@mui/material/Tooltip';
 import { useWallet, formatAddress } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
 import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
@@ -813,7 +814,7 @@ const Header = ({ loading }) => {
                   display="block"
                   sx={{ lineHeight: '1.5' }}
                 >
-                  {props.name === 'Flow' ? 'Wallet' : props.name}
+                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${isValidEthereumAddress(props.address) ? ' EVM' : ''}`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
