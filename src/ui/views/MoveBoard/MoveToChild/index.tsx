@@ -294,7 +294,7 @@ const MoveToChild = (props: MoveBoardProps) => {
         }
       </Box>
       {!isLoading ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start', height:'150px',overflowY:'scroll' }}>
           {collectionDetail && collectionDetail.nfts.length > 0 ?
             collectionDetail.nfts.map(nft => (
               <Box

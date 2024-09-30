@@ -46,7 +46,7 @@ const MoveEvm = (props: MoveBoardProps) => {
   const [loading, setLoading] = useState(true);
   const [errorOpen, setShowError] = useState(false);
   const [selectCollection, setSelectCollection] = useState(false);
-  // console.log('props.loggedInAccounts', props.current)
+  const [selectedAccount, setSelectedChildAccount] = useState(null);
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -112,7 +112,37 @@ const MoveEvm = (props: MoveBoardProps) => {
     setNftIdArray(tempIdArray);
   };
 
+  
+
   const moveNFT = async () => {
+    const parentAddress = await usewallet.getMainAddress();
+    if (parentAddress === selectedAccount!['address']) {
+      moveToParent();
+    } else {
+      moveToChild();
+    }
+  }
+
+  const moveToChild = async () => {
+    setSending(true);
+    const collection = collectionList.find(collection => collection.id === selectedCollection);
+    console.log('collectionDetail ', selectedCollection)
+    usewallet.batchBridgeChildNFTFromEvm(selectedAccount!['address'], collection.flowIdentifier, nftIdArray).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`,);
+      props.handleReturnHome();
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log(err)
+      setSending(false);
+      setFailed(true);
+    })
+
+  };
+
+  const moveToParent = async () => {
     setSending(true);
     const collection = collectionList.find(collection => collection.id === selectedCollection);
     console.log('collectionDetail ', collectionDetail)
@@ -172,7 +202,7 @@ const MoveEvm = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
-      <AccountBox isEvm={true} />
+      <AccountBox isChild={true} setSelectedChildAccount={setSelectedChildAccount} selectedAccount={selectedAccount} isEvm={true}/>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
@@ -204,7 +234,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         }
       </Box>
       {!loading ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start', height:'150px',overflowY:'scroll' }}>
           {collectInfo && (
             collectInfo.nfts.length > 0 ? (
               collectInfo.nfts.map((items) => (

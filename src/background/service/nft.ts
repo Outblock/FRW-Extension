@@ -129,7 +129,6 @@ class NFT {
   };
 
   setCollectionList = (data: Array<any>, network: string) => {
-    console.log('setCollectionList ->', data, network, this.store, this.store.collectionList);
     this.store.collectionList[network] = data;
   };
 

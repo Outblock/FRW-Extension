@@ -1979,12 +1979,12 @@ export class WalletController extends BaseController {
 
     const res = await fcl.tx(result).onceSealed();
     console.log('res ', res)
-    const transactionExecutedEvent = res.events.find(event => event.type === "A.b6763b4399a888c8.EVM.TransactionExecuted");
+    const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
 
     if (transactionExecutedEvent) {
-      const hash = transactionExecutedEvent.data.hash;
-      console.log('Transaction Executed Hash:', hash);
-      return hash;
+      const txid = transactionExecutedEvent.transactionId;
+      console.log('Transaction Executed txid:', txid);
+      return txid;
     } else {
       console.log('Transaction Executed event not found');
     }
@@ -2545,6 +2545,96 @@ export class WalletController extends BaseController {
     );
   };
 
+  batchBridgeChildNFTToEvm = async (
+    childAddr: string,
+    identifier: string,
+    ids: Array<number>,
+    token
+  ): Promise<string> => {
+
+    const script = await getScripts('hybridCustody', 'batchBridgeChildNFTToEvm');
+
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(identifier, t.String),
+        fcl.arg(childAddr, t.Address),
+        fcl.arg(ids, t.Array(t.UInt64)),
+      ]
+    );
+  };
+
+  batchBridgeChildNFTFromEvm = async (
+    childAddr: string,
+    identifier: string,
+    ids: Array<number>,
+  ): Promise<string> => {
+
+    const script = await getScripts('hybridCustody', 'batchBridgeChildNFTFromEvm');
+
+    return await userWalletService.sendTransaction(
+      script,
+      [
+        fcl.arg(identifier, t.String),
+        fcl.arg(childAddr, t.Address),
+        fcl.arg(ids, t.Array(t.UInt256)),
+      ]
+    );
+  };
+
+  bridgeChildFTToEvm = async (
+    childAddr: string,
+    identifier: string,
+    amount: number,
+    token
+  ): Promise<string> => {
+
+    const script = await getScripts('hybridCustody', 'bridgeChildFTToEvm');
+
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(identifier, t.String),
+        fcl.arg(childAddr, t.Address),
+        fcl.arg(amount, t.UFix64),
+      ]
+    );
+  };
+
+  bridgeChildFTFromEvm = async (
+    childAddr: string,
+    vaultIdentifier: string,
+    ids: Array<number>,
+    token
+  ): Promise<string> => {
+
+    const script = await getScripts('hybridCustody', 'bridgeChildFTFromEvm');
+
+    return await userWalletService.sendTransaction(
+      script
+        .replaceAll('<NFT>', token.contract_name)
+        .replaceAll('<NFTAddress>', token.address)
+        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
+        .replaceAll('<CollectionPublicType>', token.path.public_type)
+        .replaceAll('<CollectionPublicPath>', token.path.public_path),
+      [
+        fcl.arg(vaultIdentifier, t.String),
+        fcl.arg(childAddr, t.Address),
+        fcl.arg(ids, t.UInt256),
+      ]
+    );
+  };
+
   bridgeNftToEvmAddress = async (
     nftContractAddress: string,
     nftContractName: string,
@@ -2919,15 +3009,15 @@ export class WalletController extends BaseController {
     userWalletService.clear();
   }
 
-  getFlowscanURL = async (): Promise<string> => {
+  getFlowscanUrl = async (): Promise<string> => {
     const network = await this.getNetwork();
-    let baseURL = 'https://flowdiver.io';
+    let baseURL = 'https://www.flowscan.io';
     switch (network) {
       case 'testnet':
-        baseURL = 'https://testnet.flowdiver.io';
+        baseURL = 'https://testnet.flowscan.io';
         break;
       case 'mainnet':
-        baseURL = 'https://flowdiver.io';
+        baseURL = 'https://www.flowscan.io';
         break;
       case 'crescendo':
         baseURL = 'https://flow-view-source.vercel.app/crescendo';
@@ -3011,7 +3101,7 @@ export class WalletController extends BaseController {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await chrome.storage.session.remove('transactionPending');
-      const baseURL = this.getFlowscanURL();
+      const baseURL = this.getFlowscanUrl();
       transactionService.removePending(txId, address, network);
       this.refreshTransaction(address, 15, 0);
       eventBus.emit('transactionDone');

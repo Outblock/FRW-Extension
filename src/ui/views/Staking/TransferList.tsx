@@ -28,7 +28,7 @@ const TransferList = ({setCount}) => {
   const [isLoading, setLoading] = useState(true);
   const [transaction, setTx] = useState([]);
   const [monitor, setMonitor] = useState('flowscan');
-  const [flowscanURL, setFlowscanURL] = useState('https://flowdiver.io')
+  const [flowscanURL, setFlowscanURL] = useState('https://www.flowscan.io')
   const [viewSource, setViewSourceUrl] = useState('https://f.dnz.dev')
   const [address, setAddress] = useState<string | null>('0x')
   const [showButton, setShowButton] = useState(false)
@@ -38,7 +38,7 @@ const TransferList = ({setCount}) => {
     const monitor = await wallet.getMonitor();
     setMonitor(monitor)
     try {
-      const url = await wallet.getFlowscanURL()
+      const url = await wallet.getFlowscanUrl()
       const viewSourceUrl = await wallet.getViewSourceUrl()
       setFlowscanURL(url)
       setViewSourceUrl(viewSourceUrl)

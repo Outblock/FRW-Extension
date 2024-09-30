@@ -22,6 +22,7 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from 'ui/utils/address';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -88,7 +89,11 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
   const sendNFT = async () => {
     // setSending(true);
-    await moveNFTToFlow();
+    if (isValidEthereumAddress(selectedAccount!['address'])) {
+      moveToEvm();
+    } else {
+      moveNFTToFlow();
+    }
 
   }
 
@@ -124,6 +129,28 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   };
 
 
+
+  const moveToEvm = async () => {
+    setSending(true);
+    const address = await usewallet.getCurrentAddress();
+    const contractList = await usewallet.openapi.getAllNft();
+    const filteredCollections = returnFilteredCollections(contractList, props.data.nft);
+    console.log(' as moveToEvm', address!, props.data, [props.data.nft.id], filteredCollections[0])
+    usewallet.batchBridgeChildNFTToEvm(address!, props.data.contract.flowIdentifier, [props.data.nft.id], filteredCollections[0]).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${props.data.nft.id} ${filteredCollections[0].contract_name} to your evm address. \nClick to view this transaction.`,);
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log('err ', err)
+      setSending(false);
+      setFailed(true);
+    })
+
+  };
+
+
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {
       updateOccupied();
@@ -145,8 +172,12 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     const childresp = await usewallet.checkUserChildAccount();
     const parentAddress = await usewallet.getMainAddress();
     const emojires = await usewallet.getEmoji();
+    const eWallet = await usewallet.getEvmWallet();
+    let evmAddress
+    if (eWallet.address) {
+      evmAddress = ensureEvmAddressPrefix(eWallet.address)
+    }
 
-    
     const newWallet = {
       [parentAddress!]: {
         "name": emojires[0].name,
@@ -159,8 +190,23 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
 
 
+    let evmWallet = {};
+    if (evmAddress) {
+      evmWallet = {
+        [evmAddress!]: {
+          "name": emojires[1].name,
+          "description": emojires[1].name,
+          "thumbnail": {
+            "url": emojires[1].emoji
+          }
+        }
+      };
+    }
+
+
+
     // Merge usewallet lists
-    const walletList = {  ...newWallet, ...childresp };
+    const walletList = { ...newWallet, ...childresp, ...evmWallet };
     setChildWallets(walletList)
     const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {

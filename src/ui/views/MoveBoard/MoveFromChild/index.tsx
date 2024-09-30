@@ -3,7 +3,7 @@ import { Box, Button, Skeleton, Typography, Drawer, IconButton, Snackbar, Alert,
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
-import selectedCover from 'ui/FRWAssets/svg/selectedCover.svg';
+import { isValidEthereumAddress } from '@/ui/utils/address';
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import MoveCollectionSelect from '../MoveCollectionSelect';
 import {
@@ -168,7 +168,9 @@ const MoveFromChild = (props: MoveBoardProps) => {
     const parentAddress = await usewallet.getMainAddress();
     if (parentAddress === selectedAccount!['address']) {
       moveToParent();
-    } else {
+    } else if (isValidEthereumAddress(selectedAccount!['address'])) {
+      moveToEvm();
+    }else {
       moveToChild();
     }
   }
@@ -195,6 +197,25 @@ const MoveFromChild = (props: MoveBoardProps) => {
     setSending(true);
     const address = await usewallet.getCurrentAddress();
     usewallet.sendChildNFTToChild(address!,selectedAccount!['address'], '', nftIdArray, collectionDetail.collection).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
+      props.handleReturnHome();
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log('err ', err)
+      setSending(false);
+      setFailed(true);
+    })
+
+  };
+
+  const moveToEvm = async () => {
+    setSending(true);
+    const address = await usewallet.getCurrentAddress();
+    console.log('collectionDetail.collection ', collectionDetail)
+    usewallet.batchBridgeChildNFTToEvm(address!, collectionDetail.collection.nftTypeId, nftIdArray, collectionDetail.collection).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();
@@ -289,7 +310,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
-      <AccountMainBox isChild={true} setSelectedChildAccount={setSelectedChildAccount} selectedAccount={selectedAccount} isEvm={false}/>
+      <AccountMainBox isChild={true} setSelectedChildAccount={setSelectedChildAccount} selectedAccount={selectedAccount} isEvm={true}/>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
           <Typography
@@ -322,7 +343,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
         }
       </Box>
       {!isLoading ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start', height:'150px',overflowY:'scroll' }}>
           {collectionDetail && collectionDetail.nfts.length > 0 ?
             collectionDetail.nfts.map(nft => (
               <Box

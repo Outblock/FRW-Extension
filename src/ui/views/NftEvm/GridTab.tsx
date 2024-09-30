@@ -229,7 +229,6 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
     // setNFTLoading(true);
     try {
       const { nfts, nftCount } = await usewallet.openapi.EvmNFTList(address);
-      console.log('nfts ->', nfts)
       props.setCount(nftCount);
       setTotal(nftCount);
       setNFTs(nfts);
@@ -271,7 +270,6 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
   )
 
   useEffect(() => {
-    console.log('fetchWalletCollection ->', props.data.ownerAddress);
     if (props.data.ownerAddress) {
       fetchNFTCache(props.data.ownerAddress);
       setAddress(props.data.ownerAddress);

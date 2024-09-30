@@ -94,7 +94,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const { address } = props.data.contact;
     const isEvm = activeChild === 'evm';
     const isEvmAddress = address.length > 20;
-    if (!isEvm && isEvmAddress) {
+    if (!isEvm && isEvmAddress && !isChild) {
       console.log('send flow to evm');
       await flowToEvm();
     } else if (isChild || props.data.linked) {
