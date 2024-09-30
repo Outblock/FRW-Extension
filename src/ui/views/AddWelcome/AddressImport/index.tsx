@@ -40,7 +40,6 @@ const AddressImport = () => {
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState(null);
   const [accounts, setAccounts] = useState<any>([]);
-  const [isImport, setImport] = useState<any>(false);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());

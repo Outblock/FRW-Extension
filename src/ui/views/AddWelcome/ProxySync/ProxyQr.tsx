@@ -74,7 +74,7 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, confirmPk, setUs
   const [loading, setShowLoading] = useState<boolean>(false);
   const [session, setSession] = useState<SessionTypes.Struct>();
   const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
-  const [currentNetwork, setNetwork] = useState(process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet');
+  const [currentNetwork, setNetwork] = useState('mainnet');
 
   const loadNetwork = async () => {
     const currentNetwork = await usewallet.getNetwork();
@@ -203,7 +203,7 @@ const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, confirmPk, setUs
         public_key: jsonObject.data.publicKey,
         hash_algo: Number(jsonObject.data.hashAlgo),
         sign_algo: Number(jsonObject.data.signAlgo),
-        weight : Number(jsonObject.data.weight)
+        weight: Number(jsonObject.data.weight)
       }
       usewallet.openapi.loginV3(accountKey, deviceInfo, jsonObject.data.signature);
       storage.set(`${jsonObject.data.userId}Topic`, topic);

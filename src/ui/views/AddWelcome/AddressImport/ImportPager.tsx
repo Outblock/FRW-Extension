@@ -36,7 +36,6 @@ function TabPanel(props) {
 
 const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, setUsername, goPassword, handleClick, setErrorMessage, setShowError }) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isImport, setImport] = useState<any>(false);
 
   const [mnemonicValid, setMnemonicValid] = useState(true);
   const [isSignLoading, setSignLoading] = useState(false);
@@ -51,22 +50,16 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
   const handleImport = async (accountKey?: any) => {
-    if (accountKey.length > 1) {
-      setAccounts(accountKey);
-      setImport(true);
+    setAccounts(accountKey)
+    const result = await wallet.openapi.checkImport(accountKey[0].pubK);
+    if (result.status === 409) {
+      goPassword();
     } else {
-      setAccounts(accountKey)
-      const result = await wallet.openapi.checkImport(accountKey[0].pubK);
-      if (result.status === 409) {
-        goPassword();
-      } else {
-        if (!accountKey[0].address) {
-          handleNotFoundPopup();
-          return
-        }
-        handleClick();
+      if (!accountKey[0].address) {
+        handleNotFoundPopup();
+        return
       }
-
+      handleClick();
     }
   };
   const setmnemonic = (mnemonic) => {
@@ -76,30 +69,11 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
     storage.set('premnemonic', formatted);
   };
 
-  const handleShowModel = (show) => {
-    setImport(show)
-  };
-
-  const handleAddressSelection = async (address) => {
-    const account = accounts.filter(
-      (account) => account.address === address
-    )[0];
-    const result = await wallet.openapi.checkImport(account.pubK);
-    if (result.status === 409) {
-      setAccounts([account]);
-      goPassword();
-    } else {
-      setAccounts([account]);
-      handleClick();
-
-    }
-  };
-
 
   const handleNotFoundPopup = async () => {
     setAddressFound(!addressFound)
   };
-  
+
 
 
   const sxStyles = {
@@ -157,17 +131,6 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
           errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
           isGoback={true}
         />
-      }
-
-      {isImport &&
-        <ImportAddressModel
-          accounts={accounts}
-          handleAddressSelection={handleAddressSelection}
-          isOpen={handleShowModel}
-          onOpenChange={handleShowModel}
-
-        />
-
       }
 
     </Box>

@@ -61,18 +61,6 @@ type ChildAccount = {
   };
 };
 
-const tempEmoji = [
-  {
-    "emoji": "🥥",
-    "name": "Coconut",
-    "bgcolor": "#FFE4C4"
-  },
-  {
-    "emoji": "🥑",
-    "name": "Avocado",
-    "bgcolor": "#98FB98"
-  }
-];
 
 const Header = ({ loading }) => {
 
@@ -88,9 +76,17 @@ const Header = ({ loading }) => {
   const [drawer, setDrawer] = useState(false);
   const [userWallet, setWallet] = useState<any>(null);
   const [currentWallet, setCurrentWallet] = useState(0);
+  const [evmWallet, setEvmWallet] = useState<any>({
+    name: '',
+    icon: '',
+    address: '',
+    chain_id: 'evm',
+    id: 1,
+    coins: ['flow'],
+    color: '',
+  });
   const [current, setCurrent] = useState({});
   const [currentNetwork, setNetwork] = useState('mainnet');
-  const [emojis, setEmojis] = useState(tempEmoji);
 
   const [isSandbox, setIsSandbox] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
@@ -146,9 +142,11 @@ const Header = ({ loading }) => {
     return (filteredData || []).map((wallet, index) => {
       return {
         id: index,
-        name: walletName,
+        name: wallet.name || 'Wallet',
         address: withPrefix(wallet.blockchain[0].address),
         key: index,
+        icon: wallet.icon || '',
+        color: wallet.color || '',
       };
     });
   };
@@ -195,7 +193,9 @@ const Header = ({ loading }) => {
     if (mainAddress) {
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
+        const evmWallet = await usewallet.getEvmWallet();
         setEvmAddress(res!);
+        setEvmWallet(evmWallet);
       } catch (err) {
         console.log('queryEvmAddress err', err);
       } finally {
@@ -232,8 +232,7 @@ const Header = ({ loading }) => {
     // usewallet.checkUserDomain(wallet.username);
   };
   const switchAccount = async (account) => {
-    const switchingTo =
-      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = 'mainnet';
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
     if (account.id) {
       await storage.set('currentId', account.id);
@@ -243,6 +242,8 @@ const Header = ({ loading }) => {
     await usewallet.lockWallet();
     history.push('/switchunlock');
     await usewallet.clearWallet();
+    await storage.set('currentWalletIndex', 0);
+    console.log('setCurernt wallet refreshAll')
     await usewallet.switchNetwork(switchingTo);
   };
 
@@ -301,8 +302,9 @@ const Header = ({ loading }) => {
   //   }
   // }
 
-  const setWallets = async (walletInfo, key) => {
-    await usewallet.setActiveWallet(walletInfo, key);
+  const setWallets = async (walletInfo, key, index = null) => {
+    console.log('walletInfo ', walletInfo, key, index)
+    await usewallet.setActiveWallet(walletInfo, key, index);
     const currentWallet = await usewallet.getCurrentWallet();
     setCurrent(currentWallet);
     setMainLoading(false);
@@ -369,24 +371,15 @@ const Header = ({ loading }) => {
     await usewallet.checkNetwork();
   };
 
-  const fetchProfile = async () => {
-    const emojires = await usewallet.getEmoji();
-    setEmojis(emojires);
-  }
   useEffect(() => {
     loadNetwork();
     fetchUserWallet();
     loadDeveloperMode();
     checkPendingTx();
     checkAuthStatus();
-    fetchProfile();
 
     const addressDone = () => {
       fetchUserWallet();
-    };
-
-    const changeEmoji = () => {
-      fetchProfile();
     };
 
     const networkChanged = (network) => {
@@ -398,12 +391,10 @@ const Header = ({ loading }) => {
      * Fired when a message is sent from either an extension process or a content script.
      */
     eventBus.addEventListener('addressDone', addressDone);
-    eventBus.addEventListener('profileChanged', changeEmoji);
     eventBus.addEventListener('switchNetwork', networkChanged);
     return () => {
       eventBus.removeEventListener('addressDone', addressDone);
       eventBus.removeEventListener('switchNetwork', networkChanged);
-      eventBus.removeEventListener('profileChanged', changeEmoji);
       chrome.runtime.onMessage.removeListener(transactionHanlder);
     };
   }, []);
@@ -431,6 +422,7 @@ const Header = ({ loading }) => {
   }, [usernameDrawer]);
 
   const switchNetwork = async (network: string) => {
+    await storage.set('currentWalletIndex', 0);
     setNetwork(network);
     usewallet.switchNetwork(network);
     toggleUsernameDrawer();
@@ -445,20 +437,20 @@ const Header = ({ loading }) => {
     return (
       <ListItem
         onClick={() => {
-          setWallets(null, null);
+          setWallets(props, null, props.props_id);
         }}
-        sx={{ mb: 0, paddingX: '0', cursor: 'pointer' }}
+        sx={{ mb: 0, padding: '0', cursor: 'pointer' }}
       >
 
         <ListItemButton
-          sx={{ mb: 0, display: 'flex', px: '16px', justifyContent: 'space-between', alignItems: 'center' }}
+          sx={{ my: 0, display: 'flex', px: '16px', py: '8px', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          {emojis &&
+          {props.icon &&
             < Box sx={{
-              display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emojis[0]['bgcolor'], marginRight: '12px'
+              display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: props.color, marginRight: '12px'
             }}>
               <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                {emojis[0].emoji}
+                {props.icon}
               </Typography>
             </Box>
           }
@@ -475,7 +467,7 @@ const Header = ({ loading }) => {
                   : 'text.nonselect'
               }
             >
-              {emojis[0].name}
+              {props.name}
               {props.address == current['address'] && (
                 <ListItemIcon
                   style={{ display: 'flex', alignItems: 'center' }}
@@ -721,11 +713,13 @@ const Header = ({ loading }) => {
 
   const createWalletList = (props) => {
     return (
-      <List component="nav" key={props.id}>
+      <List component="nav" key={props.id} sx={{ pb: '0', mb: '0' }}>
         <WalletFunction
           props_id={props.id}
           name={props.name}
           address={props.address}
+          icon={props.icon}
+          color={props.color}
         />
       </List>
     );
@@ -907,8 +901,7 @@ const Header = ({ loading }) => {
               createWalletList={createWalletList}
               setWallets={setWallets}
               currentNetwork={currentNetwork}
-              evmAddress={evmAddress}
-              emojis={emojis}
+              evmWallet={evmWallet}
               networkColor={networkColor}
               evmLoading={evmLoading}
               modeOn={modeOn}

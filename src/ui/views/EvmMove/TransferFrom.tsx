@@ -26,6 +26,7 @@ const TransferFrom = ({ wallet, userInfo, isChild = false }) => {
 
   useEffect(() => {
     getEmoji();
+    console.log('userInfo ',wallet, userInfo)
   }, [userInfo]);
 
   return (

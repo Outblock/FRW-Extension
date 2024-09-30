@@ -47,8 +47,7 @@ interface MenuDrawerProps {
   createWalletList: any;
   setWallets: any;
   currentNetwork: string;
-  evmAddress: string;
-  emojis: any;
+  evmWallet: any;
   networkColor: any;
   evmLoading: boolean;
   modeOn: boolean;
@@ -112,9 +111,9 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   };
 
   const getEvmAddress = async () => {
-    console.log('getEvmAddress ', props.evmLoading, props.evmAddress)
-    if (isValidEthereumAddress(props.evmAddress)) {
-      const result = await usewallet.getBalance(props.evmAddress);
+    console.log('getEvmAddress ', props.evmLoading, props.evmWallet)
+    if (isValidEthereumAddress(props.evmWallet.address)) {
+      const result = await usewallet.getBalance(props.evmWallet.address);
       const readBalance = parseFloat(result) / 1e18
       setEvmBalance(readBalance)
     }
@@ -130,7 +129,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
 
   useEffect(() => {
     getEvmAddress();
-  }, [props.evmAddress]);
+  }, [props.evmWallet]);
 
 
 
@@ -168,7 +167,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
           }
         </ListItem>
         {evmMode && !props.evmLoading && (
-          !isValidEthereumAddress(props.evmAddress) && (
+          !isValidEthereumAddress(props.evmWallet.address) && (
             <ListItem sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px' }} >
               <ListItemButton
                 sx={{
@@ -217,18 +216,18 @@ const MenuDrawer = (props: MenuDrawerProps) => {
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
         </Box>
         {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
-        {(isValidEthereumAddress(props.evmAddress) || hasChildAccounts) && (
+        {(isValidEthereumAddress(props.evmWallet.address) || hasChildAccounts) && (
           <Typography sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}>
             {chrome.i18n.getMessage('Linked_Account')}
           </Typography>
         )}
         <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'scroll', paddingBottom: '16px' }}>
-          {isValidEthereumAddress(props.evmAddress) && (
+          {isValidEthereumAddress(props.evmWallet.address) && (
             <ListItem
               sx={{ display: 'flex', justifyCOntent: 'space-between', padding: '16px 0 0', cursor: 'pointer' }}
               onClick={() => props.setWallets({
                 name: 'evm',
-                address: props.evmAddress,
+                address: props.evmWallet.address,
                 chain_id: props.currentNetwork,
                 coins: ['flow'],
                 id: 1
@@ -240,10 +239,10 @@ const MenuDrawer = (props: MenuDrawerProps) => {
               >
 
                 <Box sx={{
-                  display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: props.emojis[1]['bgcolor'], marginRight: '12px'
+                  display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: props.evmWallet.color, marginRight: '12px'
                 }}>
                   <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                    {props.emojis[1].emoji}
+                    {props.evmWallet.icon}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -264,7 +263,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                       color="#FFF"
                       fontSize={'12px'}
                     >
-                      {props.emojis[1].name}
+                      {props.evmWallet.name}
                     </Typography>
 
                     <Typography

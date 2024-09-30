@@ -107,7 +107,7 @@ const WalletTab = ({ network }) => {
       const currentTime = Date.now();
       if (currentTime - lastManualAddressCallTime > 60000) {
         try {
-          await wallet.openapi.getManualAddress();
+          // await wallet.openapi.getManualAddress();
           setlastManualAddressCallTime(currentTime)
         } catch (error) {
           console.error('Error getting manual address:', error);

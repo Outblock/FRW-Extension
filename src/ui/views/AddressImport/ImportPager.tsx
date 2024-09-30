@@ -94,25 +94,17 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
   const handleImport = async (accountKey?: any) => {
-    console.log('account key ', accountKey)
-    if (accountKey.length > 1) {
-      setAccounts(accountKey);
-      setImport(true);
+    setAccounts(accountKey)
+    const result = await wallet.openapi.checkImport(accountKey[0].pubK);
+    console.log('result ', result)
+    if (result.status === 409) {
+      signIn(accountKey);
     } else {
-      setAccounts(accountKey)
-      const result = await wallet.openapi.checkImport(accountKey[0].pubK);
-      console.log('result ', result)
-      if (result.status === 409) {
-        signIn(accountKey);
-      } else {
-        if (!accountKey[0].address) {
-          handleNotFoundPopup();
-          return
-        }
-        handleClick();
+      if (!accountKey[0].address) {
+        handleNotFoundPopup();
+        return
       }
-
-
+      handleClick();
     }
   };
   const setmnemonic = (mnemonic) => {
@@ -201,17 +193,6 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
           errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
           isGoback={true}
         />
-      }
-
-      {isImport &&
-        <ImportAddressModel
-          accounts={accounts}
-          handleAddressSelection={handleAddressSelection}
-          isOpen={handleShowModel}
-          onOpenChange={handleShowModel}
-
-        />
-
       }
 
     </Box>

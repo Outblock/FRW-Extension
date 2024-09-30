@@ -79,7 +79,6 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     const amount = parseFloat(props.data.amount).toFixed(8)
 
     console.log('transferToken ->', props.data.contact.address, amount)
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet.transferFlowEvm(props.data.contact.address, amount).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);

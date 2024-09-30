@@ -77,7 +77,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     }
     setSending(true);
     const amount = parseFloat(props.data.amount).toFixed(8)
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet.transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       console.log('send result ', txID, props.data)
@@ -95,7 +94,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
   const sendFromChild = async () => {
     const amount = parseFloat(props.data.amount).toFixed(8)
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet.sendFTfromChild(props.data.userContact.address, props.data.contact.address, 'flowTokenProvider', amount, props.data.tokenSymbol).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);
@@ -125,7 +123,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
   const transferFlow = async () => {
     const amount = parseFloat(props.data.amount).toFixed(8)
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet.withdrawFlowEvm(amount, props.data.contact.address).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);

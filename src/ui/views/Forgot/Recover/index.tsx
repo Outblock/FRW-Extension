@@ -34,7 +34,6 @@ const Recover = () => {
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState(null);
   const [accounts, setAccounts] = useState<any>([]);
-  const [isImport, setImport] = useState<any>(false);
   const [dataArray, setArray] = useState<any[]>([]);
 
   const getUsername = (username: string) => {
