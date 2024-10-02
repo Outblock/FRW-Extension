@@ -147,28 +147,43 @@ async function signMessage(keyring, msgParams, opts = {}) {
 }
 
 class ProviderController extends BaseController {
+
+  ethRpc = async (data): Promise<any> => {
+    const network = await Wallet.getNetwork(); // Get the current network
+    const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
+    const web3Instance = new Web3(provider);
+
+
+    console.log('data ', data, web3Instance.currentProvider, data.params)
+    return new Promise((resolve, reject) => {
+      if (!web3Instance.currentProvider) {
+        console.error('Provider is undefined');
+        return;
+      }
+
+      web3Instance.currentProvider.send({
+        jsonrpc: "2.0",
+        method: data.method,
+        params: data.params,
+        id: new Date().getTime()
+      }, (err, response) => {
+        if (err) {
+          console.error('Error:', err);
+          reject(err);
+        } else {
+          console.log('Result:', response);
+          resolve(response);
+        }
+      });
+    });
+  };
+
   ethRequestAccounts = async ({ session: { origin } }) => {
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized();
     }
 
-    let currentWallet;
-    try {
-      currentWallet = await Wallet.getMainWallet();
-    } catch (error) {
-      // If an error occurs, request approval
-      console.error('Error querying EVM address:', error);
-
-      await notificationService.requestApproval(
-        {
-          params: { origin },
-          approvalComponent: 'EthEnable',
-        },
-        { height: 599 }
-      );
-
-      return [];
-    }
+    const currentWallet = await Wallet.getMainWallet();
 
     let res: string | null;
     try {
@@ -182,13 +197,21 @@ class ProviderController extends BaseController {
       await notificationService.requestApproval(
         {
           params: { origin },
-          approvalComponent: 'EthConnect',
+          approvalComponent: 'EthEnable',
         },
         { height: 599 }
       );
 
       res = await Wallet.queryEvmAddress(currentWallet);
     }
+
+    await notificationService.requestApproval(
+      {
+        params: { origin },
+        approvalComponent: 'EthConnect',
+      },
+      { height: 599 }
+    );
 
     res = ensureEvmAddressPrefix(res);
     const account = res ? [res.toLowerCase()] : [];
@@ -377,6 +400,36 @@ class ProviderController extends BaseController {
     } else {
       return 747;
     }
+  };
+
+  ethGetBalance = async (request) => {
+    const result = await this.ethRpc(request.data);
+    return result.result
+  };
+
+  ethGetCode = async (request) => {
+    const result = await this.ethRpc(request.data);
+    return result.result
+  };
+
+  ethGasPrice = async (request) => {
+    const result = await this.ethRpc(request.data);
+    return result.result;
+  };
+
+  ethBlockNumber = async (request) => {
+    const result = await this.ethRpc(request.data);
+    return result.result;
+  };
+
+  ethCall = async (request) => {
+    const result = await this.ethRpc(request.data);
+    return result.result;
+  };
+
+  ethGetTransactionReceipt = async (request) => {
+    const result = await this.ethRpc(request.data);
+    return result.result;
   };
 }
 

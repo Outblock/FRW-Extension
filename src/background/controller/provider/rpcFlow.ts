@@ -56,15 +56,6 @@ const flowContext = flow
       const currentNetwork = await Wallet.getNetwork();
       if (!isValidEthereumAddress(evmAddress)) {
         throw new Error('evm must has at least one account.');
-      } else {
-        const walletInfo = {
-          name: 'evm',
-          address: evmAddress,
-          chain_id: currentNetwork,
-          coins: ['flow'],
-          id: 1
-        }
-        await Wallet.setActiveWallet(walletInfo, 'evm');
       }
       const isUnlock = keyringService.memStore.getState().isUnlocked;
       const site = permissionService.getConnectedSite(origin);

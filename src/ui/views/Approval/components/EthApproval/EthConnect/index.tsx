@@ -57,15 +57,25 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
     let currentWallet;
     try {
       // Attempt to query the address
-      currentWallet = await wallet.getCurrentWallet();
+      currentWallet = await wallet.getMainWallet();
     } catch (error) {
       // If an error occurs, request approval
       console.error('Error querying EVM address:', error);
     }
     setLogo(icon);
-    const res = await wallet.queryEvmAddress(currentWallet.address);
+    const res = await wallet.queryEvmAddress(currentWallet);
     setEvmAddress(res!);
     setIsEvm(isValidEthereumAddress(res));
+    if (isValidEthereumAddress(res)) {
+      const walletInfo = {
+        name: 'evm',
+        address: res,
+        chain_id: currentNetwork,
+        coins: ['flow'],
+        id: 1
+      }
+      await wallet.setActiveWallet(walletInfo, 'evm');
+    }
     const site = await wallet.getSite(origin);
     const collectList: { name: string; logo_url: string }[] = [];
     const defaultChain = 'FLOW';
