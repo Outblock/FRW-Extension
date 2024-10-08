@@ -15,21 +15,18 @@ import { EVM_ENDPOINT } from 'consts';
 import { stringToHex } from 'web3-utils';
 import {
   normalize as normalizeAddress,
-  recoverPersonalSignature,
 } from 'eth-sig-util';
 import { ethers } from 'ethers';
-import { sha256, isHexString, ecsign, intToHex } from 'ethereumjs-util';
+import { isHexString, intToHex } from 'ethereumjs-util';
 import BigNumber from 'bignumber.js';
 import RLP from 'rlp';
-import HDWallet from 'ethereum-hdwallet';
 import Web3 from 'web3';
-import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
+import { signWithKey } from '@/ui/utils/modules/passkey.js';
 import {
   ensureEvmAddressPrefix,
-  isValidEthereumAddress,
 } from '@/ui/utils/address';
 import { storage } from '../../webapi';
-import { error } from 'console';
+import { TypedDataUtils, SignTypedDataVersion } from "@metamask/eth-sig-util";
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission
@@ -102,7 +99,7 @@ function createAndEncodeCOAOwnershipProof(
   return encodedData; // Convert the encoded data to a hexadecimal string for easy display or transmission
 }
 
-async function signMessage(keyring, msgParams, opts = {}) {
+async function signMessage(msgParams, opts = {}) {
   const web3 = new Web3();
   const textData = msgParams.data;
 
@@ -123,6 +120,7 @@ async function signMessage(keyring, msgParams, opts = {}) {
   const privateKey = await Wallet.getKey(password);
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
+  const keyindex = await storage.get('keyIndex');
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(
     signableData,
@@ -137,7 +135,51 @@ async function signMessage(keyring, msgParams, opts = {}) {
   const addressArray = Uint8Array.from(addressBuffer);
 
   const encodedProof = createAndEncodeCOAOwnershipProof(
-    [BigInt(0)],
+    [BigInt(keyindex)],
+    addressArray,
+    'evm',
+    [Uint8Array.from(Buffer.from(signature, 'hex'))]
+  );
+
+  return '0x' + toHexString(encodedProof);
+}
+
+async function signTypeData(msgParams, opts = {}) {
+
+  const rightPaddedHexBuffer = (value: string, pad: number) =>
+    Buffer.from(value.padEnd(pad * 2, '0'), 'hex');
+  console.log('msgParams ', msgParams)
+  const hashedData = Buffer.from(msgParams).toString('hex');
+  console.log('hashedData ', hashedData)
+  const USER_DOMAIN_TAG = rightPaddedHexBuffer(
+    Buffer.from('FLOW-V0.0-user').toString('hex'),
+    32
+  ).toString('hex');
+
+  const prependUserDomainTag = (msg: string) => USER_DOMAIN_TAG + msg;
+  const signableData = prependUserDomainTag(removeHexPrefix(hashedData));
+
+  // Retrieve the private key from the wallet (assuming Ethereum wallet)
+  const password = keyringService.password;
+  const privateKey = await Wallet.getKey(password);
+  const hashAlgo = await storage.get('hashAlgo');
+  const signAlgo = await storage.get('signAlgo');
+  const keyindex = await storage.get('keyIndex');
+  // const wallet = new ethers.Wallet(privateKey);
+  const signature = await signWithKey(
+    signableData,
+    signAlgo,
+    hashAlgo,
+    privateKey
+  );
+  const currentWallet = await Wallet.getMainWallet();
+
+  const addressHex = currentWallet;
+  const addressBuffer = Buffer.from(addressHex.slice(2), 'hex');
+  const addressArray = Uint8Array.from(addressBuffer);
+
+  const encodedProof = createAndEncodeCOAOwnershipProof(
+    [BigInt(keyindex)],
     addressArray,
     'evm',
     [Uint8Array.from(Buffer.from(signature, 'hex'))]
@@ -272,7 +314,7 @@ class ProviderController extends BaseController {
       await notificationService.requestApproval(
         {
           params: { origin },
-          approvalComponent: 'EthEnable',
+          approvalComponent: 'EthConnect',
         },
         { height: 599 }
       );
@@ -373,9 +415,7 @@ class ProviderController extends BaseController {
     if (!data.params) return;
     const [string, from] = data.params;
     const hex = isHexString(string) ? string : stringToHex(string);
-    const keyring = await this._checkAddress(from);
     const result = await signMessage(
-      keyring,
       { data: hex, from },
       approvalRes?.extra
     );
@@ -431,6 +471,82 @@ class ProviderController extends BaseController {
     const result = await this.ethRpc(request.data);
     return result.result;
   };
+
+  
+  ethSignTypedData = async (request) => {
+    const result = await this.signTypeData(request);
+    return result;
+  };
+  
+  ethSignTypedDataV3 = async (request) => {
+    const result = await this.signTypeData(request);
+    return result;
+  };
+
+  ethSignTypedDataV4 = async (request) => {
+    const result = await this.signTypeData(request);
+    return result;
+  };
+
+  signTypeData = async (request) => {
+    console.log('eth_signTypedData_v4  ', request);
+    let address;
+    let data;
+    let currentChain
+
+    await notificationService.requestApproval(
+      {
+        params: request,
+        approvalComponent: 'EthSignType',
+      },
+      { height: 599 }
+    );
+
+    const network = await Wallet.getNetwork();
+    const currentWallet = await Wallet.getMainWallet();
+    const evmaddress = await Wallet.queryEvmAddress(currentWallet);
+
+    if (network === 'testnet') {
+      currentChain = 545;
+    } else {
+      currentChain = 747;
+    }
+
+    if (
+      typeof request.data.params?.[0] === "string" &&
+      evmaddress === request.data.params?.[0].toLowerCase()
+    ) {
+      data = request.data.params[1];
+      address = request.data.params[0];
+    } else {
+      data = request.data.params[0];
+      address = request.data.params[1];
+    }
+
+    console.log('data address ', address, data)
+    const message = typeof data === "string" ? JSON.parse(data) : data;
+
+    const { chainId } = message.domain || {};
+
+    if (!chainId || Number(chainId) !== Number(currentChain)) {
+      throw new Error(
+        "Provided chainId does not match the currently active chain"
+      );
+    }
+
+    const hash = TypedDataUtils.eip712Hash(message, SignTypedDataVersion.V4)
+
+    console.log('SignTypedDataVersion.V4 ', hash)
+    const result = await signTypeData(hash)
+    signTextHistoryService.createHistory({
+      address: address,
+      text: data,
+      origin: request.session.origin,
+      type: 'ethSignTypedDataV4',
+    });
+    return result;
+
+  }
 }
 
 export default new ProviderController();

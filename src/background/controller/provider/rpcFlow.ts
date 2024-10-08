@@ -62,18 +62,25 @@ const flowContext = flow
       if (mapMethod === 'ethAccounts' && (!site || !isUnlock)) {
         throw new Error('Origin not connected. Please connect first.');
       }
-
-      if (!isUnlock) {
-        ctx.request.requestedApproval = true;
-        lockedOrigins.add(origin);
-        try {
-          await notificationService.requestApproval({ lock: true });
-          lockedOrigins.delete(origin);
-        } catch (e) {
-          lockedOrigins.delete(origin);
-          throw e;
-        }
-      }
+      // console.log('isUnlock ', isUnlock)
+      // await notificationService.requestApproval(
+      //   {
+      //     params: { origin, name },
+      //     approvalComponent: 'EthConnect', lock: true
+      //   },
+      //   { height: 599 }
+      // );
+      // if (!isUnlock) {
+      //   ctx.request.requestedApproval = true;
+      //   lockedOrigins.add(origin);
+      //   try {
+      //     await notificationService.requestApproval({ lock: true });
+      //     lockedOrigins.delete(origin);
+      //   } catch (e) {
+      //     lockedOrigins.delete(origin);
+      //     throw e;
+      //   }
+      // }
     }
 
     return next();

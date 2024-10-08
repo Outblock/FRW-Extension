@@ -90,7 +90,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
     setIsLoading(true)
 
     wallet.createCoaEmpty().then(async (createRes) => {
-      wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your EVM on Flow address has been created. \nClick to view this transaction.`);
+      wallet.listenTransaction(createRes, true, 'Create EVM complete', `Your EVM on Flow address has been created. \nClick to view this transaction.`);
 
       setIsLoading(false);
     }).catch((err) => {

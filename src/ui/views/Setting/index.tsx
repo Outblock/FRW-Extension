@@ -224,10 +224,10 @@ const SettingTab = () => {
               <ListItemText primary={chrome.i18n.getMessage('Try_Our_Mobile_APP')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px', spacing: '8px' }}>
                 {/* <IconEnd size={12} /> */}
-                <IconButton onClick={() => window.open('https://apps.apple.com/us/app/lilico/id1644169603')}>
+                <IconButton onClick={() => window.open('https://apps.apple.com/ca/app/flow-wallet-nfts-and-crypto/id6478996750')}>
                   <AppleIcon fontSize="small" color="disabled" />
                 </IconButton>
-                <IconButton onClick={() => window.open('https://play.google.com/store/apps/details?id=io.outblock.lilico')}>
+                <IconButton onClick={() => window.open('https://play.google.com/store/apps/details?id=com.flowfoundation.wallet')}>
                   <AndroidIcon fontSize="small" color="disabled" />
                 </IconButton>
               </ListItemIcon>

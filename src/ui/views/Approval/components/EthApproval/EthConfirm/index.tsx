@@ -55,6 +55,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
   const [image, setImage] = useState<string>('')
   const [accountTitle, setAccountTitle] = useState<string>('')
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null)
+  const [loading, setLoading] = useState(false);
 
   // TODO: replace default logo
   const [logo, setLogo] = useState('')
@@ -109,6 +110,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
   };
 
   const handleAllow = async () => {
+    await checkCoa();
     resolveApproval({
       defaultChain: 646,
       signPermission: 'MAINNET_AND_TESTNET',
@@ -118,6 +120,22 @@ const EthConfirm = ({ params }: ConnectProps) => {
   const loadPayer = async () => {
     const isEnabled = await wallet.allowLilicoPay()
     setLilicoEnabled(isEnabled)
+  }
+
+
+  const checkCoa = async () => {
+    setLoading(true);
+    const isEnabled = await wallet.checkCoaLink();
+    if (!isEnabled) {
+      const result = await wallet.coaLink();
+      const res = await fcl.tx(result).onceSealed();
+      const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
+      if (transactionExecutedEvent) {
+        setLoading(false);
+        return
+      }
+    }
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -170,12 +188,19 @@ const EthConfirm = ({ params }: ConnectProps) => {
               fullWidth
               onClick={handleCancel}
             />
-            <LLPrimaryButton
-              label={chrome.i18n.getMessage('Approve')}
-              fullWidth
-              type="submit"
-              onClick={handleAllow}
-            />
+            {!loading ?
+              <LLPrimaryButton
+                label={chrome.i18n.getMessage('Approve')}
+                fullWidth
+                type="submit"
+                onClick={handleAllow}
+              />
+              :
+              <LLSecondaryButton
+                label={chrome.i18n.getMessage('Loading')}
+                fullWidth
+              />
+            }
           </Stack>
         </Box>
       }

@@ -1815,6 +1815,43 @@ export class WalletController extends BaseController {
 
 
 
+  coaLink  = async (amount = '1.0'): Promise<string> => {
+    const network = await this.getNetwork();
+    const formattedAmount = parseFloat(amount).toFixed(8);
+
+
+    const script = await getScripts('evm', 'coaLink');
+
+    const result = await userWalletService.sendTransaction(
+      script
+      ,
+      [
+      ]
+
+    );
+    console.log('coaLink resutl ', result)
+    return result;
+  };
+
+
+
+  checkCoaLink = async (): Promise<string> => {
+
+    const script = await getScripts('evm', 'checkCoaLink');
+    const mainAddress = await this.getMainWallet();
+    console.log('getscript script ', mainAddress)
+
+    const result = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(mainAddress, t.Address)],
+    });
+    console.log('getscript coalink ', result)
+    return result
+  };
+
+
+
+
   bridgeToEvm = async (flowIndentifier, amount = '1.0'): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
