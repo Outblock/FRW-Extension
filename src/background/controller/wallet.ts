@@ -1835,18 +1835,24 @@ export class WalletController extends BaseController {
 
 
 
-  checkCoaLink = async (): Promise<string> => {
+  checkCoaLink = async (): Promise<any> => {
+    const checkedAddress = await storage.get('coacheckAddress');
 
     const script = await getScripts('evm', 'checkCoaLink');
     const mainAddress = await this.getMainWallet();
     console.log('getscript script ', mainAddress)
-
-    const result = await fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(mainAddress, t.Address)],
-    });
-    console.log('getscript coalink ', result)
-    return result
+    if (checkedAddress === mainAddress) {
+      return true;
+    } else {
+      const result = await fcl.query({
+        cadence: script,
+        args: (arg, t) => [arg(mainAddress, t.Address)],
+      });
+      if (result) {
+        await storage.set('coacheckAddress', mainAddress);
+      }
+      return result
+    }
   };
 
 

@@ -148,27 +148,35 @@ const EthConfirm = ({ params }: ConnectProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      {isLoading ?
+      {isLoading ? (
         <Box>
-          {accountLinking ?
+          {accountLinking ? (
             <LLLinkingLoading
               linkingDone={linkingDone}
               image={image}
               accountTitle={accountTitle}
               userInfo={userInfo}
-            /> :
+            />
+          ) : (
             <LLConnectLoading logo={logo} />
-          }
-          {/* <LLConnectLoading logo={logo} /> */}
-        </Box> :
-        <Box sx={{
-          margin: '18px 18px 0px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '12px',
-          height: '506px',
-          background: accountLinking ? 'linear-gradient(0deg, #121212, #32484C)' : 'linear-gradient(0deg, #121212, #11271D)'
-        }}>
+          )}
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            margin: '18px 18px 0px 18px',
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: '12px',
+            height: '506px',
+            background: accountLinking
+              ? 'linear-gradient(0deg, #121212, #32484C)'
+              : 'linear-gradient(0deg, #121212, #11271D)',
+            overflowY: 'auto', // Enable scrolling
+            scrollbarWidth: 'none', // Hide scrollbar for Firefox
+            '&::-webkit-scrollbar': { display: 'none' }, // Hide scrollbar for Chrome, Safari, and Edge
+          }}
+        >
           <DefaultBlock
             title={requestParams.name || ''}
             host={requestParams.origin || ''}
@@ -181,30 +189,41 @@ const EthConfirm = ({ params }: ConnectProps) => {
             dedent={dedent}
             lilicoEnabled={lilicoEnabled}
           />
+
+          {/* Push the button stack to the bottom */}
           <Box sx={{ flexGrow: 1 }} />
-          <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
-            <LLSecondaryButton
-              label={chrome.i18n.getMessage('Cancel')}
-              fullWidth
-              onClick={handleCancel}
-            />
-            {!loading ?
-              <LLPrimaryButton
-                label={chrome.i18n.getMessage('Approve')}
-                fullWidth
-                type="submit"
-                onClick={handleAllow}
-              />
-              :
+
+          {/* Sticky button group at the bottom */}
+          <Box
+            sx={{
+              position: 'sticky',
+              bottom: 0,
+              padding: '16px 0 0',
+            }}
+          >
+            <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
               <LLSecondaryButton
-                label={chrome.i18n.getMessage('Loading')}
+                label={chrome.i18n.getMessage('Cancel')}
                 fullWidth
+                onClick={handleCancel}
               />
-            }
-          </Stack>
+              {!loading ? (
+                <LLPrimaryButton
+                  label={chrome.i18n.getMessage('Approve')}
+                  fullWidth
+                  type="submit"
+                  onClick={handleAllow}
+                />
+              ) : (
+                <LLSecondaryButton label={chrome.i18n.getMessage('Loading')} fullWidth />
+              )}
+            </Stack>
+          </Box>
         </Box>
-      }
+      )}
     </ThemeProvider>
+
+
   );
 };
 

@@ -131,7 +131,7 @@ const EthSignType = ({ params }: ConnectProps) => {
         // Check if the value is an object and not an array
         if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
           return (
-            <Box key={key} sx={{ }}>
+            <Box key={key} sx={{}}>
               <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
               <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -142,7 +142,7 @@ const EthSignType = ({ params }: ConnectProps) => {
         } else if (Array.isArray(value)) {
           // If the value is an array, render each item
           return (
-            <Box key={key} sx={{ }}>
+            <Box key={key} sx={{}}>
               <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
               <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -176,8 +176,8 @@ const EthSignType = ({ params }: ConnectProps) => {
     };
 
     return (
-      <Box sx={{marginBottom:'8px'}}>
-        <Box display="flex" justifyContent="space-between" sx={{marginBottom:'8px'}}>
+      <Box sx={{ marginBottom: '8px' }}>
+        <Box display="flex" justifyContent="space-between" sx={{ marginBottom: '8px' }}>
           <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>Primary Type</Typography>
           <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
             {data.primaryType}
@@ -191,69 +191,91 @@ const EthSignType = ({ params }: ConnectProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      {isLoading ?
+      {isLoading ? (
         <Box>
-          {accountLinking ?
+          {accountLinking ? (
             <LLLinkingLoading
               linkingDone={linkingDone}
               image={image}
               accountTitle={accountTitle}
               userInfo={userInfo}
-            /> :
-            <LLConnectLoading logo={logo} />
-          }
-          {/* <LLConnectLoading logo={logo} /> */}
-        </Box> :
-        <Box sx={{
-          margin: '18px 18px',
-          padding: '18px',
-          height: '506px',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '12px',
-          background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(40, 40, 40, 0.00) 88.24%)'
-        }}>
-
-          {
-            params.session &&
-
-            <Box sx={{ marginBottom: '2px', display: 'flex' }}>
-              <CardMedia image={params.session.icon} sx={{ width: '64px', height: '64px', marginRight: '16px' }}></CardMedia>
-              <Box>
-                <Typography sx={{ fontSize: '12px', color: '#737373' }}>Sign Type Message from</Typography>
-                <Typography sx={{ fontSize: '18px', color: '#FFFFFF', fontWeight: '700' }}>{params.session.name}</Typography>
-              </Box>
-            </Box>
-          }
-
-          {messages &&
-            <JsonRenderer data={messages} />
-          }
-          <Box sx={{ flexGrow: 1 }} />
-          <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
-            <LLSecondaryButton
-              label={chrome.i18n.getMessage('Cancel')}
-              fullWidth
-              onClick={handleCancel}
             />
-            {!loading ?
-              <LLPrimaryButton
-                label={chrome.i18n.getMessage('Approve')}
-                fullWidth
-                type="submit"
-                onClick={handleAllow}
-              />
-              :
-              <LLSecondaryButton
-                label={chrome.i18n.getMessage('Loading')}
-                fullWidth
-              />
-            }
-
-          </Stack>
+          ) : (
+            <LLConnectLoading logo={logo} />
+          )}
         </Box>
-      }
-    </ThemeProvider >
+      ) : (
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+          <Box
+            sx={{
+              margin: '18px 18px',
+              padding: '18px',
+              flex: 1, 
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: '12px',
+              background:
+                'linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(40, 40, 40, 0.00) 88.24%)',
+              overflowY: 'auto', 
+              scrollbarWidth: 'none', 
+              '&::-webkit-scrollbar': { display: 'none' }, 
+            }}
+          >
+            {params.session && (
+              <Box sx={{ marginBottom: '2px', display: 'flex' }}>
+                <CardMedia
+                  image={params.session.icon}
+                  sx={{ width: '64px', height: '64px', marginRight: '16px' }}
+                />
+                <Box>
+                  <Typography sx={{ fontSize: '12px', color: '#737373' }}>
+                    Sign Type Message from
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: '18px', color: '#FFFFFF', fontWeight: '700' }}
+                  >
+                    {params.session.name}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+
+            {messages && <JsonRenderer data={messages} />}
+            <Box sx={{ flexGrow: 1 }} />
+          </Box>
+          <Box
+            sx={{
+              position: 'sticky',
+              bottom: 0,
+              padding: '18px',
+            }}
+          >
+            <Stack direction="row" spacing={1}>
+              <LLSecondaryButton
+                label={chrome.i18n.getMessage('Cancel')}
+                fullWidth
+                onClick={handleCancel}
+              />
+              {!loading ? (
+                <LLPrimaryButton
+                  label={chrome.i18n.getMessage('Approve')}
+                  fullWidth
+                  type="submit"
+                  onClick={handleAllow}
+                />
+              ) : (
+                <LLSecondaryButton
+                  label={chrome.i18n.getMessage('Loading')}
+                  fullWidth
+                />
+              )}
+            </Stack>
+          </Box>
+        </Box>
+      )}
+    </ThemeProvider>
+
+
   );
 };
 
