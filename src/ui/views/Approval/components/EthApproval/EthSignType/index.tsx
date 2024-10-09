@@ -123,46 +123,50 @@ const EthSignType = ({ params }: ConnectProps) => {
 
 
   const JsonRenderer = ({ data }) => {
-    // Function to render the content inside the 'message' field
+    // Recursive function to render objects, including arrays and nested objects
     const renderMessageContent = (messageObj) => {
       return Object.keys(messageObj).map((key) => {
         const value = messageObj[key];
 
-        // Check if the value is an object, if not render the value directly
-        if (typeof value === 'object' && value !== null) {
+        // Check if the value is an object and not an array
+        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
           return (
-            <Box key={key} sx={{ marginBottom: '8px' }}>
-              {/* Render the first layer key as a title */}
-              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginBottom: '8px' }}></Box>
-              <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>
-                {key.charAt(0).toUpperCase() + key.slice(1)} {/* Capitalize key */}
+            <Box key={key} sx={{ }}>
+              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
+              <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
+                {key.charAt(0).toUpperCase() + key.slice(1)}
               </Typography>
-
-              {/* Render the inner fields of 'from' and 'to' */}
-              {Object.keys(value).map((innerKey) => (
-                <Box display="flex" justifyContent="space-between" key={innerKey} sx={{ padding: '0' }}>
+              {renderMessageContent(value)}
+            </Box>
+          );
+        } else if (Array.isArray(value)) {
+          // If the value is an array, render each item
+          return (
+            <Box key={key} sx={{ }}>
+              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
+              <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </Typography>
+              {value.map((item, index) => (
+                <Box key={index} sx={{ paddingLeft: '16px', }}>
                   <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
-                    {innerKey.charAt(0).toUpperCase() + innerKey.slice(1)}:
+                    Item {index + 1}:
                   </Typography>
-                  <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
-                    {formatAddress(value[innerKey])}
-                  </Typography>
+                  {renderMessageContent(item)}
                 </Box>
               ))}
             </Box>
           );
         } else {
-          // If it's not an object, render the key and value directly
+          // If it's not an object or array, render the key and value directly
           return (
-            <Box>
-
-              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginBottom: '8px' }}></Box>
-              <Box display="flex" justifyContent="space-between" key={key} sx={{ padding: '0', marginBottom: 2 }}>
-                <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>
+            <Box key={key}>
+              <Box display="flex" justifyContent="space-between" sx={{ padding: '0', }}>
+                <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
                   {key.charAt(0).toUpperCase() + key.slice(1)}:
                 </Typography>
                 <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
-                  {value}
+                  {formatAddress(value)}
                 </Typography>
               </Box>
             </Box>
@@ -172,8 +176,8 @@ const EthSignType = ({ params }: ConnectProps) => {
     };
 
     return (
-      <Box sx={{ padding: '16px' }}>
-        <Box display="flex" justifyContent="space-between" sx={{ paddingBottom: '8px' }}>
+      <Box sx={{marginBottom:'8px'}}>
+        <Box display="flex" justifyContent="space-between" sx={{marginBottom:'8px'}}>
           <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>Primary Type</Typography>
           <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
             {data.primaryType}
