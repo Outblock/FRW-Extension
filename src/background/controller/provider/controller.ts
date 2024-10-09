@@ -89,23 +89,8 @@ function createAndEncodeCOAOwnershipProof(
     capabilityPath,
     signatures,
   };
-  console.log('proof.keyIndices.map((index) => Buffer.from(index.toString(16) ', proof.keyIndices.map((index) => Buffer.from(index.toString(16), 'hex')));
-  const bufferIndex = proof.keyIndices.map((index) => {
-    // Convert BigInt to hex string
-    let hexString = index.toString(16);
-  
-    // Ensure the hex string has an even length
-    if (hexString.length % 2 !== 0) {
-      hexString = '0' + hexString; // Add leading zero if length is odd
-    }
-  
-    // Convert the hex string to a Buffer
-    return Buffer.from(hexString, 'hex');
-  });
-  console.log('bufferIndex ', bufferIndex);
-  // Prepare data for RLP encoding
   const encodedData = RLP.encode([
-    bufferIndex,
+    keyIndices,
     proof.address,
     Buffer.from(proof.capabilityPath, 'utf8'),
     proof.signatures,
