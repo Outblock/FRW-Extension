@@ -27,6 +27,7 @@ import {
 } from '@/ui/utils/address';
 import { storage } from '../../webapi';
 import { TypedDataUtils, SignTypedDataVersion } from "@metamask/eth-sig-util";
+import * as fcl from '@onflow/fcl';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission
@@ -88,9 +89,23 @@ function createAndEncodeCOAOwnershipProof(
     capabilityPath,
     signatures,
   };
+  console.log('proof.keyIndices.map((index) => Buffer.from(index.toString(16) ', proof.keyIndices.map((index) => Buffer.from(index.toString(16), 'hex')));
+  const bufferIndex = proof.keyIndices.map((index) => {
+    // Convert BigInt to hex string
+    let hexString = index.toString(16);
+  
+    // Ensure the hex string has an even length
+    if (hexString.length % 2 !== 0) {
+      hexString = '0' + hexString; // Add leading zero if length is odd
+    }
+  
+    // Convert the hex string to a Buffer
+    return Buffer.from(hexString, 'hex');
+  });
+  console.log('bufferIndex ', bufferIndex);
   // Prepare data for RLP encoding
   const encodedData = RLP.encode([
-    proof.keyIndices.map((index) => Buffer.from(index.toString(16), 'hex')), // Convert bigint to Buffer
+    bufferIndex,
     proof.address,
     Buffer.from(proof.capabilityPath, 'utf8'),
     proof.signatures,
@@ -118,9 +133,12 @@ async function signMessage(msgParams, opts = {}) {
   // Retrieve the private key from the wallet (assuming Ethereum wallet)
   const password = keyringService.password;
   const privateKey = await Wallet.getKey(password);
+  const currentWallet = await Wallet.getMainWallet();
+  const account = await fcl.account(currentWallet);
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');
+  console.log('keyindex ', [BigInt(keyindex)], account)
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(
     signableData,
@@ -128,7 +146,6 @@ async function signMessage(msgParams, opts = {}) {
     hashAlgo,
     privateKey
   );
-  const currentWallet = await Wallet.getMainWallet();
 
   const addressHex = currentWallet;
   const addressBuffer = Buffer.from(addressHex.slice(2), 'hex');
@@ -165,6 +182,7 @@ async function signTypeData(msgParams, opts = {}) {
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');
+  console.log('keyindex ', keyindex)
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(
     signableData,

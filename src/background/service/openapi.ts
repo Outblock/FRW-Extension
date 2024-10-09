@@ -2354,6 +2354,7 @@ class OpenApiService {
 
       const keyInfoA = findKeyAndInfo(keys, P256.pubK);
       const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+      console.log('keyInfoB , keyInfoA ', keyInfoA, keyInfoB)
       const keyInfo = keyInfoA ||
         keyInfoB || {
         index: 0,

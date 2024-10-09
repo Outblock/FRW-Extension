@@ -140,7 +140,7 @@ const EthSignType = ({ params }: ConnectProps) => {
 
               {/* Render the inner fields of 'from' and 'to' */}
               {Object.keys(value).map((innerKey) => (
-                <Box display="flex" justifyContent="space-between" key={innerKey} sx={{ padding: '4px 0' }}>
+                <Box display="flex" justifyContent="space-between" key={innerKey} sx={{ padding: '0' }}>
                   <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
                     {innerKey.charAt(0).toUpperCase() + innerKey.slice(1)}:
                   </Typography>
@@ -157,7 +157,7 @@ const EthSignType = ({ params }: ConnectProps) => {
             <Box>
 
               <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginBottom: '8px' }}></Box>
-              <Box display="flex" justifyContent="space-between" key={key} sx={{ padding: '4px 0', marginBottom: 2 }}>
+              <Box display="flex" justifyContent="space-between" key={key} sx={{ padding: '0', marginBottom: 2 }}>
                 <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>
                   {key.charAt(0).toUpperCase() + key.slice(1)}:
                 </Typography>
@@ -173,7 +173,7 @@ const EthSignType = ({ params }: ConnectProps) => {
 
     return (
       <Box sx={{ padding: '16px' }}>
-        <Box display="flex" justifyContent="space-between" sx={{ padding: '8px 0' }}>
+        <Box display="flex" justifyContent="space-between" sx={{ paddingBottom: '8px' }}>
           <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>Primary Type</Typography>
           <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
             {data.primaryType}
@@ -214,7 +214,7 @@ const EthSignType = ({ params }: ConnectProps) => {
             params.session &&
 
             <Box sx={{ marginBottom: '2px', display: 'flex' }}>
-              <CardMedia image={params.session.icon} sx={{ width: '32px', height: '32px', marginRight: '16px' }}></CardMedia>
+              <CardMedia image={params.session.icon} sx={{ width: '64px', height: '64px', marginRight: '16px' }}></CardMedia>
               <Box>
                 <Typography sx={{ fontSize: '12px', color: '#737373' }}>Sign Type Message from</Typography>
                 <Typography sx={{ fontSize: '18px', color: '#FFFFFF', fontWeight: '700' }}>{params.session.name}</Typography>
