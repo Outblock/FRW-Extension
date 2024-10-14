@@ -1127,7 +1127,7 @@
     "message": "OK"
   },
   "We_cant_find": {
-    "message": "我们无法使用这个密钥在 Flow 上找到您的地址。请检查您的输入后再试一次。"
+    "message": "我们无法在 Flow 上找到您使用此密钥的地址，或者密钥无效。请检查您的输入并重试。"
   },
   "Add_account": {
     "message": "添加账户"

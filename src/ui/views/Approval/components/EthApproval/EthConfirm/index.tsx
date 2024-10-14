@@ -168,7 +168,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
             display: 'flex',
             flexDirection: 'column',
             borderRadius: '12px',
-            height: '506px',
+            height: '100%',
             background: accountLinking
               ? 'linear-gradient(0deg, #121212, #32484C)'
               : 'linear-gradient(0deg, #121212, #11271D)',

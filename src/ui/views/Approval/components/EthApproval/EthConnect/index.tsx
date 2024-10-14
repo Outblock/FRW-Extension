@@ -146,7 +146,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '12px',
-          height: '506px',
+          height: '100%',
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           {isEvm &&

@@ -187,11 +187,24 @@ const Header = ({ loading }) => {
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
+    const isChild = await usewallet.getActiveWallet();
     const mainAddress = await usewallet.getMainAddress();
+    
+
+    if (isChild === 'evm') {
+      const res = await usewallet.queryEvmAddress(mainAddress!);
+      const evmWallet = await usewallet.getEvmWallet();
+      const evmAddress = ensureEvmAddressPrefix(res)
+      evmWallet.address = evmAddress
+      await setCurrent(evmWallet);
+      setMainLoading(false);
+    } else {
+      await setCurrent(currentWallet);
+      setMainLoading(false);
+    }
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
-    const walletData = await usewallet.getUserInfo(true);
-    const isChild = await usewallet.getActiveWallet();
+
     if (mainAddress) {
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
@@ -202,17 +215,8 @@ const Header = ({ loading }) => {
         setEvmLoading(false);
       }
     }
-
-    if (isChild === 'evm') {
-      const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
-      evmWallet.address = evmAddress
-      await setCurrent(evmWallet);
-      setMainLoading(false);
-    } else {
-      await setCurrent(currentWallet);
-      setMainLoading(false);
-    }
+    
+    const walletData = await usewallet.getUserInfo(true);
 
     const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
     if (!isChild) {

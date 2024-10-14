@@ -124,7 +124,7 @@ const EthSignType = ({ params }: ConnectProps) => {
 
   const JsonRenderer = ({ data }) => {
     // Recursive function to render objects, including arrays and nested objects
-    const renderMessageContent = (messageObj) => {
+    const renderMessageContent = (messageObj, isChild = false) => {
       return Object.keys(messageObj).map((key) => {
         const value = messageObj[key];
 
@@ -133,10 +133,10 @@ const EthSignType = ({ params }: ConnectProps) => {
           return (
             <Box key={key} sx={{}}>
               <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
-              <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
+              <Typography sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </Typography>
-              {renderMessageContent(value)}
+              {renderMessageContent(value, true)}
             </Box>
           );
         } else if (Array.isArray(value)) {
@@ -144,15 +144,15 @@ const EthSignType = ({ params }: ConnectProps) => {
           return (
             <Box key={key} sx={{}}>
               <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
-              <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
+              <Typography sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </Typography>
               {value.map((item, index) => (
-                <Box key={index} sx={{ paddingLeft: '16px', }}>
+                <Box key={index} sx={{ backgroundColor: '#2C2C2C', padding: '16px', borderRadius: '12px', marginY: '16px' }}>
                   <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
-                    Item {index + 1}:
+                    Item {index + 1}
                   </Typography>
-                  {renderMessageContent(item)}
+                  {renderMessageContent(item, true)}
                 </Box>
               ))}
             </Box>
@@ -162,8 +162,8 @@ const EthSignType = ({ params }: ConnectProps) => {
           return (
             <Box key={key}>
               <Box display="flex" justifyContent="space-between" sx={{ padding: '0', }}>
-                <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
-                  {key.charAt(0).toUpperCase() + key.slice(1)}:
+                <Typography sx={{ fontWeight: '400', color: `${isChild ? '#FFFFFF66' : '#FFFFFFCC'}`, fontSize: '14px' }}>
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
                 </Typography>
                 <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
                   {formatAddress(value)}
@@ -177,8 +177,13 @@ const EthSignType = ({ params }: ConnectProps) => {
 
     return (
       <Box sx={{ marginBottom: '8px' }}>
+        <Box display="flex" justifyContent="space-between">
+          <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>Message</Typography>
+          <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
+          </Typography>
+        </Box>
         <Box display="flex" justifyContent="space-between" sx={{ marginBottom: '8px' }}>
-          <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>Primary Type</Typography>
+          <Typography sx={{ fontSize: '14px', fontWeight: '400', color: '#FFFFFF66' }}>Primary Type</Typography>
           <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
             {data.primaryType}
           </Typography>
@@ -210,15 +215,15 @@ const EthSignType = ({ params }: ConnectProps) => {
             sx={{
               margin: '18px 18px',
               padding: '18px',
-              flex: 1, 
+              flex: 1,
               display: 'flex',
               flexDirection: 'column',
               borderRadius: '12px',
               background:
                 'linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(40, 40, 40, 0.00) 88.24%)',
-              overflowY: 'auto', 
-              scrollbarWidth: 'none', 
-              '&::-webkit-scrollbar': { display: 'none' }, 
+              overflowY: 'auto',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
             }}
           >
             {params.session && (

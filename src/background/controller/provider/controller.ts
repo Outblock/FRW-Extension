@@ -273,8 +273,8 @@ class ProviderController extends BaseController {
       from: data.params[0].from,
       // Wrapped ETH address
       to: data.params[0].to,
-      // `function deposit() payable`
-      data: '0xd0e30db0',
+      gasPrice: data.params[0].gasPrice,
+      data: data.params[0].data,
       // 1 ether
       value: data.params[0].value,
     });

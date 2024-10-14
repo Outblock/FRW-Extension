@@ -44,7 +44,7 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
       const inputValue = e.target[2].value;
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
 
-      const result = await findAddressWithSeed(seed, address, true)
+      const result = await findAddressWithSeed(seed, address, true);
       if (!result) {
         onOpen();
         return;
