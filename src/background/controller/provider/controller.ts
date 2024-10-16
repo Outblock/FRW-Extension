@@ -24,6 +24,7 @@ import Web3 from 'web3';
 import { signWithKey } from '@/ui/utils/modules/passkey.js';
 import {
   ensureEvmAddressPrefix,
+  isValidEthereumAddress
 } from '@/ui/utils/address';
 import { storage } from '../../webapi';
 import { TypedDataUtils, SignTypedDataVersion } from "@metamask/eth-sig-util";
@@ -475,12 +476,12 @@ class ProviderController extends BaseController {
     return result.result;
   };
 
-  
+
   ethSignTypedData = async (request) => {
-    const result = await this.signTypeData(request);
+    const result = await this.signTypeDataV1(request);
     return result;
   };
-  
+
   ethSignTypedDataV3 = async (request) => {
     const result = await this.signTypeData(request);
     return result;
@@ -515,9 +516,11 @@ class ProviderController extends BaseController {
       currentChain = 747;
     }
 
+    const paramAddress = request.data.params?.[0].toLowerCase() || ''
+
+
     if (
-      typeof request.data.params?.[0] === "string" &&
-      evmaddress === request.data.params?.[0].toLowerCase()
+      isValidEthereumAddress(paramAddress)
     ) {
       data = request.data.params[1];
       address = request.data.params[0];
@@ -526,16 +529,79 @@ class ProviderController extends BaseController {
       address = request.data.params[1];
     }
 
+
+    if (ensureEvmAddressPrefix(evmaddress!.toLowerCase()) !== ensureEvmAddressPrefix(address.toLowerCase())) {
+
+      console.log('evmaddress address ', evmaddress!.toLowerCase(), address.toLowerCase())
+      throw new Error(
+        "Provided address does not match the current address"
+      );
+    }
     console.log('data address ', address, data)
     const message = typeof data === "string" ? JSON.parse(data) : data;
 
-    const { chainId } = message.domain || {};
+    const signTypeMethod = request.data.method === "eth_signTypedData_v3"
+      ? SignTypedDataVersion.V3
+      : SignTypedDataVersion.V4;
 
-    if (!chainId || Number(chainId) !== Number(currentChain)) {
+    const hash = TypedDataUtils.eip712Hash(message, signTypeMethod)
+
+    const result = await signTypeData(hash)
+    signTextHistoryService.createHistory({
+      address: address,
+      text: data,
+      origin: request.session.origin,
+      type: 'ethSignTypedDataV4',
+    });
+    return result;
+
+  }
+
+  signTypeDataV1 = async (request) => {
+    console.log('eth_signTypedData_v1  ', request);
+    let address;
+    let data;
+    let currentChain
+
+    await notificationService.requestApproval(
+      {
+        params: request,
+        approvalComponent: 'EthSignV1',
+      },
+      { height: 599 }
+    );
+
+    const network = await Wallet.getNetwork();
+    const currentWallet = await Wallet.getMainWallet();
+    const evmaddress = await Wallet.queryEvmAddress(currentWallet);
+
+    if (network === 'testnet') {
+      currentChain = 545;
+    } else {
+      currentChain = 747;
+    }
+
+    const paramAddress = request.data.params?.[0] ? request.data.params?.[0] : ''
+
+    if (
+      isValidEthereumAddress(paramAddress)
+    ) {
+      data = request.data.params[1];
+      address = request.data.params[0];
+    } else {
+      data = request.data.params[0];
+      address = request.data.params[1];
+    }
+
+    console.log('evmaddress address ', address, evmaddress)
+
+    if (ensureEvmAddressPrefix(evmaddress!.toLowerCase()) !== ensureEvmAddressPrefix(address.toLowerCase())) {
       throw new Error(
-        "Provided chainId does not match the currently active chain"
+        "Provided address does not match the current address"
       );
     }
+
+    const message = typeof data === "string" ? JSON.parse(data) : data;
 
     const hash = TypedDataUtils.eip712Hash(message, SignTypedDataVersion.V4)
 
@@ -545,7 +611,7 @@ class ProviderController extends BaseController {
       address: address,
       text: data,
       origin: request.session.origin,
-      type: 'ethSignTypedDataV4',
+      type: 'ethSignTypedDataV1',
     });
     return result;
 

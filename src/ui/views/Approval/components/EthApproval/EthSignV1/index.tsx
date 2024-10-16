@@ -21,7 +21,7 @@ interface ConnectProps {
   // defaultChain: CHAINS_ENUM;
 }
 
-const EthSignType = ({ params }: ConnectProps) => {
+const EthSignV1 = ({ params }: ConnectProps) => {
   const [, resolveApproval, rejectApproval, linkningConfirm] = useApproval();
   const { t } = useTranslation();
   const wallet = useWallet();
@@ -82,8 +82,7 @@ const EthSignType = ({ params }: ConnectProps) => {
       data = params.data.params[0];
       address = params.data.params[1];
     }
-    const jsonObject = JSON.parse(data);
-    setMessages(jsonObject)
+    setMessages(data)
     console.log('data, ', data)
   };
 
@@ -123,106 +122,36 @@ const EthSignType = ({ params }: ConnectProps) => {
 
 
   const JsonRenderer = ({ data }) => {
-
-    // Recursive function to render objects, including arrays and nested objects
-    const renderMessageContent = (messageObj, isChild = false) => {
-      return Object.keys(messageObj).map((key) => {
-        const value = messageObj[key];
-
-        // Check if the value is an object and not an array
-        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-          return (
-            <Box key={key} sx={{}}>
-              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
-              <Typography sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}>
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </Typography>
-              {renderMessageContent(value, true)}
-            </Box>
-          );
-        } else if (Array.isArray(value)) {
-          // If the value is an array, render each item
-          return (
-            <Box key={key} sx={{}}>
-              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
-              <Typography sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}>
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </Typography>
-              {value.map((item, index) => {
-                // If array item is an object, render its content
-                if (typeof item === 'object' && item !== null) {
-                  return (
-                    <Box key={index} sx={{ backgroundColor: '#2C2C2C', padding: '16px', borderRadius: '12px', marginY: '16px' }}>
-                      <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
-                        {key.charAt(0).toUpperCase() + key.slice(1)} Item {index + 1}
-                      </Typography>
-                      {renderMessageContent(item, true)}
-                    </Box>
-                  );
-                } else {
-                  // If array item is a string
-                  return (
-                    <Box
-                      key={index}
-                      sx={{
-                        backgroundColor: '#2C2C2C',
-                        padding: '8px',
-                        borderRadius: '8px',
-                        marginY: '8px',
-                        wordWrap: 'break-word',
-                        wordBreak: 'break-all',
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontWeight: '400',
-                          color: '#FFFFFFCC',
-                          fontSize: '14px',
-                          whiteSpace: 'normal',
-                        }}
-                      >
-                        {item}
-                      </Typography>
-                    </Box>
-                  );
-                }
-              })}
-            </Box>
-          );
-        } else {
-          // If it's not an object or array, render the key and value directly
-          return (
-            <Box key={key}>
-              <Box display="flex" justifyContent="space-between" sx={{ padding: '0', }}>
-                <Typography sx={{ fontWeight: '400', color: `${isChild ? '#FFFFFF66' : '#FFFFFFCC'}`, fontSize: '14px' }}>
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Typography>
-                <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
-                  {formatAddress(value)}
-                </Typography>
-              </Box>
-            </Box>
-          );
-        }
-      });
-    };
-
     return (
-      <Box sx={{ marginBottom: '8px' }}>
-        <Box display="flex" justifyContent="space-between">
-          <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>Message</Typography>
-          <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}></Typography>
-        </Box>
-        <Box display="flex" justifyContent="space-between" sx={{ marginBottom: '8px' }}>
-          <Typography sx={{ fontSize: '14px', fontWeight: '400', color: '#FFFFFF66' }}>Primary Type</Typography>
-          <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
-            {data.primaryType}
-          </Typography>
-        </Box>
-        {renderMessageContent(data.message)}
+      <Box sx={{ padding: '16px', backgroundColor: '#1C1C1C', borderRadius: '8px' }}>
+        {data.map((item, index) => (
+          <Box key={index} sx={{ marginBottom: '12px' }}>
+            <Typography
+              sx={{
+                fontWeight: '600',
+                fontSize: '14px',
+                color: '#FFFFFFCC',
+                marginBottom: '4px',
+              }}
+            >
+              {item.name} ({item.type})
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: '400',
+                fontSize: '14px',
+                color: '#FFFFFF99',
+                wordBreak: 'break-all', // Handle long values
+              }}
+            >
+              {item.value}
+            </Typography>
+          </Box>
+        ))}
       </Box>
     );
   };
+
 
 
 
@@ -316,4 +245,4 @@ const EthSignType = ({ params }: ConnectProps) => {
   );
 };
 
-export default EthSignType;
+export default EthSignV1;

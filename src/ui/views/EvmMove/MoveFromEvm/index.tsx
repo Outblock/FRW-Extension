@@ -94,7 +94,9 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
     const tokenResult = await usewallet.openapi.getTokenInfo(token, network);
-    const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase());
+    const coinInfo = coinList.find(coin =>
+      coin && coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase()
+    );
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
@@ -250,7 +252,7 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
-        {coinInfo.unit &&
+        {(coinInfo && coinInfo.unit) &&
           <MoveToken
             coinList={coinList}
             amount={amount}

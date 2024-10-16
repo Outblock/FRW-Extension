@@ -1110,7 +1110,6 @@ export class WalletController extends BaseController {
 
       let allBalanceMap;
       try {
-        console.log('fetch allBalanceMap ')
         allBalanceMap = await openapiService.getTokenListBalance(address || '0x', tokenList);
       } catch (error) {
         console.error('Error refresh token list balance:', error);

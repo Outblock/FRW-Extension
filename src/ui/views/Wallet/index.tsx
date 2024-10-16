@@ -135,7 +135,6 @@ const WalletTab = ({ network }) => {
   };
 
   const refreshWithRetry = async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
-    console.log('coinData address ', address, childStateLoading)
     if (childStateLoading) {
       console.log("childStateLoading.");
       return;

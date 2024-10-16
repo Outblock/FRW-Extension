@@ -174,7 +174,6 @@ const Header = ({ loading }) => {
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.getUserWallets();
-    console.log('wallet -----> ', wallet)
     const fData = wallet.filter((item) => item.blockchain !== null);
 
     // putDeviceInfo(fData);

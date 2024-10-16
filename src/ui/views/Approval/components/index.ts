@@ -8,3 +8,4 @@ export { default as EthEnable } from './EthApproval/EthEnable';
 export { default as EthMove } from './EthApproval/EthMove';
 export { default as EthSwitch } from './EthApproval/EthSwitch';
 export { default as EthSignType } from './EthApproval/EthSignType';
+export { default as EthSignV1 } from './EthApproval/EthSignV1';

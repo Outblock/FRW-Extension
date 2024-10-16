@@ -29,15 +29,17 @@ const flowContext = flow
     ctx.mapMethod = underline2Camelcase(method);
     if (!providerController[ctx.mapMethod]) {
       // TODO: make rpc whitelist
-      // if (method.startsWith('eth_') || method === 'net_version') {
-      //   return providerController.ethRpc(ctx.request);
-      //   return next();
-      // }
+      try {
+        const result = await providerController.ethRpc(ctx.request.data);
+        return result;
+      } catch (error) {
+        // Catch any error and throw the custom error
+        throw ethErrors.rpc.methodNotFound({
+          message: `method [${ctx.request.data.method}] doesn't have a corresponding handler`,
+          data: ctx.request.data,
+        });
+      }
 
-      throw ethErrors.rpc.methodNotFound({
-        message: `method [${method}] doesn't has corresponding handler`,
-        data: ctx.request.data,
-      });
     }
 
     return next();
