@@ -150,7 +150,7 @@ const TokenList = () => {
     };
 
     fetchFilteredCollections();
-  }, [filters, enabledList]);
+  }, [filters, enabledList, fitered]);
 
   return (
     <StyledEngineProvider injectFirst>

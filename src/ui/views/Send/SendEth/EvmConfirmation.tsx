@@ -31,7 +31,7 @@ interface ToEthConfirmationProps {
 
 
 const ToEthConfirmation = (props: ToEthConfirmationProps) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -55,7 +55,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   }
 
   const getPending = async () => {
-    const pending = await wallet.getPendingTx();
+    const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true)
     }
@@ -72,24 +72,26 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     let address, gas, value, data
     const encodedData = props.data.erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
 
-    console.log('transferToken data ->', data)
+    console.log('transferToken data ->', props.data)
+
     if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
       address = props.data.contact.address;
       gas = '1';
       value = (props.data.amount * 1e18).toString(16);
       data = [];
     } else {
-      address = "7cd84a6b988859202cbb3e92830fff28813b9341";
+      const tokenInfo = await usewallet.openapi.getTokenInfo(props.data.coinInfo.unit.toLowerCase());
+      address = tokenInfo!.address;
       gas = '1312d00';
       value = 0;
       data = encodedData;
     }
 
-    wallet.sendEvmTransaction(address, gas, value, data).then(async (txID) => {
-      await wallet.setRecent(props.data.contact);
-      wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);
+    usewallet.sendEvmTransaction(address, gas, value, data).then(async (txID) => {
+      await usewallet.setRecent(props.data.contact);
+      usewallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.coinInfo.coin} Sent`, `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.coinInfo.icon);
       props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
+      await usewallet.setDashIndex(0);
       setSending(false);
       setTid(txID);
       history.push('/dashboard?activity=1');

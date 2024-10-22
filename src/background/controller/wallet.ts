@@ -57,6 +57,7 @@ import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 import emoji from 'background/utils/emoji.json';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
 import { F } from 'ts-toolbelt';
+import web3 from 'web3';
 
 const stashKeyrings: Record<string, any> = {};
 
@@ -1814,7 +1815,7 @@ export class WalletController extends BaseController {
 
 
 
-  coaLink  = async (amount = '1.0'): Promise<string> => {
+  coaLink = async (amount = '1.0'): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
@@ -1885,6 +1886,7 @@ export class WalletController extends BaseController {
     const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, tokenResult.decimals));
 
 
+    // const bnamount = web3.utils.fromWei(integerAmount, 'ether');
     const script = await getScripts('bridge', 'bridgeTokensFromEvmV2');
 
     return await userWalletService.sendTransaction(
@@ -1970,13 +1972,24 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    const amount = parseInt(value, 16) / 1e18;
-    const ufixAmount = amount.toFixed(8);
+
+    // const amount = parseInt(value, 16) / 1e18;
+    if (!value.startsWith('0x')) {
+      value = '0x' + value;
+    }
+
+    const number = web3.utils.hexToNumber(value)
+    let amount = web3.utils.fromWei(number.toString(), 'ether');
+
+    // Ensure at least one decimal place
+    if (!amount.includes('.')) {
+      amount += '.0'; // Add a decimal point if it's missing
+    }
 
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(ufixAmount, t.UFix64),
+      fcl.arg(amount, t.UFix64),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
@@ -2008,17 +2021,26 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    const amount = parseInt(value, 16) / 1e18;
-    const ufixAmount = amount.toFixed(8);
+    if (!value.startsWith('0x')) {
+      value = '0x' + value;
+    }
 
+    const number = web3.utils.hexToNumber(value);
+    let amount = web3.utils.fromWei(number.toString(), 'ether');
+
+    // Ensure at least one decimal place
+    if (!amount.includes('.')) {
+      amount += '.0'; // Add a decimal point if it's missing
+    }
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(ufixAmount, t.UFix64),
+      fcl.arg(amount, t.UFix64),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
 
+    console.log('result ', result)
     const res = await fcl.tx(result).onceSealed();
     const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
 

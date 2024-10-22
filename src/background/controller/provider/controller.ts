@@ -298,7 +298,10 @@ class ProviderController extends BaseController {
     const value = transactionParams.value || '0.0';
     const dataValue = transactionParams.data || '0x';
 
-    const result = await Wallet.dapSendEvmTX(to, gas, value, dataValue);
+    let result = await Wallet.dapSendEvmTX(to, gas, value, dataValue);
+    if (!result.startsWith('0x')) {
+      result = '0x' + result;
+    }
     return result;
   };
 

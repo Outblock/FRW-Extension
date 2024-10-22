@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/system';
 import { useHistory } from 'react-router-dom';
 import theme from '../../style/LLTheme';
-// import { useWallet } from 'ui/utils';
+import { formatLargeNumber } from 'ui/utils/number';
 import {
   Typography,
   ListItem,
@@ -24,7 +24,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   useEffect(() => {
     setLoading(data.length === 0);
-    
+
     if (data.length) {
       setCoinList(data);
       setLoading(false);
@@ -41,7 +41,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               variant="body1"
               sx={{ fontSize: 14, fontWeight: '550', textAlign: 'end', color: 'text.title' }}
             >
-              {props.primary} {props.unit.toUpperCase()}
+              {formatLargeNumber(props.primary)} {props.unit.toUpperCase()}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -71,7 +71,16 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
           !isLoading ? (
             <Typography
               variant="body1"
-              sx={{ fontSize: 14, fontWeight: '550', textAlign: 'start', color: 'text.title' }}
+              sx={{
+                fontSize: 14,
+                fontWeight: '550',
+                textAlign: 'start',
+                color: 'text.title',
+                maxWidth: '120px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
             >
               {props.primary}
             </Typography>

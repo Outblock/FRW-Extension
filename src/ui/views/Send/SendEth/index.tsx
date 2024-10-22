@@ -74,14 +74,18 @@ const SendEth = () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    console.log('token getCurrentCoin', token)
     const wallet = await usewallet.getEvmWallet();
     const mainWallet = await usewallet.getMainWallet();
     const network = await usewallet.getNetwork();
     const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
     const web3Instance = new Web3(provider);
     setWeb3(web3Instance);
-    const contractInstance = new web3Instance.eth.Contract(erc20ABI, "0x7cd84a6b988859202cbb3e92830fff28813b9341");
+    let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
+    if (token !== 'flow') {
+      const tokenInfo = await usewallet.openapi.getTokenInfo(token);
+      contractAddress = tokenInfo!.address;
+    }
+    const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
     setErc20Contract(contractInstance);
     setNetwork(network);
     setCurrentCoin(token);
