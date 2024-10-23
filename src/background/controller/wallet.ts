@@ -59,6 +59,7 @@ import placeholder from 'ui/FRWAssets/image/placeholder.png';
 import { F } from 'ts-toolbelt';
 import web3 from 'web3';
 
+
 const stashKeyrings: Record<string, any> = {};
 
 export class WalletController extends BaseController {
@@ -1881,10 +1882,20 @@ export class WalletController extends BaseController {
 
   bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
     const network = await this.getNetwork();
-    const formattedAmount = parseFloat(amount).toFixed(tokenResult.decimals);
-    // Convert the formatted amount to an integer
-    const integerAmount = Math.round(Number(formattedAmount) * Math.pow(10, tokenResult.decimals));
 
+
+    const amountStr = amount.toString();
+
+    // Create a BigNumber from amountStr without the decimal point
+    const amountBN = new BN(amountStr.replace('.', ''));
+
+    // Calculate the scale factor as 10^(tokenResult.decimals - decimal places in amountStr)
+    const decimalsCount = amountStr.split('.')[1]?.length || 0;
+    const scaleFactor = new BN(10).pow(tokenResult.decimals - decimalsCount);
+
+    // Multiply amountBN by scaleFactor
+    const integerAmount = amountBN.multipliedBy(scaleFactor);
+    const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
 
     // const bnamount = web3.utils.fromWei(integerAmount, 'ether');
     const script = await getScripts('bridge', 'bridgeTokensFromEvmV2');
@@ -1894,7 +1905,7 @@ export class WalletController extends BaseController {
       ,
       [
         fcl.arg(flowIdentifier, t.String),
-        fcl.arg(integerAmount, t.UInt256),
+        fcl.arg(integerAmountStr, t.UInt256),
       ]
 
     );
