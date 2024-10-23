@@ -1881,15 +1881,12 @@ export class WalletController extends BaseController {
 
 
   bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
-    const network = await this.getNetwork();
 
 
     const amountStr = amount.toString();
 
-    // Create a BigNumber from amountStr without the decimal point
     const amountBN = new BN(amountStr.replace('.', ''));
 
-    // Calculate the scale factor as 10^(tokenResult.decimals - decimal places in amountStr)
     const decimalsCount = amountStr.split('.')[1]?.length || 0;
     const scaleFactor = new BN(10).pow(tokenResult.decimals - decimalsCount);
 
@@ -1897,7 +1894,6 @@ export class WalletController extends BaseController {
     const integerAmount = amountBN.multipliedBy(scaleFactor);
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
 
-    // const bnamount = web3.utils.fromWei(integerAmount, 'ether');
     const script = await getScripts('bridge', 'bridgeTokensFromEvmV2');
 
     return await userWalletService.sendTransaction(
