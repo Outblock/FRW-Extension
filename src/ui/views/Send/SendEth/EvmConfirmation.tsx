@@ -80,7 +80,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       value = (props.data.amount * 1e18).toString(16);
       data = [];
     } else {
-      const tokenInfo = await usewallet.openapi.getTokenInfo(props.data.coinInfo.unit.toLowerCase());
+      const tokenInfo = await usewallet.openapi.getEvmTokenInfo(props.data.coinInfo.unit.toLowerCase());
       address = tokenInfo!.address;
       gas = '1312d00';
       value = 0;
@@ -96,7 +96,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       setTid(txID);
       history.push('/dashboard?activity=1');
     }).catch((err) => {
-      console.log('transfer error: ', err)
+      console.log('sendEvmTransaction transfer error: ', err)
       setSending(false);
       setFailed(true);
     })

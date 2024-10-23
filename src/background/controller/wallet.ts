@@ -1972,18 +1972,25 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
+    let amount;
 
-    // const amount = parseInt(value, 16) / 1e18;
-    if (!value.startsWith('0x')) {
-      value = '0x' + value;
-    }
+    // If value is 0, set amount to '0.00000000'
+    if (value === 0 || value === '0x0' || value === '0') {
+      amount = '0.00000000';
+    } else {
+      // Ensure '0x' prefix for the hex value
+      if (typeof value === 'string' && !value.startsWith('0x')) {
+        value = '0x' + value;
+      }
 
-    const number = web3.utils.hexToNumber(value)
-    let amount = web3.utils.fromWei(number.toString(), 'ether');
+      // Convert the hex value to number
+      const number = web3.utils.hexToNumber(value);
 
-    // Ensure at least one decimal place
-    if (!amount.includes('.')) {
-      amount += '.0'; // Add a decimal point if it's missing
+      // Convert Wei to Ether
+      amount = web3.utils.fromWei(number.toString(), 'ether');
+
+      // Ensure the amount has exactly 8 decimal places
+      amount = parseFloat(amount).toFixed(8);
     }
 
 

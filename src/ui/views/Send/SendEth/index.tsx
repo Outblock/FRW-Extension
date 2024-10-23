@@ -82,7 +82,7 @@ const SendEth = () => {
     setWeb3(web3Instance);
     let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
     if (token !== 'flow') {
-      const tokenInfo = await usewallet.openapi.getTokenInfo(token);
+      const tokenInfo = await usewallet.openapi.getEvmTokenInfo(token);
       contractAddress = tokenInfo!.address;
     }
     const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);

@@ -1361,6 +1361,18 @@ class OpenApiService {
     );
   };
 
+  getEvmTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
+    // FIX ME: Get defaultTokenList from firebase remote config
+    if (!network) {
+      network = await userWalletService.getNetwork();
+    }
+    const tokens = await this.getEvmListFromGithub(network);
+    // const coins = await remoteFetch.flowCoins();
+    return tokens.find(
+      (item) => item.symbol.toLowerCase() == name.toLowerCase()
+    );
+  };
+
   getTokenInfoByContract = async (
     contractName: string
   ): Promise<TokenModel | undefined> => {
@@ -1526,6 +1538,24 @@ class OpenApiService {
           symbol: 'flow',
         })
       }
+      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+      return tokens;
+    }
+  };
+
+  getEvmListFromGithub = async (network: string) => {
+    const chainType = 'evm'
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    // const gitToken = null
+    if (gitToken) {
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
+      );
+      const res = await response.json();
+      const { tokens = {} } = res;
       storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
       return tokens;
     }
