@@ -45,7 +45,6 @@ const flowContext = flow
     return next();
   })
   .use(async (ctx, next) => {
-    console.log('ctx1 ', ctx)
     const {
       request: {
         session: { origin, },

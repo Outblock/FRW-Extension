@@ -20,6 +20,7 @@ import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import BN from 'bignumber.js';
 
 interface ToEthConfirmationProps {
   isConfirmationOpen: boolean;
@@ -68,9 +69,22 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
 
   const transferToken = async () => {
     const amount = (props.data.amount * 1e18)
+    const network = await usewallet.getNetwork();
+    const tokenResult = await usewallet.openapi.getTokenInfo(props.data.tokenSymbol, network);
+
+    const amountStr = props.data.amount.toString();
+
+    const amountBN = new BN(amountStr.replace('.', ''));
+
+    const decimalsCount = amountStr.split('.')[1]?.length || 0;
+    const scaleFactor = new BN(10).pow(tokenResult!.decimals - decimalsCount);
+
+    // Multiply amountBN by scaleFactor
+    const integerAmount = amountBN.multipliedBy(scaleFactor);
+    const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
     setSending(true);
     let address, gas, value, data
-    const encodedData = props.data.erc20Contract.methods.transfer(props.data.contact.address, amount).encodeABI();
+    const encodedData = props.data.erc20Contract.methods.transfer(props.data.contact.address, integerAmountStr).encodeABI();
 
     console.log('transferToken data ->', props.data)
 

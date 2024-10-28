@@ -49,5 +49,9 @@ export const formatLargeNumber = (num) => {
 };
 
 export const addDotSeparators = (num) => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const [integerPart, decimalPart] = parseFloat(num).toFixed(8).split('.');
+
+  const newintegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  return `${newintegerPart}.${decimalPart}`;
 };

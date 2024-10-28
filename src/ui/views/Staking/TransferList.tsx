@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/system';
 import { useWallet } from 'ui/utils';
+import { formatString } from 'ui/utils/address';
 import theme from '../../style/LLTheme';
 import {
   Typography,
@@ -155,8 +156,8 @@ const TransferList = ({setCount}) => {
                   color:'#41CC5D'
                 }}
               >
-                {(props.txType === 1 && props.receiver) && ` To ${props.receiver}`}
-                {(props.txType === 2 && props.sender) && ` From ${props.sender}`}
+                {(props.txType === 1 && props.receiver) && ` To ${formatString(props.receiver)}`}
+                {(props.txType === 2 && props.sender) && ` From ${formatString(props.sender)}`}
               </Typography>
             </Box>
           ) : (

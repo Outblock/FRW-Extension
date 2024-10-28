@@ -557,9 +557,9 @@ class OpenApiService {
         return pricesMap;
       }
       data.map((d) => {
-        const { rateToUSD, symbol } = d;
-        const key = symbol.toUpperCase();
-        pricesMap[key] = rateToUSD.toFixed(4);
+        const { rateToUSD, contractAddress } = d;
+        const key = contractAddress.toLowerCase();
+        pricesMap[key] = rateToUSD.toFixed(8);
       });
       await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
       return pricesMap;
@@ -610,6 +610,11 @@ class OpenApiService {
 
   getPricesBySymbol = async (symbol: string, data) => {
     const key = symbol.toUpperCase();
+    return data[key];
+  };
+
+  getPricesByAddress = async (symbol: string, data) => {
+    const key = symbol.toLowerCase();
     return data[key];
   };
 
@@ -1188,7 +1193,7 @@ class OpenApiService {
   };
 
   checkChildAccountNFT = async (address: string) => {
-    const script = await getScripts('hybridCustody', 'getChildAccountNFT');
+    const script = await getScripts('hybridCustody', 'getAccessibleChildAccountNFTs');
 
     const result = await fcl.query({
       cadence: script,
@@ -1280,6 +1285,19 @@ class OpenApiService {
       limit,
     });
 
+    return data;
+  };
+
+
+
+  getEVMTransfers = async (address: string, after = '', limit: number) => {
+    const data = await this.sendRequest(
+      'GET',
+      `/api/evm/${address}/transactions`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
     return data;
   };
 
@@ -2384,7 +2402,6 @@ class OpenApiService {
 
       const keyInfoA = findKeyAndInfo(keys, P256.pubK);
       const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
-      console.log('keyInfoB , keyInfoA ', keyInfoA, keyInfoB)
       const keyInfo = keyInfoA ||
         keyInfoB || {
         index: 0,

@@ -200,7 +200,6 @@ class ProviderController extends BaseController {
     const web3Instance = new Web3(provider);
 
 
-    console.log('data ', data, web3Instance.currentProvider, data.params)
     return new Promise((resolve, reject) => {
       if (!web3Instance.currentProvider) {
         console.error('Provider is undefined');
@@ -217,7 +216,6 @@ class ProviderController extends BaseController {
           console.error('Error:', err);
           reject(err);
         } else {
-          console.log('Result:', response);
           resolve(response);
         }
       });
@@ -297,7 +295,7 @@ class ProviderController extends BaseController {
     const to = transactionParams.to || '';
     const value = transactionParams.value || '0.0';
     const dataValue = transactionParams.data || '0x';
-
+    // console.log('transactionParams ', transactionParams)
     let result = await Wallet.dapSendEvmTX(to, gas, value, dataValue);
     if (!result.startsWith('0x')) {
       result = '0x' + result;
@@ -354,7 +352,6 @@ class ProviderController extends BaseController {
     await permissionService.getConnectedSite(origin);
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    console.log('evmAddress ', account);
     await delay(2000);
 
     return account;
