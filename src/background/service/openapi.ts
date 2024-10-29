@@ -557,8 +557,8 @@ class OpenApiService {
         return pricesMap;
       }
       data.map((d) => {
-        const { rateToUSD, contractAddress } = d;
-        const key = contractAddress.toLowerCase();
+        const { rateToUSD, contractName, contractAddress } = d;
+        const key = contractName.toLowerCase() + '' + contractAddress.toLowerCase();
         pricesMap[key] = rateToUSD.toFixed(8);
       });
       await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
@@ -614,6 +614,12 @@ class OpenApiService {
   };
 
   getPricesByAddress = async (symbol: string, data) => {
+    const key = symbol.toLowerCase();
+    return data[key];
+  };
+
+
+  getPricesByKey = async (symbol: string, data) => {
     const key = symbol.toLowerCase();
     return data[key];
   };

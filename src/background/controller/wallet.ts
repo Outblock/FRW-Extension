@@ -1038,9 +1038,10 @@ export class WalletController extends BaseController {
     return listCoins;
   };
 
-  private tokenPrice = async (tokenSymbol: string, address: string, data) => {
+  private tokenPrice = async (tokenSymbol: string, address:string, data, contractName: string,) => {
     const token = tokenSymbol.toLowerCase();
-    const price = await openapiService.getPricesByAddress(address, data);
+    const key = contractName.toLowerCase() + '' + address.toLowerCase();
+    const price = await openapiService.getPricesByKey(key, data);
 
     switch (token) {
       case 'flow': {
@@ -1124,7 +1125,7 @@ export class WalletController extends BaseController {
           if (Object.keys(data).length === 0 && data.constructor === Object) {
             return { price: { last: '0.0', change: { percentage: '0.0' } } }
           } else {
-            return await this.tokenPrice(token.symbol, token.address, data);
+            return await this.tokenPrice(token.symbol, token.address, data, token.contractName);
           }
         } catch (error) {
           console.error(`Error fetching price for token ${token.address}:`, error);
@@ -1221,7 +1222,7 @@ export class WalletController extends BaseController {
       // Map over tokenList to get prices and handle errors individually
       const pricesPromises = tokenList.map(async (token) => {
         try {
-          return await this.tokenPrice(token.symbol, token.address, data);
+          return await this.tokenPrice(token.symbol, token.address, data,token.contractName);
         } catch (error) {
           console.error(`Error fetching price for token ${token.symbol}:`, error);
           return null;
