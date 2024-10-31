@@ -146,7 +146,18 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     setLoading(true);
     const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
 
-    usewallet.bridgeToFlow(tokenResult!['flowIdentifier'], amount, tokenResult).then(async (createRes) => {
+
+    let flowId = tokenResult!['flowIdentifier'];
+
+    if (!flowId) {
+      console.log('tokenResult ', tokenResult);
+      const address = tokenResult!.address.startsWith('0x')
+        ? tokenResult!.address.slice(2)
+        : tokenResult!.address;
+      flowId = `A.${address}.${tokenResult!.contractName}.Vault`;
+    }
+
+    usewallet.bridgeToFlow(flowId, amount, tokenResult).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');

@@ -38,16 +38,11 @@ export const isValidEthereumAddress = (address) => {
 }
 
 export const ensureEvmAddressPrefix = (address) => {
-
   const cleanAddress = address.startsWith('0x') ? address.slice(2) : address;
 
   const prefixedAddress = '0x' + cleanAddress;
 
-  if (isValidEthereumAddress(prefixedAddress)) {
-    return prefixedAddress;
-  } else {
-    throw new Error('Invalid Ethereum address');
-  }
+  return prefixedAddress;
 };
 
 

@@ -8,6 +8,7 @@ export interface CoinItem {
   change24h: number | null;
   total: number;
   icon: string;
+  custom?: boolean;
 }
 
 interface CoinListStore {

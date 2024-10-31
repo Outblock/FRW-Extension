@@ -1038,7 +1038,7 @@ export class WalletController extends BaseController {
     return listCoins;
   };
 
-  private tokenPrice = async (tokenSymbol: string, address:string, data, contractName: string,) => {
+  private tokenPrice = async (tokenSymbol: string, address: string, data, contractName: string,) => {
     const token = tokenSymbol.toLowerCase();
     const key = contractName.toLowerCase() + '' + address.toLowerCase();
     const price = await openapiService.getPricesByKey(key, data);
@@ -1222,7 +1222,7 @@ export class WalletController extends BaseController {
       // Map over tokenList to get prices and handle errors individually
       const pricesPromises = tokenList.map(async (token) => {
         try {
-          return await this.tokenPrice(token.symbol, token.address, data,token.contractName);
+          return await this.tokenPrice(token.symbol, token.address, data, token.contractName);
         } catch (error) {
           console.error(`Error fetching price for token ${token.symbol}:`, error);
           return null;
@@ -1302,6 +1302,7 @@ export class WalletController extends BaseController {
     const now = new Date();
     const exp = _expiry + now.getTime();
     coinListService.setExpiry(exp);
+    const evmCustomToken = await storage.get('evmCustomToken') || [];
 
     const network = await this.getNetwork();
 
@@ -1310,7 +1311,7 @@ export class WalletController extends BaseController {
     const address = await this.getEvmAddress();
     if (!isValidEthereumAddress(address)) {
 
-      return new Error("Invalid Ethereum address");
+      return new Error("Invalid Ethereum address in coinlist");
     }
 
     const allBalanceMap = await openapiService.getEvmFT(
@@ -1339,7 +1340,25 @@ export class WalletController extends BaseController {
       });
     };
 
-    const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
+
+    const customToken = (mergedList, evmCustomToken) => {
+      return mergedList.map(token => {
+        const balanceInfo = evmCustomToken.find(customToken => {
+          return customToken.address.toLowerCase() === token.address.toLowerCase();
+        });
+
+        const custom = balanceInfo ? true : false;
+
+        return {
+          ...token,
+          custom
+        };
+      });
+    };
+
+
+    let mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
+    mergedList = await customToken(mergedList, evmCustomToken);
     const data = await openapiService.getTokenEvmPrices();
     const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
 
@@ -1369,8 +1388,10 @@ export class WalletController extends BaseController {
               token.balance,
               allPrice[index].price.last
             ),
+        custom: token.custom
       };
     });
+    console.log('mergeBalances ', mergedList, coins, tokenList, evmCustomToken)
 
 
     coins
@@ -2991,7 +3012,6 @@ export class WalletController extends BaseController {
     const exp = _expiry + now.getTime();
     transactionService.setExpiry(exp);
     const isChild = await this.getActiveWallet();
-
     let dataResult = {};
     if (isChild === 'evm') {
       let evmAddress = await this.queryEvmAddress(address);

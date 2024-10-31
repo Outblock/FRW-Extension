@@ -15,6 +15,7 @@ import {
   IconButton
 } from '@mui/material';
 import IconCreate from '../../../components/iconfont/IconCreate';
+import TokenDropdown from './TokenDropdown'
 
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   // const wallet = useWallet();
@@ -24,7 +25,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   useEffect(() => {
     setLoading(data.length === 0);
-
+    console.log('data ', data)
     if (data.length) {
       setCoinList(data);
       setLoading(false);
@@ -155,11 +156,19 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
           </IconButton>
         </Box>
       }
+      {childType === 'evm' &&
+        <Box sx={{ display: 'flex', px: '12px', pt: '4px' }}>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton onClick={() => history.push('dashboard/addcustomevm')}>
+            <IconCreate size={16} color="#787878" />
+          </IconButton>
+        </Box>
+      }
 
       <List sx={{ paddingTop: '0px', paddingBottom: '0px' }}>
         {!isLoading
           ? (coinList || []).map((coin: any) => {
-            if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0) {
+            if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0 && !coin.custom) {
               return null;
             }
             return (
