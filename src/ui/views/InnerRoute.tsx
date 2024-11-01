@@ -28,6 +28,7 @@ import SendAmount from './Send/SendAmount';
 import SendEth from './Send/SendEth';
 import TokenDetail from './TokenDetail';
 import TokenList from './TokenList';
+import AddCustomEvmToken from './Wallet/AddCustomEvmToken'
 import Inbox from './Inbox';
 import StakingPage from './Staking/StakingPage';
 import UnstakePage from './Staking/UnstakePage';
@@ -244,6 +245,10 @@ const Inner = (props) => {
 
           <PrivateRoute path={`${props.match.url}/tokenlist`}>
             <TokenList />
+          </PrivateRoute>
+
+          <PrivateRoute path={`${props.match.url}/addcustomevm`}>
+            <AddCustomEvmToken />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/nested/add_list`}>

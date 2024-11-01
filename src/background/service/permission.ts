@@ -58,19 +58,20 @@ class PermissionService {
     origin: string,
     name: string,
     icon: string,
-    defaultChain: number,
+    defaultChain = 545,
     isSigned = false
   ) => {
+    console.log('origin ', origin)
     if (!this.lruCache) return;
-
     this.lruCache.set(origin, {
       origin,
       name,
       icon,
-      chain: 646,
+      chain: defaultChain,
       isSigned,
       isTop: false,
     });
+    console.log('lruCache ', this.lruCache)
     this.sync();
   };
 

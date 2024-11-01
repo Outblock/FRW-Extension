@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
+import { formatLargeNumber } from 'ui/utils/number';
 import { Box } from '@mui/system';
 import { Typography, Button, Tab, Tabs, Skeleton, Drawer, ButtonBase, CardMedia } from '@mui/material';
 import theme from '../../style/LLTheme';
@@ -135,7 +135,6 @@ const WalletTab = ({ network }) => {
   };
 
   const refreshWithRetry = async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
-    console.log('coinData address ', address, childStateLoading)
     if (childStateLoading) {
       console.log("childStateLoading.");
       return;
@@ -357,7 +356,7 @@ const WalletTab = ({ network }) => {
               noOverflow
             /> */}
 
-            {`${balance}`.split('').map((n, i) => (
+            {`$${formatLargeNumber(balance)}`.split('').map((n, i) => (
               <ReactTextTransition
                 key={i}
                 text={n}

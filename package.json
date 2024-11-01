@@ -1,6 +1,6 @@
 {
   "name": "FlowReferenceWallet",
-  "version": "2.5.3",
+  "version": "2.5.19",
   "description": "Digital wallet created for everyone.",
   "scripts": {
     "prepare:dev": "node ./build/prepareManifest.js dev",
@@ -158,7 +158,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "eslint-webpack-plugin": "^2.5.4",
+    "eslint-webpack-plugin": "^2.5.10",
     "file-loader": "^6.2.0",
     "fs-extra": "^10.0.0",
     "html-webpack-plugin": "^5.3.1",

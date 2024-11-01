@@ -161,7 +161,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 </Box>
               </ListItemIcon>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <ListItemText sx={{ fontSize: '14px', fontWeight: '700' }} primary={props.userInfo!.username} />
+                <ListItemText sx={{ fontSize: '14px', fontWeight: '700' }} primary={props.userInfo!.nickname} />
               </Box>
             </Box>
           }

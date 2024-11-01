@@ -557,9 +557,9 @@ class OpenApiService {
         return pricesMap;
       }
       data.map((d) => {
-        const { rateToUSD, symbol } = d;
-        const key = symbol.toUpperCase();
-        pricesMap[key] = rateToUSD.toFixed(4);
+        const { rateToUSD, contractName, contractAddress } = d;
+        const key = contractName.toLowerCase() + '' + contractAddress.toLowerCase();
+        pricesMap[key] = rateToUSD.toFixed(8);
       });
       await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
       return pricesMap;
@@ -610,6 +610,17 @@ class OpenApiService {
 
   getPricesBySymbol = async (symbol: string, data) => {
     const key = symbol.toUpperCase();
+    return data[key];
+  };
+
+  getPricesByAddress = async (symbol: string, data) => {
+    const key = symbol.toLowerCase();
+    return data[key];
+  };
+
+
+  getPricesByKey = async (symbol: string, data) => {
+    const key = symbol.toLowerCase();
     return data[key];
   };
 
@@ -1188,7 +1199,7 @@ class OpenApiService {
   };
 
   checkChildAccountNFT = async (address: string) => {
-    const script = await getScripts('hybridCustody', 'getChildAccountNFT');
+    const script = await getScripts('hybridCustody', 'getAccessibleChildAccountNFTs');
 
     const result = await fcl.query({
       cadence: script,
@@ -1283,6 +1294,19 @@ class OpenApiService {
     return data;
   };
 
+
+
+  getEVMTransfers = async (address: string, after = '', limit: number) => {
+    const data = await this.sendRequest(
+      'GET',
+      `/api/evm/${address}/transactions`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
   getManualAddress = async () => {
     const config = this.store.config.manual_address;
     const data = await this.sendRequest(config.method, config.path, {});
@@ -1355,6 +1379,18 @@ class OpenApiService {
       network = await userWalletService.getNetwork();
     }
     const tokens = await this.getTokenListFromGithub(network);
+    // const coins = await remoteFetch.flowCoins();
+    return tokens.find(
+      (item) => item.symbol.toLowerCase() == name.toLowerCase()
+    );
+  };
+
+  getEvmTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
+    // FIX ME: Get defaultTokenList from firebase remote config
+    if (!network) {
+      network = await userWalletService.getNetwork();
+    }
+    const tokens = await this.getEvmListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
     return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
@@ -1526,6 +1562,24 @@ class OpenApiService {
           symbol: 'flow',
         })
       }
+      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+      return tokens;
+    }
+  };
+
+  getEvmListFromGithub = async (network: string) => {
+    const chainType = 'evm'
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    // const gitToken = null
+    if (gitToken) {
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
+      );
+      const res = await response.json();
+      const { tokens = {} } = res;
       storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
       return tokens;
     }

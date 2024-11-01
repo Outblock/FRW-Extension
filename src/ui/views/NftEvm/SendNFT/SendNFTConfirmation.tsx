@@ -39,7 +39,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [tid, setTid] = useState(undefined);
+  const [tid, setTid] = useState('');
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
   const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
@@ -116,7 +116,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const encodedData = erc721Contract.methods.safeTransferFrom(dataWithoutPrefix, contactAddressWithoutPrefix, props.data.nft.id).encodeABI();
     const gas = '1312d00';
 
-    console.log('rops.data ', props.data)
 
     wallet.sendEvmTransaction(props.data.nft.evmAddress, gas, 0, encodedData).then(async (txID) => {
       await wallet.setRecent(props.data.contact);

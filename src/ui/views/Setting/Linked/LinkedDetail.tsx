@@ -117,7 +117,7 @@ const LinkedDetail = () => {
       await setCatalog(catalog);
       const collectionMap: { [key: string]: Collection } = {};
 
-      const nftResult = await usewallet.checkAccessibleNft(key);
+      const nftResult = await usewallet.checkAccessibleNft(parentaddress);
       activec.forEach((active) => {
         console.log('nft result ', active);
         const collection = findObjectByContractName(active, catalog);
@@ -126,6 +126,7 @@ const LinkedDetail = () => {
         }
 
       });
+      console.log('nft result ', nftResult, key);
 
       nftResult.forEach((nft) => {
         const someResult = checkContractAddressInCollections(nft, Object.values(collectionMap));
@@ -135,7 +136,7 @@ const LinkedDetail = () => {
           collectionMap[someResult.contract_name].nfts!.push(nft)
         }
       })
-      console.log('nft result ', collectionMap);
+      console.log('collectionMap result ', collectionMap);
 
 
       console.log('active check nftResult ', nftResult)
@@ -202,7 +203,7 @@ const LinkedDetail = () => {
 
 
   const navigateWithState = (data, key) => {
-    const state = { nft: data};
+    const state = { nft: data };
     localStorage.setItem('nftLinkedState', JSON.stringify(state));
     if (data.total) {
       history.push({

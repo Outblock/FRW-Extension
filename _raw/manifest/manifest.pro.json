@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_appName__",
   "short_name": "__MSG_appName__",
-  "version": "2.5.3",
+  "version": "2.5.19",
   "default_locale": "en",
   "description": "__MSG_appDescription__",
   "icons": {
@@ -53,7 +53,6 @@
     "notifications",
     "identity",
     "camera",
-    "videoCapture",
     "*://*/*"
   ],
   "web_accessible_resources": [

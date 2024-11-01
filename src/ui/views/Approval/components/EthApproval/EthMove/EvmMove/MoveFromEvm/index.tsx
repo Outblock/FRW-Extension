@@ -92,7 +92,9 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     const coinList = await usewallet.getCoinList()
     setCoinList(coinList);
     const tokenResult = await usewallet.openapi.getTokenInfo(token, network);
-    const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase());
+    const coinInfo = coinList.find(coin =>
+      coin && coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase()
+    );
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
@@ -185,16 +187,16 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
             alignItems: 'center',
             flexDirection: 'row',
             display: 'flex',
-            pb:'6px'
+            pb: '6px'
           }}
         >
           <Box sx={{ width: '40px' }}></Box>
-          <Box sx={{pt:'16px'}}>
+          <Box sx={{ pt: '16px' }}>
             <Typography sx={{ fontWeight: '700', fontFamily: 'e-Ukraine', fontSize: '20px' }}>
               {chrome.i18n.getMessage('move_tokens')}
             </Typography>
           </Box>
-          <Box sx={{pt:'14px'}} onClick={props.handleCancelBtnClicked}>
+          <Box sx={{ pt: '14px' }} onClick={props.handleCancelBtnClicked}>
             <IconButton>
               <CloseIcon
                 fontSize="medium"
@@ -235,7 +237,7 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
-        {coinInfo.unit &&
+        {(coinInfo.unit && coinInfo) &&
           <MoveToken
             coinList={coinList}
             amount={amount}

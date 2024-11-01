@@ -9,7 +9,7 @@ import TransferFrom from '../TransferFrom';
 import TransferTo from '../TransferTo';
 import MoveToken from './MoveToken'
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
+import { withPrefix, isValidEthereumAddress } from 'ui/utils/address';
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
 import {
   LLSpinner,
@@ -164,7 +164,12 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
       ? tokenResult!.address.slice(2)
       : tokenResult!.address;
 
-    usewallet.bridgeToEvm(`A.${address}.${tokenResult!.contractName}.Vault`, amount).then(async (createRes) => {
+    let flowId = `A.${address}.${tokenResult!.contractName}.Vault`;
+
+    if (isValidEthereumAddress(address)) {
+      flowId = tokenResult!['flowIdentifier'];
+    }
+    usewallet.bridgeToEvm(flowId, amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');

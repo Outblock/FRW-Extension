@@ -107,7 +107,7 @@ const Popup = (props: TransferConfirmationProps) => {
                             display="inline"
                             color='text.primary'
                           >
-                            {user.username}
+                            {user.nickname}
                           </Typography>
                           <Typography
                             variant="body1"
