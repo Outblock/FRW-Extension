@@ -25,7 +25,7 @@ import { Contact } from 'background/service/networkModel';
 import { isEmpty } from 'lodash';
 import { makeStyles } from '@mui/styles';
 import { StyledEngineProvider } from '@mui/material/styles';
-import { withPrefix } from '@/ui/utils/address';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import SendNFTConfirmation from './SendNFTConfirmation';
 import { MatchMedia } from '@/ui/utils/url';
 import IconAbout from '../../../../components/iconfont/IconAbout';
@@ -410,19 +410,21 @@ const SendToAddress = () => {
       setConfirmationOpen(true)
     }
 
+    if (isValidEthereumAddress(checkAddress)) {
+      if (filtered[0]) {
+        searchResult = filtered[0]
+      } else {
+        searchResult.address = withPrefix(keyword) || keyword;
+        searchResult.contact_name = withPrefix(checkAddress) || keyword;
+        searchResult.avatar = '';
+        searchResult.type! = 4;
+      }
+      setConfirmationOpen(true)
+    }
+
     setSearchContacts(filtered);
     if (isEmpty(filtered)) {
       setHasNoFilteredContacts(true);
-      if (keyword.endsWith('.find')) {
-        await checkDomain(0, keyword);
-        setSearched(true);
-      } else if (keyword.endsWith('.fn')) {
-        await checkDomain(1, keyword);
-        setSearched(true);
-      } else if (keyword.endsWith('.meow')) {
-        await checkDomain(2, keyword);
-        setSearched(true);
-      }
     } else {
       setHasNoFilteredContacts(false);
     }

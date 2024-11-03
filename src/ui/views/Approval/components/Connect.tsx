@@ -6,6 +6,7 @@ import { useApproval, useWallet } from 'ui/utils';
 import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
 import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
+import { permissionService } from 'background/service';
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import theme from 'ui/style/LLTheme';
 import {
@@ -95,6 +96,16 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     const keyIndex = Number(ki);
     const services = await authnServiceDefinition(address, keyIndex, payer.address, payer.keyId, isEnabled, network)
 
+    
+    let chainId = 545;
+    if (network === 'testnet') {
+      chainId = 545;
+    } else {
+      chainId = 747;
+    }
+    console.log('permission add ', host, title, logo, chainId)
+    permissionService.addConnectedSite(host, title, logo, chainId);
+
     if (appIdentifier && nonce) {
       const message = WalletUtils.encodeAccountProof({
         appIdentifier, // A human readable string to identify your application during signing
@@ -143,6 +154,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         await chrome.tabs.update(opener, { active: true });
       }
     }
+
     resolveApproval();
     chrome.runtime?.onMessage.removeListener(extMessageHandler);
   };
@@ -157,13 +169,13 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
       if (!msg.host) {
         setHost(msg.config.client.hostname)
       }
-      console.log(' msg.config.client.network ', msg.config.client)
       setMsgNetwork(msg.config.client.network);
       setAppIdentifier(msg.body?.appIdentifier)
       setNonce(msg.body?.nonce)
       msg.config.app.title && setTitle(msg.config.app.title)
       msg.config.app.icon && setLogo(msg.config.app.icon)
     }
+
 
     sendResponse({ status: 'ok' });
     return true
@@ -175,7 +187,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     setCurrentAddress(address!);
 
     const network = await wallet.getNetwork();
-    
+
     console.log(' msgNetwork ', msgNetwork, network, showSwitch)
     setCurrent(network);
     if (msgNetwork !== network && msgNetwork) {
@@ -261,7 +273,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '12px',
-          height: '506px',
+          height: '100%',
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
@@ -343,12 +355,12 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
           <Stack direction="column" spacing="18px" sx={{ justifyContent: 'space-between', width: '100%' }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(currentNetwork), objectFit: 'cover' }} src={testnetsvg} />
+                <img style={{ height: '60px', width: '60px', padding: '18px', borderRadius: '30px', backgroundColor: networkColor(currentNetwork), objectFit: 'cover' }} src={testnetsvg} />
                 <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{currentNetwork}</Typography>
               </Box>
               <img style={{ width: '116px' }} src={Link} />
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img style={{ height: '60px', width: '60px', padding:'18px',borderRadius: '30px', backgroundColor: networkColor(msgNetwork), objectFit: 'cover' }} src={mainnetsvg} />
+                <img style={{ height: '60px', width: '60px', padding: '18px', borderRadius: '30px', backgroundColor: networkColor(msgNetwork), objectFit: 'cover' }} src={mainnetsvg} />
                 <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{msgNetwork}</Typography>
               </Box>
 

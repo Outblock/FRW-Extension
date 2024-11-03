@@ -106,6 +106,7 @@ const Detail = () => {
   const [nftDetail, setDetail] = useState<any>(null);
   const [metadata, setMetadata] = useState<any>(null);
   const [mediaLoading, setMediaLoading] = useState(true);
+  const [collectionInfo, setInfo] = useState<any>(null);
   const [ownerAddress, setOwnerAddress] = useState<any>(null);
   const [media, setMedia] = useState<PostMedia | null>(null);
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
@@ -132,6 +133,7 @@ const Detail = () => {
       setDetail(nftDetail.nft);
       setMedia(nftDetail.media);
       setOwnerAddress(nftDetail.ownerAddress);
+      setInfo(nftDetail.collectionInfo);
       setMetadata(nftDetail.nft);
       if (nftDetail.isAccessibleNft) {
         setisAccessibleNft(nftDetail.isAccessibleNft)
@@ -436,7 +438,7 @@ const Detail = () => {
                   contact: contactTwo,
                   userContact: contactOne,
                   nft: nftDetail,
-                  contract: nftDetail,
+                  contract: collectionInfo,
                   media: media
                 }}
                 handleCloseIconClicked={() => setMoveOpen(false)}
@@ -452,7 +454,7 @@ const Detail = () => {
                   contact: contactTwo,
                   userContact: contactOne,
                   nft: nftDetail,
-                  contract: nftDetail,
+                  contract: collectionInfo,
                   media: media
                 }}
                 handleCloseIconClicked={() => setMoveOpen(false)}

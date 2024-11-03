@@ -107,9 +107,9 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   const moveNFTToFlow = async () => {
     setSending(true);
     // setSending(true);
-    const contractList = await wallet.openapi.getAllNft();
+    const contractList = await wallet.openapi.getAllNftV2();
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft)
-    console.log('selectedAccount ', selectedAccount)
+    console.log('selectedAccount ', selectedAccount, contractList)
     console.log('filteredCollections ', filteredCollections)
 
     if (isValidEthereumAddress(selectedAccount!['address'])) {
@@ -134,7 +134,9 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
 
   const moveNFTToEvm = async () => {
     setSending(true);
-    wallet.batchBridgeNftToEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
+    console.log('props.data ', props.data)
+    const identifier = props.data.contract.nftTypeId ? props.data.contract.nftTypeId : props.data.contract.flowIdentifier
+    wallet.batchBridgeNftToEvm(identifier, [props.data.nft.id]).then(async (txID) => {
       wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);

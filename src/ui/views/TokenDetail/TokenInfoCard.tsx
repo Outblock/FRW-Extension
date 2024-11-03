@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useWallet } from 'ui/utils';
+import {addDotSeparators} from 'ui/utils/number'
 import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
 import { LLPrimaryButton } from '@/ui/FRWComponent';
@@ -134,7 +135,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
               </Box>
             </ButtonBase>
             <Box sx={{ flex: 1 }} />
-            {((tokenInfo.evmAddress || tokenInfo.flowIdentifier || tokenInfo.symbol.toLowerCase() === 'flow') && canMoveChild) &&
+            {(canMoveChild) &&
               <ButtonBase
                 onClick={() => moveToken()}
               >
@@ -155,10 +156,10 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
             }
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '6px', pt: '18px' }}>
-            <Typography variant="body1" sx={{ fontWeight: '700', fontSize: '32px' }}>{balance}</Typography>
+            <Typography variant="body1" sx={{ fontWeight: '700', fontSize: '32px' }}>{addDotSeparators(balance)}</Typography>
             <Typography variant="caption" color="neutral2.main" sx={{ fontWeight: 'medium', fontSize: '14px', textTransform: 'uppercase' }}>{data.symbol}</Typography>
           </Box>
-          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>${(balance * price).toFixed(3)} {chrome.i18n.getMessage('USD')}</Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>${addDotSeparators(((balance * price)).toFixed(3))} {chrome.i18n.getMessage('USD')}</Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
             {(!childType || childType === 'evm') && <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={toSend} label={chrome.i18n.getMessage('Send')} fullWidth />}
             <LLPrimaryButton sx={{ borderRadius: '8px', height: '36px', fontSize: '14px', color: 'primary.contrastText', fontWeight: '600' }} disabled={!accessible} onClick={() => history.push('/dashboard/wallet/deposit')} label={chrome.i18n.getMessage('Deposit')} fullWidth />

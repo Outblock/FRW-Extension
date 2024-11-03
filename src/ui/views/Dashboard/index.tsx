@@ -12,6 +12,9 @@ import { useLocation, useHistory } from 'react-router-dom';
 import NavBar from './NavBar';
 import { useWallet } from 'ui/utils';
 import { LLTestnetIndicator } from 'ui/FRWComponent';
+import { fetchAndActivate, getRemoteConfig } from "firebase/remote-config";
+import { getApp, initializeApp } from 'firebase/app';
+import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -58,11 +61,28 @@ const Dashboard = ({ value, setValue }) => {
       wallet.getNetwork(),
       wallet.fetchUserDomain(),
     ]);
-    const isChild = await wallet.getActiveWallet(); 
+    const isChild = await wallet.getActiveWallet();
 
     if (isChild === 'evm') {
       setIsEvm(true)
     }
+    const env: string = process.env.NODE_ENV!;
+    const firebaseConfig = getFirbaseConfig();
+    console.log(process.env.NODE_ENV);
+    // const firebaseProductionConfig = prodConig;
+  
+    const app = initializeApp(firebaseConfig, env);
+    const remoteConfig = getRemoteConfig(app);
+    console.log('remoteConfig ', app)
+    fetchAndActivate(remoteConfig)
+      .then((res) => {
+        console.log('res ', remoteConfig)
+        
+        console.log('Remote Config values fetched and activated');
+      })
+      .catch((error) => {
+        console.error('Error fetching remote config:', error);
+      });
 
     setNetwork(network);
     setDomain(userDomain);

@@ -16,12 +16,13 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { FRWProfileCard } from 'ui/FRWComponent';
+import { FRWProfileCard, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from 'ui/utils/address';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -32,13 +33,15 @@ interface SendNFTConfirmationProps {
 }
 
 const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
+  const [selectedAccount, setSelectedChildAccount] = useState(null);
+  const [childWallets, setChildWallets] = useState({});
 
 
   const startCount = () => {
@@ -57,7 +60,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   }
 
   const getPending = async () => {
-    const pending = await wallet.getPendingTx();
+    const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true)
     }
@@ -83,26 +86,24 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     return replacedURL
   }
 
-  const sendNFT = async () => {
-    // setSending(true);
-    const activeChild = await wallet.getActiveWallet();
-    const isEvm = activeChild === 'evm';
-    if (isEvm) {
-      await moveNFTToFlow();
-    } else {
-      await moveNFTToEvm();
-    }
 
+  const sendNFT = async () => {
+    const parentAddress = await usewallet.getMainAddress();
+    if (parentAddress === selectedAccount!['address']) {
+      moveToParent();
+    } else {
+      moveToChild();
+    }
   }
 
-
-  const moveNFTToFlow = async () => {
+  const moveToParent = async () => {
     setSending(true);
+    console.log('props.data ', props.data)
 
-    wallet.batchBridgeNftFromEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`,);
+    usewallet.batchBridgeNftFromEvm(props.data.nft.flowIdentifier, [props.data.nft.id]).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
+      await usewallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
     }).catch(() => {
@@ -112,20 +113,23 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
   };
 
-  const moveNFTToEvm = async () => {
+  const moveToChild = async () => {
     setSending(true);
-    wallet.batchBridgeNftToEvm(props.data.nft.contractAddress, props.data.nft.collectionContractName, [props.data.nft.id]).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
+    console.log('props.data ', props.data)
+    usewallet.batchBridgeChildNFTFromEvm(selectedAccount!['address'], props.data.nft.flowIdentifier, [props.data.nft.id]).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${[props.data.nft.id].length} ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
+      await usewallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log(err)
       setSending(false);
       setFailed(true);
     })
 
   };
+
 
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {
@@ -144,8 +148,32 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     }
   }, [props.data.contact]);
 
+  const getChildResp = async () => {
+    const childresp = await usewallet.checkUserChildAccount();
+    const parentAddress = await usewallet.getMainAddress();
+    const emojires = await usewallet.getEmoji();
+    const newWallet = {
+      [parentAddress!]: {
+        "name": emojires[0].name,
+        "description": emojires[0].name,
+        "thumbnail": {
+          "url": emojires[0].emoji
+        }
+      }
+    };
+
+
+    // Merge usewallet lists
+    const walletList = { ...newWallet, ...childresp };
+    setChildWallets(walletList)
+    const firstWalletAddress = Object.keys(walletList)[0];
+    if (firstWalletAddress) {
+      setSelectedChildAccount(walletList[firstWalletAddress]);
+    }
+  }
+
   useEffect(() => {
-    console.log('props.data ', props.data)
+    getChildResp();
   }, []);
 
 
@@ -232,7 +260,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
           <FRWProfileCard contact={props.data.userContact} />
           <Box sx={{height:'8px'}}></Box>
-          <FRWProfileCard contact={props.data.contact} />
+          {selectedAccount && <FRWDropdownProfileCard contact={selectedAccount} contacts={childWallets} setSelectedChildAccount={setSelectedChildAccount} />}
         </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', mx:'25px', px: '14px', py: '16px', backgroundColor: '#181818', borderBottomRightRadius: '16px', borderBottomLeftRadius: '16px', mt: '-16px', mb:'42px' }}>

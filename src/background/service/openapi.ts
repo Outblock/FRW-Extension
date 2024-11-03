@@ -557,9 +557,9 @@ class OpenApiService {
         return pricesMap;
       }
       data.map((d) => {
-        const { rateToUSD, symbol } = d;
-        const key = symbol.toUpperCase();
-        pricesMap[key] = rateToUSD.toFixed(4);
+        const { rateToUSD, contractName, contractAddress } = d;
+        const key = contractName.toLowerCase() + '' + contractAddress.toLowerCase();
+        pricesMap[key] = rateToUSD.toFixed(8);
       });
       await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
       return pricesMap;
@@ -567,8 +567,65 @@ class OpenApiService {
 
   };
 
+  getTokenEvmPrices = async () => {
+
+
+    const tokenPriceMap = await storage.getExpiry('evmPrice');
+    if (tokenPriceMap) {
+      return tokenPriceMap;
+    } else {
+      let data: any = [];
+      try {
+        const response = await this.sendRequest(
+          'GET',
+          `/api/prices`,
+          {},
+          {},
+          WEB_NEXT_URL
+        );
+        data = response.data || [];  // Ensure data is set to an empty array if response.data is undefined
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+        data = [];  // Set data to empty array in case of an error
+      }
+
+      data.map((d) => {
+        if (d.evmAddress) {
+          const { rateToUSD, evmAddress } = d;
+          const key = evmAddress.toLowerCase();
+          pricesMap[key] = rateToUSD.toFixed(5);
+
+        } else {
+          const { rateToUSD, symbol } = d;
+          const key = symbol.toUpperCase();
+          pricesMap[key] = rateToUSD.toFixed(5);
+
+        }
+      });
+      await storage.setExpiry('evmPrice', pricesMap, 300000); // 5 minutes in milliseconds
+      return pricesMap;
+    }
+
+  };
+
   getPricesBySymbol = async (symbol: string, data) => {
     const key = symbol.toUpperCase();
+    return data[key];
+  };
+
+  getPricesByAddress = async (symbol: string, data) => {
+    const key = symbol.toLowerCase();
+    return data[key];
+  };
+
+
+  getPricesByKey = async (symbol: string, data) => {
+    const key = symbol.toLowerCase();
+    return data[key];
+  };
+
+  getPricesByEvmaddress = async (address: string, data) => {
+    const key = address.toLowerCase();
     return data[key];
   };
 
@@ -1142,7 +1199,7 @@ class OpenApiService {
   };
 
   checkChildAccountNFT = async (address: string) => {
-    const script = await getScripts('hybridCustody', 'getChildAccountNFT');
+    const script = await getScripts('hybridCustody', 'getAccessibleChildAccountNFTs');
 
     const result = await fcl.query({
       cadence: script,
@@ -1237,6 +1294,19 @@ class OpenApiService {
     return data;
   };
 
+
+
+  getEVMTransfers = async (address: string, after = '', limit: number) => {
+    const data = await this.sendRequest(
+      'GET',
+      `/api/evm/${address}/transactions`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
   getManualAddress = async () => {
     const config = this.store.config.manual_address;
     const data = await this.sendRequest(config.method, config.path, {});
@@ -1309,6 +1379,18 @@ class OpenApiService {
       network = await userWalletService.getNetwork();
     }
     const tokens = await this.getTokenListFromGithub(network);
+    // const coins = await remoteFetch.flowCoins();
+    return tokens.find(
+      (item) => item.symbol.toLowerCase() == name.toLowerCase()
+    );
+  };
+
+  getEvmTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
+    // FIX ME: Get defaultTokenList from firebase remote config
+    if (!network) {
+      network = await userWalletService.getNetwork();
+    }
+    const tokens = await this.getEvmListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
     return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
@@ -1485,6 +1567,24 @@ class OpenApiService {
     }
   };
 
+  getEvmListFromGithub = async (network: string) => {
+    const chainType = 'evm'
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    // const gitToken = null
+    if (gitToken) {
+      return gitToken;
+    } else {
+      const response = await fetch(
+        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
+      );
+      const res = await response.json();
+      const { tokens = {} } = res;
+      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+      return tokens;
+    }
+  };
+
   getNFTListFromGithub = async (network: string) => {
     const childType = await userWalletService.getActiveWallet();
     let chainType = 'flow'
@@ -1613,92 +1713,104 @@ class OpenApiService {
     return await googleSafeHostService.getBlockList(hosts, forceCheck);
   };
 
-  getEnabledNFTList = async (nftData) => {
-    const address = await userWalletService.getCurrentAddress();
-    const requestLength = 50;
-    const promises: any[] = [];
-    for (let i = 0; i < nftData.length; i += requestLength) {
-      const requestList = nftData.slice(i, i + requestLength);
-      promises.push(this.checkNFTListEnabledNew(address, requestList));
-    }
+  getEnabledNFTList = async () => {
 
-    const promiseResult = await Promise.all(promises);
+    const address = await userWalletService.getCurrentAddress();
+
+
+    const promiseResult = await this.checkNFTListEnabledNew(address);
     console.log(promiseResult, 'promiseResult');
-    const values: any[] = promiseResult.flat();
 
     // const network = await userWalletService.getNetwork();
     // const notEmptyTokenList = tokenList.filter(value => value.address[network] !== null && value.address[network] !== '' )
     // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))
-    const result = values
-      .map((value, index) => {
-        if (value) {
-          return nftData[index];
-        }
-        return null;
-      })
-      .filter((item) => item);
-    return result;
+    const resultArray = Object.entries(promiseResult)
+      .filter(([_, value]) => value === true)  // Only keep entries with a value of true
+      .map(([key, _]) => {
+        const [prefix, address, contractName] = key.split('.');
+        return {
+          address: `0x${address}`,
+          contract_name: contractName
+        };
+      });
+    console.log(promiseResult, 'values', resultArray);
+
+    return resultArray;
   };
 
-  checkNFTListEnabledNew = async (
-    address: string,
-    allTokens
-  ): Promise<NFTModel[]> => {
-    const tokenImports = allTokens
-      .map((token) =>
-        'import <Token> from <TokenAddress>'
-          .replaceAll('<Token>', token.contract_name)
-          .replaceAll('<TokenAddress>', token.address)
-      )
-      .join('\r\n');
-    const tokenFunctions = allTokens
-      .map((token) =>
-        `
-      pub fun check<Token>Vault(address: Address) : Bool {
-        let account = getAccount(address)
 
-        let vaultRef = account
-        .getCapability<&{NonFungibleToken.CollectionPublic}>(<TokenCollectionPublicPath>)
-        .check()
 
-        return vaultRef
-      }
-      `
-          .replaceAll('<TokenCollectionPublicPath>', token.path.public_path)
-          .replaceAll('<Token>', token.contract_name)
-          .replaceAll('<TokenAddress>', token.address)
-      )
-      .join('\r\n');
 
-    const tokenCalls = allTokens
-      .map((token) =>
-        `
-      check<Token>Vault(address: address)
-      `.replaceAll('<Token>', token.contract_name)
-      )
-      .join(',');
+  checkNFTListEnabledNew = async (address: string) => {
+    const script = await getScripts('nft', 'checkNFTListEnabled');
+    console.log('script checkNFTListEnabledNew ', script)
 
-    const cadence = `
-      import NonFungibleToken from 0xNonFungibleToken
-      <TokenImports>
-
-      <TokenFunctions>
-
-      pub fun main(address: Address) : [Bool] {
-        return [<TokenCall>]
-      }
-    `
-      .replaceAll('<TokenFunctions>', tokenFunctions)
-      .replaceAll('<TokenImports>', tokenImports)
-      .replaceAll('<TokenCall>', tokenCalls);
-
-    const enabledList = await fcl.query({
-      cadence: cadence,
+    const isEnabledList = await fcl.query({
+      cadence: script,
       args: (arg, t) => [arg(address, t.Address)],
     });
-
-    return enabledList;
+    return isEnabledList;
   };
+
+  // checkNFTListEnabledNew = async (
+  //   address: string,
+  //   allTokens
+  // ): Promise<NFTModel[]> => {
+  //   const tokenImports = allTokens
+  //     .map((token) =>
+  //       'import <Token> from <TokenAddress>'
+  //         .replaceAll('<Token>', token.contract_name)
+  //         .replaceAll('<TokenAddress>', token.address)
+  //     )
+  //     .join('\r\n');
+  //   const tokenFunctions = allTokens
+  //     .map((token) =>
+  //       `
+  //     pub fun check<Token>Vault(address: Address) : Bool {
+  //       let account = getAccount(address)
+
+  //       let vaultRef = account
+  //       .getCapability<&{NonFungibleToken.CollectionPublic}>(<TokenCollectionPublicPath>)
+  //       .check()
+
+  //       return vaultRef
+  //     }
+  //     `
+  //         .replaceAll('<TokenCollectionPublicPath>', token.path.public_path)
+  //         .replaceAll('<Token>', token.contract_name)
+  //         .replaceAll('<TokenAddress>', token.address)
+  //     )
+  //     .join('\r\n');
+
+  //   const tokenCalls = allTokens
+  //     .map((token) =>
+  //       `
+  //     check<Token>Vault(address: address)
+  //     `.replaceAll('<Token>', token.contract_name)
+  //     )
+  //     .join(',');
+
+  //   const cadence = `
+  //     import NonFungibleToken from 0xNonFungibleToken
+  //     <TokenImports>
+
+  //     <TokenFunctions>
+
+  //     pub fun main(address: Address) : [Bool] {
+  //       return [<TokenCall>]
+  //     }
+  //   `
+  //     .replaceAll('<TokenFunctions>', tokenFunctions)
+  //     .replaceAll('<TokenImports>', tokenImports)
+  //     .replaceAll('<TokenCall>', tokenCalls);
+
+  //   const enabledList = await fcl.query({
+  //     cadence: cadence,
+  //     args: (arg, t) => [arg(address, t.Address)],
+  //   });
+
+  //   return enabledList;
+  // };
 
   checkNFTListEnabled = async (
     address: string,
@@ -2102,12 +2214,31 @@ class OpenApiService {
   getEvmFT = async (address: string, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/evm/${address}/fts?network=${network}`,
+      `/api/v3/evm/${address}/fts?network=${network}`,
       {},
       {},
       WEB_NEXT_URL
     );
     return data;
+  };
+
+
+  getEvmFTPrice = async () => {
+    const gitPrice = await storage.getExpiry(`EVMPrice`);
+
+    if (gitPrice) {
+      return gitPrice;
+    } else {
+      const { data } = await this.sendRequest(
+        'GET',
+        `/api/prices`,
+        {},
+        {},
+        WEB_NEXT_URL
+      );
+      storage.setExpiry(`EVMPrice`, data, 6000);
+      return data;
+    }
   };
 
   evmNFTList = async () => {
@@ -2125,6 +2256,44 @@ class OpenApiService {
     const { data } = await this.sendRequest(
       'GET',
       `/api/evm/${address}/nfts?network=${network}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+  EvmNFTcollectionList = async (address: string, collectionIdentifier: string, limit = 24, offset = 0) => {
+    const network = await userWalletService.getNetwork();
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+
+  EvmNFTID = async (address: string) => {
+    const network = await userWalletService.getNetwork();
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v3/evm/nft/id?network=${network}&address=${address}`,
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
+  };
+
+
+  EvmNFTList = async (address: string, limit = 24, offset = 0) => {
+    const network = await userWalletService.getNetwork();
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v3/evm/nft/list?network=${network}&address=${address}&limit=${limit}&offset=${offset}`,
       {},
       {},
       WEB_NEXT_URL

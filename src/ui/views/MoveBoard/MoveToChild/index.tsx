@@ -109,6 +109,7 @@ const MoveToChild = (props: MoveBoardProps) => {
           id: obj.collection.id,
           address: obj.collection.address,
           logo: obj.collection.logo,
+          nftTypeId: obj.collection.nftTypeId,
         };
       });
 
@@ -161,7 +162,6 @@ const MoveToChild = (props: MoveBoardProps) => {
 
   const moveNFT = async () => {
     setSending(true);
-    console.log('collectionDetail ', selectedAccount, nftIdArray, collectionDetail)
     if (isValidEthereumAddress(selectedAccount!['address'])) {
       moveNFTEvm();
     } else {
@@ -184,7 +184,7 @@ const MoveToChild = (props: MoveBoardProps) => {
 
   const moveNFTEvm = async () => {
     setSending(true);
-    usewallet.batchBridgeNftToEvm(collectionDetail.collection.address, collectionDetail.collection.contract_name, nftIdArray).then(async (txID) => {
+    usewallet.batchBridgeNftToEvm(collectionDetail.collection.nftTypeId, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collectionDetail.collection.contract_name} to your evm address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();
@@ -294,7 +294,7 @@ const MoveToChild = (props: MoveBoardProps) => {
         }
       </Box>
       {!isLoading ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start', height:'150px',overflowY:'scroll' }}>
           {collectionDetail && collectionDetail.nfts.length > 0 ?
             collectionDetail.nfts.map(nft => (
               <Box

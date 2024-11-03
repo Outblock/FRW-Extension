@@ -57,15 +57,25 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
     let currentWallet;
     try {
       // Attempt to query the address
-      currentWallet = await wallet.getCurrentWallet();
+      currentWallet = await wallet.getMainWallet();
     } catch (error) {
       // If an error occurs, request approval
       console.error('Error querying EVM address:', error);
     }
     setLogo(icon);
-    const res = await wallet.queryEvmAddress(currentWallet.address);
+    const res = await wallet.queryEvmAddress(currentWallet);
     setEvmAddress(res!);
     setIsEvm(isValidEthereumAddress(res));
+    if (isValidEthereumAddress(res)) {
+      const walletInfo = {
+        name: 'evm',
+        address: res,
+        chain_id: currentNetwork,
+        coins: ['flow'],
+        id: 1
+      }
+      await wallet.setActiveWallet(walletInfo, 'evm');
+    }
     const site = await wallet.getSite(origin);
     const collectList: { name: string; logo_url: string }[] = [];
     const defaultChain = 'FLOW';
@@ -80,7 +90,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
     setIsLoading(true)
 
     wallet.createCoaEmpty().then(async (createRes) => {
-      wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your EVM on Flow address has been created. \nClick to view this transaction.`);
+      wallet.listenTransaction(createRes, true, 'Create EVM complete', `Your EVM on Flow address has been created. \nClick to view this transaction.`);
 
       setIsLoading(false);
     }).catch((err) => {
@@ -136,7 +146,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '12px',
-          height: '506px',
+          height: '100%',
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           {isEvm &&

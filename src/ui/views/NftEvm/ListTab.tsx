@@ -17,14 +17,13 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useEffect, useState } from 'react';
 import { useWallet } from '@/ui/utils/WalletContext';
 import EmptyStatus from './EmptyStatus';
+import placeholder from 'ui/FRWAssets/image/placeholder.png';
 
 interface ListTabProps {
   data: any;
   setCount: (count: any) => void;
   accessible: any;
   isActive: boolean;
-  nftList: any;
-  isEvm: string;
 }
 
 
@@ -76,85 +75,84 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   const [collectionLoading, setCollectionLoading] = useState(true);
   const [collections, setCollections] = useState<any[]>([]);
   const [isCollectionEmpty, setCollectionEmpty] = useState(true);
+  const [accesibleArray, setAccessible] = useState([{ id: '' }]);
   const [ownerAddress, setAddress] = useState('');
 
-  useEffect(() => {
-    reverseTransformCollections();
-  }, []);
+  useImperativeHandle(ref, () => ({
+    reload: () => {
+      usewallet.clearNFTCollection()
+      setCollections([])
+      setCollectionLoading(true);
+      fetchLatestCollection(ownerAddress)
+    }
+  }));
+
+  const fetchCollectionCache = async (address: string) => {
+    setAccessible(props.accessible)
+    try {
+      setCollectionLoading(true);
+      const list = await usewallet.openapi.EvmNFTID(address);
+      if (list && list.length > 0) {
+        setCollectionEmpty(false);
+        setCollections(list);
+        const count = list.reduce((acc, item) => acc + item.count, 0);
+        props.setCount(count);
+      } else {
+        setCollectionEmpty(true);
+        fetchLatestCollection(address);
+      }
+    } catch {
+      setCollectionEmpty(true);
+      fetchLatestCollection(address);
+    } finally {
+      setCollectionLoading(false);
+    }
+  };
+
+  const fetchLatestCollection = async (address: string) => {
+    try {
+      const list = await usewallet.openapi.EvmNFTID(address);
+      setCollectionLoading(false);
+      if (list && list.length > 0) {
+        setCollectionEmpty(false);
+        setCollections(list);
+      } else {
+        setCollectionEmpty(true);
+      }
+    } catch (err) {
+      console.log(err)
+      setCollectionLoading(false);
+      setCollectionEmpty(true);
+    }
+  };
 
   useEffect(() => {
+    console.log('props.data.ownerAddress ', props.data.ownerAddress)
     if (props.data.ownerAddress) {
+      fetchCollectionCache(props.data.ownerAddress);
       setAddress(props.data.ownerAddress);
     }
   }, [props.data.ownerAddress]);
 
 
-  const reverseTransformCollections = () => {
-    const collectionsMap = {};
-    const nftCatalogModels = props.nftList;
-    nftCatalogModels.forEach(nft => {
-      const collectionID = nft.collectionID;
-
-      if (!collectionsMap[collectionID]) {
-        collectionsMap[collectionID] = {
-          collection: {
-            id: nft.collectionID,
-            contract_name: nft.collectionContractName,
-            logo: nft.collectionSquareImage,
-            address: nft.contractAddress,
-            name: nft.collectionName,
-            banner: nft.collectionBannerImage,
-            official_website: nft.collectionExternalURL,
-            description: nft.collectionDescription,
-            path: {
-              // Assuming static values for the path, adjust as necessary
-              storage_path: `/storage/${nft.collectionContractName}Collection`,
-              public_path: `/public/${nft.collectionContractName}Collection`,
-              public_collection_name: "NonFungibleToken.CollectionPublic",
-              public_type: `${nft.collectionContractName}.Collection{${nft.collectionContractName}.CollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}`,
-              private_type: `${nft.collectionContractName}.Collection{${nft.collectionContractName}.CollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}`
-            },
-            socials: {
-              // Assuming static values for the socials, adjust as necessary
-              discord: { url: "https://discord.gg/example" },
-              twitter: { url: "https://twitter.com/example" }
-            }
-          },
-          ids: [],
-          count: 0
-        };
-      }
-
-      collectionsMap[collectionID].ids.push(nft.id);
-      collectionsMap[collectionID].count += 1;
-    });
-    const objCollections = Object.values(collectionsMap);
-    if (objCollections.length > 0) {
-      setCollectionEmpty(false);
-    }
-    setCollectionLoading(false);
-    setCollections(objCollections);
-  };
 
   const CollectionView = (data) => {
+    const handleClick = () => {
+      history.push({
+        pathname: `/dashboard/nested/evm/collectiondetail/${data.ownerAddress}.${data.contract_name}.${data.count}`,
+        state: {
+          collection: data,
+          ownerAddress: data.ownerAddress,
+          accessible: props.accessible
+        }
+      });
+    };
     return (
       <Card sx={{ borderRadius: '12px' }} className={classes.collectionCard}>
         <CardActionArea
-          sx={{ backgroundColor: 'background.paper', borderRadius: '12px' }}
+          sx={{ backgroundColor: 'background.paper', borderRadius: '12px', paddingRight: '8px' }}
           className={classes.actionarea}
-          onClick={() =>
-            history.push({
-              pathname: `/dashboard/nested/evm/${props.isEvm}collectiondetail/${data.ownerAddress + '.' + data.contract_name + '.' + data.count
-                }`,
-              state: {
-                collection: data,
-                ownerAddress: data.ownerAddress,
-                accessible: props.accessible,
-                nftList: props.nftList,
-              }
-            })
-          }
-
+          onClick={handleClick}
         >
           <Box sx={{ display: 'flex', flexDirection: 'row' }}>
             <CardMedia
@@ -162,12 +160,12 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
               sx={{
                 width: '48px',
                 height: '48px',
-                margin: '8px',
+                padding: '8px',
                 borderRadius: '12px',
                 justifyContent: 'center',
-                objectFit: 'cover', objectPosition: 'left'
+                mt: '8px',
               }}
-              image={data.logo}
+              image={data.logo || placeholder}
               alt={data.name}
             />
             <CardContent sx={{ flex: '1 0 auto', padding: '8px 4px' }}>
@@ -181,8 +179,6 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                   >
                     {data.name}
                   </Typography>
-
-
                   <Typography
                     variant="body1"
                     sx={{ fontSize: '14px' }}
@@ -211,7 +207,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
         key={props.collection ? props.collection.name : props.name}
         count={props.count}
         index={index}
-        contract_name={props.collection.id}
+        contract_name={props.collection ? props.collection.id : props.id}
         ownerAddress={ownerAddress}
       />
     );

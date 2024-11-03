@@ -113,7 +113,7 @@ const MoveEvm = (props: MoveBoardProps) => {
     setSending(true);
     const collection = collectionList.find(collection => collection.id === selectedCollection);
 
-    usewallet.batchBridgeNftFromEvm(`0x${collection.address}`, collection.CollectionName, nftIdArray).then(async (txID) => {
+    usewallet.batchBridgeNftFromEvm(collection.flowIdentifier, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();

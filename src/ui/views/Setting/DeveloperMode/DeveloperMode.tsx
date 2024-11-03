@@ -451,7 +451,7 @@ const DeveloperMode = () => {
               >
                 <Box className={classes.checkboxRow}>
                   <FormControlLabel
-                    label={chrome.i18n.getMessage('Flowdiver')}
+                    label='Flowscan'
                     control={
                       <Checkbox
                         size="small"

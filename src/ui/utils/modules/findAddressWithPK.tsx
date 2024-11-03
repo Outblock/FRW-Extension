@@ -9,7 +9,10 @@ const findAddress = async (pubKTuple, address) => {
   const pS = sepc256k1Accounts.map((s) => ({ ...s, pk: SECP256K1.pk }))
   const accounts = pA.concat(pS)
 
-  console.log('accounts 222 ==>', accounts);
+  // console.log('accounts 222 ==>', accounts);
+  if (accounts[0].weight < 1000) {
+    return null;
+  }
   if (!accounts || accounts.length === 0) {
     SECP256K1['weight'] = 1000;
     SECP256K1['hashAlgo'] = "SHA2_256";

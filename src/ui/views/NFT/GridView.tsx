@@ -96,7 +96,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const GridView = ({ data, accessible, blockList, index, ownerAddress, isAccessibleNft = true, fromLinked = false }) => {
+const GridView = ({ data, accessible, blockList, index, ownerAddress, isAccessibleNft = true, fromLinked = false, collectionInfo }) => {
   const classes = useStyles();
   const [loaded, setLoaded] = useState(false);
   const [isAccessible, setAccessible] = useState(true);
@@ -120,7 +120,7 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress, isAccessib
 
 
   const navigateWithState = (data, media, index, ownerAddress, isAccessibleNft) => {
-    const state = { nft: data, media: media, index: index, ownerAddress: ownerAddress, isAccessibleNft };
+    const state = { nft: data, media: media, index: index, ownerAddress: ownerAddress, isAccessibleNft, collectionInfo };
     localStorage.setItem('nftDetailState', JSON.stringify(state));
   }
 

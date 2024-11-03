@@ -283,6 +283,7 @@ const CollectionDetail = (props) => {
         key={data.unique_id}
         index={index}
         ownerAddress={ownerAddress}
+        collectionInfo={info}
       />
     );
   };

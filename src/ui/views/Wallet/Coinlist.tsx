@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/system';
 import { useHistory } from 'react-router-dom';
 import theme from '../../style/LLTheme';
-// import { useWallet } from 'ui/utils';
+import { formatLargeNumber } from 'ui/utils/number';
 import {
   Typography,
   ListItem,
@@ -15,6 +15,7 @@ import {
   IconButton
 } from '@mui/material';
 import IconCreate from '../../../components/iconfont/IconCreate';
+import TokenDropdown from './TokenDropdown'
 
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   // const wallet = useWallet();
@@ -24,7 +25,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   useEffect(() => {
     setLoading(data.length === 0);
-    
+    console.log('data ', data)
     if (data.length) {
       setCoinList(data);
       setLoading(false);
@@ -41,7 +42,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               variant="body1"
               sx={{ fontSize: 14, fontWeight: '550', textAlign: 'end', color: 'text.title' }}
             >
-              {props.primary} {props.unit.toUpperCase()}
+              {formatLargeNumber(props.primary)} {props.unit.toUpperCase()}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -71,7 +72,16 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
           !isLoading ? (
             <Typography
               variant="body1"
-              sx={{ fontSize: 14, fontWeight: '550', textAlign: 'start', color: 'text.title' }}
+              sx={{
+                fontSize: 14,
+                fontWeight: '550',
+                textAlign: 'start',
+                color: 'text.title',
+                maxWidth: '120px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
             >
               {props.primary}
             </Typography>
@@ -146,11 +156,19 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
           </IconButton>
         </Box>
       }
+      {childType === 'evm' &&
+        <Box sx={{ display: 'flex', px: '12px', pt: '4px' }}>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton onClick={() => history.push('dashboard/addcustomevm')}>
+            <IconCreate size={16} color="#787878" />
+          </IconButton>
+        </Box>
+      }
 
       <List sx={{ paddingTop: '0px', paddingBottom: '0px' }}>
         {!isLoading
           ? (coinList || []).map((coin: any) => {
-            if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0) {
+            if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0 && !coin.custom) {
               return null;
             }
             return (

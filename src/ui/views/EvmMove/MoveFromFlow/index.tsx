@@ -9,7 +9,7 @@ import TransferFrom from '../TransferFrom';
 import TransferTo from '../TransferTo';
 import MoveToken from './MoveToken'
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
+import { withPrefix, isValidEthereumAddress } from 'ui/utils/address';
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
 import {
   LLSpinner,
@@ -92,6 +92,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
+  const [minAmount, setMinAmount] = useState<any>(0.001);
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
@@ -125,7 +126,20 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
     setEvmUser(evmContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
+    setUserMinAmount();
     return;
+  };
+
+  const setUserMinAmount = async () => {
+    try {
+      // Try fetching the min amount from the API
+      const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
+      setMinAmount(minAmount);
+    } catch (error) {
+      // If there's an error, set the min amount to 0.001
+      console.error('Error fetching min amount:', error);
+      setMinAmount(0.001);
+    }
   };
 
   const moveToken = async () => {
@@ -146,7 +160,16 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
     setLoading(true);
     const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
     console.log('tokenResult ', tokenResult);
-    usewallet.bridgeToEvm(tokenResult!.address, tokenResult!.contractName, amount).then(async (createRes) => {
+    const address = tokenResult!.address.startsWith('0x')
+      ? tokenResult!.address.slice(2)
+      : tokenResult!.address;
+
+    let flowId = `A.${address}.${tokenResult!.contractName}.Vault`;
+
+    if (isValidEthereumAddress(address)) {
+      flowId = tokenResult!['flowIdentifier'];
+    }
+    usewallet.bridgeToEvm(flowId, amount).then(async (createRes) => {
       usewallet.listenTransaction(createRes, true, 'Transfer to EVM complete', `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`);
       await usewallet.setDashIndex(0);
       history.push('/dashboard?activity=1');
@@ -265,6 +288,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
             setExceed={setExceed}
             coinInfo={coinInfo}
             setCurrentCoin={setCurrentCoin}
+            minAmount={minAmount}
           />
         }
       </Box>

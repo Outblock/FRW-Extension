@@ -24,6 +24,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
 import Tooltip from '@mui/material/Tooltip';
 import { useWallet, formatAddress } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
 import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
@@ -173,7 +174,6 @@ const Header = ({ loading }) => {
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.getUserWallets();
-    console.log('wallet -----> ', wallet)
     const fData = wallet.filter((item) => item.blockchain !== null);
 
     // putDeviceInfo(fData);
@@ -186,11 +186,24 @@ const Header = ({ loading }) => {
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
+    const isChild = await usewallet.getActiveWallet();
     const mainAddress = await usewallet.getMainAddress();
+    
+
+    if (isChild === 'evm') {
+      const res = await usewallet.queryEvmAddress(mainAddress!);
+      const evmWallet = await usewallet.getEvmWallet();
+      const evmAddress = ensureEvmAddressPrefix(res)
+      evmWallet.address = evmAddress
+      await setCurrent(evmWallet);
+      setMainLoading(false);
+    } else {
+      await setCurrent(currentWallet);
+      setMainLoading(false);
+    }
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
-    const walletData = await usewallet.getUserInfo(true);
-    const isChild = await usewallet.getActiveWallet();
+
     if (mainAddress) {
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
@@ -201,17 +214,8 @@ const Header = ({ loading }) => {
         setEvmLoading(false);
       }
     }
-
-    if (isChild === 'evm') {
-      const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
-      evmWallet.address = evmAddress
-      await setCurrent(evmWallet);
-      setMainLoading(false);
-    } else {
-      await setCurrent(currentWallet);
-      setMainLoading(false);
-    }
+    
+    const walletData = await usewallet.getUserInfo(true);
 
     const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
     if (!isChild) {
@@ -813,7 +817,7 @@ const Header = ({ loading }) => {
                   display="block"
                   sx={{ lineHeight: '1.5' }}
                 >
-                  {props.name === 'Flow' ? 'Wallet' : props.name}
+                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${isValidEthereumAddress(props.address) ? ' EVM' : ''}`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
