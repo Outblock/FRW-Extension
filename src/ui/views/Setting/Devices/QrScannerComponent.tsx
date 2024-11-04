@@ -20,7 +20,6 @@ const QrScannerComponent = ({ setUrl }) => {
           setUrl(data)
           qrScanner.stop()
         }
-
       },
       { returnDetailedScanResult: true }
     );
