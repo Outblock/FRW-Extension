@@ -1562,6 +1562,35 @@ class OpenApiService {
           symbol: 'flow',
         })
       }
+      if (chainType === 'evm') {
+        const evmCustomToken = await storage.get('evmCustomToken') || [];
+        evmCustomToken.map(custom => {
+          const existingToken = tokens.find(token => {
+            return token.address.toLowerCase() === custom.address.toLowerCase();
+          });
+
+          // If the custom token is not found in tokens, push it
+          if (!existingToken) {
+            tokens.push(
+              {
+                "chainId": 747,
+                "address": custom.address,
+                "symbol": custom.unit,
+                "name": custom.coin,
+                "decimals": custom.decimals,
+                "logoURI": "",
+                "flowIdentifier": custom.flowIdentifier,
+                "tags": [],
+                "balance": 0,
+                custom: true
+              }
+            );
+          }
+
+        })
+
+
+      }
       storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
       return tokens;
     }
