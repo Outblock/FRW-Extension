@@ -1,68 +1,88 @@
 import React from 'react';
 import { useNews } from 'ui/utils/news';
-import { Box, Typography, IconButton, Button } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box, Typography, Button } from '@mui/material';
+import { NewsItem } from 'ui/components/news-item';
 
 export const NewsView: React.FC = () => {
-  const { news, dismissNews, markAllAsRead } = useNews();
+  const { news, dismissNews, resetNews, markAllAsRead } = useNews();
+
+  // Handler for background click
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      resetNews();
+    }
+  };
 
   return (
-    <Box sx={{ padding: '16px' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 2.5,
-        }}
-      >
-        <Typography variant="h2">News</Typography>
-        <Button onClick={markAllAsRead}>Clean all</Button>
-      </Box>
-
-      {news.map((item) => (
+    <Box 
+      onClick={handleBackgroundClick}
+      sx={{ 
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        // Leave space for bottom nav (56px) plus some padding
+        pb: '72px'
+      }}
+    >
+      <Box sx={{ padding: '16px' }}>
         <Box
-          key={item.id}
           sx={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '12px',
-            padding: '16px',
-            mb: 1.5,
-            position: 'relative',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2.5,
           }}
         >
-          <IconButton
-            onClick={() => dismissNews(item.id)}
-            sx={{
-              position: 'absolute',
-              right: '12px',
-              top: '12px',
-              color: 'text.secondary',
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 500,
+              color: 'text.primary'
             }}
           >
-            <CloseIcon />
-          </IconButton>
-          <Box sx={{ display: 'flex', gap: '12px' }}>
-            {item.icon && (
-              <Box
-                component="img"
-                src={item.icon}
-                alt=""
-                sx={{ width: 32, height: 32 }}
-              />
-            )}
-            <Box>
-              <Typography variant="h3">{item.title}</Typography>
-              <Typography>{item.body}</Typography>
-              {item.url && (
-                <Button href={item.url} variant="text">
-                  View More
-                </Button>
-              )}
-            </Box>
-          </Box>
+            Notification
+          </Typography>
+          <Button 
+            onClick={markAllAsRead}
+            sx={{ 
+              color: 'text.secondary',
+              '&:hover': {
+                backgroundColor: 'transparent',
+                textDecoration: 'underline',
+              }
+            }}
+          >
+            Clear all
+          </Button>
         </Box>
-      ))}
+
+        <Box 
+          sx={{
+            maxHeight: 'calc(100vh - 200px)', // Leave space for header and bottom nav
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': {
+              display: 'none' // Hide scrollbar for cleaner look
+            },
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+          }}
+        >
+          {news?.map((item) => (
+            <Box 
+              key={item.id}
+              sx={{
+                height: item.type === 'recommendation' ? '92px' : '76px', // Fixed heights
+                mb: 1.5
+              }}
+            >
+              <NewsItem
+                item={item}
+                onDismiss={dismissNews}
+              />
+            </Box>
+          ))}
+        </Box>
+      </Box>
     </Box>
   );
 };

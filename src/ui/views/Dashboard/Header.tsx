@@ -34,10 +34,6 @@ import eventBus from '@/eventBus';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
 import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
-import { profileHooks } from 'ui/utils/profileHooks';
-import { P } from 'ts-toolbelt/out/Object/_api';
-import { Network } from 'ethers';
-import { useNotifications } from 'ui/utils/notification';
 import { useNews } from 'ui/utils/news';
 import NewsView from './Components/NewsView';
 
@@ -121,6 +117,8 @@ const Header = ({ loading }) => {
   // TODO: add notification count
   const { unreadCount } = useNews();
 
+  console.log('unreadCount ->', unreadCount);
+  
   const toggleDrawer = () => {
     setDrawer(!drawer);
   };
@@ -865,10 +863,10 @@ const Header = ({ loading }) => {
                   border: isPending
                     ? ''
                     : currentNetwork !== 'mainnet'
-                    ? `2px solid ${networkColor(currentNetwork)}`
-                    : isSandbox
-                    ? '2px solid #CCAF21'
-                    : '2px solid #282828',
+                      ? `2px solid ${networkColor(currentNetwork)}`
+                      : isSandbox
+                        ? '2px solid #CCAF21'
+                        : '2px solid #282828',
                   padding: '3px',
                   marginRight: '0px',
                   position: 'relative',

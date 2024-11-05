@@ -1063,7 +1063,7 @@ export class WalletController extends BaseController {
         });
       default:
         if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } };
+          return { price: { last: price, change: { percentage: '0.0' } } }
         } else {
           return null;
         }
@@ -1093,7 +1093,7 @@ export class WalletController extends BaseController {
         });
       default:
         if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } };
+          return { price: { last: price, change: { percentage: '0.0' } } }
         } else {
           return null;
         }
@@ -1356,6 +1356,7 @@ export class WalletController extends BaseController {
         };
       });
     };
+
 
 
     let mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
@@ -3817,20 +3818,23 @@ export class WalletController extends BaseController {
 
   // Get the news from the server
   getNews = async () => {
-    // Get news from the news service
-    const news = newsService.getNews();
-    
-    // Fetch new data if it's been more than 5 minutes
-    const fiveMinutes = 5 * 60 * 1000;
-    if (
-      !newsService.store ||
-      !newsService.store.lastFetched ||
-      Date.now() - newsService.store.lastFetched > fiveMinutes
-    ) {
-      return await newsService.fetchNews();
-    }
-    
-    return news;
+    return await newsService.getNews();
+  };
+
+  markNewsAsRead = async (id: string) => {
+    return await newsService.markAsRead(id);
+  };
+
+  markAllNewsAsRead = async () => {
+    return await newsService.markAllAsRead();
+  };
+
+  getUnreadNewsCount = async () => {
+    return newsService.getUnreadCount();
+  };
+
+  resetNews = async () => {
+    return await newsService.reset();
   };
 
 }
