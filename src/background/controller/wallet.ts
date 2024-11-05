@@ -2871,14 +2871,11 @@ export class WalletController extends BaseController {
   getAssociatedFlowIdentifier = async (
     address: string,
   ): Promise<string> => {
-    console.log('address getAssociatedFlowIdentifier ', address)
     const script = await getScripts('bridge', 'getAssociatedFlowIdentifier');
-    console.log('address script ', script)
     const result = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.String)],
     });
-    console.log('address result ', result)
     return result
   };
 
