@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-// TODO: add firebase remote config
-// import { getRemoteConfig, getValue } from 'firebase/remote-config';
+import { useWallet } from 'ui/utils';
 
 interface NewsItem {
   id: string;
@@ -18,29 +17,21 @@ interface NewsItem {
 export function useNews() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const wallet = useWallet();
 
-  // TODO: remove this after testing
   const fetchNews = useCallback(async () => {
-    /*
+    if (!wallet) {
+      return;
+    }
     try {
 
-      const remoteConfig = getRemoteConfig();
-      console.log('remoteConfig', remoteConfig);
-
-      const newsValue = getValue(remoteConfig, 'news');
-      const newsData: NewsItem[] = JSON.parse(newsValue.asString());
-
-      // Filter out expired news
-      const now = new Date();
-      const activeNews = newsData.filter((n) => new Date(n.expiry_time) > now);
-
-      setNews(activeNews);
-      setUnreadCount(activeNews.length);
+      const newsData = await wallet.getNews();
+      setNews(newsData);
+      setUnreadCount(newsData.length);
     } catch (error) {
       console.error('Failed to fetch news:', error);
     }
-        */
-  }, []);
+  }, [wallet]);
 
   const markAllAsRead = useCallback(() => {
     setUnreadCount(0);
@@ -51,10 +42,9 @@ export function useNews() {
     setUnreadCount((count) => Math.max(0, count - 1));
   }, []);
 
-  // Fetch news on mount
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, [fetchNews]);
 
   return {
     news,

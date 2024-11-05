@@ -19,6 +19,7 @@ import {
   flownsService,
   stakingService,
   proxyService,
+  newsService,
 } from 'background/service';
 import BN from 'bignumber.js';
 import { openIndexPage } from 'background/webapi/tab';
@@ -866,8 +867,8 @@ export class WalletController extends BaseController {
   };
 
   replaceAvatarUrl = (url) => {
-    const baseUrl = "https://source.boringavatars.com/";
-    const newBaseUrl = "https://lilico.app/api/avatar/";
+    const baseUrl = 'https://source.boringavatars.com/';
+    const newBaseUrl = 'https://lilico.app/api/avatar/';
 
     if (url.startsWith(baseUrl)) {
       return url.replace(baseUrl, newBaseUrl);
@@ -1311,7 +1312,7 @@ export class WalletController extends BaseController {
     const address = await this.getEvmAddress();
     if (!isValidEthereumAddress(address)) {
 
-      return new Error("Invalid Ethereum address in coinlist");
+      return new Error('Invalid Ethereum address in coinlist');
     }
 
     const allBalanceMap = await openapiService.getEvmFT(
@@ -2102,7 +2103,7 @@ export class WalletController extends BaseController {
 
     console.log('result ', result)
     const res = await fcl.tx(result).onceSealed();
-    const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
+    const transactionExecutedEvent = res.events.find(event => event.type.includes('TransactionExecuted'));
 
     if (transactionExecutedEvent) {
       const hash = transactionExecutedEvent.data.hash;
@@ -3814,6 +3815,23 @@ export class WalletController extends BaseController {
     return emojires;
   };
 
+  // Get the news from the server
+  getNews = async () => {
+    // Get news from the news service
+    const news = newsService.getNews();
+    
+    // Fetch new data if it's been more than 5 minutes
+    const fiveMinutes = 5 * 60 * 1000;
+    if (
+      !newsService.store ||
+      !newsService.store.lastFetched ||
+      Date.now() - newsService.store.lastFetched > fiveMinutes
+    ) {
+      return await newsService.fetchNews();
+    }
+    
+    return news;
+  };
 
 }
 

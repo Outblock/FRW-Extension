@@ -542,7 +542,7 @@ class OpenApiService {
       try {
         const response = await this.sendRequest(
           'GET',
-          `/api/prices`,
+          '/api/prices',
           {},
           {},
           WEB_NEXT_URL
@@ -578,7 +578,7 @@ class OpenApiService {
       try {
         const response = await this.sendRequest(
           'GET',
-          `/api/prices`,
+          '/api/prices',
           {},
           {},
           WEB_NEXT_URL
@@ -1622,7 +1622,7 @@ class OpenApiService {
         values = await this.isTokenListEnabled(address);
       }
     } catch (error) {
-      console.error(`Error isTokenListEnabled token:`);
+      console.error('Error isTokenListEnabled token:');
       values = {}
     }
 
@@ -2108,7 +2108,7 @@ class OpenApiService {
   cadenceScriptsV2 = async () => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/v2/scripts`,
+      '/api/v2/scripts',
       {},
       {},
       WEB_NEXT_URL
@@ -2224,19 +2224,19 @@ class OpenApiService {
 
 
   getEvmFTPrice = async () => {
-    const gitPrice = await storage.getExpiry(`EVMPrice`);
+    const gitPrice = await storage.getExpiry('EVMPrice');
 
     if (gitPrice) {
       return gitPrice;
     } else {
       const { data } = await this.sendRequest(
         'GET',
-        `/api/prices`,
+        '/api/prices',
         {},
         {},
         WEB_NEXT_URL
       );
-      storage.setExpiry(`EVMPrice`, data, 6000);
+      storage.setExpiry('EVMPrice', data, 6000);
       return data;
     }
   };
@@ -2393,6 +2393,17 @@ class OpenApiService {
       console.error('Error while adding device:', error);
       return;
     }
+  };
+
+  getNews = async () => {
+    const { data } = await this.sendRequest(
+      'GET',
+      '/api/news',
+      {},
+      {},
+      WEB_NEXT_URL
+    );
+    return data;
   };
 
   freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
