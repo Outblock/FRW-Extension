@@ -124,40 +124,42 @@ const CustomEvmForm = ({ coinInfo }) => {
           </Box>
         </Box>
 
-        <Box sx={{ width: '100%' }}>
-          <Typography
-            sx={{
-              color: 'var(--Basic-foreground-White, var(--Basic-foreground-White, #FFF))',
-              fontFamily: 'Inter',
-              fontSize: '14px',
-              fontStyle: 'normal',
-              fontWeight: 700,
-              lineHeight: '24px',
-              letterSpacing: '-0.084px'
-            }}
-          >
-            Flow Identifier
-          </Typography>
-          <Box
-            sx={{
-              fontFamily: 'Inter',
-              fontSize: '14px',
-              fontStyle: 'normal',
-              fontWeight: 400,
-              lineHeight: '24px', // 171.429%
-              letterSpacing: '-0.084px',
-              padding: '16px',
-              border: '1px solid rgba(255, 255, 255, 0.40)',
-              borderRadius: '16px',
-              marginTop: '8px'
-            }}
-
-          >
-            <Typography sx={{ color: 'var(--Basic-foreground-White-4-text, var(--White-4, rgba(255, 255, 255, 0.40)))', }}>
-              {coinInfo.flowIdentifier}
+        {coinInfo.flowIdentifier &&
+          <Box sx={{ width: '100%' }}>
+            <Typography
+              sx={{
+                color: 'var(--Basic-foreground-White, var(--Basic-foreground-White, #FFF))',
+                fontFamily: 'Inter',
+                fontSize: '14px',
+                fontStyle: 'normal',
+                fontWeight: 700,
+                lineHeight: '24px',
+                letterSpacing: '-0.084px'
+              }}
+            >
+              Flow Identifier
             </Typography>
+            <Box
+              sx={{
+                fontFamily: 'Inter',
+                fontSize: '14px',
+                fontStyle: 'normal',
+                fontWeight: 400,
+                lineHeight: '24px', // 171.429%
+                letterSpacing: '-0.084px',
+                padding: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.40)',
+                borderRadius: '16px',
+                marginTop: '8px'
+              }}
+
+            >
+              <Typography sx={{ color: 'var(--Basic-foreground-White-4-text, var(--White-4, rgba(255, 255, 255, 0.40)))', }}>
+                {coinInfo.flowIdentifier}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        }
 
       </Stack>
     </Box>

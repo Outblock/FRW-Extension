@@ -91,6 +91,7 @@ class CoinList {
     }
     storage.remove('coinList')
   };
+  
   setCurrentCoin = (coinName: string) => {
     this.store.currentCoin = coinName;
   };

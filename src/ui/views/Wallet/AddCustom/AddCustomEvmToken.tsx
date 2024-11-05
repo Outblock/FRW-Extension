@@ -60,7 +60,7 @@ const AddCustomEvmToken = () => {
   const [coinInfo, setCoinInfo] = useState<any>({});
 
   const checkAddress = async (address: string) => {
-    //wallet controller api
+    //usewallet controller api
     setIsValidatingAddress(true);
     const validatedResult = await isValidEthereumAddress(address);
     setIsValidatingAddress(false);
@@ -131,7 +131,7 @@ const AddCustomEvmToken = () => {
     const contractAddress = withPrefix(address)!.toLowerCase();
 
     let evmCustomToken = await storage.get('evmCustomToken') || [];
-
+    const network = await usewallet.getNetwork();
     // Filter out any empty objects from evmCustomToken
     evmCustomToken = evmCustomToken.filter(token => Object.keys(token).length > 0);
 
@@ -147,6 +147,7 @@ const AddCustomEvmToken = () => {
     }
 
     await storage.set('evmCustomToken', evmCustomToken);
+    await usewallet.openapi.refreshEvmGitToken(network);
     setLoading(false);
     history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
     history.goBack();
