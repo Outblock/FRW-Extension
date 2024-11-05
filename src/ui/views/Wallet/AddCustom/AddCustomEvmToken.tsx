@@ -129,9 +129,9 @@ const AddCustomEvmToken = () => {
   const importCustom = async (address) => {
     setLoading(true);
     const contractAddress = withPrefix(address)!.toLowerCase();
-
-    let evmCustomToken = await storage.get('evmCustomToken') || [];
     const network = await usewallet.getNetwork();
+
+    let evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
     // Filter out any empty objects from evmCustomToken
     evmCustomToken = evmCustomToken.filter(token => Object.keys(token).length > 0);
 
@@ -146,7 +146,7 @@ const AddCustomEvmToken = () => {
       console.log("New token added to evmCustomToken");
     }
 
-    await storage.set('evmCustomToken', evmCustomToken);
+    await storage.set(`${network}evmCustomToken`, evmCustomToken);
     await usewallet.openapi.refreshEvmGitToken(network);
     setLoading(false);
     history.replace({ pathname: history.location.pathname, state: { refreshed: true } });

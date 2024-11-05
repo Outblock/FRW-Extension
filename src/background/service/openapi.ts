@@ -1587,7 +1587,7 @@ class OpenApiService {
     if (chainType === 'flow') this.addFlowTokenIfMissing(tokens);
 
     if (chainType === 'evm') {
-      const evmCustomToken = await storage.get('evmCustomToken') || [];
+      const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
       this.mergeCustomTokens(tokens, evmCustomToken);
     }
 
@@ -1600,7 +1600,7 @@ class OpenApiService {
     let gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
     if (!gitToken) gitToken = await this.fetchGitTokenList(network, chainType, 'evm');
 
-    const evmCustomToken = await storage.get('evmCustomToken') || [];
+    const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
     this.mergeCustomTokens(gitToken, evmCustomToken);
 
     storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);
@@ -1610,7 +1610,7 @@ class OpenApiService {
     const chainType = 'evm';
     const gitToken = await this.fetchGitTokenList(network, chainType, 'evm');
 
-    const evmCustomToken = await storage.get('evmCustomToken') || [];
+    const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
     this.mergeCustomTokens(gitToken, evmCustomToken);
 
     storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);

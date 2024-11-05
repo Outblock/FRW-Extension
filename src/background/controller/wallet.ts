@@ -1306,10 +1306,10 @@ export class WalletController extends BaseController {
     const now = new Date();
     const exp = _expiry + now.getTime();
     coinListService.setExpiry(exp);
-    const evmCustomToken = await storage.get('evmCustomToken') || [];
 
 
     const network = await this.getNetwork();
+    const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
 
     const tokenList = await openapiService.getTokenListFromGithub(network);
 

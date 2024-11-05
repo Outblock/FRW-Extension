@@ -62,9 +62,9 @@ const TokenDetail = () => {
   };
 
   const handleDeleteEFT = async () => {
-
-    let evmCustomToken = (await storage.get('evmCustomToken')) || [];
     const network = await usewallet.getNetwork();
+
+    let evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
 
     // Filter out any empty objects from evmCustomToken
     evmCustomToken = evmCustomToken.filter(token => Object.keys(token).length > 0);
@@ -74,7 +74,7 @@ const TokenDetail = () => {
       (token) => token.address.toLowerCase() !== tokenInfo.address.toLowerCase()
     );
 
-    await storage.set('evmCustomToken', evmCustomToken);
+    await storage.set(`${network}evmCustomToken`, evmCustomToken);
     console.log('evmCustomToken ', evmCustomToken)
     await usewallet.clearCoinList();
     await usewallet.openapi.refreshCustomEvmGitToken(network);

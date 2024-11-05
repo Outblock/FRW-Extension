@@ -106,8 +106,8 @@ const EthSuggest = (data) => {
   const importCustom = async () => {
     setLoading(true);
     const contractAddress = withPrefix(data.params.data.params.options.address)?.toLowerCase;
-    let evmCustomToken = await storage.get('evmCustomToken') || [];
     const network = await usewallet.getNetwork();
+    let evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
     // Filter out any empty objects from evmCustomToken
     evmCustomToken = evmCustomToken.filter(token => Object.keys(token).length > 0);
 
@@ -122,7 +122,7 @@ const EthSuggest = (data) => {
       console.log("New token added to evmCustomToken");
     }
 
-    await storage.set('evmCustomToken', evmCustomToken);
+    await storage.set(`${network}evmCustomToken`, evmCustomToken);
     await usewallet.openapi.refreshEvmGitToken(network);
     setLoading(false);
   };
