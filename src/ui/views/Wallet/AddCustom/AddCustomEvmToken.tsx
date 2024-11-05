@@ -158,8 +158,8 @@ const AddCustomEvmToken = () => {
 
   const Header = () => {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <IconButton onClick={history.goBack}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between',alignItems:'center' }}>
+        <IconButton onClick={history.goBack} sx={{height:'40px'}}>
           <ArrowBackIcon sx={{ color: 'icon.navi' }} />
         </IconButton>
         <Typography
