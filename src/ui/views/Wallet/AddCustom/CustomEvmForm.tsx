@@ -9,7 +9,6 @@ import {
 
 const CustomEvmForm = ({ coinInfo }) => {
 
-  console.log('coinInfo ', coinInfo)
 
   const renderContent = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '50px' }}>

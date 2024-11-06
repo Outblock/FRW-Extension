@@ -3082,8 +3082,14 @@ export class WalletController extends BaseController {
         evmAddress = '0x' + evmAddress
       }
       const evmResult = await openapiService.getEVMTransfers(evmAddress!, '', limit);
-      dataResult['transactions'] = evmResult.trxs
-      dataResult['total'] = evmResult.next_page_params.items_count
+      if (evmResult) {
+        dataResult['transactions'] = evmResult.trxs
+        if (evmResult.next_page_params) {
+          dataResult['total'] = evmResult.next_page_params.items_count
+        } else {
+          dataResult['total'] = evmResult.trxs.length
+        }
+      }
     } else {
       const res = await openapiService.getTransfers(address, '', limit);
       dataResult = res.data

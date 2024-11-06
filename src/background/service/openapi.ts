@@ -1528,6 +1528,23 @@ class OpenApiService {
 
     const response = await fetch(url);
     const { tokens = [] } = await response.json();
+    const hasFlowToken = tokens.some(token => token.symbol.toLowerCase() === 'flow');
+    if (!hasFlowToken) {
+      tokens.push({
+        name: 'Flow',
+        address: '0x4445e7ad11568276',
+        contractName: 'FlowToken',
+        path: {
+          balance: '/public/flowTokenBalance',
+          receiver: '/public/flowTokenReceiver',
+          vault: '/storage/flowTokenVault',
+        },
+        logoURI:
+          'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+        decimals: 8,
+        symbol: 'flow',
+      })
+    }
     return tokens;
   };
 
@@ -1584,7 +1601,6 @@ class OpenApiService {
     if (gitToken) return gitToken;
 
     const tokens = await this.fetchGitTokenList(network, chainType, childType);
-    if (chainType === 'flow') this.addFlowTokenIfMissing(tokens);
 
     if (chainType === 'evm') {
       const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
