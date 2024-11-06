@@ -144,7 +144,7 @@ const WalletTab = ({ network }) => {
       const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
       console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
 
-      if (refreshedCoinlist.length === 0 && retryCount < maxRetries) {
+      if (Array.isArray(refreshedCoinlist) && refreshedCoinlist.length === 0 && retryCount < maxRetries) {
         console.log(`No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
         setTimeout(() => {
           refreshWithRetry(expiry_time, retryCount + 1);
@@ -163,7 +163,7 @@ const WalletTab = ({ network }) => {
       } else {
         wallet.refreshCoinList(expiry_time)
           .then((res) => {
-            if (res.length === 0 && retryCount < maxRetries) {
+            if (Array.isArray(res) && res.length === 0 && retryCount < maxRetries) {
               console.log(`No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
               setTimeout(() => {
                 refreshWithRetry(expiry_time, retryCount + 1);
@@ -193,14 +193,15 @@ const WalletTab = ({ network }) => {
 
   const fetchWallet = async () => {
     // If childType is 'evm', handle it first
-    if (childType === 'evm') {
+    const isChild = await wallet.getActiveWallet();
+    if (isChild === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
       sortWallet(storageData);
       return;
     }
 
     // If not 'evm', check if it's active or not
-    if (!isActive && childType !== 'evm') {
+    if (!isActive && isChild !== 'evm') {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
@@ -209,8 +210,9 @@ const WalletTab = ({ network }) => {
 
     // Handle all non-evm and non-active cases here
     try {
+      console.log('refreshing ')
       const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-      if (refreshedCoinlist.length === 0) {
+      if (Array.isArray(refreshedCoinlist) && refreshedCoinlist.length === 0) {
         refreshWithRetry(expiry_time);
       } else {
         sortWallet(refreshedCoinlist);

@@ -365,6 +365,18 @@ class ProviderController extends BaseController {
     return result;
   };
 
+  walletWatchAsset = async ({ data }) => {
+
+    const result = await notificationService.requestApproval(
+      {
+        params: { data },
+        approvalComponent: 'EthSuggest',
+      },
+      { height: 599 }
+    );
+    return result;
+  };
+
   walletSwitchEthereumChain = async ({
     data: {
       params: [chainParams],

@@ -3,6 +3,7 @@ export { default as Confimation } from './Confimation';
 export { default as SignMessage } from './SignMessage';
 
 export { default as EthConnect } from './EthApproval/EthConnect';
+export { default as EthSuggest } from './EthApproval/EthSuggest';
 export { default as EthConfirm } from './EthApproval/EthConfirm';
 export { default as EthEnable } from './EthApproval/EthEnable';
 export { default as EthMove } from './EthApproval/EthMove';
