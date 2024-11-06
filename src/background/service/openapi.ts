@@ -35,6 +35,7 @@ import {
   NFTModel,
   StorageInfo,
   DeviceInfo,
+  NewsItem,
 } from './networkModel';
 import fetchConfig from 'background/utils/remoteConfig';
 // import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
@@ -2395,16 +2396,52 @@ class OpenApiService {
     }
   };
 
-  getNews = async () => {
-    const { data } = await this.sendRequest(
-      'GET',
-      '/api/news',
-      {},
-      {},
-      WEB_NEXT_URL
-    );
-    return data;
+  getNews = async (): Promise<NewsItem[]> => {
+    // Get news from firebase function
+    const baseURL = getFirbaseFunctionUrl();
+
+    const cachedNews = await storage.getExpiry('news');
+    console.log('cachedNews', cachedNews);
+
+    if (cachedNews) {
+      return cachedNews;
+    }
+
+    const data = await this.sendRequest('GET', '/news', {}, {}, baseURL);
+
+    const timeNow = new Date(Date.now());
+
+    const news = data
+      .map(
+        (dataFromApi: {
+          id: string;
+          priority: string;
+          type: string;
+          title: string;
+          body?: string;
+          icon?: string;
+          image?: string;
+          url?: string;
+          expiry_time: string; // ISO date string from API
+          display_type: string;
+        }) => {
+          const newsItem = {
+            ...dataFromApi,
+            expiryTime: new Date(dataFromApi.expiry_time),
+            displayType: dataFromApi.display_type,
+          };
+          return newsItem;
+        }
+      )
+      .filter((n: { expiryTime: Date }) => {
+        return n.expiryTime > timeNow;
+      });
+
+    await storage.setExpiry('news', news, 300000); // 5 minutes in milliseconds
+
+    return news;
   };
+
 
   freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
     const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];

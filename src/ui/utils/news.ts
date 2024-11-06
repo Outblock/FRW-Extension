@@ -1,98 +1,56 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from 'ui/utils';
-
-export interface NewsItem {
-  id: string;
-  priority: string;
-  type: string;
-  title: string;
-  body: string;
-  icon: string | null;
-  image: string | null;
-  url: string;
-  expiry_time: string;
-  display_type: string;
-}
+import { NewsItem } from 'background/service/networkModel';
 
 export function useNews() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const wallet = useWallet();
-  const mountedRef = useRef(true);
 
-  // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      mountedRef.current = false;
+    let isMounted = true;
+
+    const fetchNews = async () => {
+      console.log('fetching news');
+      const walletNews = await wallet.getNews();
+
+      console.log('walletNews',walletNews);
+
+      const walletUnreadCount = await wallet.getUnreadNewsCount();
+
+      if (isMounted) {
+        setNews(walletNews);
+        setUnreadCount(walletUnreadCount);
+      }
     };
+
+    fetchNews().catch(console.error);
+
+    return () => {
+      isMounted = false;
+    };
+
   }, []);
 
-  const fetchNews = useCallback(async () => {
-    if (!wallet || !mountedRef.current) {
-      return;
-    }
-    
-    try {
-      const newsData = await wallet.getNews();
-      const unreadCount = await wallet.getUnreadNewsCount();
-      
-      if (mountedRef.current) {
-        setNews(newsData);
-        setUnreadCount(unreadCount);
-      }
-    } catch (error) {
-      console.error('Failed to fetch news:', error);
-    }
-  }, [wallet]);
-
   const markAllAsRead = useCallback(async () => {
-    if (!wallet || !mountedRef.current) return;
-    
-    await wallet.markAllNewsAsRead();
-    if (mountedRef.current) {
-      setUnreadCount(0);
-      setNews([]);
-    }
+
+    setUnreadCount(0);
+    wallet?.markAllNewsAsRead().catch(console.error);
   }, [wallet]);
 
   const dismissNews = useCallback(async (id: string) => {
-    if (!wallet || !mountedRef.current) return;
 
-    await wallet.markNewsAsRead(id);
-    if (mountedRef.current) {
-      setNews((currentNews) => currentNews.filter((n) => n.id !== id));
-      setUnreadCount((count) => Math.max(0, count - 1));
-    }
+    await wallet?.markNewsAsRead(id).catch(console.error);
+    
   }, [wallet]);
 
   const resetNews = useCallback(async () => {
-    if (!wallet || !mountedRef.current) return;
-    
-    await wallet.resetNews();
-    if (mountedRef.current) {
-      fetchNews();
-    }
-  }, [wallet, fetchNews]);
-
-  useEffect(() => {
-    const fetchAndUpdate = async () => {
-      if (mountedRef.current) {
-        await fetchNews();
-      }
-    };
-
-    fetchAndUpdate();
-    const interval = setInterval(fetchAndUpdate, 60000);
-    
-    return () => {
-      clearInterval(interval);
-    };
-  }, [fetchNews, mountedRef?.current]);
+    await wallet?.resetNews().catch(console.error);
+  }, [wallet]);
 
   return {
     news,
     unreadCount,
-    fetchNews,
     markAllAsRead,
     dismissNews,
     resetNews,

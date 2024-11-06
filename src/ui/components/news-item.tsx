@@ -1,8 +1,33 @@
 import React from 'react';
-import { Box, Typography, IconButton, Button } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { NewsItem as NewsItemType } from 'ui/utils/news';
+
+
+/*
+* News items
+*/
+ type NewsType = 'message' | 'image';
+
+ type NewsPriority = 'urgent' | 'high' | 'medium' | 'low';
+
+type NewsDisplayType =
+  | 'once'    // show once
+  | 'click'   // close it when user click on it
+  | 'expiry'; // it will display until it expired
+
+ interface NewsItemType {
+  id: string;
+  priority: NewsPriority;
+  type: NewsType;
+  title: string;
+  body?: string;
+  icon?: string;
+  image?: string;
+  url?: string;
+  expiryTime: Date;
+  displayType: NewsDisplayType;
+}
 
 interface NewsItemProps {
   item: NewsItemType;
@@ -10,7 +35,7 @@ interface NewsItemProps {
 }
 
 export const NewsItem: React.FC<NewsItemProps> = ({ item, onDismiss }) => {
-  const isRecommendation = item.type === 'recommendation';
+  const isRecommendation = false;
 
   return (
     <Box
