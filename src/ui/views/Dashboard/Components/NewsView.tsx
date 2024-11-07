@@ -4,27 +4,19 @@ import { Box, Typography, Button } from '@mui/material';
 import { NewsItemCard } from './news-item';
 
 export const NewsView: React.FC = () => {
-  const { news, markAllAsRead } = useNews();
+  const { news, markAllAsRead, resetNews } = useNews();
 
-  // Handler for background click
-  const handleBackgroundClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      markAllAsRead();
-    }
-  };
-
+  console.log('NewsView', news?.length);
   return (
     <Box 
-      onClick={handleBackgroundClick}
       sx={{ 
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         // Leave space for bottom nav (56px) plus some padding
-        pb: '72px'
       }}
     >
-      <Box sx={{ padding: '16px' }}>
+      <Box sx={{ p: '16px' }}>
         <Box
           sx={{
             display: 'flex',
@@ -40,10 +32,10 @@ export const NewsView: React.FC = () => {
               color: 'text.primary'
             }}
           >
-            Notification
+            Notifications
           </Typography>
           <Button 
-            onClick={markAllAsRead}
+            onClick={resetNews}
             sx={{ 
               color: 'text.secondary',
               '&:hover': {

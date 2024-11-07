@@ -756,7 +756,7 @@ const Header = ({ loading }) => {
       </Drawer>
     );
   };
-
+  console.log('showNewsDrawer', showNewsDrawer);
   const NewsDrawer = () => {
     return (
       <Drawer
@@ -765,7 +765,7 @@ const Header = ({ loading }) => {
         onClose={toggleNewsDrawer}
         classes={{ paper: classes.paper }}
         PaperProps={{
-          sx: { width: '100%', marginTop: '56px', bgcolor: 'background.paper' },
+          sx: { width: '100%', marginTop: '56px', marginBottom: '144px', bgcolor: 'background.paper' },
         }}
       >
         <NewsView />

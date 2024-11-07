@@ -1,42 +1,43 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { NewsItem } from 'background/service/networkModel';
 import { useNews } from '../../../utils/news';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
   const { dismissNews, markAsRead } = useNews();
-
-  // Use this to detect when the item is visible
   const cardRef = useRef<HTMLDivElement>(null);
+  const [, setItemIsRead] = useState(false);
+  const [, setIsDismissed] = useState(false);
+
+  // Check if item is expired
+  const isExpired = item.expiryTime && new Date(item.expiryTime) < new Date();
   
-  // See if this has been "read".
-  const [itemIsRead, setItemIsRead] = useState(false);
-  
-  // Determine if the item has been "read".
-  // We do this by seeing if it's visible for 2 seconds
+  // Don't render if expired
+  if (isExpired) return null;
+
+  // Handle auto-dismiss for 'once' display type, and mark as read for other display type
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    
+    // Check if the item is visible
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        console.log('entry', entry);
-
         if (entry.isIntersecting) {
-          // Start timer when item becomes visible
           timeoutId = setTimeout(() => {
-            markAsRead(item.id);
             setItemIsRead(true);
+            if (item.displayType === 'once') {
+              dismissNews(item.id);
+              setIsDismissed(true);
+            } else {
+              markAsRead(item.id);
+            }
           }, 2000);
         } else {
-          // Clear timer if item becomes hidden before 2 seconds
           clearTimeout(timeoutId);
         }
       });
     });
 
-    console.log('cardRef', cardRef);
     if (cardRef.current) {
       observer.observe(cardRef.current);
     }
@@ -45,21 +46,45 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
       observer.disconnect();
       clearTimeout(timeoutId);
     };
-  }, [item.id, dismissNews, cardRef]);
+  }, [item.id, dismissNews, markAsRead, item.displayType]);
 
+  // Render image-type news item
+  if (item.type === 'image') {
+    return (
+      <Box
+        ref={cardRef}
+        sx={{
+          borderRadius: '12px',
+          overflow: 'hidden',
+          height: '100%',
+        }}
+      >
+        <Box
+          component="img"
+          src={item.image}
+          alt={item.title || ''}
+          sx={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+          }}
+        />
+      </Box>
+    );
+  }
+
+  // Render message-type news item
   return (
     <Box
       ref={cardRef}
       sx={{
-        background: itemIsRead
-          ? 'rgba(52, 168, 83, 0.1)'
-          : 'rgba(255, 255, 255, 0.1)',
+        background: 'rgba(255, 255, 255, 0.1)',
         borderRadius: '12px',
         padding: '16px',
         height: '100%',
         position: 'relative',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
       }}
     >
       {item.displayType === 'click' && (
@@ -67,6 +92,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
           onClick={(e) => {
             e.stopPropagation();
             dismissNews(item.id);
+            setIsDismissed(true);
           }}
           sx={{
             position: 'absolute',
@@ -83,7 +109,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
         sx={{
           display: 'flex',
           gap: '12px',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           width: '100%',
           pr: 4,
         }}
@@ -96,7 +122,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
             sx={{
               width: 32,
               height: 32,
-              borderRadius: itemIsRead ? '50%' : '4px',
+              borderRadius: '50%',
               flexShrink: 0,
             }}
           />
@@ -114,6 +140,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
           >
             {item.title}
           </Typography>
+          
           <Typography
             variant="body2"
             color="text.secondary"
@@ -123,30 +150,26 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
               textOverflow: 'ellipsis',
             }}
           >
-            {item.body}
-          </Typography>
-          {item.url && (
-            <Box
-              sx={{
-                position: 'absolute',
-                right: '12px',
-                bottom: '12px',
-              }}
-            >
-              <IconButton
-                size="small"
+            {item.url ? (
+              <Box
+                component="span"
+                onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}
                 sx={{
-                  bgcolor: 'success.main',
-                  color: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
                   '&:hover': {
-                    bgcolor: 'success.dark',
+                    color: 'success.dark',
                   },
                 }}
               >
-                <ArrowForwardIcon />
-              </IconButton>
-            </Box>
-          )}
+                View More
+              </Box>
+            ) : (
+              item.body
+            )}
+          </Typography>
         </Box>
       </Box>
     </Box>

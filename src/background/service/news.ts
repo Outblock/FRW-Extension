@@ -16,7 +16,7 @@ class NewsService {
     console.log('NewsService init');
     try {
       this.store = await createPersistStore<NewsStore>({
-        name: 'news',
+        name: 'newsService',  // Must be unique name 
         template: {
           readIds: [], // ids of news that are read
           dismissedIds: [], // ids of news that are dismissed
@@ -29,18 +29,6 @@ class NewsService {
 
       // Try clearing the store
       this.clear();
-      try {
-        this.store = await createPersistStore<NewsStore>({
-          name: 'news',
-          template: {
-            readIds: [], // ids of news that are read
-            dismissedIds: [], // ids of news that are dismissed
-          },
-          fromStorage: false,
-        });
-      } catch (error) {
-        console.error('Error initializing NewsService', error);
-      }
     }
   };
 
@@ -53,7 +41,7 @@ class NewsService {
     const filteredNews = news.filter((n) => !this.isDismissed(n.id));
 
     // TODO: calculate unread count here
-
+  
     return filteredNews;
   };
 
@@ -105,23 +93,20 @@ class NewsService {
   };
 
   markAsDismissed = async (id: string) => {
+    console.log('markAsDismissed', id);
     if (!this.store) await this.init();
-
-    const news = await this.getNews();
 
     // Mark as read first
     this.markAsRead(id);
 
     // Add to dismissed ids if not already there
     if (!this.isDismissed(id)) {
-      // Use this opportunity to clear the dismissed ids that are not in the new news
-      // Don't love this, but it's a quick way to do it
-      this.store.dismissedIds = [
-        ...this.store.dismissedIds.filter((dismissedId) =>
-          news.some((n) => n.id === dismissedId)
-        ),
+     
+      const newDismissedIds = [
+        ...this.store.dismissedIds,
         id,
       ];
+      this.store.dismissedIds = newDismissedIds;
     }
   };
 
@@ -130,7 +115,7 @@ class NewsService {
       this.store.readIds = [];
       this.store.dismissedIds = [];
     }
-    storage.remove('news');
+    storage.remove('newsService');
   };
 }
 
