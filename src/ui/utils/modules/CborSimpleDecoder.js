@@ -14,18 +14,10 @@ export class BinaryReader {
     this.view = new DataView(buffer);
     this.offset = 0;
   }
-  get readerOffset() {
-    return this.offset;
-  }
-  get buffer() {
-    return this.view.buffer;
-  }
-  get byteOffset() {
-    return this.view.byteOffset;
-  }
-  get byteLength() {
-    return this.view.byteLength;
-  }
+  get readerOffset() { return this.offset; }
+  get buffer() { return this.view.buffer; }
+  get byteOffset() { return this.view.byteOffset; }
+  get byteLength() { return this.view.byteLength; }
   readUInt8() {
     const value = this.view.getUint8(this.offset);
     this.offset += 1;
@@ -54,13 +46,13 @@ export class BinaryReader {
 }
 
 class Header {
-  major = 0;
-  information = 0;
-  length = 0;
-  constructor(h) {
-    this.major = (h >> 5) & 0x7;
-    this.information = h & 0x1f;
-  }
+    major = 0;
+    information = 0;
+    length = 0;
+    constructor(h) {
+      this.major = h >> 5 & 0x7;
+      this.information = h & 0x1f;
+    }
 }
 
 export class CborSimpleDecoder {
@@ -79,9 +71,7 @@ export class CborSimpleDecoder {
     } else if (header.information == 27) {
       header.length = reader.readUInt64();
     } else {
-      throw new Error(
-        `not implemented: major=${header.major} information=${header.information}`
-      );
+      throw new Error(`not implemented: major=${header.major} information=${header.information}`);
     }
     return header;
   }
@@ -114,9 +104,7 @@ export class CborSimpleDecoder {
         }
         return map;
       default:
-        throw new Error(
-          `not implemented: major=${header.major} information=${header.information}`
-        );
+        throw new Error(`not implemented: major=${header.major} information=${header.information}`);
     }
   }
 }

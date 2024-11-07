@@ -29,6 +29,7 @@ import HDWallet from 'ethereum-hdwallet';
 import { LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
 
+
 const useStyles = makeStyles(() => ({
   customInputLabel: {
     '& legend': {
@@ -130,13 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({
-  handleClick,
-  mnemonic,
-  username,
-  setExPassword,
-  tempPassword,
-}) => {
+const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassword }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -148,15 +143,10 @@ const SetPassword = ({
   // TODO: FIX ME
   const [notBot, setNotBot] = useState(true);
 
-  const [errMessage, setErrorMessage] = useState(
-    'Something wrong, please try again'
-  );
+  const [errMessage, setErrorMessage] = useState('Something wrong, please try again');
   const [showError, setShowError] = useState(false);
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -251,7 +241,7 @@ const SetPassword = ({
       })
       .catch((error) => {
         console.log('error', error);
-        setShowError(true);
+        setShowError(true)
         setLoading(false);
       });
   };
@@ -259,14 +249,14 @@ const SetPassword = ({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="registerBox">
+      <Box
+        className="registerBox"
+      >
         <Typography variant="h4">
           {chrome.i18n.getMessage('Confirm__Password')}{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage(
-            'Lilico__uses__this__password__to__protect__your__recovery__phrase'
-          )}
+          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
         </Typography>
 
         <Box
@@ -307,7 +297,8 @@ const SetPassword = ({
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
+            <Presets.TransitionSlideUp
+              style={{ marginBottom: '24px' }}>
               {password && helperText}
             </Presets.TransitionSlideUp>
           </FormGroup>
@@ -324,12 +315,7 @@ const SetPassword = ({
           label={
             <Typography variant="body1" color="text.secondary">
               {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
-              <Link
-                underline="none"
-                href="https://lilico.app/about/privacy-policy"
-                target="_blank"
-                color="success.main"
-              >
+              <Link underline="none" href="https://lilico.app/about/privacy-policy" target="_blank" color="success.main">
                 {chrome.i18n.getMessage('Privacy__Policy')}
               </Link>{' '}
               {chrome.i18n.getMessage('and') + ' '}
@@ -340,8 +326,7 @@ const SetPassword = ({
                 underline="none"
               >
                 {chrome.i18n.getMessage('Terms__of__Service')}
-              </Link>{' '}
-              .
+              </Link>{' '}.
             </Typography>
           }
         />
@@ -357,9 +342,11 @@ const SetPassword = ({
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex',
+            display: 'flex'
           }}
-          disabled={isLoading ? true : !(isCheck && notBot)}
+          disabled={
+            isLoading ? true : !(isCheck && notBot)
+          }
         >
           {isLoading && <LLSpinner size={28} />}
           <Typography
@@ -371,17 +358,8 @@ const SetPassword = ({
           </Typography>
         </Button>
       </Box>
-      <Snackbar
-        open={showError}
-        autoHideDuration={6000}
-        onClose={handleErrorClose}
-      >
-        <Alert
-          onClose={handleErrorClose}
-          variant="filled"
-          severity="error"
-          sx={{ width: '100%' }}
-        >
+      <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
+        <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
           {errMessage}
         </Alert>
       </Snackbar>

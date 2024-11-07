@@ -11,13 +11,7 @@ const IconImport = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg
-      viewBox="0 0 1024 1024"
-      width={size + 'px'}
-      height={size + 'px'}
-      style={style}
-      {...rest}
-    >
+    <svg viewBox="0 0 1024 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
       <path
         d="M449.316571 0a73.142857 73.142857 0 0 0 0 146.285714H877.714286v731.428572H449.316571a73.142857 73.142857 0 1 0 0 146.285714H950.857143a73.142857 73.142857 0 0 0 73.142857-73.142857V73.142857a73.142857 73.142857 0 0 0-73.142857-73.142857H449.316571z"
         fill={getIconColor(color, 0, '#E6E6E6')}

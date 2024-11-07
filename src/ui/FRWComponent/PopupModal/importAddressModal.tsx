@@ -1,39 +1,17 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 
-import {
-  Box,
-  Typography,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  MenuItem,
-  FormControl,
-  Select,
-} from '@mui/material';
+import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, FormControl, Select } from '@mui/material';
 
 export const CustomDialog = styled(Dialog)({
   '& .MuiPaper-root': {
-    width: '640px',
-    borderRadius: '24px',
-    height: 'auto',
-    padding: '40px',
-    backgroundColor: '#222222',
-    backgroundImage: 'none',
+    width: '640px', borderRadius: '24px', height: 'auto', padding: '40px', backgroundColor: '#222222', backgroundImage:'none'
   },
 });
 
-const ImportAddressModal = ({
-  isOpen,
-  onOpenChange,
-  accounts,
-  handleAddressSelection,
-}) => {
-  const [selectedAddress, setSelectedAddress] = React.useState(
-    accounts[0]?.address || ''
-  );
+
+const ImportAddressModal = ({ isOpen, onOpenChange, accounts, handleAddressSelection }) => {
+  const [selectedAddress, setSelectedAddress] = React.useState(accounts[0]?.address || '');
 
   const handleChange = (event) => {
     setSelectedAddress(event.target.value);
@@ -46,17 +24,9 @@ const ImportAddressModal = ({
 
   return (
     <CustomDialog open={isOpen} onClose={() => onOpenChange(false)}>
-      <DialogTitle
-        sx={{ color: 'success.main', fontSize: '24px', fontWeight: '700' }}
-      >
-        {accounts.length} {chrome.i18n.getMessage('Accounts_Found_on_Chain')}
-      </DialogTitle>
-      <DialogContent sx={{ overflow: 'hidden' }}>
-        <Typography
-          sx={{ color: '#BABABA', margin: '20px 0 20px', fontSize: '16px' }}
-        >
-          {chrome.i18n.getMessage('Choose_an_account_you_want_to_import')}
-        </Typography>
+      <DialogTitle sx={{ color: 'success.main', fontSize: '24px', fontWeight:'700' }}>{(accounts.length)}  {chrome.i18n.getMessage('Accounts_Found_on_Chain')}</DialogTitle>
+      <DialogContent sx={{overflow:'hidden'}}>
+        <Typography sx={{color:'#BABABA',margin:'20px 0 20px',fontSize:'16px'}}>{chrome.i18n.getMessage('Choose_an_account_you_want_to_import')}</Typography>
         <form id="address" onSubmit={handleSubmit}>
           <FormControl fullWidth>
             <Select
@@ -74,7 +44,9 @@ const ImportAddressModal = ({
           </FormControl>
         </form>
       </DialogContent>
-      <DialogActions sx={{ display: 'flex', flexDirection: 'column' }}>
+      <DialogActions
+        sx={{ display: 'flex', flexDirection: 'column' }}
+      >
         <Button
           className="registerButton"
           variant="contained"
@@ -88,8 +60,9 @@ const ImportAddressModal = ({
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex',
+            display: 'flex'
           }}
+
         >
           <Typography
             variant="subtitle1"
@@ -101,15 +74,19 @@ const ImportAddressModal = ({
         </Button>
         <Button
           onClick={() => onOpenChange(false)}
+
           sx={{
+
             cursor: 'pointer',
             textAlign: 'center',
             backgroundColor: 'transparent',
             height: '56px',
             borderRadius: '12px',
             textTransform: 'capitalize',
-            marginTop: '8px',
+            marginTop: '8px'
+
           }}
+
         >
           <Typography
             variant="subtitle1"
@@ -123,5 +100,6 @@ const ImportAddressModal = ({
     </CustomDialog>
   );
 };
+
 
 export default ImportAddressModal;

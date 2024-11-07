@@ -27,9 +27,7 @@ const Reset = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [pk, setPk] = useState(null);
   const [username, setUsername] = useState('');
-  const [errMessage, setErrorMessage] = useState(
-    chrome.i18n.getMessage('No__backup__found')
-  );
+  const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
   const [loading, setLoading] = useState(false);
@@ -50,16 +48,13 @@ const Reset = () => {
 
   const loadView = async () => {
     // console.log(wallet);
-    wallet
-      .getCurrentAccount()
-      .then((res) => {
-        if (res) {
-          history.push('/');
-        }
-      })
-      .catch(() => {
-        return;
-      });
+    wallet.getCurrentAccount().then((res) => {
+      if (res) {
+        history.push('/');
+      }
+    }).catch(() => {
+      return;
+    });
   };
   const goNext = () => {
     setDirection(Direction.Right);
@@ -95,10 +90,7 @@ const Reset = () => {
     loadTempPassword();
   }, []);
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -108,16 +100,14 @@ const Reset = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return (
-          <ResetPage
-            resetPop={false}
-            handleCloseIconClicked={() => goNext()}
-            handleCancelBtnClicked={() => goNext()}
-            handleAddBtnClicked={() => {
-              goNext();
-            }}
-          />
-        );
+        return <ResetPage
+          resetPop={false}
+          handleCloseIconClicked={() => goNext()}
+          handleCancelBtnClicked={() => goNext()}
+          handleAddBtnClicked={() => {
+            goNext();
+          }}
+        />;
       default:
         return <div />;
     }
@@ -126,6 +116,7 @@ const Reset = () => {
   useEffect(() => {
     loadView();
   }, []);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -141,6 +132,7 @@ const Reset = () => {
         }}
       >
         <RegisterHeader />
+
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
@@ -171,6 +163,7 @@ const Reset = () => {
             </IconButton>
 
             <div style={{ flexGrow: 1 }}></div>
+
           </Box>
 
           <ComponentTransition
@@ -195,17 +188,8 @@ const Reset = () => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        <Snackbar
-          open={showError}
-          autoHideDuration={6000}
-          onClose={handleErrorClose}
-        >
-          <Alert
-            onClose={handleErrorClose}
-            variant="filled"
-            severity="error"
-            sx={{ width: '100%' }}
-          >
+        <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
+          <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
             {errMessage}
           </Alert>
         </Snackbar>

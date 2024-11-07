@@ -4,7 +4,7 @@ import CircularProgress, {
   circularProgressClasses,
   CircularProgressProps,
 } from '@mui/material/CircularProgress';
-
+  
 // Inspired by the former Facebook spinners.
 function LLCircularProgress(props: CircularProgressProps) {
   return (
@@ -41,6 +41,8 @@ function LLCircularProgress(props: CircularProgressProps) {
 }
 
 export const LLSpinner = (props: CircularProgressProps) => {
-  //   const { label, ...inherentProps } = props;
-  return <LLCircularProgress {...props} />;
+//   const { label, ...inherentProps } = props;
+  return (
+    <LLCircularProgress {...props}  />
+  );
 };

@@ -35,6 +35,7 @@ const RegisterHeader = () => {
 
         <div style={{ flexGrow: 1 }}></div>
 
+
         <Button
           variant="text"
           sx={{
@@ -48,20 +49,12 @@ const RegisterHeader = () => {
               bgcolor: '#41CC5D',
             },
           }}
-          startIcon={<HelpOutlineRoundedIcon sx={{ color: '#5e5e5e' }} />}
+          startIcon={<HelpOutlineRoundedIcon sx={{ color: '#5e5e5e'}} />}
         >
-          <a href="https://wallet.flow.com/contact" target="_blank">
-            <Typography
-              sx={{
-                color: '#F9F9F9',
-                textTransform: 'capitalize',
-                marginLeft: '5px',
-              }}
-            >
-              {chrome.i18n.getMessage('Need__Help')}
-            </Typography>
+          <a href="https://wallet.flow.com/contact" target='_blank'>
+            <Typography sx={{color: '#F9F9F9', textTransform: 'capitalize', marginLeft:'5px'}}>{chrome.i18n.getMessage('Need__Help')}</Typography>
           </a>
-        </Button>
+        </Button> 
       </Box>
     </ThemeProvider>
   );

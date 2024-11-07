@@ -19,7 +19,7 @@ const theme: SystemTheme = createTheme({
           width: '625px',
           height: 'auto',
           borderRadius: '24px',
-          marginTop: '0px',
+          marginTop:'0px',
         },
         // ... other global classes or element selectors
       },
@@ -35,16 +35,16 @@ const theme: SystemTheme = createTheme({
       title: '#E6E6E6',
       error: '#E54040',
       good: '#FF8A00',
-      increase: '#41CC5D',
-      decrease: '#E54040',
+      increase:'#41CC5D',
+      decrease:'#E54040',
     },
     testnet: {
-      main: '#FF8A00',
-      light: '#FF8A0029',
+      main:'#FF8A00',
+      light:'#FF8A0029',
     },
-    crescendo: {
-      main: '#CCAF21',
-      light: '#CCAF2129',
+    crescendo:{
+      main:'#CCAF21',
+      light:'#CCAF2129'
     },
     success: {
       main: '#41CC5D',
@@ -62,7 +62,7 @@ const theme: SystemTheme = createTheme({
     primary: {
       // light: will be calculated from palette.primary.main,
       main: '#41CC5D',
-      light: '#FFFFFF',
+      light:'#FFFFFF',
       // dark: will be calculated from palette.primary.main,
       // contrastText: will be calculated to contrast with palette.primary.main
       contrastText: '#000000CC',
@@ -83,7 +83,7 @@ const theme: SystemTheme = createTheme({
       contrastText: '#FFFFFF',
     },
     yellow: {
-      main: '#F3EA5F',
+      main: '#F3EA5F'
     },
     neutral: {
       main: '#282828',
@@ -109,13 +109,13 @@ const theme: SystemTheme = createTheme({
       navi: '#787878',
     },
     up: {
-      main: '#00EF8B',
-    },
+      main: '#00EF8B'
+    }
   },
   typography: {
     allVariants: {
       color: '#F9F9F9',
-      lineHeight: 1.6,
+      lineHeight: 1.6
     },
     fontFamily: ['Inter', 'sans-serif'].join(','),
     h1: {
@@ -154,8 +154,8 @@ const theme: SystemTheme = createTheme({
     },
     subtitle1: {
       fontFamily: 'Inter,sans-serif',
-      fontWeight: 600,
-    },
+      fontWeight: 600
+    }
   },
 });
 
@@ -164,5 +164,6 @@ declare module '@mui/material/Button' {
     info3: true;
   }
 }
+
 
 export default theme;

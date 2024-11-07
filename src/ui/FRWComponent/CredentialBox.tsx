@@ -4,6 +4,7 @@ import { Box, Grid, IconButton, Typography } from '@mui/material';
 import IconCopy from '../../components/iconfont/IconCopy';
 
 export const CredentialBox = ({ data }) => {
+
   return (
     <>
       <Box
@@ -15,8 +16,7 @@ export const CredentialBox = ({ data }) => {
           lineBreak: 'anywhere',
           marginTop: '0px',
           backgroundColor: '#333333',
-        }}
-      >
+        }}>
         <Typography
           variant="body1"
           display="inline"
@@ -35,11 +35,11 @@ export const CredentialBox = ({ data }) => {
         </Typography>
         <Grid container direction="row" justifyContent="end" alignItems="end">
           <IconButton
-            edge="end"
+            edge='end'
             onClick={() => {
               navigator.clipboard.writeText(data);
             }}
-            // sx={{ marginLeft:'380px'}}
+          // sx={{ marginLeft:'380px'}}
           >
             <IconCopy
               style={{
@@ -51,5 +51,6 @@ export const CredentialBox = ({ data }) => {
         </Grid>
       </Box>
     </>
-  );
+  )
 };
+

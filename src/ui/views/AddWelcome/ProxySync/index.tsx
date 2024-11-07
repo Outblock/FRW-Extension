@@ -29,9 +29,7 @@ const ProxySync = () => {
   const [publickey, setPubkey] = useState('');
   const [mnemonic, setMnemonic] = useState('');
   const [username, setUsername] = useState('');
-  const [errMessage, setErrorMessage] = useState(
-    chrome.i18n.getMessage('No__backup__found')
-  );
+  const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
   const [loading, setLoading] = useState(false);
@@ -43,16 +41,13 @@ const ProxySync = () => {
   };
 
   const loadView = async () => {
-    wallet
-      .getCurrentAccount()
-      .then((res) => {
-        if (res) {
-          history.push('/');
-        }
-      })
-      .catch(() => {
-        return;
-      });
+    wallet.getCurrentAccount().then((res) => {
+      if (res) {
+        history.push('/');
+      }
+    }).catch(() => {
+      return;
+    });
   };
   const goNext = () => {
     setDirection(Direction.Right);
@@ -72,10 +67,7 @@ const ProxySync = () => {
     }
   };
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -85,29 +77,17 @@ const ProxySync = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return (
-          <ProxyQr
-            handleClick={goNext}
-            savedUsername={username}
-            confirmMnemonic={setMnemonic}
-            confirmPk={setPubkey}
-            setUsername={getUsername}
-            setAccountKey={setAccountKey}
-            setDeviceInfo={setDeviceInfo}
-          />
-        );
+        return <ProxyQr
+          handleClick={goNext}
+          savedUsername={username}
+          confirmMnemonic={setMnemonic}
+          confirmPk={setPubkey}
+          setUsername={getUsername}
+          setAccountKey={setAccountKey}
+          setDeviceInfo={setDeviceInfo}
+        />;
       case 1:
-        return (
-          <SetPassword
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            publickey={publickey}
-            username={username}
-            setUsername={getUsername}
-            accountKey={accountKey}
-            deviceInfo={deviceInfo}
-          />
-        );
+        return <SetPassword handleClick={goNext} mnemonic={mnemonic} publickey={publickey} username={username} setUsername={getUsername} accountKey={accountKey} deviceInfo={deviceInfo} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:
@@ -118,6 +98,7 @@ const ProxySync = () => {
   useEffect(() => {
     loadView();
   }, []);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -147,7 +128,7 @@ const ProxySync = () => {
         <Box
           sx={{
             height: '460px',
-            backgroundColor: 'transparent',
+            backgroundColor: 'transparent'
           }}
         >
           <Box
@@ -159,18 +140,16 @@ const ProxySync = () => {
               height: 'auto',
               width: 'auto',
               position: 'relative',
-              borderRadius: '24px',
+              borderRadius: '24px'
             }}
           >
-            {activeIndex !== 4 && activeIndex !== 5 && (
-              <IconButton
-                onClick={goBack}
-                size="small"
-                sx={{ marginLeft: '-95px' }}
-              >
+
+
+            {(activeIndex !== 4 && activeIndex !== 5) &&
+              <IconButton onClick={goBack} size="small" sx={{ marginLeft: '-95px' }}>
                 <BackButtonIcon color="#5E5E5E" size={27} />
               </IconButton>
-            )}
+            }
 
             <ComponentTransition
               enterAnimation={

@@ -1,5 +1,5 @@
 import { createPersistStore } from 'background/utils';
-import { Contact } from './networkModel';
+import { Contact } from './networkModel'
 
 interface AddressBookStore {
   addressBook: Record<string, Contact[]>;
@@ -26,16 +26,16 @@ class AddressBook {
     this.store = await createPersistStore<AddressBookStore>({
       name: 'addressBook',
       template: {
-        addressBook: {
-          testnet: [],
-          crescendo: [],
-          mainnet: [],
+        addressBook:  {
+          testnet:[],
+          crescendo:[],
+          mainnet:[],
         },
         recent: {
-          testnet: [],
-          crescendo: [],
-          mainnet: [],
-        },
+          testnet:[],
+          crescendo:[],
+          mainnet:[],
+        }
       },
     });
   };
@@ -51,23 +51,23 @@ class AddressBook {
   setRecent = (data: Contact, network: string) => {
     let current = this.store.recent[network];
     if (!current) {
-      current = [];
+      current =[];
     }
     if (current.length === 10) {
       current.pop();
     }
     current.unshift(data);
-    const unique = this.uniqByKeepFirst(current, (it) => it.address);
+    const unique = this.uniqByKeepFirst(current, it => it.address)
     this.store.recent[network] = unique;
   };
 
   uniqByKeepFirst = (a, key) => {
     const seen = new Set();
-    return a.filter((item) => {
+    return a.filter(item => {
       const k = key(item);
       return seen.has(k) ? false : seen.add(k);
     });
-  };
+  }
 
   getAddresBook = (network: string) => {
     return this.store.addressBook[network];
@@ -75,22 +75,22 @@ class AddressBook {
 
   setAddressBook = (data: Array<Contact>, network: string) => {
     this.store.addressBook[network] = data;
-  };
+  }
 
   clear = () => {
     this.store = {
       addressBook: {
-        testnet: [],
-        crescendo: [],
-        mainnet: [],
+        testnet:[],
+        crescendo:[],
+        mainnet:[],
       },
       recent: {
-        testnet: [],
-        crescendo: [],
-        mainnet: [],
-      },
-    };
-  };
+        testnet:[],
+        crescendo:[],
+        mainnet:[],
+      }
+    }
+  }
 }
 
 export default new AddressBook();

@@ -87,46 +87,42 @@ class NFT {
 
   setNft = (data: NFTData, network: string) => {
     const list = this.store.nft[network];
-    data.nfts.forEach((nft) => {
-      const result = list.nfts.filter((i) => i.unique_id === nft.unique_id);
+    data.nfts.forEach(nft => {
+      const result = list.nfts.filter(i => i.unique_id === nft.unique_id)
       if (result.length === 0) {
         list.nfts.push(nft);
       }
-    });
+    })
     this.store.nft[network] = {
       nfts: list.nfts,
-      nftCount: data.nftCount,
-    };
+      nftCount: data.nftCount
+    }
   };
 
   getSingleCollection = (network: string, collectionId: string) => {
-    return this.store.collection[network].find((i) => i.name === collectionId);
+    return this.store.collection[network].find(i => i.name === collectionId);
   };
 
   setSingleCollection = (data: NFTCollectionData, network: string) => {
-    const list = this.store.collection[network].find(
-      (i) => i.name === data.name
-    );
-    data.nfts.forEach((nft) => {
-      const result = list.filter((i) => i.unique_id === nft.unique_id);
+    const list = this.store.collection[network].find(i => i.name === data.name);
+    data.nfts.forEach(nft => {
+      const result = list.filter(i => i.unique_id === nft.unique_id)
       if (result.length === 0) {
         list.push(nft);
       }
-    });
+    })
     this.deleteSingleCollection(data.name, network);
     this.store.collection[network].push({
       name: data.name,
       nfts: list,
       nfrCount: data.nftCount,
-    });
+    })
   };
 
   deleteSingleCollection = (collectionId: string, network: string) => {
-    const result = this.store.collection[network].filter(
-      (i) => i.name !== collectionId
-    );
+    const result = this.store.collection[network].filter(i => i.name !== collectionId)
     this.store.collection[network] = result;
-  };
+  }
 
   getCollectionList = (network: string) => {
     return this.store.collectionList[network];
@@ -153,22 +149,23 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
-    };
+
+    }
 
     this.store.collection = {
       testnet: [],
       mainnet: [],
       crescendo: [],
-    };
+    }
 
     this.store.collectionList = {
       testnet: [],
       mainnet: [],
       crescendo: [],
-    };
+    }
 
-    storage.remove('nftv2');
-    storage.remove('nft');
+    storage.remove('nftv2')
+    storage.remove('nft')
   };
 
   clearNFTList = () => {
@@ -185,12 +182,13 @@ class NFT {
         nfts: [],
         nftCount: 0,
       },
-    };
-  };
+    }
+  }
 
   clearNFTCollection = () => {
     this.clear();
-  };
+  }
+
 }
 
 export default new NFT();

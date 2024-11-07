@@ -3,6 +3,7 @@ import { Typography, Box } from '@mui/material';
 import { useHistory } from 'react-router-dom';
 
 const StakeCard = ({ name, img, short, amount, node }) => {
+
   const history = useHistory();
 
   return (
@@ -28,14 +29,14 @@ const StakeCard = ({ name, img, short, amount, node }) => {
         })
       }
     >
-      <Box sx={{ py: '12px', display: 'flex' }}>
+      <Box sx={{py:'12px',display:'flex'}}>
         <img
           src={img || 'https://lilico.app/placeholder-2.0.png'}
           style={{
             width: '34px',
             height: '34px',
             borderRadius: '34px',
-            marginRight: '12px',
+            marginRight:'12px',
             backgroundColor: '#282828',
           }}
         />
@@ -53,7 +54,7 @@ const StakeCard = ({ name, img, short, amount, node }) => {
           </Typography>
         </Box>
       </Box>
-      <Box sx={{ flexGrow: 1, py: '12px' }} />
+      <Box sx={{ flexGrow: 1, py:'12px' }} />
       {name == 'Lilico' && (
         <Box
           sx={{

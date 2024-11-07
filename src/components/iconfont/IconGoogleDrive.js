@@ -11,13 +11,7 @@ const IconGoogleDrive = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg
-      viewBox="0 0 1024 1024"
-      width={size + 'px'}
-      height={size + 'px'}
-      style={style}
-      {...rest}
-    >
+    <svg viewBox="0 0 1024 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
       <path
         d="M362.666667 128h298.666666l298.666667 512H661.333333z"
         fill={getIconColor(color, 0, '#FFC107')}

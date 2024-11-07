@@ -9,7 +9,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { LLPrimaryButton } from '../../../FRWComponent';
+import {
+  LLPrimaryButton,
+} from '../../../FRWComponent';
 import { useWallet } from 'ui/utils';
 import { useForm, FieldValues } from 'react-hook-form';
 import warning from '../../../FRWAssets/image/warning.png';
@@ -37,7 +39,9 @@ interface RevokePageProps {
   keyIndex: string;
 }
 
+
 const RevokePage = (props: RevokePageProps) => {
+
   const wallet = useWallet();
 
   const history = useHistory();
@@ -53,30 +57,23 @@ const RevokePage = (props: RevokePageProps) => {
 
   const onSubmit = async () => {
     setIsLoading(true);
-    wallet
-      .revokeKey(props.keyIndex)
-      .then(async (txID) => {
-        wallet.listenTransaction(
-          txID,
-          true,
-          'Revoke request submit',
-          'You have submitted an revoke request for key index 2. \nClick to view this transaction.'
-        );
-        props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
-        setIsLoading(false);
-        history.push('/dashboard?activity=1');
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsLoading(false);
-        // setFailed(true);
-      });
+    wallet.revokeKey(props.keyIndex).then(async (txID)=> {
+      wallet.listenTransaction(txID, true, 'Revoke request submit', 'You have submitted an revoke request for key index 2. \nClick to view this transaction.');
+      props.handleCloseIconClicked();
+      await wallet.setDashIndex(0);
+      setIsLoading(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log(err);
+      setIsLoading(false);
+      // setFailed(true);
+    })
   };
 
   const onCancelBtnClicked = () => {
     props.handleCancelBtnClicked();
   };
+
 
   const renderContent = () => (
     <Box
@@ -90,31 +87,15 @@ const RevokePage = (props: RevokePageProps) => {
         textAlign: 'center',
       }}
     >
-      <img
-        src={warning}
-        style={{ width: '48px', height: '48px', marginTop: '36px' }}
-      />
-      <Typography
-        sx={{
-          margin: '16px auto 0',
-          fontSize: '24px',
-          fontWeight: 700,
-          color: '#FFFFFF',
-          width: '267px',
-        }}
-      >
-        Are you sure you want to revoke this key?
+
+      <img src={warning} style={{ width: '48px', height: '48px', marginTop: '36px', }} />
+      <Typography sx={{ margin: '16px auto 0', fontSize: '24px', fontWeight: 700, color: '#FFFFFF', width: '267px' }}>
+        Are you sure you want
+        to revoke this key?
       </Typography>
-      <Typography
-        color="error.main"
-        sx={{
-          margin: '16px auto 60px',
-          fontSize: '14px',
-          fontWeight: 400,
-          width: '250px',
-        }}
-      >
-        Once you revoke this key, there is no way to re-activate this key.
+      <Typography color='error.main' sx={{ margin: '16px auto 60px', fontSize: '14px', fontWeight: 400, width: '250px' }}>
+        Once you revoke this key,
+        there is no way to re-activate this key.
       </Typography>
       <Box>
         <LLPrimaryButton
@@ -131,25 +112,15 @@ const RevokePage = (props: RevokePageProps) => {
           }
           fullWidth
           onMouseDown={() => onSubmit()}
-          sx={{
-            margin: '8px 0',
-            padding: '8px 0',
-            backgroundColor: 'error.main',
-            color: '#fff',
-            borderRadius: '16px',
-            textTransform: 'none',
-          }}
+          sx={{ margin: '8px 0', padding: '8px 0', backgroundColor: 'error.main', color: '#fff', borderRadius: '16px', textTransform: 'none' }}
         />
         <LLPrimaryButton
           label={'Maybe Later'}
           onClick={onCancelBtnClicked}
-          sx={{
-            backgroundColor: 'rgba(0,0,0,0)',
-            color: '#fff',
-            textTransform: 'none',
-          }}
+          sx={{ backgroundColor: 'rgba(0,0,0,0)', color: '#fff', textTransform: 'none' }}
         />
       </Box>
+
     </Box>
   );
 
@@ -160,9 +131,8 @@ const RevokePage = (props: RevokePageProps) => {
       transitionDuration={300}
       PaperProps={{
         sx: {
-          width: '100%',
-          height: '415px',
-          borderRadius: '18px 18px 0px 0px',
+          width: '100%', height: '415px',
+          borderRadius: '18px 18px 0px 0px'
         },
       }}
     >

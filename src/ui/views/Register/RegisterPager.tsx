@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography } from '@mui/material';
+import {
+  IconButton,
+  Typography,
+} from '@mui/material';
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
 import theme from '../../style/LLTheme';
 import RegisterHeader from './RegisterHeader';
@@ -18,7 +21,7 @@ import {
   AnimationTypes,
 } from 'react-component-transition';
 import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../Import/options';
+import options from '../Import/options'
 import { useWallet } from 'ui/utils';
 
 enum Direction {
@@ -41,16 +44,13 @@ const RegisterPager = () => {
 
   const loadView = async () => {
     // console.log(wallet);
-    wallet
-      .getCurrentAccount()
-      .then((res) => {
-        if (res) {
-          history.push('/');
-        }
-      })
-      .catch(() => {
-        return;
-      });
+    wallet.getCurrentAccount().then((res) => {
+      if (res) {
+        history.push('/');
+      }
+    }).catch(() => {
+      return;
+    });
   };
 
   const goNext = () => {
@@ -95,14 +95,7 @@ const RegisterPager = () => {
           />
         );
       case 4:
-        return (
-          <GoogleBackup
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            username={username}
-            password={password}
-          />
-        );
+        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password}/>
       case 5:
         return <AllSet handleClick={goNext} />;
       default:
@@ -115,7 +108,7 @@ const RegisterPager = () => {
     loadView();
   }, []);
 
-  const height = [480, 600, 640, 620, 480, 480];
+  const height = [480, 600, 640, 620, 480, 480 ]
 
   return (
     <ThemeProvider theme={theme}>
@@ -147,7 +140,7 @@ const RegisterPager = () => {
             display: 'flex',
             flexDirection: 'column',
             width: 720,
-            marginTop: '80px',
+            marginTop:'80px',
             height: 'auto',
             transition: 'all .3s ease-in-out',
             borderRadius: '24px',
@@ -165,23 +158,17 @@ const RegisterPager = () => {
               padding: '24px 24px 0px 24px',
             }}
           >
-            {activeIndex !== 4 && activeIndex !== 5 && (
+            {(activeIndex !== 4 && activeIndex !== 5) &&
               <IconButton onClick={goBack} size="small">
                 <BackButtonIcon color="#5E5E5E" size={27} />
               </IconButton>
-            )}
+            }
 
             <div style={{ flexGrow: 1 }}></div>
 
             <Typography
               variant="body1"
-              sx={{
-                color: '#5E5E5E',
-                alignSelf: 'end',
-                lineHeight: '37px',
-                fontWeight: '700',
-                fontSize: '16px',
-              }}
+              sx={{ color: '#5E5E5E', alignSelf: 'end',lineHeight:'37px', fontWeight: '700',fontSize:'16px' }}
             >
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/6
             </Typography>

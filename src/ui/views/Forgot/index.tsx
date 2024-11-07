@@ -48,9 +48,10 @@ const Forgot = () => {
               backgroundColor: '#222',
               width: '720px',
               position: 'relative',
-              borderRadius: '24px',
+              borderRadius: '24px'
             }}
           >
+
             <Typography
               variant="h4"
               sx={{
@@ -59,11 +60,13 @@ const Forgot = () => {
                 WebkitBackgroundClip: 'text',
                 color: '#fff',
                 lineHeight: '56px',
-                marginBottom: '40px',
+                marginBottom:'40px',
               }}
             >
               {chrome.i18n.getMessage('Having_trouble')}
             </Typography>
+
+
 
             <Button
               variant="contained"
@@ -83,31 +86,15 @@ const Forgot = () => {
                 padding: '24px 32px',
               }}
             >
-              <CardMedia
-                component="img"
-                sx={{
-                  marginRight: '16px',
-                  width: '48px',
-                  height: '48px',
-                  color: '#FFFFFFCC',
-                }}
-                image={reset}
-              />
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  flexDirection: 'column',
-                  width: '100%',
-                  alignItems: 'start',
-                }}
-              >
+              <CardMedia component="img" sx={{ marginRight: '16px', width: '48px', height: '48px', color: '#FFFFFFCC' }} image={reset} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', width: '100%', alignItems: 'start' }}>
                 <Typography
                   variant="subtitle1"
                   sx={{
                     fontWeight: '700',
                     fontSize: '18px',
                     color: 'rgba(255, 255, 255, 0.80)',
+
                   }}
                 >
                   {chrome.i18n.getMessage('Reset_my_wallet')}
@@ -115,8 +102,7 @@ const Forgot = () => {
                 <Typography
                   variant="subtitle1"
                   sx={{
-                    fontWeight: '400',
-                    fontSize: '16px',
+                    fontWeight: '400', fontSize: '16px',
                     color: 'rgba(255, 255, 255, 0.40)',
                   }}
                 >
@@ -141,35 +127,19 @@ const Forgot = () => {
                 textTransform: 'capitalize',
                 padding: '24px 32px',
                 '&:hover': {
-                  color: 'background.paper',
-                },
+                  color: 'background.paper'
+                }
               }}
             >
-              <CardMedia
-                component="img"
-                sx={{
-                  marginRight: '16px',
-                  width: '48px',
-                  height: '48px',
-                  color: '#FFFFFFCC',
-                }}
-                image={recover}
-              />
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  flexDirection: 'column',
-                  width: '100%',
-                  alignItems: 'start',
-                }}
-              >
+              <CardMedia component="img" sx={{ marginRight: '16px', width: '48px', height: '48px', color: '#FFFFFFCC' }} image={recover} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', width: '100%', alignItems: 'start' }}>
                 <Typography
                   variant="subtitle1"
                   sx={{
                     fontWeight: '700',
                     fontSize: '18px',
                     color: 'rgba(255, 255, 255, 0.80)',
+
                   }}
                 >
                   {chrome.i18n.getMessage('Retrieve_local_sensitive_data')}
@@ -177,16 +147,18 @@ const Forgot = () => {
                 <Typography
                   variant="subtitle1"
                   sx={{
-                    fontWeight: '400',
-                    fontSize: '16px',
+                    fontWeight: '400', fontSize: '16px',
                     color: 'rgba(255, 255, 255, 0.40)',
                   }}
                 >
                   {chrome.i18n.getMessage('It_seem_like_something_wrong')}
                 </Typography>
               </Box>
+
             </Button>
           </Box>
+
+
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

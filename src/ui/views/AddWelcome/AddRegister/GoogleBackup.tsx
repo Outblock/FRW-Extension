@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, CssBaseline } from '@mui/material';
+import {
+  Button,
+  Typography,
+  CssBaseline
+} from '@mui/material';
 import theme from '../../../style/LLTheme';
 import { useWallet } from 'ui/utils';
 import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
@@ -17,16 +21,13 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
     try {
       setLoading(true);
       setBackupErr(false);
-      wallets
-        .uploadMnemonicToGoogleDrive(mnemonic, username, password)
-        .then(() => {
-          setLoading(false);
-          handleClick();
-        })
-        .catch(() => {
-          setLoading(false);
-          setBackupErr(true);
-        });
+      wallets.uploadMnemonicToGoogleDrive(mnemonic, username, password).then(() => {
+        setLoading(false);
+        handleClick();
+      }).catch(() => {
+        setLoading(false);
+        setBackupErr(true);
+      });
     } catch (e) {
       console.error(e);
       setLoading(false);
@@ -35,7 +36,9 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="registerBox">
+      <Box
+        className="registerBox"
+      >
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
           <Box display="inline" color="primary.main">
@@ -43,9 +46,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
           </Box>
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage(
-            'Back_up_your_wallet_to_Google_Drive_for_easy_access'
-          )}
+          {chrome.i18n.getMessage('Back_up_your_wallet_to_Google_Drive_for_easy_access')}
         </Typography>
 
         <Box
@@ -55,7 +56,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
             mt: '32px',
             position: 'relative',
             overflow: 'hidden',
-            backgroundColor: '#333333',
+            backgroundColor: '#333333'
           }}
         >
           <Box
@@ -100,7 +101,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        {backupErr && (
+        {backupErr &&
           <Presets.TransitionSlideUp>
             <Box
               sx={{
@@ -116,23 +117,13 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
               }}
             >
               {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon
-                fontSize="medium"
-                color="primary"
-                style={{ margin: '0px 12px auto 12px' }}
-              />
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{ fontSize: '12px' }}
-              >
-                {chrome.i18n.getMessage(
-                  'Backup_failed_you_may_still_conduct_backup_inside_extension'
-                )}
+              <InfoIcon fontSize='medium' color='primary' style={{ margin: '0px 12px auto 12px' }} />
+              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+                {chrome.i18n.getMessage('Backup_failed_you_may_still_conduct_backup_inside_extension')}
               </Typography>
             </Box>
           </Presets.TransitionSlideUp>
-        )}
+        }
         <Button
           onClick={handleBackup}
           disabled={loading}
@@ -144,7 +135,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
             borderRadius: '12px',
             textTransform: 'capitalize',
             display: 'flex',
-            gap: '12px',
+            gap: '12px'
           }}
         >
           {loading ? (
@@ -173,14 +164,18 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
           onClick={() => {
             handleClick();
           }}
+
           sx={{
+
             cursor: 'pointer',
             textAlign: 'center',
             backgroundColor: '#333333',
             height: '56px',
             borderRadius: '12px',
             textTransform: 'capitalize',
+
           }}
+
         >
           <Typography
             variant="subtitle1"

@@ -28,3 +28,4 @@ Run `yarn build:pro` or `yarn winBuild:pro` for Windows enviornment to build a p
 2. Replace content in `message` property to appropriate locale language
 
 ATTENTION: When you create a new key, make sure the key doesen't include space and not duplicated with existing phrase (case insensitive).
+

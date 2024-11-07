@@ -45,7 +45,7 @@ class PermissionService {
   sync = () => {
     if (!this.lruCache) return;
     this.store.dumpCache = this.lruCache.dump();
-    console.log('this.store.dumpCache ', this.store.dumpCache);
+    console.log('this.store.dumpCache ', this.store.dumpCache)
   };
 
   getWithoutUpdate = (key: string) => {
@@ -61,7 +61,7 @@ class PermissionService {
     defaultChain = 545,
     isSigned = false
   ) => {
-    console.log('origin ', origin);
+    console.log('origin ', origin)
     if (!this.lruCache) return;
     this.lruCache.set(origin, {
       origin,
@@ -71,7 +71,7 @@ class PermissionService {
       isSigned,
       isTop: false,
     });
-    console.log('lruCache ', this.lruCache);
+    console.log('lruCache ', this.lruCache)
     this.sync();
   };
 

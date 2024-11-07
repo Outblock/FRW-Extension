@@ -11,7 +11,7 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline,
+  CssBaseline
 } from '@mui/material';
 import { LLSpinner } from 'ui/FRWComponent';
 import CancelIcon from '../../../../components/iconfont/IconClose';
@@ -132,14 +132,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({
-  handleClick,
-  mnemonic,
-  username,
-  setUsername,
-  accountKey,
-  deviceInfo,
-}) => {
+const SetPassword = ({ handleClick, mnemonic, username, setUsername, accountKey, deviceInfo }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -150,12 +143,9 @@ const SetPassword = ({
   const [isLoading, setLoading] = useState(false);
 
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Somthing went wrong');
+  const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -243,17 +233,14 @@ const SetPassword = ({
 
   useEffect(() => {
     if (password.length > 7) {
-      setHelperText(
-        successInfo(chrome.i18n.getMessage('At__least__8__characters'))
-      );
+      setHelperText(successInfo(chrome.i18n.getMessage('At__least__8__characters')));
       setCharacters(true);
     } else {
-      setHelperText(
-        errorInfo(chrome.i18n.getMessage('At__least__8__characters'))
-      );
+      setHelperText(errorInfo(chrome.i18n.getMessage('At__least__8__characters')));
       setCharacters(false);
     }
   }, [password]);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -266,9 +253,11 @@ const SetPassword = ({
           height: 'auto',
           width: 'auto',
           position: 'relative',
-          borderRadius: '24px',
+          borderRadius: '24px'
         }}
       >
+
+
         <Box
           sx={{
             display: 'flex',
@@ -283,9 +272,7 @@ const SetPassword = ({
             </Box>{' '}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {chrome.i18n.getMessage(
-              'Lilico__uses__this__password__to__protect__your__recovery__phrase'
-            )}
+            {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
           </Typography>
 
           <Box
@@ -309,6 +296,7 @@ const SetPassword = ({
                 autoFocus
                 disableUnderline
                 readOnly={!(password.length < 8)}
+
                 onChange={(event) => {
                   setPassword(event.target.value);
                 }}
@@ -362,7 +350,7 @@ const SetPassword = ({
             <Button
               className="registerButton"
               onClick={() => register()}
-              disabled={!isCharacters}
+              disabled={!(isCharacters)}
               variant="contained"
               color="secondary"
               size="large"
@@ -386,17 +374,8 @@ const SetPassword = ({
             </Button>
           </Box>
         </Box>
-        <Snackbar
-          open={showError}
-          autoHideDuration={6000}
-          onClose={handleErrorClose}
-        >
-          <Alert
-            onClose={handleErrorClose}
-            variant="filled"
-            severity="success"
-            sx={{ width: '100%' }}
-          >
+        <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
+          <Alert onClose={handleErrorClose} variant="filled" severity="success" sx={{ width: '100%' }}>
             {errorMessage}
           </Alert>
         </Snackbar>

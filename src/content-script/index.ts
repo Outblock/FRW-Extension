@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 const channelName = nanoid();
 
+
 const injectProviderScript = async (isDefaultWallet) => {
   // Set local storage variables
   await localStorage.setItem('frw:channelName', channelName);
@@ -14,7 +15,7 @@ const injectProviderScript = async (isDefaultWallet) => {
 
   const container = document.head || document.documentElement;
   const scriptElement = document.createElement('script');
-  scriptElement.id = 'injectedScript';
+  scriptElement.id = "injectedScript";
   scriptElement.setAttribute('src', chrome.runtime.getURL('pageProvider.js'));
 
   container.insertBefore(scriptElement, container.children[0]);
@@ -22,7 +23,9 @@ const injectProviderScript = async (isDefaultWallet) => {
   return scriptElement;
 };
 
+
 injectProviderScript(true); // Initial call to check and inject if needed
+
 
 const initListener = (channelName: string) => {
   const { BroadcastChannelMessage, PortMessage } = Message;
@@ -59,20 +62,20 @@ setTimeout(() => {
 // Listener for messages from window/FCL
 
 function injectScript(file_path, tag) {
-  const node = document.getElementsByTagName(tag)[0];
-  const script = document.createElement('script');
-  script.setAttribute('type', 'text/javascript');
-  script.setAttribute('src', file_path);
-  node.appendChild(script);
-  chrome.runtime.sendMessage({ type: 'LILICO:CS:LOADED' });
+  const node = document.getElementsByTagName(tag)[0]
+  const script = document.createElement('script')
+  script.setAttribute('type', 'text/javascript')
+  script.setAttribute('src', file_path)
+  node.appendChild(script)
+  chrome.runtime.sendMessage({ type: 'LILICO:CS:LOADED', })
 }
 
-injectScript(chrome.runtime.getURL('script.js'), 'body');
+injectScript(chrome.runtime.getURL('script.js'), 'body')
 
 // Listener for messages from window/FCL
 window.addEventListener('message', function (event) {
-  chrome.runtime.sendMessage(event.data);
-});
+  chrome.runtime.sendMessage(event.data)
+})
 
 // Listener for Custom Flow Transaction event from FCL send
 // window.addEventListener('FLOW::TX', function (event) {
@@ -83,7 +86,7 @@ window.addEventListener('message', function (event) {
 
 const extMessageHandler = (msg, sender) => {
   if (msg.type === 'FCL:VIEW:READY') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*')
   }
 
   if (msg.f_type && msg.f_type === 'PollingResponse') {
@@ -91,7 +94,7 @@ const extMessageHandler = (msg, sender) => {
       window.postMessage(
         JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' } || {})),
         '*'
-      );
+      )
   }
 
   if (msg.data?.f_type && msg.data?.f_type === 'PreAuthzResponse') {
@@ -99,23 +102,26 @@ const extMessageHandler = (msg, sender) => {
       window.postMessage(
         JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' } || {})),
         '*'
-      );
+      )
   }
 
   if (msg.type === 'FCL:VIEW:CLOSE') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*')
   }
+
 
   if (msg.type === 'FLOW::TX') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*')
   }
 
+
   if (msg.type === 'LILICO:NETWORK') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*')
   }
 
   return true;
-};
+}
+
 
 /**
  * Fired when a message is sent from either an extension process or another content script.
@@ -129,5 +135,5 @@ const wakeup = function () {
     });
     wakeup();
   }, 2000);
-};
+}
 wakeup();

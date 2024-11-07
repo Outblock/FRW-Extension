@@ -5,7 +5,10 @@ import { useApproval, useWallet } from 'ui/utils';
 import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, CardMedia } from '@mui/material';
 import theme from 'ui/style/LLTheme';
-import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
+import {
+  LLPrimaryButton,
+  LLSecondaryButton,
+} from 'ui/FRWComponent';
 import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { isValidEthereumAddress } from 'ui/utils/address';
@@ -24,52 +27,55 @@ const EthSignType = ({ params }: ConnectProps) => {
   const wallet = useWallet();
   const [signable, setSignable] = useState<Signable | null>(null);
   // const [payerSignable, setPayerSignable] = useState<Signable | null>(null);
-  const [opener, setOpener] = useState<number | undefined>(undefined);
-  const [host, setHost] = useState(null);
+  const [opener, setOpener] = useState<number | undefined>(undefined)
+  const [host, setHost] = useState(null)
   const [cadenceArguments, setCadenceArguments] = useState<any[]>([]);
   const [linkingDone, setLinkingDone] = useState(false);
   const [accountLinking, setAccountLinking] = useState(false);
-  const [accountArgs, setAccountArgs] = useState<any[]>([]);
+  const [accountArgs, setAccountArgs] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lilicoEnabled, setLilicoEnabled] = useState(true);
   const [messages, setMessages] = useState<any>(null);
-  const [image, setImage] = useState<string>('');
-  const [accountTitle, setAccountTitle] = useState<string>('');
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
+  const [image, setImage] = useState<string>('')
+  const [accountTitle, setAccountTitle] = useState<string>('')
+  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null)
 
   // TODO: replace default logo
-  const [logo, setLogo] = useState('');
+  const [logo, setLogo] = useState('')
   interface Roles {
-    authorizer: boolean;
-    payer: boolean;
-    proposer: boolean;
+    authorizer: boolean,
+    payer: boolean,
+    proposer: boolean,
   }
   interface Signable {
-    cadence: string;
-    message: string;
-    addr: string;
-    keyId: number;
-    roles: Roles;
-    voucher: Voucher;
-    f_type: string;
+    cadence: string,
+    message: string,
+    addr: string,
+    keyId: number,
+    roles: Roles,
+    voucher: Voucher
+    f_type: string,
   }
   interface Voucher {
-    refBlock: string;
-    payloadSigs: Signature;
+    refBlock: string
+    payloadSigs: Signature
   }
   interface Signature {
-    address: string;
-    keyId: number;
-    sig: string | null;
+    address: string,
+    keyId: number,
+    sig: string | null
   }
 
-  const extractData = () => {
-    console.log('obj ', params);
-    let data = '';
-    let address = '';
 
-    if (isValidEthereumAddress(params.data.params[0])) {
+  const extractData = () => {
+    console.log('obj ', params)
+    let data = ''
+    let address = ''
+
+    if (
+      isValidEthereumAddress(params.data.params[0])
+    ) {
       data = params.data.params[1];
       address = params.data.params[0];
     } else {
@@ -77,8 +83,8 @@ const EthSignType = ({ params }: ConnectProps) => {
       address = params.data.params[1];
     }
     const jsonObject = JSON.parse(data);
-    setMessages(jsonObject);
-    console.log('data, ', data);
+    setMessages(jsonObject)
+    console.log('data, ', data)
   };
 
   const handleCancel = () => {
@@ -93,22 +99,21 @@ const EthSignType = ({ params }: ConnectProps) => {
     });
   };
 
+
   const checkCoa = async () => {
     setLoading(true);
     const isEnabled = await wallet.checkCoaLink();
     if (!isEnabled) {
       const result = await wallet.coaLink();
       const res = await fcl.tx(result).onceSealed();
-      const transactionExecutedEvent = res.events.find((event) =>
-        event.type.includes('TransactionExecuted')
-      );
+      const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
       if (transactionExecutedEvent) {
         setLoading(false);
-        return;
+        return
       }
     }
     setLoading(false);
-  };
+  }
 
   useEffect(() => {
     if (params) {
@@ -116,31 +121,20 @@ const EthSignType = ({ params }: ConnectProps) => {
     }
   }, []);
 
+
   const JsonRenderer = ({ data }) => {
+
     // Recursive function to render objects, including arrays and nested objects
     const renderMessageContent = (messageObj, isChild = false) => {
       return Object.keys(messageObj).map((key) => {
         const value = messageObj[key];
 
         // Check if the value is an object and not an array
-        if (
-          typeof value === 'object' &&
-          !Array.isArray(value) &&
-          value !== null
-        ) {
+        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
           return (
             <Box key={key} sx={{}}>
-              <Box
-                sx={{
-                  backgroundColor:
-                    'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))',
-                  height: '1px',
-                  marginY: '8px',
-                }}
-              ></Box>
-              <Typography
-                sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}
-              >
+              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
+              <Typography sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </Typography>
               {renderMessageContent(value, true)}
@@ -150,41 +144,17 @@ const EthSignType = ({ params }: ConnectProps) => {
           // If the value is an array, render each item
           return (
             <Box key={key} sx={{}}>
-              <Box
-                sx={{
-                  backgroundColor:
-                    'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))',
-                  height: '1px',
-                  marginY: '8px',
-                }}
-              ></Box>
-              <Typography
-                sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}
-              >
+              <Box sx={{ backgroundColor: 'var(--Special-Color-Line, rgba(255, 255, 255, 0.12))', height: '1px', marginY: '8px' }}></Box>
+              <Typography sx={{ fontWeight: '400', color: '#FFFFFFCC', fontSize: '14px' }}>
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </Typography>
               {value.map((item, index) => {
                 // If array item is an object, render its content
                 if (typeof item === 'object' && item !== null) {
                   return (
-                    <Box
-                      key={index}
-                      sx={{
-                        backgroundColor: '#2C2C2C',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        marginY: '16px',
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontWeight: '400',
-                          color: '#FFFFFF66',
-                          fontSize: '14px',
-                        }}
-                      >
-                        {key.charAt(0).toUpperCase() + key.slice(1)} Item{' '}
-                        {index + 1}
+                    <Box key={index} sx={{ backgroundColor: '#2C2C2C', padding: '16px', borderRadius: '12px', marginY: '16px' }}>
+                      <Typography sx={{ fontWeight: '400', color: '#FFFFFF66', fontSize: '14px' }}>
+                        {key.charAt(0).toUpperCase() + key.slice(1)} Item {index + 1}
                       </Typography>
                       {renderMessageContent(item, true)}
                     </Box>
@@ -223,18 +193,8 @@ const EthSignType = ({ params }: ConnectProps) => {
           // If it's not an object or array, render the key and value directly
           return (
             <Box key={key}>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                sx={{ padding: '0' }}
-              >
-                <Typography
-                  sx={{
-                    fontWeight: '400',
-                    color: `${isChild ? '#FFFFFF66' : '#FFFFFFCC'}`,
-                    fontSize: '14px',
-                  }}
-                >
+              <Box display="flex" justifyContent="space-between" sx={{ padding: '0', }}>
+                <Typography sx={{ fontWeight: '400', color: `${isChild ? '#FFFFFF66' : '#FFFFFFCC'}`, fontSize: '14px' }}>
                   {key.charAt(0).toUpperCase() + key.slice(1)}
                 </Typography>
                 <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
@@ -250,25 +210,11 @@ const EthSignType = ({ params }: ConnectProps) => {
     return (
       <Box sx={{ marginBottom: '8px' }}>
         <Box display="flex" justifyContent="space-between">
-          <Typography
-            sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}
-          >
-            Message
-          </Typography>
-          <Typography
-            sx={{ color: '#FFFFFFCC', fontSize: '14px' }}
-          ></Typography>
+          <Typography sx={{ fontSize: '14px', fontWeight: '600', color: '#FFFFFFCC' }}>Message</Typography>
+          <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}></Typography>
         </Box>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          sx={{ marginBottom: '8px' }}
-        >
-          <Typography
-            sx={{ fontSize: '14px', fontWeight: '400', color: '#FFFFFF66' }}
-          >
-            Primary Type
-          </Typography>
+        <Box display="flex" justifyContent="space-between" sx={{ marginBottom: '8px' }}>
+          <Typography sx={{ fontSize: '14px', fontWeight: '400', color: '#FFFFFF66' }}>Primary Type</Typography>
           <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
             {data.primaryType}
           </Typography>
@@ -277,6 +223,8 @@ const EthSignType = ({ params }: ConnectProps) => {
       </Box>
     );
   };
+
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -321,11 +269,7 @@ const EthSignType = ({ params }: ConnectProps) => {
                     Sign Type Message from
                   </Typography>
                   <Typography
-                    sx={{
-                      fontSize: '18px',
-                      color: '#FFFFFF',
-                      fontWeight: '700',
-                    }}
+                    sx={{ fontSize: '18px', color: '#FFFFFF', fontWeight: '700' }}
                   >
                     {params.session.name}
                   </Typography>
@@ -367,6 +311,8 @@ const EthSignType = ({ params }: ConnectProps) => {
         </Box>
       )}
     </ThemeProvider>
+
+
   );
 };
 

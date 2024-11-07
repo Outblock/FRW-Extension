@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import { useHistory } from 'react-router-dom';
-import { Typography, IconButton, Box, Input, Avatar } from '@mui/material';
-import SwitchUnstyled, {
-  switchUnstyledClasses,
-} from '@mui/core/SwitchUnstyled';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import {
+  Typography,
+  IconButton,
+  Box,
+  Input,
+  Avatar,
+} from '@mui/material';
+import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
+import {
+  LLPrimaryButton,
+  LLSpinner
+} from 'ui/FRWComponent';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // import '../../Unlock/style.css';
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
@@ -20,7 +27,7 @@ import { concatSig } from 'eth-sig-util';
 const orange = {
   500: '#41CC5D',
 };
-
+  
 const grey = {
   400: '#BABABA',
   500: '#787878',
@@ -92,10 +99,11 @@ const Root = styled('span')(
       z-index: 1;
       margin: 0;
     }
-    `
+    `,
 );
 
 const Flowns = () => {
+
   const history = useHistory();
   const wallet = useWallet();
   const [claiming, setClaiming] = useState(false);
@@ -112,6 +120,7 @@ const Flowns = () => {
   };
 
   const getUsername = async () => {
+
     const userInfo = await wallet.getUserInfo(false);
     setUsername(userInfo.username);
     setNickname(userInfo.nickname);
@@ -120,18 +129,18 @@ const Flowns = () => {
 
   const updatePreference = async (modeAnonymous) => {
     if (modeAnonymous) {
-      await wallet.updateProfilePreference(2);
+      await wallet.updateProfilePreference(2)
     } else {
-      await wallet.updateProfilePreference(1);
+      await wallet.updateProfilePreference(1)
     }
     await getAnonymousMode();
-  };
+  }
 
   const toggleEdit = () => {
     setEdit(!isEdit);
-  };
-
-  const getAnonymousMode = async () => {
+  }
+  
+  const getAnonymousMode = async() => {
     // const domain = await wallet.fetchUserDomain();
     // if (domain) {
     //   setDomain(domain);
@@ -147,13 +156,15 @@ const Flowns = () => {
   };
 
   const refreshUsername = async () => {
+
+
     const userInfo = await wallet.getUserInfo(true);
-    setUsername(userInfo.username);
+    setUsername(userInfo.username)
   };
 
   const switchAnonymousMode = async () => {
     await updatePreference(!modeAnonymous);
-  };
+  }
 
   useEffect(() => {
     getAnonymousMode();
@@ -198,87 +209,56 @@ const Flowns = () => {
           />
         </IconButton>
       </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          justifyContent: 'center',
-        }}
-      >
-        <Avatar
-          sx={{ width: '88px', height: '88px', marginBottom: '10px' }}
-          src={avatar}
-        />
-        <Box sx={{ display: 'flex', justifyContent: 'center', color: '#fff' }}>
+      <Box sx={{display:'flex', alignItems:'center', flexDirection:'column', justifyContent:'center'}}>
+        <Avatar sx={{ width: '88px', height: '88px', marginBottom:'10px' }}
+          src={avatar} />
+        <Box sx={{display:'flex', justifyContent:'center',color:'#fff'}}>
           <Typography
             display="inline"
-            sx={{
+            sx={{ 
               fontWeight: 'bold',
-              fontSize: '14px',
-              color: '#E6E6E6',
-              textAlign: 'center',
+              fontSize:'14px',
+              color:'#E6E6E6',
+              textAlign:'center'
             }}
           >
-            {nickname}
+            {nickname} 
           </Typography>
         </Box>
         <Typography
           display="inline"
-          sx={{
+          sx={{ 
             fontWeight: 'normal',
-            fontSize: '12px',
-            color: '#BABABA',
-            textAlign: 'center',
-            marginBottom: '15px',
+            fontSize:'12px',
+            color:'#BABABA',
+            textAlign:'center',
+            marginBottom:'15px',
           }}
           variant="body2"
         >
-          @{username}
+          @{username} 
         </Typography>
-        <Box
-          sx={{
-            width: 'auto',
-            margin: '10px auto',
-            padding: '0 20px',
-            flexDirection: 'column',
-            gap: '8px',
-          }}
-        >
-          <Box
-            sx={{
-              backgroundColor: '#282828',
-              display: 'flex',
-              padding: '20px 24px',
-              justifyContent: 'space-between',
-              borderRadius: '16px',
-            }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography
-                variant="body1"
-                color="neutral.contrastText"
-                style={{ weight: 600 }}
-              >
-                {chrome.i18n.getMessage('Anonymous')}
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ weight: 400, fontSize: '12px' }}
-              >
-                {chrome.i18n.getMessage(
-                  'Other__Lilico__users__cannot__search__for__your__username'
-                )}
+        <Box sx={{
+          width: 'auto',
+          margin: '10px auto',
+          padding: '0 20px',
+          flexDirection: 'column',
+          gap:'8px'
+        }}>
+          <Box sx={{
+            backgroundColor: '#282828',
+            display: 'flex',
+            padding:'20px 24px',
+            justifyContent: 'space-between',
+            borderRadius: '16px',
+          }}>
+            <Box sx={{display: 'flex', flexDirection: 'column'}}>
+              <Typography variant='body1' color='neutral.contrastText' style={{weight: 600}}>{chrome.i18n.getMessage('Anonymous')}</Typography>
+              <Typography variant="caption" color='text.secondary' sx={{weight: 400, fontSize: '12px'}}>
+                {chrome.i18n.getMessage('Other__Lilico__users__cannot__search__for__your__username')}
               </Typography>
             </Box>
-            <SwitchUnstyled
-              checked={modeAnonymous}
-              component={Root}
-              onChange={() => {
-                switchAnonymousMode();
-              }}
-            />
+            <SwitchUnstyled checked={modeAnonymous} component={Root} onChange={()=>{switchAnonymousMode()}}/>
           </Box>
           {/* {domain && <Box sx={{
             backgroundColor: '#282828',

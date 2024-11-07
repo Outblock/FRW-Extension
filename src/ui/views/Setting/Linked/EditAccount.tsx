@@ -47,12 +47,7 @@ const EditAccount = (props: EditAccountProps) => {
   const onSubmit = async () => {
     setIsLoading(true);
     wallet
-      .editChildAccount(
-        props.address!,
-        name,
-        desc,
-        props.childAccount.thumbnail.url
-      )
+      .editChildAccount(props.address!, name, desc, props.childAccount.thumbnail.url)
       .then(async (resp) => {
         setIsLoading(false);
         props.handleCancelBtnClicked();
@@ -73,8 +68,8 @@ const EditAccount = (props: EditAccountProps) => {
   };
 
   useEffect(() => {
-    setName(props.childAccount.name);
-    setDesc(props.childAccount.description);
+    setName(props.childAccount.name)
+    setDesc(props.childAccount.description)
   }, []);
 
   const renderContent = () => (
@@ -116,7 +111,7 @@ const EditAccount = (props: EditAccountProps) => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          marginBottom: '24px',
+          marginBottom:'24px',
         }}
       >
         <Typography
@@ -131,13 +126,12 @@ const EditAccount = (props: EditAccountProps) => {
           autoComplete="off"
           sx={{ height: '56px' }}
           value={name} // Set the value prop to the "name" state variable
-          onChange={(
-            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => {
+          onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
             const newValue: string = event.target.value;
             setName(newValue);
           }}
         />
+
       </Box>
       <Box
         sx={{
@@ -162,9 +156,7 @@ const EditAccount = (props: EditAccountProps) => {
           multiline // Set the multiline prop to enable multiple lines
           rows={4} // Set the number of rows to display (you can adjust this value as needed)
           value={desc} // Set the value prop to the "name" state variable
-          onChange={(
-            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => {
+          onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
             const newValue: string = event.target.value;
             setDesc(newValue);
           }}
@@ -186,7 +178,7 @@ const EditAccount = (props: EditAccountProps) => {
               alignItems: 'center',
             }}
           >
-            {failed ? (
+            {failed ?
               <Typography
                 variant="subtitle1"
                 sx={{ fontWeight: 'bold', fontSize: '14px' }}
@@ -194,10 +186,8 @@ const EditAccount = (props: EditAccountProps) => {
               >
                 {chrome.i18n.getMessage('Submission_error')}
               </Typography>
-            ) : (
-              <Box
-                sx={{ display: 'flex', justifyContent: 'center', gap: '5px' }}
-              >
+              :
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
                 <LLSpinner size={28} />
                 <Typography
                   variant="subtitle1"
@@ -207,7 +197,7 @@ const EditAccount = (props: EditAccountProps) => {
                   {chrome.i18n.getMessage('Working_on_it')}
                 </Typography>
               </Box>
-            )}
+            }
           </Box>
         ) : (
           <LLPrimaryButton

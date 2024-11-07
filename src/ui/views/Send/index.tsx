@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
     boxSizing: 'border-box',
     // margin: '2px 18px 10px 18px',
     width: '100%',
-    padding: '0px 16px',
+    padding: '0px 16px'
   },
   listWrapper: {
     flexGrow: 1,
@@ -169,37 +169,34 @@ const Send = () => {
     try {
       const response = await wallet.getAddressBook();
       let recent = await wallet.getRecent();
-      console.log('recent ', recent, response);
+      console.log('recent ', recent, response)
       if (recent) {
         recent.forEach((c) => {
           if (response) {
             response.forEach((s) => {
-              if (
-                c.address === s.address &&
-                c.contact_name === s.contact_name
-              ) {
+              if (c.address === s.address && c.contact_name === s.contact_name) {
                 c.type = 1;
               }
-            });
+            })
+
           }
-        });
+        })
       } else {
         recent = [];
       }
 
+
       if (recent.length < 1) {
-        setTabValue(1);
+        setTabValue(1)
       }
-      let sortedContacts = [];
+      let sortedContacts = [] 
       if (response) {
         sortedContacts = response.sort((a, b) =>
-          a.contact_name
-            .toLowerCase()
-            .localeCompare(b.contact_name.toLowerCase())
+          a.contact_name.toLowerCase().localeCompare(b.contact_name.toLowerCase())
         );
       }
 
-      console.log('sortedContacts ', sortedContacts);
+      console.log('sortedContacts ', sortedContacts)
 
       setRecentContacts(recent);
       setSortedContacts(sortedContacts);
@@ -232,7 +229,7 @@ const Send = () => {
     const fArray = searchContacts;
     let result = '';
     let group = '';
-    let keyword = keys;
+    let keyword = keys
     if (keyword.includes('.')) {
       keyword = keys.substring(0, keys.lastIndexOf('.'));
     }
@@ -293,9 +290,7 @@ const Send = () => {
     if (result) {
       result.map((data) => {
         let address = data.address;
-        if (!reg.test(data.address)) {
-          address = '0x' + data.address;
-        }
+        if (!reg.test(data.address)) { address = '0x' + data.address; }
         lilicoResult['group'] = 'Flow Wallet user';
         lilicoResult.address = address;
         lilicoResult.contact_name = data.username;
@@ -303,11 +298,11 @@ const Send = () => {
         lilicoResult.avatar = data.avatar;
         lilicoResult.type! = checkContain(data) ? 1 : 4;
         fArray.push(lilicoResult);
-      });
+      })
       setSearchContacts(fArray);
     }
     return;
-  };
+  }
   // const resetSearch = async () => {
   //   const emptya = []
   //   setSearchContacts(emptya);
@@ -322,7 +317,8 @@ const Send = () => {
       await checkDomain(2);
     } catch {
       setHasNoFilteredContacts(true);
-    } finally {
+    }
+    finally {
       await searchUser();
     }
     // await searchUser();
@@ -335,7 +331,8 @@ const Send = () => {
     if (e.code === 'Enter') {
       searchAll();
     }
-  };
+  }
+
 
   const handleFilterAndSearch = async (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -358,10 +355,11 @@ const Send = () => {
       return false;
     });
 
-    const checkAddress = keyword.trim();
+
+    const checkAddress = keyword.trim()
     if (isValidEthereumAddress(checkAddress)) {
       if (filtered[0]) {
-        searchResult = filtered[0];
+        searchResult = filtered[0]
       } else {
         searchResult.address = withPrefix(keyword) || keyword;
         searchResult.contact_name = withPrefix(checkAddress) || keyword;
@@ -371,13 +369,13 @@ const Send = () => {
       history.push({
         pathname: '/dashboard/wallet/sendeth',
         state: { contact: searchResult },
-      });
+      })
       return;
     }
 
     if (/^(0x)?[a-fA-F0-9]{16}$/.test(checkAddress)) {
       if (filtered[0]) {
-        searchResult = filtered[0];
+        searchResult = filtered[0]
       } else {
         searchResult.address = withPrefix(keyword) || keyword;
         searchResult.contact_name = withPrefix(checkAddress) || keyword;
@@ -387,7 +385,7 @@ const Send = () => {
       history.push({
         pathname: '/dashboard/wallet/sendAmount',
         state: { contact: searchResult },
-      });
+      })
     }
 
     setSearchContacts(filtered);
@@ -413,15 +411,14 @@ const Send = () => {
 
     const isEvmAddress = isValidEthereumAddress(eachgroup.address);
 
-    const pathname = isEvmAddress
-      ? '/dashboard/wallet/sendEth'
-      : '/dashboard/wallet/sendAmount';
+    const pathname = isEvmAddress ? '/dashboard/wallet/sendEth' : '/dashboard/wallet/sendAmount';
 
     history.push({
       pathname: pathname,
       state: { contact: eachgroup },
     });
   };
+
 
   return (
     <StyledEngineProvider injectFirst>
@@ -451,11 +448,7 @@ const Send = () => {
             </Typography>
           </Grid>
           <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-            <IconButton
-              onClick={() =>
-                window.open('https://wallet.flow.com/contact', '_blank')
-              }
-            >
+            <IconButton onClick={() => window.open('https://wallet.flow.com/contact', '_blank')}>
               <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
                 <HelpOutlineRoundedIcon sx={{ color: 'icon.navi' }} />
               </Tooltip>
@@ -541,13 +534,9 @@ const Send = () => {
                     filteredContacts={recentContacts}
                     isLoading={isLoading}
                     handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(
-                        eachgroup.address
-                      );
+                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
 
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
+                      const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
 
                       history.push({
                         pathname: pathname,
@@ -561,13 +550,9 @@ const Send = () => {
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
                     handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(
-                        eachgroup.address
-                      );
+                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
 
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
+                      const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
 
                       history.push({
                         pathname: pathname,
@@ -581,13 +566,9 @@ const Send = () => {
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
                     handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(
-                        eachgroup.address
-                      );
+                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
 
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
+                      const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
 
                       history.push({
                         pathname: pathname,
@@ -601,7 +582,7 @@ const Send = () => {
           </div>
         ) : (
           <div>
-            {!searched && (
+            {!searched &&
               <ListItem
                 sx={{
                   marginTop: '10px',
@@ -633,34 +614,29 @@ const Send = () => {
                   </Typography>
                 </ListItemText>
               </ListItem>
-            )}
+            }
 
-            {!searched && !hasNoFilteredContacts && (
+            {(!searched && !hasNoFilteredContacts) &&
               <AddressBookList
                 filteredContacts={filteredContacts}
                 isLoading={isLoading}
                 handleClick={(eachgroup) => {
-                  const isEvmAddress = isValidEthereumAddress(
-                    eachgroup.address
-                  );
+                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
 
-                  const pathname = isEvmAddress
-                    ? '/dashboard/wallet/sendeth'
-                    : '/dashboard/wallet/sendAmount';
+                  const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
 
                   history.push({
                     pathname: pathname,
                     state: { contact: eachgroup },
                   });
                 }}
-              />
-            )}
+              />}
 
-            {searched && !searchContacts.length && (
+            {(searched && !searchContacts.length) &&
               <ListItem sx={{ backgroundColor: '#000000' }}>
                 <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
                   {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
-                  <IconAbout size={20} color="#E54040" />
+                  <IconAbout size={20} color='#E54040' />
                 </ListItemAvatar>
                 <ListItemText>
                   <Typography
@@ -668,25 +644,19 @@ const Send = () => {
                     component="span"
                     color="#BABABA"
                   >
-                    {chrome.i18n.getMessage(
-                      'Sorry_we_could_not_find_any_accounts_Please_try_again'
-                    )}
+                    {chrome.i18n.getMessage('Sorry_we_could_not_find_any_accounts_Please_try_again')}
                   </Typography>
                 </ListItemText>
               </ListItem>
-            )}
-            {searched && !hasNoFilteredContacts && (
+            }
+            {(searched && !hasNoFilteredContacts) &&
               <SearchList
                 searchContacts={searchContacts}
                 isLoading={isLoading}
                 handleClick={(eachgroup) => {
-                  const isEvmAddress = isValidEthereumAddress(
-                    eachgroup.address
-                  );
+                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
 
-                  const pathname = isEvmAddress
-                    ? '/dashboard/wallet/sendeth'
-                    : '/dashboard/wallet/sendAmount';
+                  const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendAmount';
 
                   history.push({
                     pathname: pathname,
@@ -694,7 +664,7 @@ const Send = () => {
                   });
                 }}
               />
-            )}
+            }
           </div>
         )}
       </div>

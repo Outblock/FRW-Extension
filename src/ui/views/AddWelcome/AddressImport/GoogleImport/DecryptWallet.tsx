@@ -104,28 +104,16 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
       handleClick();
     } catch (e) {
       setLoading(false);
-      setHelperText(
-        errorInfo(
-          chrome.i18n.getMessage(
-            'Incorrect__decrypt__password__please__try__again'
-          )
-        )
-      );
+      setHelperText(errorInfo(chrome.i18n.getMessage('Incorrect__decrypt__password__please__try__again')));
     }
   };
 
   useEffect(() => {
     if (password.length < 8) {
-      setHelperText(
-        errorInfo(
-          chrome.i18n.getMessage(
-            'The__decrypt__password__should__be__8__characters__long'
-          )
-        )
-      );
+      setHelperText(errorInfo(chrome.i18n.getMessage('The__decrypt__password__should__be__8__characters__long')));
       setCharacters(false);
     } else {
-      setHelperText(<div />);
+      setHelperText(<div />)
       setCharacters(true);
     }
   }, [password]);
@@ -133,7 +121,9 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="registerBox">
+      <Box
+        className="registerBox"
+      >
         <Typography variant="h4">
           {chrome.i18n.getMessage('Welcome__Back')}
           <Box display="inline" color="primary.main">

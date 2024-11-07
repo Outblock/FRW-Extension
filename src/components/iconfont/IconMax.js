@@ -11,13 +11,7 @@ const IconMax = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg
-      viewBox="0 0 1763 1024"
-      width={size + 'px'}
-      height={size + 'px'}
-      style={style}
-      {...rest}
-    >
+    <svg viewBox="0 0 1763 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
       <path
         d="M0 512a512 512 0 0 1 512-512h739.555556a512 512 0 1 1 0 1024H512a512 512 0 0 1-512-512z"
         fill={getIconColor(color, 0, '#787878')}

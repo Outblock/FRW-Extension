@@ -19,6 +19,7 @@ import { useWallet } from 'ui/utils';
 import { useForm, FieldValues } from 'react-hook-form';
 import { storage } from '@/background/webapi';
 
+
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
   color: (theme.palette as any).neutral2.main,
@@ -33,20 +34,21 @@ const StyledInput = styled(InputBase)(({ theme }) => ({
 }));
 
 interface EditNFTAddressProps {
-  isAddAddressOpen: boolean;
-  handleCloseIconClicked: () => void;
-  handleCancelBtnClicked: () => void;
-  handleAddBtnClicked: () => void;
-  setAddress: any;
-  isEdit?: boolean;
-  address: string;
-}
-
+    isAddAddressOpen: boolean;
+    handleCloseIconClicked: () => void;
+    handleCancelBtnClicked: () => void;
+    handleAddBtnClicked: () => void;
+    setAddress: any;
+    isEdit?: boolean;
+    address: string;
+  }
+  
 export interface NFTAddressValue {
-  address: string;
-}
+    address: string;
+  }
 
 const EditNFTAddress = (props: EditNFTAddressProps) => {
+  
   const wallet = useWallet();
   const {
     register,
@@ -58,10 +60,9 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
   });
 
   const [network, setNetwork] = useState('mainnet');
-
-  const [isValidatingAddress, setIsValidatingAddress] =
-    useState<boolean>(false);
-
+  
+  const [isValidatingAddress, setIsValidatingAddress] = useState<boolean>(false);
+  
   const checkAddress = async (address: string) => {
     //wallet controller api
     setIsValidatingAddress(true);
@@ -69,20 +70,20 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
     setIsValidatingAddress(false);
     return validatedResult;
   };
-
+  
   const onSubmit = async (data: FieldValues) => {
     const { address } = data;
     props.handleAddBtnClicked();
     reset();
     storage.set('ExampleNFTAddreess', address);
-    props.setAddress(address);
+    props.setAddress(address)
   };
-
+  
   const onCancelBtnClicked = () => {
     reset();
     props.handleCancelBtnClicked();
   };
-
+  
   useEffect(() => {
     if (props.address && props.isEdit) {
       reset(
@@ -102,14 +103,14 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
   }, [props.address]);
 
   const fetchNetworks = async () => {
-    const currentNetwork = await wallet.getNetwork();
-    setNetwork(currentNetwork);
-  };
+    const currentNetwork = await wallet.getNetwork()
+    setNetwork(currentNetwork)
+  }
 
   useEffect(() => {
-    fetchNetworks();
-  }, []);
-
+    fetchNetworks()  
+  },[])
+  
   const renderContent = () => (
     <Box
       px="18px"
@@ -168,7 +169,7 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
             successMsg={`Validated address in ${network}`}
           />
         </Stack>
-
+  
         <Stack direction="row" spacing={1}>
           <LLSecondaryButton
             label={chrome.i18n.getMessage('Cancel')}
@@ -183,9 +184,7 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
                   size={22}
                   style={{ fontSize: '22px', margin: '8px' }}
                 />
-              ) : (
-                chrome.i18n.getMessage('Change')
-              )
+              ) : chrome.i18n.getMessage('Change')
             }
             fullWidth
             type="submit"
@@ -195,7 +194,7 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
       </form>
     </Box>
   );
-
+  
   return (
     <Drawer
       anchor="bottom"
@@ -206,5 +205,5 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
     </Drawer>
   );
 };
-
+  
 export default EditNFTAddress;

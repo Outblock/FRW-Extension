@@ -11,13 +11,7 @@ const IconLogo = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg
-      viewBox="0 0 1024 1024"
-      width={size + 'px'}
-      height={size + 'px'}
-      style={style}
-      {...rest}
-    >
+    <svg viewBox="0 0 1024 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
       <path
         d="M46.4 0m176 0l0 0q176 0 176 176l0 672q0 176-176 176l0 0q-176 0-176-176l0-672q0-176 176-176Z"
         fill={getIconColor(color, 0, '#41CC5D')}

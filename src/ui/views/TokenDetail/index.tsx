@@ -74,10 +74,7 @@ const TokenDetail = () => {
     setProviders(result);
     if (result.length == 0) {
       const data = await wallet.openapi.getTokenPrices();
-      const price = await wallet.openapi.getPricesByAddress(
-        tokenResult!.address,
-        data
-      );
+      const price = await wallet.openapi.getPricesByAddress(tokenResult!.address, data);
       if (price) {
         setPrice(price);
       }
@@ -123,7 +120,9 @@ const TokenDetail = () => {
           }}
         />
       );
-    } else {
+
+    }
+    else {
       return (
         <MoveFromFlow
           isConfirmationOpen={moveOpen}
@@ -137,6 +136,7 @@ const TokenDetail = () => {
       );
     }
   };
+
 
   useEffect(() => {
     loadNetwork();
@@ -176,7 +176,7 @@ const TokenDetail = () => {
               </Typography>
             </Box>
           )}
-          {tokenInfo && (
+          {tokenInfo &&
             <TokenInfoCard
               price={price}
               token={token}
@@ -189,7 +189,7 @@ const TokenDetail = () => {
               childAccount={childAccount}
               setAlertOpen={setAlertOpen}
             />
-          )}
+          }
           {token === 'flow' && <StackingCard network={network} />}
           {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
           <ClaimTokenCard token={token} />
@@ -201,13 +201,16 @@ const TokenDetail = () => {
               providers={providers}
             />
           )}
-          {moveOpen && renderMoveComponent()}
+          {
+            moveOpen && renderMoveComponent()
+          }
           {network === 'mainnet' && (
             <LLComingSoon
               alertOpen={alertOpen}
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           )}
+
         </div>
       </div>
     </StyledEngineProvider>

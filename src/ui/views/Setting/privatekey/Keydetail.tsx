@@ -30,7 +30,7 @@ const Keydetail = () => {
     setKey(result);
     const pubKey = await storage.get('pubKey');
     setPublicKey(pubKey);
-  };
+  }
 
   const setTab = async () => {
     await wallet.setDashIndex(3);
@@ -55,8 +55,7 @@ const Keydetail = () => {
             lineBreak: 'anywhere',
             marginTop: '0px',
             backgroundColor: '#333333',
-          }}
-        >
+          }}>
           <Typography
             variant="body1"
             display="inline"
@@ -75,11 +74,11 @@ const Keydetail = () => {
           </Typography>
           <Grid container direction="row" justifyContent="end" alignItems="end">
             <IconButton
-              edge="end"
+              edge='end'
               onClick={() => {
                 navigator.clipboard.writeText(data);
               }}
-              // sx={{ marginLeft:'380px'}}
+            // sx={{ marginLeft:'380px'}}
             >
               <IconCopy
                 style={{
@@ -91,30 +90,18 @@ const Keydetail = () => {
           </Grid>
         </Box>
       </>
-    );
-  };
+    )
+  }
 
   return (
     <div className="page">
       <LLHeader title={chrome.i18n.getMessage('Private__Key')} help={false} />
-      <Typography
-        variant="body1"
-        align="left"
-        py="14px"
-        px="20px"
-        fontSize="17px"
-      >
+      <Typography variant="body1" align="left" py="14px" px="20px" fontSize="17px">
         {chrome.i18n.getMessage('Private__Key')}
       </Typography>
       <CredentialBox data={privatekey} />
       <br />
-      <Typography
-        variant="body1"
-        align="left"
-        py="14px"
-        px="20px"
-        fontSize="17px"
-      >
+      <Typography variant="body1" align="left" py="14px" px="20px" fontSize="17px">
         {chrome.i18n.getMessage('Public__Key')}
       </Typography>
       <CredentialBox data={publickey} />
@@ -126,22 +113,17 @@ const Keydetail = () => {
           px: '20px',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: '30px',
+          marginTop: '30px'
         }}
       >
         <Box
           sx={{
             borderLeft: 1,
             px: '15px',
-            borderColor: '#333333',
+            borderColor: '#333333'
           }}
         >
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            align="left"
-            fontSize="14px"
-          >
+          <Typography variant="body1" color="text.secondary" align="left" fontSize="14px">
             {chrome.i18n.getMessage('Hash__Algorithm')} <br />
             SHA2_256
           </Typography>
@@ -150,21 +132,18 @@ const Keydetail = () => {
           sx={{
             borderLeft: 1,
             borderColor: '#333333',
-            px: '15px',
+            px: '15px'
           }}
         >
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            align="left"
-            fontSize="14px"
-          >
+          <Typography variant="body1" color="text.secondary" align="left" fontSize="14px">
             {chrome.i18n.getMessage('Sign__Algorithm')} <br />
             ECDSA_secp256k1
           </Typography>
         </Box>
       </Box>
     </div>
+
+
   );
 };
 

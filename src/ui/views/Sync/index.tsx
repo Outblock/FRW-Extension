@@ -8,7 +8,7 @@ import theme from '../../style/LLTheme';
 import RegisterHeader from '../Register/RegisterHeader';
 import AllSet from '../Register/AllSet';
 import SetPassword from './SetPassword';
-import SyncQr from './SyncQr';
+import SyncQr from './SyncQr'
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import {
@@ -28,9 +28,7 @@ const Sync = () => {
   const [activeIndex, onChange] = useState(0);
   const [mnemonic, setMnemonic] = useState('');
   const [username, setUsername] = useState('');
-  const [errMessage, setErrorMessage] = useState(
-    chrome.i18n.getMessage('No__backup__found')
-  );
+  const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
   const [loading, setLoading] = useState(false);
@@ -40,16 +38,13 @@ const Sync = () => {
   };
 
   const loadView = async () => {
-    wallet
-      .getCurrentAccount()
-      .then((res) => {
-        if (res) {
-          history.push('/');
-        }
-      })
-      .catch(() => {
-        return;
-      });
+    wallet.getCurrentAccount().then((res) => {
+      if (res) {
+        history.push('/');
+      }
+    }).catch(() => {
+      return;
+    });
   };
   const goNext = () => {
     setDirection(Direction.Right);
@@ -69,10 +64,7 @@ const Sync = () => {
     }
   };
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -82,22 +74,14 @@ const Sync = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return (
-          <SyncQr
-            handleClick={goNext}
-            savedUsername={username}
-            confirmMnemonic={setMnemonic}
-            setUsername={getUsername}
-          />
-        );
+        return <SyncQr
+          handleClick={goNext}
+          savedUsername={username}
+          confirmMnemonic={setMnemonic}
+          setUsername={getUsername}
+        />;
       case 1:
-        return (
-          <SetPassword
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            username={username}
-          />
-        );
+        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:
@@ -108,6 +92,7 @@ const Sync = () => {
   useEffect(() => {
     loadView();
   }, []);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -137,7 +122,7 @@ const Sync = () => {
         <Box
           sx={{
             height: '460px',
-            backgroundColor: 'transparent',
+            backgroundColor: 'transparent'
           }}
         >
           <Box
@@ -149,18 +134,16 @@ const Sync = () => {
               height: 'auto',
               width: 'auto',
               position: 'relative',
-              borderRadius: '24px',
+              borderRadius: '24px'
             }}
           >
-            {activeIndex !== 4 && activeIndex !== 5 && (
-              <IconButton
-                onClick={goBack}
-                size="small"
-                sx={{ marginLeft: '-95px' }}
-              >
+
+
+            {(activeIndex !== 4 && activeIndex !== 5) &&
+              <IconButton onClick={goBack} size="small" sx={{ marginLeft: '-95px' }}>
                 <BackButtonIcon color="#5E5E5E" size={27} />
               </IconButton>
-            )}
+            }
 
             <ComponentTransition
               enterAnimation={

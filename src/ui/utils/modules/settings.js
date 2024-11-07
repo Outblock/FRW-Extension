@@ -21,12 +21,12 @@ export function createCredentialsList(select, settings, id) {
   for (const i in settings.credentials) {
     const cred = settings.credentials[i];
     //const text = cred.instant + " - " + cred.user.name + " (" + cred.user.displayName + ")";
-    const text = `${cred.instant} - ${cred.user.name} (${cred.user.displayName})`;
+    const text = `${cred.instant} - ${cred.user.name} (${cred.user.displayName})`
     option = document.createElement('option');
     option.setAttribute('value', cred.id);
     option.innerText = text;
     select.appendChild(option);
-    if (notEmpty(id) && cred.id === id) {
+    if (notEmpty(id) && (cred.id === id)) {
       selected = option;
     }
   }
@@ -36,23 +36,17 @@ export function createCredentialsList(select, settings, id) {
   return select;
 }
 
-export function addCredential(
-  settings,
-  user,
-  id,
-  credentialPublicKey,
-  response
-) {
+export function addCredential(settings, user, id, credentialPublicKey, response) {
   if (notEmpty(id)) {
     settings.credentials[id] = {
-      instant: new Date().toISOString(),
-      user: {
-        name: user.name,
-        displayName: user.displayName,
+      'instant': new Date().toISOString(),
+      'user': {
+        'name': user.name,
+        'displayName': user.displayName,
       },
-      id: id,
-      credentialPublicKey: credentialPublicKey,
-      response: response,
+      'id': id,
+      'credentialPublicKey': credentialPublicKey,
+      'response': response,
     };
     saveSettings(settings);
   }
@@ -64,7 +58,7 @@ export function getCredential(settings, id) {
 }
 
 export function getUsername(id) {
-  const seetings = readSettings();
+  const seetings = readSettings()
   if (id in seetings.credentials) {
     const cred = seetings.credentials[id];
     return cred.user.name;
@@ -74,14 +68,14 @@ export function getUsername(id) {
 
 export function readSettings() {
   let settings = {
-    credentials: {},
+    'credentials': {},
   };
   const s = window.localStorage.getItem('settings');
   if (notEmpty(s)) {
     try {
       settings = JSON.parse(s);
     } catch {
-      console.log('Error parsing settings');
+      console.log('Error parsing settings')
     }
     if ('rp' in settings) {
       delete settings.rp;

@@ -31,14 +31,13 @@ const NoStake = (props: NoStakeProps) => {
   }, []);
 
   return (
-    <Box
-      className="page"
+    <Box className="page"
       sx={{
         position: 'relative',
         width: '100%',
         overflow: 'hidden',
         height: '487px',
-        background: '#121212',
+        background: '#121212'
       }}
     >
       {props.noStakeOpen ? (
@@ -63,6 +62,7 @@ const NoStake = (props: NoStakeProps) => {
               padding: '0 18px',
             }}
           >
+
             <Typography
               variant="body1"
               sx={{
@@ -209,10 +209,9 @@ const NoStake = (props: NoStakeProps) => {
                   sx={{
                     fontWeight: 'bold',
                     fontSize: '20px',
-                    background:
-                      '-webkit-linear-gradient(320deg, #FFC062 4.01%, #0BD3FF 62.72%);',
+                    background: '-webkit-linear-gradient(320deg, #FFC062 4.01%, #0BD3FF 62.72%);',
                     backgroundClip: 'text',
-                    textFillColor: 'transparent',
+                    textFillColor: 'transparent'
                   }}
                   variant="body2"
                 >
@@ -311,9 +310,9 @@ const NoStake = (props: NoStakeProps) => {
                   color="#00B881"
                   sx={{ fontSize: '12px' }}
                 >
-                  FLOW
-                </Typography>{' '}
-                as a reward. Your rewards are liquid and can be can{' '}
+                  FLOW 
+                </Typography>
+                {' '}as a reward. Your rewards are liquid and can be can{' '}
                 <Typography
                   color="#00B881"
                   display="inline"
@@ -445,6 +444,7 @@ const NoStake = (props: NoStakeProps) => {
                     textTransform: 'none !important',
                   }}
                 />
+
               )}
             </Box>
           </Box>

@@ -11,13 +11,7 @@ const IconEye = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg
-      viewBox="0 0 1024 1024"
-      width={size + 'px'}
-      height={size + 'px'}
-      style={style}
-      {...rest}
-    >
+    <svg viewBox="0 0 1024 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
       <path
         d="M611.413333 512c0 55.04-44.373333 99.413333-99.413333 99.413333S412.586667 567.04 412.586667 512 456.96 412.586667 512 412.586667s99.413333 44.373333 99.413333 99.413333z"
         fill={getIconColor(color, 0, '#333333')}

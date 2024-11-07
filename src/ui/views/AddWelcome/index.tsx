@@ -48,19 +48,12 @@ const AddWelcome = () => {
               height: '380px',
               width: '625px',
               position: 'relative',
-              borderRadius: '24px',
+              borderRadius: '24px'
             }}
           >
             <img
               src={appicon}
-              style={{
-                borderRadius: '24px',
-                margin: '0',
-                width: '368px',
-                position: 'absolute',
-                right: '0px',
-                top: '0px',
-              }}
+              style={{ borderRadius: '24px', margin: '0', width: '368px', position: 'absolute', right: '0px', top: '0px' }}
             />
 
             <Box
@@ -81,7 +74,7 @@ const AddWelcome = () => {
                   fontSize: '40px',
                   WebkitBackgroundClip: 'text',
                   color: '#fff',
-                  lineHeight: '56px',
+                  lineHeight: '56px'
                 }}
               >
                 {chrome.i18n.getMessage('Welcome_to_lilico')}
@@ -89,22 +82,16 @@ const AddWelcome = () => {
 
               <Typography
                 variant="body1"
-                sx={{
-                  color: 'text.secondary',
-                  pt: '16px',
-                  fontSize: '16px',
-                  margin: '24px 0 44px',
-                }}
+                sx={{ color: 'text.secondary', pt: '16px', fontSize: '16px', margin: '24px 0 44px' }}
               >
                 {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
                 {chrome.i18n.getMessage('A_crypto_wallet_on_Flow')}
                 <Typography sx={{ color: 'primary.light', display: 'inline' }}>
-                  <span>
-                    {' '}
-                    {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}
-                  </span>
+                  <span> {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}</span>
                 </Typography>
+
               </Typography>
+
 
               <Button
                 variant="contained"
@@ -121,14 +108,10 @@ const AddWelcome = () => {
                   borderRadius: '24px',
                   textTransform: 'capitalize',
                   marginBottom: '16px',
-                  paddingLeft: '32px',
+                  paddingLeft: '32px'
                 }}
               >
-                <CardMedia
-                  component="img"
-                  sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                  image={create}
-                />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={create} />
                 <Typography
                   variant="subtitle1"
                   sx={{ fontWeight: '600', fontSize: '14px' }}
@@ -192,14 +175,10 @@ const AddWelcome = () => {
                   border: '1px solid #E5E5E5',
                   marginBottom: '16px',
                   backgroundColor: 'transparent',
-                  paddingLeft: '32px',
+                  paddingLeft: '32px'
                 }}
               >
-                <CardMedia
-                  component="img"
-                  sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                  image={qr}
-                />
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={qr} />
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -207,8 +186,8 @@ const AddWelcome = () => {
                     fontSize: '14px',
                     color: '#FFF',
                     '&:hover': {
-                      color: 'background.paper',
-                    },
+                      color: 'background.paper'
+                    }
                   }}
                 >
                   {chrome.i18n.getMessage('Sync_with_Mobile_App')}
@@ -234,23 +213,12 @@ const AddWelcome = () => {
                   flexDirection: 'column',
                   paddingLeft: '32px',
                   '&:hover': {
-                    color: 'background.paper',
-                  },
+                    color: 'background.paper'
+                  }
                 }}
               >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-start',
-                    width: '100%',
-                    alignItems: 'center',
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                    image={importPng}
-                  />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%', alignItems: 'center' }}>
+                  <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
                   <Typography
                     variant="subtitle1"
                     sx={{
@@ -268,6 +236,7 @@ const AddWelcome = () => {
                     fontWeight: '400',
                     fontSize: '12px',
                     color: 'rgba(255, 255, 255, 0.40)',
+
                   }}
                 >
                   {chrome.i18n.getMessage('Support_Flow_Wallet_Blocto')}
@@ -275,6 +244,8 @@ const AddWelcome = () => {
               </Button>
             </Box>
           </Box>
+
+
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

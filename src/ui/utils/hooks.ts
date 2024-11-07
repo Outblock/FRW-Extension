@@ -58,7 +58,8 @@ export const useApproval = () => {
   };
 
   useEffect(() => {
-    console.log('useApproval', getUiType(), getUiType().isNotification);
+
+    console.log('useApproval', getUiType(), getUiType().isNotification)
 
     // if (!getUiType().isNotification) {
     //   return;
@@ -68,12 +69,7 @@ export const useApproval = () => {
     return () => window.removeEventListener('beforeunload', rejectApproval);
   }, []);
 
-  return [
-    getApproval,
-    resolveApproval,
-    rejectApproval,
-    linkningConfirm,
-  ] as const;
+  return [getApproval, resolveApproval, rejectApproval, linkningConfirm] as const;
 };
 
 export const useSelectOption = <T>({

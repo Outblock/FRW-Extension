@@ -1,3 +1,4 @@
+
 import { WalletController } from './index';
 
 export const getCurrentTab = async () => {

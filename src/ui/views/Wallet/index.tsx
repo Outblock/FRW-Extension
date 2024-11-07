@@ -2,16 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useWallet } from 'ui/utils';
 import { formatLargeNumber } from 'ui/utils/number';
 import { Box } from '@mui/system';
-import {
-  Typography,
-  Button,
-  Tab,
-  Tabs,
-  Skeleton,
-  Drawer,
-  ButtonBase,
-  CardMedia,
-} from '@mui/material';
+import { Typography, Button, Tab, Tabs, Skeleton, Drawer, ButtonBase, CardMedia } from '@mui/material';
 import theme from '../../style/LLTheme';
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded';
 import SwipeableViews from 'react-swipeable-views';
@@ -31,6 +22,7 @@ import sendIcon from 'ui/FRWAssets/svg/sendIcon.svg';
 import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
 import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
 import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -79,8 +71,7 @@ const WalletTab = ({ network }) => {
   const [canMoveChild, setCanMoveChild] = useState(true);
   const [receiveHover, setReceiveHover] = useState(false);
   const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
-  const [lastManualAddressCallTime, setlastManualAddressCallTime] =
-    useState<any>(0);
+  const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
 
   const [incLink, _] = useState(
     network === 'mainnet'
@@ -117,14 +108,12 @@ const WalletTab = ({ network }) => {
       if (currentTime - lastManualAddressCallTime > 60000) {
         try {
           await wallet.openapi.getManualAddress();
-          setlastManualAddressCallTime(currentTime);
+          setlastManualAddressCallTime(currentTime)
         } catch (error) {
           console.error('Error getting manual address:', error);
         }
       } else {
-        console.log(
-          'Skipped calling getManualAddress to prevent frequent calls'
-        );
+        console.log('Skipped calling getManualAddress to prevent frequent calls');
       }
     }
     return data;
@@ -145,54 +134,37 @@ const WalletTab = ({ network }) => {
     return pollTimer;
   };
 
-  const refreshWithRetry = async (
-    expiry_time,
-    retryCount = 0,
-    delay = 2000,
-    maxRetries = 5
-  ) => {
+  const refreshWithRetry = async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
     if (childStateLoading) {
-      console.log('childStateLoading.');
+      console.log("childStateLoading.");
       return;
     }
     try {
+
       const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-      console.log(
-        `refreshedCoinlist fetching price for token:`,
-        refreshedCoinlist
-      );
+      console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
 
       if (refreshedCoinlist.length === 0 && retryCount < maxRetries) {
-        console.log(
-          `No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
-        );
+        console.log(`No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
         setTimeout(() => {
           refreshWithRetry(expiry_time, retryCount + 1);
         }, delay);
       } else {
-        console.log(
-          `refreshedCoinlist found, refreshedCoinlist`,
-          refreshedCoinlist
-        );
+        console.log(`refreshedCoinlist found, refreshedCoinlist`, refreshedCoinlist);
         sortWallet(refreshedCoinlist);
       }
     } catch (error) {
       console.error(`Error fetching price for token:`, error);
       if (retryCount < maxRetries) {
-        console.log(
-          `Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
-        );
+        console.log(`Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
         setTimeout(() => {
           refreshWithRetry(expiry_time, retryCount + 1);
         }, delay);
       } else {
-        wallet
-          .refreshCoinList(expiry_time)
+        wallet.refreshCoinList(expiry_time)
           .then((res) => {
             if (res.length === 0 && retryCount < maxRetries) {
-              console.log(
-                `No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
-              );
+              console.log(`No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`);
               setTimeout(() => {
                 refreshWithRetry(expiry_time, retryCount + 1);
               }, delay);
@@ -255,14 +227,11 @@ const WalletTab = ({ network }) => {
     sortWallet(storageData);
   };
 
+
   const handleStorageData = async (storageData) => {
     if (storageData) {
-      const uniqueTokens = storageData.filter(
-        (token, index, self) =>
-          index ===
-          self.findIndex(
-            (t) => t.unit.toLowerCase() === token.unit.toLowerCase()
-          )
+      const uniqueTokens = storageData.filter((token, index, self) =>
+        index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
       );
       await setCoinData(uniqueTokens);
       let sum = 0;
@@ -276,7 +245,7 @@ const WalletTab = ({ network }) => {
   };
 
   const fetchChildState = async () => {
-    setChildStateLoading(true);
+    setChildStateLoading(true)
     const isChild = await wallet.getActiveWallet();
     const childresp = await wallet.checkUserChildAccount();
     setChildAccount(childresp);
@@ -286,7 +255,7 @@ const WalletTab = ({ network }) => {
     } else {
       setIsActive(true);
     }
-    setChildStateLoading(false);
+    setChildStateLoading(false)
     return isChild;
   };
 
@@ -308,11 +277,7 @@ const WalletTab = ({ network }) => {
   };
 
   const filteredCoinData = coinData.filter((coin) => {
-    if (
-      childType === 'evm' &&
-      coin.unit !== 'flow' &&
-      parseFloat(coin.balance) === 0
-    ) {
+    if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0) {
       return false;
     }
     return true;
@@ -412,8 +377,8 @@ const WalletTab = ({ network }) => {
             mb: '20px',
           }}
         >
-          <Box sx={{ display: 'flex', gap: '2px', width: '100%' }}>
-            {(!childType || childType === '' || childType === 'evm') && (
+          <Box sx={{ display: 'flex', gap: '2px', width: '100%', }}>
+            {(!childType || childType === '' || childType === 'evm') &&
               <Button
                 color="info3"
                 variant="contained"
@@ -431,28 +396,14 @@ const WalletTab = ({ network }) => {
                   width: sendHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
                   flex: '1',
-                  transition: 'width 0.3s ease-in-out',
+                  transition: 'width 0.3s ease-in-out'
                 }}
               >
-                <CardMedia
-                  sx={{ width: '20px', height: '20px', color: 'FFF' }}
-                  image={sendIcon}
-                />
-                {sendHover && (
-                  <Typography
-                    sx={{
-                      fontWeight: 'normal',
-                      color: '#FFF',
-                      fontSize: '12px',
-                      textTransform: 'capitalize !important',
-                      marginLeft: '4px',
-                    }}
-                  >
-                    {chrome.i18n.getMessage('Send')}
-                  </Typography>
-                )}
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={sendIcon} />
+                {sendHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Send')}</Typography>}
               </Button>
-            )}
+
+            }
 
             {!childType && (
               <Button
@@ -466,7 +417,7 @@ const WalletTab = ({ network }) => {
                   width: swapHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
                   flex: '1',
-                  transition: 'width 0.3s ease-in-out',
+                  transition: 'width 0.3s ease-in-out'
                 }}
                 onMouseEnter={() => setSwapHover(true)}
                 onMouseLeave={() => setSwapHover(false)}
@@ -474,25 +425,11 @@ const WalletTab = ({ network }) => {
                   window.open(incLink, '_blank', 'noopener,noreferrer');
                 }}
               >
-                <CardMedia
-                  sx={{ width: '20px', height: '20px', color: 'FFF' }}
-                  image={swapIcon}
-                />
-                {swapHover && (
-                  <Typography
-                    sx={{
-                      fontWeight: 'normal',
-                      color: '#FFF',
-                      fontSize: '12px',
-                      textTransform: 'capitalize !important',
-                      marginLeft: '4px',
-                    }}
-                  >
-                    {chrome.i18n.getMessage('Swap')}
-                  </Typography>
-                )}
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={swapIcon} />
+                {swapHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Swap')}</Typography>}
               </Button>
             )}
+
 
             <Button
               color="info3"
@@ -501,44 +438,23 @@ const WalletTab = ({ network }) => {
                 height: '36px',
                 px: '12px !important',
                 minWidth: '56px',
-                borderTopLeftRadius:
-                  !childType || childType === '' || childType === 'evm'
-                    ? '0px'
-                    : '24px',
-                borderBottomLeftRadius:
-                  !childType || childType === '' || childType === 'evm'
-                    ? '0px'
-                    : '24px',
+                borderTopLeftRadius: (!childType || childType === '' || childType === 'evm') ? '0px' : '24px',
+                borderBottomLeftRadius: (!childType || childType === '' || childType === 'evm') ? '0px' : '24px',
                 borderTopRightRadius: isActive ? '0px' : '24px',
                 borderBottomRightRadius: isActive ? '0px' : '24px',
                 width: receiveHover ? '100%' : '56px',
                 textTransform: 'capitalize !important',
                 flex: '1',
-                transition: 'width 0.3s ease-in-out',
+                transition: 'width 0.3s ease-in-out'
               }}
               onMouseEnter={() => setReceiveHover(true)}
               onMouseLeave={() => setReceiveHover(false)}
               onClick={() => history.push('/dashboard/wallet/deposit')}
             >
-              <CardMedia
-                sx={{ width: '20px', height: '20px', color: 'FFF' }}
-                image={receiveIcon}
-              />
-              {receiveHover && (
-                <Typography
-                  sx={{
-                    fontWeight: 'normal',
-                    color: '#FFF',
-                    fontSize: '12px',
-                    textTransform: 'capitalize !important',
-                    marginLeft: '4px',
-                  }}
-                >
-                  {chrome.i18n.getMessage('Receive')}
-                </Typography>
-              )}
+              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={receiveIcon} />
+              {receiveHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Receive')}</Typography>}
             </Button>
-            {isActive && (
+            {isActive &&
               <Button
                 color="info3"
                 variant="contained"
@@ -553,34 +469,27 @@ const WalletTab = ({ network }) => {
                   width: buyHover ? '100%' : '56px',
                   textTransform: 'capitalize !important',
                   flex: '1',
-                  transition: 'width 0.3s ease-in-out',
+                  transition: 'width 0.3s ease-in-out'
                 }}
                 onMouseEnter={() => setBuyHover(true)}
                 onMouseLeave={() => setBuyHover(false)}
                 onClick={() => setOnRamp(true)}
               >
-                <CardMedia
-                  sx={{ width: '20px', height: '20px', color: 'FFF' }}
-                  image={buyIcon}
-                />
-                {buyHover && (
-                  <Typography
-                    sx={{
-                      fontWeight: 'normal',
-                      color: '#FFF',
-                      fontSize: '12px',
-                      textTransform: 'capitalize !important',
-                      marginLeft: '4px',
-                    }}
-                  >
-                    {chrome.i18n.getMessage('Buy')}
-                  </Typography>
-                )}
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={buyIcon} />
+                {buyHover && <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important', marginLeft: '4px' }}>{chrome.i18n.getMessage('Buy')}</Typography>}
               </Button>
-            )}
+            }
           </Box>
-          {canMoveChild && <Box sx={{ flex: '1 1 5px' }}></Box>}
-          {canMoveChild && (
+          {canMoveChild
+            &&
+
+
+            <Box sx={{ flex: '1 1 5px' }}>
+            </Box>
+          }
+          {canMoveChild
+            &&
+
             <Box>
               <Button
                 color="info3"
@@ -588,28 +497,14 @@ const WalletTab = ({ network }) => {
                 onClick={() => goMoveBoard()}
                 sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
               >
-                <CardMedia
-                  sx={{
-                    width: '20px',
-                    height: '20px',
-                    marginRight: '4px',
-                    color: 'FFF',
-                  }}
-                  image={iconMove}
-                />
-                <Typography
-                  sx={{
-                    fontWeight: 'normal',
-                    color: '#FFF',
-                    fontSize: '12px',
-                    textTransform: 'capitalize !important',
-                  }}
-                >
+                <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }} image={iconMove} />
+                <Typography sx={{ fontWeight: 'normal', color: '#FFF', fontSize: '12px', textTransform: 'capitalize !important' }}>
                   {chrome.i18n.getMessage('Move')}
                 </Typography>
               </Button>
             </Box>
-          )}
+          }
+
         </Box>
         <Tabs
           value={value}
@@ -642,10 +537,7 @@ const WalletTab = ({ network }) => {
                   fontWeight: 'semi-bold',
                 }}
               >
-                {childType === 'evm'
-                  ? filteredCoinData?.length || ''
-                  : coinData?.length || ''}{' '}
-                {chrome.i18n.getMessage('coins')}
+                {childType === 'evm' ? filteredCoinData?.length || '' : coinData?.length || ''} {chrome.i18n.getMessage('coins')}
               </Typography>
             }
             style={{ color: '#F9F9F9', minHeight: '25px' }}
@@ -685,13 +577,7 @@ const WalletTab = ({ network }) => {
         style={{ height: '100%', width: '100%' }}
       >
         <TabPanel value={value} index={0}>
-          <CoinList
-            data={coinData}
-            ableFt={accessible}
-            isActive={isActive}
-            childType={childType}
-            coinLoading={coinLoading}
-          />
+          <CoinList data={coinData} ableFt={accessible} isActive={isActive} childType={childType} coinLoading={coinLoading} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           <TransferList setCount={setTxCount} />
@@ -717,17 +603,19 @@ const WalletTab = ({ network }) => {
       >
         <OnRampList close={() => setOnRamp(false)} />
       </Drawer>
-      {showMoveBoard && (
-        <MoveBoard
-          showMoveBoard={showMoveBoard}
-          handleCloseIconClicked={() => setMoveBoard(false)}
-          handleCancelBtnClicked={() => setMoveBoard(false)}
-          handleAddBtnClicked={() => {
-            setMoveBoard(false);
-          }}
-        />
-      )}
-    </Box>
+      {
+        showMoveBoard && (
+          <MoveBoard
+            showMoveBoard={showMoveBoard}
+            handleCloseIconClicked={() => setMoveBoard(false)}
+            handleCancelBtnClicked={() => setMoveBoard(false)}
+            handleAddBtnClicked={() => {
+              setMoveBoard(false);
+            }}
+          />
+        )
+      }
+    </Box >
   );
 };
 

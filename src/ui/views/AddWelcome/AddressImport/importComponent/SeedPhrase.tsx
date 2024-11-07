@@ -2,13 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { findAddressWithSeed } from '../../../../utils/modules/findAddressWithPK';
 import { KEY_TYPE } from '../../../../utils/modules/constants';
 import React from 'react';
-import {
-  Box,
-  Button,
-  Typography,
-  TextField,
-  TextareaAutosize,
-} from '@mui/material';
+import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
 import KeyPathInput from '../../../../FRWComponent/KeyPathInputs';
@@ -55,12 +49,8 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
         onOpen();
         return;
       }
-
-      const accounts = result.map((a) => ({
-        ...a,
-        type: KEY_TYPE.SEED_PHRASE,
-        mnemonic: seed,
-      }));
+      
+      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }));
       onImport(accounts);
     } finally {
       setLoading(false);
@@ -80,6 +70,7 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
           placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
           defaultValue={''}
+
         />
 
         <KeyPathInput />
@@ -97,9 +88,10 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
             textTransform: 'capitalize',
             gap: '12px',
             display: 'flex',
-            marginTop: '40px',
+            marginTop:'40px',
           }}
           disabled={isLoading || isSignLoading}
+
         >
           {(isLoading || isSignLoading) && <LLSpinner size={28} />}
           <Typography

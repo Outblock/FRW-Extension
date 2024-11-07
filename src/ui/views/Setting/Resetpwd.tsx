@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React,{ useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import { Typography, Button } from '@mui/material';
+import {Typography,Button} from '@mui/material';
 import { useHistory } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Input, InputAdornment } from '@mui/material';
+import{Input,InputAdornment} from '@mui/material';
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import { makeStyles } from '@mui/styles';
-import { IconButton } from '@mui/material';
-import { FormGroup, LinearProgress } from '@mui/material';
+import {
+  IconButton,
+} from '@mui/material';
+import {
+  FormGroup,
+  LinearProgress,
+} from '@mui/material';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -68,11 +73,12 @@ const useStyles = makeStyles(() => ({
     },
   },
 }));
-
+  
+  
 const PasswordIndicator = (props) => {
   const score = zxcvbn(props.value).score;
   const precentage = ((score + 1) / 5) * 100;
-
+  
   const level = (score) => {
     switch (score) {
       case 0:
@@ -88,7 +94,7 @@ const PasswordIndicator = (props) => {
         return { text: 'Unknow', color: 'error' };
     }
   };
-
+  
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ width: '72px', mr: 1 }}>
@@ -108,6 +114,8 @@ const PasswordIndicator = (props) => {
     </Box>
   );
 };
+
+
 
 const Resetpassword = () => {
   const classes = useStyles();
@@ -149,14 +157,12 @@ const Resetpassword = () => {
           color={'#41CC5D'}
           style={{ margin: '8px' }}
         />
-        <Typography
-          sx={{
-            fontSize: '10px',
-            fontStyle: 'normal',
-            fontWeight: '400',
-          }}
-          color="text.secondary"
-        >
+        <Typography  sx={{
+          fontSize: '10px',
+          fontStyle: 'normal',
+          fontWeight: '400',
+        }}
+        color="text.secondary">
           {message}
         </Typography>
       </Box>
@@ -177,14 +183,12 @@ const Resetpassword = () => {
         }}
       >
         <CancelIcon size={12} color={'#E54040'} style={{ margin: '8px' }} />
-        <Typography
-          sx={{
-            fontSize: '10px',
-            fontStyle: 'normal',
-            fontWeight: '400',
-          }}
-          color="error.main"
-        >
+        <Typography sx={{
+          fontSize: '10px',
+          fontStyle: 'normal',
+          fontWeight: '400',
+        }}
+        color="error.main">
           {message}
         </Typography>
       </Box>
@@ -252,7 +256,7 @@ const Resetpassword = () => {
               fontFamily: 'Inter',
               fontStyle: 'normal',
               fontWeight: '600',
-              color: '#BABABA',
+              color: '#BABABA'
             }}
           >
             {chrome.i18n.getMessage('Change__111e__Password')}
@@ -270,11 +274,9 @@ const Resetpassword = () => {
         >
           <FormGroup sx={{ width: '100%' }}>
             <Input
-              sx={{
-                fontSize: '12px',
-                fontFamily: 'Inter',
-                fontStyle: 'normal',
-              }}
+              sx={{fontSize:'12px', 
+                fontFamily:'Inter', 
+                fontStyle:'normal',}}
               id="pass"
               name="password"
               placeholder={chrome.i18n.getMessage('Current__Password')}
@@ -290,30 +292,16 @@ const Resetpassword = () => {
               endAdornment={
                 <InputAdornment position="end">
                   {isSame ? (
-                    <CheckCircleIcon
-                      size={14}
-                      color={'#41CC5D'}
-                      style={{ margin: '8px' }}
-                    />
-                  ) : (
-                    <CancelIcon
-                      size={14}
-                      color={'#E54040'}
-                      style={{ margin: '8px' }}
-                    />
-                  )}
+                    <CheckCircleIcon size={14} color={'#41CC5D'} style={{ margin: '8px' }} />
+                  ) : <CancelIcon size={14} color={'#E54040'} style={{ margin: '8px' }}  />}
                 </InputAdornment>
               }
             />
 
             <Input
-              sx={{
-                pb: '15px',
-                marginTop: password ? '0px' : '8px',
-                fontSize: '12px',
-                fontFamily: 'Inter',
-                fontStyle: 'normal',
-              }}
+              sx={{ pb: '15px', marginTop: password ? '0px' : '8px',fontSize:'12px', 
+                fontFamily:'Inter', 
+                fontStyle:'normal', }}
               id="pass1"
               type={isPasswordVisible ? 'text' : 'password'}
               name="password1"
@@ -334,9 +322,9 @@ const Resetpassword = () => {
                     onClick={() => setPasswordVisible(!isPasswordVisible)}
                   >
                     {isPasswordVisible ? (
-                      <VisibilityOffIcon sx={{ fontSize: 14, padding: 0 }} />
+                      <VisibilityOffIcon sx={{fontSize:14,padding:0}}/>
                     ) : (
-                      <VisibilityIcon sx={{ fontSize: 14, padding: 0 }} />
+                      <VisibilityIcon sx={{fontSize:14,padding:0}}/>
                     )}
                   </IconButton>
                 </InputAdornment>
@@ -346,13 +334,9 @@ const Resetpassword = () => {
               {password && helperText}
             </Presets.TransitionSlideUp>
             <Input
-              sx={{
-                pb: '15px',
-                marginTop: password ? '0px' : '8px',
-                fontSize: '12px',
-                fontFamily: 'Inter',
-                fontStyle: 'normal',
-              }}
+              sx={{ pb: '15px', marginTop: password ? '0px' : '8px',fontSize:'12px', 
+                fontFamily:'Inter', 
+                fontStyle:'normal',}}
               id="pass2"
               type={isConfirmPasswordVisible ? 'text' : 'password'}
               name="password2"
@@ -373,9 +357,9 @@ const Resetpassword = () => {
                     }
                   >
                     {isConfirmPasswordVisible ? (
-                      <VisibilityOffIcon sx={{ fontSize: 14, margin: 0 }} />
+                      <VisibilityOffIcon sx={{fontSize:14, margin:0}}/>
                     ) : (
-                      <VisibilityIcon sx={{ fontSize: 14, margin: 0 }} />
+                      <VisibilityIcon sx={{fontSize:14, margin:0}}/>
                     )}
                   </IconButton>
                 </InputAdornment>
@@ -395,7 +379,7 @@ const Resetpassword = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: '8px',
-            marginBottom: '60px',
+            marginBottom: '60px', 
           }}
         >
           <Button
@@ -414,11 +398,9 @@ const Resetpassword = () => {
             }}
           >
             <Typography
-              sx={{
-                fontWeight: '600',
-                fontSize: '14px',
-                fontFamily: 'Inter',
-                fontColor: '#E6E6E6',
+              sx={{ fontWeight: '600',
+                fontSize: '14px', fontFamily:'Inter',
+                fontColor:'#E6E6E6',
               }}
             >
               {chrome.i18n.getMessage('Cancel')}
@@ -439,18 +421,26 @@ const Resetpassword = () => {
               textTransform: 'capitalize',
               width: '158px',
             }}
-            disabled={!(isSame && isMatch && isCharacters)}
+            disabled={!(isSame && isMatch && isCharacters )}
           >
             <Typography
-              sx={{ fontWeight: '600', fontSize: '14px', fontFamily: 'Inter' }}
+              sx={{ fontWeight: '600',
+                fontSize: '14px', fontFamily:'Inter'}}
               color="text.primary"
             >
               {chrome.i18n.getMessage('Next')}
             </Typography>
           </Button>
         </Box>
+
+        
+          
       </Box>
+         
+
     </div>
+        
+   
   );
 };
 

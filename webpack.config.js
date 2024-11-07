@@ -3,6 +3,7 @@ const commonConfig = require('./build/webpack.common.config');
 const webpack = require('webpack');
 const path = require('path');
 
+
 const configs = {
   dev: require('./build/webpack.dev.config'),
   pro: require('./build/webpack.pro.config'),
@@ -28,13 +29,13 @@ const configs = {
     ],
     resolve: {
       fallback: {
-        http: require.resolve('stream-http'),
-        https: require.resolve('https-browserify'),
-        buffer: require.resolve('buffer'),
-        url: require.resolve('url/'),
-      },
-    },
-  },
+        "http": require.resolve("stream-http"),
+        "https": require.resolve('https-browserify'),
+        "buffer": require.resolve('buffer'),
+        "url": require.resolve("url/"),
+      }
+    }
+  }
 };
 
 const config = (env) => {

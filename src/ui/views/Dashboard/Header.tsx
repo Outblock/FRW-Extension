@@ -34,7 +34,7 @@ import eventBus from '@/eventBus';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
 import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
-import { profileHooks } from 'ui/utils/profileHooks';
+import { profileHooks } from 'ui/utils/profileHooks'
 import { P } from 'ts-toolbelt/out/Object/_api';
 import { Network } from 'ethers';
 
@@ -63,18 +63,19 @@ type ChildAccount = {
 
 const tempEmoji = [
   {
-    emoji: '🥥',
-    name: 'Coconut',
-    bgcolor: '#FFE4C4',
+    "emoji": "🥥",
+    "name": "Coconut",
+    "bgcolor": "#FFE4C4"
   },
   {
-    emoji: '🥑',
-    name: 'Avocado',
-    bgcolor: '#98FB98',
-  },
+    "emoji": "🥑",
+    "name": "Avocado",
+    "bgcolor": "#98FB98"
+  }
 ];
 
 const Header = ({ loading }) => {
+
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
@@ -103,6 +104,8 @@ const Header = ({ loading }) => {
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
+
+
 
   const [flowBalance, setFlowBalance] = useState(0);
 
@@ -153,6 +156,7 @@ const Header = ({ loading }) => {
   const [walletList, setWalletList] = useState([]);
 
   const fetchUserWallet = async () => {
+
     const userInfo = await usewallet.getUserInfo(false);
     await setUserInfo(userInfo);
     if (userInfo.private == 1) {
@@ -184,12 +188,13 @@ const Header = ({ loading }) => {
     const currentWallet = await usewallet.getCurrentWallet();
     const isChild = await usewallet.getActiveWallet();
     const mainAddress = await usewallet.getMainAddress();
+    
 
     if (isChild === 'evm') {
       const res = await usewallet.queryEvmAddress(mainAddress!);
       const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(res);
-      evmWallet.address = evmAddress;
+      const evmAddress = ensureEvmAddressPrefix(res)
+      evmWallet.address = evmAddress
       await setCurrent(evmWallet);
       setMainLoading(false);
     } else {
@@ -209,17 +214,10 @@ const Header = ({ loading }) => {
         setEvmLoading(false);
       }
     }
-
+    
     const walletData = await usewallet.getUserInfo(true);
 
-    const { otherAccounts, wallet, loggedInAccounts } =
-      await usewallet.openapi.freshUserInfo(
-        currentWallet,
-        keys,
-        pubKTuple,
-        walletData,
-        isChild
-      );
+    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
     if (!isChild) {
       setFlowBalance(keys.balance);
     } else {
@@ -257,7 +255,7 @@ const Header = ({ loading }) => {
 
     setEvmLoading(true);
     await setNetwork(network);
-  };
+  }
 
   // const loadInbox = async () => {
 
@@ -314,8 +312,9 @@ const Header = ({ loading }) => {
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
     // TODO: replace it with better UX
-    history.push('/dashboard');
+    history.push('/dashboard')
     window.location.reload();
+
   };
 
   const transactionHanlder = (request) => {
@@ -376,7 +375,7 @@ const Header = ({ loading }) => {
   const fetchProfile = async () => {
     const emojires = await usewallet.getEmoji();
     setEmojis(emojires);
-  };
+  }
   useEffect(() => {
     loadNetwork();
     fetchUserWallet();
@@ -440,9 +439,10 @@ const Header = ({ loading }) => {
     toggleUsernameDrawer();
 
     // TODO: replace it with better UX
-    history.push('/dashboard');
+    history.push('/dashboard')
     window.location.reload();
   };
+
 
   const WalletFunction = (props) => {
     return (
@@ -452,40 +452,20 @@ const Header = ({ loading }) => {
         }}
         sx={{ mb: 0, paddingX: '0', cursor: 'pointer' }}
       >
+
         <ListItemButton
-          sx={{
-            mb: 0,
-            display: 'flex',
-            px: '16px',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
+          sx={{ mb: 0, display: 'flex', px: '16px', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          {emojis && (
-            <Box
-              sx={{
-                display: 'flex',
-                height: '32px',
-                width: '32px',
-                borderRadius: '32px',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: emojis[0]['bgcolor'],
-                marginRight: '12px',
-              }}
-            >
+          {emojis &&
+            < Box sx={{
+              display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emojis[0]['bgcolor'], marginRight: '12px'
+            }}>
               <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
                 {emojis[0].emoji}
               </Typography>
             </Box>
-          )}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              background: 'none',
-            }}
-          >
+          }
+          <Box sx={{ display: 'flex', flexDirection: 'column', background: 'none' }}>
             <Typography
               variant="body1"
               component="span"
@@ -500,7 +480,9 @@ const Header = ({ loading }) => {
             >
               {emojis[0].name}
               {props.address == current['address'] && (
-                <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
+                <ListItemIcon
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
                   <FiberManualRecordIcon
                     style={{
                       fontSize: '10px',
@@ -522,10 +504,10 @@ const Header = ({ loading }) => {
               {(flowBalance / 100000000).toFixed(3)} FLOW
             </Typography>
           </Box>
-          <Box sx={{ flex: '1' }}></Box>
+          <Box sx={{ flex: "1" }}></Box>
           {/* <IconEnd size={12} /> */}
         </ListItemButton>
-      </ListItem>
+      </ListItem >
     );
   };
 
@@ -838,11 +820,7 @@ const Header = ({ loading }) => {
                   {`${props.name === 'Flow' ? 'Wallet' : props.name}${isValidEthereumAddress(props.address) ? ' EVM' : ''}`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ textTransform: 'lowercase' }}
-                  >
+                  <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
                     {formatAddress(props.address)}
                   </Typography>
                   <IconCopy fill="icon.navi" width="12px" />
@@ -918,7 +896,7 @@ const Header = ({ loading }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          {userInfo && (
+          {userInfo &&
             <MenuDrawer
               userInfo={userInfo!}
               drawer={drawer}
@@ -938,7 +916,7 @@ const Header = ({ loading }) => {
               evmLoading={evmLoading}
               modeOn={modeOn}
             />
-          )}
+          }
           {appBarLabel(current)}
           {usernameSelect()}
           {userInfo && (

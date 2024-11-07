@@ -5,7 +5,7 @@ import {
   Divider,
   Box,
   Drawer,
-  Typography,
+  Typography
 } from '@mui/material';
 import { LLContactCard } from '../../../FRWComponent';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,6 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Contact } from 'background/service/networkModel';
 import { LLPrimaryButton, LLSecondaryButton } from '../../../FRWComponent';
 import IconSubtract from '../../../../components/iconfont/IconSubtract';
+
 
 interface AddressBookItemProps {
   index: number;
@@ -28,11 +29,7 @@ const AddressBookItem = (props: AddressBookItemProps) => {
 
   const renderDeleteContactDialog = () => {
     return (
-      <Drawer
-        open={isDeleteDialogOpen}
-        anchor="bottom"
-        transitionDuration={300}
-      >
+      <Drawer open={isDeleteDialogOpen} anchor="bottom" transitionDuration={300}>
         <Box
           px="18px"
           sx={{
@@ -46,14 +43,14 @@ const AddressBookItem = (props: AddressBookItemProps) => {
             sx={{
               justifyContent: 'space-between',
               alignItems: 'center',
-              display: 'flex',
-              flexDirection: 'column',
+              display:'flex',
+              flexDirection:'column',
             }}
           >
-            <Box sx={{ margin: '54px 0 38px' }}>
+            <Box sx={{margin:'54px 0 38px'}}>
               <IconSubtract size={48} />
             </Box>
-            <Box sx={{ width: '228px' }}>
+            <Box sx={{width:'228px'}}>
               <Typography
                 variant="h1"
                 align="center"
@@ -61,26 +58,13 @@ const AddressBookItem = (props: AddressBookItemProps) => {
                 fontWeight="bold"
                 fontSize="24px"
               >
-                {chrome.i18n.getMessage(
-                  'Are__you__sure__you__want__to__remove__this__contact'
-                )}
+                {chrome.i18n.getMessage('Are__you__sure__you__want__to__remove__this__contact')}
               </Typography>
             </Box>
             <Box>
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  fontFamily: 'Inter',
-                  fontStyle: 'normal',
-                  color: '#BABABA',
-                  textAlign: 'center',
-                  margin: '18px 36px 52px',
-                  cursor: 'pointer',
-                }}
-              >
-                {chrome.i18n.getMessage(
-                  'You__will__no__longer__find__this__contact__in__your__address__book'
-                )}
+              <Typography sx={{fontSize:'14px', fontFamily:'Inter', 
+                fontStyle:'normal', color:'#BABABA', textAlign:'center', margin:'18px 36px 52px', cursor:'pointer'}}>
+                {chrome.i18n.getMessage('You__will__no__longer__find__this__contact__in__your__address__book')}
               </Typography>
             </Box>
           </Box>

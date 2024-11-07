@@ -52,6 +52,7 @@ const pk2PubKey = async (pk) => {
 };
 
 const formPubKey = async (pubKey) => {
+
   return {
     P256: {
       pubK: pubKey,
@@ -69,19 +70,14 @@ const seed2PubKey = async (seed) => {
   const accountIndex = (await storage.get('currentAccountIndex')) ?? 0;
   const pathKeyIndex = `user${accountIndex}_path`;
   const phraseKeyIndex = `user${accountIndex}_phrase`;
-
+  
+  
   const pathKeyId = `user${currentId}_path`;
   const phraseKeyId = `user${currentId}_phrase`;
-
-  const path =
-    (await storage.get(pathKeyId)) ??
-    (await storage.get(pathKeyIndex)) ??
-    FLOW_BIP44_PATH;
-
-  const passphrase =
-    (await storage.get(phraseKeyId)) ??
-    (await storage.get(phraseKeyIndex)) ??
-    '';
+    
+  const path = (await storage.get(pathKeyId)) ?? (await storage.get(pathKeyIndex)) ?? FLOW_BIP44_PATH;
+  
+  const passphrase = (await storage.get(phraseKeyId)) ?? (await storage.get(phraseKeyIndex)) ?? '';
   // console.log('pathpathpath ', path)
   // console.log('pathKey ', pathKey)
   // console.log('phraseKey ', phraseKey)
@@ -112,10 +108,10 @@ const seed2PubKey = async (seed) => {
 const seed2PubKeyTemp = async (seed) => {
   const { HDWallet, Curve } = await initWasm();
 
-  const path = (await storage.get('temp_path')) || FLOW_BIP44_PATH;
-  const passphrase = (await storage.get('temp_phrase')) || '';
-  console.log('pathpathpath ', path);
-  console.log('passphrase ', passphrase);
+  const path = await storage.get('temp_path') || FLOW_BIP44_PATH;
+  const passphrase = await storage.get('temp_phrase') || '';
+  console.log('pathpathpath ', path)
+  console.log('passphrase ', passphrase)
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
   const p256PK = wallet.getKeyByCurve(Curve.nist256p1, path);
   const p256PubK = Buffer.from(
@@ -302,5 +298,5 @@ export {
   signMessageHash,
   signWithKey,
   seed2PubKeyTemp,
-  formPubKey,
+  formPubKey
 };

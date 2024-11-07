@@ -7,7 +7,7 @@ import {
   Snackbar,
   Alert,
   SnackbarContent,
-  Slide,
+  Slide
 } from '@mui/material';
 import { notification } from 'background/webapi';
 // import '../../Unlock/style.css';
@@ -35,7 +35,7 @@ const Staking = () => {
       notification.create(
         '/',
         'Not enough Flow',
-        'A minimum of 50 Flow is required for staking'
+        'A minimum of 50 Flow is required for staking',
       );
       return;
     } else {
@@ -55,20 +55,15 @@ const Staking = () => {
     setSetup(setup);
 
     const storageData = await wallet.getCoinList();
-    const flowObject = storageData.find(
-      (coin) => coin.unit.toLowerCase() === 'flow'
-    );
+    const flowObject = storageData.find(coin => coin.unit.toLowerCase() === 'flow');
     setAmount(flowObject!.balance);
-  };
+  }
 
   useEffect(() => {
     console.log('Updated amount: ', amount);
   }, [amount]);
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -77,56 +72,40 @@ const Staking = () => {
 
   const getNodeInfo = async () => {
     const address = await wallet.getCurrentAddress();
-    wallet
-      .delegateInfo(address)
-      .then((res) => {
-        const dres = Object.keys(res).map((key) => [res[key]]);
-        let delegates: any[] = [];
-        dres.map((delegate) => {
-          delegate.map((d) => {
-            const dv = Object.keys(d).map((k) => d[k]);
-            delegates = delegates.concat(dv);
-            console.log('this is delegates: ', delegates);
-          });
-        });
-        setDelegate(delegates);
+    wallet.delegateInfo(address).then((res) => {
+      const dres = Object.keys(res).map((key) => [res[key]]);
+      let delegates: any[] = []
+      dres.map((delegate) => {
+        delegate.map((d) => {
+          const dv = Object.keys(d).map((k) => d[k])
+          delegates = delegates.concat(dv)
+          console.log('this is delegates: ', delegates)
+        })
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      setDelegate(delegates);
+    }).catch((err) => {
+      console.log(err)
+    });
   };
 
   useEffect(() => {
     getNodeInfo();
     loadNetwork();
-  }, []);
+  }, [])
 
   return (
     <Box>
-      {haveStake && delegate.length > 0 ? (
-        <HaveStake delegate={delegate} />
-      ) : (
-        <NoStake
-          noStakeOpen={noStakeOpen}
-          network={network}
-          hasSetup={setup}
-          loading={loading}
-          handleClick={handleClick}
-          amount={amount}
-        />
-      )}
+      {(haveStake && delegate.length > 0) ?
+        (
+          <HaveStake delegate={delegate} />
+        ) :
+        (
+          <NoStake noStakeOpen={noStakeOpen} network={network} hasSetup={setup} loading={loading} handleClick={handleClick} amount={amount} />
+        )
+      }
 
-      <Snackbar
-        open={loading}
-        autoHideDuration={6000}
-        onClose={handleErrorClose}
-      >
-        <Alert
-          onClose={handleErrorClose}
-          variant="filled"
-          severity="warning"
-          sx={{ width: '100%' }}
-        >
+      <Snackbar open={loading} autoHideDuration={6000} onClose={handleErrorClose}>
+        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '100%' }}>
           Setup your account, please try again later.
         </Alert>
       </Snackbar>

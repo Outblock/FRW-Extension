@@ -93,8 +93,8 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       const address = e.target[5].value;
       const pk = await jsonToKey(keystore, password);
       if (pk == null) {
-        setErrorMessage('Password incorrect');
-        return;
+        setErrorMessage('Password incorrect')
+        return
       }
       const pkHex = Buffer.from(pk!.data()).toString('hex');
       const result = await findAddressWithPK(pkHex, address);
@@ -186,9 +186,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       {errorMesssage != '' && (
         <ErrorModel
           isOpen={errorMesssage !== ''}
-          onOpenChange={() => {
-            setErrorMessage('');
-          }}
+          onOpenChange={()=>{setErrorMessage('')}}
           errorName={chrome.i18n.getMessage('Error')}
           errorMessage={errorMesssage}
         />

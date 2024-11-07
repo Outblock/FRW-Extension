@@ -1,17 +1,12 @@
 import { useEffect, useState, useContext } from 'react';
 import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
 import React from 'react';
-import {
-  Box,
-  Button,
-  Typography,
-  TextField,
-  TextareaAutosize,
-} from '@mui/material';
+import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
+
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -56,44 +51,26 @@ const Googledrive = ({ setErrorMessage, setShowError }) => {
           },
         });
       } else {
-        setShowError(true);
-        setErrorMessage(chrome.i18n.getMessage('No__backup__found'));
+        setShowError(true)
+        setErrorMessage(chrome.i18n.getMessage('No__backup__found'))
       }
       setLoading(false);
     } catch (e) {
       console.log(e);
-      setShowError(true);
-      setErrorMessage(chrome.i18n.getMessage('Something__is__wrong'));
+      setShowError(true)
+      setErrorMessage(chrome.i18n.getMessage('Something__is__wrong'))
       setLoading(false);
     }
   };
 
   return (
     <Box sx={{ padding: '0' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: '#2C2C2C',
-          borderRadius: '16px',
-          py: '40px',
-        }}
-      >
-        <IconGoogleDrive
-          style={{
-            backgroundColor: '#fff',
-            width: '73px',
-            height: '73px',
-            padding: '8px',
-            borderRadius: '73px',
-          }}
-        />
+      <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-between',alignItems:'center', backgroundColor:'#2C2C2C',borderRadius:'16px', py:'40px'}}>
+        <IconGoogleDrive style={{backgroundColor:'#fff', width:'73px',height:'73px',padding:'8px',borderRadius:'73px'}} />
         <Typography
           variant="body1"
           color="text.primary"
-          sx={{ fontSize: '18px', paddingTop: '18px', fontWeight: '700' }}
+          sx={{fontSize:'18px',paddingTop:'18px',fontWeight:'700'}}
         >
           {chrome.i18n.getMessage('Restore__Backup__from__Google__Drive')}
         </Typography>
@@ -110,14 +87,16 @@ const Googledrive = ({ setErrorMessage, setShowError }) => {
             textTransform: 'none',
             boxShadow: '0px 24px 24px rgba(0,0,0,0.36)',
             mt: '36px',
-            width: '404px',
+            width:'404px'
           }}
           onClick={getGoogle}
-          startIcon={loading && <LLSpinner size={20} />}
+          startIcon={
+            loading && <LLSpinner size={20} />
+          }
         >
           <Typography
             variant="body1"
-            sx={{ color: '#222', fontSize: '20px', fontWeight: '600' }}
+            sx={{color:'#222',fontSize:'20px',fontWeight:'600'}}
           >
             {chrome.i18n.getMessage('Connect')}
           </Typography>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   Box,
@@ -6,12 +6,14 @@ import {
   Drawer,
   Grid,
   Button,
-  IconButton,
+  IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
+import {
+  LLSpinner,
+} from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { NFTModel } from 'background/service/networkModel';
+import { NFTModel } from 'background/service/networkModel'
 
 interface AddNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -37,13 +39,7 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
       const txID = await wallet.enableNFTStorageLocal(props.data);
       if (txID) {
         await wallet.setDashIndex(0);
-        wallet.listenTransaction(
-          txID,
-          true,
-          `${props.data.name}`,
-          `Your ${props.data.name} vault has been enabled. You are now able to receive ${props.data.name}!\nClick to view this transaction.`,
-          props.data.logo!
-        );
+        wallet.listenTransaction(txID, true, `${props.data.name}`, `Your ${props.data.name} vault has been enabled. You are now able to receive ${props.data.name}!\nClick to view this transaction.`, props.data.logo!);
         setSending(false);
         setTid(txID);
         history.push('/dashboard?activity=1');
@@ -51,13 +47,13 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
       props.handleAddBtnClicked();
     } catch (err) {
       console.log('err ->', err);
-      setSending(false);
+      setSending(false)
     }
-  };
+  } 
 
-  useEffect(() => {
-    console.log(props, props.data);
-  }, []);
+  useEffect(() =>{
+    console.log(props, props.data)
+  },[])
 
   const renderContent = () => (
     <Box
@@ -79,62 +75,38 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
       >
         <Grid item xs={1}></Grid>
         <Grid item xs={10}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant="h1" align="center" py="14px" fontSize="20px">
+          <Box sx={{display: 'flex', flexDirection:'column',justifyContent: 'space-between',alignItems:'center'}}>
+            <Typography
+              variant="h1"
+              align="center"
+              py="14px"
+              fontSize="20px"
+            >
               {chrome.i18n.getMessage('Enable__NFT__Collection')}
             </Typography>
           </Box>
         </Grid>
         <Grid item xs={1}>
           <IconButton onClick={props.handleCloseIconClicked}>
-            <CloseIcon fontSize="medium" sx={{ color: 'icon.navi' }} />
+            <CloseIcon
+              fontSize="medium"
+              sx={{ color: 'icon.navi'}}
+            />
           </IconButton>
         </Grid>
       </Grid>
 
-      {props.data && (
-        <Box
-          sx={{
-            display: 'flex',
-            mx: '28px',
-            my: '28px',
-            backgroundColor: '#333333',
-            borderRadius: '16px',
-            flexDirection: 'column',
-            flexGrow: 1,
-          }}
-        >
-          <Box
-            sx={{
-              borderRadius: '0px 0px 16px 16px',
-              backgroundColor: '#121212',
-              alignSelf: 'center',
-              width: '60%',
-            }}
-          >
-            <Typography variant="h6" sx={{ textAlign: 'center' }}>
-              {props.data.name}
-            </Typography>
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <img
-            src={props.data.logo || ''}
-            style={{
-              height: '114px',
-              alignSelf: 'center',
-              borderRadius: '8px',
-            }}
-          />
-          <Box sx={{ flexGrow: 1 }} />
+
+      {props.data && 
+      <Box sx={{display: 'flex', mx:'28px', my: '28px', backgroundColor: '#333333', borderRadius:'16px', flexDirection: 'column', flexGrow: 1}}>
+        <Box sx={{borderRadius: '0px 0px 16px 16px', backgroundColor: '#121212', alignSelf: 'center', width: '60%'}}>
+          <Typography variant="h6" sx={{textAlign: 'center'}}>{props.data.name}</Typography>
         </Box>
-      )}
+        <Box sx={{flexGrow: 1}}/>
+        <img src={props.data.logo || ''} style={{height: '114px', alignSelf: 'center', borderRadius: '8px'}}/>
+        <Box sx={{flexGrow: 1}}/>
+      </Box>
+      }
       {/* <Stack direction="row" spacing={1} sx={{marginBottom: '33px'}}> */}
       {/* <LLPrimaryButton
           label="Add"
@@ -155,12 +127,12 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
           textTransform: 'capitalize',
           display: 'flex',
           gap: '12px',
-          marginBottom: '33px',
+          marginBottom: '33px'
         }}
       >
         {sending ? (
           <>
-            <LLSpinner size={28} />
+            <LLSpinner size={28}/>
             <Typography
               variant="subtitle1"
               sx={{ fontWeight: 'bold' }}
@@ -169,15 +141,16 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
               {chrome.i18n.getMessage('Working_on_it')}
             </Typography>
           </>
-        ) : (
-          <Typography
+        ) : 
+          (<Typography
             variant="subtitle1"
             sx={{ fontWeight: 'bold' }}
             color="text.primary"
           >
             {chrome.i18n.getMessage('Enable')}
           </Typography>
-        )}
+          )}
+
       </Button>
     </Box>
   );
@@ -188,12 +161,7 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
       open={props.isConfirmationOpen}
       transitionDuration={300}
       PaperProps={{
-        sx: {
-          width: '100%',
-          height: '70%',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
+        sx: { width: '100%', height: '70%', bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
       }}
     >
       {renderContent()}

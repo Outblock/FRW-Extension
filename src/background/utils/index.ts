@@ -97,10 +97,8 @@ export const getScripts = async (folder: string, scriptName: string) => {
   const files = data[folder];
   const script = files[scriptName];
   const scriptString = Buffer.from(script, 'base64').toString('utf-8');
-  const modifiedScriptString = scriptString.replaceAll(
-    '<platform_info>',
-    `Extension-${version}`
-  );
+  const modifiedScriptString = scriptString
+    .replaceAll('<platform_info>', `Extension-${version}`);
   return modifiedScriptString;
 };
 

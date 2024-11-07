@@ -1,11 +1,5 @@
 /* eslint-disable indent */
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-} from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useWallet } from 'ui/utils';
 import { makeStyles } from '@mui/styles';
 import { StyledEngineProvider } from '@mui/material/styles';
@@ -16,7 +10,7 @@ import {
   Grid,
   Skeleton,
   Typography,
-  Box,
+  Box
 } from '@mui/material';
 import GridView from './GridView';
 // import InfiniteScroll from 'react-infinite-scroll-component';
@@ -168,34 +162,34 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
 
   useImperativeHandle(ref, () => ({
     reload: () => {
-      usewallet.clearNFTList();
-      setNFTs([]);
+      usewallet.clearNFTList()
+      setNFTs([])
       setNFTLoading(true);
       fetchNFTCache(ownerAddress);
-    },
+    }
   }));
 
   const nextPage = async () => {
     if (loadingMore) {
-      return;
+      return
     }
 
     setLoadingMore(true);
-    const offset = nfts.length;
+    const offset = nfts.length
     // pageIndex * 24;
     try {
       const list = await usewallet.refreshNft(ownerAddress, offset);
-      const newList: any[] = [];
-      list.nfts.forEach((item) => {
-        const result = nfts.filter((nft) => nft.unique_id === item.unique_id);
+      const newList: any[] = []
+      list.nfts.forEach(item => {
+        const result = nfts.filter(nft => nft.unique_id === item.unique_id)
         if (result.length == 0) {
           newList.push(item);
         }
-      });
-      const mergedList = [...nfts, ...newList];
+      })
+      const mergedList = [...nfts, ...newList]
       setNFTs(mergedList);
-      const hasMore = mergedList.length > 0 && mergedList.length < total;
-      setHasMore(hasMore);
+      const hasMore = mergedList.length > 0 && mergedList.length < total
+      setHasMore(hasMore)
     } finally {
       setLoadingMore(false);
     }
@@ -203,25 +197,25 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
 
   const fetchNFT = async (address: string, reload = true) => {
     if (loading) {
-      return;
+      return
     }
 
     setNFTLoading(true);
     try {
       const response = await usewallet.refreshNft(address, 0);
       if (response.nfts) {
-        const newList: any[] = [];
-        response.nfts.forEach((item) => {
-          const result = nfts.filter((nft) => nft.unique_id === item.unique_id);
+        const newList: any[] = []
+        response.nfts.forEach(item => {
+          const result = nfts.filter(nft => nft.unique_id === item.unique_id)
           if (result.length == 0) {
             newList.push(item);
           }
-        });
-        const mergedList = [...nfts, ...newList];
+        })
+        const mergedList = [...nfts, ...newList]
         setNFTs(mergedList);
 
-        const hasMore = mergedList.length > 0 && mergedList.length < total;
-        setHasMore(hasMore);
+        const hasMore = mergedList.length > 0 && mergedList.length < total
+        setHasMore(hasMore)
       }
 
       props.setCount(response.nftCount);
@@ -244,12 +238,13 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
         fetchNFT(address);
       }
     } catch (e) {
-      console.log('e ->', e);
+      console.log('e ->', e)
     } finally {
       setNFTLoading(false);
       setHasMore(false);
     }
   };
+
 
   const loader = (
     <Grid container className={classes.grid}>
@@ -264,12 +259,16 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
             />
           </CardMedia>
           <CardContent className={classes.content}>
-            <Skeleton variant="text" width={150} sx={{ margin: '0 auto' }} />
+            <Skeleton
+              variant="text"
+              width={150}
+              sx={{ margin: '0 auto' }}
+            />
           </CardContent>
         </Card>
       ))}
     </Grid>
-  );
+  )
 
   // const hasMore = (): boolean => {
   //   return nfts && nfts.length < total
@@ -288,11 +287,11 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
   };
   const checkContractAddressInCollections = (nft) => {
     if (props.isActive) {
-      return true;
+      return true
     }
     const contractAddressWithout0x = nft.collectionContractName;
-    console.log('nft is ', contractAddressWithout0x);
-    return props.activeCollection.some((collection) => {
+    console.log('nft is ', contractAddressWithout0x)
+    return props.activeCollection.some(collection => {
       const extractedAddress = extractContractAddress(collection);
       return extractedAddress === contractAddressWithout0x;
     });
@@ -338,27 +337,29 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
             </Card>
           ))}
         </Grid>
-      ) : total !== 0 ? (
-        <InfiniteScroll
-          dataLength={nfts.length} //This is important field to render the next data
-          next={nextPage}
-          hasMore={hasMore}
-          loader={loader}
-          height={485}
-          scrollableTarget="scrollableTab"
-        >
-          <Grid container className={classes.grid}>
-            {nfts && nfts.map(createGridCard)}
-            {nfts.length % 2 != 0 && (
-              <Card className={classes.cardNoHover} elevation={0} />
-            )}
-          </Grid>
-        </InfiniteScroll>
       ) : (
-        <EmptyStatus />
-      )}
+        total !== 0 ?
+          <InfiniteScroll
+            dataLength={nfts.length} //This is important field to render the next data
+            next={nextPage}
+            hasMore={hasMore}
+            loader={loader}
+            height={485}
+            scrollableTarget="scrollableTab"
+          >
+            <Grid container className={classes.grid}>
+              {nfts && nfts.map(createGridCard)}
+              {nfts.length % 2 != 0 && <Card className={classes.cardNoHover} elevation={0} />}
+            </Grid>
+
+          </InfiniteScroll>
+          :
+          <EmptyStatus />
+      )
+      }
     </StyledEngineProvider>
   );
 });
 
 export default GridTab;
+
