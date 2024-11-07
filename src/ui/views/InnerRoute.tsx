@@ -28,7 +28,7 @@ import SendAmount from './Send/SendAmount';
 import SendEth from './Send/SendEth';
 import TokenDetail from './TokenDetail';
 import TokenList from './TokenList';
-import AddCustomEvmToken from './Wallet/AddCustomEvmToken'
+import AddCustomEvmToken from './Wallet/AddCustom/AddCustomEvmToken'
 import Inbox from './Inbox';
 import StakingPage from './Staking/StakingPage';
 import UnstakePage from './Staking/UnstakePage';
