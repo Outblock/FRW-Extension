@@ -11,7 +11,7 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
 
 import { LLSpinner } from 'ui/FRWComponent';
@@ -27,7 +27,6 @@ import theme from '../../../style/LLTheme';
 import { useWallet, saveIndex } from 'ui/utils';
 import { LLNotFound } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
-
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -150,9 +149,12 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
   const [isMatch, setMatch] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
+  const [errorMessage, setErrorMessage] = useState('Somthing went wrong');
 
-  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleErrorClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -225,7 +227,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
       setLoading(false);
       setErrorMessage(e.message);
       if (e.message === 'NoUserFound') {
-        setShowDialog(true)
+        setShowDialog(true);
       } else {
         setShowError(true);
       }
@@ -234,10 +236,14 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
 
   useEffect(() => {
     if (password.length > 7) {
-      setHelperText(successInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setHelperText(
+        successInfo(chrome.i18n.getMessage('At__least__8__characters'))
+      );
       setCharacters(true);
     } else {
-      setHelperText(errorInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setHelperText(
+        errorInfo(chrome.i18n.getMessage('At__least__8__characters'))
+      );
       setCharacters(false);
     }
   }, [password]);
@@ -254,24 +260,21 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
     }
   }, [confirmPassword, password]);
 
-
   useEffect(() => {
     if (isCheck) {
-      setPassword(lastPassword)
-      setConfirmPassword(lastPassword)
+      setPassword(lastPassword);
+      setConfirmPassword(lastPassword);
     } else {
-      setPassword('')
-      setConfirmPassword('')
+      setPassword('');
+      setConfirmPassword('');
     }
-  }, [isCheck])
+  }, [isCheck]);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {!showDialog ?
-        <Box
-          className="registerBox"
-        >
+      {!showDialog ? (
+        <Box className="registerBox">
           <Typography variant="h4">
             {chrome.i18n.getMessage('Welcome__Back')}
             <Box display="inline" color="primary.main">
@@ -279,7 +282,9 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
             </Box>{' '}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
+            {chrome.i18n.getMessage(
+              'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+            )}
           </Typography>
 
           <Box
@@ -373,7 +378,9 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
             }
             label={
               <Typography variant="body1" color="text.secondary">
-                {chrome.i18n.getMessage('Use__the__same__Google__Drive__password')}
+                {chrome.i18n.getMessage(
+                  'Use__the__same__Google__Drive__password'
+                )}
               </Typography>
             }
           />
@@ -405,9 +412,20 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
             </Button>
           </Box>
         </Box>
-        : <LLNotFound setShowDialog={setShowDialog} />}
-      <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+      ) : (
+        <LLNotFound setShowDialog={setShowDialog} />
+      )}
+      <Snackbar
+        open={showError}
+        autoHideDuration={6000}
+        onClose={handleErrorClose}
+      >
+        <Alert
+          onClose={handleErrorClose}
+          variant="filled"
+          severity="error"
+          sx={{ width: '100%' }}
+        >
           {errorMessage}
         </Alert>
       </Snackbar>

@@ -79,7 +79,7 @@ class KeyringService extends EventEmitter {
   }
 
   loadMemStore() {
-    return this.memStore.getState()
+    return this.memStore.getState();
   }
 
   async boot(password: string) {
@@ -159,7 +159,7 @@ class KeyringService extends EventEmitter {
         });
       })
       .then((firstKeyring) => {
-        console.log('firstKeyring ', firstKeyring)
+        console.log('firstKeyring ', firstKeyring);
         keyring = firstKeyring;
         return firstKeyring.getAccounts();
       })
@@ -696,24 +696,28 @@ class KeyringService extends EventEmitter {
         const currentId = await storage.get('currentId');
 
         const oldVault = this.store.getState().vault;
-        const deepVault = await storage.get('deepVault') || []; // Retrieve deepVault from storage
+        const deepVault = (await storage.get('deepVault')) || []; // Retrieve deepVault from storage
 
         const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
-        const deepVaultArray = Array.isArray(deepVault) ? deepVault : [deepVault]; // Ensure deepVault is treated as array
+        const deepVaultArray = Array.isArray(deepVault)
+          ? deepVault
+          : [deepVault]; // Ensure deepVault is treated as array
 
         // Handle the case when currentId is available
         if (currentId !== null && currentId !== undefined) {
           // Find if an entry with currentId already exists in both vault and deepVault
-          const existingIndex = vaultArray.findIndex(entry =>
-            entry !== null &&
-            entry !== undefined &&
-            Object.prototype.hasOwnProperty.call(entry, currentId)
+          const existingIndex = vaultArray.findIndex(
+            (entry) =>
+              entry !== null &&
+              entry !== undefined &&
+              Object.prototype.hasOwnProperty.call(entry, currentId)
           );
 
-          const existingDeepVaultIndex = deepVaultArray.findIndex(entry =>
-            entry !== null &&
-            entry !== undefined &&
-            Object.prototype.hasOwnProperty.call(entry, currentId)
+          const existingDeepVaultIndex = deepVaultArray.findIndex(
+            (entry) =>
+              entry !== null &&
+              entry !== undefined &&
+              Object.prototype.hasOwnProperty.call(entry, currentId)
           );
 
           if (existingIndex !== -1) {
@@ -754,8 +758,6 @@ class KeyringService extends EventEmitter {
 
         return true;
       });
-
-
   }
 
   /**
@@ -784,7 +786,9 @@ class KeyringService extends EventEmitter {
 
     // If currentId is provided, look for the encryptedString with currentId as the key in the vaultArray
     if (currentId !== undefined) {
-      const foundIndex = vaultArray.findIndex(entry => entry && entry[currentId]);
+      const foundIndex = vaultArray.findIndex(
+        (entry) => entry && entry[currentId]
+      );
       if (foundIndex !== -1) {
         encryptedVault = vaultArray[foundIndex][currentId];
       } else {
@@ -808,7 +812,6 @@ class KeyringService extends EventEmitter {
       }
     }
 
-
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
@@ -821,7 +824,6 @@ class KeyringService extends EventEmitter {
     await this._updateMemStoreKeyrings();
     return this.keyrings;
   }
-
 
   /**
    * Retrieve privatekey from vault
@@ -837,26 +839,30 @@ class KeyringService extends EventEmitter {
 
     // If vault is unavailable or empty, retrieve from deepVault
     if (!vaultArray || vaultArray.length === 0) {
-      console.warn("Vault not found, retrieving from deepVault...");
+      console.warn('Vault not found, retrieving from deepVault...');
       vaultArray = await storage.get('deepVault');
 
       if (!vaultArray) {
-        throw new Error(i18n.t('Cannot unlock without a previous vault or deep vault'));
+        throw new Error(
+          i18n.t('Cannot unlock without a previous vault or deep vault')
+        );
       }
     }
-
 
     // Ensure vaultArray is an array
     if (typeof vaultArray === 'string') {
       vaultArray = [vaultArray];
     }
 
-
     // Decrypt each entry in the vaultArray
     const decryptedVaults: any[] = [];
     for (const vaultEntry of vaultArray) {
       let encryptedString;
-      if (vaultEntry && typeof vaultEntry === 'object' && Object.keys(vaultEntry).length === 1) {
+      if (
+        vaultEntry &&
+        typeof vaultEntry === 'object' &&
+        Object.keys(vaultEntry).length === 1
+      ) {
         const key = Object.keys(vaultEntry)[0];
         encryptedString = vaultEntry[key];
       } else if (typeof vaultEntry === 'string') {
@@ -866,14 +872,16 @@ class KeyringService extends EventEmitter {
       }
 
       try {
-        const decryptedVault = await this.encryptor.decrypt(password, encryptedString);
+        const decryptedVault = await this.encryptor.decrypt(
+          password,
+          encryptedString
+        );
         decryptedVaults.push(decryptedVault);
       } catch (error) {
         console.error('Decryption failed for an entry:', error);
         continue;
       }
     }
-
 
     if (decryptedVaults.length === 0) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
@@ -883,16 +891,16 @@ class KeyringService extends EventEmitter {
       const item = entry[0];
       let keyType, value;
 
-      if (item.type === "HD Key Tree") {
+      if (item.type === 'HD Key Tree') {
         if (item.data.activeIndexes[0] === 1) {
-          keyType = "publicKey";
+          keyType = 'publicKey';
           value = item.data.publicKey;
         } else {
-          keyType = "mnemonic";
+          keyType = 'mnemonic';
           value = item.data.mnemonic;
         }
-      } else if (item.type === "Simple Key Pair") {
-        keyType = "privateKey";
+      } else if (item.type === 'Simple Key Pair') {
+        keyType = 'privateKey';
         value = item.data[0];
       }
 
@@ -901,8 +909,6 @@ class KeyringService extends EventEmitter {
 
     return extractedData;
   }
-
-
 
   /**
    * Restore Keyring
@@ -1056,7 +1062,9 @@ class KeyringService extends EventEmitter {
     const hiddenAddresses = preference.getHiddenAddresses();
     const accounts: Promise<
       ({ address: string; brandName: string } | string)[]
-    > = keyring.getAccountsWithBrand ? keyring.getAccountsWithBrand() : keyring.getAccounts();
+    > = keyring.getAccountsWithBrand
+      ? keyring.getAccountsWithBrand()
+      : keyring.getAccounts();
 
     return accounts.then((accounts) => {
       const allAccounts = accounts.map((account) => ({
@@ -1072,13 +1080,13 @@ class KeyringService extends EventEmitter {
         accounts: includeHidden
           ? allAccounts
           : allAccounts.filter(
-            (account) =>
-              !hiddenAddresses.find(
-                (item) =>
-                  item.type === keyring.type &&
-                  item.address.toLowerCase() === account.address.toLowerCase()
-              )
-          ),
+              (account) =>
+                !hiddenAddresses.find(
+                  (item) =>
+                    item.type === keyring.type &&
+                    item.address.toLowerCase() === account.address.toLowerCase()
+                )
+            ),
         keyring,
       };
     });
@@ -1114,7 +1122,6 @@ class KeyringService extends EventEmitter {
     return result;
   }
 
-
   async resetKeyRing() {
     await this.clearKeyrings();
     await this.clearVault();
@@ -1139,7 +1146,7 @@ class KeyringService extends EventEmitter {
    * Clear the Vault
    *
    * Clears the vault from the store's state, effectively removing all stored data.
-  */
+   */
   async clearVault(): Promise<void> {
     // Clear the vault data in the store's state
     this.store.updateState({ vault: [] });

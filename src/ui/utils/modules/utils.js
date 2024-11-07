@@ -18,10 +18,13 @@ export function jsonToString(obj) {
 
 export function toggle_section(id, visible) {
   const section = document.getElementById(id);
-  section.querySelector(":scope > input[type='checkbox']").checked = visible == false;
+  section.querySelector(":scope > input[type='checkbox']").checked =
+    visible == false;
 }
 
 export function clear_error(id) {
   const section = document.getElementById(id);
-  section.querySelectorAll('.error').forEach(e => e.classList.remove('error'));
+  section
+    .querySelectorAll('.error')
+    .forEach((e) => e.classList.remove('error'));
 }

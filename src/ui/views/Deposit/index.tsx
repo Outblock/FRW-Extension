@@ -15,8 +15,8 @@ import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import { StyledEngineProvider } from '@mui/material/styles';
 import IconCopy from '../../../components/iconfont/IconCopy';
-import { LLTestnetIndicator } from 'ui/FRWComponent'
-import TestnetWarning from './TestnetWarning'
+import { LLTestnetIndicator } from 'ui/FRWComponent';
+import TestnetWarning from './TestnetWarning';
 import { withPrefix } from '@/ui/utils/address';
 import { LLHeader } from 'ui/FRWComponent';
 
@@ -95,14 +95,14 @@ const qrCode = new QRCodeStyling({
   type: 'svg',
   dotsOptions: {
     color: '#E6E6E6',
-    type: 'dots'
+    type: 'dots',
   },
   cornersSquareOptions: {
     type: 'extra-rounded',
   },
   cornersDotOptions: {
     type: 'dot',
-    color: '#41CC5D'
+    color: '#41CC5D',
   },
   backgroundOptions: {
     color: '#333333',
@@ -113,8 +113,8 @@ const qrCode = new QRCodeStyling({
   //   margin: 4
   // },
   qrOptions: {
-    errorCorrectionLevel: 'M'
-  }
+    errorCorrectionLevel: 'M',
+  },
 });
 
 const Deposit = () => {
@@ -132,7 +132,7 @@ const Deposit = () => {
 
   const fetch = async () => {
     const isChild = await wallet.getActiveWallet();
-    let childresp = {}
+    let childresp = {};
     try {
       childresp = await wallet.checkUserChildAccount();
       // Handle the response when there is no error
@@ -143,14 +143,16 @@ const Deposit = () => {
     if (isChild === 'evm') {
       setIsActive(true);
       const wallets = await wallet.getEvmWallet();
-      const result = [{
-        "id": 0,
-        "name": isChild,
-        "chain_id": currentNetwork,
-        "icon": "placeholder",
-        "color": "placeholder",
-        "blockchain": [wallets]
-      }]
+      const result = [
+        {
+          id: 0,
+          name: isChild,
+          chain_id: currentNetwork,
+          icon: 'placeholder',
+          color: 'placeholder',
+          blockchain: [wallets],
+        },
+      ];
       setUserWallets(
         result.map((ele, idx) => ({
           id: idx,
@@ -193,7 +195,7 @@ const Deposit = () => {
         // image: userInfo.avatar
       });
     }
-  }, [userWallets, currentWallet, userInfo])
+  }, [userWallets, currentWallet, userInfo]);
 
   useEffect(() => {
     fetch();
@@ -243,7 +245,9 @@ const Deposit = () => {
             </SelectContainer>
           )}
           {userWallets && (
-            <QRContainer style={{ height: currentNetwork === 'testnet' ? 350 : 330 }}>
+            <QRContainer
+              style={{ height: currentNetwork === 'testnet' ? 350 : 330 }}
+            >
               <QRWrapper>
                 {/* <QRCode value={userWallets[currentWallet].address} size={150} /> */}
                 <div ref={ref} />
@@ -257,16 +261,22 @@ const Deposit = () => {
               >
                 {chrome.i18n.getMessage('QR__Code')}
               </Typography>
-              {currentNetwork === 'testnet' ? <TestnetWarning /> : <Typography
-                color='grey.600'
-                sx={{
-                  marginTop: '30px',
-                  textAlign: 'center',
-                  fontSize: '14px',
-                }}
-              >
-                {chrome.i18n.getMessage('Shown__your__QR__code__to__receive__transactions')}
-              </Typography>}
+              {currentNetwork === 'testnet' ? (
+                <TestnetWarning />
+              ) : (
+                <Typography
+                  color="grey.600"
+                  sx={{
+                    marginTop: '30px',
+                    textAlign: 'center',
+                    fontSize: '14px',
+                  }}
+                >
+                  {chrome.i18n.getMessage(
+                    'Shown__your__QR__code__to__receive__transactions'
+                  )}
+                </Typography>
+              )}
             </QRContainer>
           )}
         </div>

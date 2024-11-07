@@ -1,16 +1,7 @@
-import React, {  } from 'react';
-import {
-  Typography,
-  Box,
-  Drawer,
-  Stack,
-} from '@mui/material';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-} from 'ui/FRWComponent';
+import React from 'react';
+import { Typography, Box, Drawer, Stack } from '@mui/material';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import IconSubtract from '../../components/iconfont/IconSubtract';
-
 
 interface DeleteBackupProps {
   deleteBackupPop: boolean;
@@ -20,14 +11,13 @@ interface DeleteBackupProps {
 }
 
 export const LLDeleteBackupPopup = (props: DeleteBackupProps) => {
-
   const onCancelBtnClicked = () => {
     props.handleCancelBtnClicked();
   };
 
   const onNextBtnClicked = () => {
     props.handleNextBtnClicked();
-  }
+  };
 
   const renderContent = () => (
     <Box
@@ -43,14 +33,14 @@ export const LLDeleteBackupPopup = (props: DeleteBackupProps) => {
         sx={{
           justifyContent: 'space-between',
           alignItems: 'center',
-          display:'flex',
-          flexDirection:'column',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <Box sx={{margin:'54px 0 38px'}}>
+        <Box sx={{ margin: '54px 0 38px' }}>
           <IconSubtract size={48} />
         </Box>
-        <Box sx={{width:'228px'}}>
+        <Box sx={{ width: '228px' }}>
           <Typography
             variant="h1"
             align="center"
@@ -58,13 +48,26 @@ export const LLDeleteBackupPopup = (props: DeleteBackupProps) => {
             fontWeight="bold"
             fontSize="24px"
           >
-            {chrome.i18n.getMessage('Are_you_sure_you_want_to_delete_your_backup')}
+            {chrome.i18n.getMessage(
+              'Are_you_sure_you_want_to_delete_your_backup'
+            )}
           </Typography>
         </Box>
         <Box>
-          <Typography sx={{fontSize:'14px', fontFamily:'Inter', 
-            fontStyle:'normal', color:'#BABABA', textAlign:'center', margin:'18px 36px 52px', cursor:'pointer'}}>
-            {chrome.i18n.getMessage('This_will_remove_this_google_backup_You_will_not_import_this_wallet_via_Google_backup')}
+          <Typography
+            sx={{
+              fontSize: '14px',
+              fontFamily: 'Inter',
+              fontStyle: 'normal',
+              color: '#BABABA',
+              textAlign: 'center',
+              margin: '18px 36px 52px',
+              cursor: 'pointer',
+            }}
+          >
+            {chrome.i18n.getMessage(
+              'This_will_remove_this_google_backup_You_will_not_import_this_wallet_via_Google_backup'
+            )}
           </Typography>
         </Box>
       </Box>

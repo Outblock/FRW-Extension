@@ -24,9 +24,12 @@ type ChildAccount = {
   };
 };
 
-const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
-
-
+const AccountsList = ({
+  filteredContacts,
+  isLoading,
+  handleClick,
+  isSend = true,
+}) => {
   const usewallet = useWallet();
 
   const [grouped, setGrouped] = useState<any>([]);
@@ -55,33 +58,32 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
         key: index,
       };
     });
-    const wdArray = await convertArrayToContactArray(walletData, emojiList)
+    const wdArray = await convertArrayToContactArray(walletData, emojiList);
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     if (childresp) {
-      const cAccountArray = convertObjectToContactArray(childresp)
+      const cAccountArray = convertObjectToContactArray(childresp);
       setChildAccount(cAccountArray);
-
     }
-    console.log('childresp ', wdArray)
+    console.log('childresp ', wdArray);
 
     // putDeviceInfo(fData);
     await setWalletList(wdArray);
     if (walletData[0].address) {
-      const evmAddress = await usewallet.queryEvmAddress(walletData[0].address!);
+      const evmAddress = await usewallet.queryEvmAddress(
+        walletData[0].address!
+      );
 
       if (isValidEthereumAddress(evmAddress)) {
-
         const evmWallet = evmAddress;
-        const evmData = walletData[0]
+        const evmData = walletData[0];
         evmData.address = evmWallet;
-        evmData['avatar'] = emojiList[1].emoji
-        evmData['contact_name'] = emojiList[1].name
-        evmData['bgcolor'] = emojiList[1].bgcolor
+        evmData['avatar'] = emojiList[1].emoji;
+        evmData['contact_name'] = emojiList[1].name;
+        evmData['bgcolor'] = emojiList[1].bgcolor;
         setEvmAddress([evmData]);
       }
-
     }
-  }
+  };
 
   function convertObjectToContactArray(data) {
     return Object.keys(data).map((address, index) => ({
@@ -93,8 +95,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
       contact_type: 1,
       domain: {
         domain_type: 999,
-        value: data[address].name
-      }
+        value: data[address].name,
+      },
     }));
   }
 
@@ -102,7 +104,6 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     // Fetch emoji list
 
     return array.map((item, index) => {
-
       return {
         id: item.id,
         contact_name: emojiList[0].name, // Use the corresponding emoji name
@@ -113,23 +114,20 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
         bgColor: emojiList[0].bgcolor, // Set background color
         domain: {
           domain_type: 0, // Keep domain_type constant
-          value: ''
-        }
+          value: '',
+        },
       };
     });
   }
 
-
   const goEth = (group) => {
     if (isSend) {
-
       history.push({
         pathname: '/dashboard/wallet/sendeth',
         state: { contact: group },
-      })
-
+      });
     }
-  }
+  };
 
   useEffect(() => {
     const group = groupBy(
@@ -144,7 +142,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
 
   return (
     <Box sx={{ height: '100%' }}>
-      {!isEmpty(walletList) && (
+      {!isEmpty(walletList) &&
         walletList.map((eachgroup, index) => (
           <List
             dense={false}
@@ -155,9 +153,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
               <ButtonBase
                 key={`card-${index}`}
                 sx={{ display: 'contents' }}
-                onClick={() =>
-                  handleClick(eachgroup)
-                }
+                onClick={() => handleClick(eachgroup)}
               >
                 <FWContactCard
                   contact={eachgroup}
@@ -167,9 +163,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
               </ButtonBase>
             </Box>
           </List>
-        ))
-      )}
-      {(!isEmpty(evmAddress) || !isEmpty(childAccounts)) &&
+        ))}
+      {(!isEmpty(evmAddress) || !isEmpty(childAccounts)) && (
         <ListSubheader
           sx={{
             lineHeight: '18px',
@@ -182,8 +177,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
         >
           {chrome.i18n.getMessage('Linked_Account')}
         </ListSubheader>
-      }
-      {!isEmpty(evmAddress) && (
+      )}
+      {!isEmpty(evmAddress) &&
         evmAddress.map((eachgroup, index) => (
           <List
             dense={false}
@@ -194,8 +189,9 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
               <ButtonBase
                 key={`card-${index}`}
                 sx={{ display: 'contents' }}
-                onClick={() => isSend ? goEth(eachgroup) : handleClick(eachgroup)}
-
+                onClick={() =>
+                  isSend ? goEth(eachgroup) : handleClick(eachgroup)
+                }
               >
                 <LLContactEth
                   contact={eachgroup}
@@ -205,10 +201,9 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
               </ButtonBase>
             </Box>
           </List>
-        ))
-      )}
+        ))}
 
-      {!isEmpty(childAccounts) && (
+      {!isEmpty(childAccounts) &&
         childAccounts.map((eachgroup, index) => (
           <List
             dense={false}
@@ -219,9 +214,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
               <ButtonBase
                 key={`card-${index}`}
                 sx={{ display: 'contents' }}
-                onClick={() =>
-                  handleClick(eachgroup)
-                }
+                onClick={() => handleClick(eachgroup)}
               >
                 <LLContactCard
                   contact={eachgroup}
@@ -231,8 +224,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
               </ButtonBase>
             </Box>
           </List>
-        ))
-      )}
+        ))}
     </Box>
   );
 };

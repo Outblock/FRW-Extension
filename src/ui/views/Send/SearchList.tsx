@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   List,
   ListSubheader,
@@ -13,25 +13,21 @@ import { useHistory } from 'react-router-dom';
 import EmptyAddress from 'ui/assets/EmptyAddress.svg';
 
 const SearchList = ({ searchContacts, isLoading, handleClick }) => {
-
   const [grouped, setGrouped] = useState<any>([]);
 
   useEffect(() => {
-    const filterContacts = searchContacts.filter(( element ) => {
+    const filterContacts = searchContacts.filter((element) => {
       return element.group !== undefined;
     });
-   
-    const group = groupBy(
-      filterContacts,
-      (contact) => contact.group
-    );
+
+    const group = groupBy(filterContacts, (contact) => contact.group);
     setGrouped(group);
   }, []);
 
   const history = useHistory();
 
   return (
-    <Box sx={{height:'100%'}}>
+    <Box sx={{ height: '100%' }}>
       {!isEmpty(grouped) ? (
         Object.keys(grouped).map((key) => (
           <List
@@ -55,9 +51,7 @@ const SearchList = ({ searchContacts, isLoading, handleClick }) => {
                 <ButtonBase
                   key={`card-${index}`}
                   sx={{ display: 'contents' }}
-                  onClick={() =>
-                    handleClick(eachgroup)
-                  }
+                  onClick={() => handleClick(eachgroup)}
                 >
                   <LLContactCard
                     contact={eachgroup}
@@ -76,13 +70,23 @@ const SearchList = ({ searchContacts, isLoading, handleClick }) => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            height:'100%',
-            backgroundColor:'#000000',
-          }}>
-          <CardMedia sx={{ width:'154px', height:'120px', margin:'50px auto 0', }} image={EmptyAddress} />
+            height: '100%',
+            backgroundColor: '#000000',
+          }}
+        >
+          <CardMedia
+            sx={{ width: '154px', height: '120px', margin: '50px auto 0' }}
+            image={EmptyAddress}
+          />
           <Typography
             variant="overline"
-            sx={{ lineHeight: '1', textAlign: 'center', color:'#5E5E5E', marginTop:'5px', fontSize:'16px' }}
+            sx={{
+              lineHeight: '1',
+              textAlign: 'center',
+              color: '#5E5E5E',
+              marginTop: '5px',
+              fontSize: '16px',
+            }}
           >
             {chrome.i18n.getMessage('Search_to_find_more_users')}
           </Typography>

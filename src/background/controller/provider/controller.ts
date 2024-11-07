@@ -13,9 +13,7 @@ import Wallet from '../wallet';
 import BaseController from '../base';
 import { EVM_ENDPOINT } from 'consts';
 import { stringToHex } from 'web3-utils';
-import {
-  normalize as normalizeAddress,
-} from 'eth-sig-util';
+import { normalize as normalizeAddress } from 'eth-sig-util';
 import { ethers } from 'ethers';
 import { isHexString, intToHex } from 'ethereumjs-util';
 import BigNumber from 'bignumber.js';
@@ -24,10 +22,10 @@ import Web3 from 'web3';
 import { signWithKey } from '@/ui/utils/modules/passkey.js';
 import {
   ensureEvmAddressPrefix,
-  isValidEthereumAddress
+  isValidEthereumAddress,
 } from '@/ui/utils/address';
 import { storage } from '../../webapi';
-import { TypedDataUtils, SignTypedDataVersion } from "@metamask/eth-sig-util";
+import { TypedDataUtils, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import * as fcl from '@onflow/fcl';
 
 interface Web3WalletPermission {
@@ -124,7 +122,7 @@ async function signMessage(msgParams, opts = {}) {
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');
-  console.log('keyindex ', [BigInt(keyindex)], account)
+  console.log('keyindex ', [BigInt(keyindex)], account);
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(
     signableData,
@@ -148,12 +146,11 @@ async function signMessage(msgParams, opts = {}) {
 }
 
 async function signTypeData(msgParams, opts = {}) {
-
   const rightPaddedHexBuffer = (value: string, pad: number) =>
     Buffer.from(value.padEnd(pad * 2, '0'), 'hex');
-  console.log('msgParams ', msgParams)
+  console.log('msgParams ', msgParams);
   const hashedData = Buffer.from(msgParams).toString('hex');
-  console.log('hashedData ', hashedData)
+  console.log('hashedData ', hashedData);
   const USER_DOMAIN_TAG = rightPaddedHexBuffer(
     Buffer.from('FLOW-V0.0-user').toString('hex'),
     32
@@ -168,7 +165,7 @@ async function signTypeData(msgParams, opts = {}) {
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');
-  console.log('keyindex ', keyindex)
+  console.log('keyindex ', keyindex);
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(
     signableData,
@@ -193,12 +190,10 @@ async function signTypeData(msgParams, opts = {}) {
 }
 
 class ProviderController extends BaseController {
-
   ethRpc = async (data): Promise<any> => {
     const network = await Wallet.getNetwork(); // Get the current network
     const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
     const web3Instance = new Web3(provider);
-
 
     return new Promise((resolve, reject) => {
       if (!web3Instance.currentProvider) {
@@ -206,19 +201,22 @@ class ProviderController extends BaseController {
         return;
       }
 
-      web3Instance.currentProvider.send({
-        jsonrpc: "2.0",
-        method: data.method,
-        params: data.params,
-        id: new Date().getTime()
-      }, (err, response) => {
-        if (err) {
-          console.error('Error:', err);
-          reject(err);
-        } else {
-          resolve(response);
+      web3Instance.currentProvider.send(
+        {
+          jsonrpc: '2.0',
+          method: data.method,
+          params: data.params,
+          id: new Date().getTime(),
+        },
+        (err, response) => {
+          if (err) {
+            console.error('Error:', err);
+            reject(err);
+          } else {
+            resolve(response);
+          }
         }
-      });
+      );
     });
   };
 
@@ -383,7 +381,6 @@ class ProviderController extends BaseController {
       case '0x221': // 545 in decimal corresponds to testnet
         console.log('Switch to Testnet');
         if (network !== 'testnet') {
-
           await notificationService.requestApproval(
             {
               params: { origin, target: 'testnet' },
@@ -419,10 +416,7 @@ class ProviderController extends BaseController {
     if (!data.params) return;
     const [string, from] = data.params;
     const hex = isHexString(string) ? string : stringToHex(string);
-    const result = await signMessage(
-      { data: hex, from },
-      approvalRes?.extra
-    );
+    const result = await signMessage({ data: hex, from }, approvalRes?.extra);
     signTextHistoryService.createHistory({
       address: from,
       text: string,
@@ -448,12 +442,12 @@ class ProviderController extends BaseController {
 
   ethGetBalance = async (request) => {
     const result = await this.ethRpc(request.data);
-    return result.result
+    return result.result;
   };
 
   ethGetCode = async (request) => {
     const result = await this.ethRpc(request.data);
-    return result.result
+    return result.result;
   };
 
   ethGasPrice = async (request) => {
@@ -476,7 +470,6 @@ class ProviderController extends BaseController {
     return result.result;
   };
 
-
   ethSignTypedData = async (request) => {
     const result = await this.signTypeDataV1(request);
     return result;
@@ -496,7 +489,7 @@ class ProviderController extends BaseController {
     console.log('eth_signTypedData_v4  ', request);
     let address;
     let data;
-    let currentChain
+    let currentChain;
 
     await notificationService.requestApproval(
       {
@@ -516,12 +509,9 @@ class ProviderController extends BaseController {
       currentChain = 747;
     }
 
-    const paramAddress = request.data.params?.[0].toLowerCase() || ''
+    const paramAddress = request.data.params?.[0].toLowerCase() || '';
 
-
-    if (
-      isValidEthereumAddress(paramAddress)
-    ) {
+    if (isValidEthereumAddress(paramAddress)) {
       data = request.data.params[1];
       address = request.data.params[0];
     } else {
@@ -529,24 +519,28 @@ class ProviderController extends BaseController {
       address = request.data.params[1];
     }
 
-
-    if (ensureEvmAddressPrefix(evmaddress!.toLowerCase()) !== ensureEvmAddressPrefix(address.toLowerCase())) {
-
-      console.log('evmaddress address ', evmaddress!.toLowerCase(), address.toLowerCase())
-      throw new Error(
-        "Provided address does not match the current address"
+    if (
+      ensureEvmAddressPrefix(evmaddress!.toLowerCase()) !==
+      ensureEvmAddressPrefix(address.toLowerCase())
+    ) {
+      console.log(
+        'evmaddress address ',
+        evmaddress!.toLowerCase(),
+        address.toLowerCase()
       );
+      throw new Error('Provided address does not match the current address');
     }
-    console.log('data address ', address, data)
-    const message = typeof data === "string" ? JSON.parse(data) : data;
+    console.log('data address ', address, data);
+    const message = typeof data === 'string' ? JSON.parse(data) : data;
 
-    const signTypeMethod = request.data.method === "eth_signTypedData_v3"
-      ? SignTypedDataVersion.V3
-      : SignTypedDataVersion.V4;
+    const signTypeMethod =
+      request.data.method === 'eth_signTypedData_v3'
+        ? SignTypedDataVersion.V3
+        : SignTypedDataVersion.V4;
 
-    const hash = TypedDataUtils.eip712Hash(message, signTypeMethod)
+    const hash = TypedDataUtils.eip712Hash(message, signTypeMethod);
 
-    const result = await signTypeData(hash)
+    const result = await signTypeData(hash);
     signTextHistoryService.createHistory({
       address: address,
       text: data,
@@ -554,14 +548,13 @@ class ProviderController extends BaseController {
       type: 'ethSignTypedDataV4',
     });
     return result;
-
-  }
+  };
 
   signTypeDataV1 = async (request) => {
     console.log('eth_signTypedData_v1  ', request);
     let address;
     let data;
-    let currentChain
+    let currentChain;
 
     await notificationService.requestApproval(
       {
@@ -581,11 +574,11 @@ class ProviderController extends BaseController {
       currentChain = 747;
     }
 
-    const paramAddress = request.data.params?.[0] ? request.data.params?.[0] : ''
+    const paramAddress = request.data.params?.[0]
+      ? request.data.params?.[0]
+      : '';
 
-    if (
-      isValidEthereumAddress(paramAddress)
-    ) {
+    if (isValidEthereumAddress(paramAddress)) {
       data = request.data.params[1];
       address = request.data.params[0];
     } else {
@@ -593,20 +586,21 @@ class ProviderController extends BaseController {
       address = request.data.params[1];
     }
 
-    console.log('evmaddress address ', address, evmaddress)
+    console.log('evmaddress address ', address, evmaddress);
 
-    if (ensureEvmAddressPrefix(evmaddress!.toLowerCase()) !== ensureEvmAddressPrefix(address.toLowerCase())) {
-      throw new Error(
-        "Provided address does not match the current address"
-      );
+    if (
+      ensureEvmAddressPrefix(evmaddress!.toLowerCase()) !==
+      ensureEvmAddressPrefix(address.toLowerCase())
+    ) {
+      throw new Error('Provided address does not match the current address');
     }
 
-    const message = typeof data === "string" ? JSON.parse(data) : data;
+    const message = typeof data === 'string' ? JSON.parse(data) : data;
 
-    const hash = TypedDataUtils.eip712Hash(message, SignTypedDataVersion.V4)
+    const hash = TypedDataUtils.eip712Hash(message, SignTypedDataVersion.V4);
 
-    console.log('SignTypedDataVersion.V4 ', hash)
-    const result = await signTypeData(hash)
+    console.log('SignTypedDataVersion.V4 ', hash);
+    const result = await signTypeData(hash);
     signTextHistoryService.createHistory({
       address: address,
       text: data,
@@ -614,8 +608,7 @@ class ProviderController extends BaseController {
       type: 'ethSignTypedDataV1',
     });
     return result;
-
-  }
+  };
 }
 
 export default new ProviderController();

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-
 export const FRWHoldButton = ({ onHoldTrigger, holdDuration = 2000 }) => {
   const [holding, setHolding] = useState(false);
   const holdTimer = useRef<any>(null);
@@ -26,11 +25,7 @@ export const FRWHoldButton = ({ onHoldTrigger, holdDuration = 2000 }) => {
   }, []);
 
   return (
-    <button 
-      onMouseDown={startHold} 
-      onMouseUp={endHold} 
-      onMouseLeave={endHold}
-    >
+    <button onMouseDown={startHold} onMouseUp={endHold} onMouseLeave={endHold}>
       {holding ? 'Holding...' : 'Hold Me'}
     </button>
   );

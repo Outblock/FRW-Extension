@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   List,
   ListSubheader,
@@ -13,7 +13,6 @@ import { useHistory } from 'react-router-dom';
 import EmptyAddress from 'ui/assets/EmptyAddress.svg';
 
 const AddressBookList = ({ filteredContacts, isLoading, handleClick }) => {
-
   const [grouped, setGrouped] = useState<any>([]);
 
   useEffect(() => {
@@ -27,7 +26,7 @@ const AddressBookList = ({ filteredContacts, isLoading, handleClick }) => {
   const history = useHistory();
 
   return (
-    <Box sx={{height:'100%'}}>
+    <Box sx={{ height: '100%' }}>
       {!isEmpty(grouped) ? (
         Object.keys(grouped).map((key) => (
           <List
@@ -45,7 +44,7 @@ const AddressBookList = ({ filteredContacts, isLoading, handleClick }) => {
                 py: '4px',
               }}
             >
-                #{' '}{key}
+              # {key}
             </ListSubheader>
             <Box>
               {grouped[key].map((eachgroup, index) => (
@@ -71,13 +70,23 @@ const AddressBookList = ({ filteredContacts, isLoading, handleClick }) => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            height:'100%',
-            backgroundColor:'#000000',
-          }}>
-          <CardMedia sx={{ width:'154px', height:'120px', margin:'50px auto 0', }} image={EmptyAddress} />
+            height: '100%',
+            backgroundColor: '#000000',
+          }}
+        >
+          <CardMedia
+            sx={{ width: '154px', height: '120px', margin: '50px auto 0' }}
+            image={EmptyAddress}
+          />
           <Typography
             variant="overline"
-            sx={{ lineHeight: '1', textAlign: 'center', color:'#5E5E5E', marginTop:'5px', fontSize:'16px' }}
+            sx={{
+              lineHeight: '1',
+              textAlign: 'center',
+              color: '#5E5E5E',
+              marginTop: '5px',
+              fontSize: '16px',
+            }}
           >
             {chrome.i18n.getMessage('Search_to_find_more_users')}
           </Typography>

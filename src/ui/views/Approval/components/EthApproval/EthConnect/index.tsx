@@ -5,7 +5,14 @@ import { useApproval, useWallet, formatAddress } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 import enableBg from 'ui/FRWAssets/image/enableBg.png';
 import { ThemeProvider } from '@mui/system';
-import { Stack, Box, Typography, Divider, CardMedia, Card } from '@mui/material';
+import {
+  Stack,
+  Box,
+  Typography,
+  Divider,
+  CardMedia,
+  Card,
+} from '@mui/material';
 import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
 import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
 import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
@@ -15,7 +22,7 @@ import {
   LLPrimaryButton,
   LLSecondaryButton,
   LLSpinner,
-  LLConnectLoading
+  LLConnectLoading,
 } from 'ui/FRWComponent';
 
 interface ConnectProps {
@@ -35,23 +42,24 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   const wallet = useWallet();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [appIdentifier, setAppIdentifier] = useState<string | undefined>(undefined);
-  const [nonce, setNonce] = useState<string | undefined>(undefined)
-  const [opener, setOpener] = useState<number | undefined>(undefined)
+  const [appIdentifier, setAppIdentifier] = useState<string | undefined>(
+    undefined
+  );
+  const [nonce, setNonce] = useState<string | undefined>(undefined);
+  const [opener, setOpener] = useState<number | undefined>(undefined);
   const [defaultChain, setDefaultChain] = useState('FLOW');
-  const [host, setHost] = useState('')
-  const [showMoveBoard, setMoveBoard] = useState(true)
-  const [msgNetwork, setMsgNetwork] = useState('testnet')
-  const [isEvm, setIsEvm] = useState(false)
-  const [currentNetwork, setCurrent] = useState('testnet')
+  const [host, setHost] = useState('');
+  const [showMoveBoard, setMoveBoard] = useState(true);
+  const [msgNetwork, setMsgNetwork] = useState('testnet');
+  const [isEvm, setIsEvm] = useState(false);
+  const [currentNetwork, setCurrent] = useState('testnet');
 
-  const [approval, setApproval] = useState(false)
+  const [approval, setApproval] = useState(false);
 
   // TODO: replace default logo
-  const [logo, setLogo] = useState('')
-  const [evmAddress, setEvmAddress] = useState('')
+  const [logo, setLogo] = useState('');
+  const [evmAddress, setEvmAddress] = useState('');
   const init = async () => {
-
     const network = await wallet.getNetwork();
     setCurrent(network);
     let currentWallet;
@@ -72,8 +80,8 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
         address: res,
         chain_id: currentNetwork,
         coins: ['flow'],
-        id: 1
-      }
+        id: 1,
+      };
       await wallet.setActiveWallet(walletInfo, 'evm');
     }
     const site = await wallet.getSite(origin);
@@ -87,19 +95,25 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   };
 
   const createCoa = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
-    wallet.createCoaEmpty().then(async (createRes) => {
-      wallet.listenTransaction(createRes, true, 'Create EVM complete', `Your EVM on Flow address has been created. \nClick to view this transaction.`);
+    wallet
+      .createCoaEmpty()
+      .then(async (createRes) => {
+        wallet.listenTransaction(
+          createRes,
+          true,
+          'Create EVM complete',
+          `Your EVM on Flow address has been created. \nClick to view this transaction.`
+        );
 
-      setIsLoading(false);
-    }).catch((err) => {
-      console.log(err);
-      setIsLoading(false);
-    });
-  }
-
-
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
+  };
 
   const transactionDoneHanlder = async (request) => {
     if (request.msg === 'transactionDone') {
@@ -107,18 +121,16 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
       const res = await wallet.queryEvmAddress(currentWallet.address);
       setEvmAddress(res!);
       setIsEvm(isValidEthereumAddress(res));
-
     }
-    return true
-  }
+    return true;
+  };
 
   useEffect(() => {
-
     chrome.runtime.onMessage.addListener(transactionDoneHanlder);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder)
-    }
+      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+    };
   }, []);
 
   const handleCancel = () => {
@@ -138,76 +150,211 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
 
   const renderContent = () => (
     <Box sx={{ padingTop: '18px' }}>
-      {isLoading ?
+      {isLoading ? (
         <LLConnectLoading logo={logo} />
-        :
-        <Box sx={{
-          margin: '0 18px 0px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '12px',
-          height: '100%',
-          background: 'linear-gradient(0deg, #121212, #11271D)'
-        }}>
-          {isEvm &&
-            <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
+      ) : (
+        <Box
+          sx={{
+            margin: '0 18px 0px 18px',
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: '12px',
+            height: '100%',
+            background: 'linear-gradient(0deg, #121212, #11271D)',
+          }}
+        >
+          {isEvm && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                margin: '18px',
+                gap: '18px',
+              }}
+            >
               <Box sx={{ display: 'flex', gap: '18px', marginBottom: '0px' }}>
-                <CardMedia component="img" sx={{ height: '60px', width: '60px', borderRadius: '12px', backgroundColor: 'text.secondary' }} image={icon} />
-                <Stack direction="column" sx={{ justifyContent: 'space-between' }}>
-                  <Typography sx={{
-                    fontSize: '12px',
-                    marginTop: '8px',
-                    color: '#FFFFFF66'
-                  }}>Connecting to
+                <CardMedia
+                  component="img"
+                  sx={{
+                    height: '60px',
+                    width: '60px',
+                    borderRadius: '12px',
+                    backgroundColor: 'text.secondary',
+                  }}
+                  image={icon}
+                />
+                <Stack
+                  direction="column"
+                  sx={{ justifyContent: 'space-between' }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: '12px',
+                      marginTop: '8px',
+                      color: '#FFFFFF66',
+                    }}
+                  >
+                    Connecting to
                   </Typography>
-                  <Typography sx={{ fontSize: '18px', marginTop: '8px', fontWeight: '700' }}>{name}</Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '18px',
+                      marginTop: '8px',
+                      fontWeight: '700',
+                    }}
+                  >
+                    {name}
+                  </Typography>
                 </Stack>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CardMedia component="img" sx={{ width: '16px', height: '16px', marginRight: '8px' }} image={linkGlobe} />
-                <Typography color="secondary.main" variant="overline">{origin}</Typography>
+                <CardMedia
+                  component="img"
+                  sx={{ width: '16px', height: '16px', marginRight: '8px' }}
+                  image={linkGlobe}
+                />
+                <Typography color="secondary.main" variant="overline">
+                  {origin}
+                </Typography>
               </Box>
               <Divider />
-              <Typography sx={{ textTransform: 'uppercase', fontSize: '12px' }} variant="body1" color="text.secondary">{chrome.i18n.getMessage('Connect__Title')}:</Typography>
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
-                <CheckCircleIcon size={20} color='#38B000' style={{ flexShrink: '0', marginTop: '5px' }} />
-                <Typography sx={{ fontSize: '14px' }}>{chrome.i18n.getMessage('Connect__Body1')}</Typography>
+              <Typography
+                sx={{ textTransform: 'uppercase', fontSize: '12px' }}
+                variant="body1"
+                color="text.secondary"
+              >
+                {chrome.i18n.getMessage('Connect__Title')}:
+              </Typography>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ alignItems: 'flex-start' }}
+              >
+                <CheckCircleIcon
+                  size={20}
+                  color="#38B000"
+                  style={{ flexShrink: '0', marginTop: '5px' }}
+                />
+                <Typography sx={{ fontSize: '14px' }}>
+                  {chrome.i18n.getMessage('Connect__Body1')}
+                </Typography>
               </Stack>
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', marginTop: '7px' }}>
-                <CheckCircleIcon size={20} color='#38B000' style={{ flexShrink: '0', }} />
-                <Typography sx={{ fontSize: '14px' }}>{chrome.i18n.getMessage('Connect__Body2')}</Typography>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ alignItems: 'flex-start', marginTop: '7px' }}
+              >
+                <CheckCircleIcon
+                  size={20}
+                  color="#38B000"
+                  style={{ flexShrink: '0' }}
+                />
+                <Typography sx={{ fontSize: '14px' }}>
+                  {chrome.i18n.getMessage('Connect__Body2')}
+                </Typography>
               </Stack>
             </Box>
-          }
+          )}
 
-          {isEvm ?
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '18px 18px 24px', gap: '8px', width: '100%' }}>
-
-              <Box sx={{ borderRadius: '8px', padding: '12px 16px', backgroundColor: '#222222', flex: '1' }}>
+          {isEvm ? (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '18px 18px 24px',
+                gap: '8px',
+                width: '100%',
+              }}
+            >
+              <Box
+                sx={{
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  backgroundColor: '#222222',
+                  flex: '1',
+                }}
+              >
                 <Box sx={{ display: 'flex' }}>
-                  <CardMedia component="img" sx={{ height: '18px', width: '18px', borderRadius: '18px', backgroundColor: 'text.secondary', marginRight: '8px' }} image={flowgrey} />
-                  <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>EVM on Flow</Typography>
+                  <CardMedia
+                    component="img"
+                    sx={{
+                      height: '18px',
+                      width: '18px',
+                      borderRadius: '18px',
+                      backgroundColor: 'text.secondary',
+                      marginRight: '8px',
+                    }}
+                    image={flowgrey}
+                  />
+                  <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>
+                    EVM on Flow
+                  </Typography>
                 </Box>
                 <Box>
-                  <Typography sx={{ color: '#FFFFFFCC', fontSize: '12px', marginTop: '11px' }}>{formatAddress(evmAddress)}</Typography>
+                  <Typography
+                    sx={{
+                      color: '#FFFFFFCC',
+                      fontSize: '12px',
+                      marginTop: '11px',
+                    }}
+                  >
+                    {formatAddress(evmAddress)}
+                  </Typography>
                 </Box>
               </Box>
-              <Box sx={{ borderRadius: '8px', padding: '12px 16px', backgroundColor: '#222222', flex: '1' }}>
+              <Box
+                sx={{
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  backgroundColor: '#222222',
+                  flex: '1',
+                }}
+              >
                 <Box sx={{ display: 'flex' }}>
-                  <CardMedia component="img" sx={{ height: '18px', width: '18px', borderRadius: '18px', marginRight: '8px' }} image={linkGlobe} />
-                  <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>{chrome.i18n.getMessage('Network')}</Typography>
+                  <CardMedia
+                    component="img"
+                    sx={{
+                      height: '18px',
+                      width: '18px',
+                      borderRadius: '18px',
+                      marginRight: '8px',
+                    }}
+                    image={linkGlobe}
+                  />
+                  <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>
+                    {chrome.i18n.getMessage('Network')}
+                  </Typography>
                 </Box>
                 <Box>
-                  <Typography sx={{ color: '#FFFFFFCC', fontSize: '12px', marginTop: '11px' }}>{currentNetwork}</Typography>
+                  <Typography
+                    sx={{
+                      color: '#FFFFFFCC',
+                      fontSize: '12px',
+                      marginTop: '11px',
+                    }}
+                  >
+                    {currentNetwork}
+                  </Typography>
                 </Box>
               </Box>
             </Box>
-            :
-
-
-            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', margin: '0 18px', gap: '8px' }}>
-              <Typography sx={{ textTransform: 'uppercase', fontSize: '18px' }} variant="body1" color="text.secondary">Evm on FLOW is not enabled</Typography>
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-start',
+                margin: '0 18px',
+                gap: '8px',
+              }}
+            >
+              <Typography
+                sx={{ textTransform: 'uppercase', fontSize: '18px' }}
+                variant="body1"
+                color="text.secondary"
+              >
+                Evm on FLOW is not enabled
+              </Typography>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -223,13 +370,18 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
               </Typography>
               <Typography
                 variant="subtitle1"
-                sx={{ fontWeight: 'normal', color: '#bababa', textAlign: 'left', fontSize: '12px' }}
+                sx={{
+                  fontWeight: 'normal',
+                  color: '#bababa',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                }}
                 color="error"
               >
                 {chrome.i18n.getMessage('manage_multi_assets_seamlessly')}
               </Typography>
             </Box>
-          }
+          )}
 
           <Box sx={{ flexGrow: 1 }} />
           <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
@@ -238,24 +390,24 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
               fullWidth
               onClick={handleCancel}
             />
-            {isEvm ?
+            {isEvm ? (
               <LLPrimaryButton
                 label={chrome.i18n.getMessage('Connect')}
                 fullWidth
                 type="submit"
                 onClick={handleAllow}
-              /> :
+              />
+            ) : (
               <LLPrimaryButton
                 label={chrome.i18n.getMessage('Enable')}
                 fullWidth
                 type="submit"
                 onClick={createCoa}
               />
-
-            }
+            )}
           </Stack>
         </Box>
-      }
+      )}
       {/* {
         showMoveBoard && (
           <EthMove
@@ -273,9 +425,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box>
-        {renderContent()}
-      </Box>
+      <Box>{renderContent()}</Box>
     </ThemeProvider>
   );
 };

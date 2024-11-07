@@ -11,7 +11,7 @@ import {
   InputAdornment,
   Input,
   Chip,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import IconFlow from '../../../../components/iconfont/IconFlow';
@@ -80,7 +80,7 @@ const useStyles = makeStyles(() => ({
       border: 'none !important',
       borderWidth: '0px !important',
       outline: 'none !important',
-    }
+    },
   },
   selectList: {
     fontFamily: 'IBM Plex Sans, sans-serif',
@@ -95,7 +95,6 @@ const useStyles = makeStyles(() => ({
     color: '#CDD2D7',
     overflow: 'auto',
     outline: '0px',
-
   },
   exceedBox: {
     background: 'rgba(196,69,54,0.08)',
@@ -104,8 +103,18 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-
-const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, coinList, minAmount }) => {
+const MoveToken = ({
+  amount,
+  setAmount,
+  secondAmount,
+  setSecondAmount,
+  exceed,
+  setExceed,
+  coinInfo,
+  setCurrentCoin,
+  coinList,
+  minAmount,
+}) => {
   const classes = useStyles();
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
@@ -113,23 +122,25 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
   const handleMaxClick = () => {
     if (coinInfo) {
       if (coinInfo.unit.toLowerCase() === 'flow') {
-        setAmount(coinInfo.balance - minAmount)
+        setAmount(coinInfo.balance - minAmount);
       } else {
         // const minimumValue = minAmount > 0.001 ? minAmount : 0.001;
         const newAmount = coinInfo.balance - 0;
         setAmount(newAmount);
       }
     }
-  }
+  };
 
   const renderValue = (option) => {
     setCurrentCoin(option);
     setCoin(option);
-    const selectCoin = coinList.find(coin => coin.unit === option)
+    const selectCoin = coinList.find((coin) => coin.unit === option);
     return (
-      selectCoin && <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />
+      selectCoin && (
+        <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />
+      )
     );
-  }
+  };
 
   const swap = () => {
     setCoinType(!coinType);
@@ -145,27 +156,29 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
 
   useEffect(() => {
     if (coinType) {
-      const secondInt = parseInt(secondAmount)
+      const secondInt = parseInt(secondAmount);
       const value = new BN(secondInt)
         .dividedBy(new BN(coinInfo.price))
-        .toNumber()
+        .toNumber();
       if (coinInfo.balance - value < 0) {
         setExceed(true);
       } else {
         setExceed(false);
       }
       if (isNaN(value)) {
-        setAmount(0)
+        setAmount(0);
       } else {
-        setAmount(parseFloat(value.toFixed(3)))
+        setAmount(parseFloat(value.toFixed(3)));
       }
     }
-  }, [secondAmount])
+  }, [secondAmount]);
 
   useEffect(() => {
     if (!coinType) {
       if (coinInfo && amount) {
-        const result = parseFloat((coinInfo.amountbalance - amount).toPrecision())
+        const result = parseFloat(
+          (coinInfo.amountbalance - amount).toPrecision()
+        );
         if (coinInfo.balance - amount < 0) {
           setExceed(true);
         } else if (coin === 'flow' && result < 0.001) {
@@ -173,29 +186,31 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
         } else {
           setExceed(false);
         }
-        const value = new BN(amount)
-          .times(new BN(coinInfo.price))
-          .toFixed(3);
-        setSecondAmount(value)
+        const value = new BN(amount).times(new BN(coinInfo.price)).toFixed(3);
+        setSecondAmount(value);
       }
     }
-  }, [amount, coin])
+  }, [amount, coin]);
 
   return (
     <StyledEngineProvider injectFirst>
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0'
-      }}>
-        <Box sx={{
+      <Box
+        sx={{
           display: 'flex',
           flexDirection: 'column',
-          borderRadius: '16px',
-          px: '4px',
-          backgroundColor: 'neutral.main',
-          zIndex: 1000
-        }}>
+          gap: '0',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: '16px',
+            px: '4px',
+            backgroundColor: 'neutral.main',
+            zIndex: 1000,
+          }}
+        >
           <Box sx={{ width: '100%', display: 'flex' }}>
             <Select
               renderValue={renderValue}
@@ -203,16 +218,17 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
               defaultValue={coinInfo.unit}
               MenuProps={{ MenuListProps: { disablePadding: true } }}
             >
-              {
-                coinList.map(coin => (
-                  <MenuItem value={coin.unit} key={coin.unit}>
-                    <ListItemIcon>
-                      <img src={coin.icon} style={{ height: '24px', width: '24px' }} />
-                    </ListItemIcon>
-                    <ListItemText>{coin.coin}</ListItemText>
-                  </MenuItem>
-                ))
-              }
+              {coinList.map((coin) => (
+                <MenuItem value={coin.unit} key={coin.unit}>
+                  <ListItemIcon>
+                    <img
+                      src={coin.icon}
+                      style={{ height: '24px', width: '24px' }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText>{coin.coin}</ListItemText>
+                </MenuItem>
+              ))}
             </Select>
             <FormControl sx={{ flex: '1', display: 'flex' }}>
               <Input
@@ -224,7 +240,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
                 disableUnderline
                 autoComplete="off"
                 value={amount}
-                type='number'
+                type="number"
                 onChange={(event) => {
                   // let value = event.target.value;
                   // value = (Math.round(value * 100) / 100).toFixed(2)
@@ -234,7 +250,12 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
                 inputProps={{ sx: { fontSize: '24px' } }}
                 endAdornment={
                   <InputAdornment position="end">
-                    <Chip label={chrome.i18n.getMessage('Max')} size="small" onClick={handleMaxClick} sx={{ padding: '2px 5px' }} />
+                    <Chip
+                      label={chrome.i18n.getMessage('Max')}
+                      size="small"
+                      onClick={handleMaxClick}
+                      sx={{ padding: '2px 5px' }}
+                    />
                   </InputAdornment>
                 }
               />
@@ -248,7 +269,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
               gap: '4px',
               mx: '12px',
               mb: '14px',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
             }}
           >
             <Typography>{chrome.i18n.getMessage('Balance')}</Typography>
@@ -256,7 +277,7 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
           </Box>
         </Box>
         <Presets.TransitionSlideUp>
-          {exceed &&
+          {exceed && (
             <Box
               sx={{
                 display: 'flex',
@@ -268,15 +289,26 @@ const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, s
                 borderRadius: '0 0 12px 12px',
               }}
             >
-              <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}>
-                {chrome.i18n.getMessage('Insufficient_balance') + (coin === 'flow' ? chrome.i18n.getMessage('on_Flow_the_balance_cant_less_than_0001_FLOW') : '')}
+              <CancelIcon
+                size={24}
+                color={'#E54040'}
+                style={{ margin: '8px' }}
+              />
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}
+              >
+                {chrome.i18n.getMessage('Insufficient_balance') +
+                  (coin === 'flow'
+                    ? chrome.i18n.getMessage(
+                        'on_Flow_the_balance_cant_less_than_0001_FLOW'
+                      )
+                    : '')}
               </Typography>
             </Box>
-          }
+          )}
         </Presets.TransitionSlideUp>
-
-
       </Box>
     </StyledEngineProvider>
   );

@@ -3,14 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { useApproval, useWallet } from 'ui/utils';
 // import { CHAINS_ENUM } from 'consts';
 import { ThemeProvider } from '@mui/system';
-import { Stack, Box, Typography, Divider, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import {
+  Stack,
+  Box,
+  Typography,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import theme from 'ui/style/LLTheme';
 import * as fcl from '@onflow/fcl';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-} from 'ui/FRWComponent';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import Highlight from 'react-highlight';
 import * as secp from '@noble/secp256k1';
 import { SHA3 } from 'sha3';
@@ -33,75 +38,70 @@ const EthConfirm = ({ params }: ConnectProps) => {
   const wallet = useWallet();
   const [signable, setSignable] = useState<Signable | null>(null);
   // const [payerSignable, setPayerSignable] = useState<Signable | null>(null);
-  const [opener, setOpener] = useState<number | undefined>(undefined)
-  const [host, setHost] = useState(null)
+  const [opener, setOpener] = useState<number | undefined>(undefined);
+  const [host, setHost] = useState(null);
   const [cadenceArguments, setCadenceArguments] = useState<any[]>([]);
   const [requestParams, setParams] = useState<any>({
-    method: "",
+    method: '',
     data: [],
-    origin: "",
-    name: "",
-    icon: ""
-  })
-  const [approval, setApproval] = useState(false)
-  const [windowId, setWindowId] = useState<number | undefined>(undefined)
+    origin: '',
+    name: '',
+    icon: '',
+  });
+  const [approval, setApproval] = useState(false);
+  const [windowId, setWindowId] = useState<number | undefined>(undefined);
   const [expanded, setExpanded] = useState(false);
   const [linkingDone, setLinkingDone] = useState(false);
   const [accountLinking, setAccountLinking] = useState(false);
-  const [accountArgs, setAccountArgs] = useState<any[]>([])
+  const [accountArgs, setAccountArgs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [lilicoEnabled, setLilicoEnabled] = useState(true);
   const [auditor, setAuditor] = useState<any>(null);
-  const [image, setImage] = useState<string>('')
-  const [accountTitle, setAccountTitle] = useState<string>('')
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null)
+  const [image, setImage] = useState<string>('');
+  const [accountTitle, setAccountTitle] = useState<string>('');
+  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
   // TODO: replace default logo
-  const [logo, setLogo] = useState('')
+  const [logo, setLogo] = useState('');
   interface Roles {
-    authorizer: boolean,
-    payer: boolean,
-    proposer: boolean,
+    authorizer: boolean;
+    payer: boolean;
+    proposer: boolean;
   }
   interface Signable {
-    cadence: string,
-    message: string,
-    addr: string,
-    keyId: number,
-    roles: Roles,
-    voucher: Voucher
-    f_type: string,
+    cadence: string;
+    message: string;
+    addr: string;
+    keyId: number;
+    roles: Roles;
+    voucher: Voucher;
+    f_type: string;
   }
   interface Voucher {
-    refBlock: string
-    payloadSigs: Signature
+    refBlock: string;
+    payloadSigs: Signature;
   }
   interface Signature {
-    address: string,
-    keyId: number,
-    sig: string | null
+    address: string;
+    keyId: number;
+    sig: string | null;
   }
 
-
   const extractData = (obj) => {
-    console.log('obj ', obj)
+    console.log('obj ', obj);
     try {
       const {
-        method = "",
+        method = '',
         data = [],
-        session: {
-          origin = "",
-          name = "",
-          icon = ""
-        } = {}
+        session: { origin = '', name = '', icon = '' } = {},
       } = obj;
 
       const params = { origin, name, icon, method, data };
       setParams(params);
     } catch (error) {
-      console.error("Error extracting data:", error);
-      setParams({ origin: "", name: "", icon: "", method: "", data: [] });
+      console.error('Error extracting data:', error);
+      setParams({ origin: '', name: '', icon: '', method: '', data: [] });
     }
   };
 
@@ -118,10 +118,9 @@ const EthConfirm = ({ params }: ConnectProps) => {
   };
 
   const loadPayer = async () => {
-    const isEnabled = await wallet.allowLilicoPay()
-    setLilicoEnabled(isEnabled)
-  }
-
+    const isEnabled = await wallet.allowLilicoPay();
+    setLilicoEnabled(isEnabled);
+  };
 
   const checkCoa = async () => {
     setLoading(true);
@@ -129,14 +128,16 @@ const EthConfirm = ({ params }: ConnectProps) => {
     if (!isEnabled) {
       const result = await wallet.coaLink();
       const res = await fcl.tx(result).onceSealed();
-      const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
+      const transactionExecutedEvent = res.events.find((event) =>
+        event.type.includes('TransactionExecuted')
+      );
       if (transactionExecutedEvent) {
         setLoading(false);
-        return
+        return;
       }
     }
     setLoading(false);
-  }
+  };
 
   useEffect(() => {
     if (params) {
@@ -144,7 +145,6 @@ const EthConfirm = ({ params }: ConnectProps) => {
       extractData(params);
     }
   }, []);
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -215,15 +215,16 @@ const EthConfirm = ({ params }: ConnectProps) => {
                   onClick={handleAllow}
                 />
               ) : (
-                <LLSecondaryButton label={chrome.i18n.getMessage('Loading')} fullWidth />
+                <LLSecondaryButton
+                  label={chrome.i18n.getMessage('Loading')}
+                  fullWidth
+                />
               )}
             </Stack>
           </Box>
         </Box>
       )}
     </ThemeProvider>
-
-
   );
 };
 

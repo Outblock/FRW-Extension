@@ -82,7 +82,7 @@ const useStyles = makeStyles(() => ({
     alignContent: 'space-between',
     justifyContent: 'space-between',
     padding: '20px 24px',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   modeSelection: {
     width: '100%',
@@ -226,7 +226,7 @@ const DeveloperMode = () => {
 
     if (currentNetwork !== network) {
       // TODO: replace it with better UX
-      
+
       window.location.reload();
     }
   };
@@ -241,9 +241,7 @@ const DeveloperMode = () => {
     storage.set('developerMode', !modeOn);
   };
 
-
   // const channelName = nanoid();
-
 
   // const injectProviderScript = async (isDefaultWallet) => {
   //   await localStorage.setItem('frw:channelName', channelName);
@@ -451,7 +449,7 @@ const DeveloperMode = () => {
               >
                 <Box className={classes.checkboxRow}>
                   <FormControlLabel
-                    label='Flowscan'
+                    label="Flowscan"
                     control={
                       <Checkbox
                         size="small"

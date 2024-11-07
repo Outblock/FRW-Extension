@@ -7,7 +7,7 @@ import {
   FormControl,
   Input,
   InputAdornment,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
@@ -66,7 +66,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         alignItems: 'center',
       }}
     >
-      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px', }} />
+      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
       <Typography variant="body1" color="success.main">
         {chrome.i18n.getMessage('Sounds_good')}
       </Typography>
@@ -159,9 +159,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Pick__Your') + ' '}
           <Box display="inline" color="primary.main">

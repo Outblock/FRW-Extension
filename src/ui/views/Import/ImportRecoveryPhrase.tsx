@@ -9,7 +9,7 @@ import {
   Button,
   Snackbar,
   Alert,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
 import theme from '../../style/LLTheme';
 import { Presets } from 'react-component-transition';
@@ -33,11 +33,7 @@ function TabPanel(props) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box p={0}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box p={0}>{children}</Box>}
     </div>
   );
 }
@@ -55,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     lineHeight: '24px',
     letterSpacing: '-0.252px',
-    textTransform: 'capitalize'
+    textTransform: 'capitalize',
   },
   inputBox: {
     height: '128px',
@@ -74,7 +70,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUsername }) => {
+const ImportRecoveryPhrase = ({
+  handleClick,
+  confirmMnemonic,
+  confirmPk,
+  setUsername,
+}) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -101,39 +102,37 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
     }
   };
 
-  const signMnemonic= async () => {
+  const signMnemonic = async () => {
     try {
       const result = await wallet.signInWithMnemonic(mnemonic);
       setSignLoading(false);
       confirmMnemonic(mnemonic);
       const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
+      setUsername(userInfo.username);
       handleClick();
     } catch (error) {
       setSignLoading(false);
       if (error.message === 'NoUserFound') {
-        setShowDialog(true)
+        setShowDialog(true);
       } else {
         setShowError(true);
       }
     }
   };
 
-  
-
-  const signPk= async () => {
+  const signPk = async () => {
     const privateKey = pk.replace(/^0x/, '');
     try {
       const result = await wallet.signInWithPrivatekey(privateKey);
       setSignLoading(false);
       confirmPk(privateKey);
       const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
+      setUsername(userInfo.username);
       handleClick();
     } catch (error) {
       setSignLoading(false);
       if (error.message === 'NoUserFound') {
-        setShowDialog(true)
+        setShowDialog(true);
       } else {
         setShowError(true);
       }
@@ -208,10 +207,18 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
         open={showError}
         onClose={() => setShowError(false)}
       >
-        <Alert variant="filled" severity="error" onClose={() => { setShowError(false) }}>Something went wrong, please try again later</Alert>
+        <Alert
+          variant="filled"
+          severity="error"
+          onClose={() => {
+            setShowError(false);
+          }}
+        >
+          Something went wrong, please try again later
+        </Alert>
       </Snackbar>
     );
-  }
+  };
 
   useEffect(() => {
     setMnemonicValid(false);
@@ -221,13 +228,19 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
       setLoading(false);
       const length = mnemonic.trim().split(/\s+/g).length;
       if (!(length == 12 || length == 24)) {
-        setErrorMessage(chrome.i18n.getMessage('Recovery__phrases__word__count__must__be__12__or__24__words'));
+        setErrorMessage(
+          chrome.i18n.getMessage(
+            'Recovery__phrases__word__count__must__be__12__or__24__words'
+          )
+        );
         return;
       }
 
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
       if (!bip39.validateMnemonic(formatted)) {
-        setErrorMessage(chrome.i18n.getMessage('Mnemonic__phrase__is__invalid'));
+        setErrorMessage(
+          chrome.i18n.getMessage('Mnemonic__phrase__is__invalid')
+        );
         return;
       }
 
@@ -281,10 +294,8 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {!showDialog ?
-        <Box
-          className="registerBox"
-        >
+      {!showDialog ? (
+        <Box className="registerBox">
           <Typography variant="h4">
             {chrome.i18n.getMessage('Sign__in__with')}
             <Box display="inline" color="primary.main">
@@ -292,16 +303,36 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
             </Box>
           </Typography>
 
-
-          <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example" sx={{ padding: '0' }}>
-            <Tab className={classes.sxStyles} label={chrome.i18n.getMessage('Seed_Phrase')} />
-            <Tab className={classes.sxStyles} label={chrome.i18n.getMessage('Private_Key')} />
+          <Tabs
+            value={selectedTab}
+            onChange={handleTabChange}
+            aria-label="simple tabs example"
+            sx={{ padding: '0' }}
+          >
+            <Tab
+              className={classes.sxStyles}
+              label={chrome.i18n.getMessage('Seed_Phrase')}
+            />
+            <Tab
+              className={classes.sxStyles}
+              label={chrome.i18n.getMessage('Private_Key')}
+            />
           </Tabs>
           <TabPanel sx={{ padding: '0' }} value={selectedTab} index={0}>
-            <SeedPhrase helperText={helperText} msgBgColor={msgBgColor} mnemonic={mnemonic} setmnemonic={setMnemonic} />
+            <SeedPhrase
+              helperText={helperText}
+              msgBgColor={msgBgColor}
+              mnemonic={mnemonic}
+              setmnemonic={setMnemonic}
+            />
           </TabPanel>
           <TabPanel sx={{ padding: '0' }} value={selectedTab} index={1}>
-            <PrivateKey helperText={helperText} msgBgColor={msgBgColor} pk={pk} setpk={setPk} />
+            <PrivateKey
+              helperText={helperText}
+              msgBgColor={msgBgColor}
+              pk={pk}
+              setpk={setPk}
+            />
           </TabPanel>
 
           <Button
@@ -316,11 +347,9 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
               borderRadius: '12px',
               textTransform: 'capitalize',
               gap: '12px',
-              display: 'flex'
+              display: 'flex',
             }}
-            disabled={
-              isSignLoading ? true : !mnemonicValid
-            }
+            disabled={isSignLoading ? true : !mnemonicValid}
           >
             {isSignLoading && <LLSpinner size={28} />}
             <Typography
@@ -334,8 +363,9 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
 
           {renderSnackBar()}
         </Box>
-        :
-        <LLNotFound setShowDialog={setShowDialog} />}
+      ) : (
+        <LLNotFound setShowDialog={setShowDialog} />
+      )}
     </ThemeProvider>
   );
 };

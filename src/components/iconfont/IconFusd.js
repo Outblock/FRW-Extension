@@ -11,7 +11,13 @@ const IconFusd = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg viewBox="0 0 1024 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
+    <svg
+      viewBox="0 0 1024 1024"
+      width={size + 'px'}
+      height={size + 'px'}
+      style={style}
+      {...rest}
+    >
       <path
         d="M511.04 1022.144c282.272 0 511.104-228.8 511.104-511.072C1022.144 228.8 793.344 0 511.04 0 228.8 0 0 228.8 0 511.04c0 282.272 228.8 511.104 511.04 511.104z"
         fill={getIconColor(color, 0, '#00EF8B')}

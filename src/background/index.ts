@@ -36,12 +36,9 @@ import {
   setPersistence,
   onAuthStateChanged,
 } from '@firebase/auth';
-import {
-  fclTestnetConfig,
-  fclMainnetConfig,
-} from './fclConfig';
+import { fclTestnetConfig, fclMainnetConfig } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
-import { getRemoteConfig } from "firebase/remote-config";
+import { getRemoteConfig } from 'firebase/remote-config';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
 const { PortMessage } = Message;
 
@@ -184,7 +181,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 // for page provider
 chrome.runtime.onConnect.addListener((port) => {
   // openapiService.getConfig();
-
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -371,7 +367,7 @@ const extMessageHandler = (msg, sender, sendResponse) => {
     (service?.endpoint ===
       'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html' ||
       service?.endpoint ===
-      'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
+        'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
   ) {
     chrome.tabs
       .query({

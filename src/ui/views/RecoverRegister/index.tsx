@@ -40,10 +40,10 @@ const RecoverRegister = () => {
     setUsername(username.toLowerCase());
   };
 
-  const getPhrase = async() => {
+  const getPhrase = async () => {
     const phrase = await storage.get('premnemonic');
-    if (phrase){
-      setMnemonic(phrase)
+    if (phrase) {
+      setMnemonic(phrase);
     }
     storage.remove('premnemonic');
   };
@@ -101,7 +101,7 @@ const RecoverRegister = () => {
     return <Slide {...props} direction="left" />;
   };
 
-  const height = [480, 520, 580, 480, 480]
+  const height = [480, 520, 580, 480, 480];
 
   return (
     <ThemeProvider theme={theme}>
@@ -132,7 +132,11 @@ const RecoverRegister = () => {
         >
           <SnackbarContent
             style={{ background: 'rgba(252, 129, 74, 0.8)' }}
-            sx={{borderRadius: '12px', opacity: '1',backdropFilter:'blur(5px)'}}
+            sx={{
+              borderRadius: '12px',
+              opacity: '1',
+              backdropFilter: 'blur(5px)',
+            }}
             message={
               <Box
                 sx={{
@@ -145,7 +149,14 @@ const RecoverRegister = () => {
                 <img src={lilicoIcon} />
 
                 <Box>
-                  <Typography sx={{fontWeight:'600',fontSize:'16px', fontFamily:'Inter', fontStyle:'normal' }} >
+                  <Typography
+                    sx={{
+                      fontWeight: '600',
+                      fontSize: '16px',
+                      fontFamily: 'Inter',
+                      fontStyle: 'normal',
+                    }}
+                  >
                     {chrome.i18n.getMessage('Put__your__wallet__within__reach')}
                     <br />
                   </Typography>
@@ -157,21 +168,39 @@ const RecoverRegister = () => {
                       gap: '4px',
                     }}
                   >
-                    <Typography sx={{fontWeight:'400',fontSize:'14px', fontFamily:'Inter' }} >
+                    <Typography
+                      sx={{
+                        fontWeight: '400',
+                        fontSize: '14px',
+                        fontFamily: 'Inter',
+                      }}
+                    >
                       {chrome.i18n.getMessage('Click__Extension')}
                     </Typography>
                     <ExtensionRoundedIcon
                       style={{ fontSize: '16px' }}
                       color="secondary"
                     />
-                    <Typography sx={{fontWeight:'400',fontSize:'14px', fontFamily:'Inter' }} >
+                    <Typography
+                      sx={{
+                        fontWeight: '400',
+                        fontSize: '14px',
+                        fontFamily: 'Inter',
+                      }}
+                    >
                       {chrome.i18n.getMessage('and__Pin')}
                     </Typography>
                     <PushPinOutlinedIcon
                       style={{ fontSize: '16px' }}
                       color="secondary"
                     />
-                    <Typography sx={{fontWeight:'400',fontSize:'14px', fontFamily:'Inter' }} >
+                    <Typography
+                      sx={{
+                        fontWeight: '400',
+                        fontSize: '14px',
+                        fontFamily: 'Inter',
+                      }}
+                    >
                       {chrome.i18n.getMessage('Flow_Core')}
                     </Typography>
                   </Box>
@@ -188,7 +217,7 @@ const RecoverRegister = () => {
             display: 'flex',
             flexDirection: 'column',
             width: 720,
-            marginTop:'80px',
+            marginTop: '80px',
             height: 'auto',
             transition: 'all .3s ease-in-out',
             borderRadius: '24px',
@@ -213,7 +242,13 @@ const RecoverRegister = () => {
 
             <Typography
               variant="body1"
-              sx={{ color: '#5E5E5E', alignSelf: 'end',lineHeight:'37px', fontWeight: '700',fontSize:'16px' }}
+              sx={{
+                color: '#5E5E5E',
+                alignSelf: 'end',
+                lineHeight: '37px',
+                fontWeight: '700',
+                fontSize: '16px',
+              }}
             >
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/4
             </Typography>

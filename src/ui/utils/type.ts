@@ -13,7 +13,9 @@ export enum FCLWalletConnectMethod {
 }
 
 // The initializer function can be converted into a function that takes a type and returns the corresponding enum value
-export function getFCLWalletConnectMethod(type: FCLServiceType): FCLWalletConnectMethod | null {
+export function getFCLWalletConnectMethod(
+  type: FCLServiceType
+): FCLWalletConnectMethod | null {
   switch (type) {
     case FCLServiceType.preAuthz:
       return FCLWalletConnectMethod.preAuthz;

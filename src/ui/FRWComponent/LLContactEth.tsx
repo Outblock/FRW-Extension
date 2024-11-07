@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Avatar,
+  IconButton,
+  CardMedia,
+  Skeleton,
+} from '@mui/material';
 import { useWallet, formatAddress } from 'ui/utils';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { ThemeProvider } from '@mui/material/styles';
@@ -24,7 +31,12 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoading = false }) => {
+export const LLContactEth = ({
+  contact,
+  hideCloseButton,
+  isSend = false,
+  isLoading = false,
+}) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -39,39 +51,40 @@ export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoadi
 
   const getName = (name: string) => {
     if (name.startsWith('0')) {
-      return '0x'
+      return '0x';
     } else {
-      return name[0].toUpperCase()
+      return name[0].toUpperCase();
     }
-  }
+  };
 
   const addAddressBook = async (contact) => {
-
     if (!contact.domain.value) {
-      wallet.openapi.addAddressBook(
-        contact.contact_name,
-        contact.address,
-        contact.contact_name
-      ).then((response) => {
-        if (response.status === 200) {
-          setContactAdd(true);
-          wallet.refreshAddressBook();
-        }
-      });
-
-    }
-    else {
-      wallet.openapi.addExternalAddressBook(
-        contact.domain.value,
-        contact.address,
-        contact.domain.value,
-        contact.domain.domain_type
-      ).then((response) => {
-        if (response.status === 200) {
-          setContactAdd(true);
-          wallet.refreshAddressBook();
-        }
-      });
+      wallet.openapi
+        .addAddressBook(
+          contact.contact_name,
+          contact.address,
+          contact.contact_name
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            setContactAdd(true);
+            wallet.refreshAddressBook();
+          }
+        });
+    } else {
+      wallet.openapi
+        .addExternalAddressBook(
+          contact.domain.value,
+          contact.address,
+          contact.domain.value,
+          contact.domain.domain_type
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            setContactAdd(true);
+            wallet.refreshAddressBook();
+          }
+        });
     }
   };
 
@@ -91,33 +104,42 @@ export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoadi
           },
         }}
       >
-        {!isLoading ?
-
-          <Box sx={{
-            display: 'flex',
-            mr: '13px', height: '40px', width: '40px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: contact['bgcolor'],
-          }}>
+        {!isLoading ? (
+          <Box
+            sx={{
+              display: 'flex',
+              mr: '13px',
+              height: '40px',
+              width: '40px',
+              borderRadius: '32px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: contact['bgcolor'],
+            }}
+          >
             <Typography sx={{ fontSize: '28px', fontWeight: '600' }}>
               {contact.avatar}
             </Typography>
           </Box>
-          : (
-            <Skeleton variant="circular" width={40} height={40} />
-          )
-        }
+        ) : (
+          <Skeleton variant="circular" width={40} height={40} />
+        )}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          {!isLoading ?
+          {!isLoading ? (
             <Typography variant="body1" sx={{ textAlign: 'start' }}>
               {contact.domain?.value || formatAddress(contact.contact_name)}{' '}
               {contact.usernam && contact.usernam !== '' && (
                 <Box display="inline" color="info.main">
-                  {contact.username !== '' ? ' (@' + contact.username + ')' : ''}
+                  {contact.username !== ''
+                    ? ' (@' + contact.username + ')'
+                    : ''}
                 </Box>
               )}
-            </Typography> : (
-              <Skeleton variant="text" width={45} height={15} />
-            )}
-          {!isLoading ?
+            </Typography>
+          ) : (
+            <Skeleton variant="text" width={45} height={15} />
+          )}
+          {!isLoading ? (
             <Typography
               variant="overline"
               sx={{ lineHeight: '1', textAlign: 'start' }}
@@ -125,32 +147,32 @@ export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoadi
             >
               {formatAddress(contact.address)}
             </Typography>
-            : (
-              <Skeleton variant="text" width={45} height={15} />
-            )}
+          ) : (
+            <Skeleton variant="text" width={45} height={15} />
+          )}
         </Box>
         <Box sx={{ flexGrow: 1 }} />
         {isSend ? (
-          <IconButton onClick={(e) => {
-            e.stopPropagation();
-            history.push('/dashboard/wallet/sendeth')
-          }}>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              history.push('/dashboard/wallet/sendeth');
+            }}
+          >
             <CardMedia sx={{ width: '11px', height: '11px' }} image={closex} />
-          </IconButton>)
-          :
-          (
-            contact.type === 4 && !contactAdd ? (
-              <IconButton onClick={(e) => {
-                e.stopPropagation();
-                addAddressBook(contact)
-              }}>
-                <PersonAddAltIcon color="info" />
-              </IconButton>
-            ) : (
-              <div />
-            )
-          )
-        }
+          </IconButton>
+        ) : contact.type === 4 && !contactAdd ? (
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              addAddressBook(contact);
+            }}
+          >
+            <PersonAddAltIcon color="info" />
+          </IconButton>
+        ) : (
+          <div />
+        )}
       </Box>
     </ThemeProvider>
   );

@@ -8,10 +8,17 @@ const AllSet = ({ handleClick }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
-        <CardMedia sx={{ margin: '0 auto', width: '172px', height: '172px', display: 'block' }} image={AllSetIcon} />:
+      <Box className="registerBox">
+        <CardMedia
+          sx={{
+            margin: '0 auto',
+            width: '172px',
+            height: '172px',
+            display: 'block',
+          }}
+          image={AllSetIcon}
+        />
+        :
         <Typography variant="h4">
           {chrome.i18n.getMessage('You__are') + ' '}
           <Box display="inline" color="primary.main">
@@ -21,7 +28,6 @@ const AllSet = ({ handleClick }) => {
         <Typography variant="body1" color="text.secondary">
           {chrome.i18n.getMessage('Start__exploring__with__Lilico__now')}
         </Typography>
-
         {/* <Box sx={{ flexGrow: 1 }} /> */}
         <Button
           onClick={handleClick}

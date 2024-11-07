@@ -72,8 +72,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
-const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAccountKey, setDeviceInfo }) => {
+const SyncQr = ({
+  handleClick,
+  savedUsername,
+  confirmMnemonic,
+  setUsername,
+  setAccountKey,
+  setDeviceInfo,
+}) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const [Uri, setUri] = useState('');
@@ -81,20 +87,21 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
   const [loading, setShowLoading] = useState<boolean>(false);
   const [session, setSession] = useState<SessionTypes.Struct>();
   const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
-  const [currentNetwork, setNetwork] = useState(process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet');
+  const [currentNetwork, setNetwork] = useState(
+    process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet'
+  );
 
   const loadNetwork = async () => {
     const currentNetwork = await usewallet.getNetwork();
-    setNetwork(currentNetwork)
-  }
+    setNetwork(currentNetwork);
+  };
 
   useEffect(() => {
-    loadNetwork()
-  }, [])
+    loadNetwork();
+  }, []);
 
   useEffect(() => {
     const createWeb3Wallet = async () => {
-
       try {
         const wallet = await SignClient.init({
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -106,7 +113,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
             name: 'Flow Walllet',
             description: 'Digital wallet created for everyone.',
             url: 'https://fcw-link.lilico.app',
-            icons: ['https://fcw-link.lilico.app/logo.png']
+            icons: ['https://fcw-link.lilico.app/logo.png'],
           },
         });
         await _subscribeToEvents(wallet);
@@ -117,20 +124,20 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
               flow: {
                 methods: [
                   FCLWalletConnectMethod.accountInfo,
-                  FCLWalletConnectMethod.addDeviceInfo
+                  FCLWalletConnectMethod.addDeviceInfo,
                 ],
                 chains: [`flow:${currentNetwork}`],
-                events: []
-              }
-            }
-          })
+                events: [],
+              },
+            },
+          });
 
           // Open QRCode modal if a URI was returned (i.e. we're not connecting an existing pairing).
           if (uri) {
-            console.log('uri ', uri)
+            console.log('uri ', uri);
             await setUri(uri);
             // Await session approval from the wallet.
-            const session = await approval()
+            const session = await approval();
             await onSessionConnected(session);
 
             console.log('session ', session);
@@ -140,7 +147,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
             // Close the QRCode modal in case it was open.
           }
         } catch (e) {
-          console.error(e)
+          console.error(e);
         }
         await setWeb3Wallet(wallet);
         console.log('web3wallet', web3wallet);
@@ -151,20 +158,14 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
     createWeb3Wallet();
   }, []);
 
-
-
-
   const onSessionConnected = useCallback(
     async (_session: SessionTypes.Struct) => {
-      console.log('_session ', _session)
+      console.log('_session ', _session);
       setShowLoading(true);
       setSession(_session);
-
     },
     []
   );
-
-
 
   const _subscribeToEvents = useCallback(
     async (_client: SignClient) => {
@@ -179,78 +180,75 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
         const updatedSession = { ..._session, namespaces };
         onSessionConnected(updatedSession);
       });
-      console.log('EVENT _client ', _client)
-
+      console.log('EVENT _client ', _client);
     },
     [onSessionConnected]
   );
 
-
   async function sendRequest(wallet: SignClient, topic: string) {
-    console.log(wallet)
-    wallet.request({
-      topic: topic,
-      chainId: `flow:${currentNetwork}`,
-      request: {
-        method: FCLWalletConnectMethod.accountInfo,
-        params: [],
-      },
-    }).then(async (result: any) => {
-      console.log('result ', result);
-      const jsonObject = JSON.parse(result);
-      console.log('jsonObject ', jsonObject);
-      if (jsonObject.method === FCLWalletConnectMethod.accountInfo) {
-        const accountKey: AccountKey = getAccountKey();
-        const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
-        const ak = {
-          public_key: accountKey.publicKey,
-          hash_algo: accountKey.hashAlgo,
-          sign_algo: accountKey.signAlgo,
-          weight: accountKey.weight,
+    console.log(wallet);
+    wallet
+      .request({
+        topic: topic,
+        chainId: `flow:${currentNetwork}`,
+        request: {
+          method: FCLWalletConnectMethod.accountInfo,
+          params: [],
+        },
+      })
+      .then(async (result: any) => {
+        console.log('result ', result);
+        const jsonObject = JSON.parse(result);
+        console.log('jsonObject ', jsonObject);
+        if (jsonObject.method === FCLWalletConnectMethod.accountInfo) {
+          const accountKey: AccountKey = getAccountKey();
+          const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
+          const ak = {
+            public_key: accountKey.publicKey,
+            hash_algo: accountKey.hashAlgo,
+            sign_algo: accountKey.signAlgo,
+            weight: accountKey.weight,
+          };
+          console.log('sent ->', accountKey);
+          confirmMnemonic(mnemonic);
+          setAccountKey(ak);
+          setDeviceInfo(deviceInfo);
+          wallet
+            .request({
+              topic: topic,
+              chainId: `flow:${currentNetwork}`,
+              request: {
+                method: FCLWalletConnectMethod.addDeviceInfo,
+                params: {
+                  method: '',
+                  data: {
+                    username: '',
+                    accountKey: accountKey,
+                    deviceInfo: deviceInfo,
+                  },
+                },
+              },
+            })
+            .then(async (sent) => {
+              handleClick();
+              // usewallet.signInV3(mnemonic, ak, deviceInfo).then(async (result) => {
+
+              //   const userInfo = await usewallet.getUserInfo(true);
+              //   setUsername(userInfo.username);
+              //   handleClick();
+              // }).catch((error) => {
+              //   console.error('Error in sign in wallet request:', error);
+              // });
+            })
+            .catch((error) => {
+              console.error('Error in second wallet request:', error);
+            });
         }
-        console.log('sent ->', accountKey)
-        confirmMnemonic(mnemonic);
-        setAccountKey(ak);
-        setDeviceInfo(deviceInfo);
-        wallet.request({
-          topic: topic,
-          chainId: `flow:${currentNetwork}`,
-          request: {
-            method: FCLWalletConnectMethod.addDeviceInfo,
-            params: {
-              method: '',
-              data: {
-                username: '',
-                accountKey: accountKey,
-                deviceInfo: deviceInfo
-              }
-            },
-          },
-        })
-          .then(async (sent) => {
-            handleClick();
-            // usewallet.signInV3(mnemonic, ak, deviceInfo).then(async (result) => {
-              
-            //   const userInfo = await usewallet.getUserInfo(true);
-            //   setUsername(userInfo.username);
-            //   handleClick();
-            // }).catch((error) => {
-            //   console.error('Error in sign in wallet request:', error);
-            // });
-          })
-          .catch((error) => {
-            console.error('Error in second wallet request:', error);
-          });
-      }
-    }).catch((error) => {
-      console.error('Error in first wallet request:', error);
-    });
-
-
+      })
+      .catch((error) => {
+        console.error('Error in first wallet request:', error);
+      });
   }
-
-
-
 
   const getAccountKey = () => {
     const hdwallet = HDWallet.fromMnemonic(mnemonic);
@@ -271,38 +269,30 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
     const result = await usewallet.openapi.getLocation();
     const installationId = await usewallet.openapi.getInstallationId();
     // console.log('location ', userlocation);
-    const userlocation = result.data
+    const userlocation = result.data;
     const deviceInfo: DeviceInfoRequest = {
-
-      'city': userlocation.city,
-      'continent': userlocation.country,
-      'continentCode': userlocation.countryCode,
-      'country': userlocation.country,
-      'countryCode': userlocation.countryCode,
-      'currency': userlocation.countryCode,
+      city: userlocation.city,
+      continent: userlocation.country,
+      continentCode: userlocation.countryCode,
+      country: userlocation.country,
+      countryCode: userlocation.countryCode,
+      currency: userlocation.countryCode,
       deviceId: installationId,
       device_id: installationId,
-      'district': '',
-      'ip': userlocation.query,
-      'isp': userlocation.as,
-      'lat': userlocation.lat,
-      'lon': userlocation.lon,
-      'name': 'FRW Chrome Extension',
-      'org': userlocation.org,
-      'regionName': userlocation.regionName,
-      'type': '2',
-      'userAgent': 'Chrome',
-      'zip': userlocation.zip,
-
+      district: '',
+      ip: userlocation.query,
+      isp: userlocation.as,
+      lat: userlocation.lat,
+      lon: userlocation.lon,
+      name: 'FRW Chrome Extension',
+      org: userlocation.org,
+      regionName: userlocation.regionName,
+      type: '2',
+      userAgent: 'Chrome',
+      zip: userlocation.zip,
     };
     return deviceInfo;
-  }
-
-
-
-
-
-
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -317,7 +307,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
           height: '380px',
           width: '620px',
           position: 'relative',
-          borderRadius: '24px'
+          borderRadius: '24px',
         }}
       >
         <Box
@@ -327,9 +317,9 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
             top: '40px',
             display: 'flex',
             justifyContent: 'space-between',
-            width: '700px'
-
-          }}>
+            width: '700px',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -338,7 +328,6 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
               width: '353px',
             }}
           >
-
             <Typography
               variant="h4"
               sx={{
@@ -346,22 +335,28 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
                 fontSize: '40px',
                 WebkitBackgroundClip: 'text',
                 color: '#fff',
-                lineHeight: '56px'
+                lineHeight: '56px',
               }}
             >
-              {chrome.i18n.getMessage('Sync_')} <span style={{ display: 'inline-block', width: '353px' }}>
-                {chrome.i18n.getMessage('Lilico')}</span>
+              {chrome.i18n.getMessage('Sync_')}{' '}
+              <span style={{ display: 'inline-block', width: '353px' }}>
+                {chrome.i18n.getMessage('Lilico')}
+              </span>
             </Typography>
 
             <Typography
               variant="body1"
-              sx={{ color: 'primary.light', pt: '16px', fontSize: '16px', margin: '24px 0 32px' }}
+              sx={{
+                color: 'primary.light',
+                pt: '16px',
+                fontSize: '16px',
+                margin: '24px 0 32px',
+              }}
             >
               {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
 
               {chrome.i18n.getMessage('Open_your_Flow_Reference_on_Mobil')}
             </Typography>
-
 
             <Typography
               variant="body1"
@@ -379,7 +374,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
               borderRadius: '24px',
               display: 'flex',
               flexDirection: 'column',
-              width: '347px'
+              width: '347px',
             }}
           >
             {/* <Box>
@@ -392,13 +387,26 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
               <button onClick={copyToClipboard}>Copy Uri</button>
               {copySuccess && <Box>{copySuccess}</Box>}
             </Box> */}
-            {Uri &&
+            {Uri && (
               <Box>
                 <Box sx={{ position: 'relative' }}>
-                  <Box sx={{ borderRadius: '24px', width: '277px', height: '277px', display: 'flex', overflow: 'hidden' }}>
+                  <Box
+                    sx={{
+                      borderRadius: '24px',
+                      width: '277px',
+                      height: '277px',
+                      display: 'flex',
+                      overflow: 'hidden',
+                    }}
+                  >
                     <QRCode
                       size={237}
-                      style={{ height: 'auto', maxWidth: '100%', width: '100%', borderRadius: '24px' }}
+                      style={{
+                        height: 'auto',
+                        maxWidth: '100%',
+                        width: '100%',
+                        borderRadius: '24px',
+                      }}
                       value={Uri}
                       logoImage={lilo}
                       eyeColor={'#41CC5D'}
@@ -406,7 +414,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
                       quietZone={20}
                     />
                   </Box>
-                  {loading &&
+                  {loading && (
                     <Box
                       sx={{
                         display: 'flex',
@@ -418,7 +426,7 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
                         position: 'absolute',
                         backgroundColor: 'rgba(0, 0, 0, 0.6)',
                         top: '0',
-                        borderRadius: '24px'
+                        borderRadius: '24px',
                       }}
                     >
                       <Typography
@@ -428,11 +436,11 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
                           color: '#41CC5D',
                           lineHeight: '24px',
                           fontWeight: '700',
-                          pt: '14px', fontSize: '14px',
+                          pt: '14px',
+                          fontSize: '14px',
                           textAlign: 'center',
                         }}
                       >
-
                         {chrome.i18n.getMessage('Scan_Successfully')}
                       </Typography>
                       <Typography
@@ -446,32 +454,30 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername,setAc
                           textAlign: 'center',
                         }}
                       >
-
                         {chrome.i18n.getMessage('Sync_in_Process')}
                       </Typography>
-
                     </Box>
-                  }
+                  )}
                 </Box>
                 <Typography
                   variant="body1"
                   sx={{
-                    color: ' rgba(255, 255, 255, 0.80))'
-                    , pt: '14px', fontSize: '14px', textAlign: 'center'
+                    color: ' rgba(255, 255, 255, 0.80))',
+                    pt: '14px',
+                    fontSize: '14px',
+                    textAlign: 'center',
                   }}
                 >
                   {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
                   {chrome.i18n.getMessage('Scan_QR_Code_with_Mobile')}
                 </Typography>
               </Box>
-            }
+            )}
           </Box>
         </Box>
       </Box>
 
-
       {/* <Box sx={{ flexGrow: 1 }} /> */}
-
     </ThemeProvider>
   );
 };

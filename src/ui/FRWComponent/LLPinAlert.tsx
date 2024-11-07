@@ -1,10 +1,6 @@
 import React from 'react';
-import {Box, Typography} from '@mui/material';
-import {
-  Snackbar,
-  SnackbarContent,
-  Slide
-} from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { Snackbar, SnackbarContent, Slide } from '@mui/material';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
 import lilicoIcon from '../../../_raw/images/icon-128.png';
@@ -13,7 +9,7 @@ const slideTransition = (props) => {
   return <Slide {...props} direction="left" />;
 };
 
-export const LLPinAlert = ({open}) => {
+export const LLPinAlert = ({ open }) => {
   return (
     <Snackbar
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -21,7 +17,12 @@ export const LLPinAlert = ({open}) => {
       open={open}
     >
       <SnackbarContent
-        sx={{borderRadius: '12px', opacity: '1',backdropFilter:'blur(5px)', backgroundColor: 'success.light'}}
+        sx={{
+          borderRadius: '12px',
+          opacity: '1',
+          backdropFilter: 'blur(5px)',
+          backgroundColor: 'success.light',
+        }}
         message={
           <Box
             sx={{
@@ -31,10 +32,18 @@ export const LLPinAlert = ({open}) => {
               gap: '8px',
             }}
           >
-            <img src={lilicoIcon} style={{height: '48px', width: '48px'}}/>
-    
+            <img src={lilicoIcon} style={{ height: '48px', width: '48px' }} />
+
             <Box>
-              <Typography sx={{fontWeight:'600',fontSize:'16px', fontFamily:'Inter', fontStyle:'normal' ,paddingRight:'3px'}} >
+              <Typography
+                sx={{
+                  fontWeight: '600',
+                  fontSize: '16px',
+                  fontFamily: 'Inter',
+                  fontStyle: 'normal',
+                  paddingRight: '3px',
+                }}
+              >
                 {chrome.i18n.getMessage('Put__your__wallet__within__reach')}
                 <br />
               </Typography>
@@ -46,17 +55,41 @@ export const LLPinAlert = ({open}) => {
                   gap: '4px',
                 }}
               >
-                <Typography sx={{fontWeight:'400',fontSize:'14px', fontFamily:'Inter' }} >{chrome.i18n.getMessage('Click__Extension')}</Typography>
+                <Typography
+                  sx={{
+                    fontWeight: '400',
+                    fontSize: '14px',
+                    fontFamily: 'Inter',
+                  }}
+                >
+                  {chrome.i18n.getMessage('Click__Extension')}
+                </Typography>
                 <ExtensionRoundedIcon
                   style={{ fontSize: '16px' }}
                   color="secondary"
                 />
-                <Typography sx={{fontWeight:'400',fontSize:'14px', fontFamily:'Inter' }} >{chrome.i18n.getMessage('and__Pin')}</Typography>
+                <Typography
+                  sx={{
+                    fontWeight: '400',
+                    fontSize: '14px',
+                    fontFamily: 'Inter',
+                  }}
+                >
+                  {chrome.i18n.getMessage('and__Pin')}
+                </Typography>
                 <PushPinOutlinedIcon
                   style={{ fontSize: '16px' }}
                   color="secondary"
                 />
-                <Typography sx={{fontWeight:'400',fontSize:'14px', fontFamily:'Inter' }} >{chrome.i18n.getMessage('Flow_Core')}</Typography>
+                <Typography
+                  sx={{
+                    fontWeight: '400',
+                    fontSize: '14px',
+                    fontFamily: 'Inter',
+                  }}
+                >
+                  {chrome.i18n.getMessage('Flow_Core')}
+                </Typography>
               </Box>
             </Box>
           </Box>

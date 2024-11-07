@@ -17,7 +17,6 @@ import { useWallet } from 'ui/utils';
 import { CircularProgress, IconButton } from '@mui/material';
 import EmailIcon from '../../../assets/alternate-email.svg';
 
-
 const useStyles = makeStyles((theme) => ({
   customInputLabel: {
     '& legend': {
@@ -56,7 +55,12 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
       <CancelIcon size={24} color="#E54040" style={{ margin: '8px' }} />
       <Typography variant="body1" color="error.main">
         {errorMsg}
-        {errorMsg.startsWith('This username is reserved') && <span><a href='mailto: hi@lilico.app'>hi@lilico.app</a>{chrome.i18n.getMessage('for__any__inquiry')}</span>}
+        {errorMsg.startsWith('This username is reserved') && (
+          <span>
+            <a href="mailto: hi@lilico.app">hi@lilico.app</a>
+            {chrome.i18n.getMessage('for__any__inquiry')}
+          </span>
+        )}
       </Typography>
     </Box>
   );
@@ -68,7 +72,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         alignItems: 'center',
       }}
     >
-      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px', }} />
+      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
       <Typography variant="body1" color="success.main">
         {chrome.i18n.getMessage('Sounds_good')}
       </Typography>
@@ -105,7 +109,6 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     setHelperText(usernameLoading);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
-
       if (username.length < 3) {
         setErrorMessage(chrome.i18n.getMessage('Too__short'));
         return;
@@ -118,7 +121,9 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
 
       if (!regex.test(username)) {
         setErrorMessage(
-          chrome.i18n.getMessage('Your__username__can__only__contain__letters__and__numbers')
+          chrome.i18n.getMessage(
+            'Your__username__can__only__contain__letters__and__numbers'
+          )
         );
         return;
       }
@@ -135,7 +140,11 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             setHelperText(usernameCorrect);
           } else {
             if (response.message == 'Username is reserved') {
-              setErrorMessage(chrome.i18n.getMessage('This__username__is__reserved__Please__contact'))
+              setErrorMessage(
+                chrome.i18n.getMessage(
+                  'This__username__is__reserved__Please__contact'
+                )
+              );
             } else {
               setErrorMessage(chrome.i18n.getMessage('This__name__is__taken'));
             }
@@ -159,9 +168,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Pick__Your')}
           <Box display="inline" color="primary.main">
@@ -169,7 +176,9 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
           </Box>
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Your__username__will__be__used__to__send__and__receive')}
+          {chrome.i18n.getMessage(
+            'Your__username__will__be__used__to__send__and__receive'
+          )}
         </Typography>
 
         <Box sx={{ flexGrow: 1, width: 640, maxWidth: '100%', my: '40px' }}>

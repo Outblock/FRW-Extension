@@ -3,7 +3,11 @@ import { makeStyles } from '@mui/styles';
 import { Box, Drawer, Grid, Typography, Stack, InputBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import { LLPrimaryButton, LLSecondaryButton, LLSpinner } from '../../../FRWComponent';
+import {
+  LLPrimaryButton,
+  LLSecondaryButton,
+  LLSpinner,
+} from '../../../FRWComponent';
 import { useWallet } from 'ui/utils';
 import { useForm, FieldValues } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
@@ -144,7 +148,11 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
         <Stack
           direction="column"
           spacing="12px"
-          sx={{ justifyContent: 'space-between', width: '80%', margin: '0 auto' }}
+          sx={{
+            justifyContent: 'space-between',
+            width: '80%',
+            margin: '0 auto',
+          }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box
@@ -162,7 +170,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
                     width: '60px',
                     borderRadius: '30px',
                     backgroundColor: 'text.secondary',
-                    objectFit: 'cover'
+                    objectFit: 'cover',
                   }}
                   src={props.childAccount.thumbnail.url}
                 />
@@ -174,7 +182,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
                     color: '#5E5E5E',
                     width: '100%',
                     textAlign: 'center',
-                    textOverflow: 'ellipsis'
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {props.childAccount.name}
@@ -216,7 +224,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
                     color: '#5E5E5E',
                     width: '100%',
                     textAlign: 'center',
-                    textOverflow: 'ellipsis'
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {props.userInfo?.nickname}
@@ -249,7 +257,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
         >
           {chrome.i18n.getMessage('Things_you_should_know')}
         </Typography>
-        <Typography sx={{ fontSize: '14px' }} color='text.secondary'>
+        <Typography sx={{ fontSize: '14px' }} color="text.secondary">
           {chrome.i18n.getMessage('Unlink_Message')}
         </Typography>
       </Box>
@@ -261,7 +269,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
           onClick={onCancelBtnClicked}
         />
         <LLPrimaryButton
-          label={isLoading ? <LLSpinner size={28} /> : "Confirm"}
+          label={isLoading ? <LLSpinner size={28} /> : 'Confirm'}
           fullWidth
           type="submit"
           onClick={onSubmit}

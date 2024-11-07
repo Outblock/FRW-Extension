@@ -10,7 +10,7 @@ import {
   Skeleton,
   CardContent,
   CircularProgress,
-  Button
+  Button,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 // import { useHistory } from 'react-router-dom';
@@ -44,7 +44,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row',
     justifyContent: 'center',
     alignContent: 'flex-start',
-    padding: '10px 13px'
+    padding: '10px 13px',
     // marginLeft: 'auto'
   },
   skeletonCard: {
@@ -54,49 +54,53 @@ const useStyles = makeStyles(() => ({
     height: '72px',
     margin: '12px auto',
     boxShadow: 'none',
-    padding: 'auto'
+    padding: 'auto',
   },
 }));
 
 const TokenList = () => {
   const classes = useStyles();
   const wallet = useWallet();
-  const [keyword, setKeyword] = useState('')
-  const [data, setData] = useState<TokenInfo[]>([])
-  const [fitered, setFitered] = useState<TokenInfo[]>([])
-  const [enabledList, setEnabledList] = useState<TokenInfo[]>([])
+  const [keyword, setKeyword] = useState('');
+  const [data, setData] = useState<TokenInfo[]>([]);
+  const [fitered, setFitered] = useState<TokenInfo[]>([]);
+  const [enabledList, setEnabledList] = useState<TokenInfo[]>([]);
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null);
   const [filters, setFilter] = useState('all');
-  const [filteredCollections, setFilteredCollections] = useState<TokenInfo[]>([]);
+  const [filteredCollections, setFilteredCollections] = useState<TokenInfo[]>(
+    []
+  );
 
   const [isLoading, setLoading] = useState(true);
-
-
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const result = await wallet.openapi.getAllTokenInfo();
-      const uniqueTokens = result.filter((token, index, self) =>
-        index === self.findIndex((t) => t.symbol.toLowerCase() === token.symbol.toLowerCase())
+      const uniqueTokens = result.filter(
+        (token, index, self) =>
+          index ===
+          self.findIndex(
+            (t) => t.symbol.toLowerCase() === token.symbol.toLowerCase()
+          )
       );
       setData(uniqueTokens);
       setFitered(uniqueTokens);
 
       const enabledList = await wallet.openapi.getEnabledTokenList();
-      setEnabledList(enabledList)
+      setEnabledList(enabledList);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleTokenClick = (token, isEnabled) => {
     if (!isEnabled) {
-      setSelectedToken(token)
-      setConfirmationOpen(true)
+      setSelectedToken(token);
+      setConfirmationOpen(true);
     }
-  }
+  };
 
   useEffect(() => {
     fetchData();
@@ -106,8 +110,11 @@ const TokenList = () => {
     const word = e1.target.value;
 
     if (word !== '') {
-      const results = data.filter(token => {
-        return token.name.toLowerCase().includes(keyword.toLowerCase()) || token.symbol.toLowerCase().includes(keyword);
+      const results = data.filter((token) => {
+        return (
+          token.name.toLowerCase().includes(keyword.toLowerCase()) ||
+          token.symbol.toLowerCase().includes(keyword)
+        );
       });
       setFitered(results);
     } else {
@@ -117,7 +124,9 @@ const TokenList = () => {
     setKeyword(word);
   };
   const checkStorageStatus = async (token) => {
-    const isEnabled = enabledList.map(item => item.contractName).includes(token.contractName);
+    const isEnabled = enabledList
+      .map((item) => item.contractName)
+      .includes(token.contractName);
     return isEnabled;
   };
 
@@ -129,15 +138,17 @@ const TokenList = () => {
       })
     );
 
-    const res = results.filter(({ isEnabled }) => {
-      if (fil === 'all') return true;
-      if (fil === 'enabled') return isEnabled;
-      if (fil === 'notEnabled') return !isEnabled;
-      return true;
-    }).map(({ ele }) => ele);
+    const res = results
+      .filter(({ isEnabled }) => {
+        if (fil === 'all') return true;
+        if (fil === 'enabled') return isEnabled;
+        if (fil === 'notEnabled') return !isEnabled;
+        return true;
+      })
+      .map(({ ele }) => ele);
 
     console.log('getfiltered ', res);
-    
+
     return res;
   };
 
@@ -180,9 +191,14 @@ const TokenList = () => {
             }
           />
 
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px' }}>
-
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px',
+            }}
+          >
             {/* Button group for filter options */}
             <Box sx={{ display: 'inline-flex', gap: '10px' }}>
               <Button
@@ -254,25 +270,37 @@ const TokenList = () => {
             </Box>
           </Box>
 
-          {isLoading ?
+          {isLoading ? (
             <Grid container className={classes.grid}>
-              {[...Array(4).keys()].map(key => (
-                <Card key={key} sx={{ borderRadius: '12px', backgroundColor: '#000000', padding: '12px' }} className={classes.skeletonCard}>
+              {[...Array(4).keys()].map((key) => (
+                <Card
+                  key={key}
+                  sx={{
+                    borderRadius: '12px',
+                    backgroundColor: '#000000',
+                    padding: '12px',
+                  }}
+                  className={classes.skeletonCard}
+                >
                   <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                    <CardMedia sx={{
-                      width: '48px',
-                      height: '48px',
-                      justifyContent: 'center',
-                    }}><Skeleton variant='circular' width={48} height={48} /></CardMedia>
+                    <CardMedia
+                      sx={{
+                        width: '48px',
+                        height: '48px',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Skeleton variant="circular" width={48} height={48} />
+                    </CardMedia>
                     <CardContent sx={{ flex: '1 0 auto', padding: '0 8px' }}>
-                      <Skeleton variant='text' width={280} />
-                      <Skeleton variant='text' width={150} />
+                      <Skeleton variant="text" width={280} />
+                      <Skeleton variant="text" width={150} />
                     </CardContent>
                   </Box>
                 </Card>
               ))}
             </Grid>
-            :
+          ) : (
             <List
               sx={{
                 flexGrow: 1,
@@ -290,7 +318,7 @@ const TokenList = () => {
                 />
               ))}
             </List>
-          }
+          )}
         </Box>
 
         <AddTokenConfirmation
@@ -302,7 +330,6 @@ const TokenList = () => {
             setConfirmationOpen(false);
           }}
         />
-
       </div>
     </StyledEngineProvider>
   );

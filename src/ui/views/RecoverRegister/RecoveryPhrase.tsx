@@ -13,9 +13,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Recovery') + ' '}
           <Box display="inline" color="primary.main">
@@ -23,7 +21,9 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           </Box>
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('This__recovery__phrase__will__be__used__for__register')}
+          {chrome.i18n.getMessage(
+            'This__recovery__phrase__will__be__used__for__register'
+          )}
         </Typography>
 
         <Box
@@ -56,21 +56,33 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           >
             {mnemonic.split(' ').map((word, i) => {
               return (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginRight: '16px', marginBottom: '12px', }} key={i}>
-                  <Box sx={{
-                    topx: 0,
-                    lineHeight: '26px',
-                    textAlign: 'center',
-                    color: 'neutral1.main',
-                    backgroundColor: 'neutral1.light',
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '26px',
-                    top: 0,
-                    marginRight: '8px',
-                    textIndent: '-1px',
-                    fontWeight: 'bold'
-                  }}>{i + 1}</Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginRight: '16px',
+                    marginBottom: '12px',
+                  }}
+                  key={i}
+                >
+                  <Box
+                    sx={{
+                      topx: 0,
+                      lineHeight: '26px',
+                      textAlign: 'center',
+                      color: 'neutral1.main',
+                      backgroundColor: 'neutral1.light',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '26px',
+                      top: 0,
+                      marginRight: '8px',
+                      textIndent: '-1px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {i + 1}
+                  </Box>
                   <Typography
                     key={'key_' + i}
                     variant="body1"

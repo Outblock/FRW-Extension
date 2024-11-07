@@ -34,7 +34,7 @@ function Main() {
       <Route path="/dashboard">
         <InnerRoute />
       </Route>
-      <PrivateRoute path='/approval'>
+      <PrivateRoute path="/approval">
         <Approval />
       </PrivateRoute>
     </Router>

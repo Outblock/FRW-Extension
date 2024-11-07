@@ -18,7 +18,7 @@ interface CoinListStore {
   currentCoin: string;
 }
 
-const now = new Date()
+const now = new Date();
 
 class CoinList {
   store!: CoinListStore;
@@ -38,7 +38,7 @@ class CoinList {
           crescendo: {},
           mainnet: {},
         },
-        currentCoin: 'flow'
+        currentCoin: 'flow',
       },
     });
   };
@@ -57,7 +57,7 @@ class CoinList {
 
   addCoin = (data: CoinItem, network: string, listType = 'coinItem') => {
     if (this.store[listType][network] === undefined) {
-      this.store[listType][network] = {}
+      this.store[listType][network] = {};
     }
     this.store[listType][network][data.unit] = data;
   };
@@ -68,7 +68,7 @@ class CoinList {
       return;
     }
     this.store[listType][network] = {};
-  
+
     coins.forEach((coin) => {
       this.store[listType][network][coin.unit] = coin;
     });
@@ -87,9 +87,9 @@ class CoinList {
       expiry: now.getTime(),
       coinItem: {},
       evm: {},
-      currentCoin: 'flow'
-    }
-    storage.remove('coinList')
+      currentCoin: 'flow',
+    };
+    storage.remove('coinList');
   };
   setCurrentCoin = (coinName: string) => {
     this.store.currentCoin = coinName;
@@ -97,7 +97,7 @@ class CoinList {
   getCurrentCoin = () => {
     return this.store.currentCoin;
   };
-  listCoins = (network: string , listType = 'coinItem'): CoinItem[] => {
+  listCoins = (network: string, listType = 'coinItem'): CoinItem[] => {
     if (!this.store[listType] || !this.store[listType][network]) {
       return [];
     }

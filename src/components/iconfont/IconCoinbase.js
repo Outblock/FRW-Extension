@@ -11,7 +11,13 @@ const IconCoinbase = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg viewBox="0 0 1024 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
+    <svg
+      viewBox="0 0 1024 1024"
+      width={size + 'px'}
+      height={size + 'px'}
+      style={style}
+      {...rest}
+    >
       <path
         d="M512 0c282.8 0 512 229.2 512 512s-229.2 512-512 512S0 794.8 0 512 229.2 0 512 0z"
         fill={getIconColor(color, 0, '#0052FF')}

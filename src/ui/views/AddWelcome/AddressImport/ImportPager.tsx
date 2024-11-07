@@ -25,16 +25,24 @@ function TabPanel(props) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box p={3}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box p={3}>{children}</Box>}
     </div>
   );
 }
 
-const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, setUsername, goPassword, handleClick, setErrorMessage, setShowError }) => {
+const ImportPager = ({
+  setMnemonic,
+  setPk,
+  setAccounts,
+  accounts,
+  mnemonic,
+  pk,
+  setUsername,
+  goPassword,
+  handleClick,
+  setErrorMessage,
+  setShowError,
+}) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [isImport, setImport] = useState<any>(false);
 
@@ -45,7 +53,6 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   const [newKey, setKeyNew] = useState(true);
   const wallet = useWallet();
 
-
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
   };
@@ -55,18 +62,17 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
       setAccounts(accountKey);
       setImport(true);
     } else {
-      setAccounts(accountKey)
+      setAccounts(accountKey);
       const result = await wallet.openapi.checkImport(accountKey[0].pubK);
       if (result.status === 409) {
         goPassword();
       } else {
         if (!accountKey[0].address) {
           handleNotFoundPopup();
-          return
+          return;
         }
         handleClick();
       }
-
     }
   };
   const setmnemonic = (mnemonic) => {
@@ -77,7 +83,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
   };
 
   const handleShowModel = (show) => {
-    setImport(show)
+    setImport(show);
   };
 
   const handleAddressSelection = async (address) => {
@@ -91,16 +97,12 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
     } else {
       setAccounts([account]);
       handleClick();
-
     }
   };
 
-
   const handleNotFoundPopup = async () => {
-    setAddressFound(!addressFound)
+    setAddressFound(!addressFound);
   };
-  
-
 
   const sxStyles = {
     fontFamily: 'Inter',
@@ -109,7 +111,7 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
     fontWeight: 700,
     lineHeight: '24px',
     letterSpacing: '-0.252px',
-    textTransform: 'capitalize'
+    textTransform: 'capitalize',
   };
 
   return (
@@ -123,53 +125,75 @@ const ImportPager = ({ setMnemonic, setPk, setAccounts, accounts, mnemonic, pk, 
         </Typography>
       </Box>
 
-      <Tabs value={selectedTab} onChange={handleTabChange} aria-label="simple tabs example" sx={{ padding: '0 24px' }}>
+      <Tabs
+        value={selectedTab}
+        onChange={handleTabChange}
+        aria-label="simple tabs example"
+        sx={{ padding: '0 24px' }}
+      >
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Google__Drive')} />
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Keystore')} />
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Seed_Phrase')} />
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Private_Key')} />
       </Tabs>
       <TabPanel value={selectedTab} index={0}>
-        <Googledrive setErrorMessage={setErrorMessage} setShowError={setShowError} />
+        <Googledrive
+          setErrorMessage={setErrorMessage}
+          setShowError={setShowError}
+        />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
-        <JsonImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <JsonImport
+          onOpen={handleNotFoundPopup}
+          onImport={handleImport}
+          setPk={setPk}
+          isSignLoading={isSignLoading}
+        />
       </TabPanel>
       <TabPanel value={selectedTab} index={2}>
-        <SeedPhraseImport onOpen={handleNotFoundPopup} onImport={handleImport} setmnemonic={setmnemonic} isSignLoading={isSignLoading} />
+        <SeedPhraseImport
+          onOpen={handleNotFoundPopup}
+          onImport={handleImport}
+          setmnemonic={setmnemonic}
+          isSignLoading={isSignLoading}
+        />
       </TabPanel>
       <TabPanel value={selectedTab} index={3}>
-        <KeyImport onOpen={handleNotFoundPopup} onImport={handleImport} setPk={setPk} isSignLoading={isSignLoading} />
+        <KeyImport
+          onOpen={handleNotFoundPopup}
+          onImport={handleImport}
+          setPk={setPk}
+          isSignLoading={isSignLoading}
+        />
       </TabPanel>
-      {!addressFound &&
+      {!addressFound && (
         <ErrorModel
           isOpen={setAddressFound}
           onOpenChange={setAddressFound}
           errorName={chrome.i18n.getMessage('No_Account_found')}
           errorMessage={chrome.i18n.getMessage('We_cant_find')}
         />
-      }
-      {!newKey &&
+      )}
+      {!newKey && (
         <ErrorModel
           isOpen={setKeyNew}
           onOpenChange={setKeyNew}
           errorName={chrome.i18n.getMessage('Publickey_already_exist')}
-          errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
+          errorMessage={chrome.i18n.getMessage(
+            'Please_import_or_register_a_new_key'
+          )}
           isGoback={true}
         />
-      }
+      )}
 
-      {isImport &&
+      {isImport && (
         <ImportAddressModel
           accounts={accounts}
           handleAddressSelection={handleAddressSelection}
           isOpen={handleShowModel}
           onOpenChange={handleShowModel}
-
         />
-
-      }
-
+      )}
     </Box>
   );
 };

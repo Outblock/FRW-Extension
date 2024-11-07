@@ -20,7 +20,9 @@ const config = {
   entry: {
     background: paths.rootResolve('src/background/index.ts'),
     'content-script': paths.rootResolve('src/content-script/index.ts'),
-    pageProvider: paths.rootResolve('src/content-script/pageProvider/eth/index.ts'),
+    pageProvider: paths.rootResolve(
+      'src/content-script/pageProvider/eth/index.ts'
+    ),
     // pageProvider: paths.rootResolve(
     //   'node_modules/@rabby-wallet/page-provider/dist/index.js'
     // ),
@@ -35,7 +37,7 @@ const config = {
   experiments: {
     topLevelAwait: true,
     asyncWebAssembly: true,
-    syncWebAssembly: true
+    syncWebAssembly: true,
   },
   module: {
     rules: [
@@ -139,7 +141,10 @@ const config = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: 'node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm', to: 'wallet-core.wasm' }
+        {
+          from: 'node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm',
+          to: 'wallet-core.wasm',
+        },
       ],
     }),
     new HtmlWebpackPlugin({
@@ -178,7 +183,6 @@ const config = {
       'process.env.version': JSON.stringify(`version: ${version}`),
       'process.env.release': JSON.stringify(version),
     }),
-
   ],
   resolve: {
     alias: {
@@ -190,8 +194,8 @@ const config = {
       crypto: require.resolve('crypto-browserify'),
       os: require.resolve('os-browserify/browser'),
       path: require.resolve('path-browserify'),
-      "fs": false,
-      "fs/promises": false,
+      fs: false,
+      'fs/promises': false,
     },
     extensions: ['.js', 'jsx', '.ts', '.tsx'],
   },

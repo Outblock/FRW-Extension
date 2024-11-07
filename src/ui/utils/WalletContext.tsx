@@ -52,7 +52,7 @@ const useWalletOld = () => {
 };
 
 const useWallet = () => {
-  const { wallet } = (useContext(WalletContext) as unknown) as {
+  const { wallet } = useContext(WalletContext) as unknown as {
     wallet: WalletControllerType;
   };
 

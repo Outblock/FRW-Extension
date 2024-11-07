@@ -28,7 +28,6 @@ import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
 
-
 const useStyles = makeStyles(() => ({
   customInputLabel: {
     '& legend': {
@@ -130,7 +129,15 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accounts, goEnd }) => {
+const SetPassword = ({
+  handleClick,
+  mnemonic,
+  pk,
+  username,
+  tempPassword,
+  accounts,
+  goEnd,
+}) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -143,17 +150,20 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
   // TODO: FIX ME
   const [notBot, setNotBot] = useState(true);
 
-  const [errMessage, setErrorMessage] = useState('Something wrong, please try again');
+  const [errMessage, setErrorMessage] = useState(
+    'Something wrong, please try again'
+  );
   const [showError, setShowError] = useState(false);
 
-  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleErrorClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
     if (reason === 'clickaway') {
       return;
     }
     setShowError(false);
   };
-
-  
 
   const loadTempPassword = async () => {
     setPassword(tempPassword);
@@ -220,33 +230,34 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
         public_key: accounts[0].pubK,
         sign_algo: getSignAlgo(accounts[0].signAlgo),
         hash_algo: getHashAlgo(accounts[0].hashAlgo),
-        weight: 1000
-      }
+        weight: 1000,
+      };
       const result = await wallet.openapi.getLocation();
       const installationId = await wallet.openapi.getInstallationId();
-      const userlocation = result.data
+      const userlocation = result.data;
       const device_info = {
-        'city': userlocation.city,
-        'continent': userlocation.country,
-        'continentCode': userlocation.countryCode,
-        'country': userlocation.country,
-        'countryCode': userlocation.countryCode,
-        'currency': userlocation.countryCode,
+        city: userlocation.city,
+        continent: userlocation.country,
+        continentCode: userlocation.countryCode,
+        country: userlocation.country,
+        countryCode: userlocation.countryCode,
+        currency: userlocation.countryCode,
         device_id: installationId,
-        'district': '',
-        'ip': userlocation.query,
-        'isp': userlocation.as,
-        'lat': userlocation.lat,
-        'lon': userlocation.lon,
-        'name': 'FRW Chrome Extension',
-        'org': userlocation.org,
-        'regionName': userlocation.regionName,
-        'type': '2',
-        'user_agent': 'Chrome',
-        'zip': userlocation.zip,
-      }
+        district: '',
+        ip: userlocation.query,
+        isp: userlocation.as,
+        lat: userlocation.lat,
+        lon: userlocation.lon,
+        name: 'FRW Chrome Extension',
+        org: userlocation.org,
+        regionName: userlocation.regionName,
+        type: '2',
+        user_agent: 'Chrome',
+        zip: userlocation.zip,
+      };
       const address = accounts[0].address.replace(/^0x/, '');
-      wallet.openapi.importKey(accountKeyStruct, device_info, username, {}, address)
+      wallet.openapi
+        .importKey(accountKeyStruct, device_info, username, {}, address)
         .then((response) => {
           return wallet.boot(password);
         })
@@ -266,24 +277,26 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
             goEnd();
           } else {
             handleClick();
-
           }
         })
         .catch((error) => {
           console.log('error', error);
-          setShowError(true)
+          setShowError(true);
           setLoading(false);
         });
-
     }
   };
 
   useEffect(() => {
     if (password.length > 7) {
-      setHelperText(successInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setHelperText(
+        successInfo(chrome.i18n.getMessage('At__least__8__characters'))
+      );
       setCharacters(true);
     } else {
-      setHelperText(errorInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setHelperText(
+        errorInfo(chrome.i18n.getMessage('At__least__8__characters'))
+      );
       setCharacters(false);
     }
   }, [password]);
@@ -291,9 +304,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
           <Box display="inline" color="primary.main">
@@ -301,7 +312,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
           </Box>{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
+          {chrome.i18n.getMessage(
+            'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+          )}
         </Typography>
 
         <Box
@@ -324,7 +337,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
               readOnly={!(password.length < 8)}
               fullWidth
               disableUnderline
-              
               onChange={(event) => {
                 setPassword(event.target.value);
               }}
@@ -343,8 +355,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp
-              style={{ marginBottom: '24px' }}>
+            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
               {password && helperText}
             </Presets.TransitionSlideUp>
           </FormGroup>
@@ -361,7 +372,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
           label={
             <Typography variant="body1" color="text.secondary">
               {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
-              <Link underline="none" href="https://lilico.app/about/privacy-policy" target="_blank" color="success.main">
+              <Link
+                underline="none"
+                href="https://lilico.app/about/privacy-policy"
+                target="_blank"
+                color="success.main"
+              >
                 {chrome.i18n.getMessage('Privacy__Policy')}
               </Link>{' '}
               {chrome.i18n.getMessage('and') + ' '}
@@ -372,7 +388,8 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
                 underline="none"
               >
                 {chrome.i18n.getMessage('Terms__of__Service')}
-              </Link>{' '}.
+              </Link>{' '}
+              .
             </Typography>
           }
         />
@@ -388,11 +405,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex'
+            display: 'flex',
           }}
-          disabled={
-            isLoading ? true : !(isCharacters && isCheck && notBot)
-          }
+          disabled={isLoading ? true : !(isCharacters && isCheck && notBot)}
         >
           {isLoading && <LLSpinner size={28} />}
           <Typography
@@ -404,8 +419,17 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
           </Typography>
         </Button>
       </Box>
-      <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+      <Snackbar
+        open={showError}
+        autoHideDuration={6000}
+        onClose={handleErrorClose}
+      >
+        <Alert
+          onClose={handleErrorClose}
+          variant="filled"
+          severity="error"
+          sx={{ width: '100%' }}
+        >
           {errMessage}
         </Alert>
       </Snackbar>

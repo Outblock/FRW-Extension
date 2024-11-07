@@ -28,7 +28,7 @@ import SendAmount from './Send/SendAmount';
 import SendEth from './Send/SendEth';
 import TokenDetail from './TokenDetail';
 import TokenList from './TokenList';
-import AddCustomEvmToken from './Wallet/AddCustomEvmToken'
+import AddCustomEvmToken from './Wallet/AddCustomEvmToken';
 import Inbox from './Inbox';
 import StakingPage from './Staking/StakingPage';
 import UnstakePage from './Staking/UnstakePage';
@@ -157,7 +157,6 @@ const Inner = (props) => {
             <PrivateKeyPassword />
           </PrivateRoute>
 
-
           <PrivateRoute path={`${props.match.url}/nested/keylist`}>
             <KeyList />
           </PrivateRoute>
@@ -213,7 +212,6 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/nftevm/detail/:id`}>
             <NftEvmDetail />
           </PrivateRoute>
-
 
           <PrivateRoute path={`${props.match.url}/nftevm/send`}>
             <SendNftEvm />
@@ -277,7 +275,6 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/setting/wallet/detail`}>
             <WalletDetail />
           </PrivateRoute>
-
 
           <PrivateRoute path={`${props.match.url}/setting/wallet`}>
             <WalletList />

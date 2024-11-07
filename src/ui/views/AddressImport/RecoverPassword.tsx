@@ -11,7 +11,7 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
 import { LLSpinner } from 'ui/FRWComponent';
 import CancelIcon from '../../../components/iconfont/IconClose';
@@ -22,7 +22,7 @@ import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 import theme from '../../style/LLTheme';
 import { useWallet, saveIndex } from 'ui/utils';
-import {storage} from 'background/webapi';
+import { storage } from 'background/webapi';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -146,9 +146,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
   const [isLoading, setLoading] = useState(false);
 
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
+  const [errorMessage, setErrorMessage] = useState('Somthing went wrong');
 
-  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleErrorClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -227,10 +230,14 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
 
   useEffect(() => {
     if (password.length > 7) {
-      setHelperText(successInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setHelperText(
+        successInfo(chrome.i18n.getMessage('At__least__8__characters'))
+      );
       setCharacters(true);
     } else {
-      setHelperText(errorInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setHelperText(
+        errorInfo(chrome.i18n.getMessage('At__least__8__characters'))
+      );
       setCharacters(false);
     }
   }, [password]);
@@ -250,9 +257,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Welcome__Back')}
           <Box display="inline" color="primary.main">
@@ -260,7 +265,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
           </Box>{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
+          {chrome.i18n.getMessage(
+            'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+          )}
         </Typography>
 
         <Box
@@ -396,8 +403,17 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
           </Button>
         </Box>
       </Box>
-      <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="success" sx={{ width: '100%' }}>
+      <Snackbar
+        open={showError}
+        autoHideDuration={6000}
+        onClose={handleErrorClose}
+      >
+        <Alert
+          onClose={handleErrorClose}
+          variant="filled"
+          severity="success"
+          sx={{ width: '100%' }}
+        >
           {errorMessage}
         </Alert>
       </Snackbar>

@@ -12,7 +12,7 @@ import {
   InputAdornment,
   FormGroup,
   LinearProgress,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
@@ -210,7 +210,6 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
       setLoading(false);
       setShowError(true);
     }
-
   };
 
   useEffect(() => {
@@ -243,17 +242,23 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
         open={showError}
         onClose={() => setShowError(false)}
       >
-        <Alert variant="filled" severity="error" onClose={() => { setShowError(false) }}>Something went wrong, please try again later</Alert>
+        <Alert
+          variant="filled"
+          severity="error"
+          onClose={() => {
+            setShowError(false);
+          }}
+        >
+          Something went wrong, please try again later
+        </Alert>
       </Snackbar>
     );
-  }
+  };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
           <Box display="inline" color="primary.main">
@@ -262,7 +267,9 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
           </Box>{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrases')}
+          {chrome.i18n.getMessage(
+            'Lilico__uses__this__password__to__protect__your__recovery__phrases'
+          )}
         </Typography>
 
         <Box
@@ -356,7 +363,12 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
           label={
             <Typography variant="body1" color="text.secondary">
               {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
-              <Link underline="none" href="https://lilico.app/about/privacy-policy" target="_blank" color="success.main">
+              <Link
+                underline="none"
+                href="https://lilico.app/about/privacy-policy"
+                target="_blank"
+                color="success.main"
+              >
                 {chrome.i18n.getMessage('Privacy__Policy')}
               </Link>{' '}
               {chrome.i18n.getMessage('and') + ' '}
@@ -367,7 +379,8 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                 underline="none"
               >
                 {chrome.i18n.getMessage('Terms__of__Service')}
-              </Link>{' '}.
+              </Link>{' '}
+              .
             </Typography>
           }
         />

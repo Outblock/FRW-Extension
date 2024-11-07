@@ -1,18 +1,17 @@
 import React from 'react';
-import { Grid, IconButton, Typography, Tooltip} from '@mui/material';
+import { Grid, IconButton, Typography, Tooltip } from '@mui/material';
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { styled } from '@mui/material/styles';
 import { useHistory } from 'react-router-dom';
 
-
 interface LLHeaderProps {
-    title: string | JSX.Element;
-    help: boolean | JSX.Element;
-  }
+  title: string | JSX.Element;
+  help: boolean | JSX.Element;
+}
 
 export const LLHeader = (props: LLHeaderProps) => {
-//   const { label, ...inherentProps } = props;
+  //   const { label, ...inherentProps } = props;
   const history = useHistory();
 
   return (
@@ -42,17 +41,19 @@ export const LLHeader = (props: LLHeaderProps) => {
       </Grid>
       {/* <Grid item xs={1}> */}
       {/* </Grid> */}
-      {props.help && <Grid item xs={1} sx={{pl: 0}}>
-        <a href="https://wallet.flow.com/contact" target='_blank'>
-          <IconButton>
-            <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
-              {/* <a href="https://wallet.flow.com/contact" target='_blank'> */}
-              <HelpOutlineRoundedIcon  sx={{ color: 'icon.navi' }} />
-              {/* </a> */}
-            </Tooltip>
-          </IconButton> 
-        </a>
-      </Grid>}
+      {props.help && (
+        <Grid item xs={1} sx={{ pl: 0 }}>
+          <a href="https://wallet.flow.com/contact" target="_blank">
+            <IconButton>
+              <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
+                {/* <a href="https://wallet.flow.com/contact" target='_blank'> */}
+                <HelpOutlineRoundedIcon sx={{ color: 'icon.navi' }} />
+                {/* </a> */}
+              </Tooltip>
+            </IconButton>
+          </a>
+        </Grid>
+      )}
     </Grid>
   );
 };

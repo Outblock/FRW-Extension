@@ -9,26 +9,25 @@ const QrScannerComponent = ({ setUrl }) => {
     if (!videoRef.current) {
       return;
     }
-    console.log('video ref  true, ', videoRef)
+    console.log('video ref  true, ', videoRef);
 
     const qrScanner = new QrScanner(
       videoRef.current,
-      result => {
-        console.log('decoded qr code:', result)
-        const { data = '' } = result
+      (result) => {
+        console.log('decoded qr code:', result);
+        const { data = '' } = result;
         if (data && data.length > 0) {
-          setUrl(data)
-          qrScanner.stop()
+          setUrl(data);
+          qrScanner.stop();
         }
       },
       { returnDetailedScanResult: true }
     );
 
-    qrScanner.start()
-      .catch(err => {
-        console.error(err);
-        setError('Camera access denied. Please allow camera access.');
-      });
+    qrScanner.start().catch((err) => {
+      console.error(err);
+      setError('Camera access denied. Please allow camera access.');
+    });
 
     return () => qrScanner.stop();
   }, []);
@@ -56,9 +55,7 @@ const QrScannerComponent = ({ setUrl }) => {
       <video ref={videoRef}></video>
       {error && (
         <div>
-          <p>
-            {chrome.i18n.getMessage('lease_allow_the_camera_permission')}
-          </p>
+          <p>{chrome.i18n.getMessage('lease_allow_the_camera_permission')}</p>
         </div>
       )}
     </div>

@@ -19,11 +19,11 @@ const Approval = () => {
       history.replace('/');
       return null;
     }
-    console.log('approval ', approval)
+    console.log('approval ', approval);
     setApproval(approval);
     if (approval.origin || approval.params.origin) {
       document.title = approval.origin || approval.params.origin;
-    } else if (approval['lock']){
+    } else if (approval['lock']) {
       history.replace('/unlock');
       return;
     }
@@ -36,8 +36,6 @@ const Approval = () => {
       return;
     }
   };
-
-
 
   const handleCancel = () => {
     rejectApproval();
@@ -56,12 +54,14 @@ const Approval = () => {
   const CurrentApprovalComponent = ApprovalComponent[approvalComponent];
 
   return (
-    <Box sx={{
-      // height: 'calc(100vh - 56px)',
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <Box
+      sx={{
+        // height: 'calc(100vh - 56px)',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Header loading={false} />
       {approval && (
         <CurrentApprovalComponent

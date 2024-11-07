@@ -7,12 +7,9 @@ import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
 import IconCopy from '../../../../components/iconfont/IconCopy';
 import { useWallet } from 'ui/utils';
 import ResetModal from '../../../FRWComponent/PopupModal/resetModal';
-import {
-  LLWarningButton,
-} from 'ui/FRWComponent';
+import { LLWarningButton } from 'ui/FRWComponent';
 
 const ShowKey = ({ handleClick, mnemonic }) => {
-
   const usewallet = useWallet();
   const [canGoNext, setCanGoNext] = useState(false);
   const [isCoverBlur, coverBlur] = useState(true);
@@ -30,20 +27,25 @@ const ShowKey = ({ handleClick, mnemonic }) => {
 
   const copyAll = () => {
     // Extract 'value' from each item and join them with a space
-    const allValues = mnemonic.map((item, index) => `${index + 1}: ${item.value}`).join('\n');
+    const allValues = mnemonic
+      .map((item, index) => `${index + 1}: ${item.value}`)
+      .join('\n');
 
-    navigator.clipboard.writeText(allValues)
-      .then(() => console.log("Copied to clipboard successfully!"))
-      .catch(err => console.error("Failed to copy to clipboard: ", err));
-  }
+    navigator.clipboard
+      .writeText(allValues)
+      .then(() => console.log('Copied to clipboard successfully!'))
+      .catch((err) => console.error('Failed to copy to clipboard: ', err));
+  };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
-        <Typography variant="h4" sx={{ fontWeight: 700 }} color='neutral.contrastText'>
+      <Box className="registerBox">
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 700 }}
+          color="neutral.contrastText"
+        >
           {chrome.i18n.getMessage('Save_your_Private_Key')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -93,14 +95,13 @@ const ShowKey = ({ handleClick, mnemonic }) => {
                     color: '#f9f9f9',
                     wordWrap: 'break-word',
                     maxWidth: '100%',
-                    fontSize: '12px'
+                    fontSize: '12px',
                   }}
                 >
                   {`account ${i + 1}: ${item.value}`}
                 </Typography>
               </Box>
             ))}
-
 
             <IconButton
               onClick={() => {
@@ -191,12 +192,14 @@ const ShowKey = ({ handleClick, mnemonic }) => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        <Box sx={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-        }}>
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Button
             disabled={!canGoNext}
             onClick={onResetSubmit}
@@ -219,7 +222,7 @@ const ShowKey = ({ handleClick, mnemonic }) => {
           </Button>
         </Box>
       </Box>
-      {showAction &&
+      {showAction && (
         <ResetModal
           setShowAction={setShowAction}
           isOpen={showAction}
@@ -227,7 +230,7 @@ const ShowKey = ({ handleClick, mnemonic }) => {
           errorName={chrome.i18n.getMessage('Confirm_to_reset_Wallet')}
           errorMessage={chrome.i18n.getMessage('This_action_will_remove')}
         />
-      }
+      )}
     </ThemeProvider>
   );
 };

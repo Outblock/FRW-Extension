@@ -39,7 +39,6 @@ const flowContext = flow
           data: ctx.request.data,
         });
       }
-
     }
 
     return next();
@@ -47,7 +46,7 @@ const flowContext = flow
   .use(async (ctx, next) => {
     const {
       request: {
-        session: { origin, },
+        session: { origin },
       },
       mapMethod,
     } = ctx;
@@ -95,19 +94,16 @@ const flowContext = flow
     } = ctx;
     // check connect
     if (!Reflect.getMetadata('SAFE', providerController, mapMethod)) {
-
       if (!permissionService.hasPermission(origin)) {
         ctx.request.requestedApproval = true;
-        const {
-          defaultChain,
-          signPermission,
-        } = await notificationService.requestApproval(
-          {
-            params: { origin, name, icon },
-            approvalComponent: 'EthConnect',
-          },
-          { height: 599 }
-        );
+        const { defaultChain, signPermission } =
+          await notificationService.requestApproval(
+            {
+              params: { origin, name, icon },
+              approvalComponent: 'EthConnect',
+            },
+            { height: 599 }
+          );
         permissionService.addConnectedSite(origin, name, icon, defaultChain);
       }
     }

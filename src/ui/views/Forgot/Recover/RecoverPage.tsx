@@ -1,8 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import { Typography, Box, FormControl, List, ListItem, ListItemText } from '@mui/material';
-import { LLPrimaryButton, CredentialBox, LLSecondaryButton } from 'ui/FRWComponent'
+import {
+  Typography,
+  Box,
+  FormControl,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material';
+import {
+  LLPrimaryButton,
+  CredentialBox,
+  LLSecondaryButton,
+} from 'ui/FRWComponent';
 import { Input } from '@mui/material';
 import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../../components/iconfont/IconClose';
@@ -44,8 +55,6 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
     inputEl.current.focus();
   }, []);
 
-
-
   const run = async (password) => {
     const result = await wallet.retrievePk(password);
     console.log('result ', result);
@@ -55,11 +64,10 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
     goNext();
   };
 
-
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       setLoading(true);
-      run(password)
+      run(password);
     }
   };
 
@@ -70,12 +78,15 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
 
   const copyAll = () => {
     // Extract 'value' from each item and join them with a space
-    const allValues = dataArray.map((item, index) => `${index + 1}: ${item.value};`).join(' ');
+    const allValues = dataArray
+      .map((item, index) => `${index + 1}: ${item.value};`)
+      .join(' ');
 
-    navigator.clipboard.writeText(allValues)
-      .then(() => console.log("Copied to clipboard successfully!"))
-      .catch(err => console.error("Failed to copy to clipboard: ", err));
-  }
+    navigator.clipboard
+      .writeText(allValues)
+      .then(() => console.log('Copied to clipboard successfully!'))
+      .catch((err) => console.error('Failed to copy to clipboard: ', err));
+  };
 
   const usernameError = () => (
     <Box
@@ -97,7 +108,7 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
       sx={{
         width: '100%',
         flexDirection: 'column',
-        padding: '24px 40px 40px'
+        padding: '24px 40px 40px',
       }}
     >
       <Box
@@ -120,15 +131,28 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
         >
           {chrome.i18n.getMessage('Retrieve_local_sensitive_data')}
         </Typography>
-        <Typography sx={{
-          fontSize: '14px', fontFamily: 'Inter',
-          fontStyle: 'normal', color: '#BABABA', margin: '18px 0 32px', cursor: 'pointer'
-        }}>
+        <Typography
+          sx={{
+            fontSize: '14px',
+            fontFamily: 'Inter',
+            fontStyle: 'normal',
+            color: '#BABABA',
+            margin: '18px 0 32px',
+            cursor: 'pointer',
+          }}
+        >
           {chrome.i18n.getMessage('It_seem_like_something_wrong')}
         </Typography>
       </Box>
 
-      <FormControl sx={{ flexGrow: 1, width: '100%', display: 'flex', flexDirection: 'column' }}>
+      <FormControl
+        sx={{
+          flexGrow: 1,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Input
           id="textfield"
           type="password"
@@ -161,7 +185,15 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
         </Presets.TransitionSlideUp>
       </FormControl>
 
-      <Box sx={{ width: '100%', marginTop:'40px',marginBottom: '16px',weight:'700',fontSize:'20px' }}>
+      <Box
+        sx={{
+          width: '100%',
+          marginTop: '40px',
+          marginBottom: '16px',
+          weight: '700',
+          fontSize: '20px',
+        }}
+      >
         <LLPrimaryButton
           // className="w-full block"\
           color="success"
@@ -169,16 +201,17 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
           onClick={handleClick}
           fullWidth
           label={
-            isLoading ? 
-              <Typography> {chrome.i18n.getMessage('Loading')}</Typography>: 
-              <Typography>{chrome.i18n.getMessage('Reveal_Private_Key')}</Typography>
+            isLoading ? (
+              <Typography> {chrome.i18n.getMessage('Loading')}</Typography>
+            ) : (
+              <Typography>
+                {chrome.i18n.getMessage('Reveal_Private_Key')}
+              </Typography>
+            )
           }
         />
       </Box>
-
-
-
-    </Box >
+    </Box>
   );
 };
 

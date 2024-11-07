@@ -11,7 +11,13 @@ const IconFlowns = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
-    <svg viewBox="0 0 1024 1024" width={size + 'px'} height={size + 'px'} style={style} {...rest}>
+    <svg
+      viewBox="0 0 1024 1024"
+      width={size + 'px'}
+      height={size + 'px'}
+      style={style}
+      {...rest}
+    >
       <path
         d="M0 512C0 229.2224 229.2224 0 512 0s512 229.2224 512 512-229.2224 512-512 512S0 794.7776 0 512z"
         fill={getIconColor(color, 0, '#17233A')}

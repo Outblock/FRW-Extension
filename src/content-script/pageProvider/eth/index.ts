@@ -1,14 +1,14 @@
 // this script is injected into webpage's context
-import { EventEmitter } from "events";
-import { ethErrors, serializeError } from "eth-rpc-errors";
-import BroadcastChannelMessage from "./utils/message/broadcastChannelMessage";
-import PushEventHandlers from "./pageProvider/pushEventHandlers";
-import { domReadyCall, $ } from "./pageProvider/utils";
-import ReadyPromise from "./pageProvider/readyPromise";
-import DedupePromise from "./pageProvider/dedupePromise";
-import { switchChainNotice } from "./pageProvider/interceptors/switchChain";
-import { switchWalletNotice } from "./pageProvider/interceptors/switchWallet";
-import { getProviderMode, patchProvider } from "./utils/metamask";
+import { EventEmitter } from 'events';
+import { ethErrors, serializeError } from 'eth-rpc-errors';
+import BroadcastChannelMessage from './utils/message/broadcastChannelMessage';
+import PushEventHandlers from './pageProvider/pushEventHandlers';
+import { domReadyCall, $ } from './pageProvider/utils';
+import ReadyPromise from './pageProvider/readyPromise';
+import DedupePromise from './pageProvider/dedupePromise';
+import { switchChainNotice } from './pageProvider/interceptors/switchChain';
+import { switchWalletNotice } from './pageProvider/interceptors/switchWallet';
+import { getProviderMode, patchProvider } from './utils/metamask';
 
 declare const __frw__channelName;
 declare const __frw__isDefaultWallet;
@@ -16,41 +16,40 @@ declare const __frw__uuid;
 declare const __frw__isOpera;
 
 const log = (event, ...args) => {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== 'production') {
     console.log(
       `%c [frw] (${new Date().toTimeString().substr(0, 8)}) ${event}`,
-      "font-weight: bold; background-color: #7d6ef9; color: white;",
+      'font-weight: bold; background-color: #7d6ef9; color: white;',
       ...args
     );
   }
 };
 
 let channelName =
-  typeof __frw__channelName !== "undefined" ? __frw__channelName : "";
+  typeof __frw__channelName !== 'undefined' ? __frw__channelName : '';
 let isDefaultWallet =
-  typeof __frw__isDefaultWallet !== "undefined"
+  typeof __frw__isDefaultWallet !== 'undefined'
     ? __frw__isDefaultWallet
     : false;
-let isOpera =
-  typeof __frw__isOpera !== "undefined" ? __frw__isOpera : false;
-let uuid = typeof __frw__uuid !== "undefined" ? __frw__uuid : "";
+let isOpera = typeof __frw__isOpera !== 'undefined' ? __frw__isOpera : false;
+let uuid = typeof __frw__uuid !== 'undefined' ? __frw__uuid : '';
 
 const getParams = () => {
-  if (localStorage.getItem("frw:channelName")) {
-    channelName = localStorage.getItem("frw:channelName") as string;
-    localStorage.removeItem("frw:channelName");
+  if (localStorage.getItem('frw:channelName')) {
+    channelName = localStorage.getItem('frw:channelName') as string;
+    localStorage.removeItem('frw:channelName');
   }
-  if (localStorage.getItem("frw:isDefaultWallet")) {
-    isDefaultWallet = localStorage.getItem("frw:isDefaultWallet") === "true";
-    localStorage.removeItem("frw:isDefaultWallet");
+  if (localStorage.getItem('frw:isDefaultWallet')) {
+    isDefaultWallet = localStorage.getItem('frw:isDefaultWallet') === 'true';
+    localStorage.removeItem('frw:isDefaultWallet');
   }
-  if (localStorage.getItem("frw:uuid")) {
-    uuid = localStorage.getItem("frw:uuid") as string;
-    localStorage.removeItem("frw:uuid");
+  if (localStorage.getItem('frw:uuid')) {
+    uuid = localStorage.getItem('frw:uuid') as string;
+    localStorage.removeItem('frw:uuid');
   }
-  if (localStorage.getItem("frw:isOpera")) {
-    isOpera = localStorage.getItem("frw:isOpera") === "true";
-    localStorage.removeItem("frw:isOpera");
+  if (localStorage.getItem('frw:isOpera')) {
+    isOpera = localStorage.getItem('frw:isOpera') === 'true';
+    localStorage.removeItem('frw:isOpera');
   }
 };
 getParams();
@@ -80,7 +79,7 @@ interface EIP6963ProviderDetail {
 }
 
 interface EIP6963RequestProviderEvent extends Event {
-  type: "eip6963:requestProvider";
+  type: 'eip6963:requestProvider';
 }
 
 export class EthereumProvider extends EventEmitter {
@@ -134,11 +133,11 @@ export class EthereumProvider extends EventEmitter {
 
   initialize = async () => {
     document.addEventListener(
-      "visibilitychange",
+      'visibilitychange',
       this._requestPromiseCheckVisibility
     );
 
-    this._bcm.connect().on("message", this._handleBackgroundMessage);
+    this._bcm.connect().on('message', this._handleBackgroundMessage);
     domReadyCall(() => {
       const origin = location.origin;
       const icon =
@@ -151,7 +150,7 @@ export class EthereumProvider extends EventEmitter {
         origin;
 
       this._bcm.request({
-        method: "tabCheckin",
+        method: 'tabCheckin',
         params: { icon, name, origin },
       });
 
@@ -161,7 +160,7 @@ export class EthereumProvider extends EventEmitter {
     try {
       const { chainId, accounts, networkVersion, isUnlocked }: any =
         await this.requestInternalMethods({
-          method: "getProviderState",
+          method: 'getProviderState',
         });
       if (isUnlocked) {
         this._isUnlocked = true;
@@ -169,7 +168,7 @@ export class EthereumProvider extends EventEmitter {
       }
       this.chainId = chainId;
       this.networkVersion = networkVersion;
-      this.emit("connect", { chainId });
+      this.emit('connect', { chainId });
       this._pushEventHandlers.chainChanged({
         chain: chainId,
         networkVersion,
@@ -181,12 +180,12 @@ export class EthereumProvider extends EventEmitter {
     } finally {
       this._initialized = true;
       this._state.initialized = true;
-      this.emit("_initialized");
+      this.emit('_initialized');
     }
   };
 
   private _requestPromiseCheckVisibility = () => {
-    if (document.visibilityState === "visible") {
+    if (document.visibilityState === 'visible') {
       this._requestPromise.check(1);
     } else {
       this._requestPromise.uncheck(1);
@@ -194,7 +193,7 @@ export class EthereumProvider extends EventEmitter {
   };
 
   private _handleBackgroundMessage = ({ event, data }) => {
-    log("[push event]", event, data);
+    log('[push event]', event, data);
     if (this._pushEventHandlers[event]) {
       return this._pushEventHandlers[event](data);
     }
@@ -229,21 +228,21 @@ export class EthereumProvider extends EventEmitter {
     this._requestPromiseCheckVisibility();
 
     return this._requestPromise.call(() => {
-      if (data.method !== "eth_call") {
-        log("[request]", JSON.stringify(data, null, 2));
+      if (data.method !== 'eth_call') {
+        log('[request]', JSON.stringify(data, null, 2));
       }
 
       return this._bcm
         .request(data)
         .then((res) => {
-          if (data.method !== "eth_call") {
-            log("[request: success]", data.method, res);
+          if (data.method !== 'eth_call') {
+            log('[request: success]', data.method, res);
           }
           return res;
         })
         .catch((err) => {
-          if (data.method !== "eth_call") {
-            log("[request: error]", data.method, serializeError(err));
+          if (data.method !== 'eth_call') {
+            log('[request: error]', data.method, serializeError(err));
           }
           throw serializeError(err);
         });
@@ -276,34 +275,34 @@ export class EthereumProvider extends EventEmitter {
   };
 
   send = (payload, callback?) => {
-    if (typeof payload === "string" && (!callback || Array.isArray(callback))) {
+    if (typeof payload === 'string' && (!callback || Array.isArray(callback))) {
       // send(method, params? = [])
       return this.request({
         method: payload,
         params: callback,
       }).then((result) => ({
         id: undefined,
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         result,
       }));
     }
 
-    if (typeof payload === "object" && typeof callback === "function") {
+    if (typeof payload === 'object' && typeof callback === 'function') {
       return this.sendAsync(payload, callback);
     }
 
     let result;
     switch (payload.method) {
-      case "eth_accounts":
+      case 'eth_accounts':
         result = this.selectedAddress ? [this.selectedAddress] : [];
         break;
 
-      case "eth_coinbase":
+      case 'eth_coinbase':
         result = this.selectedAddress || null;
         break;
 
       default:
-        throw new Error("sync method doesnt support");
+        throw new Error('sync method doesnt support');
     }
 
     return {
@@ -315,8 +314,8 @@ export class EthereumProvider extends EventEmitter {
 
   shimLegacy = () => {
     const legacyMethods = [
-      ["enable", "eth_requestAccounts"],
-      ["net_version", "net_version"],
+      ['enable', 'eth_requestAccounts'],
+      ['net_version', 'net_version'],
     ];
 
     for (const [_method, method] of legacyMethods) {
@@ -354,8 +353,8 @@ patchProvider(provider);
 const frwProvider = new Proxy(provider, {
   deleteProperty: (target, prop) => {
     if (
-      typeof prop === "string" &&
-      ["on", "isFrw", "isMetaMask", "_isFrw"].includes(prop)
+      typeof prop === 'string' &&
+      ['on', 'isFrw', 'isMetaMask', '_isFrw'].includes(prop)
     ) {
       delete target[prop];
     }
@@ -365,14 +364,14 @@ const frwProvider = new Proxy(provider, {
 
 const requestHasOtherProvider = () => {
   return provider.requestInternalMethods({
-    method: "hasOtherProvider",
+    method: 'hasOtherProvider',
     params: [],
   });
 };
 
 const requestIsDefaultWallet = () => {
   return provider.requestInternalMethods({
-    method: "isDefaultWallet",
+    method: 'isDefaultWallet',
     params: [],
   }) as Promise<boolean>;
 };
@@ -382,12 +381,12 @@ const initOperaProvider = () => {
   frwProvider._isReady = true;
   window.frw = frwProvider;
   patchProvider(frwProvider);
-  frwProvider.on("frw:chainChanged", switchChainNotice);
+  frwProvider.on('frw:chainChanged', switchChainNotice);
 };
 
 const initProvider = () => {
   frwProvider._isReady = true;
-  frwProvider.on("defaultWalletChanged", switchWalletNotice);
+  frwProvider.on('defaultWalletChanged', switchWalletNotice);
   patchProvider(frwProvider);
   if (window.ethereum) {
     requestHasOtherProvider();
@@ -397,7 +396,7 @@ const initProvider = () => {
       currentProvider: frwProvider,
     };
   }
-  const descriptor = Object.getOwnPropertyDescriptor(window, "ethereum");
+  const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum');
   const canDefine = !descriptor || descriptor.configurable;
   if (canDefine) {
     try {
@@ -478,24 +477,23 @@ requestIsDefaultWallet().then((frwAsDefault) => {
 const EIP6963Icon =
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xMzc2MV8zNTIxKSI+CjxyZWN0IHdpZHRoPSIyNTAiIGhlaWdodD0iMjUwIiByeD0iNDYuODc1IiBmaWxsPSJ3aGl0ZSIvPgo8ZyBjbGlwLXBhdGg9InVybCgjY2xpcDFfMTM3NjFfMzUyMSkiPgo8cmVjdCB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzEzNzYxXzM1MjEpIi8+CjxwYXRoIGQ9Ik0xMjUgMjE3LjUyOUMxNzYuMTAyIDIxNy41MjkgMjE3LjUyOSAxNzYuMTAyIDIxNy41MjkgMTI1QzIxNy41MjkgNzMuODk3NSAxNzYuMTAyIDMyLjQ3MDcgMTI1IDMyLjQ3MDdDNzMuODk3NSAzMi40NzA3IDMyLjQ3MDcgNzMuODk3NSAzMi40NzA3IDEyNUMzMi40NzA3IDE3Ni4xMDIgNzMuODk3NSAyMTcuNTI5IDEyNSAyMTcuNTI5WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE2NS4zODIgMTEwLjQyMkgxMzkuNTg1VjEzNi43OEgxNjUuMzgyVjExMC40MjJaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMTEzLjIyNyAxMzYuNzhIMTM5LjU4NVYxMTAuNDIySDExMy4yMjdWMTM2Ljc4WiIgZmlsbD0iIzQxQ0M1RCIvPgo8L2c+CjwvZz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl8xMzc2MV8zNTIxIiB4MT0iMCIgeTE9IjAiIHgyPSIyNTAiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzFDRUI4QSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0MUNDNUQiLz4KPC9saW5lYXJHcmFkaWVudD4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMzc2MV8zNTIxIj4KPHJlY3Qgd2lkdGg9IjI1MCIgaGVpZ2h0PSIyNTAiIHJ4PSI0Ni44NzUiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjxjbGlwUGF0aCBpZD0iY2xpcDFfMTM3NjFfMzUyMSI+CjxyZWN0IHdpZHRoPSIyNTAiIGhlaWdodD0iMjUwIiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=';
 
-
 const announceEip6963Provider = (provider: EthereumProvider) => {
   const info: EIP6963ProviderInfo = {
     uuid: uuid,
-    name: "Flow Wallet",
+    name: 'Flow Wallet',
     icon: EIP6963Icon,
-    rdns: "com.flowfoundation.wallet",
+    rdns: 'com.flowfoundation.wallet',
   };
 
   window.dispatchEvent(
-    new CustomEvent("eip6963:announceProvider", {
+    new CustomEvent('eip6963:announceProvider', {
       detail: Object.freeze({ info, provider }),
     })
   );
 };
 
 window.addEventListener<any>(
-  "eip6963:requestProvider",
+  'eip6963:requestProvider',
   (event: EIP6963RequestProviderEvent) => {
     announceEip6963Provider(frwProvider);
   }
@@ -503,4 +501,4 @@ window.addEventListener<any>(
 
 announceEip6963Provider(frwProvider);
 
-window.dispatchEvent(new Event("ethereum#initialized"));
+window.dispatchEvent(new Event('ethereum#initialized'));

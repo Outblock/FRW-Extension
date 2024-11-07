@@ -1,4 +1,4 @@
-import IconClose from "../assets/close.svg";
+import IconClose from '../assets/close.svg';
 interface Options {
   content: string;
   closeButton: HTMLElement | string;
@@ -19,9 +19,9 @@ class Notice {
 
   constructor(options: Options) {
     this.options = options;
-    this.el = document.createElement("div");
+    this.el = document.createElement('div');
     this.el.className = `rabby-notice ${
-      this.options.className ? this.options.className : ""
+      this.options.className ? this.options.className : ''
     }`;
 
     // initial events
@@ -45,16 +45,16 @@ class Notice {
     }
 
     // main
-    const elMain = document.createElement("div");
-    elMain.className = "rabby-notice-content";
+    const elMain = document.createElement('div');
+    elMain.className = 'rabby-notice-content';
     elMain.innerHTML = this.options.content;
     this.el?.appendChild(elMain);
 
     // close button
     if (this.options.closeable) {
-      this.closeButton = document.createElement("img");
-      this.closeButton.setAttribute("src", IconClose);
-      this.closeButton.className = "rabby-notice-close";
+      this.closeButton = document.createElement('img');
+      this.closeButton.setAttribute('src', IconClose);
+      this.closeButton.className = 'rabby-notice-close';
       this.el.appendChild(this.closeButton);
     }
 
@@ -64,7 +64,7 @@ class Notice {
   registerEvents() {
     this.events.hide = () => this.hide();
 
-    this.closeButton?.addEventListener("click", this.events.hide, false);
+    this.closeButton?.addEventListener('click', this.events.hide, false);
   }
 
   startTimer(timeout = this.options.timeout) {
@@ -84,7 +84,7 @@ class Notice {
     if (!this.el) {
       return;
     }
-    this.el.classList.add(".rabby-notice-is-hide");
+    this.el.classList.add('.rabby-notice-is-hide');
     // setTimeout(() => {
     this.options.container.removeChild(this.el!);
     this.el = null;
@@ -169,18 +169,18 @@ const styles = `
 
 function notice(options: Partial<Options>) {
   const {
-    content = "",
+    content = '',
     // timeout = 3000,
     timeout = 0,
-    closeButton = "×",
-    className = "",
+    closeButton = '×',
+    className = '',
     closeable = false,
   } = options || {};
 
   if (!container) {
-    container = document.createElement("div");
-    container.classList.add("rabby-notice-container");
-    style = document.createElement("style");
+    container = document.createElement('div');
+    container.classList.add('rabby-notice-container');
+    style = document.createElement('style');
     style.innerHTML = styles;
     document.body.appendChild(style);
     document.body.appendChild(container);

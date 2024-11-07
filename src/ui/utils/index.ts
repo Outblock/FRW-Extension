@@ -1,10 +1,7 @@
-import {
-  IS_CHROME,
-  CHECK_METAMASK_INSTALLED_URL,
-} from 'consts';
+import { IS_CHROME, CHECK_METAMASK_INSTALLED_URL } from 'consts';
 import { Account } from 'background/service/preference';
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => { };
+export const noop = () => {};
 
 export * from './WalletContext';
 export * from './WindowContext';
@@ -46,8 +43,8 @@ export const hex2Text = (hex: string) => {
   try {
     return hex.startsWith('0x')
       ? decodeURIComponent(
-        hex.replace(/^0x/, '').replace(/[0-9a-f]{2}/g, '%$&')
-      )
+          hex.replace(/^0x/, '').replace(/[0-9a-f]{2}/g, '%$&')
+        )
       : hex;
   } catch {
     return hex;
@@ -59,7 +56,6 @@ export const isEmoji = (char) => {
   const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
   return emojiRegex.test(char);
 };
-
 
 export const hexToUint8Array = (hexString: string) => {
   if (hexString.startsWith('0x')) {
@@ -79,7 +75,7 @@ export const hexToUint8Array = (hexString: string) => {
   }
 
   return uint8Array;
-}
+};
 
 export const getUITypeName = (): string => {
   const UIType = getUiType();
@@ -184,7 +180,6 @@ export function getSignAlgo(value: string): number {
       return -1; // Handle unknown values
   }
 }
-
 
 export function getStringFromHashAlgo(value: number): string {
   switch (value) {

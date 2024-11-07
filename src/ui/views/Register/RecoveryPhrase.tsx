@@ -15,17 +15,21 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
-        <Typography variant="h4" sx={{ fontWeight: 700 }} color='neutral.contrastText'>
+      <Box className="registerBox">
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 700 }}
+          color="neutral.contrastText"
+        >
           {chrome.i18n.getMessage('Recovery')}
           <Box display="inline" color="primary.main">
             {chrome.i18n.getMessage('Phrase')}
           </Box>
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Write__down__this__phrase__in__this__exact__order__and__keep__them__safe')}
+          {chrome.i18n.getMessage(
+            'Write__down__this__phrase__in__this__exact__order__and__keep__them__safe'
+          )}
         </Typography>
 
         <Box
@@ -58,21 +62,33 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           >
             {mnemonic.split(' ').map((word, i) => {
               return (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginRight: '16px', marginBottom: '12px', }} key={i}>
-                  <Box sx={{
-                    topx: 0,
-                    lineHeight: '26px',
-                    textAlign: 'center',
-                    color: 'neutral1.main',
-                    backgroundColor: 'neutral1.light',
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '26px',
-                    top: 0,
-                    marginRight: '8px',
-                    textIndent: '-1px',
-                    fontWeight: 'bold'
-                  }}>{i + 1}</Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginRight: '16px',
+                    marginBottom: '12px',
+                  }}
+                  key={i}
+                >
+                  <Box
+                    sx={{
+                      topx: 0,
+                      lineHeight: '26px',
+                      textAlign: 'center',
+                      color: 'neutral1.main',
+                      backgroundColor: 'neutral1.light',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '26px',
+                      top: 0,
+                      marginRight: '8px',
+                      textIndent: '-1px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {i + 1}
+                  </Box>
                   <Typography
                     key={'key_' + i}
                     variant="body1"
@@ -173,13 +189,14 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        <Box sx={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-        }}>
-
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Presets.TransitionSlideUp>
             <Box
               sx={{
@@ -194,9 +211,18 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
               }}
             >
               {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon fontSize='medium' style={{ margin: '0px 12px auto 12px', color: '#E54040' }} />
-              <Typography variant="body1" color="error.main" sx={{ fontSize: '14px' }}>
-                {chrome.i18n.getMessage('Please__notice__that__If__you__lose__you__can__not__access')}
+              <InfoIcon
+                fontSize="medium"
+                style={{ margin: '0px 12px auto 12px', color: '#E54040' }}
+              />
+              <Typography
+                variant="body1"
+                color="error.main"
+                sx={{ fontSize: '14px' }}
+              >
+                {chrome.i18n.getMessage(
+                  'Please__notice__that__If__you__lose__you__can__not__access'
+                )}
               </Typography>
             </Box>
           </Presets.TransitionSlideUp>

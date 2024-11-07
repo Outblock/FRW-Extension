@@ -20,8 +20,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner,
-} from 'ui/FRWComponent';
+import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { LLProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
@@ -61,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
     boxSizing: 'border-box',
     // margin: '2px 18px 10px 18px',
     width: '100%',
-    padding: '0px 16px'
+    padding: '0px 16px',
   },
   listWrapper: {
     flexGrow: 1,
@@ -77,22 +76,21 @@ const SelectToken = (props: TransferConfirmationProps) => {
   const history = useHistory();
   const [token0, setToken0] = useState(null);
   const [token1, setToken1] = useState(null);
-  
 
   const setToken = async () => {
     if (props.data.token0) {
-      setToken0(props.data.token0.contract_name)
+      setToken0(props.data.token0.contract_name);
     }
     if (props.data.token1) {
-      setToken1(props.data.token1.contract_name)
+      setToken1(props.data.token1.contract_name);
     }
-  }
+  };
 
   const setSelectToken = (token) => {
     props.updateCoinInfo(token);
     props.handleCloseIconClicked();
-    return
-  }
+    return;
+  };
 
   useEffect(() => {
     // startCount();
@@ -131,7 +129,7 @@ const SelectToken = (props: TransferConfirmationProps) => {
             fontWeight="bold"
             fontSize="20px"
           >
-              Select Token
+            Select Token
           </Typography>
         </Grid>
         <Grid item xs={1}>
@@ -143,7 +141,7 @@ const SelectToken = (props: TransferConfirmationProps) => {
           </IconButton>
         </Grid>
       </Grid>
-      <Box sx={{overflow:'scroll'}}>
+      <Box sx={{ overflow: 'scroll' }}>
         <div className={classes.inputWrapper}>
           <Input
             type="search"
@@ -161,42 +159,97 @@ const SelectToken = (props: TransferConfirmationProps) => {
             }
           />
         </div>
-        <Box sx={{width:'auto', padding:'10px 100px', display:'flex',alignItems:'center', py:'11px',justifyContent:'space-between'}}>
-          {token0 ?
-            <img src={props.data.token0.icon} style={{height: '32px', width: '32px', }}/>:
-            <Box sx={{width:'24px',height:'24px',borderRadius:'24px',background: 'linear-gradient(191.31deg, #41CC5D 11.11%, #7678ED 92.36%)'}}></Box>
-          }
-          <IconSwitch color={'#41CC5D'} size={28} style={{borderRadius:'28px', transform: 'rotate(90deg)',border:'3px solid #000'}} />
-          {token1 ?
-            <img src={props.data.token1.icon} style={{height: '32px', width: '32px',}}/>:
-            <Box sx={{width:'24px',height:'24px',borderRadius:'24px',background: 'linear-gradient(191.31deg, #41CC5D 11.11%, #7678ED 92.36%)'}}></Box>
-  
-          }
+        <Box
+          sx={{
+            width: 'auto',
+            padding: '10px 100px',
+            display: 'flex',
+            alignItems: 'center',
+            py: '11px',
+            justifyContent: 'space-between',
+          }}
+        >
+          {token0 ? (
+            <img
+              src={props.data.token0.icon}
+              style={{ height: '32px', width: '32px' }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '24px',
+                background:
+                  'linear-gradient(191.31deg, #41CC5D 11.11%, #7678ED 92.36%)',
+              }}
+            ></Box>
+          )}
+          <IconSwitch
+            color={'#41CC5D'}
+            size={28}
+            style={{
+              borderRadius: '28px',
+              transform: 'rotate(90deg)',
+              border: '3px solid #000',
+            }}
+          />
+          {token1 ? (
+            <img
+              src={props.data.token1.icon}
+              style={{ height: '32px', width: '32px' }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '24px',
+                background:
+                  'linear-gradient(191.31deg, #41CC5D 11.11%, #7678ED 92.36%)',
+              }}
+            ></Box>
+          )}
         </Box>
-        <Box sx={{marginBottom:'10px'}}>
-          {
-            props.data.tokens.map((coin) => { 
-              if (coin.address[props.data.network]) {
-                return (
-                  
-                  <ListItemButton 
-                    sx={{mx: '0px', py:'4px', my: '8px', backgroundColor: '#1f1f1f', borderRadius: '16px'}}
-                    disabled={coin.contract_name == token0|| coin.contract_name == token1}
-                  >
-                    <ListItem 
-                      disablePadding
-                      onClick={()=>setSelectToken(coin)}
-                      secondaryAction={ (coin.contract_name == token0|| coin.contract_name == token1) ?
+        <Box sx={{ marginBottom: '10px' }}>
+          {props.data.tokens.map((coin) => {
+            if (coin.address[props.data.network]) {
+              return (
+                <ListItemButton
+                  sx={{
+                    mx: '0px',
+                    py: '4px',
+                    my: '8px',
+                    backgroundColor: '#1f1f1f',
+                    borderRadius: '16px',
+                  }}
+                  disabled={
+                    coin.contract_name == token0 || coin.contract_name == token1
+                  }
+                >
+                  <ListItem
+                    disablePadding
+                    onClick={() => setSelectToken(coin)}
+                    secondaryAction={
+                      coin.contract_name == token0 ||
+                      coin.contract_name == token1 ? (
                         <IconButton edge="end" aria-label="delete">
-                          <IconCheckmark color='#41CC5D' size={24} />
-                        </IconButton> : <div/>
-                      }>
-                      <ListItemAvatar>
-                        <Avatar src={coin.icon}/>
-                      </ListItemAvatar>
-                      <ListItemText primary={coin.name} secondary={coin.symbol.toUpperCase()} />
-                    </ListItem>
-                  </ListItemButton>
+                          <IconCheckmark color="#41CC5D" size={24} />
+                        </IconButton>
+                      ) : (
+                        <div />
+                      )
+                    }
+                  >
+                    <ListItemAvatar>
+                      <Avatar src={coin.icon} />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={coin.name}
+                      secondary={coin.symbol.toUpperCase()}
+                    />
+                  </ListItem>
+                </ListItemButton>
 
                 // <Button
                 //   onClick={()=>setSelectToken(coin)}
@@ -206,7 +259,7 @@ const SelectToken = (props: TransferConfirmationProps) => {
                 //   {(coin.contract_name == token0|| coin.contract_name == token1) ?
                 //     <Box sx={{
                 //       display:'flex',
-                //       alignItems:'center', 
+                //       alignItems:'center',
                 //       backgroundColor:'#282828',
                 //       padding:'7px',
                 //       borderRadius:'16px',
@@ -221,7 +274,7 @@ const SelectToken = (props: TransferConfirmationProps) => {
                 //     :
                 //     <Box sx={{
                 //       display:'flex',
-                //       alignItems:'center', 
+                //       alignItems:'center',
                 //       backgroundColor:'#1F1F1F',
                 //       padding:'7px',
                 //       borderRadius:'16px',
@@ -235,13 +288,11 @@ const SelectToken = (props: TransferConfirmationProps) => {
                 //     </Box>
                 //   }
                 // </Button>
-                )
-              }
+              );
             }
-            )
-          }
+          })}
         </Box>
-        <Box sx={{flexGrow: 1 }}/>
+        <Box sx={{ flexGrow: 1 }} />
       </Box>
     </Box>
   );
@@ -252,7 +303,12 @@ const SelectToken = (props: TransferConfirmationProps) => {
       open={props.isConfirmationOpen}
       transitionDuration={300}
       PaperProps={{
-        sx: { width: '100%', height: '65%', bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
+        sx: {
+          width: '100%',
+          height: '65%',
+          bgcolor: 'background.paper',
+          borderRadius: '18px 18px 0px 0px',
+        },
       }}
     >
       {renderContent()}

@@ -2,10 +2,7 @@ import Events from 'events';
 import { ethErrors } from 'eth-rpc-errors';
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes';
 import { winMgr } from 'background/webapi';
-import {
-  IS_CHROME,
-  IS_LINUX,
-} from 'consts';
+import { IS_CHROME, IS_LINUX } from 'consts';
 
 interface Approval {
   data: {
@@ -62,10 +59,10 @@ class NotificationService extends Events {
       if (this.notifiWindowId && winId !== this.notifiWindowId) {
         if (process.env.NODE_ENV === 'production') {
           if (
-            (IS_CHROME &&
-              winId === chrome.windows.WINDOW_ID_NONE &&
-              IS_LINUX) 
-          // ||
+            IS_CHROME &&
+            winId === chrome.windows.WINDOW_ID_NONE &&
+            IS_LINUX
+            // ||
             // (account?.type === KEYRING_TYPE.WalletConnectKeyring &&
             //   NOT_CLOSE_UNFOCUS_LIST.includes(account.brandName))
           ) {
@@ -98,7 +95,6 @@ class NotificationService extends Events {
 
   // currently it only support one approval at the same time
   requestApproval = async (data, winProps?): Promise<any> => {
-
     // if the request comes into while user approving
     if (this.approval) {
       throw ethErrors.provider.userRejectedRequest(
