@@ -55,28 +55,16 @@ const checkExpiry = async (value, prop) => {
   if (!value) {
     return null
   }
-  // Put this in a try catch to avoid breaking the extension
-  // If the data is not in the correct format, catching the error will return null
-  try {
-    const item = JSON.parse(value);
-    const now = new Date();
-    // compare the expiry time of the item with the current time
-    if (now.getTime() > item.expiry) {
-      // If the item is expired, delete the item from storage
-      // and return null
-      chrome.storage.local.remove(prop);
-      return null;
-    }
-    return item.value;
-  } catch (error) {
-    console.error('Error parsing storage data', error);
-    try {
-      chrome.storage.local.remove(prop);
-    } catch (error) {
-      console.error('Error removing expired storage data', error);
-    }
+  const item = JSON.parse(value);
+  const now = new Date();
+  // compare the expiry time of the item with the current time
+  if (now.getTime() > item.expiry) {
+    // If the item is expired, delete the item from storage
+    // and return null
+    chrome.storage.local.remove(prop);
     return null;
   }
+  return item.value;
 };
 
 const remove = async (prop) => {

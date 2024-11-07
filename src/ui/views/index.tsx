@@ -14,7 +14,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { PrivateRoute } from 'ui/component';
 import Approval from './Approval';
-import { NewsProvider } from '@/ui/utils/NewsContext';
 // import Reset from './Reset';
 
 function Main() {
@@ -46,14 +45,12 @@ const App = ({ wallet }: { wallet: any }) => {
   return (
     <ThemeProvider theme={theme}>
       <WalletProvider wallet={wallet}>
-        <NewsProvider>
-          <GlobalStyles
-            styles={{
-              body: { backgroundColor: '#121212' },
-            }}
-          />
-          <Main />
-        </NewsProvider>
+        <GlobalStyles
+          styles={{
+            body: { backgroundColor: '#121212' },
+          }}
+        />
+        <Main />
       </WalletProvider>
     </ThemeProvider>
   );
