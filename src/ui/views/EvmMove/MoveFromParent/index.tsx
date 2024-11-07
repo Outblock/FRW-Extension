@@ -6,7 +6,6 @@ import { CoinItem } from 'background/service/coinList';
 import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import TransferFrom from '../TransferFrom';
-import TransferTo from '../TransferTo';
 import MoveToken from './MoveToken'
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';

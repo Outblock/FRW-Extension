@@ -36,6 +36,7 @@ import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
 import { useNews } from '@/ui/utils/NewsContext';
 import NewsView from './Components/NewsView';
+import WalletFunction from './Components/WalletFunction';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -99,8 +100,6 @@ const Header = ({ loading }) => {
   const [testnetAvailable, setTestnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
 
-  const [flowBalance, setFlowBalance] = useState(0);
-
   const [modeAnonymous, setModeAnonymous] = useState(false);
 
   const [isPending, setIsPending] = useState(false);
@@ -114,7 +113,7 @@ const Header = ({ loading }) => {
   const { unreadCount } = useNews();
 
   console.log('unreadCount ->', unreadCount);
-  
+
   const toggleDrawer = () => {
     setDrawer(!drawer);
   };
@@ -230,22 +229,23 @@ const Header = ({ loading }) => {
       walletData,
       isChild
     );
-    if (!isChild) {
-      setFlowBalance(keys.balance);
-    } else {
-      usewallet.getUserWallets().then((res) => {
-        const address = res[0].blockchain[0].address;
-        usewallet.getFlowBalance(address).then((balance) => {
-          setFlowBalance(balance);
-        });
-      });
-    }
+    // if (!isChild) {
+    //   setFlowBalance(keys.balance);
+    // } else {
+    //   usewallet.getUserWallets().then((res) => {
+    //     const address = res[0].blockchain[0].address;
+    //     usewallet.getFlowBalance(address).then((balance) => {
+    //       setFlowBalance(balance);
+    //     });
+    //   });
+    // }
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
 
     // usewallet.checkUserDomain(wallet.username);
   };
+
   const switchAccount = async (account) => {
     const switchingTo = 'mainnet';
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
@@ -446,71 +446,6 @@ const Header = ({ loading }) => {
     window.location.reload();
   };
 
-  const WalletFunction = (props) => {
-    return (
-      <ListItem
-        onClick={() => {
-          setWallets(props, null, props.props_id);
-        }}
-        sx={{ mb: 0, padding: '0', cursor: 'pointer' }}
-      >
-        <ListItemButton
-          sx={{ my: 0, display: 'flex', px: '16px', py: '8px', justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          {props.icon &&
-            < Box sx={{
-              display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: props.color, marginRight: '12px'
-            }}>
-              <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                {props.icon}
-              </Typography>
-            </Box>
-          }
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              background: 'none',
-            }}
-          >
-            <Typography
-              variant="body1"
-              component="span"
-              fontWeight={'semi-bold'}
-              sx={{ fontSize: '12px' }}
-              display="flex"
-              color={props.props_id == currentWallet ? 'text.title' : 'text.nonselect'}
-            >
-              {props.name}
-              {props.address == current['address'] && (
-                <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
-                  <FiberManualRecordIcon
-                    style={{
-                      fontSize: '10px',
-                      color: '#40C900',
-                      marginLeft: '10px',
-                    }}
-                  />
-                </ListItemIcon>
-              )}
-            </Typography>
-            <Typography
-              variant="body1"
-              component="span"
-              // display="inline"
-              color={'text.nonselect'}
-              sx={{ fontSize: '12px', textTransform: 'uppercase' }}
-            >
-              {/* <span>{'  '}</span> */}
-              {(flowBalance / 100000000).toFixed(3)} FLOW
-            </Typography>
-          </Box>
-          <Box sx={{ flex: '1' }}></Box>
-          {/* <IconEnd size={12} /> */}
-        </ListItemButton>
-      </ListItem>
-    );
-  };
 
   const AccountFunction = (props) => {
     return (
@@ -706,6 +641,9 @@ const Header = ({ loading }) => {
           address={props.address}
           icon={props.icon}
           color={props.color}
+          setWallets={setWallets}
+          currentWallet={currentWallet}
+          current={current}
         />
       </List>
     );
@@ -800,9 +738,7 @@ const Header = ({ loading }) => {
                   display="block"
                   sx={{ lineHeight: '1.5' }}
                 >
-                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${
-                    isValidEthereumAddress(props.address) ? ' EVM' : ''
-                  }`}
+                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${isValidEthereumAddress(props.address) ? ' EVM' : ''}`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
                   <Typography
