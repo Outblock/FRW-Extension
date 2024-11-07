@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNews } from 'ui/utils/news';
 import { Box, Typography, Button } from '@mui/material';
-import { NewsItem } from 'ui/components/news-item';
+import { NewsItemCard } from 'ui/components/news-item';
 
 export const NewsView: React.FC = () => {
-  const { news, dismissNews, resetNews, markAllAsRead } = useNews();
+  const { news, resetNews, markAllAsRead } = useNews();
 
   // Handler for background click
   const handleBackgroundClick = (e: React.MouseEvent) => {
@@ -71,13 +71,12 @@ export const NewsView: React.FC = () => {
             <Box 
               key={item.id}
               sx={{
-                height: item.type === 'recommendation' ? '92px' : '76px', // Fixed heights
+                height: '76px', // Fixed heights
                 mb: 1.5
               }}
             >
-              <NewsItem
+              <NewsItemCard
                 item={item}
-                onDismiss={dismissNews}
               />
             </Box>
           ))}

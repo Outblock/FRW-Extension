@@ -2401,7 +2401,6 @@ class OpenApiService {
     const baseURL = getFirbaseFunctionUrl();
 
     const cachedNews = await storage.getExpiry('news');
-    console.log('cachedNews', cachedNews);
 
     if (cachedNews) {
       return cachedNews;

@@ -11,11 +11,8 @@ export function useNews() {
     let isMounted = true;
 
     const fetchNews = async () => {
-      console.log('fetching news');
       const walletNews = await wallet.getNews();
-
-      console.log('walletNews',walletNews);
-
+      
       const walletUnreadCount = await wallet.getUnreadNewsCount();
 
       if (isMounted) {
@@ -32,6 +29,15 @@ export function useNews() {
 
   }, []);
 
+  const isRead = useCallback(async (id: string): Promise<boolean> => {
+    
+    return await wallet?.isNewsRead(id);
+  }, [wallet]);
+
+  const markAsRead = useCallback(async (id: string) => {
+    await wallet?.markNewsAsRead(id).catch(console.error);
+  }, [wallet]);
+
   const markAllAsRead = useCallback(async () => {
 
     setUnreadCount(0);
@@ -40,7 +46,7 @@ export function useNews() {
 
   const dismissNews = useCallback(async (id: string) => {
 
-    await wallet?.markNewsAsRead(id).catch(console.error);
+    await wallet?.markNewsAsDismissed(id).catch(console.error);
     
   }, [wallet]);
 
@@ -48,11 +54,14 @@ export function useNews() {
     await wallet?.resetNews().catch(console.error);
   }, [wallet]);
 
+
   return {
     news,
     unreadCount,
     markAllAsRead,
     dismissNews,
+    isRead,
+    markAsRead,
     resetNews,
   };
 }

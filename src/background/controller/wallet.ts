@@ -3820,6 +3820,9 @@ export class WalletController extends BaseController {
   getNews = async () => {
     return await newsService.getNews();
   };
+  markNewsAsDismissed = async (id: string) => {
+    return await newsService.markAsDismissed(id);
+  };
 
   markNewsAsRead = async (id: string) => {
     return await newsService.markAsRead(id);
@@ -3831,6 +3834,10 @@ export class WalletController extends BaseController {
 
   getUnreadNewsCount = async () => {
     return newsService.getUnreadCount();
+  };
+
+  isNewsRead = (id: string) => {
+    return newsService.isRead(id);
   };
 
   resetNews = async () => {
