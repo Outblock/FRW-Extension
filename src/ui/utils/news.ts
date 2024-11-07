@@ -29,6 +29,19 @@ export function useNews() {
 
   }, []);
 
+  // Check the unread count every 2 seconds
+  // Don't love this, but until I figure out a better way...
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      const count = await wallet?.getUnreadNewsCount();
+      setUnreadCount(count);
+    }, 2000); // Update every 2 seconds
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [wallet]);
+
   const isRead = useCallback(async (id: string): Promise<boolean> => {
     
     return await wallet?.isNewsRead(id);
@@ -42,16 +55,18 @@ export function useNews() {
 
     setUnreadCount(0);
     wallet?.markAllNewsAsRead().catch(console.error);
+
   }, [wallet]);
 
   const dismissNews = useCallback(async (id: string) => {
 
     await wallet?.markNewsAsDismissed(id).catch(console.error);
-    
+
   }, [wallet]);
 
   const resetNews = useCallback(async () => {
     await wallet?.resetNews().catch(console.error);
+
   }, [wallet]);
 
 

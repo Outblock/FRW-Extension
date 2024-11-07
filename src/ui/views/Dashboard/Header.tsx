@@ -895,6 +895,7 @@ const Header = ({ loading }) => {
                       fontSize: '12px',
                       padding: '2px',
                       border: 'none',
+                      fontWeight: 'bold',
                     }}
                   >
                     {unreadCount}

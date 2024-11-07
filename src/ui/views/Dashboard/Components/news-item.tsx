@@ -3,10 +3,10 @@ import { Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { NewsItem } from 'background/service/networkModel';
-import { useNews } from '../utils/news';
+import { useNews } from '../../../utils/news';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
-  const { dismissNews, markAsRead, isRead } = useNews();
+  const { dismissNews, markAsRead } = useNews();
 
   // Use this to detect when the item is visible
   const cardRef = useRef<HTMLDivElement>(null);
@@ -21,6 +21,8 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
     
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
+        console.log('entry', entry);
+
         if (entry.isIntersecting) {
           // Start timer when item becomes visible
           timeoutId = setTimeout(() => {
@@ -34,6 +36,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
       });
     });
 
+    console.log('cardRef', cardRef);
     if (cardRef.current) {
       observer.observe(cardRef.current);
     }
@@ -46,6 +49,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
 
   return (
     <Box
+      ref={cardRef}
       sx={{
         background: itemIsRead
           ? 'rgba(52, 168, 83, 0.1)'

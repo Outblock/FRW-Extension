@@ -1,15 +1,15 @@
 import React from 'react';
 import { useNews } from 'ui/utils/news';
 import { Box, Typography, Button } from '@mui/material';
-import { NewsItemCard } from 'ui/components/news-item';
+import { NewsItemCard } from './news-item';
 
 export const NewsView: React.FC = () => {
-  const { news, resetNews, markAllAsRead } = useNews();
+  const { news, markAllAsRead } = useNews();
 
   // Handler for background click
   const handleBackgroundClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      resetNews();
+      markAllAsRead();
     }
   };
 

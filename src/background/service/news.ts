@@ -23,6 +23,7 @@ class NewsService {
         },
         fromStorage: true,
       });
+      console.log('NewsService store loaded', this.store);
     } catch (error) {
       console.error('Error initializing NewsService', error);
 
