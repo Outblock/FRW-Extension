@@ -74,6 +74,7 @@ export const SAFE_RPC_METHODS = [
   'wallet_requestPermissions',
   'wallet_getPermissions',
   'wallet_switchEthereumChain',
+  'wallet_watchAsset',
   'net_version',
 ];
 

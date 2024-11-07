@@ -26,11 +26,15 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
   useEffect(() => {
     const checkPermission = async () => {
       const result = await wallet.checkCanMoveChild();
-      setCanMoveChild(result);
+      if (balance > 0 || !tokenInfo.custom) {
+        setCanMoveChild(result);
+      } else {
+        setCanMoveChild(false);
+      }
     };
 
     checkPermission();
-  }, []);
+  }, [balance]);
 
   const toSend = async () => {
     await wallet.setCurrentCoin(token);

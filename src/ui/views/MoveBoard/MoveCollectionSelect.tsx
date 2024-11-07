@@ -87,8 +87,18 @@ const MoveCollectionSelect = ({ showMoveBoard, handleCloseIconClicked, handleCan
             {
               filteredCollectionList.map((obj, index) => (
                 <ListItem disablePadding sx={{ marginBottom: '8px' }}>
-                  <ListItemButton onClick={() => setSelected(obj.id)} sx={{ width: '100%', padding: '0', borderRadius: '12px', '&:hover': { backgroundColor: 'rgba(44, 44, 44, 0.1)' }, }} >
-                    <Box sx={{ backgroundColor: '#2C2C2C', width: "100%", height: '64px', display: 'flex', overflow: 'hidden', justifyContent: 'space-between', borderRadius: '12px', '&:hover': { backgroundColor: 'rgba(44, 44, 44, 0.5)' } }} key={index}>
+                  <ListItemButton
+                    onClick={() => {
+                      setSelected(obj.id);
+                      handleCancelBtnClicked();
+                    }}
+                    sx={{
+                      width: '100%',
+                      padding: '0',
+                      borderRadius: '12px',
+                      '&:hover': { backgroundColor: 'rgba(44, 44, 44, 0.1)' },
+                    }}
+                  >                    <Box sx={{ backgroundColor: '#2C2C2C', width: "100%", height: '64px', display: 'flex', overflow: 'hidden', justifyContent: 'space-between', borderRadius: '12px', '&:hover': { backgroundColor: 'rgba(44, 44, 44, 0.5)' } }} key={index}>
                       <CardMedia component="img" sx={{ width: '80px', height: '100%', display: 'inline', objectFit: 'cover', objectPosition: 'left' }} image={obj.logo} />
                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: '1', marginLeft: '16px', mt: '12px', height: '100%' }}>
                         <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>{obj.CollectionName}</Typography>

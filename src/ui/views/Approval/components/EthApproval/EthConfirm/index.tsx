@@ -30,7 +30,7 @@ interface ConnectProps {
 const EthConfirm = ({ params }: ConnectProps) => {
   const [, resolveApproval, rejectApproval, linkningConfirm] = useApproval();
   const { t } = useTranslation();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [signable, setSignable] = useState<Signable | null>(null);
   // const [payerSignable, setPayerSignable] = useState<Signable | null>(null);
   const [opener, setOpener] = useState<number | undefined>(undefined)
@@ -118,16 +118,16 @@ const EthConfirm = ({ params }: ConnectProps) => {
   };
 
   const loadPayer = async () => {
-    const isEnabled = await wallet.allowLilicoPay()
+    const isEnabled = await usewallet.allowLilicoPay()
     setLilicoEnabled(isEnabled)
   }
 
 
   const checkCoa = async () => {
     setLoading(true);
-    const isEnabled = await wallet.checkCoaLink();
+    const isEnabled = await usewallet.checkCoaLink();
     if (!isEnabled) {
-      const result = await wallet.coaLink();
+      const result = await usewallet.coaLink();
       const res = await fcl.tx(result).onceSealed();
       const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
       if (transactionExecutedEvent) {

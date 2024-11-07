@@ -12,7 +12,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import NavBar from './NavBar';
 import { useWallet } from 'ui/utils';
 import { LLTestnetIndicator } from 'ui/FRWComponent';
-import { fetchAndActivate, getRemoteConfig } from "firebase/remote-config";
+import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
 import { getApp, initializeApp } from 'firebase/app';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 
@@ -104,7 +104,9 @@ const Dashboard = ({ value, setValue }) => {
           flexDirection: 'column',
         }}
       >
-        {currentNetwork === 'testnet' && value === 0 && <LLTestnetIndicator />}
+        {currentNetwork === 'testnet' && value === 0 && (
+          <LLTestnetIndicator />
+        )}
         {/* <Header loading={loading} /> */}
 
         <SwipeableViews
@@ -117,11 +119,7 @@ const Dashboard = ({ value, setValue }) => {
             <WalletTab network={currentNetwork} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            {isEvm ?
-              <NftEvm />
-              :
-              <NFTTab />
-            }
+            {isEvm ? <NftEvm /> : <NFTTab />}
           </TabPanel>
           <TabPanel value={value} index={2}>
             <Staking />

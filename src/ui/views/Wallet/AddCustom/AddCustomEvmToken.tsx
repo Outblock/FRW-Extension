@@ -1,35 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Typography,
   Box,
   IconButton,
-  Grid,
   Stack,
   InputBase,
   CircularProgress,
   FormControl
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
   LLPrimaryButton,
-  LLSecondaryButton,
   LLFormHelperText,
-} from '../../FRWComponent';
+} from '../../../FRWComponent';
 import { useWallet } from 'ui/utils';
-import { useForm, FieldValues } from 'react-hook-form';
-import { withPrefix, isValidEthereumAddress } from '../../utils/address';
+import { useForm } from 'react-hook-form';
+import { withPrefix, isValidEthereumAddress } from '../../../utils/address';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Contract, ethers } from 'ethers'
 import { storage } from '@/background/webapi';
-
+import AddCustomEvmForm from './CustomEvmForm';
+import { EVM_ENDPOINT } from 'consts';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
   color: (theme.palette as any).text,
   backgroundColor: (theme.palette as any).background.default,
   borderRadius: theme.spacing(2),
-  marginTop: theme.spacing(2),
+  marginTop: '8px',
   width: '100%',
   '& .MuiInputBase-input': {
     padding: theme.spacing(2),
@@ -58,9 +57,12 @@ const AddCustomEvmToken = () => {
     useState<boolean>(false);
   const [isLoading, setLoading] =
     useState<boolean>(false);
+  const [coinInfo, setCoinInfo] = useState<any>({});
+  const [validationError, setValidationError] = useState<boolean>(false);
+
 
   const checkAddress = async (address: string) => {
-    //wallet controller api
+    //usewallet controller api
     setIsValidatingAddress(true);
     const validatedResult = await isValidEthereumAddress(address);
     setIsValidatingAddress(false);
@@ -70,15 +72,8 @@ const AddCustomEvmToken = () => {
   const addCustom = async (address) => {
     setLoading(true)
     const contractAddress = withPrefix(address)!.toLowerCase();
-    const evmCustomToken = await storage.get('evmCustomToken') || [];
-
-    // Check if the token already exists in evmCustomToken
-    const exists = evmCustomToken.some((token) => token.address === contractAddress);
-    if (exists) {
-      console.log("Token already exists in evmCustomToken");
-      return; // Skip fetching and exit early
-    }
-    const provider = new ethers.JsonRpcProvider("https://mainnet.evm.nodes.onflow.org/");
+    const network = await usewallet.getNetwork();
+    const provider = new ethers.JsonRpcProvider(EVM_ENDPOINT[network]);
 
     const ftContract = new Contract(
       contractAddress!,
@@ -112,7 +107,7 @@ const AddCustomEvmToken = () => {
     const symbol = await getContractData(ftContract, 'symbol');
 
     if (decimals !== null && name !== null && symbol !== null) {
-      const coinInfo = {
+      const info = {
         coin: name,
         unit: symbol,
         icon: "",
@@ -120,20 +115,47 @@ const AddCustomEvmToken = () => {
         change24h: 0,
         total: 0,
         address: contractAddress?.toLowerCase(),
-        decimals,
+        decimals: Number(decimals),
       };
 
-      // Add new coinInfo to evmCustomToken and save to storage
-      evmCustomToken.push(coinInfo);
-      await storage.set('evmCustomToken', evmCustomToken);
-      console.log("New token added:", coinInfo);
+      const flowId = await usewallet.getAssociatedFlowIdentifier(contractAddress);
+      info['flowIdentifier'] = flowId;
+      setCoinInfo(info);
       setLoading(false);
-      history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
-      history.goBack();
     } else {
       console.error("Failed to retrieve all required data for the token.");
+      setIsValidatingAddress(false);
+      setValidationError(true);
       setLoading(false);
     }
+
+  };
+
+  const importCustom = async (address) => {
+    setLoading(true);
+    const contractAddress = withPrefix(address)!.toLowerCase();
+    const network = await usewallet.getNetwork();
+
+    let evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
+    // Filter out any empty objects from evmCustomToken
+    evmCustomToken = evmCustomToken.filter(token => Object.keys(token).length > 0);
+
+    // Find the index of the existing token
+    const existingIndex = evmCustomToken.findIndex((token) => token.address === contractAddress);
+
+    if (existingIndex !== -1) {
+      evmCustomToken[existingIndex] = coinInfo;
+      console.log("Token already exists in evmCustomToken, replacing with new info");
+    } else {
+      evmCustomToken.push(coinInfo);
+      console.log("New token added to evmCustomToken");
+    }
+
+    await storage.set(`${network}evmCustomToken`, evmCustomToken);
+    await usewallet.openapi.refreshEvmGitToken(network);
+    setLoading(false);
+    history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
+    history.goBack();
 
   };
 
@@ -141,8 +163,8 @@ const AddCustomEvmToken = () => {
 
   const Header = () => {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <IconButton onClick={history.goBack}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <IconButton onClick={history.goBack} sx={{ height: '40px' }}>
           <ArrowBackIcon sx={{ color: 'icon.navi' }} />
         </IconButton>
         <Typography
@@ -180,11 +202,24 @@ const AddCustomEvmToken = () => {
           height: '100vh',
         }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: '100px' }}>
           <Stack spacing={2} sx={{ flexGrow: 1 }}>
 
             {/* Contract Address Input */}
             <FormControl sx={{ width: '100%' }}>
+              <Typography
+                sx={{
+                  color: 'var(--Basic-foreground-White, var(--Basic-foreground-White, #FFF))',
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  fontStyle: 'normal',
+                  fontWeight: 700,
+                  lineHeight: '24px',
+                  letterSpacing: '-0.084px'
+                }}
+              >
+                Token contract address
+              </Typography>
               <StyledInput
                 autoComplete="off"
                 placeholder='Contract Address'
@@ -198,21 +233,51 @@ const AddCustomEvmToken = () => {
               />
               <LLFormHelperText
                 inputValue={dirtyFields.address}
-                isValid={!errors.address}
+                isValid={!errors.address && !validationError}
                 isValidating={isValidatingAddress}
-                errorMsg={`${errors.address?.message}`}
+                errorMsg={`Invalid ERC20 address`}
                 successMsg={chrome.i18n.getMessage('Validated__address')}
               />
             </FormControl>
 
           </Stack>
+          {coinInfo.address && !isLoading &&
+            <AddCustomEvmForm coinInfo={coinInfo} />
+          }
+        </Box>
 
-          {/* Button Container */}
+        {/* Button Container */}
+        {coinInfo.address ? (
           <Box
             sx={{
               position: 'sticky',
-              bottom: '39px',
-              padding: '16px',
+              bottom: '0px',
+              padding: '16px 0 48px',
+              backgroundColor: 'rgba(0, 0, 0, 1)', // Optional for a clearer UI
+            }}
+          >
+            <LLPrimaryButton
+              label={
+                isLoading ? (
+                  <CircularProgress
+                    color="primary"
+                    size={22}
+                    style={{ fontSize: '14px', margin: '8px' }}
+                  />
+                ) : chrome.i18n.getMessage('Import')
+              }
+              fullWidth
+              onClick={() => importCustom(address)}
+              disabled={isLoading || !isValid}
+            />
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              position: 'sticky',
+              bottom: '0px',
+              padding: '16px 0 48px',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional for a clearer UI
             }}
           >
             <LLPrimaryButton
@@ -226,15 +291,14 @@ const AddCustomEvmToken = () => {
                 ) : chrome.i18n.getMessage('Add')
               }
               fullWidth
-              onClick={() => addCustom(address)} 
+              onClick={() => addCustom(address)}
               disabled={isLoading || !isValid}
             />
           </Box>
-        </Box>
-
+        )}
       </Box>
-
     </Box>
+
   );
 
   return (
