@@ -24,7 +24,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
 import erc721 from 'background/utils/erc721.abi.json';
 import Web3 from 'web3';
-import { EVM_ENDPOINT } from 'consts'
+import { EVM_ENDPOINT } from 'consts';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
