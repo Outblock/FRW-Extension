@@ -7,7 +7,6 @@ yarn-error
 package-lock.json
 yarn.lock
 .idea
-.vscode/
 .env
 .env.dev
 .env.pro
