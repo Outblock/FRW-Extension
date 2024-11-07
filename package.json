@@ -208,9 +208,5 @@
   "keywords": [],
   "author": "",
   "license": "LGPL",
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --cache"
-    ]
-  }
+  "lint-staged": {}
 }
