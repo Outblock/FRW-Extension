@@ -20,8 +20,8 @@ import { withPrefix, isValidEthereumAddress } from '../../../utils/address';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Contract, ethers } from 'ethers'
 import { storage } from '@/background/webapi';
-import AddCustomEvmForm from './CustomEvmForm'
-
+import AddCustomEvmForm from './CustomEvmForm';
+import { EVM_ENDPOINT } from 'consts';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -58,6 +58,8 @@ const AddCustomEvmToken = () => {
   const [isLoading, setLoading] =
     useState<boolean>(false);
   const [coinInfo, setCoinInfo] = useState<any>({});
+  const [validationError, setValidationError] = useState<boolean>(false);
+
 
   const checkAddress = async (address: string) => {
     //usewallet controller api
@@ -70,7 +72,8 @@ const AddCustomEvmToken = () => {
   const addCustom = async (address) => {
     setLoading(true)
     const contractAddress = withPrefix(address)!.toLowerCase();
-    const provider = new ethers.JsonRpcProvider("https://mainnet.evm.nodes.onflow.org/");
+    const network = await usewallet.getNetwork();
+    const provider = new ethers.JsonRpcProvider(EVM_ENDPOINT[network]);
 
     const ftContract = new Contract(
       contractAddress!,
@@ -121,6 +124,8 @@ const AddCustomEvmToken = () => {
       setLoading(false);
     } else {
       console.error("Failed to retrieve all required data for the token.");
+      setIsValidatingAddress(false);
+      setValidationError(true);
       setLoading(false);
     }
 
@@ -158,8 +163,8 @@ const AddCustomEvmToken = () => {
 
   const Header = () => {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'space-between',alignItems:'center' }}>
-        <IconButton onClick={history.goBack} sx={{height:'40px'}}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <IconButton onClick={history.goBack} sx={{ height: '40px' }}>
           <ArrowBackIcon sx={{ color: 'icon.navi' }} />
         </IconButton>
         <Typography
@@ -197,7 +202,7 @@ const AddCustomEvmToken = () => {
           height: '100vh',
         }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: '100px' }}>
           <Stack spacing={2} sx={{ flexGrow: 1 }}>
 
             {/* Contract Address Input */}
@@ -228,9 +233,9 @@ const AddCustomEvmToken = () => {
               />
               <LLFormHelperText
                 inputValue={dirtyFields.address}
-                isValid={!errors.address}
+                isValid={!errors.address && !validationError}
                 isValidating={isValidatingAddress}
-                errorMsg={`${errors.address?.message}`}
+                errorMsg={`Invalid ERC20 address`}
                 successMsg={chrome.i18n.getMessage('Validated__address')}
               />
             </FormControl>
@@ -239,59 +244,61 @@ const AddCustomEvmToken = () => {
           {coinInfo.address && !isLoading &&
             <AddCustomEvmForm coinInfo={coinInfo} />
           }
-          {/* Button Container */}
-          {coinInfo.address ?
-            <Box
-              sx={{
-                position: 'sticky',
-                bottom: '32px',
-                padding: '16px 0',
-              }}
-            >
-              <LLPrimaryButton
-                label={
-                  isLoading ? (
-                    <CircularProgress
-                      color="primary"
-                      size={22}
-                      style={{ fontSize: '14px', margin: '8px' }}
-                    />
-                  ) : chrome.i18n.getMessage('Import')
-                }
-                fullWidth
-                onClick={() => importCustom(address)}
-                disabled={isLoading || !isValid}
-              />
-            </Box>
-            :
-            <Box
-              sx={{
-                position: 'sticky',
-                bottom: '32px',
-                padding: '16px 0',
-              }}
-            >
-              <LLPrimaryButton
-                label={
-                  isLoading ? (
-                    <CircularProgress
-                      color="primary"
-                      size={22}
-                      style={{ fontSize: '14px', margin: '8px' }}
-                    />
-                  ) : chrome.i18n.getMessage('Add')
-                }
-                fullWidth
-                onClick={() => addCustom(address)}
-                disabled={isLoading || !isValid}
-              />
-            </Box>
-          }
         </Box>
 
+        {/* Button Container */}
+        {coinInfo.address ? (
+          <Box
+            sx={{
+              position: 'sticky',
+              bottom: '0px',
+              padding: '16px 0 48px',
+              backgroundColor: 'rgba(0, 0, 0, 1)', // Optional for a clearer UI
+            }}
+          >
+            <LLPrimaryButton
+              label={
+                isLoading ? (
+                  <CircularProgress
+                    color="primary"
+                    size={22}
+                    style={{ fontSize: '14px', margin: '8px' }}
+                  />
+                ) : chrome.i18n.getMessage('Import')
+              }
+              fullWidth
+              onClick={() => importCustom(address)}
+              disabled={isLoading || !isValid}
+            />
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              position: 'sticky',
+              bottom: '0px',
+              padding: '16px 0 48px',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional for a clearer UI
+            }}
+          >
+            <LLPrimaryButton
+              label={
+                isLoading ? (
+                  <CircularProgress
+                    color="primary"
+                    size={22}
+                    style={{ fontSize: '14px', margin: '8px' }}
+                  />
+                ) : chrome.i18n.getMessage('Add')
+              }
+              fullWidth
+              onClick={() => addCustom(address)}
+              disabled={isLoading || !isValid}
+            />
+          </Box>
+        )}
       </Box>
-
     </Box>
+
   );
 
   return (

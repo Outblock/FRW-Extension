@@ -10,10 +10,11 @@ import theme from 'ui/style/LLTheme';
 import {
   LLPrimaryButton,
   LLSecondaryButton,
-  LLConnectLoading
+  LLConnectLoading,
 } from 'ui/FRWComponent';
 import { Contract, ethers } from 'ethers';
 import { storage } from '@/background/webapi';
+import { EVM_ENDPOINT } from 'consts';
 
 
 const EthSuggest = (data) => {
@@ -32,6 +33,7 @@ const EthSuggest = (data) => {
   const [evmAddress, setEvmAddress] = useState('')
   const [isValidatingAddress, setIsValidatingAddress] =
     useState<boolean>(false);
+  const [validationError, setValidationError] = useState<boolean>(false);
   const [coinInfo, setCoinInfo] = useState<any>({});
   const init = async () => {
 
@@ -44,7 +46,8 @@ const EthSuggest = (data) => {
   const addCustom = async (address) => {
     setLoading(true)
     const contractAddress = withPrefix(address)!.toLowerCase();
-    const provider = new ethers.JsonRpcProvider("https://mainnet.evm.nodes.onflow.org/");
+    const network = await usewallet.getNetwork();
+    const provider = new ethers.JsonRpcProvider(EVM_ENDPOINT[network]);
     const evmAddress = await usewallet.getEvmAddress();
     const ftContract = new Contract(
       contractAddress!,
@@ -97,6 +100,8 @@ const EthSuggest = (data) => {
       setLoading(false);
     } else {
       console.error("Failed to retrieve all required data for the token.");
+      setIsValidatingAddress(false);
+      setValidationError(true);
       setLoading(false);
     }
 
@@ -155,7 +160,7 @@ const EthSuggest = (data) => {
         }}>
           {coinInfo.address &&
             <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
-              <Box sx={{ display: 'flex', gap: '16px', marginBottom: '0px', flexDirection: 'column', justifyContent: 'center',alignItems:'center' }}>
+              <Box sx={{ display: 'flex', gap: '16px', marginBottom: '0px', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Typography sx={{
                   color: 'var(--text-night-text-1, var(--Basic-foreground-White, #FFF))',
                   fontFamily: 'Inter',
@@ -165,7 +170,7 @@ const EthSuggest = (data) => {
                   letterSpacing: '-0.252px',
                 }}>Add Suggested Token
                 </Typography>
-                <Typography sx={{ fontSize: '14px', fontWeight: '400',color:'#FFFFFFCC' }}>Would you like to import this token?</Typography>
+                <Typography sx={{ fontSize: '14px', fontWeight: '400', color: '#FFFFFFCC' }}>Would you like to import this token?</Typography>
               </Box>
               <Divider />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderRadius: '16px', backgroundColor: '#28282A' }}>
