@@ -50,7 +50,7 @@ class NewsService {
     return this.store?.readIds?.includes(id);
   };
 
-  markAsRead = async (id: string) => {
+  markAsRead = async (id: string): Promise<boolean> => {
     if (!this.store) await this.init();
 
     const news = await this.getNews();
@@ -64,7 +64,11 @@ class NewsService {
         ),
         id,
       ];
+      // Marked as read
+      return true;
     }
+    // Already read
+    return false
   };
 
   markAllAsRead = async () => {

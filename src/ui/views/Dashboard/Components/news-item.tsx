@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { NewsItem } from 'background/service/networkModel';
-import { useNews } from '../../../utils/news';
+import { useNews } from '@/ui/utils/NewsContext';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
   const { dismissNews, markAsRead } = useNews();

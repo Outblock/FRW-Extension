@@ -3824,7 +3824,7 @@ export class WalletController extends BaseController {
     return await newsService.markAsDismissed(id);
   };
 
-  markNewsAsRead = async (id: string) => {
+  markNewsAsRead = async (id: string): Promise<boolean> => {
     return await newsService.markAsRead(id);
   };
 

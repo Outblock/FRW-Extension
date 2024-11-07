@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNews } from 'ui/utils/news';
+import { useNews } from '@/ui/utils/NewsContext';
 import { Box, Typography, Button } from '@mui/material';
 import { NewsItemCard } from './news-item';
 

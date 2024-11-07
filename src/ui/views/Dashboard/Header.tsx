@@ -34,7 +34,7 @@ import eventBus from '@/eventBus';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
 import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
-import { useNews } from 'ui/utils/news';
+import { useNews } from '@/ui/utils/NewsContext';
 import NewsView from './Components/NewsView';
 
 const useStyles = makeStyles(() => ({
