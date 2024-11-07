@@ -70,6 +70,11 @@ const checkExpiry = async (value, prop) => {
     return item.value;
   } catch (error) {
     console.error('Error parsing storage data', error);
+    try {
+      chrome.storage.local.remove(prop);
+    } catch (error) {
+      console.error('Error removing expired storage data', error);
+    }
     return null;
   }
 };

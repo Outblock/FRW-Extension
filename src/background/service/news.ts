@@ -1,5 +1,6 @@
 import { createPersistStore } from 'background/utils';
 import { NewsItem } from './networkModel';
+import { storage } from 'background/webapi';
 
 import openapi from './openapi';
 
@@ -12,13 +13,34 @@ class NewsService {
   store!: NewsStore;
 
   init = async () => {
-    this.store = await createPersistStore<NewsStore>({
-      name: 'news',
-      template: {
-        readIds: [], // ids of news that are read
-        dismissedIds: [], // ids of news that are dismissed
-      },
-    });
+    console.log('NewsService init');
+    try {
+      this.store = await createPersistStore<NewsStore>({
+        name: 'news',
+        template: {
+          readIds: [], // ids of news that are read
+          dismissedIds: [], // ids of news that are dismissed
+        },
+        fromStorage: true,
+      });
+    } catch (error) {
+      console.error('Error initializing NewsService', error);
+
+      // Try clearing the store
+      this.clear();
+      try {
+        this.store = await createPersistStore<NewsStore>({
+          name: 'news',
+          template: {
+            readIds: [], // ids of news that are read
+            dismissedIds: [], // ids of news that are dismissed
+          },
+          fromStorage: false,
+        });
+      } catch (error) {
+        console.error('Error initializing NewsService', error);
+      }
+    }
   };
 
   getNews = async (): Promise<NewsItem[]> => {
@@ -102,11 +124,12 @@ class NewsService {
     }
   };
 
-  reset = () => {
+  clear = () => {
     if (this.store) {
       this.store.readIds = [];
       this.store.dismissedIds = [];
     }
+    storage.remove('news');
   };
 }
 

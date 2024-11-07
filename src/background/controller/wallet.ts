@@ -3841,7 +3841,7 @@ export class WalletController extends BaseController {
   };
 
   resetNews = async () => {
-    return await newsService.reset();
+    return await newsService.clear();
   };
 
 }

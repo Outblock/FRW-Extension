@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -6,13 +6,13 @@ import { NewsItem } from 'background/service/networkModel';
 import { useNews } from '../utils/news';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
-  const { dismissNews, markAsRead } = useNews();
+  const { dismissNews, markAsRead, isRead } = useNews();
 
   // Use this to detect when the item is visible
   const cardRef = useRef<HTMLDivElement>(null);
   
   // See if this has been "read".
-  const itemIsRead = false;
+  const [itemIsRead, setItemIsRead] = useState(false);
   
   // Determine if the item has been "read".
   // We do this by seeing if it's visible for 2 seconds
@@ -25,6 +25,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
           // Start timer when item becomes visible
           timeoutId = setTimeout(() => {
             markAsRead(item.id);
+            setItemIsRead(true);
           }, 2000);
         } else {
           // Clear timer if item becomes hidden before 2 seconds
@@ -41,7 +42,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
       observer.disconnect();
       clearTimeout(timeoutId);
     };
-  }, [item.id, dismissNews]);
+  }, [item.id, dismissNews, cardRef]);
 
   return (
     <Box
