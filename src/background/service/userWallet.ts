@@ -392,9 +392,8 @@ class UserWallet {
   signAsProposer = async (signable: any): Promise<string> => {
     const tx = signable.voucher;
     const message = signable.message;
-    const envelope = await openapiService.signAsProposer(message);
+    const { signature } = await openapiService.signAsProposer(message);
     // todo
-    const signature = envelope.sig;
     return signature;
   };
 
