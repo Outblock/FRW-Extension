@@ -1073,7 +1073,6 @@ export class WalletController extends BaseController {
   private evmtokenPrice = async (tokeninfo, data) => {
     const token = tokeninfo.symbol.toLowerCase();
     const price = await openapiService.getPricesByEvmaddress(tokeninfo.address, data);
-
     switch (token) {
       case 'flow': {
         const flowTokenPrice = await storage.getExpiry('flowTokenPrice');
@@ -1095,7 +1094,7 @@ export class WalletController extends BaseController {
         if (price) {
           return { price: { last: price, change: { percentage: '0.0' } } }
         } else {
-          return null;
+          return { price: { last: 0, change: { percentage: '0.0' } } };
         }
     }
   };
@@ -1103,6 +1102,11 @@ export class WalletController extends BaseController {
   refreshCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
     try {
 
+      const isChild = await this.getActiveWallet();
+      if (isChild === 'evm') {
+        const data = await this.refreshEvmList(_expiry);
+        return data;
+      }
 
       const network = await this.getNetwork();
       const now = new Date();
@@ -1303,9 +1307,10 @@ export class WalletController extends BaseController {
     const now = new Date();
     const exp = _expiry + now.getTime();
     coinListService.setExpiry(exp);
-    const evmCustomToken = await storage.get('evmCustomToken') || [];
+
 
     const network = await this.getNetwork();
+    const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
 
     const tokenList = await openapiService.getTokenListFromGithub(network);
 
@@ -1321,6 +1326,7 @@ export class WalletController extends BaseController {
     );
 
     const flowBalance = await this.getBalance(address);
+
 
 
     const mergeBalances = (tokenList, allBalanceMap, flowBalance) => {
@@ -1342,25 +1348,69 @@ export class WalletController extends BaseController {
     };
 
 
-    const customToken = (mergedList, evmCustomToken) => {
-      return mergedList.map(token => {
-        const balanceInfo = evmCustomToken.find(customToken => {
-          return customToken.address.toLowerCase() === token.address.toLowerCase();
+    // const customToken = (mergedList, evmCustomToken) => {
+    //   return mergedList.map(token => {
+    //     const balanceInfo = evmCustomToken.map(customToken => {
+    //       if (customToken.address.toLowerCase() === token.address.toLowerCase()) {
+
+    //         return {
+    //           ...token,
+    //           custom: true
+    //         }
+
+    //       } else {
+    //         return {
+
+    //           "chainId": 747,
+    //           "address": customToken.address,
+    //           "symbol": customToken.unit,
+    //           "name": customToken.coin,
+    //           "decimals": customToken.decimals,
+    //           "logoURI": "",
+    //           "flowIdentifier": "",
+    //           "tags": [],
+    //           "balance": 0,
+    //           custom: true
+
+    //         }
+    //       }
+    //     });
+    //     return balanceInfo;
+    //   });
+    // };
+
+    const customToken = (coins, evmCustomToken) => {
+      const updatedList = [...coins];
+
+
+      evmCustomToken.forEach(customToken => {
+        // Check if the customToken already exists in mergedList
+        const existingToken = updatedList.find(token => {
+          return token.unit.toLowerCase() === customToken.unit.toLowerCase();
         });
 
-        const custom = balanceInfo ? true : false;
+        if (existingToken) {
+          existingToken.custom = true;
+        } else {
+          updatedList.push({
+            custom: true,
+            "coin": customToken.coin,
+            "unit": customToken.unit,
+            "icon": "",
+            "balance": 0,
+            "price": 0,
+            "change24h": 0,
+            "total": 0
 
-        return {
-          ...token,
-          custom
-        };
+          });
+        }
       });
+
+      return updatedList;
     };
 
+    const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
 
-
-    let mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
-    mergedList = await customToken(mergedList, evmCustomToken);
     const data = await openapiService.getTokenEvmPrices();
     const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
 
@@ -1393,10 +1443,11 @@ export class WalletController extends BaseController {
         custom: token.custom
       };
     });
-    console.log('mergeBalances ', mergedList, coins, tokenList, evmCustomToken)
+
+    const coinWithCustom = await customToken(coins, evmCustomToken);
 
 
-    coins
+    coinWithCustom
       .sort((a, b) => {
         if (b.total === a.total) {
           return b.balance - a.balance;
@@ -2819,6 +2870,18 @@ export class WalletController extends BaseController {
   };
 
 
+  getAssociatedFlowIdentifier = async (
+    address: string,
+  ): Promise<string> => {
+    const script = await getScripts('bridge', 'getAssociatedFlowIdentifier');
+    const result = await fcl.query({
+      cadence: script,
+      args: (arg, t) => [arg(address, t.String)],
+    });
+    return result
+  };
+
+
   sendNFT = async (
     recipient: string,
     id: any,
@@ -3021,8 +3084,14 @@ export class WalletController extends BaseController {
         evmAddress = '0x' + evmAddress
       }
       const evmResult = await openapiService.getEVMTransfers(evmAddress!, '', limit);
-      dataResult['transactions'] = evmResult.trxs
-      dataResult['total'] = evmResult.next_page_params.items_count
+      if (evmResult) {
+        dataResult['transactions'] = evmResult.trxs
+        if (evmResult.next_page_params) {
+          dataResult['total'] = evmResult.next_page_params.items_count
+        } else {
+          dataResult['total'] = evmResult.trxs.length
+        }
+      }
     } else {
       const res = await openapiService.getTransfers(address, '', limit);
       dataResult = res.data

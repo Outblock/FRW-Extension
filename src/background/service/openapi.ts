@@ -1391,7 +1391,7 @@ class OpenApiService {
     if (!network) {
       network = await userWalletService.getNetwork();
     }
-    const tokens = await this.getEvmListFromGithub(network);
+    const tokens = await this.getTokenListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
     return tokens.find(
       (item) => item.symbol.toLowerCase() == name.toLowerCase()
@@ -1515,76 +1515,124 @@ class OpenApiService {
     return balance;
   };
 
-  getTokenListFromGithub = async (network: string) => {
-    const childType = await userWalletService.getActiveWallet();
-    let chainType = 'flow'
-    if (childType === 'evm') {
-      chainType = 'evm';
-    }
-    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
-    // const gitToken = null
-    if (gitToken) {
-      return gitToken;
+  fetchGitTokenList = async (network, chainType, childType) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    let url;
+
+    if (isProduction) {
+      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
+    } else if (!isProduction && childType !== 'evm' && (network === 'testnet' || network === 'mainnet')) {
+      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`;
     } else {
-      let response
-      if (process.env.NODE_ENV === 'production') {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-        );
-      } else if (process.env.NODE_ENV !== 'production' && childType !== 'evm' && (network === 'testnet' || network === 'mainnet')) {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
-        );
-      } else if (process.env.NODE_ENV !== 'production' && childType === 'evm') {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-        );
+      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
+    }
+
+    const response = await fetch(url);
+    const { tokens = [] } = await response.json();
+    const hasFlowToken = tokens.some(token => token.symbol.toLowerCase() === 'flow');
+    if (!hasFlowToken) {
+      tokens.push({
+        name: 'Flow',
+        address: '0x4445e7ad11568276',
+        contractName: 'FlowToken',
+        path: {
+          balance: '/public/flowTokenBalance',
+          receiver: '/public/flowTokenReceiver',
+          vault: '/storage/flowTokenVault',
+        },
+        logoURI:
+          'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+        decimals: 8,
+        symbol: 'flow',
+      })
+    }
+    return tokens;
+  };
+
+  addFlowTokenIfMissing = (tokens) => {
+    const hasFlowToken = tokens.some(token => token.symbol.toLowerCase() === 'flow');
+    if (!hasFlowToken) {
+      tokens.push({
+        name: 'Flow',
+        address: '0x4445e7ad11568276',
+        contractName: 'FlowToken',
+        path: {
+          balance: '/public/flowTokenBalance',
+          receiver: '/public/flowTokenReceiver',
+          vault: '/storage/flowTokenVault',
+        },
+        logoURI: 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+        decimals: 8,
+        symbol: 'flow',
+      });
+    }
+  };
+
+  mergeCustomTokens = (tokens, customTokens) => {
+    customTokens.forEach(custom => {
+      const existingToken = tokens.find(token => token.address.toLowerCase() === custom.address.toLowerCase());
+  
+      if (existingToken) {
+        // If the custom token is found, set the custom key to true
+        existingToken.custom = true;
       } else {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-        );
-      }
-      const res = await response.json();
-      const { tokens = {} } = res;
-      const hasFlowToken = tokens.some(token => token.symbol.toLowerCase() === 'flow');
-      if (!hasFlowToken) {
+        // If the custom token is not found, add it to the tokens array
         tokens.push({
-          name: 'Flow',
-          address: '0x4445e7ad11568276',
-          contractName: 'FlowToken',
-          path: {
-            balance: '/public/flowTokenBalance',
-            receiver: '/public/flowTokenReceiver',
-            vault: '/storage/flowTokenVault',
-          },
-          logoURI:
-            'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
-          decimals: 8,
-          symbol: 'flow',
-        })
+          chainId: 747,
+          address: custom.address,
+          symbol: custom.unit,
+          name: custom.coin,
+          decimals: custom.decimals,
+          logoURI: "",
+          flowIdentifier: custom.flowIdentifier,
+          tags: [],
+          balance: 0,
+          custom: true,
+        });
       }
-      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
-      return tokens;
-    }
+    });
   };
+  
 
-  getEvmListFromGithub = async (network: string) => {
-    const chainType = 'evm'
+  getTokenListFromGithub = async (network) => {
+    const childType = await userWalletService.getActiveWallet();
+    const chainType = childType === 'evm' ? 'evm' : 'flow';
 
     const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
-    // const gitToken = null
-    if (gitToken) {
-      return gitToken;
-    } else {
-      const response = await fetch(
-        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-      );
-      const res = await response.json();
-      const { tokens = {} } = res;
-      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
-      return tokens;
+    if (gitToken) return gitToken;
+
+    const tokens = await this.fetchGitTokenList(network, chainType, childType);
+
+    if (chainType === 'evm') {
+      const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
+      this.mergeCustomTokens(tokens, evmCustomToken);
     }
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+    return tokens;
   };
+
+  refreshEvmGitToken = async (network) => {
+    const chainType = 'evm';
+    let gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    if (!gitToken) gitToken = await this.fetchGitTokenList(network, chainType, 'evm');
+
+    const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
+    this.mergeCustomTokens(gitToken, evmCustomToken);
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);
+  };
+
+  refreshCustomEvmGitToken = async (network) => {
+    const chainType = 'evm';
+    const gitToken = await this.fetchGitTokenList(network, chainType, 'evm');
+
+    const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
+    this.mergeCustomTokens(gitToken, evmCustomToken);
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);
+  };
+
 
   getNFTListFromGithub = async (network: string) => {
     const childType = await userWalletService.getActiveWallet();

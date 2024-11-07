@@ -59,7 +59,6 @@ const MoveEvm = (props: MoveBoardProps) => {
     if (collectionList && cadenceNft) {
       const collection = collectionList.find(collection => collection.id === selectedCollection);
 
-
       const cadenceResult = await usewallet.EvmNFTcollectionList(selectedCollection);
       setCollectionDetail(collection);
       setCollectionInfo(cadenceResult);
@@ -71,14 +70,14 @@ const MoveEvm = (props: MoveBoardProps) => {
     const tokensWithNfts = cadenceResult.filter(token => token.ids && token.ids.length > 0);
     const filteredData = tokensWithNfts.filter(item => item.collection.flowIdentifier);
     if (filteredData.length > 0) {
-      setSelected(filteredData[0].collection.name);
+      setSelected(filteredData[0].collection.id);
       const extractedObjects = filteredData.map(obj => {
 
         const flowIdentifierParts = obj.collection.flowIdentifier.split('.');
         return {
           CollectionName: flowIdentifierParts[2],
           NftCount: obj.count,
-          id: obj.collection.name,
+          id: obj.collection.id,
           address: flowIdentifierParts[1],
           logo: obj.collection.logo,
           flowIdentifier: obj?.collection?.flowIdentifier || ''
