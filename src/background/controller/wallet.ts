@@ -19,6 +19,7 @@ import {
   flownsService,
   stakingService,
   proxyService,
+  newsService,
 } from 'background/service';
 import BN from 'bignumber.js';
 import { openIndexPage } from 'background/webapi/tab';
@@ -863,8 +864,8 @@ export class WalletController extends BaseController {
   };
 
   replaceAvatarUrl = (url) => {
-    const baseUrl = "https://source.boringavatars.com/";
-    const newBaseUrl = "https://lilico.app/api/avatar/";
+    const baseUrl = 'https://source.boringavatars.com/';
+    const newBaseUrl = 'https://lilico.app/api/avatar/';
 
     if (url.startsWith(baseUrl)) {
       return url.replace(baseUrl, newBaseUrl);
@@ -1059,7 +1060,7 @@ export class WalletController extends BaseController {
         });
       default:
         if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } };
+          return { price: { last: price, change: { percentage: '0.0' } } }
         } else {
           return null;
         }
@@ -1088,7 +1089,7 @@ export class WalletController extends BaseController {
         });
       default:
         if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } };
+          return { price: { last: price, change: { percentage: '0.0' } } }
         } else {
           return { price: { last: 0, change: { percentage: '0.0' } } };
         }
@@ -1313,7 +1314,7 @@ export class WalletController extends BaseController {
     const address = await this.getEvmAddress();
     if (!isValidEthereumAddress(address)) {
 
-      return new Error("Invalid Ethereum address in coinlist");
+      return new Error('Invalid Ethereum address in coinlist');
     }
 
     const allBalanceMap = await openapiService.getEvmFT(
@@ -1406,6 +1407,7 @@ export class WalletController extends BaseController {
     };
 
     const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
+
     const data = await openapiService.getTokenEvmPrices();
     const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
 
@@ -2203,7 +2205,7 @@ export class WalletController extends BaseController {
 
     console.log('result ', result)
     const res = await fcl.tx(result).onceSealed();
-    const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
+    const transactionExecutedEvent = res.events.find(event => event.type.includes('TransactionExecuted'));
 
     if (transactionExecutedEvent) {
       const hash = transactionExecutedEvent.data.hash;
@@ -3921,6 +3923,33 @@ export class WalletController extends BaseController {
     return emoji;
   };
 
+  // Get the news from the server
+  getNews = async () => {
+    return await newsService.getNews();
+  };
+  markNewsAsDismissed = async (id: string) => {
+    return await newsService.markAsDismissed(id);
+  };
+
+  markNewsAsRead = async (id: string): Promise<boolean> => {
+    return await newsService.markAsRead(id);
+  };
+
+  markAllNewsAsRead = async () => {
+    return await newsService.markAllAsRead();
+  };
+
+  getUnreadNewsCount = async () => {
+    return newsService.getUnreadCount();
+  };
+
+  isNewsRead = (id: string) => {
+    return newsService.isRead(id);
+  };
+
+  resetNews = async () => {
+    return await newsService.clear();
+  };
 
 }
 

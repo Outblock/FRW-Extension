@@ -279,7 +279,7 @@ const WalletTab = ({ network }) => {
   };
 
   const filteredCoinData = coinData.filter((coin) => {
-    if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0) {
+    if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0 && !coin.custom) {
       return false;
     }
     return true;

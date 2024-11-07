@@ -35,6 +35,7 @@ import {
   NFTModel,
   StorageInfo,
   DeviceInfo,
+  NewsItem,
 } from './networkModel';
 import fetchConfig from 'background/utils/remoteConfig';
 // import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
@@ -542,7 +543,7 @@ class OpenApiService {
       try {
         const response = await this.sendRequest(
           'GET',
-          `/api/prices`,
+          '/api/prices',
           {},
           {},
           WEB_NEXT_URL
@@ -578,7 +579,7 @@ class OpenApiService {
       try {
         const response = await this.sendRequest(
           'GET',
-          `/api/prices`,
+          '/api/prices',
           {},
           {},
           WEB_NEXT_URL
@@ -1670,7 +1671,7 @@ class OpenApiService {
         values = await this.isTokenListEnabled(address);
       }
     } catch (error) {
-      console.error(`Error isTokenListEnabled token:`);
+      console.error('Error isTokenListEnabled token:');
       values = {}
     }
 
@@ -2156,7 +2157,7 @@ class OpenApiService {
   cadenceScriptsV2 = async () => {
     const { data } = await this.sendRequest(
       'GET',
-      `/api/v2/scripts`,
+      '/api/v2/scripts',
       {},
       {},
       WEB_NEXT_URL
@@ -2272,19 +2273,19 @@ class OpenApiService {
 
 
   getEvmFTPrice = async () => {
-    const gitPrice = await storage.getExpiry(`EVMPrice`);
+    const gitPrice = await storage.getExpiry('EVMPrice');
 
     if (gitPrice) {
       return gitPrice;
     } else {
       const { data } = await this.sendRequest(
         'GET',
-        `/api/prices`,
+        '/api/prices',
         {},
         {},
         WEB_NEXT_URL
       );
-      storage.setExpiry(`EVMPrice`, data, 6000);
+      storage.setExpiry('EVMPrice', data, 6000);
       return data;
     }
   };
@@ -2442,6 +2443,52 @@ class OpenApiService {
       return;
     }
   };
+
+  getNews = async (): Promise<NewsItem[]> => {
+    // Get news from firebase function
+    const baseURL = getFirbaseFunctionUrl();
+
+    const cachedNews = await storage.getExpiry('news');
+
+    if (cachedNews) {
+      return cachedNews;
+    }
+
+    const data = await this.sendRequest('GET', '/news', {}, {}, baseURL);
+
+    const timeNow = new Date(Date.now());
+
+    const news = data
+      .map(
+        (dataFromApi: {
+          id: string;
+          priority: string;
+          type: string;
+          title: string;
+          body?: string;
+          icon?: string;
+          image?: string;
+          url?: string;
+          expiry_time: string; // ISO date string from API
+          display_type: string;
+        }) => {
+          const newsItem = {
+            ...dataFromApi,
+            expiryTime: new Date(dataFromApi.expiry_time),
+            displayType: dataFromApi.display_type,
+          };
+          return newsItem;
+        }
+      )
+      .filter((n: { expiryTime: Date }) => {
+        return n.expiryTime > timeNow;
+      });
+
+    await storage.setExpiry('news', news, 300000); // 5 minutes in milliseconds
+
+    return news;
+  };
+
 
   freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
     const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
