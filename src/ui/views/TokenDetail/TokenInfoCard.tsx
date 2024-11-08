@@ -136,9 +136,9 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
                   }}>
                   {data.name}
                 </Typography>
-                {data.extensions && data.extensions.website &&
+                {data.extensions && data.extensions.website && data.extensions.website.trim() !== '' && (
                   <IconChevronRight size={20} />
-                }
+                )}
               </Box>
             </ButtonBase>
 
