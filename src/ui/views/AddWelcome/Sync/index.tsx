@@ -11,10 +11,7 @@ import SetPassword from './SetPassword';
 import SyncQr from './SyncQr';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
-import {
-  ComponentTransition,
-  AnimationTypes,
-} from 'react-component-transition';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useWallet, Options } from 'ui/utils';
 
 enum Direction {
@@ -41,13 +38,16 @@ const Sync = () => {
 
   const loadView = async () => {
     // console.log(wallet);
-    wallet.getCurrentAccount().then((res) => {
-      if (res) {
-        history.push('/');
-      }
-    }).catch(() => {
-      return;
-    });
+    wallet
+      .getCurrentAccount()
+      .then((res) => {
+        if (res) {
+          history.push('/');
+        }
+      })
+      .catch(() => {
+        return;
+      });
   };
   const goNext = () => {
     setDirection(Direction.Right);
@@ -77,16 +77,27 @@ const Sync = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <SyncQr
-          handleClick={goNext}
-          savedUsername={username}
-          confirmMnemonic={setMnemonic}
-          setUsername={getUsername}
-          setAccountKey={setAccountKey}
-          setDeviceInfo={setDeviceInfo}
-        />;
+        return (
+          <SyncQr
+            handleClick={goNext}
+            savedUsername={username}
+            confirmMnemonic={setMnemonic}
+            setUsername={getUsername}
+            setAccountKey={setAccountKey}
+            setDeviceInfo={setDeviceInfo}
+          />
+        );
       case 1:
-        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} setUsername={getUsername} accountKey={accountKey} deviceInfo={deviceInfo} />;
+        return (
+          <SetPassword
+            handleClick={goNext}
+            mnemonic={mnemonic}
+            username={username}
+            setUsername={getUsername}
+            accountKey={accountKey}
+            deviceInfo={deviceInfo}
+          />
+        );
       case 2:
         return <AllSet handleClick={goNext} />;
       default:
@@ -98,7 +109,6 @@ const Sync = () => {
     console.log('wallet');
     loadView();
   }, []);
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -128,7 +138,7 @@ const Sync = () => {
         <Box
           sx={{
             height: '460px',
-            backgroundColor: 'transparent'
+            backgroundColor: 'transparent',
           }}
         >
           <Box
@@ -140,16 +150,14 @@ const Sync = () => {
               height: 'auto',
               width: 'auto',
               position: 'relative',
-              borderRadius: '24px'
+              borderRadius: '24px',
             }}
           >
-
-
-            {(activeIndex !== 4 && activeIndex !== 5) &&
+            {activeIndex !== 4 && activeIndex !== 5 && (
               <IconButton onClick={goBack} size="small" sx={{ marginLeft: '-95px' }}>
                 <BackButtonIcon color="#5E5E5E" size={27} />
               </IconButton>
-            }
+            )}
 
             <ComponentTransition
               enterAnimation={

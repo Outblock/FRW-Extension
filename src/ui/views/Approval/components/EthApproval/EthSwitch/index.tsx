@@ -7,12 +7,8 @@ import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
 import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
 import theme from 'ui/style/LLTheme';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-  LLConnectLoading
-} from 'ui/FRWComponent';
-import { WalletUtils } from '@onflow/fcl'
+import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
+import { WalletUtils } from '@onflow/fcl';
 import Link from 'ui/FRWAssets/svg/link.svg';
 import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
 import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
@@ -39,19 +35,19 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [appIdentifier, setAppIdentifier] = useState<string | undefined>(undefined);
-  const [nonce, setNonce] = useState<string | undefined>(undefined)
-  const [opener, setOpener] = useState<number | undefined>(undefined)
-  const [windowId, setWindowId] = useState<number | undefined>(undefined)
-  const [host, setHost] = useState('')
-  const [title, setTitle] = useState('')
-  const [msgNetwork, setMsgNetwork] = useState('testnet')
-  const [showSwitch, setShowSwitch] = useState(false)
-  const [currentNetwork, setCurrent] = useState('testnet')
-  const [currentAddress, setCurrentAddress] = useState('')
-  const [approval, setApproval] = useState(false)
+  const [nonce, setNonce] = useState<string | undefined>(undefined);
+  const [opener, setOpener] = useState<number | undefined>(undefined);
+  const [windowId, setWindowId] = useState<number | undefined>(undefined);
+  const [host, setHost] = useState('');
+  const [title, setTitle] = useState('');
+  const [msgNetwork, setMsgNetwork] = useState('testnet');
+  const [showSwitch, setShowSwitch] = useState(false);
+  const [currentNetwork, setCurrent] = useState('testnet');
+  const [currentAddress, setCurrentAddress] = useState('');
+  const [approval, setApproval] = useState(false);
 
   // TODO: replace default logo
-  const [logo, setLogo] = useState('')
+  const [logo, setLogo] = useState('');
 
   const handleCancel = () => {
     setApproval(false);
@@ -70,10 +66,10 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
       defaultChain: 'FLOW',
       signPermission: 'MAINNET_AND_TESTNET',
     });
-  }
+  };
 
   const checkNetwork = async () => {
-    console.log('target ', target)
+    console.log('target ', target);
 
     const network = await wallet.getNetwork();
     setCurrent(network);
@@ -84,13 +80,11 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
     }
     const address = await wallet.getCurrentAddress();
     setCurrentAddress(address!);
-  }
-
+  };
 
   useEffect(() => {
     checkNetwork();
-
-  }, [currentNetwork])
+  }, [currentNetwork]);
 
   const networkColor = (network: string) => {
     switch (network) {
@@ -103,36 +97,104 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
     }
   };
 
-
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{
-        margin: '18px 18px 0px 18px',
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: '12px',
-        height: '100%',
-        background: 'linear-gradient(0deg, #121212, #11271D)'
-      }}>
+      <Box
+        sx={{
+          margin: '18px 18px 0px 18px',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: '12px',
+          height: '100%',
+          background: 'linear-gradient(0deg, #121212, #11271D)',
+        }}
+      >
         <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
           <Divider />
-          <Typography sx={{ textAlign: 'center', fontSize: '20px', color: '#E6E6E6' }} >Allow this site to switch  <br />the network?</Typography>
+          <Typography sx={{ textAlign: 'center', fontSize: '20px', color: '#E6E6E6' }}>
+            Allow this site to switch <br />
+            the network?
+          </Typography>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', marginTop: '18px' }}>
-            <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>This action will change your current network from <Typography sx={{ display: 'inline', color: '#E6E6E6' }}  > {currentNetwork}</Typography> to <Typography sx={{ display: 'inline', color: '#E6E6E6' }} > {currentNetwork}</Typography>.</Typography>
+            <Typography sx={{ textAlign: 'center', color: '#BABABA', fontSize: '14px' }}>
+              This action will change your current network from{' '}
+              <Typography sx={{ display: 'inline', color: '#E6E6E6' }}>
+                {' '}
+                {currentNetwork}
+              </Typography>{' '}
+              to{' '}
+              <Typography sx={{ display: 'inline', color: '#E6E6E6' }}>
+                {' '}
+                {currentNetwork}
+              </Typography>
+              .
+            </Typography>
           </Stack>
         </Box>
-        <Stack direction="column" spacing="18px" sx={{ justifyContent: 'space-between', width: '100%' }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', justifyContent: 'center', alignItems: 'stretch' }}>
+        <Stack
+          direction="column"
+          spacing="18px"
+          sx={{ justifyContent: 'space-between', width: '100%' }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              justifyContent: 'center',
+              alignItems: 'stretch',
+            }}
+          >
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(currentNetwork), objectFit: 'cover' }} src={testnetsvg} />
-              <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{currentNetwork}</Typography>
+              <img
+                style={{
+                  height: '60px',
+                  width: '60px',
+                  padding: '18px',
+                  borderRadius: '30px',
+                  backgroundColor: networkColor(currentNetwork),
+                  objectFit: 'cover',
+                }}
+                src={testnetsvg}
+              />
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  color: '#E6E6E6',
+                  fontWeight: 'bold',
+                  width: '100%',
+                  pt: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                {currentNetwork}
+              </Typography>
             </Box>
             <img style={{ width: '116px' }} src={Link} />
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img style={{ height: '60px', width: '60px', padding:'18px', borderRadius: '30px', backgroundColor: networkColor(target), objectFit: 'cover' }} src={mainnetsvg} />
-              <Typography sx={{ fontSize: '14px', color: '#E6E6E6', fontWeight: 'bold', width: '100%', pt: '4px', textAlign: 'center' }}>{target}</Typography>
+              <img
+                style={{
+                  height: '60px',
+                  width: '60px',
+                  padding: '18px',
+                  borderRadius: '30px',
+                  backgroundColor: networkColor(target),
+                  objectFit: 'cover',
+                }}
+                src={mainnetsvg}
+              />
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  color: '#E6E6E6',
+                  fontWeight: 'bold',
+                  width: '100%',
+                  pt: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                {target}
+              </Typography>
             </Box>
-
           </Box>
         </Stack>
         <Box sx={{ flexGrow: 1 }} />

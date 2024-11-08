@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
 import { useHistory, useLocation } from 'react-router-dom';
-import {EVM_ENDPOINT} from 'consts';
+import { EVM_ENDPOINT } from 'consts';
 import { CoinItem } from 'background/service/coinList';
 import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from '../TransferAmount'
+import TransferAmount from '../TransferAmount';
 import { useWallet } from 'ui/utils';
 import { withPrefix, isValidEthereumAddress } from 'ui/utils/address';
 import ToEthConfirmation from './ToEthConfirmation';
-import EvmConfirmation from './EvmConfirmation'
-import {
-  LLContactCard,
-} from 'ui/FRWComponent';
+import EvmConfirmation from './EvmConfirmation';
+import { LLContactCard } from 'ui/FRWComponent';
 import { Contact } from 'background/service/networkModel';
 import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../../components/iconfont/IconClose';
@@ -21,11 +19,10 @@ import Web3 from 'web3';
 import erc20ABI from 'background/utils/erc20.abi.json';
 
 interface ContactState {
-  contact: Contact
+  contact: Contact;
 }
 
 const SendEth = () => {
-
   const userContact = {
     address: '',
     id: 0,
@@ -45,7 +42,7 @@ const SendEth = () => {
     change24h: 0,
     total: 0,
     icon: '',
-  }
+  };
 
   const history = useHistory();
   const location = useLocation<ContactState>();
@@ -66,9 +63,6 @@ const SendEth = () => {
   const [minAmount, setMinAmount] = useState<any>(0);
   const [erc20Contract, setErc20Contract] = useState<any>(null);
   const [web3, setWeb3] = useState<any>(null);
-
-
-
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
@@ -91,28 +85,24 @@ const SendEth = () => {
     setCurrentCoin(token);
     // userWallet
     await setWallet(wallet);
-    const coinList = await usewallet.getCoinList()
+    const coinList = await usewallet.getCoinList();
     setCoinList(coinList);
-    const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
+    const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
 
     coinInfo!.total = coinInfo!.balance * coinInfo!.price;
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
     const ct = await usewallet.getActiveWallet();
-    if (ct === 'evm' ) {
+    if (ct === 'evm') {
       userContact.address = withPrefix(wallet.address) || '';
     } else {
       userContact.address = withPrefix(mainWallet) || '';
-
     }
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
     setUserMinAmount();
     setUser(userContact);
-
-
-
   };
 
   const setUserMinAmount = async () => {
@@ -127,20 +117,19 @@ const SendEth = () => {
     }
   };
 
-
   const checkAddress = async () => {
     const childType = await usewallet.getActiveWallet();
-    console.log(' childType ', childType)
+    console.log(' childType ', childType);
     setChildType(childType);
     //wallet controller api
     try {
       const address = location.state.contact.address;
-      const validatedResult = isValidEthereumAddress(address)
-      console.log('validatedResult address ', validatedResult)
+      const validatedResult = isValidEthereumAddress(address);
+      console.log('validatedResult address ', validatedResult);
       setValidated(validatedResult);
       return validatedResult;
     } catch (err) {
-      console.log('validatedResult err ', err)
+      console.log('validatedResult err ', err);
       setValidated(false);
     }
     setLoading(false);
@@ -148,10 +137,10 @@ const SendEth = () => {
 
   const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  }
+  };
 
   const updateCoinInfo = () => {
-    const coin = coinList.find(coin => coin.unit.toLowerCase() === currentCoin.toLowerCase());
+    const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
     if (coin) {
       setCoinInfo(coin);
     }
@@ -160,11 +149,11 @@ const SendEth = () => {
   useEffect(() => {
     setUserWallet();
     checkAddress();
-  }, [])
+  }, []);
 
   useEffect(() => {
     updateCoinInfo();
-  }, [currentCoin])
+  }, [currentCoin]);
 
   return (
     <div className="page">
@@ -174,11 +163,17 @@ const SendEth = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '16px' }}>
             <Box>
               <Box sx={{ zIndex: 999, backgroundColor: '#121212' }}>
-                <LLContactCard contact={location.state.contact} hideCloseButton={false} isSend={true} />
+                <LLContactCard
+                  contact={location.state.contact}
+                  hideCloseButton={false}
+                  isSend={true}
+                />
               </Box>
               <Presets.TransitionSlideUp>
-                {validated !== null && (
-                  validated ? <></> :
+                {validated !== null &&
+                  (validated ? (
+                    <></>
+                  ) : (
                     <Box
                       sx={{
                         width: '95%',
@@ -196,22 +191,25 @@ const SendEth = () => {
                       >
                         <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
                         <Typography variant="body1" color="text.secondary">
-                          {chrome.i18n.getMessage('Invalid_address_in')}{` ${network}`}
+                          {chrome.i18n.getMessage('Invalid_address_in')}
+                          {` ${network}`}
                         </Typography>
                       </Box>
                     </Box>
-                )}
+                  ))}
               </Presets.TransitionSlideUp>
             </Box>
 
-            <Typography variant="body1"
+            <Typography
+              variant="body1"
               sx={{
                 alignSelf: 'start',
                 fontSize: '14px',
-              }}>
+              }}
+            >
               {chrome.i18n.getMessage('Transfer__Amount')}
             </Typography>
-            {coinInfo.unit &&
+            {coinInfo.unit && (
               <TransferAmount
                 coinList={coinList}
                 amount={amount}
@@ -222,33 +220,41 @@ const SendEth = () => {
                 setExceed={setExceed}
                 coinInfo={coinInfo}
                 setCurrentCoin={setCurrentCoin}
-                minAmount={minAmount} />
-            }
+                minAmount={minAmount}
+              />
+            )}
 
-            {coinInfo.unit &&
+            {coinInfo.unit && (
               <>
-                <Typography variant="body1"
+                <Typography
+                  variant="body1"
                   sx={{
                     alignSelf: 'start',
                     fontSize: '14px',
-                  }}>
+                  }}
+                >
                   {chrome.i18n.getMessage('Available__Balance')}
                 </Typography>
 
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <CardMedia sx={{ width: '18px', height: '18px' }} image={coinInfo.icon} />
-                  <Typography variant="body1"
+                  <Typography
+                    variant="body1"
                     sx={{
                       alignSelf: 'start',
                       fontSize: '15px',
-                    }}>
-                    {
-                      (Math.round(coinInfo.balance * 100) / 100).toFixed(2) + ' ' + coinInfo.unit.toUpperCase() + ' ≈ ' + '$ ' + coinInfo.total
-                    }
+                    }}
+                  >
+                    {(Math.round(coinInfo.balance * 100) / 100).toFixed(2) +
+                      ' ' +
+                      coinInfo.unit.toUpperCase() +
+                      ' ≈ ' +
+                      '$ ' +
+                      coinInfo.total}
                   </Typography>
                 </Box>
               </>
-            }
+            )}
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
@@ -267,17 +273,15 @@ const SendEth = () => {
                 textTransform: 'capitalize',
               }}
             >
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 'bold' }}
-                color="text.primary"
-              >
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
                 {chrome.i18n.getMessage('Cancel')}
               </Typography>
             </Button>
 
             <Button
-              onClick={() => { setConfirmationOpen(true) }}
+              onClick={() => {
+                setConfirmationOpen(true);
+              }}
               variant="contained"
               color="success"
               size="large"
@@ -287,45 +291,59 @@ const SendEth = () => {
                 borderRadius: '8px',
                 textTransform: 'capitalize',
               }}
-              disabled={validated === null || exceed === true || amount === null || parseFloat(amount || '-1') < 0}
+              disabled={
+                validated === null ||
+                exceed === true ||
+                amount === null ||
+                parseFloat(amount || '-1') < 0
+              }
             >
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 'bold' }}
-                color="text.primary"
-              >
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
                 {chrome.i18n.getMessage('Next')}
               </Typography>
             </Button>
           </Box>
-          {childType === 'evm' ?
+          {childType === 'evm' ? (
             <EvmConfirmation
               isConfirmationOpen={isConfirmationOpen}
-              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo, erc20Contract }}
+              data={{
+                contact: location.state.contact,
+                amount: amount,
+                secondAmount: secondAmount,
+                userContact: userInfo,
+                tokenSymbol: currentCoin,
+                coinInfo: coinInfo,
+                erc20Contract,
+              }}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
               handleAddBtnClicked={() => {
                 setConfirmationOpen(false);
               }}
             />
-            :
+          ) : (
             <ToEthConfirmation
               isConfirmationOpen={isConfirmationOpen}
-              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo, erc20Contract }}
+              data={{
+                contact: location.state.contact,
+                amount: amount,
+                secondAmount: secondAmount,
+                userContact: userInfo,
+                tokenSymbol: currentCoin,
+                coinInfo: coinInfo,
+                erc20Contract,
+              }}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
               handleAddBtnClicked={() => {
                 setConfirmationOpen(false);
               }}
             />
-          }
-
-
+          )}
         </Box>
       </ThemeProvider>
     </div>
   );
-}
-
+};
 
 export default SendEth;

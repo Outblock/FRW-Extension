@@ -7,9 +7,7 @@ class BaseController {
     let account = preferenceService.getCurrentAccount();
     if (account) {
       const accounts = await this.getAccounts();
-      const matchAcct = accounts.find(
-        (acct) => account!.address === acct.address
-      );
+      const matchAcct = accounts.find((acct) => account!.address === acct.address);
       if (!matchAcct) account = undefined;
     }
 

@@ -93,9 +93,7 @@ if (IS_CHROME) {
   }
 }
 
-export const IS_AFTER_CHROME91 = IS_CHROME
-  ? chromeVersion && chromeVersion >= 91
-  : false;
+export const IS_AFTER_CHROME91 = IS_CHROME ? chromeVersion && chromeVersion >= 91 : false;
 
 export const GAS_LEVEL_TEXT = {
   slow: 'Standard',
@@ -139,13 +137,9 @@ export const INTERNAL_REQUEST_SESSION = {
 };
 
 export const INITIAL_OPENAPI_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://api.lilico.app'
-    : 'https://dev.lilico.app';
+  process.env.NODE_ENV === 'production' ? 'https://api.lilico.app' : 'https://dev.lilico.app';
 export const WEB_NEXT_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://lilico.app'
-    : 'https://test.lilico.app';
+  process.env.NODE_ENV === 'production' ? 'https://lilico.app' : 'https://test.lilico.app';
 // export const INITIAL_OPENAPI_URL = 'http://localhost:4747';
 
 // export const INITIAL_OPENAPI_URL = process.env.INITIAL_OPENAPI_URL!;

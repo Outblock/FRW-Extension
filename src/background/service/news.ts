@@ -16,7 +16,7 @@ class NewsService {
     console.log('NewsService init');
     try {
       this.store = await createPersistStore<NewsStore>({
-        name: 'newsService',  // Must be unique name 
+        name: 'newsService', // Must be unique name
         template: {
           readIds: [], // ids of news that are read
           dismissedIds: [], // ids of news that are dismissed
@@ -41,7 +41,7 @@ class NewsService {
     const filteredNews = news.filter((n) => !this.isDismissed(n.id));
 
     // TODO: calculate unread count here
-  
+
     return filteredNews;
   };
 
@@ -59,16 +59,14 @@ class NewsService {
       // Use this opportunity to clear the read ids that are not in the new news
       // Don't love this, but it's a quick way to do it
       this.store.readIds = [
-        ...this.store.readIds.filter((readId) =>
-          news.some((n) => n.id === readId)
-        ),
+        ...this.store.readIds.filter((readId) => news.some((n) => n.id === readId)),
         id,
       ];
       // Marked as read
       return true;
     }
     // Already read
-    return false
+    return false;
   };
 
   markAllAsRead = async () => {
@@ -85,8 +83,7 @@ class NewsService {
     // The frontend should cache the unread count
     const news = await this.getNews();
 
-    const unreadCount = news.reduce((count, item) => 
-      this.isRead(item.id) ? count : count + 1, 0);
+    const unreadCount = news.reduce((count, item) => (this.isRead(item.id) ? count : count + 1), 0);
 
     return unreadCount;
   };
@@ -105,11 +102,7 @@ class NewsService {
 
     // Add to dismissed ids if not already there
     if (!this.isDismissed(id)) {
-     
-      const newDismissedIds = [
-        ...this.store.dismissedIds,
-        id,
-      ];
+      const newDismissedIds = [...this.store.dismissedIds, id];
       this.store.dismissedIds = newDismissedIds;
     }
   };

@@ -12,7 +12,7 @@ import {
   CardContent,
   Skeleton,
   ButtonBase,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
@@ -95,7 +95,7 @@ const useStyles = makeStyles(() => ({
     padding: '13px',
     '&:hover': {
       color: '#282828',
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
   },
   grid: {
@@ -111,7 +111,7 @@ const useStyles = makeStyles(() => ({
     alignContent: 'flex-start',
     // marginLeft: 'auto'
     marginBottom: '20px',
-    overflow: 'auto'
+    overflow: 'auto',
   },
   cardmedia: {
     height: '159px',
@@ -122,13 +122,13 @@ const useStyles = makeStyles(() => ({
     maxWidth: '100%',
     maxHeight: '100%',
     borderRadius: '8px',
-    margin: '0 auto'
+    margin: '0 auto',
   },
   content: {
     height: '40px',
     padding: '5px 0',
     backgroundColor: 'inherit',
-    borderRadius: '0 0 8px 8px'
+    borderRadius: '0 0 8px 8px',
   },
   nftname: {
     color: '#E6E6E6',
@@ -163,8 +163,8 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     margin: 0,
     padding: 0,
-    zIndex: 5
-  }
+    zIndex: 5,
+  },
 }));
 
 interface CollectionDetailState {
@@ -190,9 +190,9 @@ const LinkedCollection = (props) => {
   const [pageIndex, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const collection_info = location['collection_address_name'].split('.');
-  const address = collection_info[0]
-  const collection_name = collection_info[1]
-  const nftCount = collection_info[2]
+  const address = collection_info[0];
+  const collection_name = collection_info[1];
+  const nftCount = collection_info[2];
 
   const fetchCollection = async () => {
     // const { collection, ownerAddress } = await getInfo();
@@ -201,23 +201,21 @@ const LinkedCollection = (props) => {
 
     try {
       const res = await getCollection(address, collection_name);
-      console.log('res   ', res)
+      console.log('res   ', res);
       setInfo(res.info);
       setTotal(res.nftCount);
       setLists(res.nfts);
     } catch (err) {
-      console.log('err   ', err)
+      console.log('err   ', err);
       // Handle the error if needed
     } finally {
       setLoading(false);
     }
-
-  }
+  };
 
   const nextPage = async () => {
-
     if (loadingMore) {
-      return
+      return;
     }
     setLoadingMore(true);
     const offset = pageIndex * 24;
@@ -231,8 +229,8 @@ const LinkedCollection = (props) => {
         const newPage = pageIndex + 1;
         setPage(newPage);
         const newList: any[] = [];
-        res.nfts.forEach(item => {
-          const result = list.filter(nft => nft.unique_id === item.unique_id)
+        res.nfts.forEach((item) => {
+          const result = list.filter((nft) => nft.unique_id === item.unique_id);
           if (result.length === 0) {
             newList.push(item);
           }
@@ -244,31 +242,29 @@ const LinkedCollection = (props) => {
     } finally {
       setLoadingMore(false);
     }
-  }
+  };
 
   const getCollection = async (ownerAddress, collection, offset = 0) => {
-    console.log('collection_info ', collection_info)
+    console.log('collection_info ', collection_info);
     return await usewallet.getSingleCollection(ownerAddress, collection, offset);
-  }
-
+  };
 
   function truncate(str, n) {
-    return (str.length > n) ? str.slice(0, n - 1) + '...' : str;
+    return str.length > n ? str.slice(0, n - 1) + '...' : str;
   }
 
   const hasMore = (): boolean => {
     if (list && list.length == 0) {
       return true;
     }
-    return list.length < total
-  }
-
+    return list.length < total;
+  };
 
   const loader = (
     <Box sx={{ display: 'flex', py: '8px', justifyContent: 'center' }}>
       <LLSpinner size={28} />
     </Box>
-  )
+  );
 
   useEffect(() => {
     fetchCollection();
@@ -293,16 +289,28 @@ const LinkedCollection = (props) => {
     <StyledEngineProvider injectFirst>
       <div className="page" id="scrollableDiv" style={{ overflow: 'auto' }}>
         <Box className={classes.iconbox}>
-          <IconButton onClick={() => (history.goBack())} className={classes.arrowback}>
+          <IconButton onClick={() => history.goBack()} className={classes.arrowback}>
             <ArrowBackIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
         </Box>
 
-        {info ?
+        {info ? (
           <>
             <Grid container sx={{ width: '100%', p: '0 25px 18px 25px' }}>
-              <Grid item sx={{ justifyContent: 'center', backgroundColor: '#121212', width: '108px', height: '108px' }}>
-                <img src={info?.collectionDisplay?.squareImage?.file?.url || info?.logo} alt="collection avatar" style={{ borderRadius: '12px', width: '100%', height: '100%' }} />
+              <Grid
+                item
+                sx={{
+                  justifyContent: 'center',
+                  backgroundColor: '#121212',
+                  width: '108px',
+                  height: '108px',
+                }}
+              >
+                <img
+                  src={info?.collectionDisplay?.squareImage?.file?.url || info?.logo}
+                  alt="collection avatar"
+                  style={{ borderRadius: '12px', width: '100%', height: '100%' }}
+                />
               </Grid>
               <Grid item sx={{ ml: 0, pl: '18px' }}>
                 <Typography component="div" color="text.primary" variant="h6">
@@ -318,7 +326,7 @@ const LinkedCollection = (props) => {
                       aria-label="close"
                       color="primary"
                       size="small"
-                    // onClick={onCloseBtnClicked}
+                      // onClick={onCloseBtnClicked}
                     >
                       <ReplayRoundedIcon fontSize="inherit" />
                     </IconButton>
@@ -326,9 +334,15 @@ const LinkedCollection = (props) => {
                 </Tooltip>
 
                 <Box sx={{ p: 0, mt: '10px' }}>
-                  {info.marketplace &&
+                  {info.marketplace && (
                     <Button
-                      startIcon={<StorefrontOutlinedIcon width="16px" color="primary" sx={{ ml: '4px', mr: 0 }} />}
+                      startIcon={
+                        <StorefrontOutlinedIcon
+                          width="16px"
+                          color="primary"
+                          sx={{ ml: '4px', mr: 0 }}
+                        />
+                      }
                       sx={{
                         backgroundColor: 'neutral2.main',
                         color: 'text.secondary',
@@ -338,14 +352,26 @@ const LinkedCollection = (props) => {
                         mr: '10px',
                       }}
                     >
-                      <a href={info.marketplace} target='_blank' style={{ textTransform: 'none', color: 'inherit', ml: 0 }}>
-                        <Typography variant='body1' sx={{ fontWeight: 500, fontSize: '14px' }}>{chrome.i18n.getMessage('Market')}</Typography>
+                      <a
+                        href={info.marketplace}
+                        target="_blank"
+                        style={{ textTransform: 'none', color: 'inherit', ml: 0 }}
+                      >
+                        <Typography variant="body1" sx={{ fontWeight: 500, fontSize: '14px' }}>
+                          {chrome.i18n.getMessage('Market')}
+                        </Typography>
                       </a>
                     </Button>
-                  }
-                  {info.collectionDisplay?.externalURL &&
+                  )}
+                  {info.collectionDisplay?.externalURL && (
                     <Button
-                      startIcon={<PublicOutlinedIcon width="16px" color="primary" sx={{ ml: '4px', mr: 0 }} />}
+                      startIcon={
+                        <PublicOutlinedIcon
+                          width="16px"
+                          color="primary"
+                          sx={{ ml: '4px', mr: 0 }}
+                        />
+                      }
                       sx={{
                         backgroundColor: 'neutral2.main',
                         color: 'text.secondary',
@@ -354,42 +380,41 @@ const LinkedCollection = (props) => {
                         p: '10px 8px',
                       }}
                     >
-
-                      <a href={info.collectionDisplay?.externalURL?.url} target='_blank' style={{ textTransform: 'none', color: 'inherit', ml: 0 }}>
-                        <Typography variant='body1' sx={{ fontWeight: 500, fontSize: '14px' }}>{chrome.i18n.getMessage('Website')}</Typography>
+                      <a
+                        href={info.collectionDisplay?.externalURL?.url}
+                        target="_blank"
+                        style={{ textTransform: 'none', color: 'inherit', ml: 0 }}
+                      >
+                        <Typography variant="body1" sx={{ fontWeight: 500, fontSize: '14px' }}>
+                          {chrome.i18n.getMessage('Website')}
+                        </Typography>
                       </a>
-
                     </Button>
-                  }
+                  )}
                 </Box>
               </Grid>
             </Grid>
 
-
-            {
-              loading ? (
-                <Grid container className={classes.grid}>
-                  {[...Array(4).keys()].map((key) => (
-                    <Card className={classes.card} elevation={0} key={key}>
-                      <CardMedia className={classes.cardmedia}>
-                        <Skeleton
-                          variant="rectangular"
-                          width={150}
-                          height={150}
-                          sx={{ margin: '0 auto', borderRadius: '8px' }}
-                        />
-                      </CardMedia>
-                      <CardContent className={classes.content}>
-                        <Skeleton
-                          variant="text"
-                          width={150}
-                          sx={{ margin: '0 auto' }}
-                        />
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Grid>
-              ) : (info &&
+            {loading ? (
+              <Grid container className={classes.grid}>
+                {[...Array(4).keys()].map((key) => (
+                  <Card className={classes.card} elevation={0} key={key}>
+                    <CardMedia className={classes.cardmedia}>
+                      <Skeleton
+                        variant="rectangular"
+                        width={150}
+                        height={150}
+                        sx={{ margin: '0 auto', borderRadius: '8px' }}
+                      />
+                    </CardMedia>
+                    <CardContent className={classes.content}>
+                      <Skeleton variant="text" width={150} sx={{ margin: '0 auto' }} />
+                    </CardContent>
+                  </Card>
+                ))}
+              </Grid>
+            ) : (
+              info && (
                 <InfiniteScroll
                   dataLength={list.length} //This is important field to render the next data
                   next={nextPage}
@@ -405,13 +430,11 @@ const LinkedCollection = (props) => {
                     {list && list.map(createGridCard)}
                     {list.length % 2 != 0 && <Card className={classes.cardNoHover} elevation={0} />}
                   </Grid>
-
                 </InfiniteScroll>
-
               )
-            }
+            )}
           </>
-          :
+        ) : (
           <Grid container className={classes.grid}>
             {[...Array(4).keys()].map((key) => (
               <Card className={classes.card} elevation={0} key={key}>
@@ -424,16 +447,12 @@ const LinkedCollection = (props) => {
                   />
                 </CardMedia>
                 <CardContent className={classes.content}>
-                  <Skeleton
-                    variant="text"
-                    width={150}
-                    sx={{ margin: '0 auto' }}
-                  />
+                  <Skeleton variant="text" width={150} sx={{ margin: '0 auto' }} />
                 </CardContent>
               </Card>
             ))}
           </Grid>
-        }
+        )}
       </div>
     </StyledEngineProvider>
   );

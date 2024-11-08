@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Box,
-  Drawer,
-  Grid,
-  Stack,
-  InputBase,
-  CircularProgress,
-} from '@mui/material';
+import { Typography, Box, Drawer, Grid, Stack, InputBase, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-  LLFormHelperText,
-} from '../../../FRWComponent';
+import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../../FRWComponent';
 import { useWallet } from 'ui/utils';
 import { useForm, FieldValues } from 'react-hook-form';
 import { withPrefix } from '../../../utils/address';
@@ -43,9 +31,7 @@ interface EditAccountProps {
   avatar: string;
 }
 
-
 const EditAccount = (props: EditAccountProps) => {
-  
   const wallet = useWallet();
   const {
     register,
@@ -57,14 +43,11 @@ const EditAccount = (props: EditAccountProps) => {
   });
 
   const onSubmit = async (data: FieldValues) => {
-    console.log(data)
+    console.log(data);
     const { nickname, avatar } = data;
     await props.setNickname(nickname);
 
-    const response = await wallet.openapi.updateProfile(
-      nickname,
-      avatar,
-    );
+    const response = await wallet.openapi.updateProfile(nickname, avatar);
 
     if (response.status === 200) {
       reset();
@@ -113,26 +96,23 @@ const EditAccount = (props: EditAccountProps) => {
       >
         <Grid item xs={1}></Grid>
         <Grid item xs={10}>
-          <Typography
-            variant="h1"
-            align="center"
-            py="14px"
-            fontWeight="bold"
-            fontSize="20px"
-          >
+          <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="20px">
             Edit Account
           </Typography>
         </Grid>
         <Grid item xs={1}>
           <CloseIcon
             fontSize="medium"
-            sx={{ color: 'icon.navi', cursor: 'pointer', align: 'center'}}
+            sx={{ color: 'icon.navi', cursor: 'pointer', align: 'center' }}
             onClick={props.handleCloseIconClicked}
           />
         </Grid>
       </Grid>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={0} sx={{ display:'none', opacity: '0%', height:'0px', margin:'0px', padding:'0px' }}>
+        <Stack
+          spacing={0}
+          sx={{ display: 'none', opacity: '0%', height: '0px', margin: '0px', padding: '0px' }}
+        >
           <StyledInput
             autoComplete="off"
             placeholder={chrome.i18n.getMessage('Avatar')}
@@ -166,13 +146,8 @@ const EditAccount = (props: EditAccountProps) => {
           />
         </Stack>
 
-
-        <Stack direction="row" spacing={1} sx={{paddingBottom:'5px',}}>
-          <LLSecondaryButton
-            label="Cancel"
-            fullWidth
-            onClick={onCancelBtnClicked}
-          />
+        <Stack direction="row" spacing={1} sx={{ paddingBottom: '5px' }}>
+          <LLSecondaryButton label="Cancel" fullWidth onClick={onCancelBtnClicked} />
           <LLPrimaryButton
             label={
               isSubmitting ? (
@@ -181,7 +156,9 @@ const EditAccount = (props: EditAccountProps) => {
                   size={22}
                   style={{ fontSize: '22px', margin: '8px' }}
                 />
-              ) : 'Update'
+              ) : (
+                'Update'
+              )
             }
             fullWidth
             type="submit"
@@ -198,7 +175,12 @@ const EditAccount = (props: EditAccountProps) => {
       open={props.isEdit}
       transitionDuration={300}
       PaperProps={{
-        sx: { width: '100%', height: '65%', bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
+        sx: {
+          width: '100%',
+          height: '65%',
+          bgcolor: 'background.paper',
+          borderRadius: '18px 18px 0px 0px',
+        },
       }}
     >
       {renderContent()}

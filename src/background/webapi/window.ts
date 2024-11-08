@@ -48,7 +48,7 @@ const create = async ({ url, ...rest }): Promise<number | undefined> => {
 
   // shim firefox
   if (win.left !== left) {
-    await chrome.windows.update(win.id!, { left, top, focused: true,  drawAttention: true });
+    await chrome.windows.update(win.id!, { left, top, focused: true, drawAttention: true });
   } else {
     await chrome.windows.update(win.id!, { focused: true, drawAttention: true });
   }
@@ -60,9 +60,7 @@ const remove = async (winId) => {
   return chrome.windows.remove(winId);
 };
 
-const openNotification = ({ route = '', ...rest } = {}): Promise<
-  number | undefined
-> => {
+const openNotification = ({ route = '', ...rest } = {}): Promise<number | undefined> => {
   const url = `notification.html${route && `#${route}`}`;
 
   return create({ url, ...rest });

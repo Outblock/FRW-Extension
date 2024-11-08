@@ -12,11 +12,7 @@ export const useApproval = () => {
 
   const getApproval = wallet.getApproval;
 
-  const linkningConfirm = async (
-    data?: any,
-    stay = false,
-    forceReject = false
-  ) => {
+  const linkningConfirm = async (data?: any, stay = false, forceReject = false) => {
     const approval = await getApproval();
 
     if (approval) {
@@ -31,11 +27,7 @@ export const useApproval = () => {
     // });
   };
 
-  const resolveApproval = async (
-    data?: any,
-    stay = false,
-    forceReject = false
-  ) => {
+  const resolveApproval = async (data?: any, stay = false, forceReject = false) => {
     const approval = await getApproval();
 
     if (approval) {
@@ -58,8 +50,7 @@ export const useApproval = () => {
   };
 
   useEffect(() => {
-
-    console.log('useApproval', getUiType(), getUiType().isNotification)
+    console.log('useApproval', getUiType(), getUiType().isNotification);
 
     // if (!getUiType().isNotification) {
     //   return;
@@ -192,15 +183,12 @@ export interface UseHoverOptions {
   mouseLeaveDelayMS?: number;
 }
 
-export type HoverProps = Pick<
-  React.HTMLAttributes<HTMLElement>,
-  'onMouseEnter' | 'onMouseLeave'
->;
+export type HoverProps = Pick<React.HTMLAttributes<HTMLElement>, 'onMouseEnter' | 'onMouseLeave'>;
 
-export const useHover = ({
-  mouseEnterDelayMS = 0,
-  mouseLeaveDelayMS = 0,
-}: UseHoverOptions = {}): [boolean, HoverProps] => {
+export const useHover = ({ mouseEnterDelayMS = 0, mouseLeaveDelayMS = 0 }: UseHoverOptions = {}): [
+  boolean,
+  HoverProps,
+] => {
   const [isHovering, setIsHovering] = useState(false);
   let mouseEnterTimer: number | undefined;
   let mouseOutTimer: number | undefined;
@@ -209,17 +197,11 @@ export const useHover = ({
     {
       onMouseEnter: () => {
         clearTimeout(mouseOutTimer);
-        mouseEnterTimer = window.setTimeout(
-          () => setIsHovering(true),
-          mouseEnterDelayMS
-        );
+        mouseEnterTimer = window.setTimeout(() => setIsHovering(true), mouseEnterDelayMS);
       },
       onMouseLeave: () => {
         clearTimeout(mouseEnterTimer);
-        mouseOutTimer = window.setTimeout(
-          () => setIsHovering(false),
-          mouseLeaveDelayMS
-        );
+        mouseOutTimer = window.setTimeout(() => setIsHovering(false), mouseLeaveDelayMS);
       },
     },
   ];

@@ -12,8 +12,8 @@ export interface UserInfoStore {
 }
 
 interface Meows {
-  mainnet: string,
-  testnet: string,
+  mainnet: string;
+  testnet: string;
 }
 
 const template = {
@@ -27,8 +27,8 @@ const template = {
   meow: {
     mainnet: '',
     testnet: '',
-  }
-}
+  },
+};
 
 class UserInfo {
   store!: UserInfoStore;
@@ -49,11 +49,11 @@ class UserInfo {
     this.store.private = data['private'];
     this.store.username = data['username'];
 
-    const url = new URL(data['avatar'])
+    const url = new URL(data['avatar']);
     if (url.host === 'firebasestorage.googleapis.com') {
-      url.searchParams.append('alt', 'media')
-      url.searchParams.append('token', process.env.FB_TOKEN!)
-      this.store.avatar = url.toString()
+      url.searchParams.append('alt', 'media');
+      url.searchParams.append('token', process.env.FB_TOKEN!);
+      this.store.avatar = url.toString();
     }
     this.store.avatar = data['avatar'];
   };
@@ -83,7 +83,7 @@ class UserInfo {
   };
 
   getMeow = (network: string) => {
-    return this.store.meow[network]
+    return this.store.meow[network];
   };
 }
 

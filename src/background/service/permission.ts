@@ -32,20 +32,20 @@ class PermissionService {
     this.store = storage || this.store;
 
     this.lruCache = new LRU();
-    const cache: ReadonlyArray<LRU.Entry<string, ConnectedSite>> = (
-      this.store.dumpCache || []
-    ).map((item) => ({
-      k: item.k,
-      v: item.v,
-      e: 0,
-    }));
+    const cache: ReadonlyArray<LRU.Entry<string, ConnectedSite>> = (this.store.dumpCache || []).map(
+      (item) => ({
+        k: item.k,
+        v: item.v,
+        e: 0,
+      })
+    );
     this.lruCache.load(cache);
   };
 
   sync = () => {
     if (!this.lruCache) return;
     this.store.dumpCache = this.lruCache.dump();
-    console.log('this.store.dumpCache ', this.store.dumpCache)
+    console.log('this.store.dumpCache ', this.store.dumpCache);
   };
 
   getWithoutUpdate = (key: string) => {
@@ -61,7 +61,7 @@ class PermissionService {
     defaultChain = 545,
     isSigned = false
   ) => {
-    console.log('origin ', origin)
+    console.log('origin ', origin);
     if (!this.lruCache) return;
     this.lruCache.set(origin, {
       origin,
@@ -71,7 +71,7 @@ class PermissionService {
       isSigned,
       isTop: false,
     });
-    console.log('lruCache ', this.lruCache)
+    console.log('lruCache ', this.lruCache);
     this.sync();
   };
 
@@ -82,11 +82,7 @@ class PermissionService {
     this.sync();
   };
 
-  updateConnectSite = (
-    origin: string,
-    value: Partial<ConnectedSite>,
-    partialUpdate?: boolean
-  ) => {
+  updateConnectSite = (origin: string, value: Partial<ConnectedSite>, partialUpdate?: boolean) => {
     if (!this.lruCache || !this.lruCache.has(origin)) return;
     if (origin === INTERNAL_REQUEST_ORIGIN) return;
 
@@ -138,9 +134,7 @@ class PermissionService {
   topConnectedSite = (origin: string, order?: number) => {
     const site = this.getConnectedSite(origin);
     if (!site || !this.lruCache) return;
-    order =
-      order ??
-      (max(this.getRecentConnectedSites().map((item) => item.order)) || 0) + 1;
+    order = order ?? (max(this.getRecentConnectedSites().map((item) => item.order)) || 0) + 1;
     this.updateConnectSite(origin, {
       ...site,
       order,

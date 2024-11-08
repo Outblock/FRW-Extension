@@ -26,7 +26,6 @@ interface ListTabProps {
   isActive: boolean;
 }
 
-
 const useStyles = makeStyles(() => ({
   collectionContainer: {
     width: '100%',
@@ -80,15 +79,15 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
 
   useImperativeHandle(ref, () => ({
     reload: () => {
-      usewallet.clearNFTCollection()
-      setCollections([])
+      usewallet.clearNFTCollection();
+      setCollections([]);
       setCollectionLoading(true);
-      fetchLatestCollection(ownerAddress)
-    }
+      fetchLatestCollection(ownerAddress);
+    },
   }));
 
   const fetchCollectionCache = async (address: string) => {
-    setAccessible(props.accessible)
+    setAccessible(props.accessible);
     try {
       setCollectionLoading(true);
       const list = await usewallet.openapi.EvmNFTID(address);
@@ -120,21 +119,19 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
         setCollectionEmpty(true);
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setCollectionLoading(false);
       setCollectionEmpty(true);
     }
   };
 
   useEffect(() => {
-    console.log('props.data.ownerAddress ', props.data.ownerAddress)
+    console.log('props.data.ownerAddress ', props.data.ownerAddress);
     if (props.data.ownerAddress) {
       fetchCollectionCache(props.data.ownerAddress);
       setAddress(props.data.ownerAddress);
     }
   }, [props.data.ownerAddress]);
-
-
 
   const CollectionView = (data) => {
     const handleClick = () => {
@@ -143,8 +140,8 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
         state: {
           collection: data,
           ownerAddress: data.ownerAddress,
-          accessible: props.accessible
-        }
+          accessible: props.accessible,
+        },
       });
     };
     return (
@@ -171,12 +168,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
             <CardContent sx={{ flex: '1 0 auto', padding: '8px 4px' }}>
               <Grid container>
                 <Grid item sx={{ width: '260px' }}>
-                  <Typography
-                    component="div"
-                    variant="body1"
-                    color="#fff"
-                    sx={{ mb: 0 }}
-                  >
+                  <Typography component="div" variant="body1" color="#fff" sx={{ mb: 0 }}>
                     {data.name}
                   </Typography>
                   <Typography
@@ -185,7 +177,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                     color="#B2B2B2"
                     component="div"
                   >
-                    {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
+                    {data.count} {chrome.i18n.getMessage('collectibles')}
                   </Typography>
                 </Grid>
                 <Grid item>

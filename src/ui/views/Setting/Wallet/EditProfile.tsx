@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, ListItemButton, Typography, Drawer, IconButton, ListItem, ListItemIcon, ListItemText, Avatar, CardMedia } from '@mui/material';
+import {
+  Box,
+  Button,
+  ListItemButton,
+  Typography,
+  Drawer,
+  IconButton,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  CardMedia,
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
@@ -7,9 +19,7 @@ import { isValidEthereumAddress } from 'ui/utils/address';
 import homeMoveFt from 'ui/FRWAssets/svg/homeMoveFt.svg';
 import moveSvg from 'ui/FRWAssets/svg/moveSvg.svg';
 import emojis from 'background/utils/emoji.json';
-import { profileHooks } from 'ui/utils/profileHooks'
-
-
+import { profileHooks } from 'ui/utils/profileHooks';
 
 interface MoveBoardProps {
   showMoveBoard: boolean;
@@ -21,9 +31,7 @@ interface MoveBoardProps {
   userWallet: any;
 }
 
-
 const EditProfile = (props: MoveBoardProps) => {
-
   const { updateEmojis } = profileHooks();
 
   const usewallet = useWallet();
@@ -39,9 +47,9 @@ const EditProfile = (props: MoveBoardProps) => {
 
   const changeProfile = async () => {
     const address = props.userWallet[0].blockchain[0].address;
-    let childType = ''
+    let childType = '';
     if (isValidEthereumAddress(address)) {
-      childType = 'evm'
+      childType = 'evm';
     }
     await usewallet.setEmoji(selectedEmoji, childType);
     setSelectEmoji(selectedEmoji);
@@ -56,7 +64,7 @@ const EditProfile = (props: MoveBoardProps) => {
 
   useEffect(() => {
     requestChildType();
-  }, [props.emoji])
+  }, [props.emoji]);
 
   return (
     <Drawer
@@ -65,18 +73,40 @@ const EditProfile = (props: MoveBoardProps) => {
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{
-        sx: { width: '100%', height: 'auto', padding: '18px', marginBottom: '89px', background: 'none', borderRadius: '16px', },
+        sx: {
+          width: '100%',
+          height: 'auto',
+          padding: '18px',
+          marginBottom: '89px',
+          background: 'none',
+          borderRadius: '16px',
+        },
       }}
     >
       <Box sx={{ background: '#2C2C2C', borderRadius: '16px' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', px: '16px', }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', height: '24px', margin: '20px 0 12px', alignItems: 'center', }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', px: '16px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%',
+              height: '24px',
+              margin: '20px 0 12px',
+              alignItems: 'center',
+            }}
+          >
             <Typography
               variant="body1"
               component="div"
               display="inline"
-              color='text'
-              sx={{ fontSize: '18px', fontFamily: 'Inter', textAlign: 'center', lineHeight: '24px', fontWeight: '700' }}
+              color="text"
+              sx={{
+                fontSize: '18px',
+                fontFamily: 'Inter',
+                textAlign: 'center',
+                lineHeight: '24px',
+                fontWeight: '700',
+              }}
             >
               {chrome.i18n.getMessage('edit_wallet')}
             </Typography>
@@ -87,19 +117,27 @@ const EditProfile = (props: MoveBoardProps) => {
               justifyContent: 'space-between',
               alignItems: 'center',
               flexDirection: 'column',
-              display: 'flex'
+              display: 'flex',
             }}
           >
-            {selectedEmoji &&
-              <Box sx={{
-                display: 'flex', height: '64px', width: '64px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: selectedEmoji['bgcolor'], marginRight: '12px'
-              }}>
+            {selectedEmoji && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  height: '64px',
+                  width: '64px',
+                  borderRadius: '32px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: selectedEmoji['bgcolor'],
+                  marginRight: '12px',
+                }}
+              >
                 <Typography sx={{ fontSize: '50px', fontWeight: '600' }}>
                   {selectedEmoji.emoji}
                 </Typography>
               </Box>
-
-            }
+            )}
             <Box
               sx={{
                 display: 'flex',
@@ -133,7 +171,8 @@ const EditProfile = (props: MoveBoardProps) => {
                       justifyContent: 'center',
                       backgroundColor: emoji['bgcolor'],
                       border: selectedEmoji === emoji ? '2px solid #41CC5D' : 'none',
-                    }}>
+                    }}
+                  >
                     <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
                       {emoji.emoji}
                     </Typography>
@@ -141,8 +180,24 @@ const EditProfile = (props: MoveBoardProps) => {
                 </ListItem>
               ))}
             </Box>
-            <Box sx={{ px: '16px', border: '1px solid #FFFFFFCC', borderRadius: '16px', width: '100%', height: '46px', display: 'flex', justifyContent: 'start', alignItems: 'center', mb: '24px' }}>
-              {selectedEmoji && <Typography sx={{ color: '#FFFFFF', fontSize: '14px', fontWeight: '600', }}>{selectedEmoji.name}</Typography>}
+            <Box
+              sx={{
+                px: '16px',
+                border: '1px solid #FFFFFFCC',
+                borderRadius: '16px',
+                width: '100%',
+                height: '46px',
+                display: 'flex',
+                justifyContent: 'start',
+                alignItems: 'center',
+                mb: '24px',
+              }}
+            >
+              {selectedEmoji && (
+                <Typography sx={{ color: '#FFFFFF', fontSize: '14px', fontWeight: '600' }}>
+                  {selectedEmoji.name}
+                </Typography>
+              )}
             </Box>
 
             <Box
@@ -152,8 +207,7 @@ const EditProfile = (props: MoveBoardProps) => {
                 alignItems: 'center',
                 gap: '12px',
                 mb: '24px',
-                width: '100%'
-
+                width: '100%',
               }}
             >
               <Button
@@ -173,7 +227,8 @@ const EditProfile = (props: MoveBoardProps) => {
                 <Typography
                   sx={{
                     fontWeight: '600',
-                    fontSize: '14px', fontFamily: 'Inter',
+                    fontSize: '14px',
+                    fontFamily: 'Inter',
                     color: '#000000CC',
                   }}
                 >
@@ -198,7 +253,8 @@ const EditProfile = (props: MoveBoardProps) => {
                 <Typography
                   sx={{
                     fontWeight: '600',
-                    fontSize: '14px', fontFamily: 'Inter'
+                    fontSize: '14px',
+                    fontFamily: 'Inter',
                   }}
                   color="#000000CC"
                 >
@@ -209,10 +265,8 @@ const EditProfile = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
-
     </Drawer>
   );
-}
-
+};
 
 export default EditProfile;

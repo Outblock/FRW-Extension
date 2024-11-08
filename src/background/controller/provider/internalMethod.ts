@@ -1,9 +1,4 @@
-
-import {
-  preferenceService,
-  keyringService
-} from 'background/service';
-
+import { preferenceService, keyringService } from 'background/service';
 
 const tabCheckin = ({
   data: {
@@ -18,17 +13,17 @@ const getProviderState = async (req) => {
   const {
     session: { origin },
   } = req;
-  
+
   // const chainEnum = permissionService.getWithoutUpdate(origin)?.chain;
   const isUnlocked = keyringService.memStore.getState().isUnlocked;
 
   return {
-    chainId: "ETH",
+    chainId: 'ETH',
     isUnlocked,
     // accounts: isUnlocked ? await providerController.ethAccounts(req) : [],
     accounts: [],
     // networkVersion: await providerController.netVersion(req),
-    networkVersion:[],
+    networkVersion: [],
   };
 };
 
