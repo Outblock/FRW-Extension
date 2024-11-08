@@ -1,1 +1,1 @@
-yarn format
+npx lint-staged
