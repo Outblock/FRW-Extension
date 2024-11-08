@@ -111,7 +111,7 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
         display: 'flex',
         flexDirection: 'column',
         borderRadius: '12px',
-        height: '506px',
+        height: '100%',
         background: 'linear-gradient(0deg, #121212, #11271D)'
       }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>

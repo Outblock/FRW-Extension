@@ -30,7 +30,7 @@ interface ConnectProps {
 const EthConfirm = ({ params }: ConnectProps) => {
   const [, resolveApproval, rejectApproval, linkningConfirm] = useApproval();
   const { t } = useTranslation();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [signable, setSignable] = useState<Signable | null>(null);
   // const [payerSignable, setPayerSignable] = useState<Signable | null>(null);
   const [opener, setOpener] = useState<number | undefined>(undefined)
@@ -55,6 +55,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
   const [image, setImage] = useState<string>('')
   const [accountTitle, setAccountTitle] = useState<string>('')
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null)
+  const [loading, setLoading] = useState(false);
 
   // TODO: replace default logo
   const [logo, setLogo] = useState('')
@@ -109,6 +110,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
   };
 
   const handleAllow = async () => {
+    await checkCoa();
     resolveApproval({
       defaultChain: 646,
       signPermission: 'MAINNET_AND_TESTNET',
@@ -116,8 +118,24 @@ const EthConfirm = ({ params }: ConnectProps) => {
   };
 
   const loadPayer = async () => {
-    const isEnabled = await wallet.allowLilicoPay()
+    const isEnabled = await usewallet.allowLilicoPay()
     setLilicoEnabled(isEnabled)
+  }
+
+
+  const checkCoa = async () => {
+    setLoading(true);
+    const isEnabled = await usewallet.checkCoaLink();
+    if (!isEnabled) {
+      const result = await usewallet.coaLink();
+      const res = await fcl.tx(result).onceSealed();
+      const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
+      if (transactionExecutedEvent) {
+        setLoading(false);
+        return
+      }
+    }
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -130,27 +148,35 @@ const EthConfirm = ({ params }: ConnectProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      {isLoading ?
+      {isLoading ? (
         <Box>
-          {accountLinking ?
+          {accountLinking ? (
             <LLLinkingLoading
               linkingDone={linkingDone}
               image={image}
               accountTitle={accountTitle}
               userInfo={userInfo}
-            /> :
+            />
+          ) : (
             <LLConnectLoading logo={logo} />
-          }
-          {/* <LLConnectLoading logo={logo} /> */}
-        </Box> :
-        <Box sx={{
-          margin: '18px 18px 0px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '12px',
-          height: '506px',
-          background: accountLinking ? 'linear-gradient(0deg, #121212, #32484C)' : 'linear-gradient(0deg, #121212, #11271D)'
-        }}>
+          )}
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            margin: '18px 18px 0px 18px',
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: '12px',
+            height: '100%',
+            background: accountLinking
+              ? 'linear-gradient(0deg, #121212, #32484C)'
+              : 'linear-gradient(0deg, #121212, #11271D)',
+            overflowY: 'auto', // Enable scrolling
+            scrollbarWidth: 'none', // Hide scrollbar for Firefox
+            '&::-webkit-scrollbar': { display: 'none' }, // Hide scrollbar for Chrome, Safari, and Edge
+          }}
+        >
           <DefaultBlock
             title={requestParams.name || ''}
             host={requestParams.origin || ''}
@@ -163,23 +189,41 @@ const EthConfirm = ({ params }: ConnectProps) => {
             dedent={dedent}
             lilicoEnabled={lilicoEnabled}
           />
+
+          {/* Push the button stack to the bottom */}
           <Box sx={{ flexGrow: 1 }} />
-          <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
-            <LLSecondaryButton
-              label={chrome.i18n.getMessage('Cancel')}
-              fullWidth
-              onClick={handleCancel}
-            />
-            <LLPrimaryButton
-              label={chrome.i18n.getMessage('Approve')}
-              fullWidth
-              type="submit"
-              onClick={handleAllow}
-            />
-          </Stack>
+
+          {/* Sticky button group at the bottom */}
+          <Box
+            sx={{
+              position: 'sticky',
+              bottom: 0,
+              padding: '16px 0 0',
+            }}
+          >
+            <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
+              <LLSecondaryButton
+                label={chrome.i18n.getMessage('Cancel')}
+                fullWidth
+                onClick={handleCancel}
+              />
+              {!loading ? (
+                <LLPrimaryButton
+                  label={chrome.i18n.getMessage('Approve')}
+                  fullWidth
+                  type="submit"
+                  onClick={handleAllow}
+                />
+              ) : (
+                <LLSecondaryButton label={chrome.i18n.getMessage('Loading')} fullWidth />
+              )}
+            </Stack>
+          </Box>
         </Box>
-      }
+      )}
     </ThemeProvider>
+
+
   );
 };
 

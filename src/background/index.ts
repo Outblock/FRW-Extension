@@ -41,6 +41,7 @@ import {
   fclMainnetConfig,
 } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
+import { getRemoteConfig } from "firebase/remote-config";
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
 const { PortMessage } = Message;
 
@@ -77,6 +78,7 @@ async function firebaseSetup() {
   // const firebaseProductionConfig = prodConig;
 
   const app = initializeApp(firebaseConfig, env);
+
   const auth = getAuth(app);
   setPersistence(auth, indexedDBLocalPersistence);
   onAuthStateChanged(auth, (user) => {

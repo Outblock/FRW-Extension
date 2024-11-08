@@ -20,7 +20,6 @@ import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
 import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
 import MoveNftConfirmation from '../../NFT/SendNFT/MoveNftConfirmation';
-import MovefromParent from '../../NFT/SendNFT/MovefromParent';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {

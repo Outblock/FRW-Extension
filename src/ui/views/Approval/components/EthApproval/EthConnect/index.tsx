@@ -32,7 +32,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   const history = useHistory();
   const [, resolveApproval, rejectApproval] = useApproval();
   const { t } = useTranslation();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [isLoading, setIsLoading] = useState(false);
 
   const [appIdentifier, setAppIdentifier] = useState<string | undefined>(undefined);
@@ -52,21 +52,31 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   const [evmAddress, setEvmAddress] = useState('')
   const init = async () => {
 
-    const network = await wallet.getNetwork();
+    const network = await usewallet.getNetwork();
     setCurrent(network);
     let currentWallet;
     try {
       // Attempt to query the address
-      currentWallet = await wallet.getCurrentWallet();
+      currentWallet = await usewallet.getMainWallet();
     } catch (error) {
       // If an error occurs, request approval
       console.error('Error querying EVM address:', error);
     }
     setLogo(icon);
-    const res = await wallet.queryEvmAddress(currentWallet.address);
+    const res = await usewallet.queryEvmAddress(currentWallet);
     setEvmAddress(res!);
     setIsEvm(isValidEthereumAddress(res));
-    const site = await wallet.getSite(origin);
+    if (isValidEthereumAddress(res)) {
+      const walletInfo = {
+        name: 'evm',
+        address: res,
+        chain_id: currentNetwork,
+        coins: ['flow'],
+        id: 1
+      }
+      await usewallet.setActiveWallet(walletInfo, 'evm');
+    }
+    const site = await usewallet.getSite(origin);
     const collectList: { name: string; logo_url: string }[] = [];
     const defaultChain = 'FLOW';
     const isShowTestnet = false;
@@ -79,8 +89,8 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   const createCoa = async () => {
     setIsLoading(true)
 
-    wallet.createCoaEmpty().then(async (createRes) => {
-      wallet.listenTransaction(createRes, true, chrome.i18n.getMessage('Domain__creation__complete'), `Your EVM on Flow address has been created. \nClick to view this transaction.`);
+    usewallet.createCoaEmpty().then(async (createRes) => {
+      usewallet.listenTransaction(createRes, true, 'Create EVM complete', `Your EVM on Flow address has been created. \nClick to view this transaction.`);
 
       setIsLoading(false);
     }).catch((err) => {
@@ -93,8 +103,8 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
 
   const transactionDoneHanlder = async (request) => {
     if (request.msg === 'transactionDone') {
-      const currentWallet = await wallet.getCurrentWallet();
-      const res = await wallet.queryEvmAddress(currentWallet.address);
+      const currentWallet = await usewallet.getCurrentWallet();
+      const res = await usewallet.queryEvmAddress(currentWallet.address);
       setEvmAddress(res!);
       setIsEvm(isValidEthereumAddress(res));
 
@@ -136,7 +146,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '12px',
-          height: '506px',
+          height: '100%',
           background: 'linear-gradient(0deg, #121212, #11271D)'
         }}>
           {isEvm &&

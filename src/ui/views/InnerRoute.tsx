@@ -15,7 +15,6 @@ import Header from './Dashboard/Header';
 import Dashboard from './Dashboard';
 import CollectionDetail from './NFT/CollectionDetail';
 import EvmCollectionDetail from './NftEvm/CollectionDetail';
-import CollectionDetailEvm from './NftEvm/EvmCollectionDetail';
 import Detail from './NFT/Detail';
 import NftEvmDetail from './NftEvm/Detail';
 import { PrivateRoute } from 'ui/component';
@@ -29,13 +28,13 @@ import SendAmount from './Send/SendAmount';
 import SendEth from './Send/SendEth';
 import TokenDetail from './TokenDetail';
 import TokenList from './TokenList';
+import AddCustomEvmToken from './Wallet/AddCustom/AddCustomEvmToken'
 import Inbox from './Inbox';
 import StakingPage from './Staking/StakingPage';
 import UnstakePage from './Staking/UnstakePage';
 import NodeDetail from './Staking/NodeDetail';
 import Flowns from './Flowns';
 import AddList from './NFT/NFTList/AddList';
-import AddEvmList from './NftEvm/NFTList/AddList';
 import About from './Setting/About/About';
 import Linked from './Setting/Linked';
 import LinkedDetail from './Setting/Linked/LinkedDetail';
@@ -199,12 +198,6 @@ const Inner = (props) => {
             <LinkedCollection />
           </PrivateRoute>
 
-          <PrivateRoute
-            path={`${props.match.url}/nested/evm/evmcollectiondetail/:collection_address_name`}
-          >
-            <CollectionDetailEvm />
-          </PrivateRoute>
-
           <PrivateRoute path={`${props.match.url}/nested/nftdetail/:id`}>
             <Detail />
           </PrivateRoute>
@@ -254,12 +247,12 @@ const Inner = (props) => {
             <TokenList />
           </PrivateRoute>
 
-          <PrivateRoute path={`${props.match.url}/nested/add_list`}>
-            <AddList />
+          <PrivateRoute path={`${props.match.url}/addcustomevm`}>
+            <AddCustomEvmToken />
           </PrivateRoute>
 
-          <PrivateRoute path={`${props.match.url}/nested/evm/add_list`}>
-            <AddEvmList />
+          <PrivateRoute path={`${props.match.url}/nested/add_list`}>
+            <AddList />
           </PrivateRoute>
 
           <PrivateRoute path={`${props.match.url}/setting/about`}>

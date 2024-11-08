@@ -112,7 +112,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   };
 
   const getEvmAddress = async () => {
-    console.log('getEvmAddress ', props.evmLoading, props.evmAddress)
+    console.log(props.evmAddress)
     if (isValidEthereumAddress(props.evmAddress)) {
       const result = await usewallet.getBalance(props.evmAddress);
       const readBalance = parseFloat(result) / 1e18
@@ -162,7 +162,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 </Box>
               </ListItemIcon>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <ListItemText sx={{ fontSize: '14px', fontWeight: '700' }} primary={props.userInfo!.username} />
+                <ListItemText sx={{ fontSize: '14px', fontWeight: '700' }} primary={props.userInfo!.nickname} />
               </Box>
             </Box>
           }

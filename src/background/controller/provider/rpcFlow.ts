@@ -29,21 +29,22 @@ const flowContext = flow
     ctx.mapMethod = underline2Camelcase(method);
     if (!providerController[ctx.mapMethod]) {
       // TODO: make rpc whitelist
-      // if (method.startsWith('eth_') || method === 'net_version') {
-      //   return providerController.ethRpc(ctx.request);
-      //   return next();
-      // }
+      try {
+        const result = await providerController.ethRpc(ctx.request.data);
+        return result;
+      } catch (error) {
+        // Catch any error and throw the custom error
+        throw ethErrors.rpc.methodNotFound({
+          message: `method [${ctx.request.data.method}] doesn't have a corresponding handler`,
+          data: ctx.request.data,
+        });
+      }
 
-      throw ethErrors.rpc.methodNotFound({
-        message: `method [${method}] doesn't has corresponding handler`,
-        data: ctx.request.data,
-      });
     }
 
     return next();
   })
   .use(async (ctx, next) => {
-    console.log('ctx1 ', ctx)
     const {
       request: {
         session: { origin, },
@@ -56,33 +57,31 @@ const flowContext = flow
       const currentNetwork = await Wallet.getNetwork();
       if (!isValidEthereumAddress(evmAddress)) {
         throw new Error('evm must has at least one account.');
-      } else {
-        const walletInfo = {
-          name: 'evm',
-          address: evmAddress,
-          chain_id: currentNetwork,
-          coins: ['flow'],
-          id: 1
-        }
-        await Wallet.setActiveWallet(walletInfo, 'evm');
       }
       const isUnlock = keyringService.memStore.getState().isUnlocked;
       const site = permissionService.getConnectedSite(origin);
       if (mapMethod === 'ethAccounts' && (!site || !isUnlock)) {
         throw new Error('Origin not connected. Please connect first.');
       }
-
-      if (!isUnlock) {
-        ctx.request.requestedApproval = true;
-        lockedOrigins.add(origin);
-        try {
-          await notificationService.requestApproval({ lock: true });
-          lockedOrigins.delete(origin);
-        } catch (e) {
-          lockedOrigins.delete(origin);
-          throw e;
-        }
-      }
+      // console.log('isUnlock ', isUnlock)
+      // await notificationService.requestApproval(
+      //   {
+      //     params: { origin, name },
+      //     approvalComponent: 'EthConnect', lock: true
+      //   },
+      //   { height: 599 }
+      // );
+      // if (!isUnlock) {
+      //   ctx.request.requestedApproval = true;
+      //   lockedOrigins.add(origin);
+      //   try {
+      //     await notificationService.requestApproval({ lock: true });
+      //     lockedOrigins.delete(origin);
+      //   } catch (e) {
+      //     lockedOrigins.delete(origin);
+      //     throw e;
+      //   }
+      // }
     }
 
     return next();

@@ -92,6 +92,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
+  const [minAmount, setMinAmount] = useState<any>(0.001);
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
@@ -122,11 +123,26 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
     childContact.avatar = cwallet.thumbnail.url;
     childContact.contact_name = cwallet.name;
 
+    setUserMinAmount();
+
     setChildUser(childContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
     return;
   };
+
+  const setUserMinAmount = async () => {
+    try {
+      // Try fetching the min amount from the API
+      const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
+      setMinAmount(minAmount);
+    } catch (error) {
+      // If there's an error, set the min amount to 0.001
+      console.error('Error fetching min amount:', error);
+      setMinAmount(0.001);
+    }
+  };
+
 
 
   const moveToken = async () => {
@@ -247,6 +263,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
             setExceed={setExceed}
             coinInfo={coinInfo}
             setCurrentCoin={setCurrentCoin}
+            minAmount={minAmount}
           />
         }
       </Box>

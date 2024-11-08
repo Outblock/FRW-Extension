@@ -16,12 +16,13 @@ import {
   LLSpinner,
 } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { FRWProfileCard, FRWChildProfile } from 'ui/FRWComponent';
+import { FRWProfileCard, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
 import { Presets } from 'react-component-transition';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from 'ui/utils/address';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -32,13 +33,15 @@ interface SendNFTConfirmationProps {
 }
 
 const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [tid, setTid] = useState(undefined);
   const [occupied, setOccupied] = useState(false);
   const [childWallet, setChildWallet] = useState(null);
+  const [selectedAccount, setSelectedChildAccount] = useState(null);
+  const [childWallets, setChildWallets] = useState({});
   const [count, setCount] = useState(0);
 
 
@@ -58,7 +61,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   }
 
   const getPending = async () => {
-    const pending = await wallet.getPendingTx();
+    const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true)
     }
@@ -86,7 +89,11 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
   const sendNFT = async () => {
     // setSending(true);
-    await moveNFTToFlow();
+    if (isValidEthereumAddress(selectedAccount!['address'])) {
+      moveToEvm();
+    } else {
+      moveNFTToFlow();
+    }
 
   }
 
@@ -104,13 +111,35 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const moveNFTToFlow = async () => {
     setSending(true);
     // setSending(true);
-    const contractList = await wallet.openapi.getAllNft();
+    const contractList = await usewallet.openapi.getAllNft();
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft)
 
-    wallet.moveNFTfromChild(props.data.userContact.address, '', props.data.nft.id, filteredCollections[0]).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
+    usewallet.moveNFTfromChild(props.data.userContact.address, '', props.data.nft.id, filteredCollections[0]).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log('err ', err)
+      setSending(false);
+      setFailed(true);
+    })
+
+  };
+
+
+
+  const moveToEvm = async () => {
+    setSending(true);
+    const address = await usewallet.getCurrentAddress();
+    const contractList = await usewallet.openapi.getAllNft();
+    const filteredCollections = returnFilteredCollections(contractList, props.data.nft);
+    console.log(' as moveToEvm', address!, props.data, [props.data.nft.id], filteredCollections[0])
+    usewallet.batchBridgeChildNFTToEvm(address!, props.data.contract.flowIdentifier, [props.data.nft.id], filteredCollections[0]).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${props.data.nft.id} ${filteredCollections[0].contract_name} to your evm address. \nClick to view this transaction.`,);
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
     }).catch((err) => {
@@ -139,20 +168,65 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     }
   }, [props.data.contact]);
 
-
-
   const getChildResp = async () => {
+    const childresp = await usewallet.checkUserChildAccount();
+    const parentAddress = await usewallet.getMainAddress();
+    const emojires = await usewallet.getEmoji();
+    const eWallet = await usewallet.getEvmWallet();
+    let evmAddress
+    if (eWallet.address) {
+      evmAddress = ensureEvmAddressPrefix(eWallet.address)
+    }
+
+    const newWallet = {
+      [parentAddress!]: {
+        "name": emojires[0].name,
+        "description": emojires[0].name,
+        "thumbnail": {
+          "url": emojires[0].emoji
+        }
+      }
+    };
+
+
+
+    let evmWallet = {};
+    if (evmAddress) {
+      evmWallet = {
+        [evmAddress!]: {
+          "name": emojires[1].name,
+          "description": emojires[1].name,
+          "thumbnail": {
+            "url": emojires[1].emoji
+          }
+        }
+      };
+    }
+
+
+
+    // Merge usewallet lists
+    const walletList = { ...newWallet, ...childresp, ...evmWallet };
+    setChildWallets(walletList)
+    const firstWalletAddress = Object.keys(walletList)[0];
+    if (firstWalletAddress) {
+      setSelectedChildAccount(walletList[firstWalletAddress]);
+    }
+  }
+
+
+
+  const getUserContact = async () => {
     if (props.data.userContact) {
-      const childresp = await wallet.checkUserChildAccount();
-      console.log('childResp ', childresp, childresp[props.data.userContact.address])
+      const childresp = await usewallet.checkUserChildAccount();
       setChildWallet(childresp[props.data.userContact.address])
 
     }
   }
 
   useEffect(() => {
-    console.log('props.data ', props.data)
     getChildResp();
+    getUserContact();
   }, []);
 
 
@@ -239,7 +313,8 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
           {childWallet && <FRWChildProfile contact={childWallet} address={props.data.userContact.address} />}
           <Box sx={{ height: '8px' }}></Box>
-          <FRWProfileCard contact={props.data.contact} />
+          {/* <FRWProfileCard contact={props.data.contact} /> */}
+          {selectedAccount && <FRWDropdownProfileCard contact={selectedAccount} contacts={childWallets} setSelectedChildAccount={setSelectedChildAccount} />}
         </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', mx: '25px', px: '14px', py: '16px', backgroundColor: '#181818', borderBottomRightRadius: '16px', borderBottomLeftRadius: '16px', mt: '-16px', mb: '42px' }}>

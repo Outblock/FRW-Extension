@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@mui/styles';
 import Box from '@mui/material/Box';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -24,6 +24,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import IconCopy from '../../../components/iconfont/IconCopy';
 import Tooltip from '@mui/material/Tooltip';
 import { useWallet, formatAddress } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
 import { useHistory } from 'react-router-dom';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { storage } from '@/background/webapi';
@@ -33,9 +34,8 @@ import eventBus from '@/eventBus';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
 import Popup from './Components/Popup';
 import MenuDrawer from './Components/MenuDrawer';
-import { profileHooks } from 'ui/utils/profileHooks'
-import { P } from 'ts-toolbelt/out/Object/_api';
-import { Network } from 'ethers';
+import { useNews } from '@/ui/utils/NewsContext';
+import NewsView from './Components/NewsView';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -62,19 +62,18 @@ type ChildAccount = {
 
 const tempEmoji = [
   {
-    "emoji": "🥥",
-    "name": "Coconut",
-    "bgcolor": "#FFE4C4"
+    emoji: '🥥',
+    name: 'Coconut',
+    bgcolor: '#FFE4C4',
   },
   {
-    "emoji": "🥑",
-    "name": "Avocado",
-    "bgcolor": "#98FB98"
-  }
+    emoji: '🥑',
+    name: 'Avocado',
+    bgcolor: '#98FB98',
+  },
 ];
 
 const Header = ({ loading }) => {
-
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
@@ -104,8 +103,6 @@ const Header = ({ loading }) => {
   const [testnetAvailable, setTestnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
 
-
-
   const [flowBalance, setFlowBalance] = useState(0);
 
   const [modeAnonymous, setModeAnonymous] = useState(false);
@@ -116,6 +113,12 @@ const Header = ({ loading }) => {
 
   const [initialStart, setInitial] = useState(true);
 
+  // const { unreadCount } = useNotificationStore();
+  // TODO: add notification count
+  const { unreadCount } = useNews();
+
+  console.log('unreadCount ->', unreadCount);
+  
   const toggleDrawer = () => {
     setDrawer(!drawer);
   };
@@ -124,14 +127,20 @@ const Header = ({ loading }) => {
     setPop(!ispop);
   };
 
-  // const toggleUnread = () => {
-  //   setUnread(0);
-  // };
+  // News Drawer
+  const [showNewsDrawer, setShowNewsDrawer] = useState(false);
+
+  const toggleNewsDrawer = useCallback(() => {
+    // Avoids unnecessary re-renders using a function to toggle the state
+    setShowNewsDrawer((prevShowNewsDrawer) => !prevShowNewsDrawer);
+  }, []);
 
   const [usernameDrawer, setUsernameDrawer] = useState(false);
-  const toggleUsernameDrawer = () => {
-    setUsernameDrawer(!usernameDrawer);
-  };
+
+  const toggleUsernameDrawer = useCallback(() => {
+    // Avoids unnecessary re-renders using a function to toggle the state
+    setUsernameDrawer((prevUsernameDrawer) => !prevUsernameDrawer);
+  }, []);
 
   const wallets = (data) => {
     let sortData = data;
@@ -155,7 +164,6 @@ const Header = ({ loading }) => {
   const [walletList, setWalletList] = useState([]);
 
   const fetchUserWallet = async () => {
-
     const userInfo = await usewallet.getUserInfo(false);
     await setUserInfo(userInfo);
     if (userInfo.private == 1) {
@@ -173,7 +181,6 @@ const Header = ({ loading }) => {
 
   const freshUserWallet = async () => {
     const wallet = await usewallet.getUserWallets();
-    console.log('wallet -----> ', wallet)
     const fData = wallet.filter((item) => item.blockchain !== null);
 
     // putDeviceInfo(fData);
@@ -186,11 +193,23 @@ const Header = ({ loading }) => {
 
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
+    const isChild = await usewallet.getActiveWallet();
     const mainAddress = await usewallet.getMainAddress();
+
+    if (isChild === 'evm') {
+      const res = await usewallet.queryEvmAddress(mainAddress!);
+      const evmWallet = await usewallet.getEvmWallet();
+      const evmAddress = ensureEvmAddressPrefix(res);
+      evmWallet.address = evmAddress;
+      await setCurrent(evmWallet);
+      setMainLoading(false);
+    } else {
+      await setCurrent(currentWallet);
+      setMainLoading(false);
+    }
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
-    const walletData = await usewallet.getUserInfo(true);
-    const isChild = await usewallet.getActiveWallet();
+
     if (mainAddress) {
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
@@ -202,18 +221,15 @@ const Header = ({ loading }) => {
       }
     }
 
-    if (isChild === 'evm') {
-      const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(evmWallet.address)
-      evmWallet.address = evmAddress
-      await setCurrent(evmWallet);
-      setMainLoading(false);
-    } else {
-      await setCurrent(currentWallet);
-      setMainLoading(false);
-    }
+    const walletData = await usewallet.getUserInfo(true);
 
-    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(currentWallet, keys, pubKTuple, walletData, isChild);
+    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(
+      currentWallet,
+      keys,
+      pubKTuple,
+      walletData,
+      isChild
+    );
     if (!isChild) {
       setFlowBalance(keys.balance);
     } else {
@@ -231,8 +247,7 @@ const Header = ({ loading }) => {
     // usewallet.checkUserDomain(wallet.username);
   };
   const switchAccount = async (account) => {
-    const switchingTo =
-      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
     if (account.id) {
       await storage.set('currentId', account.id);
@@ -251,7 +266,7 @@ const Header = ({ loading }) => {
 
     setEvmLoading(true);
     await setNetwork(network);
-  }
+  };
 
   // const loadInbox = async () => {
 
@@ -308,9 +323,8 @@ const Header = ({ loading }) => {
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
     // TODO: replace it with better UX
-    history.push('/dashboard')
+    history.push('/dashboard');
     window.location.reload();
-
   };
 
   const transactionHanlder = (request) => {
@@ -371,7 +385,7 @@ const Header = ({ loading }) => {
   const fetchProfile = async () => {
     const emojires = await usewallet.getEmoji();
     setEmojis(emojires);
-  }
+  };
   useEffect(() => {
     loadNetwork();
     fetchUserWallet();
@@ -435,10 +449,9 @@ const Header = ({ loading }) => {
     toggleUsernameDrawer();
 
     // TODO: replace it with better UX
-    history.push('/dashboard')
+    history.push('/dashboard');
     window.location.reload();
   };
-
 
   const WalletFunction = (props) => {
     return (
@@ -448,37 +461,51 @@ const Header = ({ loading }) => {
         }}
         sx={{ mb: 0, paddingX: '0', cursor: 'pointer' }}
       >
-
         <ListItemButton
-          sx={{ mb: 0, display: 'flex', px: '16px', justifyContent: 'space-between', alignItems: 'center' }}
+          sx={{
+            mb: 0,
+            display: 'flex',
+            px: '16px',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
         >
-          {emojis &&
-            < Box sx={{
-              display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emojis[0]['bgcolor'], marginRight: '12px'
-            }}>
+          {emojis && (
+            <Box
+              sx={{
+                display: 'flex',
+                height: '32px',
+                width: '32px',
+                borderRadius: '32px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: emojis[0]['bgcolor'],
+                marginRight: '12px',
+              }}
+            >
               <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
                 {emojis[0].emoji}
               </Typography>
             </Box>
-          }
-          <Box sx={{ display: 'flex', flexDirection: 'column', background: 'none' }}>
+          )}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'none',
+            }}
+          >
             <Typography
               variant="body1"
               component="span"
               fontWeight={'semi-bold'}
               sx={{ fontSize: '12px' }}
               display="flex"
-              color={
-                props.props_id == currentWallet
-                  ? 'text.title'
-                  : 'text.nonselect'
-              }
+              color={props.props_id == currentWallet ? 'text.title' : 'text.nonselect'}
             >
               {emojis[0].name}
               {props.address == current['address'] && (
-                <ListItemIcon
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
+                <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
                   <FiberManualRecordIcon
                     style={{
                       fontSize: '10px',
@@ -500,10 +527,10 @@ const Header = ({ loading }) => {
               {(flowBalance / 100000000).toFixed(3)} FLOW
             </Typography>
           </Box>
-          <Box sx={{ flex: "1" }}></Box>
+          <Box sx={{ flex: '1' }}></Box>
           {/* <IconEnd size={12} /> */}
         </ListItemButton>
-      </ListItem >
+      </ListItem>
     );
   };
 
@@ -538,24 +565,13 @@ const Header = ({ loading }) => {
               }}
             >
               <Tooltip title={chrome.i18n.getMessage('Copy__username')} arrow>
-                <Typography
-                  variant="body1"
-                  component="div"
-                  display="inline"
-                  color="text"
-                >
+                <Typography variant="body1" component="div" display="inline" color="text">
                   {'@' + props.username}
                 </Typography>
               </Tooltip>
               {modeAnonymous && (
-                <Tooltip
-                  title={chrome.i18n.getMessage('Anonymous__mode__on')}
-                  arrow
-                >
-                  <img
-                    style={{ display: 'inline-block', width: '20px' }}
-                    src={EyeOff}
-                  />
+                <Tooltip title={chrome.i18n.getMessage('Anonymous__mode__on')} arrow>
+                  <img style={{ display: 'inline-block', width: '20px' }} src={EyeOff} />
                 </Tooltip>
               )}
             </Box>
@@ -568,12 +584,7 @@ const Header = ({ loading }) => {
   const NetworkFunction = () => {
     return (
       <>
-        <Typography
-          variant="h5"
-          color="text"
-          padding="18px 0 0 18px"
-          fontWeight="semi-bold"
-        >
+        <Typography variant="h5" color="text" padding="18px 0 0 18px" fontWeight="semi-bold">
           {chrome.i18n.getMessage('Network')}
         </Typography>
         <List>
@@ -611,12 +622,7 @@ const Header = ({ loading }) => {
                 />
               </ListItemIcon>
               <ListItemText>
-                <Typography
-                  variant="body1"
-                  component="span"
-                  display="inline"
-                  color="text"
-                >
+                <Typography variant="body1" component="span" display="inline" color="text">
                   {chrome.i18n.getMessage('Mainnet')}
                 </Typography>
               </ListItemText>
@@ -658,12 +664,7 @@ const Header = ({ loading }) => {
                 />
               </ListItemIcon>
               <ListItemText>
-                <Typography
-                  variant="body1"
-                  component="span"
-                  display="inline"
-                  color="text"
-                >
+                <Typography variant="body1" component="span" display="inline" color="text">
                   {chrome.i18n.getMessage('Testnet')}
                 </Typography>
               </ListItemText>
@@ -721,11 +722,7 @@ const Header = ({ loading }) => {
   const createWalletList = (props) => {
     return (
       <List component="nav" key={props.id}>
-        <WalletFunction
-          props_id={props.id}
-          name={props.name}
-          address={props.address}
-        />
+        <WalletFunction props_id={props.id} name={props.name} address={props.address} />
       </List>
     );
   };
@@ -751,12 +748,7 @@ const Header = ({ loading }) => {
           sx: { width: '100%', marginTop: '56px', bgcolor: 'background.paper' },
         }}
       >
-        <Typography
-          variant="h5"
-          color="text"
-          padding="18px 0 0 18px"
-          fontWeight="semi-bold"
-        >
+        <Typography variant="h5" color="text" padding="18px 0 0 18px" fontWeight="semi-bold">
           {chrome.i18n.getMessage('Account')}
         </Typography>
         {userInfo && createAccountList(userInfo)}
@@ -764,12 +756,26 @@ const Header = ({ loading }) => {
       </Drawer>
     );
   };
+  console.log('showNewsDrawer', showNewsDrawer);
+  const NewsDrawer = () => {
+    return (
+      <Drawer
+        open={showNewsDrawer}
+        anchor="top"
+        onClose={toggleNewsDrawer}
+        classes={{ paper: classes.paper }}
+        PaperProps={{
+          sx: { width: '100%', marginTop: '56px', marginBottom: '144px', bgcolor: 'background.paper' },
+        }}
+      >
+        <NewsView />
+      </Drawer>
+    );
+  };
 
   const appBarLabel = (props) => {
     return (
-      <Toolbar
-        sx={{ height: '56px', width: '100%', display: 'flex', px: '0px' }}
-      >
+      <Toolbar sx={{ height: '56px', width: '100%', display: 'flex', px: '0px' }}>
         <IconButton
           edge="start"
           color="inherit"
@@ -802,10 +808,7 @@ const Header = ({ loading }) => {
               }}
               variant="text"
             >
-              <Box
-                component="div"
-                sx={{ display: 'flex', flexDirection: 'column' }}
-              >
+              <Box component="div" sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography
                   variant="overline"
                   color="text"
@@ -813,10 +816,16 @@ const Header = ({ loading }) => {
                   display="block"
                   sx={{ lineHeight: '1.5' }}
                 >
-                  {props.name === 'Flow' ? 'Wallet' : props.name}
+                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${
+                    isValidEthereumAddress(props.address) ? ' EVM' : ''
+                  }`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ textTransform: 'lowercase' }}
+                  >
                     {formatAddress(props.address)}
                   </Typography>
                   <IconCopy fill="icon.navi" width="12px" />
@@ -825,22 +834,12 @@ const Header = ({ loading }) => {
             </Button>
           </Tooltip>
         ) : (
-          <Skeleton
-            variant="rectangular"
-            width={78}
-            height={33}
-            sx={{ borderRadius: '8px' }}
-          />
+          <Skeleton variant="rectangular" width={78} height={33} sx={{ borderRadius: '8px' }} />
         )}
         <Box sx={{ flexGrow: 1 }} />
 
         {!isLoading && userInfo && props ? (
-          <Tooltip
-            title={
-              isPending ? chrome.i18n.getMessage('Pending__Transaction') : ''
-            }
-            arrow
-          >
+          <Tooltip title={isPending ? chrome.i18n.getMessage('Pending__Transaction') : ''} arrow>
             <Box style={{ position: 'relative' }}>
               {isPending && (
                 <CircularProgress
@@ -859,7 +858,7 @@ const Header = ({ loading }) => {
                 edge="end"
                 color="inherit"
                 aria-label="avatar"
-                onClick={toggleUsernameDrawer}
+                onClick={toggleNewsDrawer}
                 sx={{
                   border: isPending
                     ? ''
@@ -870,6 +869,7 @@ const Header = ({ loading }) => {
                         : '2px solid #282828',
                   padding: '3px',
                   marginRight: '0px',
+                  position: 'relative',
                 }}
               >
                 <img
@@ -878,6 +878,29 @@ const Header = ({ loading }) => {
                   width="20px"
                   height="20px"
                 />
+                {unreadCount > 0 && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '-6px',
+                      right: '-6px',
+                      backgroundColor: '#4CAF50',
+                      color: 'black',
+                      borderRadius: '50%',
+                      minWidth: '18px',
+                      height: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      padding: '2px',
+                      border: 'none',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {unreadCount}
+                  </Box>
+                )}
               </IconButton>
             </Box>
           </Tooltip>
@@ -892,7 +915,7 @@ const Header = ({ loading }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          {userInfo &&
+          {userInfo && (
             <MenuDrawer
               userInfo={userInfo!}
               drawer={drawer}
@@ -912,9 +935,10 @@ const Header = ({ loading }) => {
               evmLoading={evmLoading}
               modeOn={modeOn}
             />
-          }
+          )}
           {appBarLabel(current)}
           {usernameSelect()}
+          <NewsDrawer />
           {userInfo && (
             <Popup
               isConfirmationOpen={ispop}

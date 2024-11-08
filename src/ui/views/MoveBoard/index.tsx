@@ -8,7 +8,6 @@ import moveftbg from 'ui/FRWAssets/svg/moveftbg.svg';
 import movenftbg from 'ui/FRWAssets/svg/movenftbg.svg';
 import moveft from 'ui/FRWAssets/image/moveft.png';
 import movenft from 'ui/FRWAssets/image/movenft.png';
-import MoveNfts from './MoveNfts';
 import MoveEvm from './MoveEvm';
 import MoveToChild from './MoveToChild';
 import MoveFromChild from './MoveFromChild';

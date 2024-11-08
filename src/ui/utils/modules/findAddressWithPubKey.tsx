@@ -6,11 +6,16 @@ import {
 export const findAddressWithKey = async (pubKeyHex, address) => {
   if (!address) {
     const data = await getAddressByIndexer(pubKeyHex)
-        
     if (data.accounts && data.accounts.length > 0) {
-      const addresses = data.accounts.map((a) => fcl.withPrefix(fcl.sansPrefix(a.address).padStart(16, '0')))
-      const results = await Promise.all(addresses.map((a) => findAddres(a, pubKeyHex)));
-      const filteredResults = results.filter(result => result !== null);      
+      const outputArray = data.accounts.map(account => ({
+        "address": account.address,
+        "keyIndex": account.keyId,
+        "weight": account.weight,
+        "hashAlgo": account.hashing,
+        "signAlgo": account.signing,
+        "pubK": pubKeyHex,
+      }));
+      const filteredResults = outputArray.filter(result => result !== null);
       return filteredResults.flat()
     }
     return null
@@ -24,15 +29,15 @@ export default async function getAddressByIndexer(publicKey) {
   const json = await result.json();
   return json
 }
-  
+
 
 const findAddres = async (address, pubKeyHex) => {
   await fclMainnetConfig();
   const account = await fcl.account(address);
   const keys = account.keys
     .filter(key => key.publicKey === pubKeyHex && !key.revoked)
-    .filter(key => key.weight >= 1000 )
-    
+    .filter(key => key.weight >= 1000)
+
   if (keys.length == 0) {
     return null
   }

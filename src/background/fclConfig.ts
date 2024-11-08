@@ -27,7 +27,9 @@ const fallbackContracts = {
     "0xSwapError": "0xb78ef7afa52ff906",
     "0xSwapRouter": "0xa6850776a94e6551",
     "0xEVM": "0xe467b9dd11fa00df",
-    "0xFlowEVMBridge": "0x1e4aa0b87d10b141"
+    "0xFlowEVMBridge": "0x1e4aa0b87d10b141",
+    "0xCapabilityFilter": "0xd8a7e05a7ac670c0",
+    "0xFlowEVMBridgeConfig": "0x1e4aa0b87d10b141"
   },
   "testnet": {
     "0xDomains": "0xb05b2abb42335e88",
@@ -48,7 +50,9 @@ const fallbackContracts = {
     "0xSwapError": "0xddb929038d45d4b3",
     "0xSwapRouter": "0x2f8af5ed05bbde0d",
     "0xEVM": "0x8c5303eaa26202d6",
-    "0xFlowEVMBridge": "0xdfc20aee650fcbdf"
+    "0xFlowEVMBridge": "0xdfc20aee650fcbdf",
+    "0xCapabilityFilter": "0xd8a7e05a7ac670c0",
+    "0xFlowEVMBridgeConfig": "0xdfc20aee650fcbdf",
   },
   "sandboxnet": {
     "0xDomains": "0x8998b29311d1f3da",
@@ -66,7 +70,6 @@ const fallbackContracts = {
 // Fetch contracts from API and cache them
 async function fetchContracts() {
   const ttl = 60 * 60 * 1000; // 1 hour in milliseconds
-
   try {
     // First, try to get the cached contracts
     const cachedContracts = await storage.getExpiry('contracts');
@@ -98,7 +101,6 @@ async function fetchContracts() {
 export const fclMainnetConfig = async () => {
   const contracts = await fetchContracts();
   const mainnetContracts = contracts.mainnet || fallbackContracts.mainnet;
-
   const config = fcl.config()
     .put('accessNode.api', 'https://rest-mainnet.onflow.org')
     .put('sdk.transport', httpSend)

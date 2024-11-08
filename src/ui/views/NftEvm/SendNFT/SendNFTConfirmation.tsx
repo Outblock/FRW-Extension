@@ -17,7 +17,7 @@ import {
 } from 'ui/FRWComponent';
 import {EVM_ENDPOINT} from 'consts'
 import { useWallet } from 'ui/utils';
-import { LLProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -39,7 +39,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [tid, setTid] = useState(undefined);
+  const [tid, setTid] = useState('');
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
   const colorArray = ['#32E35529', '#32E35540', '#32E35559', '#32E35573', '#41CC5D', '#41CC5D', '#41CC5D'];
@@ -100,11 +100,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     } else if (isEvm && !isEvmAddress) {
       console.log('send evm to flow');
       await evmToFlow();
-    } else if (!isEvm && isEvmAddress) {
-      console.log('send flow to evm');
-      await flowToEvm();
-    } else {
-      await flowToFlow();
     }
 
   }
@@ -121,7 +116,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const encodedData = erc721Contract.methods.safeTransferFrom(dataWithoutPrefix, contactAddressWithoutPrefix, props.data.nft.id).encodeABI();
     const gas = '1312d00';
 
-    wallet.sendEvmTransaction(props.data.nft.contractEvmAddress, gas, 0, encodedData).then(async (txID) => {
+
+    wallet.sendEvmTransaction(props.data.nft.evmAddress, gas, 0, encodedData).then(async (txID) => {
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(txID, true, `${props.data.amount} ${props.data.nft.collectionContractName} Sent`, `You have sent 1 ${props.data.nft.collectionContractName} to ${props.data.contact.contact_name}. \nClick to view this transaction.`, props.data.nft.collectionSquareImage);
       props.handleCloseIconClicked();
@@ -138,64 +134,17 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const evmToFlow = async () => {
     setSending(true);
-    wallet.bridgeNftFromEvmToFlow(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.contact.address).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
+    wallet.bridgeNftFromEvmToFlow(props.data.nft.flowIdentifier, props.data.nft.id, props.data.contact.address).then(async (txID) => {
+      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.contractName} to your evm address. \nClick to view this transaction.`,);
       props.handleCloseIconClicked();
       await wallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log(err)
       setSending(false);
       setFailed(true);
     })
-  }
-
-  const flowToEvm = async () => {
-    setSending(true);
-    const data = await wallet.getEvmAddress();
-    const encodedData = erc721Contract.methods.safeTransferFrom(data, props.data.contact.address, props.data.nft.id).encodeABI();
-    const gas = '1312d00';
-    setSending(true);
-    wallet.bridgeNftToEvmAddress(props.data.nft.contractAddress, props.data.nft.collectionContractName, props.data.nft.id, props.data.nft.contractEvmAddress, encodedData, gas).then(async (txID) => {
-      wallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`,);
-      props.handleCloseIconClicked();
-      await wallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch(() => {
-      setSending(false);
-      setFailed(true);
-    })
-  }
-
-  const flowToFlow = async () => {
-    setSending(true);
-    console.log('props.data ', props.data)
-    const contractTokenModel = {
-      contract_name: props.data.nft.collectionContractName,
-      address: props.data.nft.contractAddress,
-      path: props.data.nft.contractInfo,
-    }
-    console.log('props.data ', contractTokenModel)
-    try {
-      let txID = ''
-      if (props.data.nft.collectionContractName.trim() == 'TopShot') {
-        txID = await wallet.sendNBANFT(props.data.contact.address, parseInt(props.data.nft.id), props.data.contract)
-      } else {
-        txID = await wallet.sendNFT(props.data.contact.address, parseInt(props.data.nft.id), contractTokenModel)
-      }
-      await wallet.setRecent(props.data.contact);
-      wallet.listenTransaction(txID, true, `${props.data.media?.title} Sent`, `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`, props.data.media.url);
-      await wallet.setDashIndex(0);
-      history.push('/dashboard?activity=1');
-      props.handleAddBtnClicked();
-    } catch (error) {
-      console.log(error);
-      setFailed(true);
-      setSending(false);
-    } finally {
-      setSending(false);
-    }
   }
 
   const transactionDoneHanlder = (request) => {
@@ -310,7 +259,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Grid>
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-          <LLProfile contact={props.data.userContact} />
+          <FRWProfile isEvm={true} contact={props.data.userContact} />
           <Box sx={{ marginLeft: '-15px', marginRight: '-15px', marginTop: '-32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {colorArray.map((color, index) => (
               <Box sx={{ mx: '5px' }} key={index}>
@@ -337,7 +286,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </Stack>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
               <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.nft && props.data.nft.collectionSquareImage} />
-              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.nft && props.data.nft.collectionContractName}</Typography>
+              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.nft && props.data.nft.contractName}</Typography>
               <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
             </Stack>
           </Stack>

@@ -68,9 +68,13 @@ export const SAFE_RPC_METHODS = [
   'eth_submitWork',
   'eth_syncing',
   'eth_uninstallFilter',
+  'eth_signTypedData',
+  'eth_signTypedData_v3',
+  'eth_signTypedData_v4',
   'wallet_requestPermissions',
   'wallet_getPermissions',
   'wallet_switchEthereumChain',
+  'wallet_watchAsset',
   'net_version',
 ];
 

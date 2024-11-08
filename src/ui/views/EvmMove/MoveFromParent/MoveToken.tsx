@@ -105,16 +105,19 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, coinList }) => {
+const MoveToken = ({ amount, setAmount, secondAmount, setSecondAmount, exceed, setExceed, coinInfo, setCurrentCoin, coinList, minAmount }) => {
   const classes = useStyles();
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
+
   const handleMaxClick = () => {
     if (coinInfo) {
-      if (coin === 'flow') {
-        setAmount(coinInfo.balance - 0.001)
+      if (coinInfo.unit.toLowerCase() === 'flow') {
+        setAmount(coinInfo.balance - minAmount)
       } else {
-        setAmount(coinInfo.balance)
+        // const minimumValue = minAmount > 0.001 ? minAmount : 0.001;
+        const newAmount = coinInfo.balance - 0;
+        setAmount(newAmount);
       }
     }
   }

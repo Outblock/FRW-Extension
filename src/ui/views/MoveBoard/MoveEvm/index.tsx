@@ -46,7 +46,7 @@ const MoveEvm = (props: MoveBoardProps) => {
   const [loading, setLoading] = useState(true);
   const [errorOpen, setShowError] = useState(false);
   const [selectCollection, setSelectCollection] = useState(false);
-  // console.log('props.loggedInAccounts', props.current)
+  const [selectedAccount, setSelectedChildAccount] = useState(null);
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -58,27 +58,29 @@ const MoveEvm = (props: MoveBoardProps) => {
   const updateCurrentCollection = async () => {
     if (collectionList && cadenceNft) {
       const collection = collectionList.find(collection => collection.id === selectedCollection);
-      const selectedShow = cadenceNft.find(collection => collection.name === selectedCollection);
+
+      const cadenceResult = await usewallet.EvmNFTcollectionList(selectedCollection);
       setCollectionDetail(collection);
-      setCollectionInfo(selectedShow);
+      setCollectionInfo(cadenceResult);
     }
   };
 
   const requestCadenceNft = async () => {
     const cadenceResult = await usewallet.reqeustEvmNft();
-    const tokensWithNfts = cadenceResult.filter(token => token.nftIds && token.nftIds.length > 0);
-    const filteredData = tokensWithNfts.filter(item => item.flowIdentifier);
+    const tokensWithNfts = cadenceResult.filter(token => token.ids && token.ids.length > 0);
+    const filteredData = tokensWithNfts.filter(item => item.collection.flowIdentifier);
     if (filteredData.length > 0) {
-      setSelected(filteredData[0].name);
+      setSelected(filteredData[0].collection.id);
       const extractedObjects = filteredData.map(obj => {
 
-        const flowIdentifierParts = obj.flowIdentifier.split('.');
+        const flowIdentifierParts = obj.collection.flowIdentifier.split('.');
         return {
           CollectionName: flowIdentifierParts[2],
-          NftCount: obj.nfts.length,
-          id: obj.name,
+          NftCount: obj.count,
+          id: obj.collection.id,
           address: flowIdentifierParts[1],
-          logo: obj.logoURI,
+          logo: obj.collection.logo,
+          flowIdentifier: obj?.collection?.flowIdentifier || ''
         };
       });
       setCadenceNft(filteredData);
@@ -109,18 +111,49 @@ const MoveEvm = (props: MoveBoardProps) => {
     setNftIdArray(tempIdArray);
   };
 
+  
+
   const moveNFT = async () => {
+    const parentAddress = await usewallet.getMainAddress();
+    if (parentAddress === selectedAccount!['address']) {
+      moveToParent();
+    } else {
+      moveToChild();
+    }
+  }
+
+  const moveToChild = async () => {
     setSending(true);
     const collection = collectionList.find(collection => collection.id === selectedCollection);
-
-    usewallet.batchBridgeNftFromEvm(`0x${collection.address}`, collection.CollectionName, nftIdArray).then(async (txID) => {
+    console.log('collectionDetail ', selectedCollection)
+    usewallet.batchBridgeChildNFTFromEvm(selectedAccount!['address'], collection.flowIdentifier, nftIdArray).then(async (txID) => {
       usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`,);
       props.handleReturnHome();
       props.handleCloseIconClicked();
       await usewallet.setDashIndex(0);
       setSending(false);
       history.push('/dashboard?activity=1');
-    }).catch(() => {
+    }).catch((err) => {
+      console.log(err)
+      setSending(false);
+      setFailed(true);
+    })
+
+  };
+
+  const moveToParent = async () => {
+    setSending(true);
+    const collection = collectionList.find(collection => collection.id === selectedCollection);
+    console.log('collectionDetail ', collectionDetail)
+    usewallet.batchBridgeNftFromEvm(collection.flowIdentifier, nftIdArray).then(async (txID) => {
+      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`,);
+      props.handleReturnHome();
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      history.push('/dashboard?activity=1');
+    }).catch((err) => {
+      console.log(err)
       setSending(false);
       setFailed(true);
     })
@@ -168,7 +201,7 @@ const MoveEvm = (props: MoveBoardProps) => {
           </Box>
         </Box>
       </Box>
-      <AccountBox isEvm={true} />
+      <AccountBox isChild={true} setSelectedChildAccount={setSelectedChildAccount} selectedAccount={selectedAccount} isEvm={true}/>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0', mt: '10px', padding: '0 18px' }}>
         <Box sx={{ height: '24px', padding: '6px 0' }}>
@@ -200,50 +233,82 @@ const MoveEvm = (props: MoveBoardProps) => {
         }
       </Box>
       {!loading ?
-        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-
-          {collectInfo.nfts.length > 0 ? (
-            collectInfo.nfts.map(nfts => (
-              <Box
-                key={nfts.id}
-                sx={{
-                  display: 'flex',
-                  position: 'relative',
-                  width: '84px',
-                  height: '84px',
-                  borderRadius: '16px',
-                  marginBottom: '3px',
-                  border: nftIdArray.includes(nfts.id) && '1px solid #41CC5D'
-                }}
-              >
-                <Button onClick={() => toggleSelectNft(nfts.id)} sx={{ padding: 0, borderRadius: '16px', backgroundColor: '#333', }}>
-                  {nftIdArray.includes(nfts.id) &&
-                    <Box sx={{ backgroundColor: '#00000099', borderRadius: '16px', position: 'absolute', width: '100%', height: '100%' }}>
-                      <CardMedia
-                        component="img"
-                        sx={{ width: '16px', borderRadius: '16px', height: '16px', top: '8px', right: '8px', zIndex: '2000', position: 'absolute' }}
-                        image={selected}
-                      />
-                    </Box>
-                  }
-                  <CardMedia
-                    component="img"
-                    alt={nfts.name}
-                    height="84px"
-                    width="84px"
-                    sx={{ borderRadius: '16px', }}
-                    image={nfts.thumbnail}
-                    title={nfts.name}
-                  />
-                </Button>
+        <Box sx={{ display: 'flex', mb: '18px', padding: '16px', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-start', height:'150px',overflowY:'scroll' }}>
+          {collectInfo && (
+            collectInfo.nfts.length > 0 ? (
+              collectInfo.nfts.map((items) => (
+                <Box
+                  key={items.id}
+                  sx={{
+                    display: 'flex',
+                    position: 'relative',
+                    width: '84px',
+                    height: '84px',
+                    borderRadius: '16px',
+                    marginBottom: '3px',
+                    border: nftIdArray.includes(items.id) ? '1px solid #41CC5D' : 'none',
+                  }}
+                >
+                  <Button
+                    onClick={() => toggleSelectNft(items.id)}
+                    sx={{
+                      padding: 0,
+                      borderRadius: '16px',
+                      backgroundColor: '#333',
+                    }}
+                  >
+                    {nftIdArray.includes(items.id) && (
+                      <Box
+                        sx={{
+                          backgroundColor: '#00000099',
+                          borderRadius: '16px',
+                          position: 'absolute',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
+                        <CardMedia
+                          component="img"
+                          sx={{
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '16px',
+                            top: '8px',
+                            right: '8px',
+                            zIndex: '2000',
+                            position: 'absolute',
+                          }}
+                          image={selected}
+                        />
+                      </Box>
+                    )}
+                    <CardMedia
+                      component="img"
+                      alt={items.name}
+                      height="84px"
+                      width="84px"
+                      sx={{ borderRadius: '16px' }}
+                      image={items.thumbnail}
+                      title={items.name}
+                    />
+                  </Button>
+                </Box>
+              ))
+            ) : (
+              <Box sx={{ width: '100%', textAlign: 'center' }}>
+                <Typography
+                  sx={{
+                    color: '#FFFFFF66',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                  }}
+                >
+                  0 NFTs
+                </Typography>
               </Box>
-            ))
-          ) : (
-            <Box sx={{ width: '100%', textAlign: 'center' }}>
-              <Typography sx={{ color: '#FFFFFF66', fontSize: '14px', fontWeight: '700' }}>0 NFTs</Typography>
-            </Box>
-          )
-          }
+            )
+          )}
+
 
         </Box>
         :
@@ -289,7 +354,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         variant="contained"
         color="success"
         size="large"
-        disabled={!collectionDetail || (collectionDetail.nfts && collectionDetail.nfts.length === 0)}
+        disabled={!collectionDetail || (collectionDetail.NftCount === 0)}
         sx={{
           height: '50px',
           borderRadius: '12px',

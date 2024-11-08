@@ -24,7 +24,6 @@ interface GridTabProps {
   accessible: any;
   isActive: boolean;
   setCount: (count: any) => void;
-  nftList: any;
 }
 
 interface Data {
@@ -152,15 +151,20 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [ownerAddress, setAddress] = useState('');
 
+  const [nfts, setNFTs] = useState<any[]>([]);
 
+  const [total, setTotal] = useState(0);
 
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const [blockList, setBlockList] = useState<string[]>([]);
 
   useImperativeHandle(ref, () => ({
     reload: () => {
       usewallet.clearNFTList()
+      setNFTs([])
+      setNFTLoading(true);
+      fetchNFTCache(ownerAddress);
     }
   }));
 
@@ -168,8 +172,77 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
     if (loadingMore) {
       return
     }
+
+    setLoadingMore(true);
+    const offset = nfts.length
+    // pageIndex * 24;
+    try {
+      const list = await usewallet.openapi.EvmNFTList(ownerAddress);
+      const newList: any[] = []
+      list.nfts.forEach(item => {
+        const result = nfts.filter(nft => nft.unique_id === item.unique_id)
+        if (result.length == 0) {
+          newList.push(item);
+        }
+      })
+      const mergedList = [...nfts, ...newList]
+      setNFTs(mergedList);
+      const hasMore = mergedList.length > 0 && mergedList.length < total
+      setHasMore(hasMore)
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
+  const fetchNFT = async (address: string, reload = true) => {
+    if (loading) {
+      return
+    }
+
+    setNFTLoading(true);
+    try {
+      const response = await usewallet.openapi.EvmNFTList(ownerAddress);
+      if (response.nfts) {
+        const newList: any[] = []
+        response.nfts.forEach(item => {
+          const result = nfts.filter(nft => nft.unique_id === item.unique_id)
+          if (result.length == 0) {
+            newList.push(item);
+          }
+        })
+        const mergedList = [...nfts, ...newList]
+        setNFTs(mergedList);
+
+        const hasMore = mergedList.length > 0 && mergedList.length < total
+        setHasMore(hasMore)
+      }
+
+      props.setCount(response.nftCount);
+      setTotal(response.nftCount);
+    } finally {
+      setNFTLoading(false);
+      setHasMore(false);
+    }
+  };
+
+  const fetchNFTCache = async (address: string, reload = true) => {
+    // setNFTLoading(true);
+    try {
+      const { nfts, nftCount } = await usewallet.openapi.EvmNFTList(address);
+      props.setCount(nftCount);
+      setTotal(nftCount);
+      setNFTs(nfts);
+      if (nfts.length == 0) {
+        // setNFTLoading(false);
+        fetchNFT(address);
+      }
+    } catch (e) {
+      console.log('e ->', e)
+    } finally {
+      setNFTLoading(false);
+      setHasMore(false);
+    }
+  };
 
 
   const loader = (
@@ -196,13 +269,16 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
     </Grid>
   )
 
-
   useEffect(() => {
     if (props.data.ownerAddress) {
+      fetchNFTCache(props.data.ownerAddress);
       setAddress(props.data.ownerAddress);
     }
   }, []);
 
+  const extractContractAddress = (collection) => {
+    return collection.split('.')[2];
+  };
 
   const createGridCard = (data, index) => {
     return (
@@ -242,9 +318,9 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
           ))}
         </Grid>
       ) : (
-        props.nftList.length !== 0 ?
+        total !== 0 ?
           <InfiniteScroll
-            dataLength={props.nftList.length} //This is important field to render the next data
+            dataLength={nfts.length} //This is important field to render the next data
             next={nextPage}
             hasMore={hasMore}
             loader={loader}
@@ -252,8 +328,8 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
             scrollableTarget="scrollableTab"
           >
             <Grid container className={classes.grid}>
-              {props.nftList && props.nftList.map(createGridCard)}
-              {props.nftList.length % 2 != 0 && <Card className={classes.cardNoHover} elevation={0} />}
+              {nfts && nfts.map(createGridCard)}
+              {nfts.length % 2 != 0 && <Card className={classes.cardNoHover} elevation={0} />}
             </Grid>
 
           </InfiniteScroll>
@@ -266,4 +342,3 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
 });
 
 export default GridTab;
-

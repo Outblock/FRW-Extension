@@ -96,13 +96,14 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
+const GridView = ({ data, accessible, blockList, index, ownerAddress, isAccessibleNft = true, fromLinked = false }) => {
   const classes = useStyles();
   const [loaded, setLoaded] = useState(false);
   const [isAccessible, setAccessible] = useState(true);
   const [media, setGetMediea] = useState<PostMedia | null>(null);
 
   const fecthMedia = async () => {
+    // const bestMedia = await findBestMedia(data, blockList)
     setGetMediea(data.postMedia)
     if (accessible) {
       accessible.forEach(item => {
@@ -117,11 +118,11 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
     }
   }
 
-  const navigateWithState = (data, media, index, ownerAddress) => {
-    const state = { nft: data, media: media, index: index, ownerAddress: ownerAddress };
+
+  const navigateWithState = (data, media, index, ownerAddress, isAccessibleNft) => {
+    const state = { nft: data, media: media, index: index, ownerAddress: ownerAddress, isAccessibleNft };
     localStorage.setItem('nftDetailState', JSON.stringify(state));
   }
-
 
   useEffect(() => {
     fecthMedia();
@@ -195,14 +196,35 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
       <CardActionArea component={Link}
         className={classes.actionarea}
         to={{ pathname: `/dashboard/nftevm/detail/${index}`, state: { nft: data, media: media, index: index, ownerAddress: ownerAddress } }}
-        onClick={() => navigateWithState(data, media, index, ownerAddress)}
+        onClick={() => navigateWithState(data, media, index, ownerAddress, isAccessibleNft)}
       >
         <CardMedia className={classes.cardmedia}>
           {getUri()}
         </CardMedia>
         <CardContent className={classes.content}>
-          <Typography className={classes.nftname}>{TilteWordWrapped(media?.title) || ''}</Typography>
+          <Typography className={classes.nftname}>{TilteWordWrapped(media?.title) || ''}
+            {!isAccessibleNft &&
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  color: 'neutral.text',
+                  marginTop: '2px',
+                  fontSize: '10px',
+                  fontFamily: 'Inter, sans-serif',
+                  backgroundColor: 'neutral1.light'
+                }}
+              >
+                {chrome.i18n.getMessage('Inaccessible')}
+              </Box>
+
+            }
+          </Typography>
           {/* <Typography className={classes.nftprice}>{props.price}</Typography> */}
+
         </CardContent>
       </CardActionArea>
     </Card>
@@ -210,3 +232,4 @@ const GridView = ({ data, accessible, blockList, index, ownerAddress }) => {
 };
 
 export default GridView;
+

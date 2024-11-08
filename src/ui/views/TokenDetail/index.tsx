@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from 'ui/utils';
 import { useHistory, useParams } from 'react-router-dom';
-import { Box } from '@mui/material';
-import { Typography, IconButton } from '@mui/material';
+import { Box, Menu, MenuItem, Typography, IconButton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { StyledEngineProvider } from '@mui/material/styles';
 import TokenInfoCard from './TokenInfoCard';
@@ -13,9 +12,11 @@ import MoveFromEvm from '../EvmMove/MoveFromEvm';
 import MoveFromChild from '../EvmMove/MoveFromChild';
 import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { PriceProvider } from '@/background/service/networkModel';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import tips from 'ui/FRWAssets/svg/tips.svg';
+import { storage } from '@/background/webapi';
 
 const useStyles = makeStyles(() => ({
   page: {
@@ -37,7 +38,7 @@ const useStyles = makeStyles(() => ({
 
 const TokenDetail = () => {
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const [price, setPrice] = useState(0);
   const [accessible, setAccessible] = useState(true);
@@ -50,31 +51,81 @@ const TokenDetail = () => {
   const [childAccount, setChildAccount] = useState<any>({});
   const [childType, setChildType] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleMenuToggle = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  const handleMenuClose = () => {
+    setMenuOpen(false);
+  };
+
+  const handleDeleteEFT = async () => {
+    const network = await usewallet.getNetwork();
+
+    let evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
+
+    // Filter out any empty objects from evmCustomToken
+    evmCustomToken = evmCustomToken.filter(token => Object.keys(token).length > 0);
+
+    // Filter out the token with the matching address
+    evmCustomToken = evmCustomToken.filter(
+      (token) => token.address.toLowerCase() !== tokenInfo.address.toLowerCase()
+    );
+
+    await storage.set(`${network}evmCustomToken`, evmCustomToken);
+    console.log('evmCustomToken ', evmCustomToken)
+    await usewallet.clearCoinList();
+    await usewallet.openapi.refreshCustomEvmGitToken(network);
+    history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
+    history.goBack();
+  };
+
+
 
   const Header = () => {
     return (
-      <Box sx={{ display: 'flex', mx: '-12px' }}>
+      <Box sx={{ display: 'flex', mx: '-12px', position: 'relative' }}>
         <IconButton onClick={history.goBack}>
           <ArrowBackIcon sx={{ color: 'icon.navi' }} />
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
-        {/* <IconButton >
-          <MoreHorizRoundedIcon sx={{ color: 'icon.navi' }} />
-        </IconButton> */}
+        {tokenInfo && tokenInfo.custom &&
+          <IconButton onClick={handleMenuToggle}>
+            <MoreHorizIcon sx={{ color: 'icon.navi' }} />
+          </IconButton>
+        }
+        {menuOpen && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              bgcolor: '#222222',
+              color: '#FFFFFF',
+              borderRadius: '8px',
+              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+              zIndex: 1000,
+            }}
+          >
+            <MenuItem onClick={handleDeleteEFT} sx={{ fontSize: '12px', fontWeight: 400 }}>Delete EFT</MenuItem>
+          </Box>
+        )}
       </Box>
     );
   };
 
   const getProvider = async () => {
-    const result = await wallet.openapi.getPriceProvider(token);
-    const tokenResult = await wallet.openapi.getTokenInfo(token);
+    const result = await usewallet.openapi.getPriceProvider(token);
+    const tokenResult = await usewallet.openapi.getTokenInfo(token);
     if (tokenResult) {
       setTokenInfo(tokenResult);
     }
     setProviders(result);
     if (result.length == 0) {
-      const data = await wallet.openapi.getTokenPrices();
-      const price = await wallet.openapi.getPricesBySymbol(token, data);
+      const data = await usewallet.openapi.getTokenPrices();
+      const price = await usewallet.openapi.getPricesByAddress(tokenResult!.address, data);
       if (price) {
         setPrice(price);
       }
@@ -82,15 +133,15 @@ const TokenDetail = () => {
   };
 
   const loadNetwork = async () => {
-    const network = await wallet.getNetwork();
-    const currentWallet = await wallet.getCurrentWallet();
+    const network = await usewallet.getNetwork();
+    const currentWallet = await usewallet.getCurrentWallet();
     setCurrentWallet(currentWallet);
     setNetwork(network);
   };
 
   const requestChildType = async () => {
-    const result = await wallet.getActiveWallet();
-    const childresp = await wallet.checkUserChildAccount();
+    const result = await usewallet.getActiveWallet();
+    const childresp = await usewallet.checkUserChildAccount();
     setChildAccount(childresp);
     setChildType(result);
   };
