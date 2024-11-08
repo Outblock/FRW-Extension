@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useWallet } from 'ui/utils';
-import {addDotSeparators} from 'ui/utils/number'
+import { addDotSeparators } from 'ui/utils/number'
 import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
 import { LLPrimaryButton } from '@/ui/FRWComponent';
@@ -113,6 +113,7 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
         <>
           <Box sx={{ mt: '-12px', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <img style={{ height: '64px', width: '64px', backgroundColor: '#282828', borderRadius: '32px' }} src={data.logoURI || 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg'}></img>
+
             <ButtonBase onClick={() => data.extensions && window.open(data.extensions.website, '_blank')}>
               <Box sx={{
                 display: 'flex',
@@ -135,9 +136,12 @@ const TokenInfoCard = ({ price, token, setAccessible, accessible, setMoveOpen, t
                   }}>
                   {data.name}
                 </Typography>
-                <IconChevronRight size={20} />
+                {data.extensions && data.extensions.website &&
+                  <IconChevronRight size={20} />
+                }
               </Box>
             </ButtonBase>
+
             <Box sx={{ flex: 1 }} />
             {(canMoveChild) &&
               <ButtonBase
