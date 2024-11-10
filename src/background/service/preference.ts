@@ -93,10 +93,7 @@ class PreferenceService {
       this.store.locale = defaultLang;
     }
     i18n.changeLanguage(this.store.locale);
-    if (
-      this.store.isDefaultWallet === undefined ||
-      this.store.isDefaultWallet === null
-    ) {
+    if (this.store.isDefaultWallet === undefined || this.store.isDefaultWallet === null) {
       this.store.isDefaultWallet = true;
     }
     if (!this.store.lastTimeSendToken) {
@@ -323,10 +320,7 @@ class PreferenceService {
   //   };
   // };
   getIsFirstOpen = () => {
-    if (
-      !this.store.currentVersion ||
-      compareVersions(version, this.store.currentVersion)
-    ) {
+    if (!this.store.currentVersion || compareVersions(version, this.store.currentVersion)) {
       this.store.currentVersion = version;
       this.store.firstOpen = true;
     }

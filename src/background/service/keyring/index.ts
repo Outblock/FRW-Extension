@@ -79,7 +79,7 @@ class KeyringService extends EventEmitter {
   }
 
   loadMemStore() {
-    return this.memStore.getState()
+    return this.memStore.getState();
   }
 
   async boot(password: string) {
@@ -159,7 +159,7 @@ class KeyringService extends EventEmitter {
         });
       })
       .then((firstKeyring) => {
-        console.log('firstKeyring ', firstKeyring)
+        console.log('firstKeyring ', firstKeyring);
         keyring = firstKeyring;
         return firstKeyring.getAccounts();
       })
@@ -209,10 +209,7 @@ class KeyringService extends EventEmitter {
       throw new Error(i18n.t('You need to unlock your wallet first'));
     }
 
-    return await this.encryptor.decrypt(
-      this.password,
-      this.memStore.getState().preMnemonics
-    );
+    return await this.encryptor.decrypt(this.password, this.memStore.getState().preMnemonics);
   }
 
   /**
@@ -390,14 +387,9 @@ class KeyringService extends EventEmitter {
    * @param {Array<string>} newAccountArray - Array of new accounts.
    * @returns {Promise<Array<string>>} The account, if no duplicate is found.
    */
-  async checkForDuplicate(
-    type: string,
-    newAccountArray: string[]
-  ): Promise<string[]> {
+  async checkForDuplicate(type: string, newAccountArray: string[]): Promise<string[]> {
     const keyrings = this.getKeyringsByType(type);
-    const _accounts = await Promise.all(
-      keyrings.map((keyring) => keyring.getAccounts())
-    );
+    const _accounts = await Promise.all(keyrings.map((keyring) => keyring.getAccounts()));
 
     const accounts: string[] = _accounts
       .reduce((m, n) => m.concat(n), [] as string[])
@@ -405,9 +397,7 @@ class KeyringService extends EventEmitter {
 
     const isIncluded = newAccountArray.some((account) => {
       return accounts.find(
-        (key) =>
-          key === account.toLowerCase() ||
-          key === ethUtil.stripHexPrefix(account)
+        (key) => key === account.toLowerCase() || key === ethUtil.stripHexPrefix(account)
       );
     });
 
@@ -482,9 +472,7 @@ class KeyringService extends EventEmitter {
           return keyring.getAccounts();
         }
         return Promise.reject(
-          new Error(
-            `Keyring ${keyring.type} doesn't support account removal operations`
-          )
+          new Error(`Keyring ${keyring.type} doesn't support account removal operations`)
         );
       })
       .then((accounts) => {
@@ -616,9 +604,7 @@ class KeyringService extends EventEmitter {
     const address = normalizeAddress(_address);
     const keyring = await this.getKeyringForAccount(address);
     if (!('exportAccount' in keyring)) {
-      throw new Error(
-        `The keyring for address ${_address} does not support exporting.`
-      );
+      throw new Error(`The keyring for address ${_address} does not support exporting.`);
     }
     return keyring.exportAccount(address, { withAppKeyOrigin: origin });
   }
@@ -668,21 +654,17 @@ class KeyringService extends EventEmitter {
    */
   persistAllKeyrings(): Promise<boolean> {
     if (!this.password || typeof this.password !== 'string') {
-      return Promise.reject(
-        new Error('KeyringController - password is not a string')
-      );
+      return Promise.reject(new Error('KeyringController - password is not a string'));
     }
     return Promise.all(
       this.keyrings.map((keyring) => {
-        return Promise.all([keyring.type, keyring.serialize()]).then(
-          (serializedKeyringArray) => {
-            // Label the output values on each serialized Keyring:
-            return {
-              type: serializedKeyringArray[0],
-              data: serializedKeyringArray[1],
-            };
-          }
-        );
+        return Promise.all([keyring.type, keyring.serialize()]).then((serializedKeyringArray) => {
+          // Label the output values on each serialized Keyring:
+          return {
+            type: serializedKeyringArray[0],
+            data: serializedKeyringArray[1],
+          };
+        });
       })
     )
       .then((serializedKeyrings) => {
@@ -696,7 +678,7 @@ class KeyringService extends EventEmitter {
         const currentId = await storage.get('currentId');
 
         const oldVault = this.store.getState().vault;
-        const deepVault = await storage.get('deepVault') || []; // Retrieve deepVault from storage
+        const deepVault = (await storage.get('deepVault')) || []; // Retrieve deepVault from storage
 
         const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
         const deepVaultArray = Array.isArray(deepVault) ? deepVault : [deepVault]; // Ensure deepVault is treated as array
@@ -704,16 +686,18 @@ class KeyringService extends EventEmitter {
         // Handle the case when currentId is available
         if (currentId !== null && currentId !== undefined) {
           // Find if an entry with currentId already exists in both vault and deepVault
-          const existingIndex = vaultArray.findIndex(entry =>
-            entry !== null &&
-            entry !== undefined &&
-            Object.prototype.hasOwnProperty.call(entry, currentId)
+          const existingIndex = vaultArray.findIndex(
+            (entry) =>
+              entry !== null &&
+              entry !== undefined &&
+              Object.prototype.hasOwnProperty.call(entry, currentId)
           );
 
-          const existingDeepVaultIndex = deepVaultArray.findIndex(entry =>
-            entry !== null &&
-            entry !== undefined &&
-            Object.prototype.hasOwnProperty.call(entry, currentId)
+          const existingDeepVaultIndex = deepVaultArray.findIndex(
+            (entry) =>
+              entry !== null &&
+              entry !== undefined &&
+              Object.prototype.hasOwnProperty.call(entry, currentId)
           );
 
           if (existingIndex !== -1) {
@@ -754,8 +738,6 @@ class KeyringService extends EventEmitter {
 
         return true;
       });
-
-
   }
 
   /**
@@ -784,7 +766,7 @@ class KeyringService extends EventEmitter {
 
     // If currentId is provided, look for the encryptedString with currentId as the key in the vaultArray
     if (currentId !== undefined) {
-      const foundIndex = vaultArray.findIndex(entry => entry && entry[currentId]);
+      const foundIndex = vaultArray.findIndex((entry) => entry && entry[currentId]);
       if (foundIndex !== -1) {
         encryptedVault = vaultArray[foundIndex][currentId];
       } else {
@@ -808,7 +790,6 @@ class KeyringService extends EventEmitter {
       }
     }
 
-
     if (!encryptedVault) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
@@ -821,7 +802,6 @@ class KeyringService extends EventEmitter {
     await this._updateMemStoreKeyrings();
     return this.keyrings;
   }
-
 
   /**
    * Retrieve privatekey from vault
@@ -837,7 +817,7 @@ class KeyringService extends EventEmitter {
 
     // If vault is unavailable or empty, retrieve from deepVault
     if (!vaultArray || vaultArray.length === 0) {
-      console.warn("Vault not found, retrieving from deepVault...");
+      console.warn('Vault not found, retrieving from deepVault...');
       vaultArray = await storage.get('deepVault');
 
       if (!vaultArray) {
@@ -845,12 +825,10 @@ class KeyringService extends EventEmitter {
       }
     }
 
-
     // Ensure vaultArray is an array
     if (typeof vaultArray === 'string') {
       vaultArray = [vaultArray];
     }
-
 
     // Decrypt each entry in the vaultArray
     const decryptedVaults: any[] = [];
@@ -874,7 +852,6 @@ class KeyringService extends EventEmitter {
       }
     }
 
-
     if (decryptedVaults.length === 0) {
       throw new Error(i18n.t('Cannot unlock without a previous vault'));
     }
@@ -883,16 +860,16 @@ class KeyringService extends EventEmitter {
       const item = entry[0];
       let keyType, value;
 
-      if (item.type === "HD Key Tree") {
+      if (item.type === 'HD Key Tree') {
         if (item.data.activeIndexes[0] === 1) {
-          keyType = "publicKey";
+          keyType = 'publicKey';
           value = item.data.publicKey;
         } else {
-          keyType = "mnemonic";
+          keyType = 'mnemonic';
           value = item.data.mnemonic;
         }
-      } else if (item.type === "Simple Key Pair") {
-        keyType = "privateKey";
+      } else if (item.type === 'Simple Key Pair') {
+        keyType = 'privateKey';
         value = item.data[0];
       }
 
@@ -901,8 +878,6 @@ class KeyringService extends EventEmitter {
 
     return extractedData;
   }
-
-
 
   /**
    * Restore Keyring
@@ -978,13 +953,13 @@ class KeyringService extends EventEmitter {
    */
   async getAccounts(): Promise<string[]> {
     const keyrings = this.keyrings || [];
-    const addrs = await Promise.all(
-      keyrings.map((kr) => kr.getAccounts())
-    ).then((keyringArrays) => {
-      return keyringArrays.reduce((res, arr) => {
-        return res.concat(arr);
-      }, []);
-    });
+    const addrs = await Promise.all(keyrings.map((kr) => kr.getAccounts())).then(
+      (keyringArrays) => {
+        return keyringArrays.reduce((res, arr) => {
+          return res.concat(arr);
+        }, []);
+      }
+    );
     return addrs.map(normalizeAddress);
   }
 
@@ -1019,13 +994,9 @@ class KeyringService extends EventEmitter {
   ): Promise<any> {
     const hexed = normalizeAddress(address).toLowerCase();
     log.debug(`KeyringController - getKeyringForAccount: ${hexed}`);
-    let keyrings = type
-      ? this.keyrings.filter((keyring) => keyring.type === type)
-      : this.keyrings;
+    let keyrings = type ? this.keyrings.filter((keyring) => keyring.type === type) : this.keyrings;
     if (!includeWatchKeyring) {
-      keyrings = keyrings.filter(
-        (keyring) => keyring.type !== KEYRING_TYPE.WatchAddressKeyring
-      );
+      keyrings = keyrings.filter((keyring) => keyring.type !== KEYRING_TYPE.WatchAddressKeyring);
     }
     return Promise.all(
       keyrings.map((keyring) => {
@@ -1054,17 +1025,13 @@ class KeyringService extends EventEmitter {
    */
   displayForKeyring(keyring, includeHidden = true): Promise<DisplayedKeryring> {
     const hiddenAddresses = preference.getHiddenAddresses();
-    const accounts: Promise<
-      ({ address: string; brandName: string } | string)[]
-    > = keyring.getAccountsWithBrand ? keyring.getAccountsWithBrand() : keyring.getAccounts();
+    const accounts: Promise<({ address: string; brandName: string } | string)[]> =
+      keyring.getAccountsWithBrand ? keyring.getAccountsWithBrand() : keyring.getAccounts();
 
     return accounts.then((accounts) => {
       const allAccounts = accounts.map((account) => ({
-        address: normalizeAddress(
-          typeof account === 'string' ? account : account.address
-        ),
-        brandName:
-          typeof account === 'string' ? keyring.type : account.brandName,
+        address: normalizeAddress(typeof account === 'string' ? account : account.address),
+        brandName: typeof account === 'string' ? keyring.type : account.brandName,
       }));
 
       return {
@@ -1072,22 +1039,20 @@ class KeyringService extends EventEmitter {
         accounts: includeHidden
           ? allAccounts
           : allAccounts.filter(
-            (account) =>
-              !hiddenAddresses.find(
-                (item) =>
-                  item.type === keyring.type &&
-                  item.address.toLowerCase() === account.address.toLowerCase()
-              )
-          ),
+              (account) =>
+                !hiddenAddresses.find(
+                  (item) =>
+                    item.type === keyring.type &&
+                    item.address.toLowerCase() === account.address.toLowerCase()
+                )
+            ),
         keyring,
       };
     });
   }
 
   getAllTypedAccounts(): Promise<DisplayedKeryring[]> {
-    return Promise.all(
-      this.keyrings.map((keyring) => this.displayForKeyring(keyring))
-    );
+    return Promise.all(this.keyrings.map((keyring) => this.displayForKeyring(keyring)));
   }
 
   async getAllTypedVisibleAccounts(): Promise<DisplayedKeryring[]> {
@@ -1114,7 +1079,6 @@ class KeyringService extends EventEmitter {
     return result;
   }
 
-
   async resetKeyRing() {
     await this.clearKeyrings();
     await this.clearVault();
@@ -1139,7 +1103,7 @@ class KeyringService extends EventEmitter {
    * Clear the Vault
    *
    * Clears the vault from the store's state, effectively removing all stored data.
-  */
+   */
   async clearVault(): Promise<void> {
     // Clear the vault data in the store's state
     this.store.updateState({ vault: [] });

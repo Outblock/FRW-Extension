@@ -10,11 +10,8 @@ import ImportRecoveryPhrase from './ImportRecoveryPhrase';
 import AllSet from '../Register/AllSet';
 import RecoverPassword from './RecoverPassword';
 import Particles from 'react-tsparticles';
-import {LLPinAlert, LLSpinner} from 'ui/FRWComponent';
-import {
-  ComponentTransition,
-  AnimationTypes,
-} from 'react-component-transition';
+import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useWallet } from 'ui/utils';
 import options from './options';
 
@@ -56,26 +53,27 @@ const ImportPager = () => {
   const getGoogle = async () => {
     setLoading(true);
 
-    try { 
+    try {
       const accounts = await wallets.loadBackupAccounts();
       if (accounts.length > 0) {
         history.push({
-          pathname: '/import/google',         
+          pathname: '/import/google',
           state: {
             accounts: accounts,
-          },});
+          },
+        });
       } else {
-        setShowError(true)
-        setErrorMessage(chrome.i18n.getMessage('No__backup__found'))
+        setShowError(true);
+        setErrorMessage(chrome.i18n.getMessage('No__backup__found'));
       }
       setLoading(false);
     } catch (e) {
       console.log(e);
-      setShowError(true)
-      setErrorMessage(chrome.i18n.getMessage('Something__is__wrong'))
+      setShowError(true);
+      setErrorMessage(chrome.i18n.getMessage('Something__is__wrong'));
       setLoading(false);
     }
-  }
+  };
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -87,9 +85,18 @@ const ImportPager = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <ImportRecoveryPhrase handleClick={goNext} confirmMnemonic={setMnemonic} confirmPk={setPk}  setUsername={setUsername} />;
+        return (
+          <ImportRecoveryPhrase
+            handleClick={goNext}
+            confirmMnemonic={setMnemonic}
+            confirmPk={setPk}
+            setUsername={setUsername}
+          />
+        );
       case 1:
-        return <RecoverPassword handleClick={goNext} pk={pk} mnemonic={mnemonic} username={username} />;
+        return (
+          <RecoverPassword handleClick={goNext} pk={pk} mnemonic={mnemonic} username={username} />
+        );
       case 2:
         return <AllSet handleClick={goNext} />;
       default:
@@ -125,7 +132,7 @@ const ImportPager = () => {
             display: 'flex',
             flexDirection: 'column',
             width: 720,
-            marginTop:'80px',
+            marginTop: '80px',
             height: 'auto',
             transition: 'all .3s ease-in-out',
             borderRadius: '24px',
@@ -150,7 +157,13 @@ const ImportPager = () => {
 
             <Typography
               variant="body1"
-              sx={{ color: '#5E5E5E', alignSelf: 'end',lineHeight:'37px', fontWeight: '700',fontSize:'16px' }}
+              sx={{
+                color: '#5E5E5E',
+                alignSelf: 'end',
+                lineHeight: '37px',
+                fontWeight: '700',
+                fontSize: '16px',
+              }}
             >
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/3
             </Typography>
@@ -177,7 +190,7 @@ const ImportPager = () => {
           </ComponentTransition>
         </Box>
 
-        {activeIndex === 0 &&
+        {activeIndex === 0 && (
           <Button
             variant="contained"
             color="primary"
@@ -190,24 +203,24 @@ const ImportPager = () => {
               borderRadius: '12px',
               textTransform: 'none',
               boxShadow: '0px 24px 24px rgba(0,0,0,0.36)',
-              mt: '36px'
+              mt: '36px',
             }}
             onClick={getGoogle}
-            startIcon={
-              loading ? <LLSpinner size={20}/> : <IconGoogleDrive />
-            }
+            startIcon={loading ? <LLSpinner size={20} /> : <IconGoogleDrive />}
           >
-            <Typography
-              variant="body1"
-              color="text.primary"
-            >
+            <Typography variant="body1" color="text.primary">
               {chrome.i18n.getMessage('Restore__Backup__from__Google__Drive')}
             </Typography>
           </Button>
-        }
+        )}
         <Box sx={{ flexGrow: 1 }} />
         <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-          <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+          <Alert
+            onClose={handleErrorClose}
+            variant="filled"
+            severity="error"
+            sx={{ width: '100%' }}
+          >
             {errMessage}
           </Alert>
         </Snackbar>

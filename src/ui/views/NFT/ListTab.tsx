@@ -27,7 +27,6 @@ interface ListTabProps {
   activeCollection: any;
 }
 
-
 const useStyles = makeStyles(() => ({
   collectionContainer: {
     width: '100%',
@@ -81,15 +80,15 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
 
   useImperativeHandle(ref, () => ({
     reload: () => {
-      usewallet.clearNFTCollection()
-      setCollections([])
+      usewallet.clearNFTCollection();
+      setCollections([]);
       setCollectionLoading(true);
-      fetchLatestCollection(ownerAddress)
-    }
+      fetchLatestCollection(ownerAddress);
+    },
   }));
 
   const fetchCollectionCache = async (address: string) => {
-    setAccessible(props.accessible)
+    setAccessible(props.accessible);
     try {
       setCollectionLoading(true);
       const list = await usewallet.getCollectionCache();
@@ -121,7 +120,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
         setCollectionEmpty(true);
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setCollectionLoading(false);
       setCollectionEmpty(true);
     }
@@ -134,27 +133,24 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
     }
   }, [props.data.ownerAddress]);
 
-
   const extractContractAddress = (collection) => {
     return collection.split('.')[2];
   };
 
   const checkContractAddressInCollections = (nft) => {
     if (props.isActive) {
-      return true
+      return true;
     }
     const contractAddressWithout0x = nft.collection.contract_name;
-    const isActiveCollect =  props.activeCollection.some(collection => {
+    const isActiveCollect = props.activeCollection.some((collection) => {
       const extractedAddress = extractContractAddress(collection);
       if (extractedAddress === contractAddressWithout0x) {
-        console.log('nft is ', contractAddressWithout0x, extractedAddress, )
+        console.log('nft is ', contractAddressWithout0x, extractedAddress);
       }
       return extractedAddress === contractAddressWithout0x;
     });
     return isActiveCollect;
   };
-
-
 
   const CollectionView = (data) => {
     const handleClick = () => {
@@ -163,18 +159,18 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
         state: {
           collection: data,
           ownerAddress: data.ownerAddress,
-          accessible: props.accessible
-        }
+          accessible: props.accessible,
+        },
       });
     };
     return (
       <Card sx={{ borderRadius: '12px' }} className={classes.collectionCard}>
         <CardActionArea
-          sx={{ backgroundColor: 'background.paper', borderRadius: '12px',paddingRight:'8px'  }}
+          sx={{ backgroundColor: 'background.paper', borderRadius: '12px', paddingRight: '8px' }}
           className={classes.actionarea}
           onClick={data.isAccessible && handleClick}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'row'}}>
+          <Box sx={{ display: 'flex', flexDirection: 'row' }}>
             <CardMedia
               component="img"
               sx={{
@@ -183,7 +179,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                 padding: '8px',
                 borderRadius: '12px',
                 justifyContent: 'center',
-                mt:'8px',
+                mt: '8px',
               }}
               image={data.logo || placeholder}
               alt={data.name}
@@ -191,25 +187,19 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
             <CardContent sx={{ flex: '1 0 auto', padding: '8px 4px' }}>
               <Grid container>
                 <Grid item sx={{ width: '260px' }}>
-                  <Typography
-                    component="div"
-                    variant="body1"
-                    color="#fff"
-                    sx={{ mb: 0 }}
-                  >
+                  <Typography component="div" variant="body1" color="#fff" sx={{ mb: 0 }}>
                     {data.name}
                   </Typography>
-                  {data.isAccessible ?
-
+                  {data.isAccessible ? (
                     <Typography
                       variant="body1"
                       sx={{ fontSize: '14px' }}
                       color="#B2B2B2"
                       component="div"
                     >
-                      {data.count}{' '}{chrome.i18n.getMessage('collectibles')}
+                      {data.count} {chrome.i18n.getMessage('collectibles')}
                     </Typography>
-                    :
+                  ) : (
                     <Box
                       sx={{
                         display: 'flex',
@@ -219,15 +209,14 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
                         borderRadius: '4px',
                         color: 'neutral.text',
                         fontSize: '10px',
-                        width:'80px',
+                        width: '80px',
                         fontFamily: 'Inter, sans-serif',
-                        backgroundColor: 'neutral1.light'
+                        backgroundColor: 'neutral1.light',
                       }}
                     >
                       {chrome.i18n.getMessage('Inaccessible')}
                     </Box>
-
-                  }
+                  )}
                 </Grid>
                 <Grid item>
                   <ArrowForwardIcon color="primary" sx={{ mt: '12px' }} />
@@ -241,17 +230,17 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   };
 
   const createListCard = (props, index) => {
-    console.log('isAccessible ', props)
-    const isAccessible = checkContractAddressInCollections(props)
-    console.log('isAccessible ', isAccessible, props)
+    console.log('isAccessible ', props);
+    const isAccessible = checkContractAddressInCollections(props);
+    console.log('isAccessible ', isAccessible, props);
     return (
       <CollectionView
-        name={props.collection?  props.collection.name : props.name}
-        logo={props.collection?  props.collection.logo : props.logo}
-        key={props.collection ?  props.collection.name : props.name}
+        name={props.collection ? props.collection.name : props.name}
+        logo={props.collection ? props.collection.logo : props.logo}
+        key={props.collection ? props.collection.name : props.name}
         count={props.count}
         index={index}
-        contract_name={props.collection ?  props.collection.id : props.id}
+        contract_name={props.collection ? props.collection.id : props.id}
         ownerAddress={ownerAddress}
         isAccessible={isAccessible}
       />

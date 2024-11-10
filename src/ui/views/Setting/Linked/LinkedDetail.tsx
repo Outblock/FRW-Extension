@@ -16,7 +16,7 @@ import {
   CardContent,
   CardActionArea,
   FormControlLabel,
-  Checkbox
+  Checkbox,
 } from '@mui/material';
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
@@ -109,11 +109,10 @@ const LinkedDetail = () => {
       const catalog = await usewallet.getNftCatalog();
       console.log('catalog ,', catalog);
 
-
       const parentaddress = await usewallet.getMainWallet();
 
       const activec = await usewallet.getChildAccountAllowTypes(parentaddress, key!);
-      setActiveCollection(activec)
+      setActiveCollection(activec);
       await setCatalog(catalog);
       const collectionMap: { [key: string]: Collection } = {};
 
@@ -124,34 +123,32 @@ const LinkedDetail = () => {
         if (collection) {
           collectionMap[collection.contract_name] = { ...collection, total: 0, nfts: [] };
         }
-
       });
       console.log('nft result ', nftResult, key);
 
       nftResult.forEach((nft) => {
         const someResult = checkContractAddressInCollections(nft, Object.values(collectionMap));
-        console.log('someResult , ', someResult, Object.values(collectionMap))
+        console.log('someResult , ', someResult, Object.values(collectionMap));
         if (someResult) {
           collectionMap[someResult.contract_name].total! += 1;
-          collectionMap[someResult.contract_name].nfts!.push(nft)
+          collectionMap[someResult.contract_name].nfts!.push(nft);
         }
-      })
+      });
       console.log('collectionMap result ', collectionMap);
 
-
-      console.log('active check nftResult ', nftResult)
+      console.log('active check nftResult ', nftResult);
       if (nftResult) {
-        setNft(nftResult)
+        setNft(nftResult);
         const collectionsArray = Object.values(collectionMap);
         setAvailableCollections(collectionsArray);
       }
       const ftResult = await usewallet.checkAccessibleFt(key);
       if (ftResult) {
-        setFt(ftResult)
+        setFt(ftResult);
       }
 
       setLoading(false);
-      console.log('availableNft ', availableNft, availableFt)
+      console.log('availableNft ', availableNft, availableFt);
     } catch (error) {
       // Handle any errors that occur during data fetching
       console.error('Error fetching data:', error);
@@ -165,19 +162,18 @@ const LinkedDetail = () => {
 
   const findObjectByContractName = (contractName, collections) => {
     const extractedAddress = extractContractAddress(contractName);
-    const foundObject = collections.find(item => item.contract_name === extractedAddress);
+    const foundObject = collections.find((item) => item.contract_name === extractedAddress);
     return foundObject || null;
   };
 
   const checkContractAddressInCollections = (nft, activec) => {
     const contractAddressWithout0x = nft.collectionName;
-    const matchedResult = activec.find(collection => {
+    const matchedResult = activec.find((collection) => {
       const extractedAddress = collection.name;
       return extractedAddress === contractAddressWithout0x;
     });
     return matchedResult;
   };
-
 
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
 
@@ -196,11 +192,10 @@ const LinkedDetail = () => {
 
   const toggleHide = (event) => {
     event.stopPropagation();
-    console.log('hideEmpty ', hideEmpty)
+    console.log('hideEmpty ', hideEmpty);
     const prevEmpty = hideEmpty;
     setHide(!prevEmpty);
   };
-
 
   const navigateWithState = (data, key) => {
     const state = { nft: data };
@@ -211,20 +206,20 @@ const LinkedDetail = () => {
         state: {
           collection: data,
           ownerAddress: key,
-        }
+        },
       });
     }
   };
-
 
   useEffect(() => {
     getUserInfo();
     fetchUserWallet();
   }, []);
 
-
   const nftContent = () => {
-    const filteredNftCollection = availableNftCollection.filter(item => !hideEmpty || (hideEmpty && item.total && item.total > 0));
+    const filteredNftCollection = availableNftCollection.filter(
+      (item) => !hideEmpty || (hideEmpty && item.total && item.total > 0)
+    );
 
     return (
       <Box sx={{ fontSize: '14px', color: '#FFFFFF', marginTop: '8px' }}>
@@ -258,7 +253,7 @@ const LinkedDetail = () => {
                   style={{
                     width: '32px',
                     height: '32px',
-                    borderRadius: '32px'
+                    borderRadius: '32px',
                   }}
                   src={item.logo}
                   alt={item.name}
@@ -295,7 +290,8 @@ const LinkedDetail = () => {
                     alignItems: 'center',
                   }}
                 >
-                  {item.total + ' '}{collectedText}
+                  {item.total + ' '}
+                  {collectedText}
                 </Typography>
                 <CardMedia
                   sx={{
@@ -322,23 +318,37 @@ const LinkedDetail = () => {
               alignItems: 'center',
             }}
           >
-            <Typography sx={{
-              fontSize: '12px',
-              color: '#bababa',
-              textAlign: 'center'
-            }}>No accessible NFT</Typography>
+            <Typography
+              sx={{
+                fontSize: '12px',
+                color: '#bababa',
+                textAlign: 'center',
+              }}
+            >
+              No accessible NFT
+            </Typography>
           </Box>
         )}
       </Box>
     );
   };
 
-
   const ftContent = () => (
     <Box sx={{ fontSize: '14px', color: '#FFFFFF', marginTop: '8px' }}>
       {availableFt.map((token, index) => {
         return (
-          <Box sx={{ display: 'flex', height: '64px', marginTop: '8px', padding: '16px 20px', borderRadius: '16px', backgroundColor: '#292929', justifyContent: 'space-between' }} key={index}>
+          <Box
+            sx={{
+              display: 'flex',
+              height: '64px',
+              marginTop: '8px',
+              padding: '16px 20px',
+              borderRadius: '16px',
+              backgroundColor: '#292929',
+              justifyContent: 'space-between',
+            }}
+            key={index}
+          >
             <img
               style={{
                 height: '32px',
@@ -346,35 +356,39 @@ const LinkedDetail = () => {
                 borderRadius: '32px',
                 backgroundColor: 'text.secondary',
                 objectFit: 'cover',
-                marginRight: '8px'
+                marginRight: '8px',
               }}
               src={'https://lilico.app/placeholder-2.0.png'}
             />
-            <Typography sx={{
-              display: 'flex',
-              alignItems: 'center',
-              color: '#fff',
-              textAlign: 'right',
-              fontFamily: 'Inter',
-              fontSize: '14px',
-              fontStyle: 'normal',
-              fontWeight: 600,
-              lineHeight: '20px',
-            }}>
+            <Typography
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: '#fff',
+                textAlign: 'right',
+                fontFamily: 'Inter',
+                fontSize: '14px',
+                fontStyle: 'normal',
+                fontWeight: 600,
+                lineHeight: '20px',
+              }}
+            >
               {token.id.split('.')[2]}
             </Typography>
             <Box sx={{ flex: 1 }}></Box>
-            <Typography sx={{
-              display: 'flex',
-              alignItems: 'center',
-              color: '#BABABA',
-              textAlign: 'right',
-              fontFamily: 'Inter',
-              fontSize: '12px',
-              fontStyle: 'normal',
-              fontWeight: 600,
-              lineHeight: '20px',
-            }}>
+            <Typography
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                color: '#BABABA',
+                textAlign: 'right',
+                fontFamily: 'Inter',
+                fontSize: '12px',
+                fontStyle: 'normal',
+                fontWeight: 600,
+                lineHeight: '20px',
+              }}
+            >
               {parseFloat(token.balance).toFixed(3)} {token.id.split('.')[2]}
             </Typography>
           </Box>
@@ -424,9 +438,7 @@ const LinkedDetail = () => {
 
       <Box sx={{ flexGrow: 1 }}>
         {/* <img src={logo} alt='logo' className={classes.logo} /> */}
-        <Box
-          sx={{ display: 'flex', flexDirection: 'column', padding: '18px', height: '100%' }}
-        >
+        <Box sx={{ display: 'flex', flexDirection: 'column', padding: '18px', height: '100%' }}>
           <Box sx={{ display: 'flex', gap: '18px', marginBottom: '0px' }}>
             <Stack
               direction="column"
@@ -455,7 +467,7 @@ const LinkedDetail = () => {
                       width: '60px',
                       borderRadius: '60px',
                       backgroundColor: 'text.secondary',
-                      objectFit: 'cover'
+                      objectFit: 'cover',
                     }}
                     src={childAccount?.thumbnail?.url ?? 'https://lilico.app/placeholder-2.0.png'}
                   />
@@ -467,7 +479,7 @@ const LinkedDetail = () => {
                       marginTop: '14px',
                       width: '100%',
                     }}
-                    color='text.secondary'
+                    color="text.secondary"
                   >
                     {childAccount?.name ?? chrome.i18n.getMessage('Linked_Account')}
                   </Typography>
@@ -483,7 +495,7 @@ const LinkedDetail = () => {
                 justifyContent: 'space-between',
                 backgroundColor: '#292929',
                 padding: '17px 20px',
-                alignItems: 'center'
+                alignItems: 'center',
               }}
             >
               <Typography
@@ -496,13 +508,11 @@ const LinkedDetail = () => {
               >
                 {chrome.i18n.getMessage('Address')}
               </Typography>
-              <Typography
-                sx={{ fontSize: '14px', color: '#bababa', width: '100%' }}
-              >
+              <Typography sx={{ fontSize: '14px', color: '#bababa', width: '100%' }}>
                 {key}
               </Typography>
               <Button
-                variant='text'
+                variant="text"
                 onClick={() => {
                   navigator.clipboard.writeText(key);
                 }}
@@ -546,7 +556,7 @@ const LinkedDetail = () => {
               display: 'flex',
               flexDirection: 'column',
               marginBottom: '44px',
-              flexGrow: '1'
+              flexGrow: '1',
             }}
           >
             <Box
@@ -558,7 +568,7 @@ const LinkedDetail = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '14px',
-                flexGrow: '1'
+                flexGrow: '1',
               }}
             >
               <Typography
@@ -571,24 +581,23 @@ const LinkedDetail = () => {
                 {chrome.i18n.getMessage('Accessible')}
               </Typography>
               <Box sx={{ flexGrow: '1' }}></Box>
-              <CardActionArea
-                sx={{ width: 'auto' }}
-              >
+              <CardActionArea sx={{ width: 'auto' }}>
                 <FormControlLabel
                   label={
-                    <Typography variant="body2" sx={{ fontSize: '12px', color: '#5e5e5e', marginRight: '0px' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontSize: '12px', color: '#5e5e5e', marginRight: '0px' }}
+                    >
                       {chrome.i18n.getMessage('Hide_Empty_collection')}
                     </Typography>
                   }
                   control={
                     <Checkbox
-                      size='small'
-                      icon={<CircleOutlinedIcon
-                        sx={{ width: '16px', height: '16px' }}
-                      />}
+                      size="small"
+                      icon={<CircleOutlinedIcon sx={{ width: '16px', height: '16px' }} />}
                       sx={{ paddingLeft: '10px' }}
                       checkedIcon={<CheckCircleIcon color={'#41CC5D'} />}
-                      value='mainnet'
+                      value="mainnet"
                       checked={hideEmpty}
                       onClick={toggleHide}
                     />
@@ -604,8 +613,8 @@ const LinkedDetail = () => {
               aria-label="secondary tabs example"
               sx={{
                 '.MuiTabs-indicator': {
-                  display: 'none'
-                }
+                  display: 'none',
+                },
               }}
             >
               <Tab
@@ -624,11 +633,12 @@ const LinkedDetail = () => {
                   minHeight: '0px',
                   '&.Mui-selected': {
                     backgroundColor: 'rgba(50, 159, 227, 0.16)',
-                    color: ' #329FE3'
-
-                  }
+                    color: ' #329FE3',
+                  },
                 }}
-                value="one" label="Collectables" />
+                value="one"
+                label="Collectables"
+              />
               <Tab
                 sx={{
                   padding: '4px 16px',
@@ -646,46 +656,50 @@ const LinkedDetail = () => {
                   minHeight: '0px',
                   '&.Mui-selected': {
                     backgroundColor: 'rgba(50, 159, 227, 0.16)',
-                    color: ' #329FE3'
-
-                  }
+                    color: ' #329FE3',
+                  },
                 }}
-                value="two" label="Coins" />
+                value="two"
+                label="Coins"
+              />
             </Tabs>
-            {loading ?
-              (
-                <Box sx={{ marginBottom: '-24px' }}>
-                  {[...Array(2).keys()].map(key => (
-                    <Card key={key} sx={{ borderRadius: '12px', backgroundColor: '#000000', padding: '0 12px' }}>
-                      <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                        <CardMedia sx={{
+            {loading ? (
+              <Box sx={{ marginBottom: '-24px' }}>
+                {[...Array(2).keys()].map((key) => (
+                  <Card
+                    key={key}
+                    sx={{ borderRadius: '12px', backgroundColor: '#000000', padding: '0 12px' }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                      <CardMedia
+                        sx={{
                           width: '48px',
                           height: '48px',
                           justifyContent: 'center',
-                        }}><Skeleton variant='circular' width={48} height={48} /></CardMedia>
-                        <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: '1 0 auto', alignItems: 'center', }}>
-                          <Skeleton variant='text' width={280} />
-                        </CardContent>
-                      </Box>
-                    </Card>
-                  ))}
-                </Box>
-              )
-              :
-              (
-                <Box>
-                  {value === 'one' ? nftContent() : ftContent()}
-                </Box>
-              )
-            }
-
+                        }}
+                      >
+                        <Skeleton variant="circular" width={48} height={48} />
+                      </CardMedia>
+                      <CardContent
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          flex: '1 0 auto',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Skeleton variant="text" width={280} />
+                      </CardContent>
+                    </Box>
+                  </Card>
+                ))}
+              </Box>
+            ) : (
+              <Box>{value === 'one' ? nftContent() : ftContent()}</Box>
+            )}
           </Box>
           {active && (
-            <LLSecondaryButton
-              label={'Unlink'}
-              fullWidth
-              onClick={() => showUnlink(true)}
-            />
+            <LLSecondaryButton label={'Unlink'} fullWidth onClick={() => showUnlink(true)} />
           )}
         </Box>
         <UnlinkAccount
@@ -699,7 +713,7 @@ const LinkedDetail = () => {
           address={key}
           userInfo={userInfo}
         />
-        {(loading || !childAccount) ? (
+        {loading || !childAccount ? (
           // Show a loading indicator or other UI element while data is being fetched
           <div>Loading...</div>
         ) : (

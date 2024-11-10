@@ -12,10 +12,10 @@ import {
   Skeleton,
   ListItemButton,
   List,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import IconCreate from '../../../components/iconfont/IconCreate';
-import TokenDropdown from './TokenDropdown'
+import TokenDropdown from './TokenDropdown';
 
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   // const wallet = useWallet();
@@ -25,7 +25,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   useEffect(() => {
     setLoading(data.length === 0);
-    console.log('data ', data)
+    console.log('data ', data);
     if (data.length) {
       setCoinList(data);
       setLoading(false);
@@ -54,7 +54,8 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               variant="body1"
               sx={{ fontSize: 12, fontWeight: '500', textAlign: 'end', color: 'text.secondary' }}
             >
-              {props.change === null ? '-' : '$'}{props.secondary}
+              {props.change === null ? '-' : '$'}
+              {props.secondary}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -80,7 +81,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                 maxWidth: '120px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
               }}
             >
               {props.primary}
@@ -92,18 +93,25 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
         secondary={
           !isLoading ? (
             <Box sx={{ display: 'flex', gap: '3px' }}>
-              {(ableFt.some(item => {
+              {ableFt.some((item) => {
                 const parts = item.id.split('.');
                 return parts[2] && parts[2].includes(props.coin);
-              }) || isActive || props.primary.toLowerCase() === 'flow') ?
-                <Box
-                  sx={{ display: 'flex' }}
-                >
+              }) ||
+              isActive ||
+              props.primary.toLowerCase() === 'flow' ? (
+                <Box sx={{ display: 'flex' }}>
                   <Typography
                     variant="body1"
-                    sx={{ fontSize: 12, fontWeight: '500', textAlign: 'start', color: 'text.secondary', marginRight: '6px' }}
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: '500',
+                      textAlign: 'start',
+                      color: 'text.secondary',
+                      marginRight: '6px',
+                    }}
                   >
-                    {props.change === null ? '-' : '$'}{props.price}
+                    {props.change === null ? '-' : '$'}
+                    {props.price}
                   </Typography>
 
                   <Typography
@@ -115,11 +123,12 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                       color: props.change >= 0 ? 'text.increase' : 'text.decrease',
                     }}
                   >
-                    {props.change === null ? '' : (props.change >= 0 ? '+' : '')}
-                    {props.change}{props.change !== null ? '%' : ''}
+                    {props.change === null ? '' : props.change >= 0 ? '+' : ''}
+                    {props.change}
+                    {props.change !== null ? '%' : ''}
                   </Typography>
                 </Box>
-                :
+              ) : (
                 <Box
                   sx={{
                     display: 'flex',
@@ -131,12 +140,12 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                     marginTop: '2px',
                     fontSize: '10px',
                     fontFamily: 'Inter, sans-serif',
-                    backgroundColor: 'neutral1.light'
+                    backgroundColor: 'neutral1.light',
                   }}
                 >
                   {chrome.i18n.getMessage('Inaccessible')}
                 </Box>
-              }
+              )}
             </Box>
           ) : (
             <Skeleton variant="text" width={75} height={15} />
@@ -148,75 +157,86 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      {!childType &&
+      {!childType && (
         <Box sx={{ display: 'flex', px: '12px', pt: '4px' }}>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton onClick={() => history.push('dashboard/tokenList')}>
             <IconCreate size={16} color="#787878" />
           </IconButton>
         </Box>
-      }
-      {childType === 'evm' &&
+      )}
+      {childType === 'evm' && (
         <Box sx={{ display: 'flex', px: '12px', pt: '4px' }}>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton onClick={() => history.push('dashboard/addcustomevm')}>
             <IconCreate size={16} color="#787878" />
           </IconButton>
         </Box>
-      }
+      )}
 
       <List sx={{ paddingTop: '0px', paddingBottom: '0px' }}>
         {!isLoading
           ? (coinList || []).map((coin: any) => {
-            if (childType === 'evm' && coin.unit !== 'flow' && parseFloat(coin.balance) === 0 && !coin.custom) {
-              return null;
-            }
-            return (
-              <ListItem
-                key={coin.unit}
-                secondaryAction={
-                  <EndListItemText
-                    primary={parseFloat(coin.balance).toFixed(3)}
-                    secondary={parseFloat(coin.total.toFixed(2))}
-                    unit={coin.unit}
-                    change={parseFloat(coin.change24h.toFixed(2))}
-                  />
-                }
-                disablePadding
-                onClick={() => history.push(`dashboard/token/${coin.unit}`)}
-              >
-                <ListItemButton sx={{ paddingRight: '0px' }} dense={true}>
-                  <ListItemIcon>
-                    {!isLoading ? (
-                      <img src={coin.icon} style={{ height: '36px', width: '36px', backgroundColor: '#282828', borderRadius: '18px' }} />
-                    ) : (
-                      <Skeleton variant="circular" width={36} height={36} />
-                    )}
-                  </ListItemIcon>
-                  <StartListItemText
-                    primary={coin.coin}
-                    price={coin.price}
-                    change={parseFloat(coin.change24h.toFixed(2))}
-                  />
-                </ListItemButton>
-              </ListItem>
-            );
-          })
+              if (
+                childType === 'evm' &&
+                coin.unit !== 'flow' &&
+                parseFloat(coin.balance) === 0 &&
+                !coin.custom
+              ) {
+                return null;
+              }
+              return (
+                <ListItem
+                  key={coin.unit}
+                  secondaryAction={
+                    <EndListItemText
+                      primary={parseFloat(coin.balance).toFixed(3)}
+                      secondary={parseFloat(coin.total.toFixed(2))}
+                      unit={coin.unit}
+                      change={parseFloat(coin.change24h.toFixed(2))}
+                    />
+                  }
+                  disablePadding
+                  onClick={() => history.push(`dashboard/token/${coin.unit}`)}
+                >
+                  <ListItemButton sx={{ paddingRight: '0px' }} dense={true}>
+                    <ListItemIcon>
+                      {!isLoading ? (
+                        <img
+                          src={coin.icon}
+                          style={{
+                            height: '36px',
+                            width: '36px',
+                            backgroundColor: '#282828',
+                            borderRadius: '18px',
+                          }}
+                        />
+                      ) : (
+                        <Skeleton variant="circular" width={36} height={36} />
+                      )}
+                    </ListItemIcon>
+                    <StartListItemText
+                      primary={coin.coin}
+                      price={coin.price}
+                      change={parseFloat(coin.change24h.toFixed(2))}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              );
+            })
           : [1, 2].map((index) => {
-            return (
-              <ListItem
-                key={index}
-                secondaryAction={
-                  <EndListItemText primary="..." secondary="..." />
-                }
-              >
-                <ListItemAvatar>
-                  <Skeleton variant="circular" width={36} height={36} />
-                </ListItemAvatar>
-                <StartListItemText primary="..." price="..." />
-              </ListItem>
-            );
-          })}
+              return (
+                <ListItem
+                  key={index}
+                  secondaryAction={<EndListItemText primary="..." secondary="..." />}
+                >
+                  <ListItemAvatar>
+                    <Skeleton variant="circular" width={36} height={36} />
+                  </ListItemAvatar>
+                  <StartListItemText primary="..." price="..." />
+                </ListItem>
+              );
+            })}
       </List>
     </ThemeProvider>
   );

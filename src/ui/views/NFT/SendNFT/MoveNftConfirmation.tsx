@@ -1,20 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import {
-  Box,
-  Typography,
-  Drawer,
-  Stack,
-  Grid,
-  CardMedia,
-  IconButton,
-  Button
-} from '@mui/material';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  LLSpinner,
-} from 'ui/FRWComponent';
+import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { FRWProfileCard, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
@@ -44,48 +33,49 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const [childWallets, setChildWallets] = useState({});
   const [count, setCount] = useState(0);
 
-
   const startCount = () => {
-    console.log('props.data ', props.data)
+    console.log('props.data ', props.data);
     let count = 0;
     let intervalId;
     if (props.data.contact.address) {
       intervalId = setInterval(function () {
         count++;
-        if (count === 7) { count = 0 }
+        if (count === 7) {
+          count = 0;
+        }
         setCount(count);
       }, 500);
     } else if (!props.data.contact.address) {
       clearInterval(intervalId);
     }
-  }
+  };
 
   const getPending = async () => {
     const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
-      setOccupied(true)
+      setOccupied(true);
     }
-  }
+  };
 
   const updateOccupied = () => {
     setOccupied(false);
-  }
+  };
 
   const replaceIPFS = (url: string | null): string => {
     if (!url) {
-      return ''
+      return '';
     }
 
-    const lilicoEndpoint = 'https://gateway.pinata.cloud/ipfs/'
+    const lilicoEndpoint = 'https://gateway.pinata.cloud/ipfs/';
 
     const replacedURL = url
       .replace('ipfs://', lilicoEndpoint)
       .replace('https://ipfs.infura.io/ipfs/', lilicoEndpoint)
       .replace('https://ipfs.io/ipfs/', lilicoEndpoint)
-      .replace('https://lilico.app/api/ipfs/', lilicoEndpoint)
+      .replace('https://lilico.app/api/ipfs/', lilicoEndpoint);
 
-    return replacedURL
-  }
+    return replacedURL;
+  };
 
   const sendNFT = async () => {
     // setSending(true);
@@ -94,69 +84,82 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     } else {
       moveNFTToFlow();
     }
-
-  }
-
-
-
+  };
 
   const returnFilteredCollections = (contractList, NFT) => {
-    return contractList.filter(
-      (collection) => collection.name == NFT.collectionName
-    );
-  }
-
-
+    return contractList.filter((collection) => collection.name == NFT.collectionName);
+  };
 
   const moveNFTToFlow = async () => {
     setSending(true);
     // setSending(true);
     const contractList = await usewallet.openapi.getAllNft();
-    const filteredCollections = returnFilteredCollections(contractList, props.data.nft)
+    const filteredCollections = returnFilteredCollections(contractList, props.data.nft);
 
-    usewallet.moveNFTfromChild(props.data.userContact.address, '', props.data.nft.id, filteredCollections[0]).then(async (txID) => {
-      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`,);
-      props.handleCloseIconClicked();
-      await usewallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch((err) => {
-      console.log('err ', err)
-      setSending(false);
-      setFailed(true);
-    })
-
+    usewallet
+      .moveNFTfromChild(
+        props.data.userContact.address,
+        '',
+        props.data.nft.id,
+        filteredCollections[0]
+      )
+      .then(async (txID) => {
+        usewallet.listenTransaction(
+          txID,
+          true,
+          `Move complete`,
+          `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`
+        );
+        props.handleCloseIconClicked();
+        await usewallet.setDashIndex(0);
+        setSending(false);
+        history.push('/dashboard?activity=1');
+      })
+      .catch((err) => {
+        console.log('err ', err);
+        setSending(false);
+        setFailed(true);
+      });
   };
-
-
 
   const moveToEvm = async () => {
     setSending(true);
     const address = await usewallet.getCurrentAddress();
     const contractList = await usewallet.openapi.getAllNft();
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft);
-    console.log(' as moveToEvm', address!, props.data, [props.data.nft.id], filteredCollections[0])
-    usewallet.batchBridgeChildNFTToEvm(address!, props.data.contract.flowIdentifier, [props.data.nft.id], filteredCollections[0]).then(async (txID) => {
-      usewallet.listenTransaction(txID, true, `Move complete`, `You have moved ${props.data.nft.id} ${filteredCollections[0].contract_name} to your evm address. \nClick to view this transaction.`,);
-      props.handleCloseIconClicked();
-      await usewallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch((err) => {
-      console.log('err ', err)
-      setSending(false);
-      setFailed(true);
-    })
-
+    console.log(' as moveToEvm', address!, props.data, [props.data.nft.id], filteredCollections[0]);
+    usewallet
+      .batchBridgeChildNFTToEvm(
+        address!,
+        props.data.contract.flowIdentifier,
+        [props.data.nft.id],
+        filteredCollections[0]
+      )
+      .then(async (txID) => {
+        usewallet.listenTransaction(
+          txID,
+          true,
+          `Move complete`,
+          `You have moved ${props.data.nft.id} ${filteredCollections[0].contract_name} to your evm address. \nClick to view this transaction.`
+        );
+        props.handleCloseIconClicked();
+        await usewallet.setDashIndex(0);
+        setSending(false);
+        history.push('/dashboard?activity=1');
+      })
+      .catch((err) => {
+        console.log('err ', err);
+        setSending(false);
+        setFailed(true);
+      });
   };
-
 
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {
       updateOccupied();
     }
-    return true
-  }
+    return true;
+  };
 
   useEffect(() => {
     startCount();
@@ -164,8 +167,8 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     chrome.runtime.onMessage.addListener(transactionDoneHanlder);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder)
-    }
+      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+    };
   }, [props.data.contact]);
 
   const getChildResp = async () => {
@@ -173,78 +176,77 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     const parentAddress = await usewallet.getMainAddress();
     const emojires = await usewallet.getEmoji();
     const eWallet = await usewallet.getEvmWallet();
-    let evmAddress
+    let evmAddress;
     if (eWallet.address) {
-      evmAddress = ensureEvmAddressPrefix(eWallet.address)
+      evmAddress = ensureEvmAddressPrefix(eWallet.address);
     }
 
     const newWallet = {
       [parentAddress!]: {
-        "name": emojires[0].name,
-        "description": emojires[0].name,
-        "thumbnail": {
-          "url": emojires[0].emoji
-        }
-      }
+        name: emojires[0].name,
+        description: emojires[0].name,
+        thumbnail: {
+          url: emojires[0].emoji,
+        },
+      },
     };
-
-
 
     let evmWallet = {};
     if (evmAddress) {
       evmWallet = {
         [evmAddress!]: {
-          "name": emojires[1].name,
-          "description": emojires[1].name,
-          "thumbnail": {
-            "url": emojires[1].emoji
-          }
-        }
+          name: emojires[1].name,
+          description: emojires[1].name,
+          thumbnail: {
+            url: emojires[1].emoji,
+          },
+        },
       };
     }
 
-
-
     // Merge usewallet lists
     const walletList = { ...newWallet, ...childresp, ...evmWallet };
-    setChildWallets(walletList)
+    setChildWallets(walletList);
     const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
-  }
-
-
+  };
 
   const getUserContact = async () => {
     if (props.data.userContact) {
       const childresp = await usewallet.checkUserChildAccount();
-      setChildWallet(childresp[props.data.userContact.address])
-
+      setChildWallet(childresp[props.data.userContact.address]);
     }
-  }
+  };
 
   useEffect(() => {
     getChildResp();
     getUserContact();
   }, []);
 
-
   const renderContent = () => {
     const getUri = () => {
       return (
         <>
-          {props.data.media && (
-            props.data.media.type !== MatchMediaType.VIDEO ?
-              <CardMedia sx={{ width: '72px', height: '72px', borderRadius: '8px' }} image={replaceIPFS(props.data.media.image)} />
-              :
+          {props.data.media &&
+            (props.data.media.type !== MatchMediaType.VIDEO ? (
+              <CardMedia
+                sx={{ width: '72px', height: '72px', borderRadius: '8px' }}
+                image={replaceIPFS(props.data.media.image)}
+              />
+            ) : (
               <>
-                <video loop autoPlay preload="auto"
-                  style={{ width: '72px', height: 'auto', objectFit: 'cover', borderRadius: '8px' }}>
+                <video
+                  loop
+                  autoPlay
+                  preload="auto"
+                  style={{ width: '72px', height: 'auto', objectFit: 'cover', borderRadius: '8px' }}
+                >
                   <source src={props.data.media.url} type="video/mp4" />
                 </video>
-              </>)
-          }
+              </>
+            ))}
         </>
       );
     };
@@ -252,12 +254,18 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     const getMedia = () => {
       return (
         <>
-          <video loop autoPlay playsInline preload="auto" style={{ width: '72px', height: 'auto', objectFit: 'cover', borderRadius: '8px' }}>
+          <video
+            loop
+            autoPlay
+            playsInline
+            preload="auto"
+            style={{ width: '72px', height: 'auto', objectFit: 'cover', borderRadius: '8px' }}
+          >
             <source src={props.data.media?.videoURL || undefined} type="video/mp4" />
           </video>
         </>
-      )
-    }
+      );
+    };
     return (
       <Box
         px="18px"
@@ -278,64 +286,103 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         >
           <Grid item xs={1}></Grid>
           <Grid item xs={10}>
-            {tid ?
-              <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography
-                  variant="h1"
-                  align="center"
-                  py="14px"
-                  fontSize="20px"
-                >
+            {tid ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Typography variant="h1" align="center" py="14px" fontSize="20px">
                   {chrome.i18n.getMessage('Transaction__created')}
                 </Typography>
               </Box>
-              :
-              <Typography
-                variant="h1"
-                align="center"
-                py="14px"
-                fontWeight="bold"
-                fontSize="20px"
-              >
+            ) : (
+              <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="20px">
                 {chrome.i18n.getMessage('Move')} NFT
               </Typography>
-            }
+            )}
           </Grid>
           <Grid item xs={1}>
             <IconButton onClick={props.handleCloseIconClicked}>
-              <CloseIcon
-                fontSize="medium"
-                sx={{ color: 'icon.navi', cursor: 'pointer' }}
-              />
+              <CloseIcon fontSize="medium" sx={{ color: 'icon.navi', cursor: 'pointer' }} />
             </IconButton>
           </Grid>
         </Grid>
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}>
-          {childWallet && <FRWChildProfile contact={childWallet} address={props.data.userContact.address} />}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            py: '16px',
+          }}
+        >
+          {childWallet && (
+            <FRWChildProfile contact={childWallet} address={props.data.userContact.address} />
+          )}
           <Box sx={{ height: '8px' }}></Box>
           {/* <FRWProfileCard contact={props.data.contact} /> */}
-          {selectedAccount && <FRWDropdownProfileCard contact={selectedAccount} contacts={childWallets} setSelectedChildAccount={setSelectedChildAccount} />}
+          {selectedAccount && (
+            <FRWDropdownProfileCard
+              contact={selectedAccount}
+              contacts={childWallets}
+              setSelectedChildAccount={setSelectedChildAccount}
+            />
+          )}
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-start', mx: '25px', px: '14px', py: '16px', backgroundColor: '#181818', borderBottomRightRadius: '16px', borderBottomLeftRadius: '16px', mt: '-16px', mb: '42px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            mx: '25px',
+            px: '14px',
+            py: '16px',
+            backgroundColor: '#181818',
+            borderBottomRightRadius: '16px',
+            borderBottomLeftRadius: '16px',
+            mt: '-16px',
+            mb: '42px',
+          }}
+        >
           <Stack direction="row" spacing={1}>
-            {(props.data.media && props.data.media?.type === MatchMediaType.IMAGE && props.data.media?.videoURL != null) ?
-              getMedia() :
-              getUri()
-            }
+            {props.data.media &&
+            props.data.media?.type === MatchMediaType.IMAGE &&
+            props.data.media?.videoURL != null
+              ? getMedia()
+              : getUri()}
           </Stack>
           <Stack direction="column" spacing={1} sx={{ ml: '14px' }}>
-            <Typography color='neutral.contrastText' sx={{ fontSize: '14px', fontWeight: '700' }}>{props.data.media && props.data.media?.title}</Typography>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', marginTop: '0px !important' }}>
-              <CardMedia sx={{ width: '20px', height: '20px', borderRadius: '20px' }} image={props.data.contract && props.data.contract.collectionSquareImage} />
-              <Typography color="text.nonselect" sx={{ fontWeight: '400', display: 'inline-block' }}>{props.data.contract && props.data.contract.collectionContractName}</Typography>
-              <span><IconFlow size={12} style={{ margin: 'auto' }} /></span>
+            <Typography color="neutral.contrastText" sx={{ fontSize: '14px', fontWeight: '700' }}>
+              {props.data.media && props.data.media?.title}
+            </Typography>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ alignItems: 'center', marginTop: '0px !important' }}
+            >
+              <CardMedia
+                sx={{ width: '20px', height: '20px', borderRadius: '20px' }}
+                image={props.data.contract && props.data.contract.collectionSquareImage}
+              />
+              <Typography
+                color="text.nonselect"
+                sx={{ fontWeight: '400', display: 'inline-block' }}
+              >
+                {props.data.contract && props.data.contract.collectionContractName}
+              </Typography>
+              <span>
+                <IconFlow size={12} style={{ margin: 'auto' }} />
+              </span>
             </Stack>
           </Stack>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        {occupied &&
+        {occupied && (
           <Presets.TransitionSlideUp>
             <Box
               sx={{
@@ -350,13 +397,17 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
               }}
             >
               {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon fontSize='medium' color='primary' style={{ margin: '0px 12px auto 12px' }} />
+              <InfoIcon
+                fontSize="medium"
+                color="primary"
+                style={{ margin: '0px 12px auto 12px' }}
+              />
               <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
                 {chrome.i18n.getMessage('Your__address__is__currently__processing')}
               </Typography>
             </Box>
           </Presets.TransitionSlideUp>
-        }
+        )}
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}
@@ -369,47 +420,33 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
             textTransform: 'capitalize',
             display: 'flex',
             gap: '12px',
-            mb: '33px'
+            mb: '33px',
           }}
         >
           {sending ? (
             <>
               <LLSpinner size={28} />
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 'bold' }}
-                color="text.primary"
-              >
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
                 {chrome.i18n.getMessage('Working_on_it')}
               </Typography>
             </>
-          ) :
-            (<>
-              {failed ?
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 'bold' }}
-                  color="text.primary"
-                >
+          ) : (
+            <>
+              {failed ? (
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
                   {chrome.i18n.getMessage('Transaction__failed')}
                 </Typography>
-                :
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 'bold' }}
-                  color="text.primary"
-                >
+              ) : (
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
                   {chrome.i18n.getMessage('Move')}
                 </Typography>
-              }
+              )}
             </>
-            )}
-
+          )}
         </Button>
-
       </Box>
     );
-  }
+  };
 
   return (
     <Drawer
@@ -417,7 +454,12 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
       open={props.isConfirmationOpen}
       transitionDuration={300}
       PaperProps={{
-        sx: { width: '100%', height: '457px', bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
+        sx: {
+          width: '100%',
+          height: '457px',
+          bgcolor: 'background.paper',
+          borderRadius: '18px 18px 0px 0px',
+        },
       }}
     >
       {renderContent()}

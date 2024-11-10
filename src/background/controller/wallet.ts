@@ -41,10 +41,7 @@ import { setPageStateCacheWhenPopupClose, getScripts } from 'background/utils';
 import { withPrefix, getAccountKey } from 'ui/utils/address';
 import * as t from '@onflow/types';
 import * as fcl from '@onflow/fcl';
-import {
-  fclTestnetConfig,
-  fclMainnetConfig,
-} from '../fclConfig';
+import { fclTestnetConfig, fclMainnetConfig } from '../fclConfig';
 import { notification, storage } from 'background/webapi';
 import { NFTData, NFTModel } from '../service/networkModel';
 import fetchConfig from 'background/utils/remoteConfig';
@@ -60,19 +57,16 @@ import placeholder from 'ui/FRWAssets/image/placeholder.png';
 import { F } from 'ts-toolbelt';
 import web3 from 'web3';
 
-
 const stashKeyrings: Record<string, any> = {};
 
 export class WalletController extends BaseController {
-
   openapi = openapiService;
 
   /* wallet */
   boot = (password) => keyringService.boot(password);
   isBooted = () => keyringService.isBooted();
   loadMemStore = () => keyringService.loadMemStore();
-  verifyPassword = (password: string) =>
-    keyringService.verifyPassword(password);
+  verifyPassword = (password: string) => keyringService.verifyPassword(password);
 
   // requestETHRpc = (data: { method: string; params: any }, chainId: string) => {
   //   return providerController.ethRpc(
@@ -160,7 +154,7 @@ export class WalletController extends BaseController {
   // };
 
   unlock = async (password: string) => {
-    console.log('unlocking --- ')
+    console.log('unlocking --- ');
     // const alianNameInited = await preferenceService.getInitAlianNameStatus();
     // const alianNames = await preferenceService.getAllAlianName();
     await keyringService.submitPassword(password);
@@ -260,8 +254,7 @@ export class WalletController extends BaseController {
 
   // lockadd here
   lockAdd = async () => {
-    const switchingTo =
-      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
 
     const password = keyringService.getPassword();
     await storage.set('tempPassword', password);
@@ -276,8 +269,7 @@ export class WalletController extends BaseController {
 
   // lockadd here
   resetPwd = async () => {
-    const switchingTo =
-      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     await storage.clear();
 
     await keyringService.resetKeyRing();
@@ -292,8 +284,7 @@ export class WalletController extends BaseController {
 
   // lockadd here
   restoreWallet = async () => {
-    const switchingTo =
-      process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
 
     const password = keyringService.getPassword();
     await storage.set('tempPassword', password);
@@ -330,8 +321,7 @@ export class WalletController extends BaseController {
     return preferenceService.getAddressBalance(address);
   };
 
-  setHasOtherProvider = (val: boolean) =>
-    preferenceService.setHasOtherProvider(val);
+  setHasOtherProvider = (val: boolean) => preferenceService.setHasOtherProvider(val);
   getHasOtherProvider = () => preferenceService.getHasOtherProvider();
 
   getExternalLinkAck = () => preferenceService.getExternalLinkAck();
@@ -341,8 +331,7 @@ export class WalletController extends BaseController {
   getLocale = () => preferenceService.getLocale();
   setLocale = (locale: string) => preferenceService.setLocale(locale);
 
-  getLastTimeSendToken = (address: string) =>
-    preferenceService.getLastTimeSendToken(address);
+  getLastTimeSendToken = (address: string) => preferenceService.getLastTimeSendToken(address);
   setLastTimeSendToken = (address: string, token: any) =>
     preferenceService.setLastTimeSendToken(address, token);
 
@@ -380,18 +369,13 @@ export class WalletController extends BaseController {
     permissionService.removeConnectedSite(origin);
   };
   // getSitesByDefaultChain = permissionService.getSitesByDefaultChain;
-  topConnectedSite = (origin: string) =>
-    permissionService.topConnectedSite(origin);
-  unpinConnectedSite = (origin: string) =>
-    permissionService.unpinConnectedSite(origin);
+  topConnectedSite = (origin: string) => permissionService.topConnectedSite(origin);
+  unpinConnectedSite = (origin: string) => permissionService.unpinConnectedSite(origin);
   /* keyrings */
 
   clearKeyrings = () => keyringService.clearKeyrings();
 
-  getPrivateKey = async (
-    password: string,
-    address: string
-  ) => {
+  getPrivateKey = async (password: string, address: string) => {
     await this.verifyPassword(password);
     const keyring = await keyringService.getKeyringForAccount(address);
     if (!keyring) return null;
@@ -432,24 +416,16 @@ export class WalletController extends BaseController {
         // }
         // const account = loggedInAccounts[accountIndex];
         const signAlgo =
-          typeof account.signAlgo === 'string'
-            ? getSignAlgo(account.signAlgo)
-            : account.signAlgo;
+          typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
         privateKey = signAlgo === 1 ? PK1 : PK2;
         break;
-      } else if (
-        keyring.wallets &&
-        keyring.wallets.length > 0 &&
-        keyring.wallets[0].privateKey
-      ) {
+      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
         privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
         break;
       }
     }
     if (!privateKey) {
-      const error = new Error(
-        'No mnemonic or private key found in any of the keyrings.'
-      );
+      const error = new Error('No mnemonic or private key found in any of the keyrings.');
       throw error;
     }
     return privateKey;
@@ -460,9 +436,7 @@ export class WalletController extends BaseController {
     let pubKTuple;
     const keyrings = await keyringService.getKeyring();
     for (const keyring of keyrings) {
-      if (
-        keyring.type === 'Simple Key Pair'
-      ) {
+      if (keyring.type === 'Simple Key Pair') {
         // If a private key is found, extract it and break the loop
         privateKey = keyring.wallets[0].privateKey.toString('hex');
         pubKTuple = await pk2PubKey(privateKey);
@@ -479,11 +453,7 @@ export class WalletController extends BaseController {
         const mnemonic = serialized.mnemonic;
         pubKTuple = await seed2PubKey(mnemonic);
         break;
-      } else if (
-        keyring.wallets &&
-        keyring.wallets.length > 0 &&
-        keyring.wallets[0].privateKey
-      ) {
+      } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
         // If a private key is found, extract it and break the loop
         privateKey = keyring.wallets[0].privateKey.toString('hex');
         pubKTuple = await pk2PubKey(privateKey);
@@ -492,9 +462,7 @@ export class WalletController extends BaseController {
     }
 
     if (!pubKTuple) {
-      const error = new Error(
-        'No mnemonic or private key found in any of the keyrings.'
-      );
+      const error = new Error('No mnemonic or private key found in any of the keyrings.');
       throw error;
     }
     return pubKTuple;
@@ -547,8 +515,7 @@ export class WalletController extends BaseController {
   };
 
   getHiddenAddresses = () => preferenceService.getHiddenAddresses();
-  showAddress = (type: string, address: string) =>
-    preferenceService.showAddress(type, address);
+  showAddress = (type: string, address: string) => preferenceService.showAddress(type, address);
   hideAddress = (type: string, address: string, brandName: string) => {
     preferenceService.hideAddress(type, address, brandName);
     const current = preferenceService.getCurrentAccount();
@@ -561,11 +528,7 @@ export class WalletController extends BaseController {
     await keyringService.removeAccount(address, type, brand);
     preferenceService.removeAddressBalance(address);
     const current = preferenceService.getCurrentAccount();
-    if (
-      current?.address === address &&
-      current.type === type &&
-      current.brandName === brand
-    ) {
+    if (current?.address === address && current.type === type && current.brandName === brand) {
       this.resetCurrentAccount();
     }
   };
@@ -695,18 +658,9 @@ export class WalletController extends BaseController {
     return stashKeyringId;
   };
 
-  signPersonalMessage = async (
-    type: string,
-    from: string,
-    data: string,
-    options?: any
-  ) => {
+  signPersonalMessage = async (type: string, from: string, data: string, options?: any) => {
     const keyring = await keyringService.getKeyringForAccount(from, type);
-    const res = await keyringService.signPersonalMessage(
-      keyring,
-      { from, data },
-      options
-    );
+    const res = await keyringService.signPersonalMessage(keyring, { from, data }, options);
     if (type === KEYRING_TYPE.WalletConnectKeyring) {
       eventBus.emit(EVENTS.broadcastToUI, {
         method: EVENTS.SIGN_FINISHED,
@@ -719,12 +673,7 @@ export class WalletController extends BaseController {
     return res;
   };
 
-  signTransaction = async (
-    type: string,
-    from: string,
-    data: any,
-    options?: any
-  ) => {
+  signTransaction = async (type: string, from: string, data: any, options?: any) => {
     const keyring = await keyringService.getKeyringForAccount(from, type);
     return keyringService.signTransaction(keyring, data, options);
   };
@@ -765,8 +714,7 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyringInstance);
   };
 
-  setIsDefaultWallet = (val: boolean) =>
-    preferenceService.setIsDefaultWallet(val);
+  setIsDefaultWallet = (val: boolean) => preferenceService.setIsDefaultWallet(val);
   isDefaultWallet = () => preferenceService.getIsDefaultWallet();
 
   private _getKeyringByType(type) {
@@ -875,7 +823,7 @@ export class WalletController extends BaseController {
     }
 
     return url;
-  }
+  };
 
   addTokenForFirebaseImage = (avatar: string): string => {
     if (!avatar) {
@@ -933,7 +881,6 @@ export class WalletController extends BaseController {
 
   checkAccessibleNft = async (childAccount) => {
     try {
-
       // const res = await openapiService.checkChildAccount(address);
       // const nfts = await openapiService.queryAccessible(
       //   '0x84221fe0294044d7',
@@ -948,10 +895,9 @@ export class WalletController extends BaseController {
 
       return nfts;
     } catch (error) {
-      console.log(error, 'error ===')
-      return []
+      console.log(error, 'error ===');
+      return [];
     }
-
   };
 
   checkAccessibleFt = async (childAccount) => {
@@ -959,10 +905,7 @@ export class WalletController extends BaseController {
 
     const address = await userWalletService.getMainWallet(network);
     // const res = await openapiService.checkChildAccount(address);
-    const result = await openapiService.queryAccessibleFt(
-      address,
-      childAccount
-    );
+    const result = await openapiService.queryAccessibleFt(address, childAccount);
     // openapiService.checkChildAccountNFT(address).then((res) => {
     //   console.log(res)
     // }).catch((err) => {
@@ -977,7 +920,7 @@ export class WalletController extends BaseController {
     const address = await userWalletService.getMainWallet(network);
 
     return address;
-  }
+  };
 
   fetchFlownsInbox = async () => {
     const info = await userInfoService.getUserInfo();
@@ -1039,7 +982,7 @@ export class WalletController extends BaseController {
     return listCoins;
   };
 
-  private tokenPrice = async (tokenSymbol: string, address: string, data, contractName: string,) => {
+  private tokenPrice = async (tokenSymbol: string, address: string, data, contractName: string) => {
     const token = tokenSymbol.toLowerCase();
     const key = contractName.toLowerCase() + '' + address.toLowerCase();
     const price = await openapiService.getPricesByKey(key, data);
@@ -1063,7 +1006,7 @@ export class WalletController extends BaseController {
         });
       default:
         if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } }
+          return { price: { last: price, change: { percentage: '0.0' } } };
         } else {
           return null;
         }
@@ -1092,16 +1035,18 @@ export class WalletController extends BaseController {
         });
       default:
         if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } }
+          return { price: { last: price, change: { percentage: '0.0' } } };
         } else {
           return { price: { last: 0, change: { percentage: '0.0' } } };
         }
     }
   };
 
-  refreshCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
+  refreshCoinList = async (
+    _expiry = 5000,
+    { signal } = { signal: new AbortController().signal }
+  ) => {
     try {
-
       const isChild = await this.getActiveWallet();
       if (isChild === 'evm') {
         const data = await this.refreshEvmList(_expiry);
@@ -1128,7 +1073,7 @@ export class WalletController extends BaseController {
       const pricesPromises = tokenList.map(async (token) => {
         try {
           if (Object.keys(data).length === 0 && data.constructor === Object) {
-            return { price: { last: '0.0', change: { percentage: '0.0' } } }
+            return { price: { last: '0.0', change: { percentage: '0.0' } } };
           } else {
             return await this.tokenPrice(token.symbol, token.address, data, token.contractName);
           }
@@ -1140,9 +1085,10 @@ export class WalletController extends BaseController {
 
       const pricesResults = await Promise.allSettled(pricesPromises);
 
-
       // Extract fulfilled prices
-      const allPrice = pricesResults.map(result => result.status === 'fulfilled' ? result.value : null);
+      const allPrice = pricesResults.map((result) =>
+        result.status === 'fulfilled' ? result.value : null
+      );
 
       const coins = tokenList.map((token, index) => {
         const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
@@ -1152,10 +1098,14 @@ export class WalletController extends BaseController {
           icon: token['logoURI'] || '',
           balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
           price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
-          change24h: allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
-            ? 0
-            : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
-          total: allPrice[index] === null ? 0 : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
+          change24h:
+            allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
+              ? 0
+              : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
+          total:
+            allPrice[index] === null
+              ? 0
+              : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
         };
       });
       coins.sort((a, b) => {
@@ -1187,7 +1137,10 @@ export class WalletController extends BaseController {
     }
   };
 
-  fetchTokenList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
+  fetchTokenList = async (
+    _expiry = 5000,
+    { signal } = { signal: new AbortController().signal }
+  ) => {
     const network = await this.getNetwork();
     try {
       const now = new Date();
@@ -1204,11 +1157,9 @@ export class WalletController extends BaseController {
       }
       throw err;
     }
-  }
+  };
 
   fetchBalance = async ({ signal } = { signal: new AbortController().signal }) => {
-
-
     const network = await this.getNetwork();
     const tokenList = await openapiService.getEnabledTokenList(network);
     try {
@@ -1237,7 +1188,9 @@ export class WalletController extends BaseController {
       const pricesResults = await Promise.allSettled(pricesPromises);
 
       // Extract fulfilled prices
-      const allPrice = pricesResults.map(result => result.status === 'fulfilled' ? result.value : null);
+      const allPrice = pricesResults.map((result) =>
+        result.status === 'fulfilled' ? result.value : null
+      );
 
       const coins = tokenList.map((token, index) => {
         const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
@@ -1247,10 +1200,14 @@ export class WalletController extends BaseController {
           icon: token['logoURI'] || '',
           balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
           price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
-          change24h: allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
-            ? 0
-            : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
-          total: allPrice[index] === null ? 0 : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
+          change24h:
+            allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
+              ? 0
+              : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
+          total:
+            allPrice[index] === null
+              ? 0
+              : this.currencyBalance(allBalanceMap[tokenId], allPrice[index].price.last),
         };
       });
       coins.sort((a, b) => {
@@ -1274,10 +1231,9 @@ export class WalletController extends BaseController {
       }
       throw err;
     }
-  }
+  };
 
   fetchCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
-
     const network = await this.getNetwork();
     try {
       await this.fetchTokenList(_expiry, { signal });
@@ -1299,42 +1255,35 @@ export class WalletController extends BaseController {
       }
       throw err;
     }
-  }
-
-
+  };
 
   refreshEvmList = async (_expiry = 5000) => {
     const now = new Date();
     const exp = _expiry + now.getTime();
     coinListService.setExpiry(exp);
 
-
     const network = await this.getNetwork();
-    const evmCustomToken = await storage.get(`${network}evmCustomToken`) || [];
+    const evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
 
     const tokenList = await openapiService.getTokenListFromGithub(network);
 
     const address = await this.getEvmAddress();
     if (!isValidEthereumAddress(address)) {
-
       return new Error('Invalid Ethereum address in coinlist');
     }
 
-    const allBalanceMap = await openapiService.getEvmFT(
-      address || '0x',
-      network
-    );
+    const allBalanceMap = await openapiService.getEvmFT(address || '0x', network);
 
     const flowBalance = await this.getBalance(address);
 
-
-
     const mergeBalances = (tokenList, allBalanceMap, flowBalance) => {
-      return tokenList.map(token => {
-        const balanceInfo = allBalanceMap.find(balance => {
+      return tokenList.map((token) => {
+        const balanceInfo = allBalanceMap.find((balance) => {
           return balance.address.toLowerCase() === token.address.toLowerCase();
         });
-        let balance = balanceInfo ? (Number(balanceInfo.balance) / Math.pow(10, balanceInfo.decimals)) : 0;
+        let balance = balanceInfo
+          ? Number(balanceInfo.balance) / Math.pow(10, balanceInfo.decimals)
+          : 0;
         // If the token unit is 'flow', set the balance to flowBalance
         if (token.symbol.toLowerCase() === 'flow') {
           balance = flowBalance / 1e18;
@@ -1342,11 +1291,10 @@ export class WalletController extends BaseController {
 
         return {
           ...token,
-          balance
+          balance,
         };
       });
     };
-
 
     // const customToken = (mergedList, evmCustomToken) => {
     //   return mergedList.map(token => {
@@ -1382,10 +1330,9 @@ export class WalletController extends BaseController {
     const customToken = (coins, evmCustomToken) => {
       const updatedList = [...coins];
 
-
-      evmCustomToken.forEach(customToken => {
+      evmCustomToken.forEach((customToken) => {
         // Check if the customToken already exists in mergedList
-        const existingToken = updatedList.find(token => {
+        const existingToken = updatedList.find((token) => {
           return token.unit.toLowerCase() === customToken.unit.toLowerCase();
         });
 
@@ -1394,14 +1341,13 @@ export class WalletController extends BaseController {
         } else {
           updatedList.push({
             custom: true,
-            "coin": customToken.coin,
-            "unit": customToken.unit,
-            "icon": "",
-            "balance": 0,
-            "price": 0,
-            "change24h": 0,
-            "total": 0
-
+            coin: customToken.coin,
+            unit: customToken.unit,
+            icon: '',
+            balance: 0,
+            price: 0,
+            change24h: 0,
+            total: 0,
           });
         }
       });
@@ -1421,31 +1367,20 @@ export class WalletController extends BaseController {
         unit: token.symbol,
         icon: token['logoURI'] || placeholder,
         balance: parseFloat(token.balance),
-        price:
-          allPrice[index] === null
-            ? 0
-            : new BN(allPrice[index].price.last).toNumber(),
+        price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
         change24h:
-          allPrice[index] === null ||
-            !allPrice[index].price ||
-            !allPrice[index].price.change
+          allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
             ? 0
-            : new BN(allPrice[index].price.change.percentage)
-              .multipliedBy(100)
-              .toNumber(),
+            : new BN(allPrice[index].price.change.percentage).multipliedBy(100).toNumber(),
         total:
           allPrice[index] === null
             ? 0
-            : this.currencyBalance(
-              token.balance,
-              allPrice[index].price.last
-            ),
-        custom: token.custom
+            : this.currencyBalance(token.balance, allPrice[index].price.last),
+        custom: token.custom,
       };
     });
 
     const coinWithCustom = await customToken(coins, evmCustomToken);
-
 
     coinWithCustom
       .sort((a, b) => {
@@ -1473,7 +1408,6 @@ export class WalletController extends BaseController {
   };
 
   reqeustEvmNftList = async () => {
-
     try {
       // Check if the nftList is already in storage and not expired
       const cachedNFTList = await storage.getExpiry('evmnftList');
@@ -1493,7 +1427,6 @@ export class WalletController extends BaseController {
   };
 
   fetchPreviewNetNft = async () => {
-
     try {
       // Check if the nftList is already in storage and not expired
       const cachedNFTList = await storage.getExpiry('previewNetNftList');
@@ -1507,7 +1440,7 @@ export class WalletController extends BaseController {
           `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/nfts.json`
         );
         const res = await response.json();
-        console.log('nftList ', res)
+        console.log('nftList ', res);
         const nftList = res.tokens;
         // Cache the nftList with a one-hour expiry (3600000 milliseconds)
         await storage.setExpiry('previewNetNftList', nftList, 3600000);
@@ -1519,14 +1452,12 @@ export class WalletController extends BaseController {
     }
   };
 
-
   requestCadenceNft = async () => {
     const network = await this.getNetwork();
     const address = await this.getCurrentAddress();
     const NFTList = await openapiService.getNFTCadenceList(address!, network);
     return NFTList;
   };
-
 
   requestMainNft = async () => {
     const network = await this.getNetwork();
@@ -1538,7 +1469,11 @@ export class WalletController extends BaseController {
   requestCollectionInfo = async (identifier) => {
     const network = await this.getNetwork();
     const address = await this.getCurrentAddress();
-    const NFTCollection = await openapiService.getNFTCadenceCollection(address!, network, identifier);
+    const NFTCollection = await openapiService.getNFTCadenceCollection(
+      address!,
+      network,
+      identifier
+    );
     return NFTCollection;
   };
 
@@ -1584,9 +1519,7 @@ export class WalletController extends BaseController {
     if (list && list.length > 0) {
       list.forEach((addressBook, index) => {
         if (list[index] && list[index].avatar) {
-          list[index].avatar = this.addTokenForFirebaseImage(
-            addressBook.avatar
-          );
+          list[index].avatar = this.addTokenForFirebaseImage(addressBook.avatar);
         }
       });
     }
@@ -1613,9 +1546,7 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const active = await userWalletService.getActiveWallet();
     const v2data = await openapiService.userWalletV2();
-    const filteredData = v2data.data.wallets.filter(
-      (item) => item.blockchain !== null
-    );
+    const filteredData = v2data.data.wallets.filter((item) => item.blockchain !== null);
 
     if (!active) {
       userInfoService.addUserId(v2data.data.id);
@@ -1684,8 +1615,7 @@ export class WalletController extends BaseController {
 
   setEvmAddress = async (address) => {
     await userWalletService.setEvmAddress(address);
-  }
-
+  };
 
   getEvmAddress = async () => {
     const wallet = await userWalletService.getEvmWallet();
@@ -1706,7 +1636,6 @@ export class WalletController extends BaseController {
   };
 
   getMainAddress = async () => {
-
     const network = await this.getNetwork();
     const address = await userWalletService.getMainWallet(network);
     if (!address) {
@@ -1723,67 +1652,52 @@ export class WalletController extends BaseController {
     return await userWalletService.sendTransaction(cadence, args);
   };
 
-
-
   createCOA = async (amount = '0.0'): Promise<string> => {
-
     const formattedAmount = parseFloat(amount).toFixed(8);
 
     const script = await getScripts('evm', 'createCoa');
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(formattedAmount, t.UFix64),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [fcl.arg(formattedAmount, t.UFix64)]);
   };
-
-
 
   createCoaEmpty = async (): Promise<string> => {
     const network = await this.getNetwork();
 
     const script = await getScripts('evm', 'createCoaEmpty');
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      []
-    );
+    return await userWalletService.sendTransaction(script, []);
   };
 
-
-
-  transferFlowEvm = async (recipientEVMAddressHex: string, amount = '1.0', gasLimit = 30000000): Promise<string> => {
+  transferFlowEvm = async (
+    recipientEVMAddressHex: string,
+    amount = '1.0',
+    gasLimit = 30000000
+  ): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
-
 
     const script = await getScripts('evm', 'transferFlowToEvmAddress');
     if (recipientEVMAddressHex.startsWith('0x')) {
       recipientEVMAddressHex = recipientEVMAddressHex.substring(2);
     }
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(recipientEVMAddressHex, t.String),
-        fcl.arg(formattedAmount, t.UFix64),
-        fcl.arg(gasLimit, t.UInt64),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(recipientEVMAddressHex, t.String),
+      fcl.arg(formattedAmount, t.UFix64),
+      fcl.arg(gasLimit, t.UInt64),
+    ]);
   };
 
-
-
-  transferFTToEvm = async (tokenContractAddress: string, tokenContractName: string, amount = '1.0', contractEVMAddress: string, data, gas): Promise<string> => {
+  transferFTToEvm = async (
+    tokenContractAddress: string,
+    tokenContractName: string,
+    amount = '1.0',
+    contractEVMAddress: string,
+    data,
+    gas
+  ): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
-
-
 
     const script = await getScripts('bridge', 'bridgeTokensToEvmAddress');
     if (contractEVMAddress.startsWith('0x')) {
@@ -1794,43 +1708,39 @@ export class WalletController extends BaseController {
     const regularArray = Array.from(dataArray);
     const gasLimit = 30000000;
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(tokenContractAddress, t.Address),
-        fcl.arg(tokenContractName, t.String),
-        fcl.arg(formattedAmount, t.UFix64),
-        fcl.arg(contractEVMAddress, t.String),
-        fcl.arg(regularArray, t.Array(t.UInt8)),
-        fcl.arg(gasLimit, t.UInt64),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(tokenContractAddress, t.Address),
+      fcl.arg(tokenContractName, t.String),
+      fcl.arg(formattedAmount, t.UFix64),
+      fcl.arg(contractEVMAddress, t.String),
+      fcl.arg(regularArray, t.Array(t.UInt8)),
+      fcl.arg(gasLimit, t.UInt64),
+    ]);
   };
 
-
-
-  transferFTToEvmV2 = async (vaultIdentifier: string, amount = '1.0', recipient): Promise<string> => {
+  transferFTToEvmV2 = async (
+    vaultIdentifier: string,
+    amount = '1.0',
+    recipient
+  ): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-
-
     const script = await getScripts('bridge', 'bridgeTokensToEvmAddressV2');
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(vaultIdentifier, t.String),
-        fcl.arg(formattedAmount, t.UFix64),
-        fcl.arg(recipient, t.String),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(vaultIdentifier, t.String),
+      fcl.arg(formattedAmount, t.UFix64),
+      fcl.arg(recipient, t.String),
+    ]);
   };
 
-
-  transferFTFromEvm = async (flowidentifier: string, amount = '1.0', receiver: string, tokenResult): Promise<string> => {
+  transferFTFromEvm = async (
+    flowidentifier: string,
+    amount = '1.0',
+    receiver: string,
+    tokenResult
+  ): Promise<string> => {
     const network = await this.getNetwork();
     const amountStr = amount.toString();
 
@@ -1843,87 +1753,52 @@ export class WalletController extends BaseController {
     const integerAmount = amountBN.multipliedBy(scaleFactor);
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
 
-
-    console.log('integerAmountStr amount ', integerAmountStr, amount)
+    console.log('integerAmountStr amount ', integerAmountStr, amount);
     const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlowV2');
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(flowidentifier, t.String),
-        fcl.arg(integerAmountStr, t.UInt256),
-        fcl.arg(receiver, t.Address),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(flowidentifier, t.String),
+      fcl.arg(integerAmountStr, t.UInt256),
+      fcl.arg(receiver, t.Address),
+    ]);
   };
-
-
 
   withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
     const script = await getScripts('evm', 'withdrawCoa');
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(formattedAmount, t.UFix64),
-        fcl.arg(address, t.Address),
-      ]
-
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(formattedAmount, t.UFix64),
+      fcl.arg(address, t.Address),
+    ]);
   };
-
-
-
 
   fundFlowEvm = async (amount = '1.0'): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-
     const script = await getScripts('evm', 'fundCoa');
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(formattedAmount, t.UFix64),
-      ]
-
-    );
+    return await userWalletService.sendTransaction(script, [fcl.arg(formattedAmount, t.UFix64)]);
   };
-
-
-
 
   coaLink = async (amount = '1.0'): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-
     const script = await getScripts('evm', 'coaLink');
 
-    const result = await userWalletService.sendTransaction(
-      script
-      ,
-      [
-      ]
-
-    );
-    console.log('coaLink resutl ', result)
+    const result = await userWalletService.sendTransaction(script, []);
+    console.log('coaLink resutl ', result);
     return result;
   };
-
-
 
   checkCoaLink = async (): Promise<any> => {
     const checkedAddress = await storage.get('coacheckAddress');
 
     const script = await getScripts('evm', 'checkCoaLink');
     const mainAddress = await this.getMainWallet();
-    console.log('getscript script ', mainAddress)
+    console.log('getscript script ', mainAddress);
     if (checkedAddress === mainAddress) {
       return true;
     } else {
@@ -1934,37 +1809,23 @@ export class WalletController extends BaseController {
       if (result) {
         await storage.set('coacheckAddress', mainAddress);
       }
-      return result
+      return result;
     }
   };
-
-
-
 
   bridgeToEvm = async (flowIndentifier, amount = '1.0'): Promise<string> => {
     const network = await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
-
     const script = await getScripts('bridge', 'bridgeTokensToEvmV2');
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(flowIndentifier, t.String),
-        fcl.arg(formattedAmount, t.UFix64),
-      ]
-
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(flowIndentifier, t.String),
+      fcl.arg(formattedAmount, t.UFix64),
+    ]);
   };
 
-
-
-
   bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
-
-
     const amountStr = amount.toString();
 
     const amountBN = new BN(amountStr.replace('.', ''));
@@ -1978,18 +1839,11 @@ export class WalletController extends BaseController {
 
     const script = await getScripts('bridge', 'bridgeTokensFromEvmV2');
 
-    return await userWalletService.sendTransaction(
-      script
-      ,
-      [
-        fcl.arg(flowIdentifier, t.String),
-        fcl.arg(integerAmountStr, t.UInt256),
-      ]
-
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(flowIdentifier, t.String),
+      fcl.arg(integerAmountStr, t.UInt256),
+    ]);
   };
-
-
 
   queryEvmAddress = async (address: string): Promise<string | null> => {
     if (address.length > 20) {
@@ -2044,16 +1898,13 @@ export class WalletController extends BaseController {
       }
     }
     return true;
-  }
-
-
+  };
 
   sendEvmTransaction = async (to: string, gas, value, data) => {
     if (to.startsWith('0x')) {
       to = to.substring(2);
     }
     const network = await this.getNetwork();
-
 
     const script = await getScripts('evm', 'callContract');
     const gasLimit = 30000000;
@@ -2082,7 +1933,6 @@ export class WalletController extends BaseController {
       amount = parseFloat(amount).toFixed(8);
     }
 
-
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
       fcl.arg(amount, t.UFix64),
@@ -2097,15 +1947,11 @@ export class WalletController extends BaseController {
     // return result;
   };
 
-
-
-
   dapSendEvmTX = async (to: string, gas, value, data) => {
     if (to.startsWith('0x')) {
       to = to.substring(2);
     }
     const network = await this.getNetwork();
-
 
     const script = await getScripts('evm', 'callContract');
     const gasLimit = 30000000;
@@ -2153,19 +1999,20 @@ export class WalletController extends BaseController {
       fcl.arg(gasLimit, t.UInt64),
     ]);
 
-    console.log('result ', result)
+    console.log('result ', result);
     const res = await fcl.tx(result).onceSealed();
-    const transactionExecutedEvent = res.events.find(event => event.type.includes('TransactionExecuted'));
+    const transactionExecutedEvent = res.events.find((event) =>
+      event.type.includes('TransactionExecuted')
+    );
 
     if (transactionExecutedEvent) {
       const hash = transactionExecutedEvent.data.hash;
-      const hashHexString = hash.map(num => parseInt(num).toString(16).padStart(2, '0')).join('');
+      const hashHexString = hash.map((num) => parseInt(num).toString(16).padStart(2, '0')).join('');
 
       return hashHexString;
     } else {
       console.log('Transaction Executed event not found');
     }
-
 
     // const transaction = await fcl.tx(result).onceSealed();
     // console.log('transaction ', transaction);
@@ -2173,11 +2020,8 @@ export class WalletController extends BaseController {
     // return result;
   };
 
-
-
   getBalance = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
-
 
     if (hexEncodedAddress.startsWith('0x')) {
       hexEncodedAddress = hexEncodedAddress.substring(2);
@@ -2192,19 +2036,13 @@ export class WalletController extends BaseController {
     return result;
   };
 
-
-
   getFlowBalance = async (address) => {
     const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
     return account.balance;
   };
 
-
-
   getNonce = async (hexEncodedAddress: string): Promise<string> => {
     const network = await this.getNetwork();
-
-
 
     const script = await getScripts('evm', 'getNonce');
 
@@ -2219,18 +2057,14 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const script = await getScripts('hybridCustody', 'getChildAccountMeta');
 
-    return await userWalletService.sendTransaction(script, [
-      fcl.arg(address, t.Address),
-    ]);
+    return await userWalletService.sendTransaction(script, [fcl.arg(address, t.Address)]);
   };
 
   unlinkChildAccountV2 = async (address: string): Promise<string> => {
     const network = await this.getNetwork();
     const script = await getScripts('hybridCustody', 'unlinkChildAccount');
 
-    return await userWalletService.sendTransaction(script, [
-      fcl.arg(address, t.Address),
-    ]);
+    return await userWalletService.sendTransaction(script, [fcl.arg(address, t.Address)]);
   };
 
   editChildAccount = async (
@@ -2251,11 +2085,7 @@ export class WalletController extends BaseController {
   };
 
   // TODO: Replace with generic token
-  transferTokens = async (
-    symbol: string,
-    address: string,
-    amount: string
-  ): Promise<string> => {
+  transferTokens = async (symbol: string, address: string, amount: string): Promise<string> => {
     const token = await openapiService.getTokenInfo(symbol);
     if (!token) {
       throw new Error(`Invaild token name - ${symbol}`);
@@ -2280,8 +2110,6 @@ export class WalletController extends BaseController {
     address: string,
     amount: string
   ): Promise<string> => {
-
-
     const token = await openapiService.getTokenInfo(symbol);
     const script = await getScripts('ft', 'transferTokens');
 
@@ -2304,9 +2132,7 @@ export class WalletController extends BaseController {
   revokeKey = async (index: string): Promise<string> => {
     const script = await getScripts('basic', 'revokeKey');
 
-    return await userWalletService.sendTransaction(script, [
-      fcl.arg(index, t.Int),
-    ]);
+    return await userWalletService.sendTransaction(script, [fcl.arg(index, t.Int)]);
   };
 
   addKeyToAccount = async (
@@ -2436,9 +2262,9 @@ export class WalletController extends BaseController {
   enableNFTStorageLocal = async (token: NFTModel) => {
     const script = await getScripts('collection', 'enableNFTStorage');
     if (token['contractName']) {
-      token.contract_name = token['contractName']
-      token.path.storage_path = token['path']['storage']
-      token.path.public_path = token['path']['public']
+      token.contract_name = token['contractName'];
+      token.path.storage_path = token['path']['storage'];
+      token.path.public_path = token['path']['public'];
     }
     return await userWalletService.sendTransaction(
       script
@@ -2470,11 +2296,7 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenReceiverPath>', token.path.receiver)
         .replaceAll('<TokenStoragePath>', token.path.vault)
         .replaceAll('<TokenAddress>', token.address),
-      [
-        fcl.arg(childAddress, t.Address),
-        fcl.arg(path, t.String),
-        fcl.arg(amount, t.UFix64),
-      ]
+      [fcl.arg(childAddress, t.Address), fcl.arg(path, t.String), fcl.arg(amount, t.UFix64)]
     );
   };
 
@@ -2514,7 +2336,7 @@ export class WalletController extends BaseController {
     ids: number,
     token
   ): Promise<string> => {
-    console.log('script is this ', nftContractAddress)
+    console.log('script is this ', nftContractAddress);
 
     const script = await getScripts('hybridCustody', 'transferChildNFT');
 
@@ -2540,7 +2362,6 @@ export class WalletController extends BaseController {
     ids: number,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'sendChildNFT');
 
     return await userWalletService.sendTransaction(
@@ -2565,7 +2386,6 @@ export class WalletController extends BaseController {
     ids: number,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'transferNFTToChild');
     return await userWalletService.sendTransaction(
       script
@@ -2574,78 +2394,46 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionStoragePath>', token.path.storage_path)
         .replaceAll('<CollectionPublicType>', token.path.public_type)
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
-      [
-        fcl.arg(linkedAddress, t.Address),
-        fcl.arg(path, t.String),
-        fcl.arg(ids, t.UInt64),
-      ]
+      [fcl.arg(linkedAddress, t.Address), fcl.arg(path, t.String), fcl.arg(ids, t.UInt64)]
     );
   };
 
-  getChildAccountAllowTypes = async (
-    parent: string,
-    child: string,
-  ) => {
-
+  getChildAccountAllowTypes = async (parent: string, child: string) => {
     const script = await getScripts('hybridCustody', 'getChildAccountAllowTypes');
     const result = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(parent, t.Address), arg(child, t.Address)],
     });
-    return result
+    return result;
   };
 
-
-
-  checkChildLinkedVault = async (
-    parent: string,
-    child: string,
-    path: string,
-  ): Promise<string> => {
-
+  checkChildLinkedVault = async (parent: string, child: string, path: string): Promise<string> => {
     const script = await getScripts('hybridCustody', 'checkChildLinkedVaults');
 
     const result = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(parent, t.Address), arg(child, t.Address), fcl.arg(path, t.String)],
     });
-    return result
+    return result;
   };
 
-  batchBridgeNftToEvm = async (
-    flowIdentifier: string,
-    ids: Array<number>,
-  ): Promise<string> => {
-
+  batchBridgeNftToEvm = async (flowIdentifier: string, ids: Array<number>): Promise<string> => {
     const script = await getScripts('bridge', 'batchBridgeNFTToEvmV2');
 
-    return await userWalletService.sendTransaction(
-      script,
-      [
-        fcl.arg(flowIdentifier, t.String),
-        fcl.arg(ids, t.Array(t.UInt64)),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(flowIdentifier, t.String),
+      fcl.arg(ids, t.Array(t.UInt64)),
+    ]);
   };
 
-
-  batchBridgeNftFromEvm = async (
-    flowIdentifier: string,
-    ids: Array<number>,
-  ): Promise<string> => {
-
+  batchBridgeNftFromEvm = async (flowIdentifier: string, ids: Array<number>): Promise<string> => {
     const script = await getScripts('bridge', 'batchBridgeNFTFromEvmV2');
 
-    return await userWalletService.sendTransaction(
-      script,
-      [
-        fcl.arg(flowIdentifier, t.String),
-        fcl.arg(ids, t.Array(t.UInt256)),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(flowIdentifier, t.String),
+      fcl.arg(ids, t.Array(t.UInt256)),
+    ]);
   };
-
-
 
   batchTransferNFTToChild = async (
     childAddr: string,
@@ -2653,7 +2441,6 @@ export class WalletController extends BaseController {
     ids: Array<number>,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'batchTransferNFTToChild');
 
     return await userWalletService.sendTransaction(
@@ -2671,15 +2458,12 @@ export class WalletController extends BaseController {
     );
   };
 
-
-
   batchTransferChildNft = async (
     childAddr: string,
     identifier: string,
     ids: Array<number>,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'batchTransferChildNFT');
     return await userWalletService.sendTransaction(
       script
@@ -2703,7 +2487,6 @@ export class WalletController extends BaseController {
     ids: Array<number>,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'batchSendChildNFTToChild');
 
     return await userWalletService.sendTransaction(
@@ -2728,7 +2511,6 @@ export class WalletController extends BaseController {
     ids: Array<number>,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'batchBridgeChildNFTToEvm');
 
     return await userWalletService.sendTransaction(
@@ -2749,19 +2531,15 @@ export class WalletController extends BaseController {
   batchBridgeChildNFTFromEvm = async (
     childAddr: string,
     identifier: string,
-    ids: Array<number>,
+    ids: Array<number>
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'batchBridgeChildNFTFromEvm');
 
-    return await userWalletService.sendTransaction(
-      script,
-      [
-        fcl.arg(identifier, t.String),
-        fcl.arg(childAddr, t.Address),
-        fcl.arg(ids, t.Array(t.UInt256)),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(identifier, t.String),
+      fcl.arg(childAddr, t.Address),
+      fcl.arg(ids, t.Array(t.UInt256)),
+    ]);
   };
 
   bridgeChildFTToEvm = async (
@@ -2770,7 +2548,6 @@ export class WalletController extends BaseController {
     amount: number,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'bridgeChildFTToEvm');
 
     return await userWalletService.sendTransaction(
@@ -2780,11 +2557,7 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionStoragePath>', token.path.storage_path)
         .replaceAll('<CollectionPublicType>', token.path.public_type)
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
-      [
-        fcl.arg(identifier, t.String),
-        fcl.arg(childAddr, t.Address),
-        fcl.arg(amount, t.UFix64),
-      ]
+      [fcl.arg(identifier, t.String), fcl.arg(childAddr, t.Address), fcl.arg(amount, t.UFix64)]
     );
   };
 
@@ -2794,7 +2567,6 @@ export class WalletController extends BaseController {
     ids: Array<number>,
     token
   ): Promise<string> => {
-
     const script = await getScripts('hybridCustody', 'bridgeChildFTFromEvm');
 
     return await userWalletService.sendTransaction(
@@ -2804,11 +2576,7 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionStoragePath>', token.path.storage_path)
         .replaceAll('<CollectionPublicType>', token.path.public_type)
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
-      [
-        fcl.arg(vaultIdentifier, t.String),
-        fcl.arg(childAddr, t.Address),
-        fcl.arg(ids, t.UInt256),
-      ]
+      [fcl.arg(vaultIdentifier, t.String), fcl.arg(childAddr, t.Address), fcl.arg(ids, t.UInt256)]
     );
   };
 
@@ -2818,9 +2586,8 @@ export class WalletController extends BaseController {
     ids: number,
     contractEVMAddress: string,
     data: any,
-    gas: any,
+    gas: any
   ): Promise<string> => {
-
     const script = await getScripts('bridge', 'bridgeNFTToEvmAddress');
 
     const gasLimit = 30000000;
@@ -2832,61 +2599,44 @@ export class WalletController extends BaseController {
       nftContractAddress = '0x' + nftContractAddress;
     }
 
-
     if (contractEVMAddress.startsWith('0x')) {
       contractEVMAddress = contractEVMAddress.substring(2);
     }
 
-    return await userWalletService.sendTransaction(
-      script,
-      [
-        fcl.arg(nftContractAddress, t.Address),
-        fcl.arg(nftContractName, t.String),
-        fcl.arg(ids, t.UInt64),
-        fcl.arg(contractEVMAddress, t.String),
-        fcl.arg(regularArray, t.Array(t.UInt8)),
-        fcl.arg(gasLimit, t.UInt64),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(nftContractAddress, t.Address),
+      fcl.arg(nftContractName, t.String),
+      fcl.arg(ids, t.UInt64),
+      fcl.arg(contractEVMAddress, t.String),
+      fcl.arg(regularArray, t.Array(t.UInt8)),
+      fcl.arg(gasLimit, t.UInt64),
+    ]);
   };
-
 
   bridgeNftFromEvmToFlow = async (
     flowIdentifier: string,
     ids: number,
-    receiver: string,
+    receiver: string
   ): Promise<string> => {
-
     const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlowV2');
 
-    return await userWalletService.sendTransaction(
-      script,
-      [
-        fcl.arg(flowIdentifier, t.String),
-        fcl.arg(ids, t.UInt256),
-        fcl.arg(receiver, t.Address),
-      ]
-    );
+    return await userWalletService.sendTransaction(script, [
+      fcl.arg(flowIdentifier, t.String),
+      fcl.arg(ids, t.UInt256),
+      fcl.arg(receiver, t.Address),
+    ]);
   };
 
-
-  getAssociatedFlowIdentifier = async (
-    address: string,
-  ): Promise<string> => {
+  getAssociatedFlowIdentifier = async (address: string): Promise<string> => {
     const script = await getScripts('bridge', 'getAssociatedFlowIdentifier');
     const result = await fcl.query({
       cadence: script,
       args: (arg, t) => [arg(address, t.String)],
     });
-    return result
+    return result;
   };
 
-
-  sendNFT = async (
-    recipient: string,
-    id: any,
-    token: any
-  ): Promise<string> => {
+  sendNFT = async (recipient: string, id: any, token: any): Promise<string> => {
     const network = await this.getNetwork();
     const script = await getScripts('collection', 'sendNFT');
 
@@ -2900,11 +2650,7 @@ export class WalletController extends BaseController {
     );
   };
 
-  sendNBANFT = async (
-    recipient: string,
-    id: any,
-    token: NFTModel
-  ): Promise<string> => {
+  sendNBANFT = async (recipient: string, id: any, token: NFTModel): Promise<string> => {
     const network = await this.getNetwork();
     const script = await getScripts('collection', 'sendNbaNFT');
 
@@ -2918,11 +2664,7 @@ export class WalletController extends BaseController {
     );
   };
 
-  sendInboxNFT = async (
-    recipient: string,
-    id: any,
-    token: any
-  ): Promise<string> => {
+  sendInboxNFT = async (recipient: string, id: any, token: any): Promise<string> => {
     const script = await getScripts('domain', 'sendInboxNFT');
 
     return await userWalletService.sendTransaction(
@@ -2959,17 +2701,12 @@ export class WalletController extends BaseController {
     const tokenOutKey = swapPaths[swapPaths.length - 1];
     const arr = tokenOutKey.split('.');
     if (arr.length != 3) {
-      throw Error(
-        `Invalid TokenKey String, expect [A.adress.name] got ${tokenOutKey}`
-      );
+      throw Error(`Invalid TokenKey String, expect [A.adress.name] got ${tokenOutKey}`);
     }
     const tokenName = arr[2];
     const tokenAddress = `0x${arr[1]}`;
     return await userWalletService.sendTransaction(
-      CODE.replaceAll('Token1Name', tokenName).replaceAll(
-        'Token1Addr',
-        tokenAddress
-      ),
+      CODE.replaceAll('Token1Name', tokenName).replaceAll('Token1Addr', tokenAddress),
       [
         fcl.arg(swapPaths, t.Array(t.String)),
         fcl.arg(tokenOutSplit, t.Array(t.UFix64)),
@@ -3005,17 +2742,12 @@ export class WalletController extends BaseController {
     const tokenOutKey = swapPaths[swapPaths.length - 1];
     const arr = tokenOutKey.split('.');
     if (arr.length != 3) {
-      throw Error(
-        `Invalid TokenKey String, expect [A.adress.name] got ${tokenOutKey}`
-      );
+      throw Error(`Invalid TokenKey String, expect [A.adress.name] got ${tokenOutKey}`);
     }
     const tokenName = arr[2];
     const tokenAddress = `0x${arr[1]}`;
     return await userWalletService.sendTransaction(
-      CODE.replaceAll('Token1Name', tokenName).replaceAll(
-        'Token1Addr',
-        tokenAddress
-      ),
+      CODE.replaceAll('Token1Name', tokenName).replaceAll('Token1Addr', tokenAddress),
       [
         fcl.arg(swapPaths, t.Array(t.String)),
         fcl.arg(tokenInSplit, t.Array(t.UFix64)),
@@ -3031,12 +2763,7 @@ export class WalletController extends BaseController {
 
   //transaction
 
-  getTransaction = async (
-    address: string,
-    limit: number,
-    offset: number,
-    _expiry = 60000
-  ) => {
+  getTransaction = async (address: string, limit: number, offset: number, _expiry = 60000) => {
     const network = await this.getNetwork();
     const now = new Date();
     const expiry = transactionService.getExpiry();
@@ -3066,12 +2793,7 @@ export class WalletController extends BaseController {
     return pending;
   };
 
-  refreshTransaction = async (
-    address: string,
-    limit: number,
-    offset: number,
-    _expiry = 5000
-  ) => {
+  refreshTransaction = async (address: string, limit: number, offset: number, _expiry = 5000) => {
     const network = await this.getNetwork();
     const now = new Date();
     const exp = _expiry + now.getTime();
@@ -3081,20 +2803,20 @@ export class WalletController extends BaseController {
     if (isChild === 'evm') {
       let evmAddress = await this.queryEvmAddress(address);
       if (!evmAddress!.startsWith('0x')) {
-        evmAddress = '0x' + evmAddress
+        evmAddress = '0x' + evmAddress;
       }
       const evmResult = await openapiService.getEVMTransfers(evmAddress!, '', limit);
       if (evmResult) {
-        dataResult['transactions'] = evmResult.trxs
+        dataResult['transactions'] = evmResult.trxs;
         if (evmResult.next_page_params) {
-          dataResult['total'] = evmResult.next_page_params.items_count
+          dataResult['total'] = evmResult.next_page_params.items_count;
         } else {
-          dataResult['total'] = evmResult.trxs.length
+          dataResult['total'] = evmResult.trxs.length;
         }
       }
     } else {
       const res = await openapiService.getTransfers(address, '', limit);
-      dataResult = res.data
+      dataResult = res.data;
     }
 
     transactionService.setTransaction(dataResult, network);
@@ -3119,18 +2841,8 @@ export class WalletController extends BaseController {
     return proxyService.requestJwt();
   };
 
-  signInV3 = async (
-    mnemonic: string,
-    accountKey: any,
-    deviceInfo: any,
-    replaceUser = true
-  ) => {
-    return userWalletService.signInv3(
-      mnemonic,
-      accountKey,
-      deviceInfo,
-      replaceUser
-    );
+  signInV3 = async (mnemonic: string, accountKey: any, deviceInfo: any, replaceUser = true) => {
+    return userWalletService.signInv3(mnemonic, accountKey, deviceInfo, replaceUser);
   };
 
   signMessage = async (message: string): Promise<string> => {
@@ -3138,12 +2850,11 @@ export class WalletController extends BaseController {
   };
   abortController = new AbortController();
   abort() {
-    this.abortController.abort();  // Abort ongoing operations
-    this.abortController = new AbortController();  // Create a new controller for subsequent operations
+    this.abortController.abort(); // Abort ongoing operations
+    this.abortController = new AbortController(); // Create a new controller for subsequent operations
   }
 
   switchNetwork = async (network: string) => {
-
     await userWalletService.setNetwork(network);
     eventBus.emit('switchNetwork', network);
     if (network === 'testnet') {
@@ -3175,7 +2886,6 @@ export class WalletController extends BaseController {
     return userWalletService.getMonitor();
   };
 
-
   refreshAll = async () => {
     await this.refreshUserWallets();
     this.clearNFT();
@@ -3198,7 +2908,7 @@ export class WalletController extends BaseController {
 
   clearChildAccount = () => {
     storage.remove('checkUserChildAccount');
-  }
+  };
 
   getEvmEnabled = async (): Promise<boolean> => {
     const address = await this.getEvmAddress();
@@ -3211,11 +2921,11 @@ export class WalletController extends BaseController {
 
   refreshEvmWallets = () => {
     userWalletService.refreshEvm();
-  }
+  };
 
   clearWallet = () => {
     userWalletService.clear();
-  }
+  };
 
   getFlowscanUrl = async (): Promise<string> => {
     const network = await this.getNetwork();
@@ -3288,11 +2998,7 @@ export class WalletController extends BaseController {
     }
 
     const fetchReport = async () =>
-      (
-        await fetch(
-          `https://rest-${network}.onflow.org/v1/transaction_results/${txId}`
-        )
-      ).json();
+      (await fetch(`https://rest-${network}.onflow.org/v1/transaction_results/${txId}`)).json();
     const validate = (result) => result.status !== 'Sealed';
     return await this.poll(fetchReport, validate, 3000);
   };
@@ -3333,15 +3039,10 @@ export class WalletController extends BaseController {
         msg: 'transactionDone',
       });
       if (sendNotification) {
-        notification.create(
-          `${baseURL}/transaction/${txId}`,
-          title,
-          body,
-          icon
-        );
+        notification.create(`${baseURL}/transaction/${txId}`, title, body, icon);
       }
     } catch (err) {
-      console.log('listen erro ', err)
+      console.log('listen erro ', err);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await chrome.storage.session.remove('transactionPending');
@@ -3435,11 +3136,7 @@ export class WalletController extends BaseController {
     return list;
   };
 
-  getSingleCollection = async (
-    address: string,
-    contract: string,
-    offset = 0
-  ) => {
+  getSingleCollection = async (address: string, contract: string, offset = 0) => {
     const network = await this.getNetwork();
     const data = await openapiService.nftCatalogCollectionList(
       address!,
@@ -3460,18 +3157,14 @@ export class WalletController extends BaseController {
     return data;
   };
 
-  getSingleCollectionv2 = async (
-    address: string,
-    contract: string,
-    offset = 0
-  ) => {
+  getSingleCollectionv2 = async (address: string, contract: string, offset = 0) => {
     const network = await this.getNetwork();
     const data = await openapiService.getNFTCadenceCollection(
       address!,
       network,
       contract,
       offset,
-      24,
+      24
     );
 
     data.nfts.map((nft) => {
@@ -3519,11 +3212,7 @@ export class WalletController extends BaseController {
 
     const now = new Date();
     const exp = 1000 * 60 * 60 * 1 + now.getTime();
-    if (
-      catStorage &&
-      catStorage['expiry'] &&
-      now.getTime() <= catStorage['expiry']
-    ) {
+    if (catStorage && catStorage['expiry'] && now.getTime() <= catStorage['expiry']) {
       return catStorage['data'];
     }
 
@@ -3556,7 +3245,7 @@ export class WalletController extends BaseController {
       const cadenceScriptsV2 = (await openapiService.cadenceScriptsV2()) ?? {};
       // const { scripts, version } = cadenceScriptsV2;
       // const cadenceVersion = cadenceScriptsV2.version;
-      const cadence = cadenceScriptsV2.scripts[network]
+      const cadence = cadenceScriptsV2.scripts[network];
 
       // for (const item of cadence) {
       //   console.log(cadenceVersion, 'cadenceVersion');
@@ -3583,11 +3272,7 @@ export class WalletController extends BaseController {
 
     const now = new Date();
     const exp = 1000 * 60 * 60 * 1 + now.getTime();
-    if (
-      swapStorage &&
-      swapStorage['expiry'] &&
-      now.getTime() <= swapStorage['expiry']
-    ) {
+    if (swapStorage && swapStorage['expiry'] && now.getTime() <= swapStorage['expiry']) {
       return swapStorage['data'];
     }
 
@@ -3603,9 +3288,7 @@ export class WalletController extends BaseController {
 
   reset = async () => {
     await keyringService.loadStore(undefined);
-    keyringService.store.subscribe((value) =>
-      storage.set('keyringState', value)
-    );
+    keyringService.store.subscribe((value) => storage.set('keyringState', value));
   };
 
   // Google Drive - Backup
@@ -3652,12 +3335,7 @@ export class WalletController extends BaseController {
   uploadMnemonicToGoogleDrive = async (mnemonic, username, password) => {
     const app = getApp(process.env.NODE_ENV!);
     const user = await getAuth(app).currentUser;
-    return googleDriveService.uploadMnemonicToGoogleDrive(
-      mnemonic,
-      username,
-      user!.uid,
-      password
-    );
+    return googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
   };
 
   loadBackupAccounts = async (): Promise<string[]> => {
@@ -3711,12 +3389,7 @@ export class WalletController extends BaseController {
   };
 
   flownsResponse = async (script, domain, flownsAddress, lilicoAddress) => {
-    const resp = await flownsService.sendTransaction(
-      script,
-      domain,
-      flownsAddress,
-      lilicoAddress
-    );
+    const resp = await flownsService.sendTransaction(script, domain, flownsAddress, lilicoAddress);
     return resp;
   };
 
@@ -3781,11 +3454,7 @@ export class WalletController extends BaseController {
   };
 
   withdrawUnstaked = async (amount, node, delegate) => {
-    const result = await stakingService.withdrawUnstaked(
-      amount,
-      node,
-      delegate
-    );
+    const result = await stakingService.withdrawUnstaked(amount, node, delegate);
     return result;
   };
 
@@ -3814,17 +3483,12 @@ export class WalletController extends BaseController {
 
     const accountKey = {
       public_key: pubKey,
-      hash_algo:
-        typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo:
-        typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
+      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: weight,
     };
 
-    const result = await openapiService.createFlowNetworkAddress(
-      accountKey,
-      network
-    );
+    const result = await openapiService.createFlowNetworkAddress(accountKey, network);
     return result;
   };
 
@@ -3833,18 +3497,15 @@ export class WalletController extends BaseController {
     return result;
   };
 
-
-
   getAccount = async () => {
     const address = await this.getCurrentAddress();
     const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
     return account;
   };
 
-
   getEmoji = async () => {
     const currentId = await storage.get('currentId');
-    let emojires = await storage.get(`${currentId}emoji`)
+    let emojires = await storage.get(`${currentId}emoji`);
     if (!emojires) {
       const index1 = Math.floor(Math.random() * emoji.emojis.length);
       let index2;
@@ -3854,16 +3515,15 @@ export class WalletController extends BaseController {
       } while (index1 === index2);
 
       emojires = [emoji.emojis[index1], emoji.emojis[index2]];
-      storage.set(`${currentId}emoji`, emojires)
+      storage.set(`${currentId}emoji`, emojires);
     }
 
     return emojires;
   };
 
-
   setEmoji = async (emoji, type) => {
     const currentId = await storage.get('currentId');
-    let emojires = await storage.get(`${currentId}emoji`)
+    let emojires = await storage.get(`${currentId}emoji`);
     if (!emojires) {
       const index1 = Math.floor(Math.random() * emoji.emojis.length);
       let index2;
@@ -3875,12 +3535,12 @@ export class WalletController extends BaseController {
       emojires = [emoji.emojis[index1], emoji.emojis[index2]];
     }
     if (type === 'evm') {
-      emojires[1] = emoji
+      emojires[1] = emoji;
     } else {
-      emojires[0] = emoji
+      emojires[0] = emoji;
     }
 
-    await storage.set(`${currentId}emoji`, emojires)
+    await storage.set(`${currentId}emoji`, emojires);
 
     return emojires;
   };
@@ -3912,7 +3572,6 @@ export class WalletController extends BaseController {
   resetNews = async () => {
     return await newsService.clear();
   };
-
 }
 
 export default new WalletController();

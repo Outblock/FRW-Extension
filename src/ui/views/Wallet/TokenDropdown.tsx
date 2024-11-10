@@ -66,7 +66,7 @@ const TokenDropdown = () => {
         <MenuItem
           onClick={goToCustom}
           sx={{
-            padding: '0', 
+            padding: '0',
             '& .MuiListItem-root': {
               padding: '0',
             },
@@ -75,7 +75,6 @@ const TokenDropdown = () => {
           Add Custom Token
         </MenuItem>
       </Menu>
-
     </Box>
   );
 };

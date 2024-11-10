@@ -30,35 +30,43 @@ import IconCheckmark from '../../../components/iconfont/IconCheckmark';
 //   },
 // }));
 
-const TokenItem = ({token, isLoading, enabledList, onClick}) => {
+const TokenItem = ({ token, isLoading, enabledList, onClick }) => {
   const [isEnabled, setEnabled] = useState(false);
 
   const checkStorageStatus = async () => {
-    const isEnabled = enabledList.map(item => item.contractName).includes(token.contractName)
+    const isEnabled = enabledList.map((item) => item.contractName).includes(token.contractName);
     setEnabled(isEnabled);
-  }
+  };
 
-  useEffect(()=> {
-    checkStorageStatus()
-  }, [enabledList])
+  useEffect(() => {
+    checkStorageStatus();
+  }, [enabledList]);
 
   const handleClick = () => {
-    onClick(token, isEnabled)
-  }
+    onClick(token, isEnabled);
+  };
 
   return (
-    <ListItemButton sx={{mx: '18px', py:'4px', my: '8px', backgroundColor: '#1f1f1f', borderRadius: '16px'}}>
-      <ListItem 
+    <ListItemButton
+      sx={{ mx: '18px', py: '4px', my: '8px', backgroundColor: '#1f1f1f', borderRadius: '16px' }}
+    >
+      <ListItem
         disablePadding
         onClick={handleClick}
         secondaryAction={
           <IconButton edge="end" aria-label="delete" onClick={handleClick}>
-            { isLoading ? <CircularProgress color="primary" size={20} /> : 
-              ( isEnabled ? <IconCheckmark color='#41CC5D' size={24} /> : <IconPlus size={20} /> )}
+            {isLoading ? (
+              <CircularProgress color="primary" size={20} />
+            ) : isEnabled ? (
+              <IconCheckmark color="#41CC5D" size={24} />
+            ) : (
+              <IconPlus size={20} />
+            )}
           </IconButton>
-        }>
+        }
+      >
         <ListItemAvatar>
-          <Avatar src={token.logoURI}/>
+          <Avatar src={token.logoURI} />
         </ListItemAvatar>
         <ListItemText primary={token.name} secondary={token.symbol.toUpperCase()} />
       </ListItem>
@@ -67,4 +75,3 @@ const TokenItem = ({token, isLoading, enabledList, onClick}) => {
 };
 
 export default TokenItem;
-

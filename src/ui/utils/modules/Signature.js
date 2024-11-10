@@ -52,19 +52,20 @@ export function decodeSignature(publicKey, signature) {
  * @see https://w3c.github.io/webauthn/#assertion-signature
  * @see https://w3c.github.io/webcrypto/#SubtleCrypto-method-verify
  * @param {PublicKeyCredential} publicKeyCredential - WebAuthn Credential
- * @param {AuthenticatorAssertionResponse} publicKeyCredential.response 
+ * @param {AuthenticatorAssertionResponse} publicKeyCredential.response
  * @param {object} publicKey - JWK
  * @returns {Promise<boolean>} - true
  */
 export async function verifyAssertionSignature(publicKeyCredential, publicKey) {
-
   const alg = publicKey.alg ?? 'S256';
 
   const key = await importJWK(publicKey, alg);
 
   const hash = await sha256(publicKeyCredential.response.clientDataJSON);
 
-  const signed = new Uint8Array(publicKeyCredential.response.authenticatorData.byteLength + hash.byteLength);
+  const signed = new Uint8Array(
+    publicKeyCredential.response.authenticatorData.byteLength + hash.byteLength
+  );
   signed.set(new Uint8Array(publicKeyCredential.response.authenticatorData), 0);
   signed.set(new Uint8Array(hash), publicKeyCredential.response.authenticatorData.byteLength);
 

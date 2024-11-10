@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 
-import { toUint8Array} from './WebAuthnDecoder.js';
+import { toUint8Array } from './WebAuthnDecoder.js';
 
 function atobUrlSafe(text) {
   if (text == null) {
@@ -12,9 +12,14 @@ function atobUrlSafe(text) {
     .replace(/-/g, '+') // replace '-' with '+'
     .replace(/_/g, '/'); // replace '_' with '/'
   switch (text.length % 4) {
-    case 2: text += '=='; break;
-    case 3: text += '='; break;
-    default: break; // if padding is wrong then eventually the atob call below fails
+    case 2:
+      text += '==';
+      break;
+    case 3:
+      text += '=';
+      break;
+    default:
+      break; // if padding is wrong then eventually the atob call below fails
   }
   return atob(text);
 }
@@ -36,13 +41,13 @@ function btoaUrlSafe(text) {
 }
 
 /**
- * base64url encode bytes 
+ * base64url encode bytes
  * @param {ArrayBuffer|Uint8Array} array - array of bytes
  * @returns {string} - base64url encoded string
  */
 function encodeArray(array) {
   array = toUint8Array(array);
-  return btoaUrlSafe(Array.from(array, t => String.fromCharCode(t)).join(''));
+  return btoaUrlSafe(Array.from(array, (t) => String.fromCharCode(t)).join(''));
 }
 
 /**
@@ -51,10 +56,10 @@ function encodeArray(array) {
  * @returns {Uint8Array} - array of bytes
  */
 function decodeArray(value) {
-  if(typeof value !== 'string') {
+  if (typeof value !== 'string') {
     throw new Error('invalid argument');
   }
-  return Uint8Array.from(atobUrlSafe(value), t => t.charCodeAt(0));
+  return Uint8Array.from(atobUrlSafe(value), (t) => t.charCodeAt(0));
 }
 
 export { encodeArray, decodeArray, atobUrlSafe, btoaUrlSafe };

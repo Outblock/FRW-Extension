@@ -105,16 +105,20 @@ const DecryptWallet = ({ handleClick, setMnemonic, username, setNextPassword }) 
       handleClick();
     } catch (e) {
       setLoading(false);
-      setHelperText(errorInfo(chrome.i18n.getMessage('Incorrect__decrypt__password__please__try__again')));
+      setHelperText(
+        errorInfo(chrome.i18n.getMessage('Incorrect__decrypt__password__please__try__again'))
+      );
     }
   };
 
   useEffect(() => {
     if (password.length < 8) {
-      setHelperText(errorInfo(chrome.i18n.getMessage('The__decrypt__password__should__be__8__characters__long')));
+      setHelperText(
+        errorInfo(chrome.i18n.getMessage('The__decrypt__password__should__be__8__characters__long'))
+      );
       setCharacters(false);
     } else {
-      setHelperText(<div />)
+      setHelperText(<div />);
       setCharacters(true);
     }
   }, [password]);
@@ -122,9 +126,7 @@ const DecryptWallet = ({ handleClick, setMnemonic, username, setNextPassword }) 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Welcome__Back')}
           <Box display="inline" color="primary.main">
@@ -161,21 +163,13 @@ const DecryptWallet = ({ handleClick, setMnemonic, username, setNextPassword }) 
               }}
               endAdornment={
                 <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setPasswordVisible(!isPasswordVisible)}
-                  >
-                    {isPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
+                  <IconButton onClick={() => setPasswordVisible(!isPasswordVisible)}>
+                    {isPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </IconButton>
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>
-              {password && helperText}
-            </Presets.TransitionSlideUp>
+            <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
           </FormGroup>
         </Box>
 
@@ -194,11 +188,7 @@ const DecryptWallet = ({ handleClick, setMnemonic, username, setNextPassword }) 
             textTransform: 'capitalize',
           }}
         >
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Restore__My__Wallet')}
           </Typography>
         </Button>

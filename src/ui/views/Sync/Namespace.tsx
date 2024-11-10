@@ -22,10 +22,13 @@ class FlowWallet {
     return new Blockchain(1 ? 'flow:mainnet' : 'flow:testnet');
   }
 
-  static namespaces(methods: Set<string>, events: Set<string> = new Set()): Record<string, ProposalNamespace> {
+  static namespaces(
+    methods: Set<string>,
+    events: Set<string> = new Set()
+  ): Record<string, ProposalNamespace> {
     const blockchains: Set<Blockchain> = new Set([FlowWallet.blockchain]);
     const namespaces: Record<string, ProposalNamespace> = {
-      [FlowWallet.blockchain.namespace]: { chains: blockchains, methods, events }
+      [FlowWallet.blockchain.namespace]: { chains: blockchains, methods, events },
     };
     return namespaces;
   }
