@@ -9,11 +9,11 @@ interface LLWarningButtonProps extends ButtonProps {
 const CustomButton = styled(Button)<ButtonProps>(() => ({
   '&:disabled': {
     backgroundColor: '#E5E5E54D',
-    color:'#000000CC'
+    color: '#000000CC',
   },
   '&:hover': {
     backgroundColor: '#E5E5E5B3',
-    color:'#000000CC'
+    color: '#000000CC',
   },
 }));
 

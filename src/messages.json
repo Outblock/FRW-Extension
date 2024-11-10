@@ -676,8 +676,8 @@
   "Allset": {
     "message": " all set"
   },
-  "You_can_start_experiencing_Lilico_now":{
-    "message":"You can start experiencing Flow Wallet now!"
+  "You_can_start_experiencing_Lilico_now": {
+    "message": "You can start experiencing Flow Wallet now!"
   },
   "Back_up": {
     "message": "Back Up"
@@ -712,8 +712,8 @@
   "I_agree_to_the": {
     "message": "I agree to the "
   },
-  "of_Lilico_Wallet":{
-    "message":" of Flow Wallet."
+  "of_Lilico_Wallet": {
+    "message": " of Flow Wallet."
   },
   "Login": {
     "message": "Login"
@@ -811,8 +811,8 @@
   "Forgot_password": {
     "message": "Cannot login"
   },
-  "Welcome_to_lilico":{
-    "message":"Welcome to Flow Wallet"
+  "Welcome_to_lilico": {
+    "message": "Welcome to Flow Wallet"
   },
   "Flow": {
     "message": "Flow"
@@ -1282,7 +1282,7 @@
   "balance": {
     "message": "Balance"
   },
-  "import_account" :{
+  "import_account": {
     "message": "Import Account"
   },
   "Import__Profile": {

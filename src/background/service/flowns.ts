@@ -16,20 +16,19 @@ export interface FlownsStore {
 }
 
 interface newInbox {
-  mainnet: number,
-  testnet: number,
+  mainnet: number;
+  testnet: number;
 }
 
 interface history {
-  mainnet: tokenGroup,
-  testnet: tokenGroup,
+  mainnet: tokenGroup;
+  testnet: tokenGroup;
 }
 
 interface tokenGroup {
-  token: string[],
-  nft: Record<string, unknown>,
+  token: string[];
+  nft: Record<string, unknown>;
 }
-
 
 const template = {
   mainnet: true,
@@ -37,18 +36,18 @@ const template = {
   inboxHistory: {
     mainnet: {
       token: [],
-      nft:{},
+      nft: {},
     },
     testnet: {
       token: [],
-      nft:{},
-    } 
+      nft: {},
+    },
   },
   newInbox: {
     mainnet: 0,
     testnet: 0,
-  }
-}
+  },
+};
 
 class Flowns {
   store!: FlownsStore;
@@ -64,56 +63,62 @@ class Flowns {
 
   setPop = (network: string, status: boolean) => {
     this.store[network] = status;
-  }
+  };
 
   getPop = (network: string) => {
     return this.store[network];
-  }
+  };
 
   setHistory = (network: string, data) => {
     this.store.inboxHistory[network] = data;
-  }
+  };
 
   getHistory = (network: string) => {
     return this.store.inboxHistory[network];
-  }
+  };
 
   setNewInbox = (network: string, data) => {
     this.store.newInbox[network] = data;
-  }
+  };
 
   getNewInbox = (network: string) => {
     return this.store.newInbox[network];
-  }
+  };
 
-
-  sendTransaction = async (cadence: string, domainName: string, flownsAddress: string, lilicoAddress: string): Promise<string> => {
+  sendTransaction = async (
+    cadence: string,
+    domainName: string,
+    flownsAddress: string,
+    lilicoAddress: string
+  ): Promise<string> => {
     this.flownsAddr = flownsAddress;
-    const walletAddress = await wallet.getCurrentAddress()
+    const walletAddress = await wallet.getCurrentAddress();
     // TODO: FIX ME
-    const walletKeyIndex = 0
+    const walletKeyIndex = 0;
     const account = await fcl.send([fcl.getAccount(walletAddress!)]).then(fcl.decode);
     const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
 
-    const refBlock = latestSealedBlock.id
-    const sequenceNum = account.keys[walletKeyIndex].sequenceNumber
+    const refBlock = latestSealedBlock.id;
+    const sequenceNum = account.keys[walletKeyIndex].sequenceNumber;
 
-    const payer = await wallet.getPayerAddressAndKeyId()
+    const payer = await wallet.getPayerAddressAndKeyId();
     const payerAddress = fcl.withPrefix(payer.address);
     const lilicAccount = lilicoAddress;
-    const payloadSigsArray : any[] = [];
+    const payloadSigsArray: any[] = [];
 
     const tx = {
       cadence,
       refBlock,
-      arguments: [{
-        type: 'String',
-        value: domainName
-      }],
+      arguments: [
+        {
+          type: 'String',
+          value: domainName,
+        },
+      ],
       proposalKey: {
         address: walletAddress,
         keyId: walletKeyIndex,
-        sequenceNum: sequenceNum
+        sequenceNum: sequenceNum,
       },
       payer: payerAddress,
       payloadSigs: payloadSigsArray,
@@ -122,16 +127,15 @@ class Flowns {
     };
     const message = sdk.encodeTransactionPayload(tx);
     const signature = await this.sign(message);
-    const userSigs = { 
-      address: walletAddress, 
-      keyId: walletKeyIndex, 
-      sig: signature
-    }
+    const userSigs = {
+      address: walletAddress,
+      keyId: walletKeyIndex,
+      sig: signature,
+    };
 
-    tx.payloadSigs.push(userSigs)
+    tx.payloadSigs.push(userSigs);
     const messagePayload = sdk.encodeTransactionPayload(tx);
     const response = await openapiService.flownsTransaction(tx, messagePayload);
-
 
     return response.data;
   };
@@ -148,14 +152,13 @@ class Flowns {
     return realSignature;
   };
 
-
   authorizationFunction = async (account: any = {}) => {
     // authorization function need to return an account
     const address = fcl.withPrefix(await wallet.getCurrentAddress());
     const ADDRESS = fcl.withPrefix(address);
 
     // TODO: FIX THIS
-    
+
     const KEY_ID = 0;
     return {
       ...account, // bunch of defaults in here, we want to overload some of them though
@@ -180,7 +183,7 @@ class Flowns {
 
     const envelope = await openapiService.flownsTransaction(tx, message);
 
-    const signature = envelope.data.transaction.envelopeSigs[0].sig
+    const signature = envelope.data.transaction.envelopeSigs[0].sig;
     // const signatureByte = Buffer.from(signature, 'base64')
     const signatureHex = signature.toString('hex');
     return signatureHex;
@@ -188,7 +191,7 @@ class Flowns {
 
   payerAuthFunction = async (account: any = {}) => {
     // authorization function need to return an account
-    const payer = await wallet.getPayerAddressAndKeyId()
+    const payer = await wallet.getPayerAddressAndKeyId();
     const address = fcl.withPrefix(payer.address);
     const ADDRESS = fcl.withPrefix(address);
 
@@ -218,8 +221,8 @@ class Flowns {
     const message = signable.message;
 
     const envelope = await openapiService.flownsAuthTransaction(tx, message);
-    const sigArray = envelope.data.transaction.payloadSigs
-    const signature = sigArray[sigArray.length - 1].sig
+    const sigArray = envelope.data.transaction.payloadSigs;
+    const signature = sigArray[sigArray.length - 1].sig;
 
     // const signatureByte = Buffer.from(signature, 'base64')
     const signatureHex = signature.toString('hex');

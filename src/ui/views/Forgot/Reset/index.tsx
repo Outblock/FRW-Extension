@@ -9,10 +9,7 @@ import ResetPage from './ResetPage';
 import theme from '../../../style/LLTheme';
 import RegisterHeader from '../../Register/RegisterHeader';
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import {
-  ComponentTransition,
-  AnimationTypes,
-} from 'react-component-transition';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useWallet, Options } from 'ui/utils';
 
 enum Direction {
@@ -48,13 +45,16 @@ const Reset = () => {
 
   const loadView = async () => {
     // console.log(wallet);
-    wallet.getCurrentAccount().then((res) => {
-      if (res) {
-        history.push('/');
-      }
-    }).catch(() => {
-      return;
-    });
+    wallet
+      .getCurrentAccount()
+      .then((res) => {
+        if (res) {
+          history.push('/');
+        }
+      })
+      .catch(() => {
+        return;
+      });
   };
   const goNext = () => {
     setDirection(Direction.Right);
@@ -100,14 +100,16 @@ const Reset = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <ResetPage
-          resetPop={false}
-          handleCloseIconClicked={() => goNext()}
-          handleCancelBtnClicked={() => goNext()}
-          handleAddBtnClicked={() => {
-            goNext();
-          }}
-        />;
+        return (
+          <ResetPage
+            resetPop={false}
+            handleCloseIconClicked={() => goNext()}
+            handleCancelBtnClicked={() => goNext()}
+            handleAddBtnClicked={() => {
+              goNext();
+            }}
+          />
+        );
       default:
         return <div />;
     }
@@ -116,7 +118,6 @@ const Reset = () => {
   useEffect(() => {
     loadView();
   }, []);
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -132,7 +133,6 @@ const Reset = () => {
         }}
       >
         <RegisterHeader />
-
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
@@ -163,7 +163,6 @@ const Reset = () => {
             </IconButton>
 
             <div style={{ flexGrow: 1 }}></div>
-
           </Box>
 
           <ComponentTransition
@@ -189,7 +188,12 @@ const Reset = () => {
 
         <Box sx={{ flexGrow: 1 }} />
         <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-          <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+          <Alert
+            onClose={handleErrorClose}
+            variant="filled"
+            severity="error"
+            sx={{ width: '100%' }}
+          >
             {errMessage}
           </Alert>
         </Snackbar>

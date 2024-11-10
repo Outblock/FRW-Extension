@@ -1,30 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Avatar, Skeleton, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Avatar,
+  Skeleton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
-
 const tempEmoji = {
-  "emoji": "🥥",
-  "name": "Coconut",
-  "bgcolor": "#FFE4C4"
+  emoji: '🥥',
+  name: 'Coconut',
+  bgcolor: '#FFE4C4',
 };
 
-export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAccount, isLoading = false }) => {
-
+export const FRWDropdownProfileCard = ({
+  contact,
+  contacts,
+  setSelectedChildAccount,
+  isLoading = false,
+}) => {
   const usewallet = useWallet();
   const [emoji, setEmoji] = useState(tempEmoji);
 
   const contactKeys = Object.keys(contacts);
-  const [selectedChild, setSelectedChild] = React.useState(contactKeys.length > 0 ? contactKeys[0] : '');
+  const [selectedChild, setSelectedChild] = React.useState(
+    contactKeys.length > 0 ? contactKeys[0] : ''
+  );
 
   useEffect(() => {
     if (selectedChild) {
-      const select = contacts[selectedChild]
-      select['address'] = selectedChild
+      const select = contacts[selectedChild];
+      select['address'] = selectedChild;
       setSelectedChildAccount(select);
     }
   }, [selectedChild, contacts, setSelectedChildAccount]);
@@ -32,31 +46,30 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
   const handleChange = (event) => {
     const selectedAddress = event.target.value;
     setSelectedChild(selectedAddress);
-    const select = contacts[selectedChild]
-    select['address'] = selectedChild
+    const select = contacts[selectedChild];
+    select['address'] = selectedChild;
     setSelectedChildAccount(select);
   };
 
   const getName = (name: string) => {
     if (!name) {
-      return '0x'
+      return '0x';
     }
     if (name.startsWith('0')) {
-      return '0x'
+      return '0x';
     } else {
-      return name[0].toUpperCase()
+      return name[0].toUpperCase();
     }
-  }
+  };
 
   const getEmoji = async () => {
     const emojiList = await usewallet.getEmoji();
     if (isValidEthereumAddress(contact.address)) {
-      setEmoji(emojiList[1])
+      setEmoji(emojiList[1]);
     } else {
-      setEmoji(emojiList[0])
+      setEmoji(emojiList[0]);
     }
-  }
-
+  };
 
   useEffect(() => {
     getEmoji();
@@ -71,7 +84,7 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
           alignItems: 'center',
           borderRadius: '16px',
           backgroundColor: '#2C2C2C',
-          width: '100%'
+          width: '100%',
         }}
       >
         <FormControl sx={{ flexGrow: 1, border: 'none', padding: 0 }}>
@@ -85,11 +98,12 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
                 display: 'flex',
                 alignItems: 'center',
                 padding: 0,
-                border: 'none'
+                border: 'none',
               },
               '& .MuiOutlinedInput-notchedOutline': {
-                border: 'none'
-              }, height: '40px'
+                border: 'none',
+              },
+              height: '40px',
             }}
           >
             {Object.keys(contacts).map((address) => (
@@ -136,7 +150,12 @@ export const FRWDropdownProfileCard = ({ contact, contacts, setSelectedChildAcco
                       {contacts[address].name}
                     </Typography>
                     <Typography
-                      sx={{ lineHeight: '1', textAlign: 'start', fontSize: '12px', fontWeight: '400' }}
+                      sx={{
+                        lineHeight: '1',
+                        textAlign: 'start',
+                        fontSize: '12px',
+                        fontWeight: '400',
+                      }}
                       color="#FFFFFFCC"
                     >
                       {formatAddress(address)}

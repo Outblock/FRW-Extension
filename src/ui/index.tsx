@@ -7,7 +7,6 @@ import eventBus from '@/eventBus';
 import { EVENTS } from 'consts';
 // import './style/index.less';
 
-
 function initAppMeta() {
   const head = document.querySelector('head');
   const icon = document.createElement('link');
@@ -42,8 +41,7 @@ const wallet: Record<string, any> = new Proxy(
             {
               get(obj, key) {
                 return function (...params: any) {
-
-                  chrome.runtime.sendMessage({message: 'openapi'}, function (response) {
+                  chrome.runtime.sendMessage({ message: 'openapi' }, function (response) {
                     // console.log(response);
                   });
 
@@ -59,15 +57,16 @@ const wallet: Record<string, any> = new Proxy(
           break;
         default:
           return function (...params: any) {
-
             chrome.runtime.sendMessage(
               {
-                type: 'controller', 
+                type: 'controller',
                 method: key,
                 params,
-              }, function (response) {
+              },
+              function (response) {
                 // console.log('portMessageChannel 3 ->', response);
-              });
+              }
+            );
 
             // console.log('portMessageChannel 2', obj, key);
 

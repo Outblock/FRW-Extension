@@ -1,9 +1,9 @@
-import { keyBy } from "lodash";
-import browser from "webextension-polyfill";
-import { ledgerUSBVendorId } from "@ledgerhq/devices";
+import { keyBy } from 'lodash';
+import browser from 'webextension-polyfill';
+import { ledgerUSBVendorId } from '@ledgerhq/devices';
 
-import BroadcastChannelMessage from "./message/broadcastChannelMessage";
-import PortMessage from "./message/portMessage";
+import BroadcastChannelMessage from './message/broadcastChannelMessage';
+import PortMessage from './message/portMessage';
 
 const Message = {
   BroadcastChannelMessage,
@@ -13,7 +13,7 @@ const Message = {
 const t = (name) => browser.i18n.getMessage(name);
 
 const format = (str, ...args) => {
-  return args.reduce((m, n) => m.replace("_s_", n), str);
+  return args.reduce((m, n) => m.replace('_s_', n), str);
 };
 
 export { Message, t, format };

@@ -1,6 +1,15 @@
 import { useEffect, useState, useContext } from 'react';
 import React from 'react';
-import { Box, Button, Typography, CardMedia, TextareaAutosize, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  CardMedia,
+  TextareaAutosize,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -33,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   textareaContainer: {
     position: 'relative',
     marginRight: '16px',
-    width: '312px'
+    width: '312px',
   },
   label: {
     position: 'absolute',
@@ -42,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#E6E6E6',
     backgroundColor: 'transparent',
     pointerEvents: 'none',
-    fontSize: '18px'
+    fontSize: '18px',
   },
   textareaPath: {
     width: '100%', // Fix full width
@@ -53,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     resize: 'none',
     fontSize: '16px',
     fontFamily: 'Inter',
-  }
+  },
 }));
 
 const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
@@ -83,32 +92,49 @@ const KeyPathInput = (props) => {
     const trimmedPath = newPath.trim();
     await storage.set('temp_path', trimmedPath);
   };
-  
+
   const updateStorageWithPhrase = async (newPhrase) => {
     const trimmed = newPhrase.trim();
     await storage.set('temp_key', trimmed);
   };
-  
+
   // Update storage when path changes
   useEffect(() => {
     updateStorageWithPath(path);
   }, [path]);
-  
+
   // Update storage when phrase changes
   useEffect(() => {
     updateStorageWithPhrase(phrase);
   }, [phrase]);
 
   return (
-    <Accordion sx={{ padding: '0', background: 'none', boxShadow: 'none' }} expanded={expanded} onChange={handleAccordionChange()}>
+    <Accordion
+      sx={{ padding: '0', background: 'none', boxShadow: 'none' }}
+      expanded={expanded}
+      onChange={handleAccordionChange()}
+    >
       <StyledAccordionSummary
-        expandIcon={expanded ? <CardMedia component="img" sx={{ width: '18px', height: '18px' }} image={Hide} /> : <CardMedia component="img" sx={{ width: '18px', height: '18px' }} image={Expand} />}
+        expandIcon={
+          expanded ? (
+            <CardMedia component="img" sx={{ width: '18px', height: '18px' }} image={Hide} />
+          ) : (
+            <CardMedia component="img" sx={{ width: '18px', height: '18px' }} image={Expand} />
+          )
+        }
         aria-controls="additional-options-content"
         id="additional-options-header"
       >
         <Typography sx={{ marginLeft: '8px', fontSize: '14px' }}>Advance</Typography>
       </StyledAccordionSummary>
-      <AccordionDetails sx={{ display: 'flex', flexDirection: 'row', padding: '0', justifyContent: 'space-between' }}>
+      <AccordionDetails
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          padding: '0',
+          justifyContent: 'space-between',
+        }}
+      >
         <Box className={classes.textareaContainer}>
           <Typography className={classes.label}>Derivation path</Typography>
           <TextareaAutosize
@@ -129,7 +155,7 @@ const KeyPathInput = (props) => {
         </Box>
       </AccordionDetails>
     </Accordion>
-  )
-}
+  );
+};
 
 export default KeyPathInput;

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { styled } from '@mui/system';
-import SwitchUnstyled, {
-  switchUnstyledClasses,
-} from '@mui/core/SwitchUnstyled';
+import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
 import { makeStyles } from '@mui/styles';
 import {
   Box,
@@ -82,7 +80,7 @@ const useStyles = makeStyles(() => ({
     alignContent: 'space-between',
     justifyContent: 'space-between',
     padding: '20px 24px',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   modeSelection: {
     width: '100%',
@@ -226,7 +224,7 @@ const DeveloperMode = () => {
 
     if (currentNetwork !== network) {
       // TODO: replace it with better UX
-      
+
       window.location.reload();
     }
   };
@@ -241,9 +239,7 @@ const DeveloperMode = () => {
     storage.set('developerMode', !modeOn);
   };
 
-
   // const channelName = nanoid();
-
 
   // const injectProviderScript = async (isDefaultWallet) => {
   //   await localStorage.setItem('frw:channelName', channelName);
@@ -317,10 +313,7 @@ const DeveloperMode = () => {
   //   initializeInjectMode();
   // }, []);
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -329,17 +322,10 @@ const DeveloperMode = () => {
 
   return (
     <div className="page">
-      <LLHeader
-        title={chrome.i18n.getMessage('Developer__Settings')}
-        help={false}
-      />
+      <LLHeader title={chrome.i18n.getMessage('Developer__Settings')} help={false} />
 
       <Box className={classes.developerBox}>
-        <Typography
-          variant="body1"
-          color="neutral.contrastText"
-          style={{ weight: 600 }}
-        >
+        <Typography variant="body1" color="neutral.contrastText" style={{ weight: 600 }}>
           {chrome.i18n.getMessage('Developer__Mode')}
         </Typography>
         <SwitchUnstyled
@@ -410,9 +396,7 @@ const DeveloperMode = () => {
                       <Checkbox
                         size="small"
                         icon={<CircleOutlinedIcon />}
-                        checkedIcon={
-                          <CheckCircleIcon sx={{ color: '#FF8A00' }} />
-                        }
+                        checkedIcon={<CheckCircleIcon sx={{ color: '#FF8A00' }} />}
                         value="testnet"
                         checked={currentNetwork === 'testnet'}
                         onChange={() => switchNetwork('testnet')}
@@ -451,7 +435,7 @@ const DeveloperMode = () => {
               >
                 <Box className={classes.checkboxRow}>
                   <FormControlLabel
-                    label='Flowscan'
+                    label="Flowscan"
                     control={
                       <Checkbox
                         size="small"

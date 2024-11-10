@@ -29,7 +29,7 @@ const RegisterHeader = () => {
               bgcolor: '#6E6E6E',
             },
           }}
-          startIcon={<PhoneAndroidRoundedIcon sx={{ color: '#5e5e5e'}} />}
+          startIcon={<PhoneAndroidRoundedIcon sx={{ color: '#5e5e5e' }} />}
         >
           {chrome.i18n.getMessage('Try__Our__New__App')}
         </Button>
@@ -49,7 +49,7 @@ const RegisterHeader = () => {
               bgcolor: '#6E6E6E',
             },
           }}
-          startIcon={<HelpOutlineRoundedIcon sx={{ color: '#5e5e5e'}} />}
+          startIcon={<HelpOutlineRoundedIcon sx={{ color: '#5e5e5e' }} />}
         >
           {chrome.i18n.getMessage('Need__Help')}
         </Button>

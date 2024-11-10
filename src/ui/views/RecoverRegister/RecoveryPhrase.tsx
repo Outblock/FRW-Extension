@@ -13,9 +13,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Recovery') + ' '}
           <Box display="inline" color="primary.main">
@@ -56,26 +54,34 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           >
             {mnemonic.split(' ').map((word, i) => {
               return (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginRight: '16px', marginBottom: '12px', }} key={i}>
-                  <Box sx={{
-                    topx: 0,
-                    lineHeight: '26px',
-                    textAlign: 'center',
-                    color: 'neutral1.main',
-                    backgroundColor: 'neutral1.light',
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '26px',
-                    top: 0,
-                    marginRight: '8px',
-                    textIndent: '-1px',
-                    fontWeight: 'bold'
-                  }}>{i + 1}</Box>
-                  <Typography
-                    key={'key_' + i}
-                    variant="body1"
-                    sx={{ color: 'text.primary' }}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginRight: '16px',
+                    marginBottom: '12px',
+                  }}
+                  key={i}
+                >
+                  <Box
+                    sx={{
+                      topx: 0,
+                      lineHeight: '26px',
+                      textAlign: 'center',
+                      color: 'neutral1.main',
+                      backgroundColor: 'neutral1.light',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '26px',
+                      top: 0,
+                      marginRight: '8px',
+                      textIndent: '-1px',
+                      fontWeight: 'bold',
+                    }}
                   >
+                    {i + 1}
+                  </Box>
+                  <Typography key={'key_' + i} variant="body1" sx={{ color: 'text.primary' }}>
                     {word}
                   </Typography>
                 </Box>
@@ -181,11 +187,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
             textTransform: 'capitalize',
           }}
         >
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Okay__I__have__saved__it__properly')}
           </Typography>
         </Button>

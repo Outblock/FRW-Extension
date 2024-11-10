@@ -1,7 +1,0 @@
-build/*
-dist/*
-*.config.js
-_raw/*
-webpack.config.js
-jest.config.js
-dist.zip

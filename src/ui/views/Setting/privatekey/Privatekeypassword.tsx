@@ -1,8 +1,8 @@
-import React,{ useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import {Typography,Button} from '@mui/material';
-import{Input,FormControl} from '@mui/material';
+import { Typography, Button } from '@mui/material';
+import { Input, FormControl } from '@mui/material';
 import { useWallet } from 'ui/utils';
 import { LLHeader } from '@/ui/FRWComponent';
 import CancelIcon from '../../../../components/iconfont/IconClose';
@@ -48,13 +48,16 @@ const PrivateKeyPassword = () => {
     setMatch(false);
 
     if (confirmPassword.length > 7) {
-      wallet.getCurrentPassword(confirmPassword).then(() => {
-        setMatch(true);
-      }).catch(() => {
-        setMatch(false);
-      });
+      wallet
+        .getCurrentPassword(confirmPassword)
+        .then(() => {
+          setMatch(true);
+        })
+        .catch(() => {
+          setMatch(false);
+        });
     }
-  }
+  };
 
   const setTab = async () => {
     await wallet.setDashIndex(3);
@@ -62,12 +65,12 @@ const PrivateKeyPassword = () => {
 
   const navigate = async () => {
     history.push({
-      pathname: '/dashboard/nested/keydetail',         
+      pathname: '/dashboard/nested/keydetail',
       state: {
         password: confirmPassword,
-      },});
-  }
-
+      },
+    });
+  };
 
   useEffect(() => {
     setTab();
@@ -86,7 +89,7 @@ const PrivateKeyPassword = () => {
       }}
     >
       <CancelIcon size={14} color={'#E54040'} style={{ margin: '8px' }} />
-      <Typography color={'#E54040'} sx={{color:'#E54040'}}>
+      <Typography color={'#E54040'} sx={{ color: '#E54040' }}>
         {chrome.i18n.getMessage('Incorrect__Password')}
       </Typography>
     </Box>
@@ -102,9 +105,18 @@ const PrivateKeyPassword = () => {
           height: '100%',
         }}
       >
-        <LLHeader title={chrome.i18n.getMessage('Verify__Password')}  help={false}/>
+        <LLHeader title={chrome.i18n.getMessage('Verify__Password')} help={false} />
 
-        <FormControl sx={{ flexGrow: 1, width: '90%', display: 'flex', flexDirection: 'column', margin: '0 auto', paddingTop: '12px'}}>
+        <FormControl
+          sx={{
+            flexGrow: 1,
+            width: '90%',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: '0 auto',
+            paddingTop: '12px',
+          }}
+        >
           <Input
             id="textfield"
             type="password"
@@ -117,7 +129,7 @@ const PrivateKeyPassword = () => {
             onChange={(event) => {
               setConfirmPassword(event.target.value);
             }}
-            onKeyDown={handleKeyDown} 
+            onKeyDown={handleKeyDown}
           />
 
           <Presets.TransitionSlideUp>
@@ -132,12 +144,11 @@ const PrivateKeyPassword = () => {
               >
                 <Box sx={{ p: '4px' }}>{passwordError()}</Box>
               </Box>
-            )} 
+            )}
           </Presets.TransitionSlideUp>
 
           {/* <Box sx={{flexGrow: 1}}/> */}
 
-        
           <Presets.TransitionFade>
             <Box
               sx={{
@@ -146,9 +157,10 @@ const PrivateKeyPassword = () => {
                 display: 'flex',
                 alignItems: 'center',
                 flexDirection: 'column',
-                my:'18px',
+                my: '18px',
                 padding: '16px',
-              }}>
+              }}
+            >
               <Typography
                 sx={{
                   alignSelf: 'center',
@@ -158,7 +170,7 @@ const PrivateKeyPassword = () => {
                   lineHeight: '16px',
                   color: '#E54040',
                   paddingBottom: '16px',
-                  paddingTop: '0px'
+                  paddingTop: '0px',
                 }}
               >
                 {chrome.i18n.getMessage('Do__not__share__your__private__key')}
@@ -178,10 +190,9 @@ const PrivateKeyPassword = () => {
               </Typography>
             </Box>
           </Presets.TransitionFade>
-
         </FormControl>
 
-        <Box sx={{ flexGrow: 1}}/>
+        <Box sx={{ flexGrow: 1 }} />
 
         <Box
           sx={{
@@ -190,8 +201,7 @@ const PrivateKeyPassword = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: '8px',
-            paddingBottom: '40px'
-
+            paddingBottom: '40px',
           }}
         >
           <Button
@@ -210,9 +220,11 @@ const PrivateKeyPassword = () => {
             }}
           >
             <Typography
-              sx={{ fontWeight: '600',
-                fontSize: '14px', fontFamily:'Inter',
-                fontColor:'#E6E6E6',
+              sx={{
+                fontWeight: '600',
+                fontSize: '14px',
+                fontFamily: 'Inter',
+                fontColor: '#E6E6E6',
               }}
             >
               {chrome.i18n.getMessage('Cancel')}
@@ -235,8 +247,7 @@ const PrivateKeyPassword = () => {
             disabled={!isMatch}
           >
             <Typography
-              sx={{ fontWeight: '600',
-                fontSize: '14px', fontFamily:'Inter'}}
+              sx={{ fontWeight: '600', fontSize: '14px', fontFamily: 'Inter' }}
               color="text.primary"
             >
               {chrome.i18n.getMessage('Next')}
@@ -244,11 +255,7 @@ const PrivateKeyPassword = () => {
           </Button>
         </Box>
       </Box>
-
-
     </div>
-        
-   
   );
 };
 

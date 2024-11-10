@@ -357,15 +357,15 @@ export interface DeviceInfo {
 }
 
 /*
-* News items
-*/
+ * News items
+ */
 export type NewsType = 'message' | 'image';
 
 export type NewsPriority = 'urgent' | 'high' | 'medium' | 'low';
 
 export type NewsDisplayType =
-  | 'once'    // show once
-  | 'click'   // close it when user click on it
+  | 'once' // show once
+  | 'click' // close it when user click on it
   | 'expiry'; // it will display until it expired
 
 export interface NewsItem {

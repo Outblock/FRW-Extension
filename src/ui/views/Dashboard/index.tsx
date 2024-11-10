@@ -54,7 +54,7 @@ const Dashboard = ({ value, setValue }) => {
   };
 
   const fetchAll = async () => {
-    setLoading(true)
+    setLoading(true);
     //todo fix cadence loading
     await wallet.getCadenceScripts();
     const [network, userDomain] = await Promise.all([
@@ -64,20 +64,20 @@ const Dashboard = ({ value, setValue }) => {
     const isChild = await wallet.getActiveWallet();
 
     if (isChild === 'evm') {
-      setIsEvm(true)
+      setIsEvm(true);
     }
     const env: string = process.env.NODE_ENV!;
     const firebaseConfig = getFirbaseConfig();
     console.log(process.env.NODE_ENV);
     // const firebaseProductionConfig = prodConig;
-  
+
     const app = initializeApp(firebaseConfig, env);
     const remoteConfig = getRemoteConfig(app);
-    console.log('remoteConfig ', app)
+    console.log('remoteConfig ', app);
     fetchAndActivate(remoteConfig)
       .then((res) => {
-        console.log('res ', remoteConfig)
-        
+        console.log('res ', remoteConfig);
+
         console.log('Remote Config values fetched and activated');
       })
       .catch((error) => {
@@ -86,9 +86,8 @@ const Dashboard = ({ value, setValue }) => {
 
     setNetwork(network);
     setDomain(userDomain);
-    setLoading(false)
+    setLoading(false);
   };
-
 
   useEffect(() => {
     fetchAll();
@@ -104,9 +103,7 @@ const Dashboard = ({ value, setValue }) => {
           flexDirection: 'column',
         }}
       >
-        {currentNetwork === 'testnet' && value === 0 && (
-          <LLTestnetIndicator />
-        )}
+        {currentNetwork === 'testnet' && value === 0 && <LLTestnetIndicator />}
         {/* <Header loading={loading} /> */}
 
         <SwipeableViews

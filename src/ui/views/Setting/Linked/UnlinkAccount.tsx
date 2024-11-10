@@ -162,7 +162,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
                     width: '60px',
                     borderRadius: '30px',
                     backgroundColor: 'text.secondary',
-                    objectFit: 'cover'
+                    objectFit: 'cover',
                   }}
                   src={props.childAccount.thumbnail.url}
                 />
@@ -174,7 +174,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
                     color: '#5E5E5E',
                     width: '100%',
                     textAlign: 'center',
-                    textOverflow: 'ellipsis'
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {props.childAccount.name}
@@ -216,7 +216,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
                     color: '#5E5E5E',
                     width: '100%',
                     textAlign: 'center',
-                    textOverflow: 'ellipsis'
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {props.userInfo?.nickname}
@@ -249,7 +249,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
         >
           {chrome.i18n.getMessage('Things_you_should_know')}
         </Typography>
-        <Typography sx={{ fontSize: '14px' }} color='text.secondary'>
+        <Typography sx={{ fontSize: '14px' }} color="text.secondary">
           {chrome.i18n.getMessage('Unlink_Message')}
         </Typography>
       </Box>
@@ -261,7 +261,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
           onClick={onCancelBtnClicked}
         />
         <LLPrimaryButton
-          label={isLoading ? <LLSpinner size={28} /> : "Confirm"}
+          label={isLoading ? <LLSpinner size={28} /> : 'Confirm'}
           fullWidth
           type="submit"
           onClick={onSubmit}

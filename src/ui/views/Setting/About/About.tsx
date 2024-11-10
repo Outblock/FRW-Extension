@@ -1,11 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
-import {
-  Typography,
-  Box,
-  CardMedia
-} from '@mui/material';
+import { Typography, Box, CardMedia } from '@mui/material';
 import twitter from 'ui/FRWAssets/image/twitter.png';
 import discord from 'ui/FRWAssets/image/discord.png';
 import X from 'ui/FRWAssets/svg/xLogo.svg';
@@ -27,7 +23,7 @@ const useStyles = makeStyles(() => ({
     // backgroundColor: '#121212',
     margin: 0,
     padding: 0,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   aboutTitle: {
     zIndex: 20,
@@ -106,18 +102,20 @@ const About = () => {
           component="div"
           color="text.secondary"
           sx={{ textAlign: 'center', fontWeight: 300 }}
-        >{chrome.i18n.getMessage('Version')} { `${version}`}</Typography>
-        
-        {(process.env.NODE_ENV !== 'production')  &&
-        <Typography
-          variant="body1"
-          component="div"
-          color="text.secondary"
-          sx={{ textAlign: 'center', fontWeight: 300 }}
         >
-          (Debug)
+          {chrome.i18n.getMessage('Version')} {`${version}`}
         </Typography>
-        }
+
+        {process.env.NODE_ENV !== 'production' && (
+          <Typography
+            variant="body1"
+            component="div"
+            color="text.secondary"
+            sx={{ textAlign: 'center', fontWeight: 300 }}
+          >
+            (Debug)
+          </Typography>
+        )}
       </Box>
 
       {/* <List className={classes.list} sx={{margin: '8px auto 16px auto'}}>
@@ -162,34 +160,50 @@ const About = () => {
         >
           {chrome.i18n.getMessage('CONTACT__US')}
         </Typography>
-        <Box className={classes.iconsBox} sx={{width: '100%', display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center'}}>
-          <a href="https://discord.com/invite/J6fFnh2xx6" target="_blank" style={{width:'58px',}}>
-            <Box sx={{ alignSelf: 'center',display:'flex !important',flexDirection:'column',alignItems:'center' }}>
-              <img
-                src={discord}
-                width="32px"
-                height="32px"
-                style={{ margin: '8px auto' }}
-              />
+        <Box
+          className={classes.iconsBox}
+          sx={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+        >
+          <a href="https://discord.com/invite/J6fFnh2xx6" target="_blank" style={{ width: '58px' }}>
+            <Box
+              sx={{
+                alignSelf: 'center',
+                display: 'flex !important',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <img src={discord} width="32px" height="32px" style={{ margin: '8px auto' }} />
               <Typography color="text" sx={{ textTransform: 'none' }} align="center">
                 Discord
               </Typography>
             </Box>
           </a>
           {/* <Divider orientation="vertical" flexItem variant="middle" /> */}
-          <a href="https://twitter.com/FlowCoreWallet" target="_blank" style={{width:'58px'}}>
-            <Box sx={{ alignSelf: 'center',display:'flex !important',flexDirection:'column',alignItems:'center' }}>
-              <CardMedia component="img" sx={{ margin: '8px auto', width: '32px', height: '32px' }} image={X} />
-              <Typography color="text" sx={{ textTransform: 'none' }} align="center" >
+          <a href="https://twitter.com/FlowCoreWallet" target="_blank" style={{ width: '58px' }}>
+            <Box
+              sx={{
+                alignSelf: 'center',
+                display: 'flex !important',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <CardMedia
+                component="img"
+                sx={{ margin: '8px auto', width: '32px', height: '32px' }}
+                image={X}
+              />
+              <Typography color="text" sx={{ textTransform: 'none' }} align="center">
                 X
               </Typography>
             </Box>
           </a>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: '4px', justifyContent: 'center', margin: '30px auto 0 auto' }}>
+        <Box
+          sx={{ display: 'flex', gap: '4px', justifyContent: 'center', margin: '30px auto 0 auto' }}
+        >
           <a href="https://lilico.app/about/privacy-policy" target="_blank">
             <Typography variant="overline" color="text.secondary">
               {chrome.i18n.getMessage('Privacy__Policy')}
