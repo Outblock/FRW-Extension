@@ -13,9 +13,15 @@ class FirebaseFixPlugin {
           );
 
           // Replace the Google reCAPTCHA string
-          content = content.replace('https://www.google.com/recaptcha/enterprise.js?render=', '');
+          content = content.replace(
+            'https://www.google.com/recaptcha/enterprise.js?render=',
+            ''
+          );
 
-          content = content.replace('https://www.google.com/recaptcha/api.js?', '');
+          content = content.replace(
+            'https://www.google.com/recaptcha/api.js?',
+            ''
+          );
 
           content = content.replace(
             /_loadJS\(`https:\/\/apis\.google\.com\/js\/api\.js\?onload=\$\{([^}]+)\}`\)/g,
@@ -26,7 +32,7 @@ class FirebaseFixPlugin {
             /\(`https:\/\/apis\.google\.com\/js\/api\.js\?onload=\$\{t\}`\)/g,
             '(`${t}`)'
           );
-
+          
           compilation.assets[asset] = {
             source: () => content,
             size: () => content.length,

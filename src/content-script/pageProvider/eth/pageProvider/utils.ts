@@ -1,10 +1,10 @@
 const domReadyCall = (callback) => {
-  if (document.readyState === 'loading') {
+  if (document.readyState === "loading") {
     const domContentLoadedHandler = () => {
       callback();
-      document.removeEventListener('DOMContentLoaded', domContentLoadedHandler);
+      document.removeEventListener("DOMContentLoaded", domContentLoadedHandler);
     };
-    document.addEventListener('DOMContentLoaded', domContentLoadedHandler);
+    document.addEventListener("DOMContentLoaded", domContentLoadedHandler);
   } else {
     callback();
   }

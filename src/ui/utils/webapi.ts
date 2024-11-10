@@ -1,3 +1,4 @@
+
 import { WalletController } from './index';
 
 export const getCurrentTab = async () => {
@@ -12,7 +13,10 @@ export const getCurrentConnectSite = async (wallet: WalletController) => {
   return wallet.getCurrentConnectedSite(id);
 };
 
-export const openInTab = async (url, needClose = true): Promise<number | undefined> => {
+export const openInTab = async (
+  url,
+  needClose = true
+): Promise<number | undefined> => {
   const tab = await chrome.tabs.create({
     active: true,
     url,

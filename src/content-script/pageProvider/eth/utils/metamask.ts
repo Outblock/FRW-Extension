@@ -1,16 +1,16 @@
 // keep isMetaMask and remove isFrw
 const impersonateMetamaskWhitelist = [
   // layerzero
-  'bitcoinbridge.network',
-  'bridge.liquidswap.com',
-  'theaptosbridge.com',
-  'app.actafi.org',
+  "bitcoinbridge.network",
+  "bridge.liquidswap.com",
+  "theaptosbridge.com",
+  "app.actafi.org",
 
-  'bridge.linea.build',
-  'bridge.coredao.org',
+  "bridge.linea.build",
+  "bridge.coredao.org",
 
   // rainbow
-  'telx.network',
+  "telx.network",
 ];
 
 // keep isFrw and remove isMetaMask
@@ -41,18 +41,18 @@ const djb2 = (str: string) => {
 };
 
 const rootDomainList = [
-  'eth.limo',
-  'eth.link',
-  'github.com',
-  'github.io',
-  'ipfs.io',
-  'linktr.ee',
-  'surge.sh',
-  'vercel.com',
+  "eth.limo",
+  "eth.link",
+  "github.com",
+  "github.io",
+  "ipfs.io",
+  "linktr.ee",
+  "surge.sh",
+  "vercel.com",
 ];
 
 const getRootDomain = (host: string) => {
-  return host.split('.').slice(-2).join('.');
+  return host.split(".").slice(-2).join(".");
 };
 
 export const calcIsGray = (host: string, ratio: number) => {
@@ -63,32 +63,32 @@ export const calcIsGray = (host: string, ratio: number) => {
   return (djb2(domain) % 100) / 100 <= ratio;
 };
 
-type Mode = 'metamask' | 'frw' | 'default';
+type Mode = "metamask" | "frw" | "default";
 
 export const getProviderMode = (host: string): Mode => {
   if (isInHostList(impersonateMetamaskWhitelist, host)) {
-    return 'metamask';
+    return "metamask";
   }
   if (isInHostList(rabbyHostList, host)) {
-    return 'frw';
+    return "frw";
   }
-  return 'default';
+  return "default";
 };
 
 export const patchProvider = (provider: any) => {
   const mode = getProviderMode(window.location.hostname);
   try {
-    if (mode === 'metamask') {
+    if (mode === "metamask") {
       delete provider.isFrw;
       provider.isMetaMask = true;
       return;
     }
-    if (mode === 'frw') {
+    if (mode === "frw") {
       delete provider.isMetaMask;
       provider.isFrw = true;
       return;
     }
-    if (mode === 'default') {
+    if (mode === "default") {
       provider.isMetaMask = true;
       provider.isFrw = true;
       return;

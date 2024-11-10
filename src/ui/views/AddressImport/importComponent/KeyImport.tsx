@@ -6,6 +6,7 @@ import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/mater
 import { makeStyles } from '@mui/styles';
 import { LLSpinner } from 'ui/FRWComponent';
 
+
 const useStyles = makeStyles((theme) => ({
   form: {
     width: '100%', // Fix full width
@@ -48,8 +49,8 @@ const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
         onOpen();
         return;
       }
-      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.PRIVATE_KEY }));
-      console.log('accounts ==>', accounts);
+      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.PRIVATE_KEY }))
+      console.log('accounts ==>', accounts)
       onImport(accounts);
     } finally {
       setLoading(false);
@@ -69,6 +70,7 @@ const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
           defaultValue={''}
+
         />
         <Button
           className="registerButton"
@@ -83,12 +85,17 @@ const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex',
+            display: 'flex'
           }}
           disabled={isLoading || isSignLoading}
+
         >
           {(isLoading || isSignLoading) && <LLSpinner size={28} />}
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 'bold' }}
+            color="background.paper"
+          >
             {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>

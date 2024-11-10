@@ -31,6 +31,6 @@ const service = {
     icon: 'https://lilico.app/frw-logo.png',
     description: 'A wallet created for everyone',
   },
-};
+}
 
 WalletUtils.injectExtService(service);

@@ -5,17 +5,19 @@ import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
 import { formatAddress } from 'ui/utils';
 
+
 export const LLProfile = ({ contact, isLoading = false }) => {
+
   const getName = (name: string) => {
     if (!name) {
-      return '0x';
+      return '0x'
     }
-    if (name.startsWith('0')) {
-      return '0x';
+    if (name.startsWith('0')){
+      return '0x'
     } else {
-      return name[0].toUpperCase();
+      return name[0].toUpperCase()
     }
-  };
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -28,7 +30,8 @@ export const LLProfile = ({ contact, isLoading = false }) => {
           alignItems: 'center',
         }}
       >
-        {!isLoading ? (
+        {!isLoading ?
+        
           <Avatar
             alt={contact.contact_name}
             src={contact.avatar}
@@ -41,17 +44,18 @@ export const LLProfile = ({ contact, isLoading = false }) => {
           >
             {getName(contact.contact_name)}
           </Avatar>
-        ) : (
-          <Skeleton variant="circular" width={40} height={40} />
-        )}
-        {!isLoading ? (
+          : (
+            <Skeleton variant="circular" width={40} height={40} />
+          )
+        }
+        {!isLoading?
           <Typography variant="body2" sx={{ textAlign: 'start' }}>
             {contact.domain?.value || formatAddress(contact.contact_name)}
-          </Typography>
-        ) : (
-          <Skeleton variant="text" width={45} height={15} />
-        )}
-        {!isLoading ? (
+
+          </Typography>: (
+            <Skeleton variant="text" width={45} height={15} />
+          )}
+        {!isLoading?
           <Typography
             variant="overline"
             sx={{ lineHeight: '1', textAlign: 'start' }}
@@ -59,9 +63,9 @@ export const LLProfile = ({ contact, isLoading = false }) => {
           >
             {`${formatAddress(contact.address)}`}
           </Typography>
-        ) : (
-          <Skeleton variant="text" width={45} height={15} />
-        )}
+          : (
+            <Skeleton variant="text" width={45} height={15} />
+          )}
         <Box sx={{ flexGrow: 1 }} />
       </Box>
     </ThemeProvider>

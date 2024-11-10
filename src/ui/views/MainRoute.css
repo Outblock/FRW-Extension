@@ -11,8 +11,8 @@
 
 .route-wrapper {
   position: relative;
-  height: 543px;
-  overflow-y: scroll;
+  height:543px;
+  overflow-y:scroll;
 }
 
 .route-wrapper > div {
@@ -29,7 +29,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type='number'] {
+input[type=number] {
   -moz-appearance: textfield;
 }
 
@@ -66,6 +66,6 @@ input[type='number'] {
 }
 */
 
-.page {
-  height: 100%;
-}
+.page{
+  height:100%;
+} 

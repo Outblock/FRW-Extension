@@ -65,12 +65,12 @@ const SortHat = () => {
   }, []);
 
   return (
-    // <Box sx={{}}>
+  // <Box sx={{}}>
 
-    // </Box>
-    // <LLSpinner size={40}>{to && <Redirect to={to} />}</LLSpinner>
+  // </Box>
+  // <LLSpinner size={40}>{to && <Redirect to={to} />}</LLSpinner>
     <Spin spinning={!to}>{to && <Redirect to={to} />}</Spin>
-    // <Spin />
+  // <Spin />
   );
 };
 

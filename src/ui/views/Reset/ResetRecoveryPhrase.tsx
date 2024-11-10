@@ -9,7 +9,7 @@ import {
   Snackbar,
   Alert,
   Button,
-  CssBaseline,
+  CssBaseline
 } from '@mui/material';
 import theme from '../../style/LLTheme';
 import { Presets } from 'react-component-transition';
@@ -65,12 +65,12 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
       await wallet.reset();
       confirmMnemonic(mnemonic);
       const userInfo = await wallet.getUserInfo(false);
-      setUsername(userInfo.username);
+      setUsername(userInfo.username)
       handleClick();
     } catch (error) {
       setSignLoading(false);
       if (error.message === 'NoUserFound') {
-        setShowDialog(true);
+        setShowDialog(true)
       } else {
         setShowError(true);
       }
@@ -113,7 +113,11 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
       color="text.secondary"
       sx={{ display: 'flex', alignItems: 'center' }}
     >
-      <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
+      <CircularProgress
+        color="primary"
+        size={22}
+        style={{ fontSize: '22px', margin: '8px' }}
+      />
       {chrome.i18n.getMessage('Checking')}
     </Typography>
   );
@@ -126,18 +130,10 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
         open={showError}
         onClose={() => setShowError(false)}
       >
-        <Alert
-          variant="filled"
-          severity="error"
-          onClose={() => {
-            setShowError(false);
-          }}
-        >
-          Something went wrong, please try again later
-        </Alert>
+        <Alert variant="filled" severity="error" onClose={() => { setShowError(false) }}>Something went wrong, please try again later</Alert>
       </Snackbar>
     );
-  };
+  }
 
   useEffect(() => {
     setMnemonicValid(false);
@@ -147,9 +143,7 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
       setLoading(false);
       const length = mnemonic.trim().split(/\s+/g).length;
       if (!(length == 12 || length == 24)) {
-        setErrorMessage(
-          chrome.i18n.getMessage('Recovery_phrases_word_count_must_be_12_or_24_words')
-        );
+        setErrorMessage(chrome.i18n.getMessage('Recovery_phrases_word_count_must_be_12_or_24_words'));
         return;
       }
 
@@ -184,8 +178,10 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {!showDialog ? (
-        <Box className="registerBox">
+      {!showDialog ?
+        <Box
+          className="registerBox"
+        >
           <Typography variant="h4">
             {chrome.i18n.getMessage('Reset_Your')}{' '}
             <Box display="inline" color="primary.main">
@@ -193,9 +189,7 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
             </Box>
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {chrome.i18n.getMessage(
-              'Enter_the_12_or_24_word_recovery_phrase_given_when_you_first_created_your_wallet'
-            )}
+            {chrome.i18n.getMessage('Enter_the_12_or_24_word_recovery_phrase_given_when_you_first_created_your_wallet')}
           </Typography>
 
           <Box sx={{ flexGrow: 1, width: 640, maxWidth: '100%', my: '16px' }}>
@@ -203,9 +197,7 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
               <Input
                 id="textfield"
                 className={classes.inputBox}
-                placeholder={chrome.i18n.getMessage(
-                  'Enter_your_recovery_phrase_using_spaces_to_separate_each_word'
-                )}
+                placeholder={chrome.i18n.getMessage('Enter_your_recovery_phrase_using_spaces_to_separate_each_word')}
                 autoFocus
                 fullWidth
                 multiline
@@ -247,21 +239,26 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
               borderRadius: '12px',
               textTransform: 'capitalize',
               gap: '12px',
-              display: 'flex',
+              display: 'flex'
             }}
-            disabled={isSignLoading ? true : !mnemonicValid}
+            disabled={
+              isSignLoading ? true : !mnemonicValid
+            }
           >
             {isSignLoading && <LLSpinner size={28} />}
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 'bold' }}
+              color="background.paper"
+            >
               {chrome.i18n.getMessage('Next')}
             </Typography>
           </Button>
 
           {renderSnackBar()}
         </Box>
-      ) : (
-        <LLNotFound setShowDialog={setShowDialog} />
-      )}
+        :
+        <LLNotFound setShowDialog={setShowDialog} />}
     </ThemeProvider>
   );
 };

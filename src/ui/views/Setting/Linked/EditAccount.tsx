@@ -68,8 +68,8 @@ const EditAccount = (props: EditAccountProps) => {
   };
 
   useEffect(() => {
-    setName(props.childAccount.name);
-    setDesc(props.childAccount.description);
+    setName(props.childAccount.name)
+    setDesc(props.childAccount.description)
   }, []);
 
   const renderContent = () => (
@@ -111,7 +111,7 @@ const EditAccount = (props: EditAccountProps) => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          marginBottom: '24px',
+          marginBottom:'24px',
         }}
       >
         <Typography
@@ -131,6 +131,7 @@ const EditAccount = (props: EditAccountProps) => {
             setName(newValue);
           }}
         />
+
       </Box>
       <Box
         sx={{
@@ -177,7 +178,7 @@ const EditAccount = (props: EditAccountProps) => {
               alignItems: 'center',
             }}
           >
-            {failed ? (
+            {failed ?
               <Typography
                 variant="subtitle1"
                 sx={{ fontWeight: 'bold', fontSize: '14px' }}
@@ -185,7 +186,7 @@ const EditAccount = (props: EditAccountProps) => {
               >
                 {chrome.i18n.getMessage('Submission_error')}
               </Typography>
-            ) : (
+              :
               <Box sx={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
                 <LLSpinner size={28} />
                 <Typography
@@ -196,10 +197,15 @@ const EditAccount = (props: EditAccountProps) => {
                   {chrome.i18n.getMessage('Working_on_it')}
                 </Typography>
               </Box>
-            )}
+            }
           </Box>
         ) : (
-          <LLPrimaryButton label="Confirm" fullWidth type="submit" onClick={onSubmit} />
+          <LLPrimaryButton
+            label="Confirm"
+            fullWidth
+            type="submit"
+            onClick={onSubmit}
+          />
         )}
       </Stack>
     </Box>

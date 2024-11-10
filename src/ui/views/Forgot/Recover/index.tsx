@@ -10,7 +10,10 @@ import ShowKey from './ShowKey';
 import theme from '../../../style/LLTheme';
 import RegisterHeader from '../../Register/RegisterHeader';
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
+import {
+  ComponentTransition,
+  AnimationTypes,
+} from 'react-component-transition';
 import { useWallet, Options } from 'ui/utils';
 
 enum Direction {
@@ -47,16 +50,13 @@ const Recover = () => {
 
   const loadView = async () => {
     // console.log(wallet);
-    wallet
-      .getCurrentAccount()
-      .then((res) => {
-        if (res) {
-          history.push('/');
-        }
-      })
-      .catch(() => {
-        return;
-      });
+    wallet.getCurrentAccount().then((res) => {
+      if (res) {
+        history.push('/');
+      }
+    }).catch(() => {
+      return;
+    });
   };
   const goNext = () => {
     setDirection(Direction.Right);
@@ -94,9 +94,18 @@ const Recover = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <RecoverPage setArray={setArray} dataArray={dataArray} goNext={goNext} />;
+        return <RecoverPage
+          setArray={setArray}
+          dataArray={dataArray}
+          goNext={goNext}
+        />;
       case 1:
-        return <ShowKey handleClick={goNext} mnemonic={dataArray} />;
+        return (
+          <ShowKey
+            handleClick={goNext}
+            mnemonic={dataArray}
+          />
+        );
       default:
         return <div />;
     }
@@ -106,6 +115,7 @@ const Recover = () => {
     console.log('wallet');
     loadView();
   }, []);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -121,6 +131,7 @@ const Recover = () => {
         }}
       >
         <RegisterHeader />
+
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
@@ -151,6 +162,7 @@ const Recover = () => {
             </IconButton>
 
             <div style={{ flexGrow: 1 }}></div>
+
           </Box>
 
           <ComponentTransition
@@ -176,12 +188,7 @@ const Recover = () => {
 
         <Box sx={{ flexGrow: 1 }} />
         <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-          <Alert
-            onClose={handleErrorClose}
-            variant="filled"
-            severity="error"
-            sx={{ width: '100%' }}
-          >
+          <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
             {errMessage}
           </Alert>
         </Snackbar>

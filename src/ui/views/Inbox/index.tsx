@@ -1,7 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import { useHistory } from 'react-router-dom';
-import { Typography, IconButton, Box, CardMedia, Tab, Tabs } from '@mui/material';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import {
+  Typography,
+  IconButton,
+  Box,
+  CardMedia,
+  Tab,
+  Tabs,
+} from '@mui/material';
+import {
+  LLPrimaryButton,
+  LLSpinner
+} from 'ui/FRWComponent';
 import { useTheme } from '@mui/material/styles';
 import { useWallet } from 'ui/utils';
 import NavBar from '../Dashboard/NavBar';
@@ -45,6 +55,7 @@ const a11yProps = (index: number) => {
 };
 
 const Inbox = () => {
+
   const wallet = useWallet();
   const [claiming, setClaiming] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -56,11 +67,14 @@ const Inbox = () => {
   const [searchKey, setSearchKey] = useState<string>('');
   const [searchContacts, setSearchContacts] = useState<any[]>([]);
   const [searched, setSearched] = useState<boolean>(false);
-  const [hasNoFilteredContacts, setHasNoFilteredContacts] = useState<boolean>(false);
+  const [hasNoFilteredContacts, setHasNoFilteredContacts] =
+    useState<boolean>(false);
   const theme = useTheme();
 
+
+
   const getUsername = async () => {
-    const resp = await wallet.fetchFlownsInbox();
+    const resp =  await wallet.fetchFlownsInbox();
     const userInfo = await wallet.getUserInfo(false);
     const address = await wallet.getCurrentAddress();
     const nftPlaceholder: any[] = [];
@@ -68,9 +82,10 @@ const Inbox = () => {
     const collections = resp.collections;
     const vaultBalances = resp.vaultBalances;
 
+
     Object.keys(resp.vaultBalances).map((i, v) => {
-      const token = {};
-      token[i] = vaultBalances[i];
+      const token = {}
+      token[i] = vaultBalances[i]
 
       tokenPlaceholder.push(token);
     });
@@ -81,7 +96,7 @@ const Inbox = () => {
     //   console.log(i);
     //   const token = await wallet.openapi.getNFTMetadata(address!, i.split('.')[2], `0x${i.split('.')[1]}`, resp.collections[i]);
     // });
-    setUsername(userInfo.username);
+    setUsername(userInfo.username)
   };
 
   useEffect(() => {
@@ -90,7 +105,7 @@ const Inbox = () => {
 
   return (
     <div className="page">
-      <LLHeader title={chrome.i18n.getMessage('Inbox')} help={false} />
+      <LLHeader title={chrome.i18n.getMessage('Inbox')}  help={false}/>
 
       <Tabs
         value={tabValue}

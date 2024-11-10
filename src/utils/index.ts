@@ -1,4 +1,5 @@
-import { Period, PeriodFrequency } from 'background/service/networkModel';
+
+import {Period, PeriodFrequency} from 'background/service/networkModel';
 
 import BroadcastChannelMessage from './message/broadcastChannelMessage';
 import PortMessage from './message/portMessage';
@@ -7,6 +8,7 @@ const Message = {
   BroadcastChannelMessage,
   PortMessage,
 };
+
 
 declare global {
   const langLocales: Record<string, Record<'message', string>>;
@@ -31,18 +33,18 @@ export { Message, t, format };
 export const getPeriodFrequency = (period: Period): PeriodFrequency => {
   switch (period) {
     case Period.oneDay:
-      return PeriodFrequency.halfHour;
+      return PeriodFrequency.halfHour
     case Period.oneWeek:
-      return PeriodFrequency.oneHour;
+      return PeriodFrequency.oneHour
     case Period.oneMonth:
-      return PeriodFrequency.oneDay;
+      return PeriodFrequency.oneDay
     case Period.threeMonth:
-      return PeriodFrequency.oneDay;
+      return PeriodFrequency.oneDay
     case Period.oneYear:
-      return PeriodFrequency.threeDay;
+      return PeriodFrequency.threeDay
     case Period.all:
-      return PeriodFrequency.oneWeek;
+      return PeriodFrequency.oneWeek
     default:
-      return PeriodFrequency.oneDay;
+      return PeriodFrequency.oneDay
   }
-};
+}

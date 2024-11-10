@@ -67,7 +67,7 @@ const TokenDetail = () => {
     let evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
 
     // Filter out any empty objects from evmCustomToken
-    evmCustomToken = evmCustomToken.filter((token) => Object.keys(token).length > 0);
+    evmCustomToken = evmCustomToken.filter(token => Object.keys(token).length > 0);
 
     // Filter out the token with the matching address
     evmCustomToken = evmCustomToken.filter(
@@ -75,12 +75,14 @@ const TokenDetail = () => {
     );
 
     await storage.set(`${network}evmCustomToken`, evmCustomToken);
-    console.log('evmCustomToken ', evmCustomToken);
+    console.log('evmCustomToken ', evmCustomToken)
     await usewallet.clearCoinList();
     await usewallet.openapi.refreshCustomEvmGitToken(network);
     history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
     history.goBack();
   };
+
+
 
   const Header = () => {
     return (
@@ -89,11 +91,11 @@ const TokenDetail = () => {
           <ArrowBackIcon sx={{ color: 'icon.navi' }} />
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
-        {tokenInfo && tokenInfo.custom && (
+        {tokenInfo && tokenInfo.custom &&
           <IconButton onClick={handleMenuToggle}>
             <MoreHorizIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
-        )}
+        }
         {menuOpen && (
           <Box
             sx={{
@@ -107,9 +109,7 @@ const TokenDetail = () => {
               zIndex: 1000,
             }}
           >
-            <MenuItem onClick={handleDeleteEFT} sx={{ fontSize: '12px', fontWeight: 400 }}>
-              Delete EFT
-            </MenuItem>
+            <MenuItem onClick={handleDeleteEFT} sx={{ fontSize: '12px', fontWeight: 400 }}>Delete EFT</MenuItem>
           </Box>
         )}
       </Box>
@@ -171,7 +171,9 @@ const TokenDetail = () => {
           }}
         />
       );
-    } else {
+
+    }
+    else {
       return (
         <MoveFromFlow
           isConfirmationOpen={moveOpen}
@@ -185,6 +187,7 @@ const TokenDetail = () => {
       );
     }
   };
+
 
   useEffect(() => {
     loadNetwork();
@@ -207,7 +210,10 @@ const TokenDetail = () => {
                 backgroundColor: 'error.light',
               }}
             >
-              <img style={{ height: '16px', width: '16px', borderRadius: '16px' }} src={tips}></img>
+              <img
+                style={{ height: '16px', width: '16px', borderRadius: '16px' }}
+                src={tips}
+              ></img>
               <Typography
                 sx={{
                   fontSize: '12px',
@@ -216,11 +222,12 @@ const TokenDetail = () => {
                 }}
               >
                 Flow Wallet doesn’t have access to {`${token}`} in
-                {`${walletName.name}`} Account, please check your linked account settings.
+                {`${walletName.name}`} Account, please check your linked account
+                settings.
               </Typography>
             </Box>
           )}
-          {tokenInfo && (
+          {tokenInfo &&
             <TokenInfoCard
               price={price}
               token={token}
@@ -233,20 +240,28 @@ const TokenDetail = () => {
               childAccount={childAccount}
               setAlertOpen={setAlertOpen}
             />
-          )}
+          }
           {token === 'flow' && <StackingCard network={network} />}
           {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
           <ClaimTokenCard token={token} />
           {providers?.length > 0 && (
-            <PriceCard token={token} price={price} setPrice={setPrice} providers={providers} />
+            <PriceCard
+              token={token}
+              price={price}
+              setPrice={setPrice}
+              providers={providers}
+            />
           )}
-          {moveOpen && renderMoveComponent()}
+          {
+            moveOpen && renderMoveComponent()
+          }
           {network === 'mainnet' && (
             <LLComingSoon
               alertOpen={alertOpen}
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           )}
+
         </div>
       </div>
     </StyledEngineProvider>

@@ -28,7 +28,7 @@ import SendAmount from './Send/SendAmount';
 import SendEth from './Send/SendEth';
 import TokenDetail from './TokenDetail';
 import TokenList from './TokenList';
-import AddCustomEvmToken from './Wallet/AddCustom/AddCustomEvmToken';
+import AddCustomEvmToken from './Wallet/AddCustom/AddCustomEvmToken'
 import Inbox from './Inbox';
 import StakingPage from './Staking/StakingPage';
 import UnstakePage from './Staking/UnstakePage';
@@ -157,6 +157,7 @@ const Inner = (props) => {
             <PrivateKeyPassword />
           </PrivateRoute>
 
+
           <PrivateRoute path={`${props.match.url}/nested/keylist`}>
             <KeyList />
           </PrivateRoute>
@@ -165,7 +166,9 @@ const Inner = (props) => {
             <Keydetail />
           </PrivateRoute>
 
-          <PrivateRoute path={`${props.match.url}/nested/recoveryphrasepassword`}>
+          <PrivateRoute
+            path={`${props.match.url}/nested/recoveryphrasepassword`}
+          >
             <Recoveryphrasepassword />
           </PrivateRoute>
 
@@ -210,6 +213,7 @@ const Inner = (props) => {
           <PrivateRoute path={`${props.match.url}/nftevm/detail/:id`}>
             <NftEvmDetail />
           </PrivateRoute>
+
 
           <PrivateRoute path={`${props.match.url}/nftevm/send`}>
             <SendNftEvm />
@@ -274,6 +278,7 @@ const Inner = (props) => {
             <WalletDetail />
           </PrivateRoute>
 
+
           <PrivateRoute path={`${props.match.url}/setting/wallet`}>
             <WalletList />
           </PrivateRoute>
@@ -302,15 +307,21 @@ const Inner = (props) => {
             <Inbox />
           </PrivateRoute>
 
-          <PrivateRoute path={`${props.match.url}/staking/page/:nodeid/:delegateid`}>
+          <PrivateRoute
+            path={`${props.match.url}/staking/page/:nodeid/:delegateid`}
+          >
             <StakingPage />
           </PrivateRoute>
 
-          <PrivateRoute path={`${props.match.url}/unstake/page/:nodeid/:delegateid`}>
+          <PrivateRoute
+            path={`${props.match.url}/unstake/page/:nodeid/:delegateid`}
+          >
             <UnstakePage />
           </PrivateRoute>
 
-          <PrivateRoute path={`${props.match.url}/staking/node/:nodeid/:delegateid`}>
+          <PrivateRoute
+            path={`${props.match.url}/staking/node/:nodeid/:delegateid`}
+          >
             <NodeDetail />
           </PrivateRoute>
           {/* =======

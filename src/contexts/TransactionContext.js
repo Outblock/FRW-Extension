@@ -25,5 +25,9 @@ export default function TransactionProvider({ children }) {
     setTransactionStatus,
   };
 
-  return <TransactionContext.Provider value={value}>{children}</TransactionContext.Provider>;
+  return (
+    <TransactionContext.Provider value={value}>
+      {children}
+    </TransactionContext.Provider>
+  );
 }
