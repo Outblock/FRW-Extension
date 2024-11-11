@@ -14,13 +14,18 @@ const TransferFrom = ({ wallet, userInfo, isChild = false }) => {
   const [emoji, setEmoji] = useState(tempEmoji);
 
   const getEmoji = async () => {
-    const emojiList = await usewallet.getEmoji();
-    setEmoji(emojiList[0]);
+    const currentWallet = await usewallet.getCurrentWallet();
+    const emojiObject = tempEmoji;
+    emojiObject.emoji = currentWallet.icon;
+    emojiObject.name = currentWallet.name;
+    emojiObject.bgcolor = currentWallet.color;
+    emojiObject['type'] = 'parent';
+    setEmoji(emojiObject);
   };
 
   useEffect(() => {
     getEmoji();
-    console.log('userInfo ',wallet, userInfo)
+    console.log('userInfo ', wallet, userInfo);
   }, [userInfo]);
 
   return (

@@ -1682,7 +1682,6 @@ export class WalletController extends BaseController {
 
   getCurrentAddress = async () => {
     const address = await userWalletService.getCurrentAddress();
-    console.log('getCurrentAddress ', address);
     if (!address) {
       const data = await this.refreshUserWallets();
       return withPrefix(data[0].blockchain[0].address);
@@ -1696,7 +1695,6 @@ export class WalletController extends BaseController {
   getMainAddress = async () => {
     const network = await this.getNetwork();
     const address = await userWalletService.getMainWallet(network);
-    console.log('getMainAddress ', address);
     if (!address) {
       const data = await this.refreshUserWallets();
       return withPrefix(data[0].blockchain[0].address);

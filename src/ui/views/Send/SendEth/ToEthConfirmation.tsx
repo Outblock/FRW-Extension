@@ -5,7 +5,7 @@ import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } f
 import CloseIcon from '@mui/icons-material/Close';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import eventBus from '@/eventBus';
 import InfoIcon from '@mui/icons-material/Info';
@@ -212,10 +212,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       <Box
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
-        {props.data.childType ? (
+        {props.data.childType && props.data.childType !== 'evm' ? (
           <LLProfile contact={props.data.userContact} />
         ) : (
-          <FRWProfile contact={props.data.userContact} />
+          <FRWTargetProfile contact={props.data.userContact} fromEvm={'sendEth'} />
         )}
         <Box
           sx={{

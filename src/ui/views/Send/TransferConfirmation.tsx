@@ -5,7 +5,7 @@ import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } f
 import CloseIcon from '@mui/icons-material/Close';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import eventBus from '@/eventBus';
 import InfoIcon from '@mui/icons-material/Info';
@@ -267,11 +267,16 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
         {props.data.childType === 'evm' ? (
-          <FRWProfile contact={props.data.userContact} isLoading={false} isEvm={true} />
+          <FRWProfile
+            contact={props.data.userContact}
+            isLoading={false}
+            isEvm={true}
+            fromEvm={'yes'}
+          />
         ) : props.data.childType ? (
           <LLProfile contact={props.data.userContact} />
         ) : (
-          <FRWProfile contact={props.data.userContact} />
+          <FRWProfile contact={props.data.userContact} fromEvm={'no'} />
         )}
         <Box
           sx={{
@@ -297,7 +302,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           ))}
         </Box>
         {isEmoji(props.data.contact.avatar) ? (
-          <FRWProfile contact={props.data.contact} />
+          <FRWTargetProfile contact={props.data.contact} fromEvm={'to'} />
         ) : (
           <LLProfile contact={props.data.contact} />
         )}

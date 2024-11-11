@@ -32,6 +32,11 @@ export const isValidEthereumAddress = (address) => {
   return regex.test(address);
 };
 
+export const isValidFlowAddress = (address) => {
+  const regex = /^(0x)?[0-9a-fA-F]{16}$/;
+  return regex.test(address);
+};
+
 export const ensureEvmAddressPrefix = (address) => {
   const cleanAddress = address.startsWith('0x') ? address.slice(2) : address;
 

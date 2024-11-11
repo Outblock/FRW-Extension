@@ -15,11 +15,23 @@ const TransferTo = ({ wallet, userInfo }) => {
   const [emoji, setEmoji] = useState(tempEmoji);
 
   const getEmoji = async () => {
-    const emojiList = await usewallet.getEmoji();
-    setEmoji(emojiList[1]);
+    console.log('isEvm ', emoji);
+    if (!emoji['type']) {
+      const currentWallet = await usewallet.getEvmWallet();
+      console.log('getEvmWallet ', currentWallet);
+      const emojiObject = tempEmoji;
+      emojiObject.emoji = currentWallet.icon;
+      emojiObject.name = currentWallet.name;
+      emojiObject.bgcolor = currentWallet.color;
+      emojiObject['type'] = 'evm';
+      setEmoji(emojiObject);
+    }
+
+    console.log('emoji ', emoji);
   };
 
   useEffect(() => {
+    console.log('transfer to ', wallet, userInfo);
     getEmoji();
   }, [userInfo]);
 

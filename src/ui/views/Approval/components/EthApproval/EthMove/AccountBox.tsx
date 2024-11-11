@@ -29,20 +29,6 @@ function AccountBox({ isEvm }) {
     let evmAddress = await usewallet.getEvmAddress();
     evmAddress = formatString(evmAddress);
     const address = await usewallet.getCurrentAddress();
-
-    const emojires = await usewallet.getEmoji();
-
-    if (isEvm) {
-      setFirst(evmAddress);
-      setSecond(address!);
-      setFirstEmoji(emojires[1]);
-      setSecondEmoji(emojires[0]);
-    } else {
-      setFirst(address!);
-      setSecond(evmAddress);
-      setFirstEmoji(emojires[0]);
-      setSecondEmoji(emojires[1]);
-    }
   };
 
   useEffect(() => {

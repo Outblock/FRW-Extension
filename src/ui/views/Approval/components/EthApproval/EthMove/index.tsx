@@ -22,8 +22,8 @@ import moveft from 'ui/FRWAssets/image/moveft.png';
 import movenft from 'ui/FRWAssets/image/movenft.png';
 import MoveNfts from './MoveNfts';
 import MoveEvm from './MoveEvm';
-import MoveFromFlow from './EvmMove/MoveFromFlow';
-import MoveFromEvm from './EvmMove/MoveFromEvm';
+// import MoveFromFlow from './EvmMove/MoveFromFlow';
+// import MoveFromEvm from './EvmMove/MoveFromEvm';
 import { add } from 'lodash';
 
 interface MoveBoardProps {
@@ -226,7 +226,7 @@ const MoveBoard = (props: MoveBoardProps) => {
         </>
       )}
 
-      {moveFtOpen &&
+      {/* {moveFtOpen &&
         (childType === 'evm' ? (
           <MoveFromEvm
             isConfirmationOpen={moveFtOpen}
@@ -247,7 +247,7 @@ const MoveBoard = (props: MoveBoardProps) => {
               setMoveFt(false);
             }}
           />
-        ))}
+        ))} */}
     </Drawer>
   );
 };

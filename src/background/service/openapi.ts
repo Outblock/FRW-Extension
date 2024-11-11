@@ -52,6 +52,8 @@ import { storage } from '@/background/webapi';
 import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
 
 import { walletController } from '../controller';
+import { isValidAddress, isValidSignature } from 'ethereumjs-util';
+import { isValidFlowAddress } from '@/ui/utils/address';
 // import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
 
@@ -1163,12 +1165,13 @@ class OpenApiService {
 
   getAccountMinFlow = async (address: string) => {
     const script = await getScripts('basic', 'getAccountMinFlow');
-
-    const minFlow = await fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(address, t.Address)],
-    });
-    return minFlow;
+    if (isValidFlowAddress(address)) {
+      const minFlow = await fcl.query({
+        cadence: script,
+        args: (arg, t) => [arg(address, t.Address)],
+      });
+      return minFlow;
+    }
   };
 
   getFlownsDomainsByAddress = async (address: string) => {

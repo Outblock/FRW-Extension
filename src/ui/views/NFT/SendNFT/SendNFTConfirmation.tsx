@@ -5,7 +5,7 @@ import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } f
 import CloseIcon from '@mui/icons-material/Close';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -394,7 +394,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             ))}
           </Box>
           {isEmoji(props.data.contact.avatar) ? (
-            <FRWProfile contact={props.data.contact} />
+            <FRWTargetProfile contact={props.data.contact} />
           ) : (
             <LLProfile contact={props.data.contact} />
           )}

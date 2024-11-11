@@ -25,3 +25,4 @@ export * from './FWContactCard';
 export * from './FWDropDownProfile';
 export * from './FWMoveDropdown';
 export * from './LLContactEth';
+export * from './FRWTargetProfile';

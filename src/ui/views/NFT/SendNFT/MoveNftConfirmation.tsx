@@ -174,8 +174,8 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const getChildResp = async () => {
     const childresp = await usewallet.checkUserChildAccount();
     const parentAddress = await usewallet.getMainAddress();
-    const emojires = await usewallet.getEmoji();
     const eWallet = await usewallet.getEvmWallet();
+    const currentWallet = await usewallet.getCurrentWallet();
     let evmAddress;
     if (eWallet.address) {
       evmAddress = ensureEvmAddressPrefix(eWallet.address);
@@ -183,10 +183,10 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
     const newWallet = {
       [parentAddress!]: {
-        name: emojires[0].name,
-        description: emojires[0].name,
+        name: currentWallet.name,
+        description: currentWallet.name,
         thumbnail: {
-          url: emojires[0].emoji,
+          url: currentWallet.icon,
         },
       },
     };
@@ -195,17 +195,18 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     if (evmAddress) {
       evmWallet = {
         [evmAddress!]: {
-          name: emojires[1].name,
-          description: emojires[1].name,
+          name: eWallet.name,
+          description: eWallet.name,
           thumbnail: {
-            url: emojires[1].emoji,
+            url: eWallet.icon,
           },
         },
       };
     }
-
+    console.log('eWallet ', evmWallet);
     // Merge usewallet lists
     const walletList = { ...newWallet, ...childresp, ...evmWallet };
+    console.log('eWallet walletList', walletList);
     setChildWallets(walletList);
     const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {

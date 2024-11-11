@@ -11,13 +11,14 @@ const tempEmoji = {
   bgcolor: '',
 };
 
-export const FRWProfile = ({ contact, isLoading = false, isEvm = false, fromEvm = '1' }) => {
+export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fromEvm = '1' }) => {
   const usewallet = useWallet();
   const [emoji, setEmoji] = useState(tempEmoji);
   const [isload, setLoad] = useState(true);
 
   const getEmoji = async () => {
     setLoad(true);
+    console.log('FRWTargetProfile ', isEvm, contact, emoji, fromEvm);
     if (isEvm) {
       const currentWallet = await usewallet.getEvmWallet();
       console.log('getEvmWallet ', currentWallet);
@@ -38,6 +39,8 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false, fromEvm 
       setEmoji(emojiObject);
       setLoad(false);
     }
+
+    console.log('emoji ', emoji);
   };
 
   useEffect(() => {

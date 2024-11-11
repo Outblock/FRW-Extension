@@ -471,36 +471,6 @@ const WalletDetail = () => {
                         ? chrome.i18n.getMessage('Allow__lilico__to__pay__the__gas__fee')
                         : chrome.i18n.getMessage('This__feature__has__been__disabled__temporarily')}
                     </Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        width: '100%',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <Typography
-                        variant="body1"
-                        color={gasKillSwitch ? 'text.secondary' : 'error.main'}
-                        sx={{ weight: 400, fontSize: '12px' }}
-                      >
-                        {`${storageCapacity(storageInfo).toFixed(2)}%`}
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        color={gasKillSwitch ? 'text.secondary' : 'error.main'}
-                        sx={{ weight: 400, fontSize: '12px' }}
-                      >
-                        {`${formatBytes(storageInfo!.used * 10)} / ${formatBytes(
-                          storageInfo!.capacity * 10
-                        )}`}
-                      </Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={storageCapacity(storageInfo)}
-                      sx={{ height: '8px', borderRadius: '4px' }}
-                    ></LinearProgress>
                   </Box>
                   <SwitchUnstyled
                     disabled={!gasKillSwitch}
