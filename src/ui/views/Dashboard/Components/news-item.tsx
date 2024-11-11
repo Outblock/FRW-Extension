@@ -1,20 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { NewsItem } from 'background/service/networkModel';
+import { Card, CardContent, CardMedia, IconButton, Typography, Box, Tooltip } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+
 import { useNews } from '@/ui/utils/NewsContext';
+import { openInternalPageInTab } from '@/ui/utils/webapi';
+import type { NewsItem } from 'background/service/networkModel';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
   const { dismissNews, markAsRead } = useNews();
   const cardRef = useRef<HTMLDivElement>(null);
   const [, setItemIsRead] = useState(false);
   const [, setIsDismissed] = useState(false);
-
-  // Check if item is expired
-  const isExpired = item.expiryTime && new Date(item.expiryTime) < new Date();
-
-  // Don't render if expired
-  if (isExpired) return null;
 
   // Handle auto-dismiss for 'once' display type, and mark as read for other display type
   useEffect(() => {
@@ -48,10 +44,16 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
     };
   }, [item.id, dismissNews, markAsRead, item.displayType]);
 
+  // Check if item is expired
+  const isExpired = item.expiryTime && new Date(item.expiryTime) < new Date();
+
+  // Don't render if expired
+  if (isExpired) return null;
+
   // Render image-type news item
   if (item.type === 'image') {
     return (
-      <Box
+      <Card
         ref={cardRef}
         sx={{
           borderRadius: '12px',
@@ -59,7 +61,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
           height: '100%',
         }}
       >
-        <Box
+        <CardMedia
           component="img"
           src={item.image}
           alt={item.title || ''}
@@ -69,22 +71,19 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
             objectFit: 'contain',
           }}
         />
-      </Box>
+      </Card>
     );
   }
 
   // Render message-type news item
   return (
-    <Box
+    <Card
       ref={cardRef}
       sx={{
         background: 'rgba(255, 255, 255, 0.1)',
         borderRadius: '12px',
-        padding: '16px',
         height: '100%',
         position: 'relative',
-        display: 'flex',
-        alignItems: 'flex-start',
       }}
     >
       {item.displayType === 'click' && (
@@ -105,17 +104,15 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
         </IconButton>
       )}
 
-      <Box
+      <CardContent
         sx={{
           display: 'flex',
-          gap: '12px',
           alignItems: 'flex-start',
-          width: '100%',
-          pr: 4,
+          padding: '16px',
         }}
       >
         {item.icon && (
-          <Box
+          <CardMedia
             component="img"
             src={item.icon}
             alt=""
@@ -124,10 +121,11 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
               height: 32,
               borderRadius: '50%',
               flexShrink: 0,
+              marginRight: '12px',
             }}
           />
         )}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ flex: 1, minWidth: 0, pr: 4 }}>
           <Typography
             variant="subtitle1"
             sx={{
@@ -140,20 +138,36 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
           >
             {item.title}
           </Typography>
-
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {item.url ? (
+          {item.body && (
+            <Tooltip title={item.body} arrow enterDelay={500}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  cursor: item.url ? 'pointer' : 'default',
+                }}
+                onClick={item.url ? () => item.url && openInternalPageInTab(item.url) : undefined}
+              >
+                {item.body}
+              </Typography>
+            </Tooltip>
+          )}
+          {item.url && !item.body && (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
               <Box
                 component="span"
-                onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}
+                onClick={() => item.url && openInternalPageInTab(item.url)}
                 sx={{
                   cursor: 'pointer',
                   display: 'flex',
@@ -166,12 +180,11 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
               >
                 View More
               </Box>
-            ) : (
-              item.body
-            )}
-          </Typography>
+              )
+            </Typography>
+          )}
         </Box>
-      </Box>
-    </Box>
+      </CardContent>
+    </Card>
   );
 };
