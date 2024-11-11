@@ -11,7 +11,7 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline
+  CssBaseline,
 } from '@mui/material';
 import { LLSpinner } from 'ui/FRWComponent';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -73,8 +73,7 @@ const BpIcon = styled('span')(() => ({
 
 const BpCheckedIcon = styled(BpIcon)({
   backgroundColor: '#41CC5D',
-  backgroundImage:
-    'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
+  backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
   '&:before': {
     display: 'block',
     width: 21,
@@ -143,7 +142,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
   const [isLoading, setLoading] = useState(false);
 
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
+  const [errorMessage, setErrorMessage] = useState('Somthing went wrong');
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -167,7 +166,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
       const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
       setLoading(false);
       const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
+      setUsername(userInfo.username);
       login();
     } catch (error) {
       setLoading(false);
@@ -177,14 +176,14 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
         setKeyNew(false);
       }
     }
-  }
+  };
 
   const signPk = async (accountKey) => {
     try {
       const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
       setLoading(false);
       const userInfo = await wallet.getUserInfo(true);
-      setUsername(userInfo.username)
+      setUsername(userInfo.username);
       login();
     } catch (error) {
       console.log(error);
@@ -195,10 +194,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
         setKeyNew(false);
       }
     }
-  }
-
-
-
+  };
 
   const login = async () => {
     setLoading(true);
@@ -217,7 +213,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
         goEnd();
       } else {
         handleClick();
-
       }
     } catch (e) {
       setLoading(false);
@@ -229,9 +224,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Welcome__Back__import')}
           {/* <Box display="inline" color="primary.main">
@@ -239,7 +232,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
           </Box>{' '} */}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
+          {chrome.i18n.getMessage(
+            'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+          )}
         </Typography>
 
         <Box
@@ -262,21 +257,14 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
               readOnly={!(password.length < 8)}
               fullWidth
               disableUnderline
-
               onChange={(event) => {
                 setPassword(event.target.value);
               }}
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}
-                  <IconButton
-                    onClick={() => setPasswordVisible(!isPasswordVisible)}
-                  >
-                    {isPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
+                  <IconButton onClick={() => setPasswordVisible(!isPasswordVisible)}>
+                    {isPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </IconButton>
                 </InputAdornment>
               }
@@ -301,22 +289,23 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
             }}
           >
             {isLoading && <LLSpinner color="secondary" size={28} />}
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 'bold' }}
-              color="background.paper"
-            >
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
               {chrome.i18n.getMessage('Login')}
             </Typography>
           </Button>
         </Box>
       </Box>
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="success" sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleErrorClose}
+          variant="filled"
+          severity="success"
+          sx={{ width: '100%' }}
+        >
           {errorMessage}
         </Alert>
       </Snackbar>
-      {!newKey &&
+      {!newKey && (
         <ErrorModel
           isOpen={setKeyNew}
           onOpenChange={setKeyNew}
@@ -324,7 +313,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
           errorMessage={chrome.i18n.getMessage('Please_import_or_register_a_new_key')}
           isGoback={true}
         />
-      }
+      )}
     </ThemeProvider>
   );
 };

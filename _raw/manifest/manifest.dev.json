@@ -32,28 +32,14 @@
   },
   "content_scripts": [
     {
-      "js": [
-        "content-script.js",
-        "script.js"
-      ],
-      "matches": [
-        "file://*/*",
-        "http://*/*",
-        "https://*/*"
-      ]
+      "js": ["content-script.js", "script.js"],
+      "matches": ["file://*/*", "http://*/*", "https://*/*"]
     }
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self' 'wasm-unsafe-eval';"
   },
-  "permissions": [
-    "storage",
-    "activeTab",
-    "tabs",
-    "notifications",
-    "identity",
-    "camera"
-  ],
+  "permissions": ["storage", "activeTab", "tabs", "notifications", "identity", "camera"],
   "web_accessible_resources": [
     {
       "resources": [
@@ -61,25 +47,15 @@
         "pageProvider.js",
         "user-media-permission.html"
       ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "matches": ["<all_urls>"]
     },
     {
-      "resources": [
-        "script.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["script.js"],
+      "matches": ["<all_urls>"]
     },
     {
-      "resources": [
-        "index.html"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["index.html"],
+      "matches": ["<all_urls>"]
     }
   ],
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2jsG1AXKEZGJuZecVwBsajHj6MqNGvcM+X/zQCuvec85xmgTJun+MGLHNAOaulMx5tMDR7+t3wkV3FiNMYQUBeGMHNpIoWHt5hBwX1FSL5uTPQFjqueuagICOKK6CCPIe0hr9eCXKmbMPQvJbawdn/q7qsPMJiBwqnyTO0jOtSpQfKVRYs5Bf1xpleHeWLWCdxuBNBwthmLw2kcx7GibsqPXA233ZXcfyivHT7PvT9KrNEq7m55pu3ZZ1kihNxDXJQzoKkXgmiAUJivxNf9cGQ3242vZ52AQvVzeCIWBrBv974FTgrQMZ+gDscsXgWuV10nPAcuuYmPKWjuB0IBsGwIDAQAB"

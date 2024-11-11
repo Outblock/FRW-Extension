@@ -36,12 +36,9 @@ import {
   setPersistence,
   onAuthStateChanged,
 } from '@firebase/auth';
-import {
-  fclTestnetConfig,
-  fclMainnetConfig,
-} from './fclConfig';
+import { fclTestnetConfig, fclMainnetConfig } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
-import { getRemoteConfig } from "firebase/remote-config";
+import { getRemoteConfig } from 'firebase/remote-config';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
 const { PortMessage } = Message;
 
@@ -185,17 +182,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 chrome.runtime.onConnect.addListener((port) => {
   // openapiService.getConfig();
 
-
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   port._timer = setTimeout(forceReconnect, 250e3, port);
   port.onDisconnect.addListener(deleteTimer);
 
-  if (
-    port.name === 'popup' ||
-    port.name === 'notification' ||
-    port.name === 'tab'
-  ) {
+  if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
     const pm = new PortMessage(port);
     pm.listen((data) => {
       // console.log('PortMessage ->', data);
@@ -206,10 +198,7 @@ chrome.runtime.onConnect.addListener((port) => {
             break;
           case 'openapi':
             if (walletController.openapi[data.method]) {
-              return walletController.openapi[data.method].apply(
-                null,
-                data.params
-              );
+              return walletController.openapi[data.method].apply(null, data.params);
             }
             break;
           case 'controller':
@@ -368,10 +357,9 @@ const extMessageHandler = (msg, sender, sendResponse) => {
   // Launches extension popup window
   if (
     service?.endpoint &&
-    (service?.endpoint ===
-      'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html' ||
+    (service?.endpoint === 'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html' ||
       service?.endpoint ===
-      'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
+        'chrome-extension://hpclkefagolihohboafpheddmmgdffjm/popup.html?network=testnet')
   ) {
     chrome.tabs
       .query({
@@ -384,11 +372,7 @@ const extMessageHandler = (msg, sender, sendResponse) => {
         if (service.type === 'pre-authz') {
           handlePreAuthz(tabId);
         } else {
-          console.log(
-            'notificationService.requestApproval ->',
-            service,
-            findPath(service)
-          );
+          console.log('notificationService.requestApproval ->', service, findPath(service));
           console.log('notificationService.msg ->', msg);
           notificationService
             .requestApproval(

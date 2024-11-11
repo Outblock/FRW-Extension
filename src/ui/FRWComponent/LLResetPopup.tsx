@@ -1,19 +1,9 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import {
-  Typography,
-  Box,
-  Drawer,
-  Stack,
-} from '@mui/material';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-  LLWarningButton,
-} from 'ui/FRWComponent';
+import { Typography, Box, Drawer, Stack } from '@mui/material';
+import { LLPrimaryButton, LLSecondaryButton, LLWarningButton } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import IconSubtract from '../../components/iconfont/IconSubtract';
-
 
 interface AddOrEditAddressProps {
   resetPop: boolean;
@@ -28,7 +18,6 @@ export interface AddressBookValues {
 }
 
 export const LLResetPopup = (props: AddOrEditAddressProps) => {
-
   const usewallet = useWallet();
   const history = useHistory();
   const [popupState, setPopupState] = useState('reset');
@@ -74,22 +63,25 @@ export const LLResetPopup = (props: AddOrEditAddressProps) => {
           <IconSubtract size={48} />
         </Box>
         <Box sx={{}}>
-          <Typography
-            variant="h1"
-            align="center"
-            py="14px"
-            fontWeight="bold"
-            fontSize="24px"
-          >
+          <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="24px">
             {chrome.i18n.getMessage('Are__you__sure__you__want__to__reset__your__wallet')}
           </Typography>
         </Box>
         <Box>
-          <Typography sx={{
-            fontSize: '14px', fontFamily: 'Inter',
-            fontStyle: 'normal', color: '#BABABA', textAlign: 'center', margin: '18px 36px 52px', cursor: 'pointer'
-          }}>
-            {chrome.i18n.getMessage('This_will_remove_any_existing_wallets_and_replace_them_with_new_wallets_Make_sure_you_have_your_recovery_phrase_backed_up')}
+          <Typography
+            sx={{
+              fontSize: '14px',
+              fontFamily: 'Inter',
+              fontStyle: 'normal',
+              color: '#BABABA',
+              textAlign: 'center',
+              margin: '18px 36px 52px',
+              cursor: 'pointer',
+            }}
+          >
+            {chrome.i18n.getMessage(
+              'This_will_remove_any_existing_wallets_and_replace_them_with_new_wallets_Make_sure_you_have_your_recovery_phrase_backed_up'
+            )}
           </Typography>
         </Box>
       </Box>
@@ -99,23 +91,14 @@ export const LLResetPopup = (props: AddOrEditAddressProps) => {
           fullWidth
           onClick={onCancelBtnBack}
         />
-        <LLWarningButton
-          label={chrome.i18n.getMessage('Next')}
-          fullWidth
-          onClick={onResetSubmit}
-        />
+        <LLWarningButton label={chrome.i18n.getMessage('Next')} fullWidth onClick={onResetSubmit} />
       </Stack>
     </Box>
   );
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.resetPop}
-      transitionDuration={300}
-    >
-      {!showAction
-        &&
+    <Drawer anchor="bottom" open={props.resetPop} transitionDuration={300}>
+      {!showAction && (
         <Box
           padding="18px"
           sx={{
@@ -126,13 +109,7 @@ export const LLResetPopup = (props: AddOrEditAddressProps) => {
           }}
         >
           <Box sx={{}}>
-            <Typography
-              variant="h1"
-              align="center"
-              py="14px"
-              fontWeight="bold"
-              fontSize="24px"
-            >
+            <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="24px">
               {chrome.i18n.getMessage('Reset_Restore_your_wallet')}
             </Typography>
           </Box>
@@ -154,11 +131,8 @@ export const LLResetPopup = (props: AddOrEditAddressProps) => {
             />
           </Stack>
         </Box>
-      }
-      {showAction && (popupState === 'reset' && renderResetContent())}
-
-
+      )}
+      {showAction && popupState === 'reset' && renderResetContent()}
     </Drawer>
   );
 };
-

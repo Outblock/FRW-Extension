@@ -4,15 +4,15 @@ import eventBus from '@/eventBus';
 
 const tempEmoji = [
   {
-    "emoji": "🥥",
-    "name": "Coconut",
-    "bgcolor": "#FFE4C4"
+    emoji: '🥥',
+    name: 'Coconut',
+    bgcolor: '#FFE4C4',
   },
   {
-    "emoji": "🥑",
-    "name": "Avocado",
-    "bgcolor": "#98FB98"
-  }
+    emoji: '🥑',
+    name: 'Avocado',
+    bgcolor: '#98FB98',
+  },
 ];
 
 export const profileHooks = () => {

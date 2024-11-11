@@ -36,9 +36,7 @@ const WalletProvider = ({
 }: {
   children?: ReactNode;
   wallet: WalletController;
-}) => (
-  <WalletContext.Provider value={{ wallet }}>{children}</WalletContext.Provider>
-);
+}) => <WalletContext.Provider value={{ wallet }}>{children}</WalletContext.Provider>;
 
 /**
  * @deprecated The method should not be used
@@ -52,7 +50,7 @@ const useWalletOld = () => {
 };
 
 const useWallet = () => {
-  const { wallet } = (useContext(WalletContext) as unknown) as {
+  const { wallet } = useContext(WalletContext) as unknown as {
     wallet: WalletControllerType;
   };
 

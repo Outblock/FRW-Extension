@@ -45,11 +45,10 @@ const NFTTab = () => {
     if (isChild) {
       setChildType(isChild);
 
-
       const parentaddress = await wallet.getMainWallet();
 
       const activec = await wallet.getChildAccountAllowTypes(parentaddress, address!);
-      setActiveCollection(activec)
+      setActiveCollection(activec);
       const nftResult = await wallet.checkAccessibleNft(address);
       if (nftResult) {
         setAccessible(nftResult);
@@ -59,24 +58,25 @@ const NFTTab = () => {
       setIsActive(true);
     }
     // setAddress(address);
-  }
+  };
 
   const fetchPreferedTab = async () => {
     const tab = await storage.get('PreferredNFT');
-    if (tab) { setValue(tab); }
-  }
+    if (tab) {
+      setValue(tab);
+    }
+  };
 
   const refreshButtonClicked = () => {
     if (value === 0) gridRef?.current?.reload();
     if (value === 1) listRef?.current?.reload();
-  }
-
+  };
 
   const colors = {
     20: '#ffffff',
     100: '#FAFAFA',
     900: '#111111',
-    1000: '#000000'
+    1000: '#000000',
   };
 
   const StyledTab = styled(Tab)`
@@ -115,7 +115,7 @@ const NFTTab = () => {
       opacity: 0.24;
       cursor: not-allowed;
     }
-`;
+  `;
 
   const TabPanelStyle = styled(TabPanel)`
     width: 100%;
@@ -134,45 +134,64 @@ const NFTTab = () => {
   return (
     <div className="page" id="scrollableTab">
       <Tabs value={value} onChange={handleChange}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', px: '18px', py: '10px', gap: '8px', alignItems: 'center' }}>
-
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            px: '18px',
+            py: '10px',
+            gap: '8px',
+            alignItems: 'center',
+          }}
+        >
           <Tooltip title={chrome.i18n.getMessage('Refresh')} arrow>
-            <ButtonBase sx={{ flexGrow: 1, justifyContent: 'flex-start' }} onClick={refreshButtonClicked}>
-              <Typography component='div' variant='h5'>{nftCount > 0 ? `${nftCount} NFTs` : 'NFT'}</Typography>
-              <IconButton
-                aria-label="close"
-                color="primary"
-                size="small"
-              >
+            <ButtonBase
+              sx={{ flexGrow: 1, justifyContent: 'flex-start' }}
+              onClick={refreshButtonClicked}
+            >
+              <Typography component="div" variant="h5">
+                {nftCount > 0 ? `${nftCount} NFTs` : 'NFT'}
+              </Typography>
+              <IconButton aria-label="close" color="primary" size="small">
                 <ReplayRoundedIcon fontSize="inherit" />
               </IconButton>
             </ButtonBase>
           </Tooltip>
 
           <TabsListStyle
-            sx={{ backgroundColor: 'rgb(250, 250, 250, 0.24)', width: '120px', height: '36px', padding: '0px' }}>
-            <StyledTab sx={
-              {
-                zIndex: 12,
-                backgroundColor: 'rgba(250, 250, 250, 0)',
-                '&:focus': { backgroundColor: '#000000', color: '#FFFFFF', padding: '2px 13px' }
-              }
-            }>{chrome.i18n.getMessage('Grid')}</StyledTab>
-            <StyledTab sx={
-              {
+            sx={{
+              backgroundColor: 'rgb(250, 250, 250, 0.24)',
+              width: '120px',
+              height: '36px',
+              padding: '0px',
+            }}
+          >
+            <StyledTab
+              sx={{
                 zIndex: 12,
                 backgroundColor: 'rgba(250, 250, 250, 0)',
                 '&:focus': { backgroundColor: '#000000', color: '#FFFFFF', padding: '2px 13px' },
-              }
-            }>{chrome.i18n.getMessage('List')}</StyledTab>
+              }}
+            >
+              {chrome.i18n.getMessage('Grid')}
+            </StyledTab>
+            <StyledTab
+              sx={{
+                zIndex: 12,
+                backgroundColor: 'rgba(250, 250, 250, 0)',
+                '&:focus': { backgroundColor: '#000000', color: '#FFFFFF', padding: '2px 13px' },
+              }}
+            >
+              {chrome.i18n.getMessage('List')}
+            </StyledTab>
           </TabsListStyle>
-          {!childType &&
-            <Box component='span'>
+          {!childType && (
+            <Box component="span">
               <Button
                 component={Link}
-                to='/dashboard/nested/add_list'
-                variant='contained'
-                color='secondary'
+                to="/dashboard/nested/add_list"
+                variant="contained"
+                color="secondary"
                 sx={{
                   width: '46px',
                   height: '35px',
@@ -183,18 +202,19 @@ const NFTTab = () => {
                   opacity: '0.24',
                 }}
               >
-                <Typography color='#111111'
+                <Typography
+                  color="#111111"
                   sx={{
                     fontWeight: '600',
                     fontSize: '0.875rem',
-                    textTransform: 'none'
+                    textTransform: 'none',
                   }}
                 >
                   {chrome.i18n.getMessage('Add')}
                 </Typography>
               </Button>
             </Box>
-          }
+          )}
         </Box>
 
         <EditNFTAddress

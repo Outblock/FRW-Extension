@@ -27,11 +27,7 @@ const genHelperText = (
         color="text.secondary"
         sx={{ display: 'flex', alignItems: 'center' }}
       >
-        <CircularProgress
-          color="primary"
-          size={22}
-          style={{ fontSize: '22px', margin: '8px' }}
-        />
+        <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
         {chrome.i18n.getMessage('Checking')}
       </Typography>
     );

@@ -93,8 +93,8 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       const address = e.target[5].value;
       const pk = await jsonToKey(keystore, password);
       if (pk == null) {
-        setErrorMessage('Password incorrect')
-        return
+        setErrorMessage('Password incorrect');
+        return;
       }
       const pkHex = Buffer.from(pk!.data()).toString('hex');
       const result = await findAddressWithPK(pkHex, address);
@@ -174,11 +174,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           disabled={isLoading || isSignLoading}
         >
           {(isLoading || isSignLoading) && <LLSpinner size={28} />}
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>
@@ -186,7 +182,9 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       {errorMesssage != '' && (
         <ErrorModel
           isOpen={errorMesssage !== ''}
-          onOpenChange={()=>{setErrorMessage('')}}
+          onOpenChange={() => {
+            setErrorMessage('');
+          }}
           errorName={chrome.i18n.getMessage('Error')}
           errorMessage={errorMesssage}
         />

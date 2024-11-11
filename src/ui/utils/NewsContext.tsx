@@ -55,10 +55,10 @@ export function NewsProvider({ children }: { children: ReactNode }) {
 
   const markAsRead = useCallback(
     async (id: string): Promise<boolean> => {
-      const markedAsRead = await wallet?.markNewsAsRead(id).catch(console.error) || false;
+      const markedAsRead = (await wallet?.markNewsAsRead(id).catch(console.error)) || false;
       // Update news state
       if (markedAsRead) {
-        setUnreadCount(prevCount => prevCount - 1);
+        setUnreadCount((prevCount) => prevCount - 1);
       }
       return markedAsRead;
     },
@@ -69,7 +69,7 @@ export function NewsProvider({ children }: { children: ReactNode }) {
     setUnreadCount(0);
     await wallet?.markAllNewsAsRead().catch(console.error);
     // Update news state
-    setUnreadCount(0); 
+    setUnreadCount(0);
   }, [wallet]);
 
   const dismissNews = useCallback(
@@ -77,7 +77,7 @@ export function NewsProvider({ children }: { children: ReactNode }) {
       await wallet?.markNewsAsDismissed(id).catch(console.error);
 
       // Update news state
-      setNews(await wallet.getNews()); 
+      setNews(await wallet.getNews());
     },
     [wallet]
   );

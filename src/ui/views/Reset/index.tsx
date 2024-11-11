@@ -12,10 +12,7 @@ import Particles from 'react-tsparticles';
 import { LLSpinner } from 'ui/FRWComponent';
 import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 import { useWallet } from 'ui/utils';
-import {
-  ComponentTransition,
-  AnimationTypes,
-} from 'react-component-transition';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import options from '../Import/options';
 
 enum Direction {
@@ -67,10 +64,7 @@ const Reset = () => {
     setLoading(false);
   };
 
-  const handleErrorClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -89,13 +83,7 @@ const Reset = () => {
           />
         );
       case 1:
-        return (
-          <RecoverPassword
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            username={username}
-          />
-        );
+        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
       case 2:
         return <AllSet handleClick={goNext} />;
       default:
@@ -211,11 +199,7 @@ const Reset = () => {
           </Button>
         )}
         <Box sx={{ flexGrow: 1 }} />
-        <Snackbar
-          open={showError}
-          autoHideDuration={6000}
-          onClose={handleErrorClose}
-        >
+        <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
           <Alert
             onClose={handleErrorClose}
             variant="filled"

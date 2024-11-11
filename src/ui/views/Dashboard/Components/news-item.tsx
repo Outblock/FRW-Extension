@@ -12,7 +12,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
 
   // Check if item is expired
   const isExpired = item.expiryTime && new Date(item.expiryTime) < new Date();
-  
+
   // Don't render if expired
   if (isExpired) return null;
 
@@ -140,7 +140,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
           >
             {item.title}
           </Typography>
-          
+
           <Typography
             variant="body2"
             color="text.secondary"
@@ -174,4 +174,4 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
       </Box>
     </Box>
   );
-}; 
+};

@@ -14,7 +14,7 @@ import {
   Button,
   Alert,
   Snackbar,
-  CardMedia
+  CardMedia,
 } from '@mui/material';
 import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 import { useWallet } from 'ui/utils';
@@ -26,7 +26,7 @@ import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled'
 import { storage } from '@/background/webapi';
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 import editEmoji from '../../../FRWAssets/svg/editEmoji.svg';
-import EditProfile from './EditProfile'
+import EditProfile from './EditProfile';
 
 const useStyles = makeStyles(() => ({
   arrowback: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles(() => ({
     // width: '100%',
     backgroundColor: '#121212',
     margin: 0,
-    padding: 0
+    padding: 0,
   },
   developerTitle: {
     zIndex: 20,
@@ -57,7 +57,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row',
     borderRadius: '16px',
     alignContent: 'space-between',
-    gap: '8px'
+    gap: '8px',
   },
   radioBox: {
     width: '90%',
@@ -77,7 +77,7 @@ const useStyles = makeStyles(() => ({
     height: '66px',
     width: '100%',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
   },
   itemButton: {
@@ -85,7 +85,7 @@ const useStyles = makeStyles(() => ({
     height: '100%',
     margin: '0 auto',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
   },
   list: {
@@ -95,7 +95,7 @@ const useStyles = makeStyles(() => ({
     overflow: 'hidden',
     backgroundColor: '#282828',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
   },
   noBorder: {
@@ -108,7 +108,7 @@ const useStyles = makeStyles(() => ({
     margin: '20px auto',
     backgroundColor: '#282828',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
     display: 'flex',
     flexDirection: 'row',
@@ -123,7 +123,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row',
     borderRadius: '16px',
     alignContent: 'space-between',
-    gap: '8px'
+    gap: '8px',
   },
 }));
 
@@ -147,12 +147,12 @@ const Root = styled('span')(
     // margin: 0;
     margin-left: auto;
     cursor: pointer;
-  
+
     &.${switchUnstyledClasses.disabled} {
       opacity: 0.4;
       cursor: not-allowed;
     }
-  
+
     & .${switchUnstyledClasses.track} {
       background: ${theme.palette.mode === 'dark' ? grey[600] : grey[400]};
       border-radius: 10px;
@@ -161,7 +161,7 @@ const Root = styled('span')(
       width: 100%;
       position: absolute;
     }
-  
+
     & .${switchUnstyledClasses.thumb} {
       display: block;
       width: 14px;
@@ -173,24 +173,24 @@ const Root = styled('span')(
       position: relative;
       transition: all 200ms ease;
     }
-  
+
     &.${switchUnstyledClasses.focusVisible} .${switchUnstyledClasses.thumb} {
       background-color: ${grey[500]};
       box-shadow: 0 0 1px 8px rgba(0, 0, 0, 0.25);
     }
-  
+
     &.${switchUnstyledClasses.checked} {
       .${switchUnstyledClasses.thumb} {
         left: 17px;
         top: 3px;
         background-color: #fff;
       }
-  
+
       .${switchUnstyledClasses.track} {
         background: ${orange[500]};
       }
     }
-  
+
     & .${switchUnstyledClasses.input} {
       cursor: inherit;
       position: absolute;
@@ -202,15 +202,14 @@ const Root = styled('span')(
       z-index: 1;
       margin: 0;
     }
-    `,
+    `
 );
 
 const tempEmoji = {
-  "emoji": "🥥",
-  "name": "Coconut",
-  "bgcolor": "#FFE4C4"
+  emoji: '🥥',
+  name: 'Coconut',
+  bgcolor: '#FFE4C4',
 };
-
 
 const WalletDetail = () => {
   const classes = useStyles();
@@ -239,23 +238,27 @@ const WalletDetail = () => {
 
   const loadGasMode = async () => {
     const isFreeGasFeeEnabled = await storage.get('lilicoPayer');
-    if (isFreeGasFeeEnabled) { setGasMode(isFreeGasFeeEnabled); }
-  }
+    if (isFreeGasFeeEnabled) {
+      setGasMode(isFreeGasFeeEnabled);
+    }
+  };
 
   const loadGasKillSwitch = async () => {
-    const config = await usewallet.getPayerAddressAndKeyId()
+    const config = await usewallet.getPayerAddressAndKeyId();
     const isFreeGasFeeEnabled = await storage.get('freeGas');
-    if (isFreeGasFeeEnabled) { setGasKillSwitch(isFreeGasFeeEnabled); }
-  }
+    if (isFreeGasFeeEnabled) {
+      setGasKillSwitch(isFreeGasFeeEnabled);
+    }
+  };
 
   const switchGasMode = async () => {
     setGasMode(!modeGas);
     storage.set('lilicoPayer', !modeGas);
     setShowError(true);
-  }
+  };
 
   const toggleEditProfile = async () => {
-    setShowProfile(!showProfile)
+    setShowProfile(!showProfile);
   };
 
   const updateProfileEmoji = (emoji) => {
@@ -278,9 +281,9 @@ const WalletDetail = () => {
     const savedWallet = await storage.get('walletDetail');
     const walletDetail = JSON.parse(savedWallet);
     if (walletDetail) {
-      console.log('walletDetail ', walletDetail)
+      console.log('walletDetail ', walletDetail);
       setWallet([walletDetail.wallet]);
-      const selectingEmoji = {}
+      const selectingEmoji = {};
       selectingEmoji['name'] = walletDetail.wallet.name;
       selectingEmoji['emoji'] = walletDetail.wallet.icon;
       selectingEmoji['bgcolor'] = walletDetail.wallet.color;
@@ -290,16 +293,16 @@ const WalletDetail = () => {
 
   const loadStorageInfo = async () => {
     const address = await usewallet.getCurrentAddress();
-    console.log('loadStorageInfo ->', address)
+    console.log('loadStorageInfo ->', address);
     const info = await usewallet.openapi.getStorageInfo(address!);
-    setStorageInfo(info)
-    console.log('loadStorageInfo ->', info)
+    setStorageInfo(info);
+    console.log('loadStorageInfo ->', info);
   };
 
   function storageCapacity(storage): number {
-    const used = storage?.used ?? 1
-    const capacity = storage?.capacity ?? 1
-    return ((used / capacity) * 100)
+    const used = storage?.used ?? 1;
+    const capacity = storage?.capacity ?? 1;
+    return (used / capacity) * 100;
   }
 
   function formatBytes(bytes, decimals = 2) {
@@ -311,15 +314,10 @@ const WalletDetail = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
-
-
-
-
   const checkKeyphrase = async () => {
     const keyrings = await usewallet.checkMnemonics();
     await setIsKeyphrase(keyrings);
   };
-
 
   useEffect(() => {
     setUserWallet();
@@ -341,13 +339,19 @@ const WalletDetail = () => {
     setLoading(userWallet === null);
   }, [userWallet]);
 
-
   return (
-    <div className='page' style={{ display: 'flex', flexDirection: 'column' }}>
-
+    <div className="page" style={{ display: 'flex', flexDirection: 'column' }}>
       <LLHeader title={chrome.i18n.getMessage('Account')} help={false} />
-      {userWallet &&
-        <Box px='20px' sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1, }}>
+      {userWallet && (
+        <Box
+          px="20px"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            flexGrow: 1,
+          }}
+        >
           <Box>
             <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
               <ListItem
@@ -356,29 +360,50 @@ const WalletDetail = () => {
                 onClick={() => toggleEditProfile()}
               >
                 <ListItemButton className={classes.itemButton}>
-                  <Box sx={{
-                    display: 'flex', height: '32px', width: '32px', borderRadius: '32px', alignItems: 'center', justifyContent: 'center', backgroundColor: emoji.bgcolor, marginRight: '12px'
-                  }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      height: '32px',
+                      width: '32px',
+                      borderRadius: '32px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: emoji.bgcolor,
+                      marginRight: '12px',
+                    }}
+                  >
                     <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
                       {emoji.emoji}
                     </Typography>
                   </Box>
-                  <Typography sx={{ color: '##FFFFFF', fontSize: '14px', fontWeight: '600', marginRight: '4px' }}>{emoji.name}</Typography>
+                  <Typography
+                    sx={{
+                      color: '##FFFFFF',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      marginRight: '4px',
+                    }}
+                  >
+                    {emoji.name}
+                  </Typography>
                   <Box sx={{ flex: '1' }}></Box>
                   <ListItemIcon aria-label="end" sx={{ minWidth: '20px' }}>
-                    <CardMedia component="img" sx={{ width: '20px', height: '20px' }} image={editEmoji} />
+                    <CardMedia
+                      component="img"
+                      sx={{ width: '20px', height: '20px' }}
+                      image={editEmoji}
+                    />
                   </ListItemIcon>
                 </ListItemButton>
               </ListItem>
             </List>
-            {!isValidEthereumAddress(userWallet[0].blockchain[0].address) &&
-
+            {!isValidEthereumAddress(userWallet[0].blockchain[0].address) && (
               <>
                 <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
                   <ListItem
                     button
                     component={Link}
-                    to='/dashboard/nested/privatekeypassword'
+                    to="/dashboard/nested/privatekeypassword"
                     disablePadding
                     className={classes.listItem}
                   >
@@ -389,16 +414,13 @@ const WalletDetail = () => {
                       </ListItemIcon>
                     </ListItemButton>
                   </ListItem>
-                  {
-                    isKeyphrase && <Divider sx={{ width: '90%' }} variant="middle" />
-                  }
+                  {isKeyphrase && <Divider sx={{ width: '90%' }} variant="middle" />}
 
-                  {
-                    isKeyphrase &&
+                  {isKeyphrase && (
                     <ListItem
                       button
                       component={Link}
-                      to='/dashboard/nested/recoveryphrasepassword'
+                      to="/dashboard/nested/recoveryphrasepassword"
                       disablePadding
                       className={classes.listItem}
                     >
@@ -409,7 +431,7 @@ const WalletDetail = () => {
                         </ListItemIcon>
                       </ListItemButton>
                     </ListItem>
-                  }
+                  )}
                 </List>
 
                 <Box>
@@ -417,7 +439,7 @@ const WalletDetail = () => {
                     <ListItem
                       button
                       component={Link}
-                      to='/dashboard/nested/keylist'
+                      to="/dashboard/nested/keylist"
                       disablePadding
                       className={classes.listItem}
                     >
@@ -429,47 +451,122 @@ const WalletDetail = () => {
                       </ListItemButton>
                     </ListItem>
                   </List>
-
                 </Box>
 
                 <Box className={classes.gasBox}>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant='body1' color='neutral.contrastText' style={{ weight: 600 }}>{chrome.i18n.getMessage('Free__Gas__Fee')}</Typography>
-                    <Typography variant='body1' color={gasKillSwitch ? 'text.secondary' : 'error.main'} sx={{ weight: 400, fontSize: '12px' }}>
-                      {gasKillSwitch ? chrome.i18n.getMessage('Allow__lilico__to__pay__the__gas__fee') : chrome.i18n.getMessage('This__feature__has__been__disabled__temporarily')}
+                    <Typography
+                      variant="body1"
+                      color="neutral.contrastText"
+                      style={{ weight: 600 }}
+                    >
+                      {chrome.i18n.getMessage('Free__Gas__Fee')}
                     </Typography>
-                  </Box>
-                  <SwitchUnstyled disabled={!gasKillSwitch} checked={modeGas} component={Root} onChange={() => { switchGasMode() }} />
-                </Box>
-
-                {storageInfo && <Box className={classes.gasBox}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <Typography variant='body1' color='neutral.contrastText' style={{ weight: 600 }}>{chrome.i18n.getMessage('Storage')}</Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
-                      <Typography variant='body1' color={gasKillSwitch ? 'text.secondary' : 'error.main'} sx={{ weight: 400, fontSize: '12px' }}>
+                    <Typography
+                      variant="body1"
+                      color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                      sx={{ weight: 400, fontSize: '12px' }}
+                    >
+                      {gasKillSwitch
+                        ? chrome.i18n.getMessage('Allow__lilico__to__pay__the__gas__fee')
+                        : chrome.i18n.getMessage('This__feature__has__been__disabled__temporarily')}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '100%',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                        sx={{ weight: 400, fontSize: '12px' }}
+                      >
                         {`${storageCapacity(storageInfo).toFixed(2)}%`}
                       </Typography>
-                      <Typography variant='body1' color={gasKillSwitch ? 'text.secondary' : 'error.main'} sx={{ weight: 400, fontSize: '12px' }}>
-                        {`${formatBytes(storageInfo.used * 10)} / ${formatBytes(storageInfo.capacity * 10)}`}
+                      <Typography
+                        variant="body1"
+                        color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                        sx={{ weight: 400, fontSize: '12px' }}
+                      >
+                        {`${formatBytes(storageInfo!.used * 10)} / ${formatBytes(
+                          storageInfo!.capacity * 10
+                        )}`}
                       </Typography>
                     </Box>
-                    <LinearProgress variant="determinate" value={storageCapacity(storageInfo)} sx={{ height: '8px', borderRadius: '4px' }} ></LinearProgress>
+                    <LinearProgress
+                      variant="determinate"
+                      value={storageCapacity(storageInfo)}
+                      sx={{ height: '8px', borderRadius: '4px' }}
+                    ></LinearProgress>
                   </Box>
+                  <SwitchUnstyled
+                    disabled={!gasKillSwitch}
+                    checked={modeGas}
+                    component={Root}
+                    onChange={() => {
+                      switchGasMode();
+                    }}
+                  />
                 </Box>
-                }
 
+                {storageInfo && (
+                  <Box className={classes.gasBox}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                      <Typography
+                        variant="body1"
+                        color="neutral.contrastText"
+                        style={{ weight: 600 }}
+                      >
+                        {chrome.i18n.getMessage('Storage')}
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          width: '100%',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                          sx={{ weight: 400, fontSize: '12px' }}
+                        >
+                          {`${storageCapacity(storageInfo).toFixed(2)}%`}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                          sx={{ weight: 400, fontSize: '12px' }}
+                        >
+                          {`${formatBytes(storageInfo.used * 10)} / ${formatBytes(
+                            storageInfo.capacity * 10
+                          )}`}
+                        </Typography>
+                      </Box>
+                      <LinearProgress
+                        variant="determinate"
+                        value={storageCapacity(storageInfo)}
+                        sx={{ height: '8px', borderRadius: '4px' }}
+                      ></LinearProgress>
+                    </Box>
+                  </Box>
+                )}
               </>
-            }
+            )}
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
 
           <Button
-            variant='contained'
+            variant="contained"
             disableElevation
-            color='error'
+            color="error"
             component={Link}
-            to='/dashboard/setting/removeWallet'
+            to="/dashboard/setting/removeWallet"
             sx={{
               width: '100% !important',
               height: '48px',
@@ -477,37 +574,39 @@ const WalletDetail = () => {
               // margin: '80px auto 20px 20px',
               marginBottom: '16px',
               textTransform: 'none',
-              alignSelf: 'center'
+              alignSelf: 'center',
             }}
           >
-            <Typography color='text'>{chrome.i18n.getMessage('Reset_Wallet')}</Typography>
+            <Typography color="text">{chrome.i18n.getMessage('Reset_Wallet')}</Typography>
           </Button>
         </Box>
-      }
+      )}
 
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} variant="filled" severity="warning" sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleErrorClose}
+          variant="filled"
+          severity="warning"
+          sx={{ width: '100%' }}
+        >
           {chrome.i18n.getMessage('You__will__need__to__connect__to__your__wallet__again')}
         </Alert>
       </Snackbar>
-      {
-        showProfile && (
-          <EditProfile
-            showMoveBoard={showProfile}
-            handleCloseIconClicked={() => setShowProfile(false)}
-            handleCancelBtnClicked={() => setShowProfile(false)}
-            handleAddBtnClicked={() => {
-              setShowProfile(false);
-            }}
-            updateProfileEmoji={(emoji) => updateProfileEmoji(emoji)}
-
-            emoji={emoji}
-            userWallet={userWallet}
-          />
-        )
-      }
+      {showProfile && (
+        <EditProfile
+          showMoveBoard={showProfile}
+          handleCloseIconClicked={() => setShowProfile(false)}
+          handleCancelBtnClicked={() => setShowProfile(false)}
+          handleAddBtnClicked={() => {
+            setShowProfile(false);
+          }}
+          updateProfileEmoji={(emoji) => updateProfileEmoji(emoji)}
+          emoji={emoji}
+          userWallet={userWallet}
+        />
+      )}
     </div>
-  )
-}
+  );
+};
 
 export default WalletDetail;

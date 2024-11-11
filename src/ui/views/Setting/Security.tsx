@@ -1,14 +1,21 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { Link, useRouteMatch } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import {Typography, List, ListItemText, ListItemIcon, ListItem, ListItemButton, Divider} from '@mui/material';
+import {
+  Typography,
+  List,
+  ListItemText,
+  ListItemIcon,
+  ListItem,
+  ListItemButton,
+  Divider,
+} from '@mui/material';
 import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useHistory } from 'react-router-dom';
 import { useWallet } from 'ui/utils';
 
 const Security = () => {
-
   const { url } = useRouteMatch();
   const history = useHistory();
   const wallet = useWallet();
@@ -18,7 +25,7 @@ const Security = () => {
   };
 
   useEffect(() => {
-    setTab()
+    setTab();
   }, []);
 
   return (
@@ -51,7 +58,7 @@ const Security = () => {
             fontSize: '20px',
             paddingLeft: '125px',
             fontFamily: 'Inter',
-            fontStyle: 'normal'
+            fontStyle: 'normal',
           }}
         >
           {chrome.i18n.getMessage('Security')}
@@ -75,16 +82,18 @@ const Security = () => {
       </nav>
       <Divider /> */}
       <nav aria-label="secondary part">
-        
-        <List sx={{paddingTop:'0px', paddingBottom:'0px'}} >
-          <ListItem button component={Link} to="/dashboard/nested/privatekeypassword"
-            disablePadding 
+        <List sx={{ paddingTop: '0px', paddingBottom: '0px' }}>
+          <ListItem
+            button
+            component={Link}
+            to="/dashboard/nested/privatekeypassword"
+            disablePadding
             // sx={{Width: '16px', height:'50px' }}
           >
-            <ListItemButton >
+            <ListItemButton>
               <ListItemText primary={chrome.i18n.getMessage('Private__Key')} />
-              <ListItemIcon aria-label="end" sx={{minWidth:'25px'}}>
-                <IconEnd  size={12}/>
+              <ListItemIcon aria-label="end" sx={{ minWidth: '25px' }}>
+                <IconEnd size={12} />
               </ListItemIcon>
             </ListItemButton>
           </ListItem>
@@ -92,15 +101,18 @@ const Security = () => {
       </nav>
       <Divider />
       <nav aria-label="third part">
-        <List sx={{paddingTop:'0px', paddingBottom:'0px'}} >
-          <ListItem button component={Link} to="/dashboard/nested/recoveryphrasepassword"
-            disablePadding 
+        <List sx={{ paddingTop: '0px', paddingBottom: '0px' }}>
+          <ListItem
+            button
+            component={Link}
+            to="/dashboard/nested/recoveryphrasepassword"
+            disablePadding
             // sx={{Width: '16px', height:'50px' }}
           >
-            <ListItemButton >
+            <ListItemButton>
               <ListItemText primary={chrome.i18n.getMessage('Recovery__Phrase')} />
-              <ListItemIcon aria-label="end" sx={{minWidth:'25px'}}>
-                <IconEnd size={12}/>
+              <ListItemIcon aria-label="end" sx={{ minWidth: '25px' }}>
+                <IconEnd size={12} />
               </ListItemIcon>
             </ListItemButton>
           </ListItem>
@@ -108,6 +120,6 @@ const Security = () => {
       </nav>
     </Box>
   );
-}
+};
 
 export default Security;

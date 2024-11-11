@@ -31,13 +31,14 @@ const NoStake = (props: NoStakeProps) => {
   }, []);
 
   return (
-    <Box className="page"
+    <Box
+      className="page"
       sx={{
         position: 'relative',
         width: '100%',
         overflow: 'hidden',
         height: '487px',
-        background: '#121212'
+        background: '#121212',
       }}
     >
       {props.noStakeOpen ? (
@@ -62,7 +63,6 @@ const NoStake = (props: NoStakeProps) => {
               padding: '0 18px',
             }}
           >
-
             <Typography
               variant="body1"
               sx={{
@@ -188,10 +188,7 @@ const NoStake = (props: NoStakeProps) => {
               }}
             >
               <Box sx={{ width: '32px' }}>
-                <CardMedia
-                  sx={{ width: '32px', height: '32px' }}
-                  image={crown}
-                />
+                <CardMedia sx={{ width: '32px', height: '32px' }} image={crown} />
               </Box>
               <Typography
                 display="inline"
@@ -211,7 +208,7 @@ const NoStake = (props: NoStakeProps) => {
                     fontSize: '20px',
                     background: '-webkit-linear-gradient(320deg, #FFC062 4.01%, #0BD3FF 62.72%);',
                     backgroundClip: 'text',
-                    textFillColor: 'transparent'
+                    textFillColor: 'transparent',
                   }}
                   variant="body2"
                 >
@@ -237,10 +234,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia
-                  sx={{ width: '24px', height: '24px' }}
-                  image={Dashboard}
-                />
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={Dashboard} />
               </Box>
               <Typography
                 component="div"
@@ -254,11 +248,7 @@ const NoStake = (props: NoStakeProps) => {
                 color="text.primary"
               >
                 Earn rewards every week, up to{' '}
-                <Typography
-                  sx={{ fontSize: '12px' }}
-                  display="inline"
-                  color="#00B881"
-                >
+                <Typography sx={{ fontSize: '12px' }} display="inline" color="#00B881">
                   9.5%{' '}
                 </Typography>
                 per year.
@@ -280,10 +270,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia
-                  sx={{ width: '24px', height: '24px' }}
-                  image={Synchronize}
-                />
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={Synchronize} />
               </Box>
               <Typography
                 component="div"
@@ -297,27 +284,15 @@ const NoStake = (props: NoStakeProps) => {
                 color="text.primary"
               >
                 When you stake{' '}
-                <Typography
-                  display="inline"
-                  color="#00B881"
-                  sx={{ fontSize: '12px' }}
-                >
+                <Typography display="inline" color="#00B881" sx={{ fontSize: '12px' }}>
                   FLOW
                 </Typography>{' '}
                 you receive{' '}
-                <Typography
-                  display="inline"
-                  color="#00B881"
-                  sx={{ fontSize: '12px' }}
-                >
-                  FLOW 
-                </Typography>
-                {' '}as a reward. Your rewards are liquid and can be can{' '}
-                <Typography
-                  color="#00B881"
-                  display="inline"
-                  sx={{ fontSize: '12px' }}
-                >
+                <Typography display="inline" color="#00B881" sx={{ fontSize: '12px' }}>
+                  FLOW
+                </Typography>{' '}
+                as a reward. Your rewards are liquid and can be can{' '}
+                <Typography color="#00B881" display="inline" sx={{ fontSize: '12px' }}>
                   traded
                 </Typography>{' '}
                 at any time.
@@ -339,10 +314,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia
-                  sx={{ width: '24px', height: '24px' }}
-                  image={TimeClock}
-                />
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={TimeClock} />
               </Box>
               <Typography
                 component="div"
@@ -356,11 +328,7 @@ const NoStake = (props: NoStakeProps) => {
                 color="text.primary"
               >
                 You'll start earning rewards{' '}
-                <Typography
-                  sx={{ fontSize: '12px' }}
-                  display="inline"
-                  color="#00B881"
-                >
+                <Typography sx={{ fontSize: '12px' }} display="inline" color="#00B881">
                   right away
                 </Typography>
                 .
@@ -381,10 +349,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia
-                  sx={{ width: '24px', height: '24px' }}
-                  image={Certificate}
-                />
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={Certificate} />
               </Box>
               <Typography
                 component="div"
@@ -398,11 +363,7 @@ const NoStake = (props: NoStakeProps) => {
                 color="text.primary"
               >
                 Rewards are automatically deposited to your account every{' '}
-                <Typography
-                  display="inline"
-                  color="#00B881"
-                  sx={{ fontSize: '12px' }}
-                >
+                <Typography display="inline" color="#00B881" sx={{ fontSize: '12px' }}>
                   week
                 </Typography>
                 .
@@ -444,7 +405,6 @@ const NoStake = (props: NoStakeProps) => {
                     textTransform: 'none !important',
                   }}
                 />
-
               )}
             </Box>
           </Box>

@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { Box, ThemeProvider } from '@mui/system';
-import {
-  Button,
-  Typography,
-  FormControl,
-  Input,
-  InputAdornment,
-  CssBaseline
-} from '@mui/material';
+import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import theme from '../../style/LLTheme';
@@ -66,7 +59,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         alignItems: 'center',
       }}
     >
-      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px', }} />
+      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
       <Typography variant="body1" color="success.main">
         {chrome.i18n.getMessage('Sounds_good')}
       </Typography>
@@ -78,11 +71,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
       color="text.secondary"
       sx={{ display: 'flex', alignItems: 'center' }}
     >
-      <CircularProgress
-        color="primary"
-        size={22}
-        style={{ fontSize: '22px', margin: '8px' }}
-      />
+      <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
       Checking
       {chrome.i18n.getMessage('Flow_Core')}
     </Typography>
@@ -116,9 +105,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
 
       if (!regex.test(username)) {
         setErrorMessage(
-          chrome.i18n.getMessage(
-            'Your__username__can__only__contain__letters__and__numbers'
-          )
+          chrome.i18n.getMessage('Your__username__can__only__contain__letters__and__numbers')
         );
         return;
       }
@@ -135,9 +122,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             setUsernameValid(true);
             setHelperText(usernameCorrect);
           } else {
-            setErrorMessage(
-              chrome.i18n.getMessage('This__name__has__been__taken')
-            );
+            setErrorMessage(chrome.i18n.getMessage('This__name__has__been__taken'));
           }
         })
         .catch((error) => {
@@ -159,9 +144,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Pick__Your') + ' '}
           <Box display="inline" color="primary.main">
@@ -169,9 +152,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
           </Box>
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage(
-            'Your__username__will__be__used__to__send__and__receive'
-          )}
+          {chrome.i18n.getMessage('Your__username__will__be__used__to__send__and__receive')}
         </Typography>
 
         <Box sx={{ flexGrow: 1, width: 640, maxWidth: '100%', my: '40px' }}>
@@ -238,11 +219,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             textTransform: 'capitalize',
           }}
         >
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Next')}
           </Typography>
         </Button>

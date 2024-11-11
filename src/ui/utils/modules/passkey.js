@@ -29,14 +29,10 @@ const pk2PubKey = async (pk) => {
   const { PrivateKey } = await initWasm();
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
 
-  const p256PubK = Buffer.from(
-    privateKey.getPublicKeyNist256p1().uncompressed().data()
-  )
+  const p256PubK = Buffer.from(privateKey.getPublicKeyNist256p1().uncompressed().data())
     .toString('hex')
     .replace(/^04/, '');
-  const secp256PubK = Buffer.from(
-    privateKey.getPublicKeySecp256k1(false).data()
-  )
+  const secp256PubK = Buffer.from(privateKey.getPublicKeySecp256k1(false).data())
     .toString('hex')
     .replace(/^04/, '');
   return {
@@ -52,7 +48,6 @@ const pk2PubKey = async (pk) => {
 };
 
 const formPubKey = async (pubKey) => {
-
   return {
     P256: {
       pubK: pubKey,
@@ -70,13 +65,13 @@ const seed2PubKey = async (seed) => {
   const accountIndex = (await storage.get('currentAccountIndex')) ?? 0;
   const pathKeyIndex = `user${accountIndex}_path`;
   const phraseKeyIndex = `user${accountIndex}_phrase`;
-  
-  
+
   const pathKeyId = `user${currentId}_path`;
   const phraseKeyId = `user${currentId}_phrase`;
-    
-  const path = (await storage.get(pathKeyId)) ?? (await storage.get(pathKeyIndex)) ?? FLOW_BIP44_PATH;
-  
+
+  const path =
+    (await storage.get(pathKeyId)) ?? (await storage.get(pathKeyIndex)) ?? FLOW_BIP44_PATH;
+
   const passphrase = (await storage.get(phraseKeyId)) ?? (await storage.get(phraseKeyIndex)) ?? '';
   // console.log('pathpathpath ', path)
   // console.log('pathKey ', pathKey)
@@ -84,9 +79,7 @@ const seed2PubKey = async (seed) => {
   // console.log('passphrase ', passphrase)
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
   const p256PK = wallet.getKeyByCurve(Curve.nist256p1, path);
-  const p256PubK = Buffer.from(
-    p256PK.getPublicKeyNist256p1().uncompressed().data()
-  )
+  const p256PubK = Buffer.from(p256PK.getPublicKeyNist256p1().uncompressed().data())
     .toString('hex')
     .replace(/^04/, '');
   const SECP256PK = wallet.getKeyByCurve(Curve.secp256k1, path);
@@ -108,15 +101,13 @@ const seed2PubKey = async (seed) => {
 const seed2PubKeyTemp = async (seed) => {
   const { HDWallet, Curve } = await initWasm();
 
-  const path = await storage.get('temp_path') || FLOW_BIP44_PATH;
-  const passphrase = await storage.get('temp_phrase') || '';
-  console.log('pathpathpath ', path)
-  console.log('passphrase ', passphrase)
+  const path = (await storage.get('temp_path')) || FLOW_BIP44_PATH;
+  const passphrase = (await storage.get('temp_phrase')) || '';
+  console.log('pathpathpath ', path);
+  console.log('passphrase ', passphrase);
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
   const p256PK = wallet.getKeyByCurve(Curve.nist256p1, path);
-  const p256PubK = Buffer.from(
-    p256PK.getPublicKeyNist256p1().uncompressed().data()
-  )
+  const p256PubK = Buffer.from(p256PK.getPublicKeyNist256p1().uncompressed().data())
     .toString('hex')
     .replace(/^04/, '');
   const SECP256PK = wallet.getKeyByCurve(Curve.secp256k1, path);
@@ -164,9 +155,7 @@ const createPasskey = async (name, displayName) => {
   };
   const result = await navigator.credentials.create(setup);
   console.log('result ==>', result);
-  const attestationObject = decodeAttestationObject(
-    result.response.attestationObject
-  );
+  const attestationObject = decodeAttestationObject(result.response.attestationObject);
   console.log('attestationObject ==>', attestationObject);
   const authData = decodeAuthenticatorData(attestationObject.authData);
   console.log('authData ==>', authData);
@@ -257,9 +246,7 @@ const signMessageHash = async (hashAlgo, messageData) => {
   // Other key
   const { Hash } = await initWasm();
   const messageHash =
-    hashAlgo === HASH_ALGO.SHA3_256
-      ? Hash.sha3_256(messageData)
-      : Hash.sha256(messageData);
+    hashAlgo === HASH_ALGO.SHA3_256 ? Hash.sha3_256(messageData) : Hash.sha256(messageData);
   return messageHash;
 };
 
@@ -278,13 +265,9 @@ const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
   const curve = signAlgo === SIGN_ALGO.P256 ? Curve.nist256p1 : Curve.secp256k1;
   const messageHash =
-    hashAlgo === HASH_ALGO.SHA3_256
-      ? Hash.sha3_256(messageData)
-      : Hash.sha256(messageData);
+    hashAlgo === HASH_ALGO.SHA3_256 ? Hash.sha3_256(messageData) : Hash.sha256(messageData);
   const signature = privateKey.sign(messageHash, curve);
-  return Buffer.from(signature.subarray(0, signature.length - 1)).toString(
-    'hex'
-  );
+  return Buffer.from(signature.subarray(0, signature.length - 1)).toString('hex');
 };
 
 export {
@@ -298,5 +281,5 @@ export {
   signMessageHash,
   signWithKey,
   seed2PubKeyTemp,
-  formPubKey
+  formPubKey,
 };

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/system';
-import {
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 import theme from '../../../style/LLTheme';
 import RegisterHeader from './RegisterHeader';
@@ -16,12 +13,9 @@ import AllSet from './AllSet';
 import SetPassword from './SetPassword';
 import Particles from 'react-tsparticles';
 import * as bip39 from 'bip39';
-import {
-  ComponentTransition,
-  AnimationTypes,
-} from 'react-component-transition';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../../Import/options'
+import options from '../../Import/options';
 import { useWallet } from 'ui/utils';
 import { storage } from 'background/webapi';
 
@@ -45,13 +39,16 @@ const AddRegister = () => {
 
   const loadView = async () => {
     // console.log(wallet);
-    wallet.getCurrentAccount().then((res) => {
-      if (res) {
-        history.push('/');
-      }
-    }).catch(() => {
-      return;
-    });
+    wallet
+      .getCurrentAccount()
+      .then((res) => {
+        if (res) {
+          history.push('/');
+        }
+      })
+      .catch(() => {
+        return;
+      });
   };
 
   const loadTempPassword = async () => {
@@ -83,11 +80,7 @@ const AddRegister = () => {
     switch (index) {
       case 0:
         return (
-          <PickUsername
-            handleClick={goNext}
-            savedUsername={username}
-            getUsername={getUsername}
-          />
+          <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
         );
       case 1:
         return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
@@ -104,11 +97,18 @@ const AddRegister = () => {
           />
         );
       case 4:
-        return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
+        return (
+          <GoogleBackup
+            handleClick={goNext}
+            mnemonic={mnemonic}
+            username={username}
+            password={password}
+          />
+        );
       case 5:
         return <AllSet handleClick={goNext} />;
       default:
-        return <div />; 
+        return <div />;
     }
   };
 
@@ -117,7 +117,7 @@ const AddRegister = () => {
     loadTempPassword();
   }, []);
 
-  const height = [480, 600, 640, 620, 480, 480]
+  const height = [480, 600, 640, 620, 480, 480];
 
   return (
     <ThemeProvider theme={theme}>
@@ -167,17 +167,23 @@ const AddRegister = () => {
               padding: '24px 24px 0px 24px',
             }}
           >
-            {(activeIndex !== 4 && activeIndex !== 5) &&
+            {activeIndex !== 4 && activeIndex !== 5 && (
               <IconButton onClick={goBack} size="small">
                 <BackButtonIcon color="#5E5E5E" size={27} />
               </IconButton>
-            }
+            )}
 
             <div style={{ flexGrow: 1 }}></div>
 
             <Typography
               variant="body1"
-              sx={{ color: '#5E5E5E', alignSelf: 'end', lineHeight: '37px', fontWeight: '700', fontSize: '16px' }}
+              sx={{
+                color: '#5E5E5E',
+                alignSelf: 'end',
+                lineHeight: '37px',
+                fontWeight: '700',
+                fontSize: '16px',
+              }}
             >
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/6
             </Typography>
