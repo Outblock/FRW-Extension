@@ -1,12 +1,13 @@
-import React from 'react';
-import { useNews } from '@/ui/utils/NewsContext';
 import { Box, Typography, Button } from '@mui/material';
+import React from 'react';
+
+import { useNews } from '@/ui/utils/NewsContext';
+
 import { NewsItemCard } from './news-item';
 
 export const NewsView: React.FC = () => {
-  const { news, markAllAsRead, resetNews } = useNews();
+  const { news, markAllAsRead } = useNews();
 
-  console.log('NewsView', news?.length);
   return (
     <Box
       sx={{
@@ -35,7 +36,7 @@ export const NewsView: React.FC = () => {
             Notifications
           </Typography>
           <Button
-            onClick={resetNews}
+            onClick={markAllAsRead}
             sx={{
               color: 'text.secondary',
               '&:hover': {

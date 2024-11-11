@@ -1,13 +1,14 @@
 import React, {
+  type ReactNode,
   createContext,
   useContext,
   useState,
   useEffect,
   useCallback,
-  ReactNode,
 } from 'react';
+
+import type { NewsItem } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
-import { NewsItem } from 'background/service/networkModel';
 
 interface NewsContextType {
   news: NewsItem[];
