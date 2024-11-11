@@ -1,7 +1,14 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
+import {
+  Button,
+  Typography,
+  FormControl,
+  Input,
+  InputAdornment,
+  CssBaseline,
+} from '@mui/material';
 import theme from '../../../style/LLTheme';
 import { useWallet } from 'ui/utils';
 import { Core } from '@walletconnect/core';
@@ -58,15 +65,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ProxyQr = ({
-  handleClick,
-  savedUsername,
-  confirmMnemonic,
-  confirmPk,
-  setUsername,
-  setAccountKey,
-  setDeviceInfo,
-}) => {
+
+const ProxyQr = ({ handleClick, savedUsername, confirmMnemonic, confirmPk, setUsername, setAccountKey, setDeviceInfo }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const [Uri, setUri] = useState('');
@@ -74,21 +74,20 @@ const ProxyQr = ({
   const [loading, setShowLoading] = useState<boolean>(false);
   const [session, setSession] = useState<SessionTypes.Struct>();
   const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
-  const [currentNetwork, setNetwork] = useState(
-    process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet'
-  );
+  const [currentNetwork, setNetwork] = useState(process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet');
 
   const loadNetwork = async () => {
     const currentNetwork = await usewallet.getNetwork();
-    setNetwork(currentNetwork);
-  };
+    setNetwork(currentNetwork)
+  }
 
   useEffect(() => {
-    loadNetwork();
-  }, []);
+    loadNetwork()
+  }, [])
 
   useEffect(() => {
     const createWeb3Wallet = async () => {
+
       try {
         const wallet = await SignClient.init({
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -100,7 +99,7 @@ const ProxyQr = ({
             name: 'Flow Walllet',
             description: 'Digital wallet created for everyone.',
             url: 'https://fcw-link.lilico.app',
-            icons: ['https://fcw-link.lilico.app/logo.png'],
+            icons: ['https://fcw-link.lilico.app/logo.png']
           },
         });
         await _subscribeToEvents(wallet);
@@ -113,20 +112,20 @@ const ProxyQr = ({
                   FCLWalletConnectMethod.accountInfo,
                   FCLWalletConnectMethod.proxysign,
                   FCLWalletConnectMethod.proxyaccount,
-                  FCLWalletConnectMethod.addDeviceInfo,
+                  FCLWalletConnectMethod.addDeviceInfo
                 ],
                 chains: [`flow:${currentNetwork}`],
-                events: [],
-              },
-            },
-          });
+                events: []
+              }
+            }
+          })
 
           // Open QRCode modal if a URI was returned (i.e. we're not connecting an existing pairing).
           if (uri) {
-            console.log('uri ', uri);
+            console.log('uri ', uri)
             await setUri(uri);
             // Await session approval from the wallet.
-            const session = await approval();
+            const session = await approval()
             await onSessionConnected(session);
 
             sendRequest(wallet, session.topic);
@@ -135,7 +134,7 @@ const ProxyQr = ({
             // Close the QRCode modal in case it was open.
           }
         } catch (e) {
-          console.error(e);
+          console.error(e)
         }
         await setWeb3Wallet(wallet);
       } catch (e) {
@@ -145,11 +144,20 @@ const ProxyQr = ({
     createWeb3Wallet();
   }, []);
 
-  const onSessionConnected = useCallback(async (_session: SessionTypes.Struct) => {
-    console.log('_session ', _session);
-    setShowLoading(true);
-    setSession(_session);
-  }, []);
+
+
+
+  const onSessionConnected = useCallback(
+    async (_session: SessionTypes.Struct) => {
+      console.log('_session ', _session)
+      setShowLoading(true);
+      setSession(_session);
+
+    },
+    []
+  );
+
+
 
   const _subscribeToEvents = useCallback(
     async (_client: SignClient) => {
@@ -164,79 +172,89 @@ const ProxyQr = ({
         const updatedSession = { ..._session, namespaces };
         onSessionConnected(updatedSession);
       });
-      console.log('EVENT _client ', _client);
+      console.log('EVENT _client ', _client)
+
     },
     [onSessionConnected]
   );
 
+
   async function sendRequest(wallet: SignClient, topic: string) {
-    console.log(wallet);
+    console.log(wallet)
     const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
     const jwtToken = await usewallet.requestProxyToken();
-    wallet
-      .request({
-        topic: topic,
-        chainId: `flow:${currentNetwork}`,
-        request: {
+    wallet.request({
+      topic: topic,
+      chainId: `flow:${currentNetwork}`,
+      request: {
+        method: FCLWalletConnectMethod.proxyaccount,
+        params: {
           method: FCLWalletConnectMethod.proxyaccount,
-          params: {
-            method: FCLWalletConnectMethod.proxyaccount,
-            data: {
-              deviceInfo: deviceInfo,
-              jwt: jwtToken,
-            },
-          },
+          data: {
+            deviceInfo: deviceInfo,
+            jwt: jwtToken
+          }
         },
-      })
-      .then(async (result: any) => {
-        console.log(result);
-        const jsonObject = JSON.parse(result);
-        const accountKey = {
-          public_key: jsonObject.data.publicKey,
-          hash_algo: Number(jsonObject.data.hashAlgo),
-          sign_algo: Number(jsonObject.data.signAlgo),
-          weight: Number(jsonObject.data.weight),
-        };
-        usewallet.openapi.loginV3(accountKey, deviceInfo, jsonObject.data.signature);
-        storage.set(`${jsonObject.data.userId}Topic`, topic);
-        confirmMnemonic(mnemonic);
-        confirmPk(jsonObject.data.publicKey);
-        console.log('jsonObject ', jsonObject);
-        handleClick();
-      })
-      .catch((error) => {
-        console.error('Error in first wallet request:', error);
-      });
+      },
+    }).then(async (result: any) => {
+      console.log(result);
+      const jsonObject = JSON.parse(result);
+      const accountKey = {
+        public_key: jsonObject.data.publicKey,
+        hash_algo: Number(jsonObject.data.hashAlgo),
+        sign_algo: Number(jsonObject.data.signAlgo),
+        weight : Number(jsonObject.data.weight)
+      }
+      usewallet.openapi.loginV3(accountKey, deviceInfo, jsonObject.data.signature);
+      storage.set(`${jsonObject.data.userId}Topic`, topic);
+      confirmMnemonic(mnemonic);
+      confirmPk(jsonObject.data.publicKey)
+      console.log('jsonObject ', jsonObject);
+      handleClick();
+    }).catch((error) => {
+      console.error('Error in first wallet request:', error);
+    });
+
+
   }
+
 
   const getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
     const result = await usewallet.openapi.getLocation();
     const installationId = await usewallet.openapi.getInstallationId();
     // console.log('location ', userlocation);
-    const userlocation = result.data;
+    const userlocation = result.data
     const deviceInfo: DeviceInfoRequest = {
-      city: userlocation.city,
-      continent: userlocation.country,
-      continentCode: userlocation.countryCode,
-      country: userlocation.country,
-      countryCode: userlocation.countryCode,
-      currency: userlocation.countryCode,
+
+      'city': userlocation.city,
+      'continent': userlocation.country,
+      'continentCode': userlocation.countryCode,
+      'country': userlocation.country,
+      'countryCode': userlocation.countryCode,
+      'currency': userlocation.countryCode,
       deviceId: installationId,
       device_id: installationId,
-      district: '',
-      ip: userlocation.query,
-      isp: userlocation.as,
-      lat: userlocation.lat,
-      lon: userlocation.lon,
-      name: 'FRW Chrome Extension',
-      org: userlocation.org,
-      regionName: userlocation.regionName,
-      type: '2',
-      userAgent: 'Chrome',
-      zip: userlocation.zip,
+      'district': '',
+      'ip': userlocation.query,
+      'isp': userlocation.as,
+      'lat': userlocation.lat,
+      'lon': userlocation.lon,
+      'name': 'FRW Chrome Extension',
+      'org': userlocation.org,
+      'regionName': userlocation.regionName,
+      'type': '2',
+      'userAgent': 'Chrome',
+      'zip': userlocation.zip,
+
     };
     return deviceInfo;
-  };
+  }
+
+
+
+
+
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -251,7 +269,7 @@ const ProxyQr = ({
           height: '380px',
           width: '620px',
           position: 'relative',
-          borderRadius: '24px',
+          borderRadius: '24px'
         }}
       >
         <Box
@@ -261,9 +279,9 @@ const ProxyQr = ({
             top: '40px',
             display: 'flex',
             justifyContent: 'space-between',
-            width: '700px',
-          }}
-        >
+            width: '700px'
+
+          }}>
           <Box
             sx={{
               display: 'flex',
@@ -272,6 +290,7 @@ const ProxyQr = ({
               width: '353px',
             }}
           >
+
             <Typography
               variant="h4"
               sx={{
@@ -279,13 +298,11 @@ const ProxyQr = ({
                 fontSize: '40px',
                 WebkitBackgroundClip: 'text',
                 color: '#fff',
-                lineHeight: '56px',
+                lineHeight: '56px'
               }}
             >
-              {chrome.i18n.getMessage('Sync_')}{' '}
-              <span style={{ display: 'inline-block', width: '353px' }}>
-                {chrome.i18n.getMessage('Lilico')}
-              </span>
+              {chrome.i18n.getMessage('Sync_')} <span style={{ display: 'inline-block', width: '353px' }}>
+                {chrome.i18n.getMessage('Lilico')}</span>
             </Typography>
 
             <Typography
@@ -297,7 +314,11 @@ const ProxyQr = ({
               {chrome.i18n.getMessage('Open_your_Flow_Reference_on_Mobil')}
             </Typography>
 
-            <Typography variant="body1" sx={{ color: '#8C9BAB', pt: '12px', fontSize: '12px' }}>
+
+            <Typography
+              variant="body1"
+              sx={{ color: '#8C9BAB', pt: '12px', fontSize: '12px' }}
+            >
               {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
 
               {chrome.i18n.getMessage(' Note_Your_recovery_phrase_will_not')}
@@ -310,7 +331,7 @@ const ProxyQr = ({
               borderRadius: '24px',
               display: 'flex',
               flexDirection: 'column',
-              width: '347px',
+              width: '347px'
             }}
           >
             {/* <Box>
@@ -323,26 +344,13 @@ const ProxyQr = ({
               <button onClick={copyToClipboard}>Copy Uri</button>
               {copySuccess && <Box>{copySuccess}</Box>}
             </Box> */}
-            {Uri && (
+            {Uri &&
               <Box>
                 <Box sx={{ position: 'relative' }}>
-                  <Box
-                    sx={{
-                      borderRadius: '24px',
-                      width: '277px',
-                      height: '277px',
-                      display: 'flex',
-                      overflow: 'hidden',
-                    }}
-                  >
+                  <Box sx={{ borderRadius: '24px', width: '277px', height: '277px', display: 'flex', overflow: 'hidden' }}>
                     <QRCode
                       size={237}
-                      style={{
-                        height: 'auto',
-                        maxWidth: '100%',
-                        width: '100%',
-                        borderRadius: '24px',
-                      }}
+                      style={{ height: 'auto', maxWidth: '100%', width: '100%', borderRadius: '24px' }}
                       value={Uri}
                       logoImage={lilo}
                       eyeColor={'#41CC5D'}
@@ -350,7 +358,7 @@ const ProxyQr = ({
                       quietZone={20}
                     />
                   </Box>
-                  {loading && (
+                  {loading &&
                     <Box
                       sx={{
                         display: 'flex',
@@ -362,7 +370,7 @@ const ProxyQr = ({
                         position: 'absolute',
                         backgroundColor: 'rgba(0, 0, 0, 0.6)',
                         top: '0',
-                        borderRadius: '24px',
+                        borderRadius: '24px'
                       }}
                     >
                       <Typography
@@ -372,11 +380,11 @@ const ProxyQr = ({
                           color: '#41CC5D',
                           lineHeight: '24px',
                           fontWeight: '700',
-                          pt: '14px',
-                          fontSize: '14px',
+                          pt: '14px', fontSize: '14px',
                           textAlign: 'center',
                         }}
                       >
+
                         {chrome.i18n.getMessage('Scan_Successfully')}
                       </Typography>
                       <Typography
@@ -390,30 +398,32 @@ const ProxyQr = ({
                           textAlign: 'center',
                         }}
                       >
+
                         {chrome.i18n.getMessage('Sync_in_Process')}
                       </Typography>
+
                     </Box>
-                  )}
+                  }
                 </Box>
                 <Typography
                   variant="body1"
                   sx={{
-                    color: ' rgba(255, 255, 255, 0.80))',
-                    pt: '14px',
-                    fontSize: '14px',
-                    textAlign: 'center',
+                    color: ' rgba(255, 255, 255, 0.80))'
+                    , pt: '14px', fontSize: '14px', textAlign: 'center'
                   }}
                 >
                   {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
                   {chrome.i18n.getMessage('Scan_QR_Code_with_Mobile')}
                 </Typography>
               </Box>
-            )}
+            }
           </Box>
         </Box>
       </Box>
 
+
       {/* <Box sx={{ flexGrow: 1 }} /> */}
+
     </ThemeProvider>
   );
 };

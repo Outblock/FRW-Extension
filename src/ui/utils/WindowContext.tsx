@@ -16,7 +16,9 @@ const WindowProvider = ({ children }: { children?: ReactNode }) => {
     getWindowProperty();
   }, []);
 
-  return <WindowContext.Provider value={{ id }}>{children}</WindowContext.Provider>;
+  return (
+    <WindowContext.Provider value={{ id }}>{children}</WindowContext.Provider>
+  );
 };
 
 const useWindowContext = () => {

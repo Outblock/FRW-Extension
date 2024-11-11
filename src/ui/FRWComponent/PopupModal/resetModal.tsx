@@ -1,35 +1,17 @@
 import React from 'react';
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  MenuItem,
-  FormControl,
-  Select,
-  Typography,
-} from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, FormControl, Select, Typography } from '@mui/material';
 import { useHistory } from 'react-router-dom';
-import { CustomDialog } from './importAddressModal';
+import { CustomDialog } from './importAddressModal'
 
-const ResetModal = ({
-  setShowAction,
-  isOpen,
-  onOpenChange,
-  errorName,
-  errorMessage,
-  isGoback = false,
-}) => {
+const ResetModal = ({ setShowAction, isOpen, onOpenChange, errorName, errorMessage, isGoback = false }) => {
+
   return (
     <CustomDialog open={isOpen} onClose={() => setShowAction(false)}>
-      <Typography sx={{ color: 'testnet.main', fontSize: '24px', fontWeight: '700' }}>
-        {errorName}
-      </Typography>
-      <Typography sx={{ color: '#BABABA', margin: '20px 0 40px', fontSize: '16px' }}>
-        {errorMessage}
-      </Typography>
-      <DialogActions sx={{ display: 'flex', flexDirection: 'row' }}>
+      <Typography sx={{ color: 'testnet.main', fontSize: '24px', fontWeight: '700' }}>{errorName}</Typography>
+      <Typography sx={{ color: '#BABABA', margin: '20px 0 40px', fontSize: '16px' }}>{errorMessage}</Typography>
+      <DialogActions
+        sx={{ display: 'flex', flexDirection: 'row' }}
+      >
         <Button
           className="registerButton"
           variant="contained"
@@ -45,8 +27,13 @@ const ResetModal = ({
             gap: '12px',
             display: 'flex',
           }}
+
         >
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 'bold' }}
+            color="background.paper"
+          >
             {chrome.i18n.getMessage('Cancel')}
           </Typography>
         </Button>
@@ -64,10 +51,15 @@ const ResetModal = ({
             textTransform: 'capitalize',
             gap: '12px',
             display: 'flex',
-            marginLeft: '40px',
+            marginLeft:'40px'
           }}
+
         >
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.error">
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 'bold' }}
+            color="background.error"
+          >
             {chrome.i18n.getMessage('Reset')}
           </Typography>
         </Button>
@@ -75,5 +67,6 @@ const ResetModal = ({
     </CustomDialog>
   );
 };
+
 
 export default ResetModal;

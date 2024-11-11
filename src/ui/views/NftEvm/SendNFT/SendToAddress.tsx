@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
     boxSizing: 'border-box',
     // margin: '2px 18px 10px 18px',
     width: '100%',
-    padding: '19px 16px',
+    padding: '19px 16px'
   },
   listWrapper: {
     flexGrow: 1,
@@ -117,6 +117,7 @@ const a11yProps = (index: number) => {
 };
 
 interface NFTDetailState {
+
   nft: any;
   media: MatchMedia;
   index: number;
@@ -170,7 +171,7 @@ const SendToAddress = () => {
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
     setUser(userContact);
-  };
+  }
 
   const fetchNFTInfo = async () => {
     const state = location.state as NFTDetailState;
@@ -182,18 +183,20 @@ const SendToAddress = () => {
     setMedia(media);
 
     const contractList = await wallet.openapi.getAllNft();
-    console.log('contractList ', contractList);
-    console.log('NFT ', NFT);
-    const filteredCollections = returnFilteredCollections(contractList, NFT);
-    console.log('filteredCollections ', filteredCollections);
+    console.log('contractList ', contractList)
+    console.log('NFT ', NFT)
+    const filteredCollections = returnFilteredCollections(contractList, NFT)
+    console.log('filteredCollections ', filteredCollections)
     if (filteredCollections.length > 0) {
-      setContractInfo(filteredCollections[0]);
+      setContractInfo(filteredCollections[0])
     }
-  };
+  }
 
   const returnFilteredCollections = (contractList, NFT) => {
-    return contractList.filter((collection) => collection.name == NFT.collectionName);
-  };
+    return contractList.filter(
+      (collection) => collection.name == NFT.collectionName
+    );
+  }
 
   useEffect(() => {
     fetchNFTInfo();
@@ -218,7 +221,7 @@ const SendToAddress = () => {
     const fArray = searchContacts;
     let result = '';
     let group = '';
-    let keyword = keys;
+    let keyword = keys
     if (keyword.includes('.')) {
       keyword = keys.substring(0, keys.lastIndexOf('.'));
     }
@@ -280,9 +283,7 @@ const SendToAddress = () => {
     if (result) {
       result.map((data) => {
         let address = data.address;
-        if (!reg.test(data.address)) {
-          address = '0x' + data.address;
-        }
+        if (!reg.test(data.address)) { address = '0x' + data.address; }
         lilicoResult['group'] = 'Flow Wallet user';
         lilicoResult.address = address;
         lilicoResult.contact_name = data.username;
@@ -290,11 +291,11 @@ const SendToAddress = () => {
         lilicoResult.avatar = data.avatar;
         lilicoResult.type! = checkContain(data) ? 1 : 4;
         fArray.push(lilicoResult);
-      });
+      })
       setSearchContacts(fArray);
     }
     return;
-  };
+  }
   // const resetSearch = async () => {
   //   const emptya = []
   //   setSearchContacts(emptya);
@@ -309,7 +310,8 @@ const SendToAddress = () => {
       await checkDomain(2);
     } catch {
       setHasNoFilteredContacts(true);
-    } finally {
+    }
+    finally {
       await searchUser();
     }
     setHasNoFilteredContacts(true);
@@ -322,7 +324,7 @@ const SendToAddress = () => {
     if (e.code === 'Enter') {
       searchAll();
     }
-  };
+  }
 
   const handleFilterAndSearch = async (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -348,31 +350,33 @@ const SendToAddress = () => {
     const isValidAddress = (address) => {
       const regex = /^(0x)?[a-fA-F0-9]{16,40}$/;
       return regex.test(address);
-    };
+    }
 
-    const checkAddress = keyword.trim();
+
+
+    const checkAddress = keyword.trim()
     if (isValidAddress(checkAddress)) {
       if (filtered[0]) {
-        searchResult = filtered[0];
+        searchResult = filtered[0]
       } else {
         searchResult.address = withPrefix(keyword) || keyword;
         searchResult.contact_name = withPrefix(checkAddress) || keyword;
         searchResult.avatar = '';
         searchResult.type! = 4;
       }
-      setConfirmationOpen(true);
+      setConfirmationOpen(true)
     }
 
     if (isValidEthereumAddress(checkAddress)) {
       if (filtered[0]) {
-        searchResult = filtered[0];
+        searchResult = filtered[0]
       } else {
         searchResult.address = withPrefix(keyword) || keyword;
         searchResult.contact_name = withPrefix(checkAddress) || keyword;
         searchResult.avatar = '';
         searchResult.type! = 4;
       }
-      setConfirmationOpen(true);
+      setConfirmationOpen(true)
     }
 
     setSearchContacts(filtered);
@@ -396,7 +400,10 @@ const SendToAddress = () => {
             disableUnderline
             endAdornment={
               <InputAdornment position="end">
-                <SearchIcon color="primary" sx={{ ml: '10px', my: '5px', fontSize: '24px' }} />
+                <SearchIcon
+                  color="primary"
+                  sx={{ ml: '10px', my: '5px', fontSize: '24px' }}
+                />
               </InputAdornment>
             }
             onChange={handleFilterAndSearch}
@@ -463,8 +470,8 @@ const SendToAddress = () => {
                     filteredContacts={recentContacts}
                     isLoading={isLoading}
                     handleClick={(eachgroup) => {
-                      searchResult = eachgroup;
-                      setConfirmationOpen(true);
+                      searchResult = eachgroup
+                      setConfirmationOpen(true)
                     }}
                   />
                 </TabPanel>
@@ -473,8 +480,8 @@ const SendToAddress = () => {
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
                     handleClick={(eachgroup) => {
-                      searchResult = eachgroup;
-                      setConfirmationOpen(true);
+                      searchResult = eachgroup
+                      setConfirmationOpen(true)
                     }}
                   />
                 </TabPanel>
@@ -483,8 +490,8 @@ const SendToAddress = () => {
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
                     handleClick={(eachgroup) => {
-                      searchResult = eachgroup;
-                      setConfirmationOpen(true);
+                      searchResult = eachgroup
+                      setConfirmationOpen(true)
                     }}
                     isSend={false}
                   />
@@ -494,7 +501,7 @@ const SendToAddress = () => {
           </div>
         ) : (
           <div>
-            {!searched && (
+            {!searched &&
               <ListItem
                 sx={{
                   marginTop: '10px',
@@ -509,7 +516,11 @@ const SendToAddress = () => {
                   <Avatar sx={{ width: '40px', height: '40px' }} />
                 </ListItemAvatar>
                 <ListItemText>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2">
+                  <Typography
+                    sx={{ display: 'inline' }}
+                    component="span"
+                    variant="body2"
+                  >
                     {chrome.i18n.getMessage('Search__the__ID')}
                   </Typography>
                   <Typography
@@ -522,24 +533,23 @@ const SendToAddress = () => {
                   </Typography>
                 </ListItemText>
               </ListItem>
-            )}
+            }
 
-            {!searched && !hasNoFilteredContacts && (
+            {(!searched && !hasNoFilteredContacts) &&
               <AddressBookList
                 filteredContacts={filteredContacts}
                 isLoading={isLoading}
                 handleClick={(eachgroup) => {
-                  searchResult = eachgroup;
-                  setConfirmationOpen(true);
+                  searchResult = eachgroup
+                  setConfirmationOpen(true)
                 }}
-              />
-            )}
+              />}
 
-            {searched && !searchContacts.length && (
+            {(searched && !searchContacts.length) &&
               <ListItem sx={{ backgroundColor: '#000000' }}>
                 <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
                   {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
-                  <IconAbout size={20} color="#E54040" />
+                  <IconAbout size={20} color='#E54040' />
                 </ListItemAvatar>
                 <ListItemText>
                   <Typography
@@ -551,36 +561,30 @@ const SendToAddress = () => {
                   </Typography>
                 </ListItemText>
               </ListItem>
-            )}
-            {searched && !hasNoFilteredContacts && (
+            }
+            {(searched && !hasNoFilteredContacts) &&
               <SearchList
                 searchContacts={searchContacts}
                 isLoading={isLoading}
                 handleClick={(eachgroup) => {
-                  searchResult = eachgroup;
-                  setConfirmationOpen(true);
+                  searchResult = eachgroup
+                  setConfirmationOpen(true)
                 }}
               />
-            )}
+            }
           </div>
         )}
-        {isConfirmationOpen && (
+        {isConfirmationOpen &&
           <SendNFTConfirmation
             isConfirmationOpen={isConfirmationOpen}
-            data={{
-              contact: searchResult,
-              userContact: userInfo,
-              nft: nftDetail,
-              contract: contractInfo,
-              media: media,
-            }}
+            data={{ contact: searchResult, userContact: userInfo, nft: nftDetail, contract: contractInfo, media: media }}
             handleCloseIconClicked={() => setConfirmationOpen(false)}
             handleCancelBtnClicked={() => setConfirmationOpen(false)}
             handleAddBtnClicked={() => {
               setConfirmationOpen(false);
             }}
           />
-        )}
+        }
       </div>
     </StyledEngineProvider>
   );

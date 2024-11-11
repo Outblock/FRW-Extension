@@ -14,7 +14,10 @@ import GoogleBackup from './GoogleBackup';
 import RecoverPassword from './RecoverPassword';
 import Particles from 'react-tsparticles';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
+import {
+  ComponentTransition,
+  AnimationTypes,
+} from 'react-component-transition';
 import { useWallet, Options } from 'ui/utils';
 import ImportPager from './ImportPager';
 
@@ -44,16 +47,13 @@ const AddressImport = () => {
 
   const loadView = async () => {
     // console.log(wallet);
-    wallet
-      .getCurrentAccount()
-      .then((res) => {
-        if (res) {
-          history.push('/');
-        }
-      })
-      .catch(() => {
-        return;
-      });
+    wallet.getCurrentAccount().then((res) => {
+      if (res) {
+        history.push('/');
+      }
+    }).catch(() => {
+      return;
+    });
   };
   const goNext = () => {
     setDirection(Direction.Right);
@@ -87,24 +87,26 @@ const AddressImport = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return (
-          <ImportPager
-            setMnemonic={setMnemonic}
-            setPk={setPk}
-            setAccounts={setAccounts}
-            accounts={accounts}
-            mnemonic={mnemonic}
-            pk={pk}
-            setUsername={setUsername}
-            goPassword={goPassword}
-            handleClick={goNext}
-            setErrorMessage={setErrorMessage}
-            setShowError={setShowError}
-          />
-        );
+        return <ImportPager
+          setMnemonic={setMnemonic}
+          setPk={setPk}
+          setAccounts={setAccounts}
+          accounts={accounts}
+          mnemonic={mnemonic}
+          pk={pk}
+          setUsername={setUsername}
+          goPassword={goPassword}
+          handleClick={goNext}
+          setErrorMessage={setErrorMessage}
+          setShowError={setShowError}
+        />;
       case 1:
         return (
-          <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
+          <PickUsername
+            handleClick={goNext}
+            savedUsername={username}
+            getUsername={getUsername}
+          />
         );
       case 2:
         return (
@@ -119,17 +121,9 @@ const AddressImport = () => {
           />
         );
       case 3:
-        return (
-          <RecoverPassword
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            pk={pk}
-            username={username}
-            goEnd={goEnd}
-          />
-        );
+        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} pk={pk} username={username} goEnd={goEnd} />;
       // case 4:
-      // return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
+        // return <GoogleBackup handleClick={goNext} mnemonic={mnemonic} username={username} password={password} />;
       case 4:
         return <AllSet handleClick={goNext} />;
       default:
@@ -141,6 +135,7 @@ const AddressImport = () => {
     console.log('wallet');
     loadView();
   }, []);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -198,13 +193,7 @@ const AddressImport = () => {
 
             <Typography
               variant="body1"
-              sx={{
-                color: '#5E5E5E',
-                alignSelf: 'end',
-                lineHeight: '37px',
-                fontWeight: '700',
-                fontSize: '16px',
-              }}
+              sx={{ color: '#5E5E5E', alignSelf: 'end', lineHeight: '37px', fontWeight: '700', fontSize: '16px' }}
             >
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/5
             </Typography>

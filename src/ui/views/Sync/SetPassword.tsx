@@ -11,7 +11,7 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline,
+  CssBaseline
 } from '@mui/material';
 import { LLSpinner } from 'ui/FRWComponent';
 import CancelIcon from '../../../components/iconfont/IconClose';
@@ -75,7 +75,8 @@ const BpIcon = styled('span')(() => ({
 
 const BpCheckedIcon = styled(BpIcon)({
   backgroundColor: '#41CC5D',
-  backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
+  backgroundImage:
+    'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
   '&:before': {
     display: 'block',
     width: 21,
@@ -145,7 +146,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
   const [isLoading, setLoading] = useState(false);
 
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Somthing went wrong');
+  const [errorMessage, setErrorMessage] = useState('Somthing went wrong')
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -168,7 +169,11 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
           alignItems: 'center',
         }}
       >
-        <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
+        <CheckCircleIcon
+          size={24}
+          color={'#41CC5D'}
+          style={{ margin: '8px' }}
+        />
         <Typography variant="body1" color="text.secondary">
           {message}
         </Typography>
@@ -233,7 +238,9 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
       setMatch(true);
     } else {
       setMatch(false);
-      setHelperMatch(errorInfo(chrome.i18n.getMessage('Your__passwords__do__not__match')));
+      setHelperMatch(
+        errorInfo(chrome.i18n.getMessage('Your__passwords__do__not__match'))
+      );
     }
   }, [confirmPassword, password]);
 
@@ -248,9 +255,11 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
           height: 'auto',
           width: 'auto',
           position: 'relative',
-          borderRadius: '24px',
+          borderRadius: '24px'
         }}
       >
+
+
         <Box
           sx={{
             display: 'flex',
@@ -265,9 +274,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
             </Box>{' '}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {chrome.i18n.getMessage(
-              'Lilico__uses__this__password__to__protect__your__recovery__phrase'
-            )}
+            {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
           </Typography>
 
           <Box
@@ -297,13 +304,21 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                 endAdornment={
                   <InputAdornment position="end">
                     {password && <PasswordIndicator value={password} />}
-                    <IconButton onClick={() => setPasswordVisible(!isPasswordVisible)}>
-                      {isPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    <IconButton
+                      onClick={() => setPasswordVisible(!isPasswordVisible)}
+                    >
+                      {isPasswordVisible ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
               />
-              <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+              <Presets.TransitionSlideUp>
+                {password && helperText}
+              </Presets.TransitionSlideUp>
               <Input
                 sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
                 id="pass2"
@@ -321,14 +336,22 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
-                      onClick={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                      onClick={() =>
+                        setConfirmPasswordVisible(!isConfirmPasswordVisible)
+                      }
                     >
-                      {isConfirmPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      {isConfirmPasswordVisible ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
               />
-              <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
+              <Presets.TransitionSlideUp
+                style={{ height: '40px', display: 'flex' }}
+              >
                 {confirmPassword && helperMatch}
               </Presets.TransitionSlideUp>
             </FormGroup>
@@ -377,19 +400,18 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
               }}
             >
               {isLoading && <LLSpinner color="secondary" size={28} />}
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 'bold' }}
+                color="background.paper"
+              >
                 {chrome.i18n.getMessage('Login')}
               </Typography>
             </Button>
           </Box>
         </Box>
         <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-          <Alert
-            onClose={handleErrorClose}
-            variant="filled"
-            severity="success"
-            sx={{ width: '100%' }}
-          >
+          <Alert onClose={handleErrorClose} variant="filled" severity="success" sx={{ width: '100%' }}>
             {errorMessage}
           </Alert>
         </Snackbar>

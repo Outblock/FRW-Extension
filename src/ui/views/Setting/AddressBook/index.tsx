@@ -70,7 +70,9 @@ const AddressBook = () => {
   const [isAddAddressOpen, setIsAddAddressOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isEmptyList, setEmptyList] = useState<boolean>(false);
-  const [editableContact, setEditableContact] = useState<Contact | undefined>(undefined);
+  const [editableContact, setEditableContact] = useState<Contact | undefined>(
+    undefined
+  );
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const filter = (e1) => {
@@ -78,7 +80,9 @@ const AddressBook = () => {
 
     if (keyword !== '') {
       const results = group.filter((contact) => {
-        return contact.contact_name.toLowerCase().includes(keyword.toLowerCase());
+        return contact.contact_name
+          .toLowerCase()
+          .includes(keyword.toLowerCase());
       });
       setFoundContacts(results);
     } else {
@@ -87,7 +91,10 @@ const AddressBook = () => {
     setName(keyword);
   };
 
-  const filterResult = _.groupBy(foundContacts, (contact) => contact.contact_name[0]);
+  const filterResult = _.groupBy(
+    foundContacts,
+    (contact) => contact.contact_name[0]
+  );
 
   const fetchAddressBook = async () => {
     try {
@@ -227,7 +234,10 @@ const AddressBook = () => {
             disableUnderline
             startAdornment={
               <InputAdornment position="start">
-                <SearchIcon color="primary" sx={{ ml: '10px', my: '5px', fontSize: '24px' }} />
+                <SearchIcon
+                  color="primary"
+                  sx={{ ml: '10px', my: '5px', fontSize: '24px' }}
+                />
               </InputAdornment>
             }
           />

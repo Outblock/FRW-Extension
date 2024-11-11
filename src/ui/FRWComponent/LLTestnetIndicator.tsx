@@ -13,7 +13,7 @@ export const LLTestnetIndicator: React.FC = () => {
           borderRadius: '0 0 26px 26px',
           background: '#FF8A0029',
           color: '#FF8A00',
-          fontFamily: 'Inter,sans-serif',
+          fontFamily:'Inter,sans-serif',
         }}
       >
         {chrome.i18n.getMessage('Testnet')}
@@ -21,3 +21,4 @@ export const LLTestnetIndicator: React.FC = () => {
     </div>
   );
 };
+

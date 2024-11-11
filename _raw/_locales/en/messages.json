@@ -1309,7 +1309,7 @@
   "balance": {
     "message": "Balance"
   },
-  "import_account": {
+  "import_account" :{
     "message": "Import Account"
   },
   "Import__Profile": {
