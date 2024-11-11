@@ -8,8 +8,8 @@ export const NewsView: React.FC = () => {
 
   console.log('NewsView', news?.length);
   return (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -25,51 +25,49 @@ export const NewsView: React.FC = () => {
             mb: 2.5,
           }}
         >
-          <Typography 
-            variant="h6" 
-            sx={{ 
+          <Typography
+            variant="h6"
+            sx={{
               fontWeight: 500,
-              color: 'text.primary'
+              color: 'text.primary',
             }}
           >
             Notifications
           </Typography>
-          <Button 
+          <Button
             onClick={resetNews}
-            sx={{ 
+            sx={{
               color: 'text.secondary',
               '&:hover': {
                 backgroundColor: 'transparent',
                 textDecoration: 'underline',
-              }
+              },
             }}
           >
             Clear all
           </Button>
         </Box>
 
-        <Box 
+        <Box
           sx={{
             maxHeight: 'calc(100vh - 200px)', // Leave space for header and bottom nav
             overflowY: 'auto',
             '&::-webkit-scrollbar': {
-              display: 'none' // Hide scrollbar for cleaner look
+              display: 'none', // Hide scrollbar for cleaner look
             },
             msOverflowStyle: 'none',
             scrollbarWidth: 'none',
           }}
         >
           {news?.map((item) => (
-            <Box 
+            <Box
               key={item.id}
               sx={{
                 height: '76px', // Fixed heights
-                mb: 1.5
+                mb: 1.5,
               }}
             >
-              <NewsItemCard
-                item={item}
-              />
+              <NewsItemCard item={item} />
             </Box>
           ))}
         </Box>

@@ -1,20 +1,10 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import {
-  Typography,
-  Box,
-  Drawer,
-  Stack,
-} from '@mui/material';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-  LLWarningButton,
-} from 'ui/FRWComponent';
+import { Typography, Box, Drawer, Stack } from '@mui/material';
+import { LLPrimaryButton, LLSecondaryButton, LLWarningButton } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import ResetModal from '../../../FRWComponent/PopupModal/resetModal';
 import StepBox from '../stepBox';
-
 
 interface AddOrEditAddressProps {
   resetPop: boolean;
@@ -29,7 +19,6 @@ export interface AddressBookValues {
 }
 
 const ResetPage = (props: AddOrEditAddressProps) => {
-
   const usewallet = useWallet();
   const history = useHistory();
   const [showAction, setShowAction] = useState(false);
@@ -49,13 +38,12 @@ const ResetPage = (props: AddOrEditAddressProps) => {
     // console.log('reset reset reset')
   };
 
-
   return (
     <Box
       sx={{
         width: '100%',
         flexDirection: 'column',
-        padding: '24px 40px 40px'
+        padding: '24px 40px 40px',
       }}
     >
       <Box
@@ -78,23 +66,30 @@ const ResetPage = (props: AddOrEditAddressProps) => {
         >
           {chrome.i18n.getMessage('Forget_Password')}
         </Typography>
-        <Typography sx={{
-          fontSize: '14px', fontFamily: 'Inter',
-          fontStyle: 'normal', color: '#BABABA', margin: '18px 0 52px', cursor: 'pointer'
-        }}>
+        <Typography
+          sx={{
+            fontSize: '14px',
+            fontFamily: 'Inter',
+            fontStyle: 'normal',
+            color: '#BABABA',
+            margin: '18px 0 52px',
+            cursor: 'pointer',
+          }}
+        >
           {chrome.i18n.getMessage('Forget_Password')}
-          If you forgot your password, you will need to reset your wallet and import your recovery phrase or private key to regain access to your wallet.
+          If you forgot your password, you will need to reset your wallet and import your recovery
+          phrase or private key to regain access to your wallet.
         </Typography>
       </Box>
       <StepBox />
       <Stack direction="row" spacing={1}>
         <LLWarningButton
-          label= {chrome.i18n.getMessage('Reset_Your_Wallet')}
+          label={chrome.i18n.getMessage('Reset_Your_Wallet')}
           fullWidth
           onClick={onResetSubmit}
         />
       </Stack>
-      {showAction &&
+      {showAction && (
         <ResetModal
           setShowAction={setShowAction}
           isOpen={showAction}
@@ -102,9 +97,9 @@ const ResetPage = (props: AddOrEditAddressProps) => {
           errorName={chrome.i18n.getMessage('Confirm_to_reset_Wallet')}
           errorMessage={chrome.i18n.getMessage('This_action_will_remove')}
         />
-      }
+      )}
     </Box>
   );
 };
 
-export default ResetPage
+export default ResetPage;

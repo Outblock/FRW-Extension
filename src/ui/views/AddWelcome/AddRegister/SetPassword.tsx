@@ -29,7 +29,6 @@ import HDWallet from 'ethereum-hdwallet';
 import { LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
 
-
 const useStyles = makeStyles(() => ({
   customInputLabel: {
     '& legend': {
@@ -74,8 +73,7 @@ const BpIcon = styled('span')(() => ({
 
 const BpCheckedIcon = styled(BpIcon)({
   backgroundColor: '#41CC5D',
-  backgroundImage:
-    'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
+  backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
   '&:before': {
     display: 'block',
     width: 21,
@@ -155,10 +153,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
 
   const getAccountKey = (mnemonic) => {
     const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const publicKey = hdwallet
-      .derive("m/44'/539'/0'/0/0")
-      .getPublicKey()
-      .toString('hex');
+    const publicKey = hdwallet.derive("m/44'/539'/0'/0/0").getPublicKey().toString('hex');
     const key: AccountKey = {
       hash_algo: 1,
       sign_algo: 2,
@@ -181,11 +176,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
           alignItems: 'center',
         }}
       >
-        <CheckCircleIcon
-          size={24}
-          color={'#41CC5D'}
-          style={{ margin: '8px' }}
-        />
+        <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
         <Typography variant="body1" color="success.main">
           {message}
         </Typography>
@@ -241,7 +232,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
       })
       .catch((error) => {
         console.log('error', error);
-        setShowError(true)
+        setShowError(true);
         setLoading(false);
       });
   };
@@ -249,14 +240,12 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
-        <Typography variant="h4">
-          {chrome.i18n.getMessage('Confirm__Password')}{' '}
-        </Typography>
+      <Box className="registerBox">
+        <Typography variant="h4">{chrome.i18n.getMessage('Confirm__Password')} </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
+          {chrome.i18n.getMessage(
+            'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+          )}
         </Typography>
 
         <Box
@@ -285,20 +274,13 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}
-                  <IconButton
-                    onClick={() => setPasswordVisible(!isPasswordVisible)}
-                  >
-                    {isPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
+                  <IconButton onClick={() => setPasswordVisible(!isPasswordVisible)}>
+                    {isPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </IconButton>
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp
-              style={{ marginBottom: '24px' }}>
+            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
               {password && helperText}
             </Presets.TransitionSlideUp>
           </FormGroup>
@@ -315,7 +297,12 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
           label={
             <Typography variant="body1" color="text.secondary">
               {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
-              <Link underline="none" href="https://lilico.app/about/privacy-policy" target="_blank" color="success.main">
+              <Link
+                underline="none"
+                href="https://lilico.app/about/privacy-policy"
+                target="_blank"
+                color="success.main"
+              >
                 {chrome.i18n.getMessage('Privacy__Policy')}
               </Link>{' '}
               {chrome.i18n.getMessage('and') + ' '}
@@ -326,7 +313,8 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
                 underline="none"
               >
                 {chrome.i18n.getMessage('Terms__of__Service')}
-              </Link>{' '}.
+              </Link>{' '}
+              .
             </Typography>
           }
         />
@@ -342,18 +330,12 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex'
+            display: 'flex',
           }}
-          disabled={
-            isLoading ? true : !(isCheck && notBot)
-          }
+          disabled={isLoading ? true : !(isCheck && notBot)}
         >
           {isLoading && <LLSpinner size={28} />}
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Register')}
           </Typography>
         </Button>

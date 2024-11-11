@@ -28,7 +28,6 @@ import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { storage } from '@/background/webapi';
 
-
 const useStyles = makeStyles(() => ({
   customInputLabel: {
     '& legend': {
@@ -73,8 +72,7 @@ const BpIcon = styled('span')(() => ({
 
 const BpCheckedIcon = styled(BpIcon)({
   backgroundColor: '#41CC5D',
-  backgroundImage:
-    'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
+  backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
   '&:before': {
     display: 'block',
     width: 21,
@@ -169,11 +167,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           alignItems: 'center',
         }}
       >
-        <CheckCircleIcon
-          size={24}
-          color={'#41CC5D'}
-          style={{ margin: '8px' }}
-        />
+        <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
         <Typography variant="body1" color="success.main">
           {message}
         </Typography>
@@ -206,7 +200,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
   const [helperMatch, setHelperMatch] = useState(<div />);
 
   const handleImport = async () => {
-    console.log('account key ', accounts)
+    console.log('account key ', accounts);
     setLoading(true);
     if (accounts.length > 1) {
       setLoading(true);
@@ -215,25 +209,25 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         public_key: accounts[0].pubK,
         sign_algo: getSignAlgo(accounts[0].signAlgo),
         hash_algo: getHashAlgo(accounts[0].hashAlgo),
-        weight: 1000
-      }
+        weight: 1000,
+      };
       const installationId = await wallet.openapi.getInstallationId();
       // console.log('location ', userlocation);
       const device_info = {
         device_id: installationId,
-        'name': 'FRW Chrome Extension',
-        'type': '2',
-        'user_agent': 'Chrome',
-      }
+        name: 'FRW Chrome Extension',
+        type: '2',
+        user_agent: 'Chrome',
+      };
       const address = accounts[0].address.replace(/^0x/, '');
-      wallet.openapi.importKey(accountKeyStruct, device_info, username, {}, address)
+      wallet.openapi
+        .importKey(accountKeyStruct, device_info, username, {}, address)
         .then((response) => {
           return wallet.boot(password);
         })
         .then(async (response) => {
           setExPassword(password);
           storage.remove('premnemonic');
-
 
           await saveIndex(username);
           if (pk) {
@@ -252,10 +246,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
         })
         .catch((error) => {
           console.log('error', error);
-          setShowError(true)
+          setShowError(true);
           setLoading(false);
         });
-
     }
   };
 
@@ -275,18 +268,14 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
       setMatch(true);
     } else {
       setMatch(false);
-      setHelperMatch(
-        errorInfo(chrome.i18n.getMessage('Your__passwords__do__not__match'))
-      );
+      setHelperMatch(errorInfo(chrome.i18n.getMessage('Your__passwords__do__not__match')));
     }
   }, [confirmPassword, password]);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
           <Box display="inline" color="primary.main">
@@ -294,7 +283,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           </Box>{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage('Lilico__uses__this__password__to__protect__your__recovery__phrase')}
+          {chrome.i18n.getMessage(
+            'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+          )}
         </Typography>
 
         <Box
@@ -324,20 +315,13 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
               endAdornment={
                 <InputAdornment position="end">
                   {password && <PasswordIndicator value={password} />}
-                  <IconButton
-                    onClick={() => setPasswordVisible(!isPasswordVisible)}
-                  >
-                    {isPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
+                  <IconButton onClick={() => setPasswordVisible(!isPasswordVisible)}>
+                    {isPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </IconButton>
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp
-              style={{ marginBottom: '24px' }}>
+            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
               {password && helperText}
             </Presets.TransitionSlideUp>
             <Input
@@ -356,23 +340,13 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
               }}
               endAdornment={
                 <InputAdornment position="end">
-                  <IconButton
-                    onClick={() =>
-                      setConfirmPasswordVisible(!isConfirmPasswordVisible)
-                    }
-                  >
-                    {isConfirmPasswordVisible ? (
-                      <VisibilityOffIcon />
-                    ) : (
-                      <VisibilityIcon />
-                    )}
+                  <IconButton onClick={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}>
+                    {isConfirmPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </IconButton>
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp
-              style={{ height: '40px', display: 'flex' }}
-            >
+            <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
               {confirmPassword && helperMatch}
             </Presets.TransitionSlideUp>
           </FormGroup>
@@ -389,7 +363,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           label={
             <Typography variant="body1" color="text.secondary">
               {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
-              <Link underline="none" href="https://lilico.app/about/privacy-policy" target="_blank" color="success.main">
+              <Link
+                underline="none"
+                href="https://lilico.app/about/privacy-policy"
+                target="_blank"
+                color="success.main"
+              >
                 {chrome.i18n.getMessage('Privacy__Policy')}
               </Link>{' '}
               {chrome.i18n.getMessage('and') + ' '}
@@ -400,7 +379,8 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
                 underline="none"
               >
                 {chrome.i18n.getMessage('Terms__of__Service')}
-              </Link>{' '}.
+              </Link>{' '}
+              .
             </Typography>
           }
         />
@@ -416,18 +396,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
             borderRadius: '12px',
             textTransform: 'capitalize',
             gap: '12px',
-            display: 'flex'
+            display: 'flex',
           }}
-          disabled={
-            isLoading ? true : !(isMatch && isCharacters && isCheck && notBot)
-          }
+          disabled={isLoading ? true : !(isMatch && isCharacters && isCheck && notBot)}
         >
           {isLoading && <LLSpinner size={28} />}
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Register')}
           </Typography>
         </Button>

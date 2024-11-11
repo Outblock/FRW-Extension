@@ -11,10 +11,7 @@ import RecoveryPhrase from './RecoveryPhrase';
 import GoogleAccounts from './GoogleAccounts';
 import RecoveryPassword from './RecoverPassword';
 import Particles from 'react-tsparticles';
-import {
-  ComponentTransition,
-  AnimationTypes,
-} from 'react-component-transition';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { LLPinAlert } from '@/ui/FRWComponent';
 import { Options } from 'ui/utils';
 import { storage } from 'background/webapi';
@@ -25,7 +22,7 @@ enum Direction {
 }
 
 interface AccountsState {
-  accounts: string[]
+  accounts: string[];
 }
 
 const GoogleImport = () => {
@@ -70,9 +67,9 @@ const GoogleImport = () => {
     const backupAccounts = localStorage.getItem('backupAccounts');
     if (backupAccounts) {
       const accountList = JSON.parse(backupAccounts);
-      setAccounts(accountList)
+      setAccounts(accountList);
     } else {
-      setAccounts(users)
+      setAccounts(users);
     }
   };
 
@@ -84,13 +81,22 @@ const GoogleImport = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <GoogleAccounts handleClick={goNext} accounts={accounts} setUsername={setUsername}/>
+        return (
+          <GoogleAccounts handleClick={goNext} accounts={accounts} setUsername={setUsername} />
+        );
       case 1:
         return <DecryptWallet handleClick={goNext} setMnemonic={setMnemonic} username={username} />;
       case 2:
         return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
       case 3:
-        return <RecoveryPassword handleClick={goNext} mnemonic={mnemonic} username={username} lastPassword={password}/>
+        return (
+          <RecoveryPassword
+            handleClick={goNext}
+            mnemonic={mnemonic}
+            username={username}
+            lastPassword={password}
+          />
+        );
       case 4:
         return <AllSet handleClick={goNext} />;
       default:
@@ -98,7 +104,7 @@ const GoogleImport = () => {
     }
   };
 
-  const heights = [500, 500, 600, 600, 500]
+  const heights = [500, 500, 600, 600, 500];
 
   return (
     <ThemeProvider theme={theme}>
@@ -127,7 +133,7 @@ const GoogleImport = () => {
             display: 'flex',
             flexDirection: 'column',
             width: 720,
-            marginTop:'80px',
+            marginTop: '80px',
             height: 'auto',
             transition: 'all .3s ease-in-out',
             borderRadius: '24px',
@@ -152,7 +158,13 @@ const GoogleImport = () => {
 
             <Typography
               variant="body1"
-              sx={{ color: '#5E5E5E', alignSelf: 'end',lineHeight:'37px', fontWeight: '700',fontSize:'16px' }}
+              sx={{
+                color: '#5E5E5E',
+                alignSelf: 'end',
+                lineHeight: '37px',
+                fontWeight: '700',
+                fontSize: '16px',
+              }}
             >
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/5
             </Typography>

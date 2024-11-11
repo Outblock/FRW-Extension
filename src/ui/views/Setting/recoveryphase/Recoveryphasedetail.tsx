@@ -34,10 +34,7 @@ const RecoveryPhasesDetail = () => {
 
   return (
     <div className="page">
-      <LLHeader
-        title={chrome.i18n.getMessage('Recovery__Phrase')}
-        help={false}
-      />
+      <LLHeader title={chrome.i18n.getMessage('Recovery__Phrase')} help={false} />
 
       <Box
         sx={{

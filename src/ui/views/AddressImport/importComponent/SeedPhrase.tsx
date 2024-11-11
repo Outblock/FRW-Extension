@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
 const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
   const classes = useStyles();
   const [isLoading, setLoading] = useState(false);
@@ -46,13 +45,13 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
 
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
 
-      console.log('address ', address)
-      const result = await findAddressWithSeed(seed, address, true)
+      console.log('address ', address);
+      const result = await findAddressWithSeed(seed, address, true);
       if (!result) {
         onOpen();
         return;
       }
-      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }))
+      const accounts = result.map((a) => ({ ...a, type: KEY_TYPE.SEED_PHRASE, mnemonic: seed }));
       onImport(accounts);
     } finally {
       setLoading(false);
@@ -72,11 +71,9 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
           placeholder={chrome.i18n.getMessage('Enter_your_flow_address')}
           className={classes.textarea}
           defaultValue={''}
-
         />
 
         <KeyPathInput />
-
 
         <Button
           className="registerButton"
@@ -92,17 +89,12 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
             textTransform: 'capitalize',
             gap: '12px',
             display: 'flex',
-            marginTop:'40px',
+            marginTop: '40px',
           }}
           disabled={isLoading || isSignLoading}
-
         >
           {(isLoading || isSignLoading) && <LLSpinner size={28} />}
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Import')}
           </Typography>
         </Button>

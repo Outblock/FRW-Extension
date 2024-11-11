@@ -10,7 +10,7 @@ import {
   ListItemButton,
   Divider,
   CardMedia,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import IconAccount from '../../../components/iconfont/IconAccount';
 import IconWallet from '../../../components/iconfont/IconWallet';
@@ -30,14 +30,14 @@ const useStyles = makeStyles(() => ({
   listDiv: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
   },
   listItem: {
     height: '66px',
     width: '100%',
     overflow: 'hidden',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
   },
   itemButton: {
@@ -46,7 +46,7 @@ const useStyles = makeStyles(() => ({
     overflow: 'hidden',
     margin: '0 auto',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
   },
   list: {
@@ -55,11 +55,11 @@ const useStyles = makeStyles(() => ({
     overflow: 'hidden',
     backgroundColor: '#282828',
     '&:hover': {
-      backgroundColor: '#282828'
+      backgroundColor: '#282828',
     },
   },
   listIcon: {
-    minWidth: '25px'
+    minWidth: '25px',
   },
   icon: {
     color: '#59A1DB',
@@ -71,14 +71,13 @@ const useStyles = makeStyles(() => ({
     color: '#59A1DB',
     width: '16px',
     height: '16px',
-    marginRight: '14px'
+    marginRight: '14px',
   },
-
 }));
 
 const SettingTab = () => {
   const { url } = useRouteMatch();
-  const classes = useStyles()
+  const classes = useStyles();
   const wallet = useWallet();
   const [isActive, setIsActive] = useState(false);
 
@@ -86,31 +85,31 @@ const SettingTab = () => {
     // setSending(true);
     const activeChild = await wallet.getActiveWallet();
     if (activeChild) {
-      setIsActive(activeChild)
+      setIsActive(activeChild);
     }
+  };
 
-  }
-
-  
   useEffect(() => {
     checkIsActive();
   }, []);
 
   return (
     <div className="page">
-      <Typography component='div' variant='h5' sx={{ padding: '18px', textAlign: 'center' }}>{chrome.i18n.getMessage('Settings')}</Typography>
+      <Typography component="div" variant="h5" sx={{ padding: '18px', textAlign: 'center' }}>
+        {chrome.i18n.getMessage('Settings')}
+      </Typography>
       <div className={classes.listDiv}>
         <List className={classes.list} sx={{ margin: '8px auto 16px auto', pt: 0, pb: 0 }}>
           <ListItem
             button
             component={Link}
-            to='/dashboard/setting/account'
+            to="/dashboard/setting/account"
             disablePadding
             className={classes.listItem}
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconAccount className={classes.icon} color='#59A1DB' />
+                <IconAccount className={classes.icon} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Profile')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -123,13 +122,13 @@ const SettingTab = () => {
           <ListItem
             button
             component={Link}
-            to='/dashboard/setting/wallet'
+            to="/dashboard/setting/wallet"
             disablePadding
             className={classes.listItem}
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconWallet className={classes.icon} color='#59A1DB' />
+                <IconWallet className={classes.icon} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Acc__list')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -143,13 +142,13 @@ const SettingTab = () => {
           <ListItem
             button
             component={Link}
-            to='/dashboard/setting/addressbook'
+            to="/dashboard/setting/addressbook"
             disablePadding
             className={classes.listItem}
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconAddressbook className={classes.icon} color='#59A1DB' />
+                <IconAddressbook className={classes.icon} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Address__Book')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -159,18 +158,21 @@ const SettingTab = () => {
           </ListItem>
 
           <Divider sx={{ width: '90%' }} variant="middle" />
-          {!isActive &&
-
+          {!isActive && (
             <ListItem
               button
               component={Link}
-              to='/dashboard/setting/linked'
+              to="/dashboard/setting/linked"
               disablePadding
               className={classes.listItem}
             >
               <ListItemButton className={classes.itemButton}>
                 <ListItemIcon sx={{ minWidth: '25px' }}>
-                  <CardMedia className={classes.icon} sx={{ height: '16px', width: '16px' }} image={IconLink} />
+                  <CardMedia
+                    className={classes.icon}
+                    sx={{ height: '16px', width: '16px' }}
+                    image={IconLink}
+                  />
                 </ListItemIcon>
                 <ListItemText primary={chrome.i18n.getMessage('Linked_Account')} />
                 <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -178,14 +180,9 @@ const SettingTab = () => {
                 </ListItemIcon>
               </ListItemButton>
             </ListItem>
+          )}
 
-          }
-
-          {!isActive &&
-
-            <Divider sx={{ width: '90%' }} variant="middle" />
-
-          }
+          {!isActive && <Divider sx={{ width: '90%' }} variant="middle" />}
 
           <ListItem
             button
@@ -196,7 +193,7 @@ const SettingTab = () => {
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconBackup className={classes.iconOthers} color='#59A1DB' />
+                <IconBackup className={classes.iconOthers} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Backup')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -204,11 +201,9 @@ const SettingTab = () => {
               </ListItemIcon>
             </ListItemButton>
           </ListItem>
-
         </List>
 
         <List className={classes.list} sx={{ margin: '8px auto 18px auto', pt: 0, pb: 0 }}>
-
           <ListItem
             // button
             // component={Link}
@@ -224,10 +219,22 @@ const SettingTab = () => {
               <ListItemText primary={chrome.i18n.getMessage('Try_Our_Mobile_APP')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px', spacing: '8px' }}>
                 {/* <IconEnd size={12} /> */}
-                <IconButton onClick={() => window.open('https://apps.apple.com/ca/app/flow-wallet-nfts-and-crypto/id6478996750')}>
+                <IconButton
+                  onClick={() =>
+                    window.open(
+                      'https://apps.apple.com/ca/app/flow-wallet-nfts-and-crypto/id6478996750'
+                    )
+                  }
+                >
                   <AppleIcon fontSize="small" color="disabled" />
                 </IconButton>
-                <IconButton onClick={() => window.open('https://play.google.com/store/apps/details?id=com.flowfoundation.wallet')}>
+                <IconButton
+                  onClick={() =>
+                    window.open(
+                      'https://play.google.com/store/apps/details?id=com.flowfoundation.wallet'
+                    )
+                  }
+                >
                   <AndroidIcon fontSize="small" color="disabled" />
                 </IconButton>
               </ListItemIcon>
@@ -246,7 +253,7 @@ const SettingTab = () => {
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
                 {/* <IconSecurity className={classes.iconOthers} color='#59A1DB' /> */}
-                <IconDeveloper className={classes.iconOthers} color='#59A1DB' />
+                <IconDeveloper className={classes.iconOthers} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Developer__Mode')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -257,16 +264,20 @@ const SettingTab = () => {
 
           <Divider sx={{ width: '90%' }} variant="middle" />
 
-          <ListItem 
-            button 
-            component={Link} 
+          <ListItem
+            button
+            component={Link}
             to="/dashboard/setting/devices"
-            disablePadding 
+            disablePadding
             className={classes.listItem}
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <CardMedia className={classes.icon} sx={{height:'16px',width:'19px', marginRight:'13px'}} image={Device} />
+                <CardMedia
+                  className={classes.icon}
+                  sx={{ height: '16px', width: '19px', marginRight: '13px' }}
+                  image={Device}
+                />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Devices')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -286,7 +297,7 @@ const SettingTab = () => {
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconAbout className={classes.iconOthers} color='#59A1DB' />
+                <IconAbout className={classes.iconOthers} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('About')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>

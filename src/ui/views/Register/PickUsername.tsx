@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { Box, ThemeProvider } from '@mui/system';
-import {
-  Button,
-  Typography,
-  FormControl,
-  Input,
-  InputAdornment,
-  CssBaseline,
-} from '@mui/material';
+import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import theme from '../../style/LLTheme';
@@ -16,7 +9,6 @@ import EmailIcon from '../../assets/alternate-email.svg';
 import { Presets } from 'react-component-transition';
 import { useWallet } from 'ui/utils';
 import { CircularProgress, IconButton } from '@mui/material';
-
 
 const useStyles = makeStyles((theme) => ({
   customInputLabel: {
@@ -56,7 +48,12 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
       <CancelIcon size={24} color="#E54040" style={{ margin: '8px' }} />
       <Typography variant="body1" color="error.main">
         {errorMsg}
-        {errorMsg.startsWith('This username is reserved') && <span><a href='mailto: hi@lilico.app'>hi@lilico.app</a>{chrome.i18n.getMessage('for__any__inquiry')}</span>}
+        {errorMsg.startsWith('This username is reserved') && (
+          <span>
+            <a href="mailto: hi@lilico.app">hi@lilico.app</a>
+            {chrome.i18n.getMessage('for__any__inquiry')}
+          </span>
+        )}
       </Typography>
     </Box>
   );
@@ -68,7 +65,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         alignItems: 'center',
       }}
     >
-      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px', }} />
+      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
       <Typography variant="body1" color="success.main">
         {chrome.i18n.getMessage('Sounds_good')}
       </Typography>
@@ -80,11 +77,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
       color="text.secondary"
       sx={{ display: 'flex', alignItems: 'center' }}
     >
-      <CircularProgress
-        color="primary"
-        size={22}
-        style={{ fontSize: '22px', margin: '8px' }}
-      />
+      <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
       {chrome.i18n.getMessage('Checking')}
     </Typography>
   );
@@ -105,7 +98,6 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     setHelperText(usernameLoading);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
-
       if (username.length < 3) {
         setErrorMessage(chrome.i18n.getMessage('Too__short'));
         return;
@@ -135,7 +127,9 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             setHelperText(usernameCorrect);
           } else {
             if (response.message == 'Username is reserved') {
-              setErrorMessage(chrome.i18n.getMessage('This__username__is__reserved__Please__contact'))
+              setErrorMessage(
+                chrome.i18n.getMessage('This__username__is__reserved__Please__contact')
+              );
             } else {
               setErrorMessage(chrome.i18n.getMessage('This__name__is__taken'));
             }
@@ -159,9 +153,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox"
-      >
+      <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Pick__Your')}
           <Box display="inline" color="primary.main">
@@ -236,11 +228,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             textTransform: 'capitalize',
           }}
         >
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 'bold' }}
-            color="background.paper"
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
             {chrome.i18n.getMessage('Next')}
           </Typography>
         </Button>

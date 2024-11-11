@@ -208,7 +208,6 @@ const IconFont = ({ name, ...rest }) => {
       return <IconAppStore {...rest} />;
     case 'back-button':
       return <IconBackButton {...rest} />;
-
   }
 
   return null;

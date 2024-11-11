@@ -1,19 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import {
-  Box,
-  Typography,
-  Drawer,
-  Stack,
-  Grid,
-  CardMedia,
-  IconButton,
-  Button
-} from '@mui/material';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner,
-} from 'ui/FRWComponent';
+import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { LLSwap } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
@@ -56,37 +46,44 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
   const getPending = async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
-      setOccupied(true)
+      setOccupied(true);
     }
-  }
+  };
 
   const updateOccupied = () => {
     setOccupied(false);
-  }
+  };
 
   const unstake = () => {
     setSending(true);
     const amount = parseFloat(props.data.amount).toFixed(8);
-   
-    wallet.unstake(amount, props.data.nodeid, props.data.delegateid).then(async (txID)=> {
-      wallet.listenTransaction(txID, true, `${props.data.amount}  Flow unstaked`, `You have unstaked ${props.data.amount} Flow from the staking node. \nClick to view this transaction.`, props.data.amount);
-      await wallet.setDashIndex(0);
-      setSending(false);
-      history.push('/dashboard?activity=1');
-    }).catch((err) => {
-      console.log(err);
-      setSending(false);
-    })
+
+    wallet
+      .unstake(amount, props.data.nodeid, props.data.delegateid)
+      .then(async (txID) => {
+        wallet.listenTransaction(
+          txID,
+          true,
+          `${props.data.amount}  Flow unstaked`,
+          `You have unstaked ${props.data.amount} Flow from the staking node. \nClick to view this transaction.`,
+          props.data.amount
+        );
+        await wallet.setDashIndex(0);
+        setSending(false);
+        history.push('/dashboard?activity=1');
+      })
+      .catch((err) => {
+        console.log(err);
+        setSending(false);
+      });
   };
-
-
 
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {
       updateOccupied();
     }
-    return true
-  }
+    return true;
+  };
 
   useEffect(() => {
     // startCount();
@@ -94,8 +91,8 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
     chrome.runtime.onMessage.addListener(transactionDoneHanlder);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder)
-    }
+      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+    };
   }, []);
 
   const renderContent = () => (
@@ -109,50 +106,66 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
         display: 'flex',
       }}
     >
-      <Box sx={{display:'flex', alignItems: 'center', justifyContent:'center',}}>
-        <Box 
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box
           sx={{
             width: '100%',
             height: '60px',
-            borderRadius:'16px',
-            display:'flex',
+            borderRadius: '16px',
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding:'0 18px'
+            padding: '0 18px',
           }}
         >
-          <Box sx={{width:'28px'}}></Box>
+          <Box sx={{ width: '28px' }}></Box>
           <Typography
             display="inline"
-            sx={{ 
+            sx={{
               fontWeight: '700',
-              fontSize:'14PX',
-              color:'#E6E6E6'
+              fontSize: '14PX',
+              color: '#E6E6E6',
             }}
             variant="body2"
           >
-          
             Check & Confirm your Stake
           </Typography>
           <Box>
             <IconButton onClick={props.handleCloseIconClicked}>
-              <CloseIcon
-                sx={{ color: '#E6E6E6', cursor: 'pointer',fontSize:'12px' }}
-              />
+              <CloseIcon sx={{ color: '#E6E6E6', cursor: 'pointer', fontSize: '12px' }} />
             </IconButton>
           </Box>
         </Box>
       </Box>
-      <Box sx={{display: 'flex', flexDirection:'column',justifyContent: 'space-between',alignItems:'left', padding: '18px 18px 0', borderRadius:'12PX',backgroundColor:'#121212'}}>
-        <Box sx={{display:'flex'}}>
-          <img src="https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png" style={{height: '20px', width: '20px', marginRight:'8px', backgroundColor: '#282828', borderRadius: '18px'}}/>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'left',
+          padding: '18px 18px 0',
+          borderRadius: '12PX',
+          backgroundColor: '#121212',
+        }}
+      >
+        <Box sx={{ display: 'flex' }}>
+          <img
+            src="https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png"
+            style={{
+              height: '20px',
+              width: '20px',
+              marginRight: '8px',
+              backgroundColor: '#282828',
+              borderRadius: '18px',
+            }}
+          />
 
           <Typography
             display="inline"
-            sx={{ 
+            sx={{
               fontWeight: 'bold',
-              fontSize:'16px',
-              color:'#fff'
+              fontSize: '16px',
+              color: '#fff',
             }}
             variant="body2"
           >
@@ -160,15 +173,15 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
           </Typography>
         </Box>
 
-        <Box sx={{display:'flex',justifyContent:'space-between'}}>
-          <Box sx={{paddingTop:'4px'}}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ paddingTop: '4px' }}>
             <Typography
               display="inline"
-              sx={{ 
-                marginLeft:'4px',
+              sx={{
+                marginLeft: '4px',
                 fontWeight: 'normal',
-                fontSize:'32px',
-                color:'#FFFFFF'
+                fontSize: '32px',
+                color: '#FFFFFF',
               }}
               variant="body2"
             >
@@ -176,102 +189,134 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
             </Typography>
             <Typography
               display="inline"
-              sx={{ 
-                marginLeft:'4px',
+              sx={{
+                marginLeft: '4px',
                 fontWeight: 'normal',
-                fontSize:'14px',
-                color:'#5E5E5E'
+                fontSize: '14px',
+                color: '#5E5E5E',
               }}
               variant="body2"
             >
-          
-          FLOW
+              FLOW
             </Typography>
           </Box>
-          <Box sx={{lineHeight:'67px '}}>
+          <Box sx={{ lineHeight: '67px ' }}>
             <Typography
               display="inline"
-              sx={{ 
-                marginLeft:'4px',
+              sx={{
+                marginLeft: '4px',
                 fontWeight: 'normal',
-                fontSize:'12px',
-                color:'#5E5E5E'
+                fontSize: '12px',
+                color: '#5E5E5E',
               }}
               variant="body2"
             >
-          
-          $ {parseFloat((props.data.coinInfo.price * (Number(props.data.amount) * props.data.apr)).toFixed(2)).toLocaleString('en-US')}
+              ${' '}
+              {parseFloat(
+                (props.data.coinInfo.price * (Number(props.data.amount) * props.data.apr)).toFixed(
+                  2
+                )
+              ).toLocaleString('en-US')}
             </Typography>
           </Box>
         </Box>
       </Box>
 
-
-
-      <Box sx={{display: 'flex', flexDirection:'column',justifyContent: 'space-between', padding: '18px', borderRadius:'12PX',marginTop:'16px',backgroundColor:'#121212'}}>
-        <Box sx={{display: 'flex',justifyContent:'space-between'}}>
-          <Typography variant="body1"           
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '18px',
+          borderRadius: '12PX',
+          marginTop: '16px',
+          backgroundColor: '#121212',
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography
+            variant="body1"
             sx={{
               alignSelf: 'start',
               fontSize: '14px',
-              color:'#e6e6e6'
-            }}>
-                Rate
+              color: '#e6e6e6',
+            }}
+          >
+            Rate
           </Typography>
-          <Typography variant="body1"           
+          <Typography
+            variant="body1"
             sx={{
               alignSelf: 'end',
               fontSize: '14px',
-              fontWeight:'700',
-              color:'#60C293'
-            }}>
+              fontWeight: '700',
+              color: '#60C293',
+            }}
+          >
             {props.data.apr * 100}%
           </Typography>
         </Box>
-        <Box sx={{width:'100%', backgroundColor:'#333333', height:'1px',margin:'8px 0'}}></Box>
-        <Box sx={{display: 'flex',justifyContent:'space-between'}}>
-          <Typography variant="body1"           
+        <Box
+          sx={{ width: '100%', backgroundColor: '#333333', height: '1px', margin: '8px 0' }}
+        ></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography
+            variant="body1"
             sx={{
               alignSelf: 'start',
               fontSize: '14px',
-              color:'#e6e6e6'
-            }}>
-                Est. annual reward
+              color: '#e6e6e6',
+            }}
+          >
+            Est. annual reward
           </Typography>
           <Box>
-            <Typography variant="body1"           
+            <Typography
+              variant="body1"
               sx={{
-                textAlign:'right', 
+                textAlign: 'right',
                 fontSize: '14px',
-                color:'#e6e6e6'
-              }}>
+                color: '#e6e6e6',
+              }}
+            >
               {(Number(props.data.amount) * props.data.apr).toFixed(8)} flow
             </Typography>
-            <Typography variant="body1"           
+            <Typography
+              variant="body1"
               sx={{
                 fontSize: '12px',
-                color:'#e6e6e6',
-                display:'inline',
-                textAlign:'right', 
-                float:'right',
-              }}> 
-              ≈ ${parseFloat((props.data.coinInfo.price * (Number(props.data.amount) * props.data.apr)).toFixed(2)).toLocaleString('en-US')}
-              <Typography sx={{color:'#5E5E5E', display:'inline', textAlign:'right', fontSize:'12px'}}> USD</Typography>
+                color: '#e6e6e6',
+                display: 'inline',
+                textAlign: 'right',
+                float: 'right',
+              }}
+            >
+              ≈ $
+              {parseFloat(
+                (props.data.coinInfo.price * (Number(props.data.amount) * props.data.apr)).toFixed(
+                  2
+                )
+              ).toLocaleString('en-US')}
+              <Typography
+                sx={{ color: '#5E5E5E', display: 'inline', textAlign: 'right', fontSize: '12px' }}
+              >
+                {' '}
+                USD
+              </Typography>
             </Typography>
-
           </Box>
         </Box>
       </Box>
-      
+
       <Button
         onClick={unstake}
         disabled={sending || occupied}
         variant="contained"
         size="large"
         sx={{
-          backgroundColor:'#60C293',
+          backgroundColor: '#60C293',
           height: '50px',
-          marginTop:'38px',
+          marginTop: '38px',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',
@@ -280,40 +325,26 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
       >
         {sending ? (
           <>
-            <LLSpinner size={28}/>
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 'bold' }}
-              color="text.primary"
-            >
+            <LLSpinner size={28} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
               {chrome.i18n.getMessage('Sending')}
             </Typography>
           </>
-        ) : 
-          (
-            <>
-              {failed ?
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 'bold' }}
-                  color="text.primary"
-                >
-                  {chrome.i18n.getMessage('Transaction__failed')}
-                </Typography>
-                :
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 'bold' }}
-                  color="text.primary"
-                >
-                  Confirm
-                </Typography> 
-              }
-            </>
-          )}
-
+        ) : (
+          <>
+            {failed ? (
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
+                {chrome.i18n.getMessage('Transaction__failed')}
+              </Typography>
+            ) : (
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
+                Confirm
+              </Typography>
+            )}
+          </>
+        )}
       </Button>
-      <Box sx={{height:'20px'}}></Box>
+      <Box sx={{ height: '20px' }}></Box>
     </Box>
   );
 
@@ -323,7 +354,12 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
       open={props.isConfirmationOpen}
       transitionDuration={300}
       PaperProps={{
-        sx: { width: '100%', height: '77%',bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
+        sx: {
+          width: '100%',
+          height: '77%',
+          bgcolor: 'background.paper',
+          borderRadius: '18px 18px 0px 0px',
+        },
       }}
     >
       {renderContent()}

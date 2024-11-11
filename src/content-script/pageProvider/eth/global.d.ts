@@ -1,8 +1,7 @@
-declare module "*.svg" {
+declare module '*.svg' {
   const content: string;
-
 }
 
-declare module "*.png" {
+declare module '*.png' {
   const value: any;
 }

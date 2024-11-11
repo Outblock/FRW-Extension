@@ -5,24 +5,21 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { CoinItem } from 'background/service/coinList';
 import theme from '../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from './TransferAmount'
+import TransferAmount from './TransferAmount';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
 import TransferConfirmation from './TransferConfirmation';
-import {
-  LLContactCard,
-} from 'ui/FRWComponent';
+import { LLContactCard } from 'ui/FRWComponent';
 import { Contact } from 'background/service/networkModel';
 import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import { LLHeader } from '@/ui/FRWComponent';
 
 interface ContactState {
-  contact: Contact
+  contact: Contact;
 }
 
 const SendAmount = () => {
-
   const userContact = {
     address: '',
     id: 0,
@@ -42,7 +39,7 @@ const SendAmount = () => {
     change24h: 0,
     total: 0,
     icon: '',
-  }
+  };
 
   const history = useHistory();
   const location = useLocation<ContactState>();
@@ -66,40 +63,38 @@ const SendAmount = () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    let wallet
+    let wallet;
     if (childType === 'evm') {
       wallet = await usewallet.getEvmWallet();
     } else {
       wallet = await usewallet.getCurrentWallet();
     }
-    console.log('wallet ', wallet)
+    console.log('wallet ', wallet);
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
     await setWallet(wallet);
-    const coinList = await usewallet.getCoinList()
+    const coinList = await usewallet.getCoinList();
     setCoinList(coinList);
-    const coinInfo = coinList.find(coin => coin.unit.toLowerCase() === token.toLowerCase());
-    console.log('coinInfo ', coinInfo)
+    const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
+    console.log('coinInfo ', coinInfo);
 
     setCoinInfo(coinInfo!);
     const info = await usewallet.getUserInfo(false);
     const isChild = await usewallet.getActiveWallet();
-    console.log('isChild ', info, isChild)
+    console.log('isChild ', info, isChild);
     if (isChild) {
       if (isChild !== 'evm') {
         const childResp = await usewallet.checkUserChildAccount();
         const cwallet = childResp[wallet.address!];
         userContact.avatar = cwallet.thumbnail.url;
         userContact.contact_name = cwallet.name;
-
       }
       userContact.address = withPrefix(wallet.address!) || '';
       if (isChild === 'evm') {
         userContact.avatar = '';
         userContact.contact_name = 'evm';
-
       }
     } else {
       userContact.address = withPrefix(wallet.address) || '';
@@ -122,7 +117,6 @@ const SendAmount = () => {
     }
   };
 
-
   const checkAddress = async () => {
     const child = await usewallet.getActiveWallet();
     setChildType(child);
@@ -141,10 +135,10 @@ const SendAmount = () => {
 
   const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  }
+  };
 
   const updateCoinInfo = () => {
-    const coin = coinList.find(coin => coin.unit.toLowerCase() === currentCoin.toLowerCase());
+    const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
     if (coin) {
       setCoinInfo(coin);
     }
@@ -152,15 +146,15 @@ const SendAmount = () => {
 
   useEffect(() => {
     checkAddress();
-  }, [])
+  }, []);
 
   useEffect(() => {
     setUserWallet();
-  }, [childType])
+  }, [childType]);
 
   useEffect(() => {
     updateCoinInfo();
-  }, [currentCoin])
+  }, [currentCoin]);
 
   return (
     <div className="page">
@@ -170,11 +164,17 @@ const SendAmount = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '16px' }}>
             <Box>
               <Box sx={{ zIndex: 999, backgroundColor: '#121212' }}>
-                <LLContactCard contact={location.state.contact} hideCloseButton={false} isSend={true} />
+                <LLContactCard
+                  contact={location.state.contact}
+                  hideCloseButton={false}
+                  isSend={true}
+                />
               </Box>
               <Presets.TransitionSlideUp>
-                {validated !== null && (
-                  validated ? <></> :
+                {validated !== null &&
+                  (validated ? (
+                    <></>
+                  ) : (
                     <Box
                       sx={{
                         width: '95%',
@@ -192,22 +192,25 @@ const SendAmount = () => {
                       >
                         <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
                         <Typography variant="body1" color="text.secondary">
-                          {chrome.i18n.getMessage('Invalid_address_in')}{` ${network}`}
+                          {chrome.i18n.getMessage('Invalid_address_in')}
+                          {` ${network}`}
                         </Typography>
                       </Box>
                     </Box>
-                )}
+                  ))}
               </Presets.TransitionSlideUp>
             </Box>
 
-            <Typography variant="body1"
+            <Typography
+              variant="body1"
               sx={{
                 alignSelf: 'start',
                 fontSize: '14px',
-              }}>
+              }}
+            >
               {chrome.i18n.getMessage('Transfer__Amount')}
             </Typography>
-            {(coinInfo.unit && minAmount) &&
+            {coinInfo.unit && minAmount && (
               <TransferAmount
                 coinList={coinList}
                 amount={amount}
@@ -220,32 +223,39 @@ const SendAmount = () => {
                 setCurrentCoin={setCurrentCoin}
                 minAmount={minAmount}
               />
-            }
+            )}
 
-            {coinInfo.unit &&
+            {coinInfo.unit && (
               <>
-                <Typography variant="body1"
+                <Typography
+                  variant="body1"
                   sx={{
                     alignSelf: 'start',
                     fontSize: '14px',
-                  }}>
+                  }}
+                >
                   {chrome.i18n.getMessage('Available__Balance')}
                 </Typography>
 
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <CardMedia sx={{ width: '18px', height: '18px' }} image={coinInfo.icon} />
-                  <Typography variant="body1"
+                  <Typography
+                    variant="body1"
                     sx={{
                       alignSelf: 'start',
                       fontSize: '15px',
-                    }}>
-                    {
-                      (Math.round(coinInfo.balance * 100) / 100).toFixed(2) + ' ' + coinInfo.unit.toUpperCase() + ' ≈ ' + '$ ' + coinInfo.total
-                    }
+                    }}
+                  >
+                    {(Math.round(coinInfo.balance * 100) / 100).toFixed(2) +
+                      ' ' +
+                      coinInfo.unit.toUpperCase() +
+                      ' ≈ ' +
+                      '$ ' +
+                      coinInfo.total}
                   </Typography>
                 </Box>
               </>
-            }
+            )}
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
@@ -264,17 +274,15 @@ const SendAmount = () => {
                 textTransform: 'capitalize',
               }}
             >
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 'bold' }}
-                color="text.primary"
-              >
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
                 {chrome.i18n.getMessage('Cancel')}
               </Typography>
             </Button>
 
             <Button
-              onClick={() => { setConfirmationOpen(true) }}
+              onClick={() => {
+                setConfirmationOpen(true);
+              }}
               // disabled={true}
               variant="contained"
               color="success"
@@ -285,35 +293,41 @@ const SendAmount = () => {
                 borderRadius: '8px',
                 textTransform: 'capitalize',
               }}
-              disabled={validated === null || exceed === true || amount === null || parseFloat(amount || '-1') < 0}
+              disabled={
+                validated === null ||
+                exceed === true ||
+                amount === null ||
+                parseFloat(amount || '-1') < 0
+              }
             >
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 'bold' }}
-                color="text.primary"
-              >
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
                 {chrome.i18n.getMessage('Next')}
               </Typography>
             </Button>
           </Box>
-          {validated
-            &&
+          {validated && (
             <TransferConfirmation
               isConfirmationOpen={isConfirmationOpen}
-              data={{ contact: location.state.contact, amount: amount, secondAmount: secondAmount, userContact: userInfo, tokenSymbol: currentCoin, coinInfo: coinInfo, childType }}
+              data={{
+                contact: location.state.contact,
+                amount: amount,
+                secondAmount: secondAmount,
+                userContact: userInfo,
+                tokenSymbol: currentCoin,
+                coinInfo: coinInfo,
+                childType,
+              }}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
               handleAddBtnClicked={() => {
                 setConfirmationOpen(false);
               }}
             />
-          }
-
+          )}
         </Box>
       </ThemeProvider>
     </div>
   );
-}
-
+};
 
 export default SendAmount;

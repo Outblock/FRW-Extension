@@ -11,7 +11,7 @@ import {
   Grid,
   Skeleton,
   ButtonGroup,
-  Button
+  Button,
 } from '@mui/material';
 import { useWallet } from 'ui/utils';
 import { useHistory } from 'react-router-dom';
@@ -43,7 +43,7 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row',
     justifyContent: 'center',
     alignContent: 'flex-start',
-    padding: '10px 13px'
+    padding: '10px 13px',
     // marginLeft: 'auto'
   },
   skeletonCard: {
@@ -53,7 +53,7 @@ const useStyles = makeStyles(() => ({
     height: '72px',
     margin: '12px auto',
     boxShadow: 'none',
-    padding: 'auto'
+    padding: 'auto',
   },
 }));
 
@@ -87,8 +87,7 @@ const AddList = () => {
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedNFT, setSelectedNFT] = useState<NFTModel | null>(null);
 
-
-  const filteredCollections = collections.filter(ele => {
+  const filteredCollections = collections.filter((ele) => {
     if (filter === 'all') return true;
     if (filter === 'enabled') return ele.added;
     if (filter === 'notEnabled') return !ele.added;
@@ -96,18 +95,24 @@ const AddList = () => {
   });
 
   const fetchList = async (data) => {
-    setStatusLoading(true)
+    setStatusLoading(true);
     try {
       const enabledList = await usewallet.openapi.getEnabledNFTList();
       if (enabledList.length > 0) {
-        data.map(item => { item.added = (enabledList.filter(enabled => enabled.contract_name === item.contract_name && enabled.address === item.address).length > 0) })
+        data.map((item) => {
+          item.added =
+            enabledList.filter(
+              (enabled) =>
+                enabled.contract_name === item.contract_name && enabled.address === item.address
+            ).length > 0;
+        });
       }
 
       setCollections(data);
     } finally {
       setStatusLoading(false);
     }
-  }
+  };
 
   const fetchData = async () => {
     try {
@@ -123,36 +128,38 @@ const AddList = () => {
   useEffect(() => {
     fetchData().then((data) => {
       fetchList(data);
-    })
+    });
   }, []);
 
   const handleNFTClick = (token) => {
     // if (!isEnabled) {
-    setSelectedNFT(token)
-    setConfirmationOpen(true)
+    setSelectedNFT(token);
+    setConfirmationOpen(true);
     // }
-  }
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const filteredCollections = collections.map((collection: CollectionItem) => {
-      if (!collection.name?.toLowerCase().includes(e.target.value.toLowerCase()) && !collection.description?.toLowerCase().includes(e.target.value.toLowerCase())) {
+      if (
+        !collection.name?.toLowerCase().includes(e.target.value.toLowerCase()) &&
+        !collection.description?.toLowerCase().includes(e.target.value.toLowerCase())
+      ) {
         return {
           ...collection,
           hidden: true,
-        }
+        };
       } else {
         return {
           ...collection,
           hidden: false,
-        }
+        };
       }
-    })
-    setCollections(filteredCollections)
-  }
+    });
+    setCollections(filteredCollections);
+  };
 
   return (
-    <div className='page'>
-
+    <div className="page">
       <LLHeader title={chrome.i18n.getMessage('Add__Collection')} help={false} />
 
       <Box>
@@ -165,40 +172,48 @@ const AddList = () => {
             disableUnderline
             startAdornment={
               <InputAdornment position="start">
-                <SearchIcon
-                  color="primary"
-                  sx={{ ml: '10px', my: '5px', fontSize: '24px' }}
-                />
+                <SearchIcon color="primary" sx={{ ml: '10px', my: '5px', fontSize: '24px' }} />
               </InputAdornment>
             }
             onChange={handleSearch}
           />
         </div>
         <Box sx={{ padding: '8px 18px', display: 'flex', flexDirection: 'column' }}>
-
-          {loading &&
-            (
-              <Grid container className={classes.grid}>
-                {[...Array(4).keys()].map(key => (
-                  <Card key={key} sx={{ borderRadius: '12px', backgroundColor: '#000000', padding: '12px' }} className={classes.skeletonCard}>
-                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                      <CardMedia sx={{
+          {loading && (
+            <Grid container className={classes.grid}>
+              {[...Array(4).keys()].map((key) => (
+                <Card
+                  key={key}
+                  sx={{ borderRadius: '12px', backgroundColor: '#000000', padding: '12px' }}
+                  className={classes.skeletonCard}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                    <CardMedia
+                      sx={{
                         width: '48px',
                         height: '48px',
                         justifyContent: 'center',
-                      }}><Skeleton variant='circular' width={48} height={48} /></CardMedia>
-                      <CardContent sx={{ flex: '1 0 auto', padding: '0 8px' }}>
-                        <Skeleton variant='text' width={280} />
-                        <Skeleton variant='text' width={150} />
-                      </CardContent>
-                    </Box>
-                  </Card>
-                ))}
-              </Grid>
-            )
-          }
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
-
+                      }}
+                    >
+                      <Skeleton variant="circular" width={48} height={48} />
+                    </CardMedia>
+                    <CardContent sx={{ flex: '1 0 auto', padding: '0 8px' }}>
+                      <Skeleton variant="text" width={280} />
+                      <Skeleton variant="text" width={150} />
+                    </CardContent>
+                  </Box>
+                </Card>
+              ))}
+            </Grid>
+          )}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px 0',
+            }}
+          >
             {/* Button group for filter options */}
             <Box sx={{ display: 'inline-flex', gap: '10px' }}>
               <Button
@@ -270,13 +285,22 @@ const AddList = () => {
             </Box>
           </Box>
 
-          <Typography sx={{ color: '#5E5E5E', fontSize: '14px', fontWeight: 600 }}>{chrome.i18n.getMessage('COLLECTION__LIST')}</Typography>
-          {filteredCollections.filter(ele => !ele.hidden).map((ele, index) =>
-            <CollectionCard item={ele} key={index} setAlertOpen={setAlertOpen} isLoading={statusLoading} onClick={handleNFTClick} />)
-          }
+          <Typography sx={{ color: '#5E5E5E', fontSize: '14px', fontWeight: 600 }}>
+            {chrome.i18n.getMessage('COLLECTION__LIST')}
+          </Typography>
+          {filteredCollections
+            .filter((ele) => !ele.hidden)
+            .map((ele, index) => (
+              <CollectionCard
+                item={ele}
+                key={index}
+                setAlertOpen={setAlertOpen}
+                isLoading={statusLoading}
+                onClick={handleNFTClick}
+              />
+            ))}
         </Box>
       </Box>
-
 
       <AddNFTConfirmation
         isConfirmationOpen={isConfirmationOpen}
@@ -287,9 +311,8 @@ const AddList = () => {
           setConfirmationOpen(false);
         }}
       />
-
     </div>
   );
-}
+};
 
 export default AddList;

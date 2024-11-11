@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
-import {
-  ListItem,
-  Stack,
-  Divider,
-  Box,
-  Drawer,
-  Typography
-} from '@mui/material';
+import { ListItem, Stack, Divider, Box, Drawer, Typography } from '@mui/material';
 import { LLContactCard } from '../../../FRWComponent';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Contact } from 'background/service/networkModel';
 import { LLPrimaryButton, LLSecondaryButton } from '../../../FRWComponent';
 import IconSubtract from '../../../../components/iconfont/IconSubtract';
-
 
 interface AddressBookItemProps {
   index: number;
@@ -23,8 +15,7 @@ interface AddressBookItemProps {
 }
 
 const AddressBookItem = (props: AddressBookItemProps) => {
-  const [isEditOrDeleteShown, setIsEditOrDeleteShown] =
-    useState<boolean>(false);
+  const [isEditOrDeleteShown, setIsEditOrDeleteShown] = useState<boolean>(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
 
   const renderDeleteContactDialog = () => {
@@ -43,28 +34,33 @@ const AddressBookItem = (props: AddressBookItemProps) => {
             sx={{
               justifyContent: 'space-between',
               alignItems: 'center',
-              display:'flex',
-              flexDirection:'column',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
-            <Box sx={{margin:'54px 0 38px'}}>
+            <Box sx={{ margin: '54px 0 38px' }}>
               <IconSubtract size={48} />
             </Box>
-            <Box sx={{width:'228px'}}>
-              <Typography
-                variant="h1"
-                align="center"
-                py="14px"
-                fontWeight="bold"
-                fontSize="24px"
-              >
+            <Box sx={{ width: '228px' }}>
+              <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="24px">
                 {chrome.i18n.getMessage('Are__you__sure__you__want__to__remove__this__contact')}
               </Typography>
             </Box>
             <Box>
-              <Typography sx={{fontSize:'14px', fontFamily:'Inter', 
-                fontStyle:'normal', color:'#BABABA', textAlign:'center', margin:'18px 36px 52px', cursor:'pointer'}}>
-                {chrome.i18n.getMessage('You__will__no__longer__find__this__contact__in__your__address__book')}
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  fontFamily: 'Inter',
+                  fontStyle: 'normal',
+                  color: '#BABABA',
+                  textAlign: 'center',
+                  margin: '18px 36px 52px',
+                  cursor: 'pointer',
+                }}
+              >
+                {chrome.i18n.getMessage(
+                  'You__will__no__longer__find__this__contact__in__your__address__book'
+                )}
               </Typography>
             </Box>
           </Box>
@@ -103,11 +99,7 @@ const AddressBookItem = (props: AddressBookItemProps) => {
             <Stack
               direction="row"
               divider={
-                <Divider
-                  orientation="vertical"
-                  flexItem
-                  sx={{ height: '20px', my: '15px' }}
-                />
+                <Divider orientation="vertical" flexItem sx={{ height: '20px', my: '15px' }} />
               }
               spacing={1}
             >
@@ -126,11 +118,7 @@ const AddressBookItem = (props: AddressBookItemProps) => {
           )
         }
       >
-        <LLContactCard
-          key={props.index}
-          contact={props.contact}
-          hideCloseButton={true}
-        />
+        <LLContactCard key={props.index} contact={props.contact} hideCloseButton={true} />
       </ListItem>
       {renderDeleteContactDialog()}
     </>

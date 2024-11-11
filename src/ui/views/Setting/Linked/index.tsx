@@ -25,7 +25,6 @@ type ChildAccount = {
   };
 };
 
-
 const useStyles = makeStyles(() => ({
   logoBox: {
     display: 'flex',
@@ -60,26 +59,26 @@ const Linked = () => {
   const [userWallet, setWallet] = useState<any>(null);
 
   const fetchUserWallet = async () => {
-
     // const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    usewallet.checkUserChildAccount().then((res) => {
-      setChildAccount(res);
-    }).catch((err) => {
-      console.log(err)
-    })
+    usewallet
+      .checkUserChildAccount()
+      .then((res) => {
+        setChildAccount(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     const wallet = await usewallet.getUserWallets();
     await setWallet(wallet);
   };
-
 
   useEffect(() => {
     fetchUserWallet();
   }, []);
   return (
     <div className="page">
-
       <LLHeader title={chrome.i18n.getMessage('Linked_Account')} help={false} />
-      {childAccounts && (Object.keys(childAccounts).length > 0) &&
+      {childAccounts && Object.keys(childAccounts).length > 0 && (
         <Typography
           variant="body1"
           component="span"
@@ -87,70 +86,70 @@ const Linked = () => {
           textAlign="left"
           fontSize={'14px'}
           sx={{ padding: '0 18px' }}
-        // color={key === currentWallet ? 'text.nonselect' : 'text.primary'}
+          // color={key === currentWallet ? 'text.nonselect' : 'text.primary'}
         >
           {chrome.i18n.getMessage('Linked_Account')}
         </Typography>
-      }
-      {childAccounts && (Object.keys(childAccounts).length > 0)  ?
+      )}
+      {childAccounts && Object.keys(childAccounts).length > 0 ? (
         <Box className={classes.logoBox}>
-          {
-            Object.keys(childAccounts).map((key) => (
-              <ListItem
-                key={key}
-                disablePadding
-                sx={{ mb: 0, backgroundColor: '#292929', borderRadius: '16px', marginBottom: '8px' }}
-                component={Link}
-                to={`/dashboard/setting/linkeddetail/${key}`}
-              >
-                <ListItemButton sx={{ mb: 0, padding: '12px 20px', borderRadius: '16px' }}>
-                  <ListItemIcon>
-                    <img
-                      style={{
-                        borderRadius: '18px',
-                        marginRight: '12px',
-                        height: '36px',
-                        width: '36px',
-                        objectFit: 'cover'
-                      }}
-                      src={childAccounts[key]?.thumbnail?.url ?? 'https://lilico.app/placeholder-2.0.png'}
-                      alt={childAccounts[key]?.name ?? key}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    sx={{ display: 'flex', flexDirection: 'column' }}
-                    primary={
-                      <Typography
-                        variant="body1"
-                        component="span"
-                        color="#fff"
-                        fontSize={'14px'}
-                      // color={key === currentWallet ? 'text.nonselect' : 'text.primary'}
-                      >
-                        {childAccounts[key]?.name ?? key}
-                      </Typography>
+          {Object.keys(childAccounts).map((key) => (
+            <ListItem
+              key={key}
+              disablePadding
+              sx={{ mb: 0, backgroundColor: '#292929', borderRadius: '16px', marginBottom: '8px' }}
+              component={Link}
+              to={`/dashboard/setting/linkeddetail/${key}`}
+            >
+              <ListItemButton sx={{ mb: 0, padding: '12px 20px', borderRadius: '16px' }}>
+                <ListItemIcon>
+                  <img
+                    style={{
+                      borderRadius: '18px',
+                      marginRight: '12px',
+                      height: '36px',
+                      width: '36px',
+                      objectFit: 'cover',
+                    }}
+                    src={
+                      childAccounts[key]?.thumbnail?.url ?? 'https://lilico.app/placeholder-2.0.png'
                     }
-                    secondary={
-                      <Typography
-                        variant="body1"
-                        component="span"
-                        color="#808080"
-                        fontSize={'12px'}
-                      // color={key === currentWallet ? 'text.nonselect' : 'text.primary'}
-                      >
-                        {key}
-                      </Typography>
-                    }
+                    alt={childAccounts[key]?.name ?? key}
                   />
-                  <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                    <IconEnd size={12} />
-                  </ListItemIcon>
-                </ListItemButton>
-              </ListItem>
-            ))
-          }
+                </ListItemIcon>
+                <ListItemText
+                  sx={{ display: 'flex', flexDirection: 'column' }}
+                  primary={
+                    <Typography
+                      variant="body1"
+                      component="span"
+                      color="#fff"
+                      fontSize={'14px'}
+                      // color={key === currentWallet ? 'text.nonselect' : 'text.primary'}
+                    >
+                      {childAccounts[key]?.name ?? key}
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography
+                      variant="body1"
+                      component="span"
+                      color="#808080"
+                      fontSize={'12px'}
+                      // color={key === currentWallet ? 'text.nonselect' : 'text.primary'}
+                    >
+                      {key}
+                    </Typography>
+                  }
+                />
+                <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                  <IconEnd size={12} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          ))}
         </Box>
-        :
+      ) : (
         <Box
           sx={{
             display: 'flex',
@@ -171,8 +170,7 @@ const Linked = () => {
             {chrome.i18n.getMessage('No_linked')}
           </Typography>
         </Box>
-      }
-
+      )}
     </div>
   );
 };

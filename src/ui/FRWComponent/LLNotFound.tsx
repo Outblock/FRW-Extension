@@ -11,23 +11,25 @@ export const LLNotFound = ({ setShowDialog }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        className="registerBox "
-      >
-        <CardMedia sx={{ margin: '0 auto', width: '172px', height: '120px', display: 'block' }} image={NotFoundIcon} />
+      <Box className="registerBox ">
+        <CardMedia
+          sx={{ margin: '0 auto', width: '172px', height: '120px', display: 'block' }}
+          image={NotFoundIcon}
+        />
         <Typography variant="h4">
           <Box display="inline-block" color="primary.main">
             {chrome.i18n.getMessage('Sorry')}
-          </Box>
-          {' '}{chrome.i18n.getMessage('we_couldnt_find_any_address_linked_to_your_recovery_phrase')}
+          </Box>{' '}
+          {chrome.i18n.getMessage('we_couldnt_find_any_address_linked_to_your_recovery_phrase')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
           {chrome.i18n.getMessage('Please_try_your_recovery_phrase_again_or_create_a_new_account')}
           <Box display="inline" color="primary.main">
-            {' '}{chrome.i18n.getMessage('with_current_recovery_phrase')}
-          </Box>.
+            {' '}
+            {chrome.i18n.getMessage('with_current_recovery_phrase')}
+          </Box>
+          .
         </Typography>
-
 
         <Stack direction="row" spacing={2} sx={{ mt: '24px' }}>
           <Button
@@ -43,11 +45,7 @@ export const LLNotFound = ({ setShowDialog }) => {
               height: '56px',
             }}
           >
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: '600' }}
-              color="background.paper"
-            >
+            <Typography variant="subtitle1" sx={{ fontWeight: '600' }} color="background.paper">
               {chrome.i18n.getMessage('Try__again')}
             </Typography>
           </Button>
@@ -65,15 +63,10 @@ export const LLNotFound = ({ setShowDialog }) => {
               height: '56px',
             }}
           >
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: '600' }}
-              color="primary.contrastText"
-            >
+            <Typography variant="subtitle1" sx={{ fontWeight: '600' }} color="primary.contrastText">
               {chrome.i18n.getMessage('Create_a_new_wallet')}
             </Typography>
           </Button>
-
         </Stack>
       </Box>
     </ThemeProvider>
