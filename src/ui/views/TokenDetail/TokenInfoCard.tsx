@@ -164,9 +164,12 @@ const TokenInfoCard = ({
                 >
                   {data.name}
                 </Typography>
-                <IconChevronRight size={20} />
+                {data.extensions &&
+                  data.extensions.website &&
+                  data.extensions.website.trim() !== '' && <IconChevronRight size={20} />}
               </Box>
             </ButtonBase>
+
             <Box sx={{ flex: 1 }} />
             {canMoveChild && (
               <ButtonBase onClick={() => moveToken()}>
