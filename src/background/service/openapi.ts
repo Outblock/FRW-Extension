@@ -1,10 +1,3 @@
-import { Method } from 'axios';
-import { createPersistStore, getScripts } from 'background/utils';
-import { getPeriodFrequency } from '../../utils';
-import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
-import dayjs from 'dayjs';
-import { TokenListProvider, Strategy, ENV, TokenInfo } from 'flow-native-token-registry';
-import log from 'loglevel';
 import {
   getAuth,
   signInWithCustomToken,
@@ -12,31 +5,44 @@ import {
   indexedDBLocalPersistence,
   signInAnonymously,
   onAuthStateChanged,
-  updateProfile,
 } from '@firebase/auth';
+import type { Unsubscribe } from '@firebase/util';
+import * as fcl from '@onflow/fcl';
+import type { Method } from 'axios';
+import dayjs from 'dayjs';
 import { initializeApp, getApp } from 'firebase/app';
 import { getInstallations, getId } from 'firebase/installations';
-import { Unsubscribe } from '@firebase/util';
+import type { TokenInfo } from 'flow-native-token-registry';
+import log from 'loglevel';
+
+import { storage } from '@/background/webapi';
+import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
+import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
+import fetchConfig from 'background/utils/remoteConfig';
+import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
+
+import { getPeriodFrequency } from '../../utils';
+import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
+
 import {
-  AccountKey,
-  CheckResponse,
-  SignInResponse,
-  UserInfoResponse,
-  FlowTransaction,
-  SendTransactionResponse,
+  type AccountKey,
+  type CheckResponse,
+  type SignInResponse,
+  type UserInfoResponse,
+  type FlowTransaction,
+  type SendTransactionResponse,
+  type TokenModel,
+  type NFTModel,
+  type StorageInfo,
+  type NewsItem,
+  type NewsConditionType,
   Period,
   PriceProvider,
-  TokenModel,
-  NFTModel,
-  StorageInfo,
-  DeviceInfo,
-  NewsItem,
 } from './networkModel';
-import fetchConfig from 'background/utils/remoteConfig';
+
 // import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
 // import configJson from 'background/utils/firebase.config.json';
-import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
-import { findKeyAndInfo } from 'background/utils';
+
 import {
   userWalletService,
   coinListService,
@@ -46,12 +52,8 @@ import {
   nftService,
   googleSafeHostService,
 } from './index';
-import * as fcl from '@onflow/fcl';
-import { storage } from '@/background/webapi';
-// import { userInfo } from 'os';
-import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
 
-import { walletController } from '../controller';
+// import { userInfo } from 'os';
 // import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
 
@@ -363,6 +365,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     path: '/v3/checkimport',
     method: 'get',
     params: ['key'],
+  },
+  get_version: {
+    path: '/version',
+    method: 'get',
+    params: [],
   },
 };
 
@@ -1079,15 +1086,6 @@ class OpenApiService {
     }
   };
 
-  getLastBlock = async () => {
-    try {
-      const account = await fcl.latestBlock(true);
-      return account;
-    } catch (error) {
-      return null;
-    }
-  };
-
   checkChildAccount = async (address: string) => {
     const script = await getScripts('hybridCustody', 'checkChildAccount');
     const result = await fcl.query({
@@ -1307,7 +1305,7 @@ class OpenApiService {
     }
     const tokens = await this.getTokenListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
-    return tokens.find((item) => item.symbol.toLowerCase() == name.toLowerCase());
+    return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
   };
 
   getEvmTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
@@ -1317,13 +1315,13 @@ class OpenApiService {
     }
     const tokens = await this.getTokenListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
-    return tokens.find((item) => item.symbol.toLowerCase() == name.toLowerCase());
+    return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
   };
 
   getTokenInfoByContract = async (contractName: string): Promise<TokenModel | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
     const coins = await remoteFetch.flowCoins();
-    return coins.find((item) => item.contract_name.toLowerCase() == contractName.toLowerCase());
+    return coins.find((item) => item.contract_name.toLowerCase() === contractName.toLowerCase());
   };
 
   getAllToken = async () => {
@@ -1352,7 +1350,6 @@ class OpenApiService {
     return false;
   };
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   getAllTokenInfo = async (fiterNetwork = true): Promise<TokenInfo[]> => {
     const network = await userWalletService.getNetwork();
@@ -1602,7 +1599,7 @@ class OpenApiService {
       tokenList.forEach((token) => {
         const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
         // console.log(tokenMap,'tokenMap',values)
-        if (values[tokenId] == true) {
+        if (!!values[tokenId]) {
           tokenMap[token.name] = token;
         }
       });
@@ -1867,6 +1864,7 @@ class OpenApiService {
 
     const audits = await fcl.InteractionTemplateUtils.getInteractionTemplateAudits({
       template: template,
+      auditors: auditors.map((item) => item.address),
     });
 
     console.log('audits ->', audits);
@@ -1915,7 +1913,7 @@ class OpenApiService {
     try {
       const response = await fetch(`https://rest-${network}.onflow.org/v1/blocks?height=sealed`);
       const result = await response.json();
-      return result[0].header != null;
+      return result[0].header !== null && result[0].header !== undefined;
     } catch (err) {
       return false;
     }
@@ -2330,13 +2328,15 @@ class OpenApiService {
           icon?: string;
           image?: string;
           url?: string;
-          expiry_time: string; // ISO date string from API
+          expiry_time: string;
           display_type: string;
+          conditions?: string[]; // Add conditions field
         }) => {
           const newsItem = {
             ...dataFromApi,
             expiryTime: new Date(dataFromApi.expiry_time),
             displayType: dataFromApi.display_type,
+            conditions: dataFromApi.conditions as NewsConditionType[], // Map conditions
           };
           return newsItem;
         }
@@ -2411,6 +2411,27 @@ class OpenApiService {
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
+  };
+
+  getLatestVersion = async (): Promise<string> => {
+    // Get latest version from storage cache first
+    const cached = await storage.getExpiry('latestVersion');
+    if (cached) {
+      return cached;
+    }
+
+    try {
+      const config = this.store.config.get_version;
+      const data = await this.sendRequest(config.method, config.path);
+      const version = data.extensionVersion;
+
+      // Cache for 1 hour
+      await storage.setExpiry('latestVersion', version, 3600000);
+      return version;
+    } catch (error) {
+      console.error('Error fetching latest version:', error);
+      return chrome.runtime.getManifest().version; // Fallback to current version
+    }
   };
 }
 
