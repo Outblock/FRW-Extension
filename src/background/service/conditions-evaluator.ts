@@ -19,7 +19,7 @@ class ConditionsEvaluator {
 
       case 'unknown':
       default:
-        return true; // Unknown conditions are considered fulfilled
+        return false; // Unknown conditions are considered unmet
     }
   }
 
