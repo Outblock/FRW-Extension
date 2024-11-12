@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import{Typography, Box, FormControl} from '@mui/material';
-import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent'
-import{Input} from '@mui/material';
+import { Typography, Box, FormControl } from '@mui/material';
+import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
+import { Input } from '@mui/material';
 import { Presets } from 'react-component-transition';
 import CancelIcon from '../../../components/iconfont/IconClose';
 import { makeStyles } from '@mui/styles';
@@ -59,15 +59,15 @@ const Unlock = () => {
       resolveApproval('unlocked');
     },
     onError() {
-      setShowError(true)
+      setShowError(true);
     },
   });
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      run(password)
+      run(password);
     }
-  }
+  };
 
   const usernameError = () => (
     <Box
@@ -86,31 +86,38 @@ const Unlock = () => {
 
   return (
     <Box
-      sx={{height: '100vh',  width: '100%', backgroundColor: '#282828', display: 'flex',
+      sx={{
+        height: '100vh',
+        width: '100%',
+        backgroundColor: '#282828',
+        display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'}}>
+        alignItems: 'center',
+      }}
+    >
       {/* <Logo size={90} style={{marginTop:'120px'}}/> */}
 
-      <Box className="logoContainer" sx={{marginTop:'60px'}}>
-        <img src={lilo} style={{ height: '100%', width: '100%'}} />
+      <Box className="logoContainer" sx={{ marginTop: '60px' }}>
+        <img src={lilo} style={{ height: '100%', width: '100%' }} />
       </Box>
 
       {/* <img  style={{paddingTop:'108px' }} src={lilicoIcon} /> */}
-      <Box sx={{ width: '100%', 
-        textAlign:'center'}}>
-        <Typography sx={{
-          fontWeight:'700',
-          fontSize:'26px', 
-          fontFamily:'Inter', 
-          fontStyle:'normal',
-          pt:'30px', 
-          pb: '30px'
-        }}>
+      <Box sx={{ width: '100%', textAlign: 'center' }}>
+        <Typography
+          sx={{
+            fontWeight: '700',
+            fontSize: '26px',
+            fontFamily: 'Inter',
+            fontStyle: 'normal',
+            pt: '30px',
+            pb: '30px',
+          }}
+        >
           {chrome.i18n.getMessage('Welcome__Back__Unlock')}
         </Typography>
       </Box>
 
-      <FormControl sx={{ flexGrow: 1, width: '90%', display: 'flex', flexDirection: 'column'}}>
+      <FormControl sx={{ flexGrow: 1, width: '90%', display: 'flex', flexDirection: 'column' }}>
         <Input
           id="textfield"
           type="password"
@@ -121,10 +128,10 @@ const Unlock = () => {
           disableUnderline
           value={password}
           onChange={(event) => {
-            setShowError(false)
+            setShowError(false);
             setPassword(event.target.value);
           }}
-          onKeyDown={handleKeyDown} 
+          onKeyDown={handleKeyDown}
         />
 
         <Presets.TransitionSlideUp>
@@ -139,27 +146,37 @@ const Unlock = () => {
             >
               <Box sx={{ p: '4px' }}>{usernameError()}</Box>
             </Box>
-          )} 
+          )}
         </Presets.TransitionSlideUp>
 
         {/* <Box sx={{flexGrow: 1}}/> */}
       </FormControl>
 
-
-      <Box sx={{width: '90%', marginBottom: '32px'}}>
+      <Box sx={{ width: '90%', marginBottom: '32px' }}>
         <LLPrimaryButton
           // className="w-full block"\
           color="success"
           type="submit"
-          onClick={()=> run(password)}
+          onClick={() => run(password)}
           fullWidth
-          label= {chrome.i18n.getMessage('Unlock_Wallet')}
+          label={chrome.i18n.getMessage('Unlock_Wallet')}
           // sx={{marginTop: '40px', height: '48px'}}
           // type="primary"
           // size="large"
         />
-        <Typography onClick={restPass}sx={{fontSize:'14px', fontFamily:'Inter', 
-          fontStyle:'normal', color:'neutral1.main', textAlign:'center', marginTop:'16px', cursor:'pointer', fontWeight:'600'}}>
+        <Typography
+          onClick={restPass}
+          sx={{
+            fontSize: '14px',
+            fontFamily: 'Inter',
+            fontStyle: 'normal',
+            color: 'neutral1.main',
+            textAlign: 'center',
+            marginTop: '16px',
+            cursor: 'pointer',
+            fontWeight: '600',
+          }}
+        >
           {chrome.i18n.getMessage('Forgot_password')}
         </Typography>
       </Box>
@@ -172,7 +189,6 @@ const Unlock = () => {
           setResetPop(false);
         }}
       />
-
     </Box>
   );
 };

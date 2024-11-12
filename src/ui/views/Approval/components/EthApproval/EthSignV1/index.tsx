@@ -5,10 +5,7 @@ import { useApproval, useWallet } from 'ui/utils';
 import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, CardMedia } from '@mui/material';
 import theme from 'ui/style/LLTheme';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-} from 'ui/FRWComponent';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
 import { UserInfoResponse } from 'background/service/networkModel';
 import { isValidEthereumAddress } from 'ui/utils/address';
@@ -27,63 +24,60 @@ const EthSignV1 = ({ params }: ConnectProps) => {
   const wallet = useWallet();
   const [signable, setSignable] = useState<Signable | null>(null);
   // const [payerSignable, setPayerSignable] = useState<Signable | null>(null);
-  const [opener, setOpener] = useState<number | undefined>(undefined)
-  const [host, setHost] = useState(null)
+  const [opener, setOpener] = useState<number | undefined>(undefined);
+  const [host, setHost] = useState(null);
   const [cadenceArguments, setCadenceArguments] = useState<any[]>([]);
   const [linkingDone, setLinkingDone] = useState(false);
   const [accountLinking, setAccountLinking] = useState(false);
-  const [accountArgs, setAccountArgs] = useState<any[]>([])
+  const [accountArgs, setAccountArgs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lilicoEnabled, setLilicoEnabled] = useState(true);
   const [messages, setMessages] = useState<any>(null);
-  const [image, setImage] = useState<string>('')
-  const [accountTitle, setAccountTitle] = useState<string>('')
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null)
+  const [image, setImage] = useState<string>('');
+  const [accountTitle, setAccountTitle] = useState<string>('');
+  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
 
   // TODO: replace default logo
-  const [logo, setLogo] = useState('')
+  const [logo, setLogo] = useState('');
   interface Roles {
-    authorizer: boolean,
-    payer: boolean,
-    proposer: boolean,
+    authorizer: boolean;
+    payer: boolean;
+    proposer: boolean;
   }
   interface Signable {
-    cadence: string,
-    message: string,
-    addr: string,
-    keyId: number,
-    roles: Roles,
-    voucher: Voucher
-    f_type: string,
+    cadence: string;
+    message: string;
+    addr: string;
+    keyId: number;
+    roles: Roles;
+    voucher: Voucher;
+    f_type: string;
   }
   interface Voucher {
-    refBlock: string
-    payloadSigs: Signature
+    refBlock: string;
+    payloadSigs: Signature;
   }
   interface Signature {
-    address: string,
-    keyId: number,
-    sig: string | null
+    address: string;
+    keyId: number;
+    sig: string | null;
   }
 
-
   const extractData = () => {
-    console.log('obj ', params)
-    let data = ''
-    let address = ''
+    console.log('obj ', params);
+    let data = '';
+    let address = '';
 
-    if (
-      isValidEthereumAddress(params.data.params[0])
-    ) {
+    if (isValidEthereumAddress(params.data.params[0])) {
       data = params.data.params[1];
       address = params.data.params[0];
     } else {
       data = params.data.params[0];
       address = params.data.params[1];
     }
-    setMessages(data)
-    console.log('data, ', data)
+    setMessages(data);
+    console.log('data, ', data);
   };
 
   const handleCancel = () => {
@@ -98,28 +92,28 @@ const EthSignV1 = ({ params }: ConnectProps) => {
     });
   };
 
-
   const checkCoa = async () => {
     setLoading(true);
     const isEnabled = await wallet.checkCoaLink();
     if (!isEnabled) {
       const result = await wallet.coaLink();
       const res = await fcl.tx(result).onceSealed();
-      const transactionExecutedEvent = res.events.find(event => event.type.includes("TransactionExecuted"));
+      const transactionExecutedEvent = res.events.find((event) =>
+        event.type.includes('TransactionExecuted')
+      );
       if (transactionExecutedEvent) {
         setLoading(false);
-        return
+        return;
       }
     }
     setLoading(false);
-  }
+  };
 
   useEffect(() => {
     if (params) {
       extractData();
     }
   }, []);
-
 
   const JsonRenderer = ({ data }) => {
     return (
@@ -151,9 +145,6 @@ const EthSignV1 = ({ params }: ConnectProps) => {
       </Box>
     );
   };
-
-
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -197,9 +188,7 @@ const EthSignV1 = ({ params }: ConnectProps) => {
                   <Typography sx={{ fontSize: '12px', color: '#737373' }}>
                     Sign Type Message from
                   </Typography>
-                  <Typography
-                    sx={{ fontSize: '18px', color: '#FFFFFF', fontWeight: '700' }}
-                  >
+                  <Typography sx={{ fontSize: '18px', color: '#FFFFFF', fontWeight: '700' }}>
                     {params.session.name}
                   </Typography>
                 </Box>
@@ -230,18 +219,13 @@ const EthSignV1 = ({ params }: ConnectProps) => {
                   onClick={handleAllow}
                 />
               ) : (
-                <LLSecondaryButton
-                  label={chrome.i18n.getMessage('Loading')}
-                  fullWidth
-                />
+                <LLSecondaryButton label={chrome.i18n.getMessage('Loading')} fullWidth />
               )}
             </Stack>
           </Box>
         </Box>
       )}
     </ThemeProvider>
-
-
   );
 };
 

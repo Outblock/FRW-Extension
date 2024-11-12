@@ -106,10 +106,7 @@ const Recoveryphrasepassword = () => {
           height: '100%',
         }}
       >
-        <LLHeader
-          title={chrome.i18n.getMessage('Verify__Password')}
-          help={false}
-        />
+        <LLHeader title={chrome.i18n.getMessage('Verify__Password')} help={false} />
 
         <FormControl
           sx={{
@@ -190,9 +187,7 @@ const Recoveryphrasepassword = () => {
                   textAlign: 'center',
                 }}
               >
-                {chrome.i18n.getMessage(
-                  'If__someone__has__your__secret__phrase'
-                )}
+                {chrome.i18n.getMessage('If__someone__has__your__secret__phrase')}
               </Typography>
             </Box>
           </Presets.TransitionFade>

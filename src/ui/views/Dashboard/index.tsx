@@ -12,7 +12,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import NavBar from './NavBar';
 import { useWallet } from 'ui/utils';
 import { LLTestnetIndicator } from 'ui/FRWComponent';
-import { fetchAndActivate, getRemoteConfig } from "firebase/remote-config";
+import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
 import { getApp, initializeApp } from 'firebase/app';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 
@@ -54,7 +54,7 @@ const Dashboard = ({ value, setValue }) => {
   };
 
   const fetchAll = async () => {
-    setLoading(true)
+    setLoading(true);
     //todo fix cadence loading
     await wallet.getCadenceScripts();
     const [network, userDomain] = await Promise.all([
@@ -64,20 +64,20 @@ const Dashboard = ({ value, setValue }) => {
     const isChild = await wallet.getActiveWallet();
 
     if (isChild === 'evm') {
-      setIsEvm(true)
+      setIsEvm(true);
     }
     const env: string = process.env.NODE_ENV!;
     const firebaseConfig = getFirbaseConfig();
     console.log(process.env.NODE_ENV);
     // const firebaseProductionConfig = prodConig;
-  
+
     const app = initializeApp(firebaseConfig, env);
     const remoteConfig = getRemoteConfig(app);
-    console.log('remoteConfig ', app)
+    console.log('remoteConfig ', app);
     fetchAndActivate(remoteConfig)
       .then((res) => {
-        console.log('res ', remoteConfig)
-        
+        console.log('res ', remoteConfig);
+
         console.log('Remote Config values fetched and activated');
       })
       .catch((error) => {
@@ -86,9 +86,8 @@ const Dashboard = ({ value, setValue }) => {
 
     setNetwork(network);
     setDomain(userDomain);
-    setLoading(false)
+    setLoading(false);
   };
-
 
   useEffect(() => {
     fetchAll();
@@ -117,11 +116,7 @@ const Dashboard = ({ value, setValue }) => {
             <WalletTab network={currentNetwork} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            {isEvm ?
-              <NftEvm />
-              :
-              <NFTTab />
-            }
+            {isEvm ? <NftEvm /> : <NFTTab />}
           </TabPanel>
           <TabPanel value={value} index={2}>
             <Staking />

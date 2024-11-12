@@ -32,7 +32,6 @@ export const formatTokenAmount = (amount: number | string, decimals = 4) => {
   return splitNumberByStep(bn.toFixed(decimals));
 };
 
-
 export const formatLargeNumber = (num) => {
   if (typeof num === 'string' && num.startsWith('$')) {
     num = num.slice(1);
@@ -40,11 +39,11 @@ export const formatLargeNumber = (num) => {
   if (num >= 1e12) {
     return (num / 1e12).toFixed(1) + 'T'; // Trillions
   } else if (num >= 1e9) {
-    return (num / 1e9).toFixed(1) + 'B';  // Billions
+    return (num / 1e9).toFixed(1) + 'B'; // Billions
   } else if (num >= 1e6) {
-    return (num / 1e6).toFixed(1) + 'M';  // Millions
+    return (num / 1e6).toFixed(1) + 'M'; // Millions
   } else {
-    return num.toString();  // Less than 1M, return as-is
+    return num.toString(); // Less than 1M, return as-is
   }
 };
 

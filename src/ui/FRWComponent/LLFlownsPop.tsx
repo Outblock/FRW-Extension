@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Box,
-  Stack,
-  CardMedia,
-  IconButton
-} from '@mui/material';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-} from 'ui/FRWComponent';
+import { Typography, Box, Stack, CardMedia, IconButton } from '@mui/material';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import IconSubtract from '../../components/iconfont/IconSubtract';
 import { makeStyles } from '@mui/styles';
-import { useWallet } from 'ui/utils'
+import { useWallet } from 'ui/utils';
 import lilicoIcon from '../../../_raw/images/icon-256.png';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -47,7 +38,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-
 export const LLFlownsPop = (props: DeleteBackupProps) => {
   const classes = useStyles();
   const wallet = useWallet();
@@ -62,18 +52,15 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
   const onNextBtnClicked = () => {
     wallet.setPopStat(false);
     window.open('https://core.flow.com/', '_blank');
-
-  }
+  };
 
   const onPopupBtnClicked = () => {
     setExpand(true);
-  }
+  };
 
   const getUsername = async () => {
-
-
     const userInfo = await wallet.getUserInfo(false);
-    setUsername(userInfo.username)
+    setUsername(userInfo.username);
   };
 
   useEffect(() => {
@@ -89,7 +76,6 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
         bottom: '71px',
       }}
     >
-
       <IconButton
         sx={{
           backgroundColor: '#FFFFFF66',
@@ -98,13 +84,11 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
           position: 'absolute',
           right: '32px',
           top: '16px',
-          zIndex:'5',
+          zIndex: '5',
         }}
         onClick={onCancelBtnClicked}
       >
-        <CloseIcon
-          sx={{ color: '#2E2E2E', cursor: 'pointer', width: '12px', height: '12px' }}
-        />
+        <CloseIcon sx={{ color: '#2E2E2E', cursor: 'pointer', width: '12px', height: '12px' }} />
       </IconButton>
       <Box
         sx={{
@@ -116,10 +100,18 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
           overflow: 'hidden',
           borderRadius: '12px',
           alignItems: 'flex-start',
-          position: 'relative'
+          position: 'relative',
         }}
       >
-        <Box sx={{ position: 'absolute', bottom: '-58px', right: '-65px', opacity: '0.32', zIndex: '1' }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '-58px',
+            right: '-65px',
+            opacity: '0.32',
+            zIndex: '1',
+          }}
+        >
           <img src={lilicoIcon} />
         </Box>
         <Box
@@ -171,10 +163,10 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
             onClick={onNextBtnClicked}
             sx={{
               borderRadius: '14px',
-              padding:'8px 24px',
+              padding: '8px 24px',
               width: 'auto',
               fontSize: '14px',
-              fontWeight:'600',
+              fontWeight: '600',
               textTransform: 'none !important',
               backgroundColor: '#41CC5D',
               color: '#000',
@@ -186,9 +178,7 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
   );
 
   return (
-    <Box
-      className={classes.flownsWrapper}
-    >
+    <Box className={classes.flownsWrapper}>
       <Box className={classes.flownsBackground}></Box>
       {renderContent()}
     </Box>

@@ -30,7 +30,7 @@ const Keydetail = () => {
     setKey(result);
     const pubKey = await storage.get('pubKey');
     setPublicKey(pubKey);
-  }
+  };
 
   const setTab = async () => {
     await wallet.setDashIndex(3);
@@ -55,7 +55,8 @@ const Keydetail = () => {
             lineBreak: 'anywhere',
             marginTop: '0px',
             backgroundColor: '#333333',
-          }}>
+          }}
+        >
           <Typography
             variant="body1"
             display="inline"
@@ -74,11 +75,11 @@ const Keydetail = () => {
           </Typography>
           <Grid container direction="row" justifyContent="end" alignItems="end">
             <IconButton
-              edge='end'
+              edge="end"
               onClick={() => {
                 navigator.clipboard.writeText(data);
               }}
-            // sx={{ marginLeft:'380px'}}
+              // sx={{ marginLeft:'380px'}}
             >
               <IconCopy
                 style={{
@@ -90,8 +91,8 @@ const Keydetail = () => {
           </Grid>
         </Box>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <div className="page">
@@ -113,14 +114,14 @@ const Keydetail = () => {
           px: '20px',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: '30px'
+          marginTop: '30px',
         }}
       >
         <Box
           sx={{
             borderLeft: 1,
             px: '15px',
-            borderColor: '#333333'
+            borderColor: '#333333',
           }}
         >
           <Typography variant="body1" color="text.secondary" align="left" fontSize="14px">
@@ -132,7 +133,7 @@ const Keydetail = () => {
           sx={{
             borderLeft: 1,
             borderColor: '#333333',
-            px: '15px'
+            px: '15px',
           }}
         >
           <Typography variant="body1" color="text.secondary" align="left" fontSize="14px">
@@ -142,8 +143,6 @@ const Keydetail = () => {
         </Box>
       </Box>
     </div>
-
-
   );
 };
 

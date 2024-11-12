@@ -1,15 +1,3 @@
-import { Method } from 'axios';
-import { createPersistStore, getScripts } from 'background/utils';
-import { getPeriodFrequency } from '../../utils';
-import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
-import dayjs from 'dayjs';
-import {
-  TokenListProvider,
-  Strategy,
-  ENV,
-  TokenInfo,
-} from 'flow-native-token-registry';
-import log from 'loglevel';
 import {
   getAuth,
   signInWithCustomToken,
@@ -17,33 +5,44 @@ import {
   indexedDBLocalPersistence,
   signInAnonymously,
   onAuthStateChanged,
-  updateProfile,
 } from '@firebase/auth';
+import type { Unsubscribe } from '@firebase/util';
+import * as fcl from '@onflow/fcl';
+import type { Method } from 'axios';
+import dayjs from 'dayjs';
 import { initializeApp, getApp } from 'firebase/app';
 import { getInstallations, getId } from 'firebase/installations';
-import { Unsubscribe } from '@firebase/util';
+import type { TokenInfo } from 'flow-native-token-registry';
+import log from 'loglevel';
+
+import { storage } from '@/background/webapi';
+import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
+import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
+import fetchConfig from 'background/utils/remoteConfig';
+import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
+
+import { getPeriodFrequency } from '../../utils';
+import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
+
 import {
-  AccountKey,
-  CheckResponse,
-  SignInResponse,
-  UserInfoResponse,
-  FlowTransaction,
-  SendTransactionResponse,
+  type AccountKey,
+  type CheckResponse,
+  type SignInResponse,
+  type UserInfoResponse,
+  type FlowTransaction,
+  type SendTransactionResponse,
+  type TokenModel,
+  type NFTModel,
+  type StorageInfo,
+  type NewsItem,
+  type NewsConditionType,
   Period,
   PriceProvider,
-  TokenModel,
-  NFTModel,
-  StorageInfo,
-  DeviceInfo,
 } from './networkModel';
-import fetchConfig from 'background/utils/remoteConfig';
+
 // import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
 // import configJson from 'background/utils/firebase.config.json';
-import {
-  getFirbaseConfig,
-  getFirbaseFunctionUrl,
-} from 'background/utils/firebaseConfig';
-import { findKeyAndInfo } from 'background/utils';
+
 import {
   userWalletService,
   coinListService,
@@ -53,12 +52,8 @@ import {
   nftService,
   googleSafeHostService,
 } from './index';
-import * as fcl from '@onflow/fcl';
-import { storage } from '@/background/webapi';
-// import { userInfo } from 'os';
-import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
 
-import { walletController } from '../controller';
+// import { userInfo } from 'os';
 // import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
 
@@ -174,13 +169,7 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
   importKey: {
     path: '/v3/import',
     method: 'post',
-    params: [
-      'username',
-      'account_key',
-      'device_info',
-      'backup_info',
-      'address',
-    ],
+    params: ['username', 'account_key', 'device_info', 'backup_info', 'address'],
   },
   coin_map: {
     path: '/v1/coin/map',
@@ -377,6 +366,11 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'get',
     params: ['key'],
   },
+  get_version: {
+    path: '/version',
+    method: 'get',
+    params: [],
+  },
 };
 
 class OpenApiService {
@@ -484,11 +478,7 @@ class OpenApiService {
   getPriceProvider = (token: string): PriceProvider[] => {
     switch (token) {
       case 'usdc':
-        return [
-          PriceProvider.binance,
-          PriceProvider.kakren,
-          PriceProvider.huobi,
-        ];
+        return [PriceProvider.binance, PriceProvider.kakren, PriceProvider.huobi];
       case 'flow':
         return [
           PriceProvider.binance,
@@ -502,9 +492,7 @@ class OpenApiService {
     }
   };
 
-  getUSDCPrice = async (
-    provider = PriceProvider.binance
-  ): Promise<CheckResponse> => {
+  getUSDCPrice = async (provider = PriceProvider.binance): Promise<CheckResponse> => {
     const config = this.store.config.crypto_map;
     const data = await this.sendRequest(config.method, config.path, {
       provider,
@@ -537,13 +525,7 @@ class OpenApiService {
     } else {
       let data: any = [];
       try {
-        const response = await this.sendRequest(
-          'GET',
-          `/api/prices`,
-          {},
-          {},
-          WEB_NEXT_URL
-        );
+        const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
         data = response.data || []; // Ensure data is set to an empty array if response.data is undefined
       } catch (error) {
         console.error('Error fetching prices:', error);
@@ -555,8 +537,7 @@ class OpenApiService {
       }
       data.map((d) => {
         const { rateToUSD, contractName, contractAddress } = d;
-        const key =
-          contractName.toLowerCase() + '' + contractAddress.toLowerCase();
+        const key = contractName.toLowerCase() + '' + contractAddress.toLowerCase();
         pricesMap[key] = rateToUSD.toFixed(8);
       });
       await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
@@ -571,13 +552,7 @@ class OpenApiService {
     } else {
       let data: any = [];
       try {
-        const response = await this.sendRequest(
-          'GET',
-          `/api/prices`,
-          {},
-          {},
-          WEB_NEXT_URL
-        );
+        const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
         data = response.data || []; // Ensure data is set to an empty array if response.data is undefined
       } catch (error) {
         console.error('Error fetching prices:', error);
@@ -878,10 +853,7 @@ class OpenApiService {
     return data;
   };
 
-  createFlowNetworkAddress = async (
-    account_key: AccountKey,
-    network: string
-  ) => {
+  createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
     const config = this.store.config.create_flow_network_address;
     const data = await this.sendRequest(
       config.method,
@@ -897,24 +869,13 @@ class OpenApiService {
 
   getMoonpayURL = async (url) => {
     const baseURL = getFirbaseFunctionUrl();
-    const response = await this.sendRequest(
-      'POST',
-      '/moonPaySignature',
-      {},
-      { url: url },
-      baseURL
-    );
+    const response = await this.sendRequest('POST', '/moonPaySignature', {}, { url: url }, baseURL);
     return response;
   };
 
   prepareTransaction = async (transaction: FlowTransaction) => {
     const config = this.store.config.prepare_transaction;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { transaction }
-    );
+    const data = await this.sendRequest(config.method, config.path, {}, { transaction });
     return data;
   };
 
@@ -959,36 +920,6 @@ class OpenApiService {
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest('GET', '/getProposer', {}, {}, baseURL);
-    // (config.method, config.path, {}, { transaction, message: messages });
-    return data;
-  };
-
-  signAsProposer = async (message: string) => {
-    const config = this.store.config.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest(
-      'POST',
-      '/signAsProposer',
-      {},
-      { msg: message },
-      baseURL
-    );
-    // (config.method, config.path, {}, { transaction, message: messages });
-    return data;
-  };
-
-  getProposerInfo = async () => {
-    const config = this.store.config.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest(
-      'GET',
-      '/getProposerInfo',
-      {},
-      {},
-      baseURL
-    );
     // (config.method, config.path, {}, { transaction, message: messages });
     return data;
   };
@@ -1157,15 +1088,6 @@ class OpenApiService {
     }
   };
 
-  getLastBlock = async () => {
-    try {
-      const account = await fcl.latestBlock(true);
-      return account;
-    } catch (error) {
-      return null;
-    }
-  };
-
   checkChildAccount = async (address: string) => {
     const script = await getScripts('hybridCustody', 'checkChildAccount');
     const result = await fcl.query({
@@ -1209,10 +1131,7 @@ class OpenApiService {
   };
 
   checkChildAccountNFT = async (address: string) => {
-    const script = await getScripts(
-      'hybridCustody',
-      'getAccessibleChildAccountNFTs'
-    );
+    const script = await getScripts('hybridCustody', 'getAccessibleChildAccountNFTs');
 
     const result = await fcl.query({
       cadence: script,
@@ -1381,44 +1300,30 @@ class OpenApiService {
     return data;
   };
 
-  getTokenInfo = async (
-    name: string,
-    network = ''
-  ): Promise<TokenInfo | undefined> => {
+  getTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
     if (!network) {
       network = await userWalletService.getNetwork();
     }
     const tokens = await this.getTokenListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
-    return tokens.find(
-      (item) => item.symbol.toLowerCase() == name.toLowerCase()
-    );
+    return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
   };
 
-  getEvmTokenInfo = async (
-    name: string,
-    network = ''
-  ): Promise<TokenInfo | undefined> => {
+  getEvmTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
     if (!network) {
       network = await userWalletService.getNetwork();
     }
-    const tokens = await this.getEvmListFromGithub(network);
+    const tokens = await this.getTokenListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
-    return tokens.find(
-      (item) => item.symbol.toLowerCase() == name.toLowerCase()
-    );
+    return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
   };
 
-  getTokenInfoByContract = async (
-    contractName: string
-  ): Promise<TokenModel | undefined> => {
+  getTokenInfoByContract = async (contractName: string): Promise<TokenModel | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
     const coins = await remoteFetch.flowCoins();
-    return coins.find(
-      (item) => item.contract_name.toLowerCase() == contractName.toLowerCase()
-    );
+    return coins.find((item) => item.contract_name.toLowerCase() === contractName.toLowerCase());
   };
 
   getAllToken = async () => {
@@ -1427,9 +1332,7 @@ class OpenApiService {
     return coins;
   };
 
-  getNFTCollectionInfo = async (
-    contract_name: string
-  ): Promise<NFTModel | undefined> => {
+  getNFTCollectionInfo = async (contract_name: string): Promise<NFTModel | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
     const tokenList = await remoteFetch.nftCollection();
 
@@ -1449,7 +1352,6 @@ class OpenApiService {
     return false;
   };
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   getAllTokenInfo = async (fiterNetwork = true): Promise<TokenInfo[]> => {
     const network = await userWalletService.getNetwork();
@@ -1528,85 +1430,128 @@ class OpenApiService {
     return balance;
   };
 
-  getTokenListFromGithub = async (network: string) => {
-    const childType = await userWalletService.getActiveWallet();
-    let chainType = 'flow';
-    if (childType === 'evm') {
-      chainType = 'evm';
-    }
-    const gitToken = await storage.getExpiry(
-      `GitTokenList${network}${chainType}`
-    );
-    // const gitToken = null
-    if (gitToken) {
-      return gitToken;
+  fetchGitTokenList = async (network, chainType, childType) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    let url;
+
+    if (isProduction) {
+      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
+    } else if (
+      !isProduction &&
+      childType !== 'evm' &&
+      (network === 'testnet' || network === 'mainnet')
+    ) {
+      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`;
     } else {
-      let response;
-      if (process.env.NODE_ENV === 'production') {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-        );
-      } else if (
-        process.env.NODE_ENV !== 'production' &&
-        childType !== 'evm' &&
-        (network === 'testnet' || network === 'mainnet')
-      ) {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`
-        );
-      } else if (process.env.NODE_ENV !== 'production' && childType === 'evm') {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-        );
-      } else {
-        response = await fetch(
-          `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
-        );
-      }
-      const res = await response.json();
-      const { tokens = {} } = res;
-      const hasFlowToken = tokens.some(
-        (token) => token.symbol.toLowerCase() === 'flow'
-      );
-      if (!hasFlowToken) {
-        tokens.push({
-          name: 'Flow',
-          address: '0x4445e7ad11568276',
-          contractName: 'FlowToken',
-          path: {
-            balance: '/public/flowTokenBalance',
-            receiver: '/public/flowTokenReceiver',
-            vault: '/storage/flowTokenVault',
-          },
-          logoURI:
-            'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
-          decimals: 8,
-          symbol: 'flow',
-        });
-      }
-      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
-      return tokens;
+      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
+    }
+
+    const response = await fetch(url);
+    const { tokens = [] } = await response.json();
+    const hasFlowToken = tokens.some((token) => token.symbol.toLowerCase() === 'flow');
+    if (!hasFlowToken) {
+      tokens.push({
+        name: 'Flow',
+        address: '0x4445e7ad11568276',
+        contractName: 'FlowToken',
+        path: {
+          balance: '/public/flowTokenBalance',
+          receiver: '/public/flowTokenReceiver',
+          vault: '/storage/flowTokenVault',
+        },
+        logoURI:
+          'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+        decimals: 8,
+        symbol: 'flow',
+      });
+    }
+    return tokens;
+  };
+
+  addFlowTokenIfMissing = (tokens) => {
+    const hasFlowToken = tokens.some((token) => token.symbol.toLowerCase() === 'flow');
+    if (!hasFlowToken) {
+      tokens.push({
+        name: 'Flow',
+        address: '0x4445e7ad11568276',
+        contractName: 'FlowToken',
+        path: {
+          balance: '/public/flowTokenBalance',
+          receiver: '/public/flowTokenReceiver',
+          vault: '/storage/flowTokenVault',
+        },
+        logoURI:
+          'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+        decimals: 8,
+        symbol: 'flow',
+      });
     }
   };
 
-  getEvmListFromGithub = async (network: string) => {
-    const chainType = 'evm';
-
-    const gitToken = await storage.getExpiry(
-      `GitTokenList${network}${chainType}`
-    );
-    // const gitToken = null
-    if (gitToken) {
-      return gitToken;
-    } else {
-      const response = await fetch(
-        `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`
+  mergeCustomTokens = (tokens, customTokens) => {
+    customTokens.forEach((custom) => {
+      const existingToken = tokens.find(
+        (token) => token.address.toLowerCase() === custom.address.toLowerCase()
       );
-      const res = await response.json();
-      const { tokens = {} } = res;
-      storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
-      return tokens;
+
+      if (existingToken) {
+        // If the custom token is found, set the custom key to true
+        existingToken.custom = true;
+      } else {
+        // If the custom token is not found, add it to the tokens array
+        tokens.push({
+          chainId: 747,
+          address: custom.address,
+          symbol: custom.unit,
+          name: custom.coin,
+          decimals: custom.decimals,
+          logoURI: '',
+          flowIdentifier: custom.flowIdentifier,
+          tags: [],
+          balance: 0,
+          custom: true,
+        });
+      }
+    });
+  };
+
+  getTokenListFromGithub = async (network) => {
+    const childType = await userWalletService.getActiveWallet();
+    const chainType = childType === 'evm' ? 'evm' : 'flow';
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    if (gitToken) return gitToken;
+
+    const tokens = await this.fetchGitTokenList(network, chainType, childType);
+
+    if (chainType === 'evm') {
+      const evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
+      this.mergeCustomTokens(tokens, evmCustomToken);
     }
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+    return tokens;
+  };
+
+  refreshEvmGitToken = async (network) => {
+    const chainType = 'evm';
+    let gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    if (!gitToken) gitToken = await this.fetchGitTokenList(network, chainType, 'evm');
+
+    const evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
+    this.mergeCustomTokens(gitToken, evmCustomToken);
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);
+  };
+
+  refreshCustomEvmGitToken = async (network) => {
+    const chainType = 'evm';
+    const gitToken = await this.fetchGitTokenList(network, chainType, 'evm');
+
+    const evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
+    this.mergeCustomTokens(gitToken, evmCustomToken);
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);
   };
 
   getNFTListFromGithub = async (network: string) => {
@@ -1615,9 +1560,7 @@ class OpenApiService {
     if (childType === 'evm') {
       chainType = 'evm';
     }
-    const gitToken = await storage.getExpiry(
-      `GitNFTList${network}${chainType}`
-    );
+    const gitToken = await storage.getExpiry(`GitNFTList${network}${chainType}`);
     if (gitToken && gitToken.length > 0) {
       return gitToken;
     } else {
@@ -1648,7 +1591,7 @@ class OpenApiService {
         values = await this.isTokenListEnabled(address);
       }
     } catch (error) {
-      console.error(`Error isTokenListEnabled token:`);
+      console.error('Error isTokenListEnabled token:');
       values = {};
     }
 
@@ -1658,7 +1601,7 @@ class OpenApiService {
       tokenList.forEach((token) => {
         const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
         // console.log(tokenMap,'tokenMap',values)
-        if (values[tokenId] == true) {
+        if (!!values[tokenId]) {
           tokenMap[token.name] = token;
         }
       });
@@ -1730,10 +1673,7 @@ class OpenApiService {
     return balanceList;
   };
 
-  getBlockList = async (
-    hosts: string[] = [],
-    forceCheck = false
-  ): Promise<string[]> => {
+  getBlockList = async (hosts: string[] = [], forceCheck = false): Promise<string[]> => {
     return await googleSafeHostService.getBlockList(hosts, forceCheck);
   };
 
@@ -1831,10 +1771,7 @@ class OpenApiService {
   //   return enabledList;
   // };
 
-  checkNFTListEnabled = async (
-    address: string,
-    allTokens: NFTModel[]
-  ): Promise<NFTModel[]> => {
+  checkNFTListEnabled = async (address: string, allTokens: NFTModel[]): Promise<NFTModel[]> => {
     const tokens = allTokens;
     const tokenImports = tokens
       .map((token) =>
@@ -1913,17 +1850,12 @@ class OpenApiService {
     };
 
     console.log('getTransactionTemplate ->', init);
-    const response = await fetch(
-      'https://flix.flow.com/v1/templates/search',
-      init
-    );
+    const response = await fetch('https://flix.flow.com/v1/templates/search', init);
     const template = await response.json();
 
     console.log('template ->', template);
 
-    const auditorsResponse = await fetch(
-      `https://flix.flow.com/v1/auditors?network=${network}`
-    );
+    const auditorsResponse = await fetch(`https://flix.flow.com/v1/auditors?network=${network}`);
     const auditors = await auditorsResponse.json();
     console.log('auditors ->', auditors);
 
@@ -1932,10 +1864,10 @@ class OpenApiService {
       auditors.map((item) => item.address)
     );
 
-    const audits =
-      await fcl.InteractionTemplateUtils.getInteractionTemplateAudits({
-        template: template,
-      });
+    const audits = await fcl.InteractionTemplateUtils.getInteractionTemplateAudits({
+      template: template,
+      auditors: auditors.map((item) => item.address),
+    });
 
     console.log('audits ->', audits);
     const addresses = Object.keys(audits).filter((address) => audits[address]);
@@ -1981,11 +1913,9 @@ class OpenApiService {
 
   pingNetwork = async (network: string): Promise<boolean> => {
     try {
-      const response = await fetch(
-        `https://rest-${network}.onflow.org/v1/blocks?height=sealed`
-      );
+      const response = await fetch(`https://rest-${network}.onflow.org/v1/blocks?height=sealed`);
       const result = await response.json();
-      return result[0].header != null;
+      return result[0].header !== null && result[0].header !== undefined;
     } catch (err) {
       return false;
     }
@@ -2063,24 +1993,14 @@ class OpenApiService {
     return data;
   };
 
-  swapEstimate = async (
-    network: string,
-    inToken: string,
-    outToken: string,
-    amount
-  ) => {
+  swapEstimate = async (network: string, inToken: string, outToken: string, amount) => {
     const response = await fetch(
       `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&inAmount=${amount}`
     );
     return response.json();
   };
 
-  swapOutEstimate = async (
-    network: string,
-    inToken: string,
-    outToken: string,
-    amount
-  ) => {
+  swapOutEstimate = async (network: string, inToken: string, outToken: string, amount) => {
     const response = await fetch(
       `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&outAmount=${amount}`
     );
@@ -2095,9 +2015,7 @@ class OpenApiService {
   };
 
   swapPairs = async (network: string) => {
-    const response = await fetch(
-      `https://lilico.app/api/swap/v1/${network}/pairs`
-    );
+    const response = await fetch(`https://lilico.app/api/swap/v1/${network}/pairs`);
     console.log(response);
     return response.json();
   };
@@ -2125,22 +2043,11 @@ class OpenApiService {
   };
 
   cadenceScriptsV2 = async () => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/scripts`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const { data } = await this.sendRequest('GET', '/api/v2/scripts', {}, {}, WEB_NEXT_URL);
     return data;
   };
 
-  nftCatalogList = async (
-    address: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
+  nftCatalogList = async (address: string, limit: any, offset: any, network: string) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
@@ -2214,24 +2121,12 @@ class OpenApiService {
   };
 
   nftCollectionList = async () => {
-    const { data } = await this.sendRequest(
-      'GET',
-      '/api/nft/collections',
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const { data } = await this.sendRequest('GET', '/api/nft/collections', {}, {}, WEB_NEXT_URL);
     return data;
   };
 
   evmFTList = async () => {
-    const { data } = await this.sendRequest(
-      'GET',
-      '/api/evm/fts',
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const { data } = await this.sendRequest('GET', '/api/evm/fts', {}, {}, WEB_NEXT_URL);
     return data;
   };
 
@@ -2247,31 +2142,19 @@ class OpenApiService {
   };
 
   getEvmFTPrice = async () => {
-    const gitPrice = await storage.getExpiry(`EVMPrice`);
+    const gitPrice = await storage.getExpiry('EVMPrice');
 
     if (gitPrice) {
       return gitPrice;
     } else {
-      const { data } = await this.sendRequest(
-        'GET',
-        `/api/prices`,
-        {},
-        {},
-        WEB_NEXT_URL
-      );
-      storage.setExpiry(`EVMPrice`, data, 6000);
+      const { data } = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
+      storage.setExpiry('EVMPrice', data, 6000);
       return data;
     }
   };
 
   evmNFTList = async () => {
-    const { data } = await this.sendRequest(
-      'GET',
-      '/api/evm/nfts',
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const { data } = await this.sendRequest('GET', '/api/evm/nfts', {}, {}, WEB_NEXT_URL);
     return data;
   };
 
@@ -2327,12 +2210,7 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceList = async (
-    address: string,
-    network = 'mainnet',
-    offset = 0,
-    limit = 5
-  ) => {
+  getNFTCadenceList = async (address: string, network = 'mainnet', offset = 0, limit = 5) => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/id?network=${network}&address=${address}`,
@@ -2405,12 +2283,8 @@ class OpenApiService {
 
   putDeviceInfo = async (walletData) => {
     try {
-      const testnetId = walletData.find(
-        (item) => item.chain_id === 'testnet'
-      )?.id;
-      const mainnetId = walletData.find(
-        (item) => item.chain_id === 'mainnet'
-      )?.id;
+      const testnetId = walletData.find((item) => item.chain_id === 'testnet')?.id;
+      const mainnetId = walletData.find((item) => item.chain_id === 'mainnet')?.id;
       const installationId = await this.getInstallationId();
       // console.log('location ', userlocation);
 
@@ -2429,6 +2303,53 @@ class OpenApiService {
       console.error('Error while adding device:', error);
       return;
     }
+  };
+
+  getNews = async (): Promise<NewsItem[]> => {
+    // Get news from firebase function
+    const baseURL = getFirbaseFunctionUrl();
+
+    const cachedNews = await storage.getExpiry('news');
+
+    if (cachedNews) {
+      return cachedNews;
+    }
+
+    const data = await this.sendRequest('GET', '/news', {}, {}, baseURL);
+
+    const timeNow = new Date(Date.now());
+
+    const news = data
+      .map(
+        (dataFromApi: {
+          id: string;
+          priority: string;
+          type: string;
+          title: string;
+          body?: string;
+          icon?: string;
+          image?: string;
+          url?: string;
+          expiry_time: string;
+          display_type: string;
+          conditions?: string[]; // Add conditions field
+        }) => {
+          const newsItem = {
+            ...dataFromApi,
+            expiryTime: new Date(dataFromApi.expiry_time),
+            displayType: dataFromApi.display_type,
+            conditions: dataFromApi.conditions as NewsConditionType[], // Map conditions
+          };
+          return newsItem;
+        }
+      )
+      .filter((n: { expiryTime: Date }) => {
+        return n.expiryTime > timeNow;
+      });
+
+    await storage.setExpiry('news', news, 300000); // 5 minutes in milliseconds
+
+    return news;
   };
 
   freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
@@ -2492,6 +2413,27 @@ class OpenApiService {
     // await setUserInfo(wallet);
     // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
+  };
+
+  getLatestVersion = async (): Promise<string> => {
+    // Get latest version from storage cache first
+    const cached = await storage.getExpiry('latestVersion');
+    if (cached) {
+      return cached;
+    }
+
+    try {
+      const config = this.store.config.get_version;
+      const data = await this.sendRequest(config.method, config.path);
+      const version = data.extensionVersion;
+
+      // Cache for 1 hour
+      await storage.setExpiry('latestVersion', version, 3600000);
+      return version;
+    } catch (error) {
+      console.error('Error fetching latest version:', error);
+      return chrome.runtime.getManifest().version; // Fallback to current version
+    }
   };
 }
 

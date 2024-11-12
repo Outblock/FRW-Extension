@@ -7,7 +7,6 @@ yarn-error
 package-lock.json
 yarn.lock
 .idea
-.vscode/
 .env
 .env.dev
 .env.pro
@@ -18,3 +17,4 @@ dist2
 src/background/utils/firebase.config.json
 dist.rar
 dist.7z
+.cursorrules

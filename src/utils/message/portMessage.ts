@@ -45,7 +45,7 @@ class PortMessage extends Message {
       this.port.postMessage({ _type_: `${this._EVENT_PRE}${type}`, data });
     } catch (e) {
       // DO NOTHING BUT CATCH THIS ERROR
-      console.log('PortMessage error: ', e)
+      console.log('PortMessage error: ', e);
     }
   };
 

@@ -282,9 +282,13 @@ class UserWallet {
     // }
     // const account = loggedInAccounts[accountIndex];
     const ktype =
+<<<<<<< HEAD
       typeof account.signAlgo === 'string'
         ? getSignAlgo(account.signAlgo)
         : account.signAlgo;
+=======
+      typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+>>>>>>> origin/dev
     const keys = ktype === 1 ? keys1 : kesy2;
     let result = [
       {
@@ -309,12 +313,17 @@ class UserWallet {
     }
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
+<<<<<<< HEAD
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(
       Buffer.from('FLOW-V0.0-user').toString('hex'),
       32
     );
     const message =
       USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+=======
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+>>>>>>> origin/dev
 
     // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
     const hashAlgo = result[0].hashAlgo;
@@ -336,12 +345,16 @@ class UserWallet {
       hashAlgo,
       keys.pk
     );
+<<<<<<< HEAD
     return wallet.openapi.loginV3(
       accountKey,
       deviceInfo,
       realSignature,
       replaceUser
     );
+=======
+    return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
+>>>>>>> origin/dev
   };
 
   reSign = async () => {
@@ -468,12 +481,17 @@ class UserWallet {
 
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
+<<<<<<< HEAD
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(
       Buffer.from('FLOW-V0.0-user').toString('hex'),
       32
     );
     const message =
       USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+=======
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+>>>>>>> origin/dev
 
     const privateKey = result[0].pk;
     const hashAlgo = result[0].hashAlgo;
@@ -493,12 +511,16 @@ class UserWallet {
       hashAlgo,
       privateKey
     );
+<<<<<<< HEAD
     return wallet.openapi.loginV3(
       accountKey,
       deviceInfo,
       realSignature,
       replaceUser
     );
+=======
+    return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
+>>>>>>> origin/dev
   };
 
   sigInWithPk = async (privateKey: string, replaceUser = true) => {
@@ -516,12 +538,17 @@ class UserWallet {
 
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
+<<<<<<< HEAD
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(
       Buffer.from('FLOW-V0.0-user').toString('hex'),
       32
     );
     const message =
       USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+=======
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+>>>>>>> origin/dev
 
     // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
     const hashAlgo = result[0].hashAlgo;
@@ -541,12 +568,16 @@ class UserWallet {
       hashAlgo,
       privateKey
     );
+<<<<<<< HEAD
     return wallet.openapi.loginV3(
       accountKey,
       deviceInfo,
       realSignature,
       replaceUser
     );
+=======
+    return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
+>>>>>>> origin/dev
   };
 
   signInv3 = async (
@@ -565,10 +596,7 @@ class UserWallet {
 
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
-    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
-      Buffer.from('FLOW-V0.0-user').toString('hex'),
-      32
-    );
+    const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
 
     const hex = secp.utils.bytesToHex;
     const message =
@@ -589,12 +617,16 @@ class UserWallet {
     if (accountKey.public_key === publicKey) {
       const signature = await secp.sign(messageHash, privateKey);
       const realSignature = secp.Signature.fromHex(signature).toCompactHex();
+<<<<<<< HEAD
       return wallet.openapi.loginV3(
         accountKey,
         deviceInfo,
         realSignature,
         replaceUser
       );
+=======
+      return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
+>>>>>>> origin/dev
     } else {
       return false;
     }

@@ -51,17 +51,10 @@ export function serviceDefinition(address, keyId, type, network, opts = {}) {
     definition.method = 'EXT/RPC';
     definition.data = opts;
   }
-  console.log(definition, '===definition==='); 
   return definition;
 }
 
-export function preAuthzServiceDefinition(
-  address,
-  keyId,
-  payerAddress,
-  payerKeyId,
-  network
-) {
+export function preAuthzServiceDefinition(address, keyId, payerAddress, payerKeyId, network) {
   return {
     f_type: 'PreAuthzResponse',
     f_vsn: '1.0.0',
@@ -87,9 +80,7 @@ export async function authnServiceDefinition(
 
   // const isEnabled = await walletController.allowLilicoPay();
   if (isEnabled) {
-    services.push(
-      serviceDefinition(payerAddress, payerKeyId, 'pre-authz', network)
-    );
+    services.push(serviceDefinition(payerAddress, payerKeyId, 'pre-authz', network));
   }
   return services;
 }

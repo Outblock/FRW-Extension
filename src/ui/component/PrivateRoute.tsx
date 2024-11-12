@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Route, Redirect } from 'react-router-dom';
 import { useWallet } from 'ui/utils';
@@ -23,11 +23,7 @@ const PrivateRoute = ({ children, ...rest }) => {
     <Route
       {...rest}
       render={() => {
-        const to = !wallet.isBooted()
-          ? '/welcome'
-          : !wallet.isUnlocked()
-            ? '/unlock'
-            : null;
+        const to = !wallet.isBooted() ? '/welcome' : !wallet.isUnlocked() ? '/unlock' : null;
         return !to ? children : <Redirect to={to} />;
       }}
     />

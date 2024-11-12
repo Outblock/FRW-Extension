@@ -1,5 +1,5 @@
-import browser, { Runtime } from "webextension-polyfill";
-import Message from "./index";
+import browser, { Runtime } from 'webextension-polyfill';
+import Message from './index';
 class PortMessage extends Message {
   port: Runtime.Port | null = null;
   listenCallback: any;
@@ -16,7 +16,7 @@ class PortMessage extends Message {
     this.port = browser.runtime.connect(undefined, name ? { name } : undefined);
     this.port.onMessage.addListener(({ _type_, data }) => {
       if (_type_ === `${this._EVENT_PRE}message`) {
-        this.emit("message", data);
+        this.emit('message', data);
         return;
       }
 

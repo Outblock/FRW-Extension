@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Box,
-  Drawer,
-  Grid,
-  Stack,
-  InputBase,
-  CircularProgress,
-} from '@mui/material';
+import { Typography, Box, Drawer, Grid, Stack, InputBase, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  LLPrimaryButton,
-  LLSecondaryButton,
-  LLFormHelperText,
-} from '../../../FRWComponent';
+import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../../FRWComponent';
 import { useWallet } from 'ui/utils';
 import { useForm, FieldValues } from 'react-hook-form';
 import { withPrefix } from '../../../utils/address';
@@ -48,7 +36,6 @@ export interface AddressBookValues {
 }
 
 const AddOrEditAddress = (props: AddOrEditAddressProps) => {
-  
   const wallet = useWallet();
   const {
     register,
@@ -59,8 +46,7 @@ const AddOrEditAddress = (props: AddOrEditAddressProps) => {
     mode: 'all',
   });
 
-  const [isValidatingAddress, setIsValidatingAddress] =
-    useState<boolean>(false);
+  const [isValidatingAddress, setIsValidatingAddress] = useState<boolean>(false);
 
   const checkAddress = async (address: string) => {
     //wallet controller api
@@ -82,12 +68,8 @@ const AddOrEditAddress = (props: AddOrEditAddressProps) => {
         name,
         formattedAddress!
       );
-      
     } else {
-      response = await wallet.openapi.addExternalAddressBook(
-        name,
-        formattedAddress!
-      );
+      response = await wallet.openapi.addExternalAddressBook(name, formattedAddress!);
     }
 
     if (response.status === 200) {
@@ -140,20 +122,16 @@ const AddOrEditAddress = (props: AddOrEditAddressProps) => {
       >
         <Grid item xs={1}></Grid>
         <Grid item xs={10}>
-          <Typography
-            variant="h1"
-            align="center"
-            py="14px"
-            fontWeight="bold"
-            fontSize="20px"
-          >
-            {props.isEdit ? chrome.i18n.getMessage('Edit__Address') : chrome.i18n.getMessage('Add__Address')}
+          <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="20px">
+            {props.isEdit
+              ? chrome.i18n.getMessage('Edit__Address')
+              : chrome.i18n.getMessage('Add__Address')}
           </Typography>
         </Grid>
         <Grid item xs={1}>
           <CloseIcon
             fontSize="medium"
-            sx={{ color: 'icon.navi', cursor: 'pointer', align: 'center'}}
+            sx={{ color: 'icon.navi', cursor: 'pointer', align: 'center' }}
             onClick={props.handleCloseIconClicked}
           />
         </Grid>
@@ -230,7 +208,12 @@ const AddOrEditAddress = (props: AddOrEditAddressProps) => {
       open={props.isAddAddressOpen}
       transitionDuration={300}
       PaperProps={{
-        sx: { width: '100%', height: '415px', bgcolor: 'background.paper', borderRadius: '18px 18px 0px 0px' },
+        sx: {
+          width: '100%',
+          height: '415px',
+          bgcolor: 'background.paper',
+          borderRadius: '18px 18px 0px 0px',
+        },
       }}
     >
       {renderContent()}
