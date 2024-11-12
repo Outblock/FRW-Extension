@@ -1,28 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Skeleton,
-  Typography,
-  Drawer,
-  IconButton,
-  Snackbar,
-  Alert,
-  ListItemText,
-  Avatar,
-  CardMedia,
-} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
-import { useHistory } from 'react-router-dom';
-import selectedCover from 'ui/FRWAssets/svg/selectedCover.svg';
-import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
-import MoveCollectionSelect from '../MoveCollectionSelect';
-import { LLSpinner } from 'ui/FRWComponent';
-import EmptyStatus from 'ui/views/NftEvm/EmptyStatus';
-import AccountBox from '../AccountBox';
-import selected from 'ui/FRWAssets/svg/selected.svg';
+import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
+import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
+import selected from 'ui/FRWAssets/svg/selected.svg';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import AccountBox from '../AccountBox';
+import MoveCollectionSelect from '../MoveCollectionSelect';
 
 interface MoveBoardProps {
   showMoveBoard: boolean;
@@ -34,9 +22,7 @@ interface MoveBoardProps {
 
 const MoveNfts = (props: MoveBoardProps) => {
   const usewallet = useWallet();
-  const history = useHistory();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [cadenceNft, setCadenceNft] = useState<any>(null);
   const [collectionList, setCollectionList] = useState<any>(null);
   const [selectedCollection, setSelected] = useState<string>('');
   const [collectionDetail, setCollectionDetail] = useState<any>(null);
@@ -61,14 +47,14 @@ const MoveNfts = (props: MoveBoardProps) => {
     setShowError(false);
   };
 
-  const findCollectionByContractName = () => {
+  const findCollectionByContractName = useCallback(() => {
     if (collectionList) {
       const collection = collectionList.find((collection) => collection.id === selectedCollection);
       setCurrentCollection(collection);
     }
-  };
+  }, [collectionList, selectedCollection]);
 
-  const requestCadenceNft = async () => {
+  const requestCadenceNft = useCallback(async () => {
     setIsLoading(true);
     try {
       const cadenceResult = await usewallet.requestCadenceNft();
@@ -85,17 +71,15 @@ const MoveNfts = (props: MoveBoardProps) => {
       });
 
       setCollectionList(extractedObjects);
-      setCadenceNft(cadenceResult);
     } catch (error) {
       console.error('Error fetching NFT data:', error);
       setSelected('');
       setCollectionList(null);
-      setCadenceNft(null);
       setIsLoading(false);
     }
-  };
+  }, [usewallet]);
 
-  const requestCollectionInfo = async () => {
+  const requestCollectionInfo = useCallback(async () => {
     if (selectedCollection) {
       try {
         const cadenceResult = await usewallet.requestCollectionInfo(selectedCollection);
@@ -107,7 +91,7 @@ const MoveNfts = (props: MoveBoardProps) => {
         setIsLoading(false);
       }
     }
-  };
+  }, [usewallet, selectedCollection]);
 
   const toggleSelectNft = async (nftId) => {
     const tempIdArray = [...nftIdArray];
@@ -154,17 +138,17 @@ const MoveNfts = (props: MoveBoardProps) => {
   useEffect(() => {
     setIsLoading(true);
     requestCadenceNft();
-  }, []);
+  }, [requestCadenceNft]);
 
   useEffect(() => {
     setIsLoading(true);
     requestCollectionInfo();
-  }, [selectedCollection]);
+  }, [requestCollectionInfo]);
 
   useEffect(() => {
     setIsLoading(true);
     findCollectionByContractName();
-  }, [collectionList, selectedCollection]);
+  }, [collectionList, selectedCollection, findCollectionByContractName]);
 
   return (
     <Drawer
@@ -467,29 +451,12 @@ const MoveNfts = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       )}
-      <Snackbar
+      <WarningSnackbar
         open={errorOpen}
-        autoHideDuration={2000}
         onClose={handleErrorClose}
-        sx={{ zIndex: '2000' }}
-      >
-        <Alert
-          icon={<img src={alertMark} alt="alert icon" />}
-          variant="filled"
-          severity="warning"
-          sx={{
-            color: '#FFFFFF',
-            padding: '0 16px',
-            fontSize: '12px',
-            fontWeight: '400',
-            borderRadius: '24px',
-            margin: '0 auto 80px',
-            zIndex: '2000',
-          }}
-        >
-          {chrome.i18n.getMessage('Cannot_move_more')}
-        </Alert>
-      </Snackbar>
+        alertIcon={alertMark}
+        message={chrome.i18n.getMessage('Cannot_move_more')}
+      />
     </Drawer>
   );
 };
