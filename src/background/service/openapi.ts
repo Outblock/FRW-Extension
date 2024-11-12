@@ -434,7 +434,6 @@ class OpenApiService {
 
     const app = getApp(process.env.NODE_ENV!);
     const user = await getAuth(app).currentUser;
-    console.log(app, '======', user);
     const init = {
       method,
       async: true,
