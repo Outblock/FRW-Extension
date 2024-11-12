@@ -3613,12 +3613,14 @@ export class WalletController extends BaseController {
   };
 
   // Add new method to check storage
-  async checkStorageStatus(address: string): Promise<{
+  async checkStorageStatus(): Promise<{
     isStorageSufficient: boolean;
     storageInfo: StorageInfo;
   }> {
-    const { isStorageSufficient, storageInfo } =
-      await this.storageEvaluator.evaluateStorage(address);
+    const address = await this.getCurrentAddress();
+    const { isStorageSufficient, storageInfo } = await this.storageEvaluator.evaluateStorage(
+      address!
+    );
     return {
       isStorageSufficient,
       storageInfo: {
@@ -3628,6 +3630,21 @@ export class WalletController extends BaseController {
       },
     };
   }
+
+  // Add new method to check storage
+  checkTransactionStorageStatus = async (
+    amount?: number
+  ): Promise<{
+    canProceed: boolean;
+    reason?: string;
+  }> => {
+    const address = await this.getCurrentAddress();
+    if (!address) {
+      return { canProceed: false, reason: 'no_address' };
+    }
+
+    return this.storageEvaluator.canPerformTransaction(address, amount);
+  };
 }
 
 export default new WalletController();
