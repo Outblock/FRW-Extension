@@ -1,14 +1,10 @@
+import { userWalletService } from '../service';
 import { StorageEvaluator } from '../service/storage-evaluator';
 
 import type { NewsConditionType } from './networkModel';
 import openapi from './openapi';
 
 const CURRENT_VERSION = chrome.runtime.getManifest().version;
-
-export interface Conditions {
-  // ... existing conditions
-  insufficientStorage: boolean;
-}
 
 class ConditionsEvaluator {
   private async evaluateCondition(condition: NewsConditionType): Promise<boolean> {
@@ -24,7 +20,12 @@ class ConditionsEvaluator {
         const latestVersion = await openapi.getLatestVersion();
         return this.compareVersions(CURRENT_VERSION, latestVersion) < 0;
 
-      // TODO: we need to add a condition for storage
+      case 'insufficientStorage': {
+        const currentAddress = userWalletService.getCurrentAddress();
+        if (!currentAddress) return false;
+        return this.evaluateStorageCondition(currentAddress);
+      }
+
       case 'unknown':
       default:
         return false; // Unknown conditions are considered unmet
