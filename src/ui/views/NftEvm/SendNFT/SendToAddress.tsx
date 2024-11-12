@@ -156,6 +156,49 @@ const SendToAddress = () => {
   const [nftDetail, setDetail] = useState<any>(null);
   const [media, setMedia] = useState<MatchMedia | null>(null);
 
+  const fetchAddressBook = async () => {
+    await wallet.setDashIndex(0);
+    try {
+      const response = await wallet.getAddressBook();
+      let recent = await wallet.getRecent();
+      if (recent) {
+        recent.forEach((c) => {
+          if (response) {
+            response.forEach((s) => {
+              if (c.address === s.address && c.contact_name === s.contact_name) {
+                c.type = 1;
+              }
+            });
+          }
+        });
+      } else {
+        recent = [];
+      }
+
+      if (recent.length < 1) {
+        setTabValue(1);
+      }
+      let sortedContacts = [];
+      if (response) {
+        sortedContacts = response.sort((a, b) =>
+          a.contact_name.toLowerCase().localeCompare(b.contact_name.toLowerCase())
+        );
+      }
+
+
+      setRecentContacts(recent);
+      setSortedContacts(sortedContacts);
+      setFilteredContacts(sortedContacts);
+      setIsLoading(false);
+    } catch (err) {
+      console.log('err: ', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddressBook();
+  }, []);
+
   const setUserInfo = async () => {
     await wallet.setDashIndex(1);
     const info = await wallet.getUserInfo(false);
