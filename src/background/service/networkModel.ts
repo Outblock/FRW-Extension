@@ -369,6 +369,8 @@ export type NewsDisplayType =
   | 'click' // close it when user click on it
   | 'expiry'; // it will display until it expired
 
+export type NewsConditionType = 'unknown' | 'canUpgrade' | 'isIOS' | 'isAndroid' | 'isWeb';
+
 export interface NewsItem {
   id: string;
   priority: NewsPriority;
@@ -380,4 +382,5 @@ export interface NewsItem {
   url?: string;
   expiryTime: Date;
   displayType: NewsDisplayType;
+  conditions?: NewsConditionType[];
 }

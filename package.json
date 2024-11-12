@@ -19,8 +19,7 @@
     "icon": "npx iconfont-h5",
     "test": "jest",
     "pub": "node build/release.js",
-    "prepare": "husky && husky install",
-    "postinstall": "husky"
+    "prepare": "husky"
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.1.0",

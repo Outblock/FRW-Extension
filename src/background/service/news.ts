@@ -1,7 +1,8 @@
 import { createPersistStore } from 'background/utils';
-import { NewsItem } from './networkModel';
 import { storage } from 'background/webapi';
 
+import conditionsEvaluator from './conditions-evaluator';
+import type { NewsItem } from './networkModel';
 import openapi from './openapi';
 
 interface NewsStore {
@@ -13,7 +14,6 @@ class NewsService {
   store!: NewsStore;
 
   init = async () => {
-    console.log('NewsService init');
     try {
       this.store = await createPersistStore<NewsStore>({
         name: 'newsService', // Must be unique name
@@ -23,7 +23,6 @@ class NewsService {
         },
         fromStorage: true,
       });
-      console.log('NewsService store loaded', this.store);
     } catch (error) {
       console.error('Error initializing NewsService', error);
 
@@ -37,12 +36,17 @@ class NewsService {
 
     const news = await openapi.getNews();
 
-    // Remove dismissed news from the list
-    const filteredNews = news.filter((n) => !this.isDismissed(n.id));
+    // Remove dismissed news and evaluate conditions
+    const filteredNews = await Promise.all(
+      news
+        .filter((n) => !this.isDismissed(n.id))
+        .map(async (newsItem) => {
+          const shouldShow = await conditionsEvaluator.evaluateConditions(newsItem.conditions);
+          return shouldShow ? newsItem : null;
+        })
+    );
 
-    // TODO: calculate unread count here
-
-    return filteredNews;
+    return filteredNews.filter((item): item is NewsItem => item !== null);
   };
 
   isRead = (id: string): boolean => {
@@ -94,7 +98,6 @@ class NewsService {
   };
 
   markAsDismissed = async (id: string) => {
-    console.log('markAsDismissed', id);
     if (!this.store) await this.init();
 
     // Mark as read first
