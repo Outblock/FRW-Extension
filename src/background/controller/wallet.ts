@@ -852,16 +852,16 @@ export class WalletController extends BaseController {
   };
 
   checkUserChildAccount = async () => {
-    const cacheKey = 'checkUserChildAccount';
+    const network = await this.getNetwork();
+    const address = await userWalletService.getMainWallet(network);
+    const cacheKey = `checkUserChildAccount${address}`;
     const ttl = 5 * 60 * 1000; // 5 minutes in milliseconds
 
     // Try to get the cached result
     let meta = await storage.getExpiry(cacheKey);
     if (!meta) {
       try {
-        const network = await this.getNetwork();
         let result = {};
-        const address = await userWalletService.getMainWallet(network);
         result = await openapiService.checkChildAccountMeta(address);
 
         if (result) {
@@ -1547,10 +1547,7 @@ export class WalletController extends BaseController {
 
     const pubKey = await this.getPubKey();
     const address = await findAddressWithNetwork(pubKey, network);
-
     const emoji = await this.getEmoji();
-
-    console.log('findAddressWithNetwork emoji ', emoji);
 
     let transformedArray: any[];
 
@@ -2946,7 +2943,6 @@ export class WalletController extends BaseController {
   refreshAll = async () => {
     await this.refreshUserWallets();
     this.clearNFT();
-    this.clearChildAccount();
     this.refreshAddressBook();
     this.refreshEvmWallets();
     await this.getCadenceScripts();

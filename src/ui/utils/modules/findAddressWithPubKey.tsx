@@ -1,5 +1,6 @@
 import * as fcl from '@onflow/fcl';
-import { fclMainnetConfig } from 'background/fclConfig';
+import { fclMainnetConfig, fclTestnetConfig } from 'background/fclConfig';
+import { userWalletService } from 'background/service';
 
 export const findAddressWithKey = async (pubKeyHex, address) => {
   if (!address) {
@@ -58,7 +59,12 @@ export async function getAddressTestnet(publicKey) {
 }
 
 const findAddres = async (address, pubKeyHex) => {
-  await fclMainnetConfig();
+  const network = await userWalletService.getNetwork();
+  if (network === 'testnet') {
+    await fclTestnetConfig();
+  } else {
+    await fclMainnetConfig();
+  }
   const account = await fcl.account(address);
   const keys = account.keys
     .filter((key) => key.publicKey === pubKeyHex && !key.revoked)

@@ -103,8 +103,12 @@ class UserWallet {
   setUserWallets = async (filteredData, network) => {
     console.log('filteredData ', filteredData);
     this.store.wallets[network] = filteredData;
-    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    let walletIndex = (await storage.get('currentWalletIndex')) || 0;
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
+      if (walletIndex >= filteredData.length) {
+        walletIndex = 0; // Reset walletIndex to 0 if it exceeds the array length
+        await storage.set('currentWalletIndex', 0);
+      }
       const current = this.store.wallets[network][walletIndex].blockchain[0];
       this.store.currentWallet = current;
     } else {
@@ -154,7 +158,7 @@ class UserWallet {
     }
     if (this.store.network != network) {
       this.store.activeChild = null;
-      this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
+      // this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
     }
     this.store.network = network;
   };

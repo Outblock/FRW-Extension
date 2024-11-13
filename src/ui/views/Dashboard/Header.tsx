@@ -61,7 +61,6 @@ type ChildAccount = {
   };
 };
 
-
 const Header = ({ loading }) => {
   const usewallet = useWallet();
   const classes = useStyles();
@@ -255,11 +254,12 @@ const Header = ({ loading }) => {
       await storage.set('currentId', '');
     }
     await usewallet.lockWallet();
-    history.push('/switchunlock');
+    // await usewallet.refreshAll();
     await usewallet.clearWallet();
     await storage.set('currentWalletIndex', 0);
-    console.log('setCurernt wallet refreshAll')
+    console.log('setCurernt wallet refreshAll');
     await usewallet.switchNetwork(switchingTo);
+    history.push('/switchunlock');
   };
 
   const loadNetwork = async () => {
@@ -318,7 +318,6 @@ const Header = ({ loading }) => {
   // }
 
   const setWallets = async (walletInfo, key, index = null) => {
-    console.log('walletInfo ', walletInfo, key, index)
     await usewallet.setActiveWallet(walletInfo, key, index);
     const currentWallet = await usewallet.getCurrentWallet();
     setCurrent(currentWallet);
@@ -445,7 +444,6 @@ const Header = ({ loading }) => {
     history.push('/dashboard');
     window.location.reload();
   };
-
 
   const AccountFunction = (props) => {
     return (
@@ -743,7 +741,9 @@ const Header = ({ loading }) => {
                   display="block"
                   sx={{ lineHeight: '1.5' }}
                 >
-                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${isValidEthereumAddress(props.address) ? ' EVM' : ''}`}
+                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${
+                    isValidEthereumAddress(props.address) ? ' EVM' : ''
+                  }`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: '5px' }}>
                   <Typography
@@ -788,10 +788,10 @@ const Header = ({ loading }) => {
                   border: isPending
                     ? ''
                     : currentNetwork !== 'mainnet'
-                      ? `2px solid ${networkColor(currentNetwork)}`
-                      : isSandbox
-                        ? '2px solid #CCAF21'
-                        : '2px solid #282828',
+                    ? `2px solid ${networkColor(currentNetwork)}`
+                    : isSandbox
+                    ? '2px solid #CCAF21'
+                    : '2px solid #282828',
                   padding: '3px',
                   marginRight: '0px',
                   position: 'relative',
