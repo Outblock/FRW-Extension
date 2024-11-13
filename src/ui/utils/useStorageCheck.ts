@@ -1,46 +1,64 @@
-import { useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 
-import { WalletController } from '@/background/controller/wallet';
+import type { StorageInfo } from '@/background/service/networkModel';
+
+import { useWallet } from './WalletContext';
 
 interface StorageCheckResult {
-  checkStorageStatus: () => Promise<boolean>;
-  checkTransactionStorage: (amount?: number) => Promise<boolean>;
+  storageInfo: StorageInfo | null;
+  checkStorageStatus: () => Promise<{ sufficient: boolean; storageInfo: StorageInfo }>;
+  checkTransactionStorage: (amount?: number) => Promise<{ canProceed: boolean; reason?: string }>;
 }
 
 export const useStorageCheck = (): StorageCheckResult => {
-  const controller = useMemo(() => new WalletController(), []);
+  const wallet = useWallet();
 
+  const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
   // Check general storage status
-  const checkStorageStatus = useCallback(async (): Promise<boolean> => {
+  const checkStorageStatus = useCallback(async (): Promise<{
+    sufficient: boolean;
+    storageInfo: StorageInfo;
+  }> => {
     try {
-      const { isStorageSufficient: sufficient } = await controller.checkStorageStatus();
-      return sufficient;
+      const { isStorageSufficient: sufficient, storageInfo } = await wallet.checkStorageStatus();
+
+      return { sufficient, storageInfo };
     } catch (error) {
-      console.error('Storage check failed:', error);
-      return true; // Default to true to not block transactions on error
+      console.error('Error checking storage status:', error);
+      return { sufficient: false, storageInfo: { available: 0, used: 0, capacity: 0 } }; // Default to true to not block transactions on error
     }
-  }, [controller]);
+  }, [wallet]);
 
   // Check storage for a specific transaction
   const checkTransactionStorage = useCallback(
-    async (amount?: number): Promise<boolean> => {
+    async (amount?: number): Promise<{ canProceed: boolean; reason?: string }> => {
       try {
-        const { canProceed } = await controller.checkTransactionStorageStatus(amount);
-        return canProceed;
+        return await wallet.checkTransactionStorageStatus(amount);
       } catch (error) {
         console.error('Transaction storage check failed:', error);
-        return true;
+        return { canProceed: false, reason: 'unknown_error' };
       }
     },
-    [controller]
+    [wallet]
   );
 
   // Initial storage check
   useEffect(() => {
-    checkStorageStatus();
-  }, [checkStorageStatus]);
+    let mounted = true;
+    if (wallet) {
+      checkStorageStatus().then(({ storageInfo }) => {
+        if (mounted) {
+          setStorageInfo(storageInfo);
+        }
+      });
+      return () => {
+        mounted = false;
+      };
+    }
+  }, [checkStorageStatus, wallet]);
 
   return {
+    storageInfo,
     checkStorageStatus,
     checkTransactionStorage,
   };

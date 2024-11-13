@@ -1,22 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useWallet } from 'ui/utils';
-import { useHistory, useParams } from 'react-router-dom';
-import { Box, Menu, MenuItem, Typography, IconButton } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import { StyledEngineProvider } from '@mui/material/styles';
-import TokenInfoCard from './TokenInfoCard';
-import StackingCard from './StackingCard';
-import PriceCard from './PriceCard';
-import ClaimTokenCard from './ClaimTokenCard';
-import MoveFromEvm from '../EvmMove/MoveFromEvm';
-import MoveFromChild from '../EvmMove/MoveFromChild';
-import MoveFromFlow from '../EvmMove/MoveFromFlow';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { PriceProvider } from '@/background/service/networkModel';
-import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
-import tips from 'ui/FRWAssets/svg/tips.svg';
+import { Box, MenuItem, Typography, IconButton } from '@mui/material';
+import { StyledEngineProvider } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
+import type { TokenInfo } from 'flow-native-token-registry';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+
+import type { PriceProvider } from '@/background/service/networkModel';
 import { storage } from '@/background/webapi';
+import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
+import StorageUsageCard from '@/ui/FRWComponent/StorageUsageCard';
+import tips from 'ui/FRWAssets/svg/tips.svg';
+import { useWallet } from 'ui/utils';
+
+import MoveFromChild from '../EvmMove/MoveFromChild';
+import MoveFromEvm from '../EvmMove/MoveFromEvm';
+import MoveFromFlow from '../EvmMove/MoveFromFlow';
+
+import ClaimTokenCard from './ClaimTokenCard';
+import PriceCard from './PriceCard';
+import StackingCard from './StackingCard';
+import TokenInfoCard from './TokenInfoCard';
 
 const useStyles = makeStyles(() => ({
   page: {
@@ -46,7 +51,7 @@ const TokenDetail = () => {
   const [network, setNetwork] = useState('mainnet');
   const [walletName, setCurrentWallet] = useState({ name: '' });
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
-  const [tokenInfo, setTokenInfo] = useState<any>(undefined);
+  const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [providers, setProviders] = useState<PriceProvider[]>([]);
   const [childAccount, setChildAccount] = useState<any>({});
   const [childType, setChildType] = useState<string>('');
@@ -71,11 +76,10 @@ const TokenDetail = () => {
 
     // Filter out the token with the matching address
     evmCustomToken = evmCustomToken.filter(
-      (token) => token.address.toLowerCase() !== tokenInfo.address.toLowerCase()
+      (token) => token.address.toLowerCase() !== tokenInfo?.address.toLowerCase()
     );
 
     await storage.set(`${network}evmCustomToken`, evmCustomToken);
-    console.log('evmCustomToken ', evmCustomToken);
     await usewallet.clearCoinList();
     await usewallet.openapi.refreshCustomEvmGitToken(network);
     history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
@@ -89,11 +93,12 @@ const TokenDetail = () => {
           <ArrowBackIcon sx={{ color: 'icon.navi' }} />
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
-        {tokenInfo && tokenInfo.custom && (
-          <IconButton onClick={handleMenuToggle}>
-            <MoreHorizIcon sx={{ color: 'icon.navi' }} />
-          </IconButton>
-        )}
+        {tokenInfo &&
+          (tokenInfo as any).custom && ( // potential type error here. custom is not a property of TokenInfo
+            <IconButton onClick={handleMenuToggle}>
+              <MoreHorizIcon sx={{ color: 'icon.navi' }} />
+            </IconButton>
+          )}
         {menuOpen && (
           <Box
             sx={{
@@ -116,35 +121,35 @@ const TokenDetail = () => {
     );
   };
 
-  const getProvider = async () => {
+  const getProvider = useCallback(async () => {
     const result = await usewallet.openapi.getPriceProvider(token);
     const tokenResult = await usewallet.openapi.getTokenInfo(token);
     if (tokenResult) {
       setTokenInfo(tokenResult);
     }
     setProviders(result);
-    if (result.length == 0) {
+    if (result.length === 0) {
       const data = await usewallet.openapi.getTokenPrices();
       const price = await usewallet.openapi.getPricesByAddress(tokenResult!.address, data);
       if (price) {
         setPrice(price);
       }
     }
-  };
+  }, [usewallet, token]);
 
-  const loadNetwork = async () => {
+  const loadNetwork = useCallback(async () => {
     const network = await usewallet.getNetwork();
     const currentWallet = await usewallet.getCurrentWallet();
     setCurrentWallet(currentWallet);
     setNetwork(network);
-  };
+  }, [usewallet]);
 
-  const requestChildType = async () => {
+  const requestChildType = useCallback(async () => {
     const result = await usewallet.getActiveWallet();
     const childresp = await usewallet.checkUserChildAccount();
     setChildAccount(childresp);
     setChildType(result);
-  };
+  }, [usewallet]);
 
   const renderMoveComponent = () => {
     if (childType === 'evm') {
@@ -190,7 +195,7 @@ const TokenDetail = () => {
     loadNetwork();
     getProvider();
     requestChildType();
-  }, []);
+  }, [loadNetwork, getProvider, requestChildType]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -247,6 +252,7 @@ const TokenDetail = () => {
               handleCloseIconClicked={() => setAlertOpen(false)}
             />
           )}
+          {token === 'flow' && <StorageUsageCard />}
         </div>
       </div>
     </StyledEngineProvider>

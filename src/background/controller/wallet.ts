@@ -1665,23 +1665,6 @@ export class WalletController extends BaseController {
   };
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
-    const address = await this.getCurrentAddress();
-    const { canProceed, reason } = await this.storageEvaluator.canPerformTransaction(address!);
-
-    if (!canProceed) {
-      // Show storage warning notification
-      // TODO: This won't be the way we show notifications
-      await notification.create(
-        '',
-        'Insufficient Storage',
-        reason === 'insufficient_storage'
-          ? 'Your account needs more storage capacity to proceed'
-          : 'Insufficient balance for transaction',
-        chrome.runtime.getURL('./images/icon-64.png')
-      );
-      throw new Error(reason);
-    }
-
     return await userWalletService.sendTransaction(cadence, args);
   };
 
@@ -3612,24 +3595,20 @@ export class WalletController extends BaseController {
     return await newsService.clear();
   };
 
-  // Add new method to check storage
-  async checkStorageStatus(): Promise<{
+  // Check the storage status
+  checkStorageStatus = async (): Promise<{
     isStorageSufficient: boolean;
     storageInfo: StorageInfo;
-  }> {
+  }> => {
     const address = await this.getCurrentAddress();
     const { isStorageSufficient, storageInfo } = await this.storageEvaluator.evaluateStorage(
       address!
     );
     return {
       isStorageSufficient,
-      storageInfo: {
-        available: storageInfo.storageCapacity - storageInfo.storageUsed,
-        used: storageInfo.storageUsed,
-        capacity: storageInfo.storageCapacity,
-      },
+      storageInfo,
     };
-  }
+  };
 
   // Add new method to check storage
   checkTransactionStorageStatus = async (
