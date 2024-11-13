@@ -1,6 +1,6 @@
 {
   "name": "FlowReferenceWallet",
-  "version": "2.5.20",
+  "version": "2.5.21",
   "description": "Digital wallet created for everyone.",
   "scripts": {
     "prepare:dev": "node ./build/prepareManifest.js dev",
