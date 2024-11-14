@@ -37,20 +37,27 @@ export const formatLargeNumber = (num) => {
     num = num.slice(1);
   }
   if (num >= 1e12) {
-    return (num / 1e12).toFixed(1) + 'T'; // Trillions
+    return (num / 1e12).toFixed(3) + 'T'; // Trillions
   } else if (num >= 1e9) {
-    return (num / 1e9).toFixed(1) + 'B'; // Billions
+    return (num / 1e9).toFixed(3) + 'B'; // Billions
   } else if (num >= 1e6) {
-    return (num / 1e6).toFixed(1) + 'M'; // Millions
+    return (num / 1e6).toFixed(3) + 'M'; // Millions
   } else {
     return num.toString(); // Less than 1M, return as-is
   }
 };
 
 export const addDotSeparators = (num) => {
+  // replace with http://numeraljs.com/ if more requirements
   const [integerPart, decimalPart] = parseFloat(num).toFixed(8).split('.');
+  const newIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  const newintegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  let result = `${newIntegerPart}.${decimalPart}`;
 
-  return `${newintegerPart}.${decimalPart}`;
+  // Check if the total length of the result exceeds 13 characters
+  if (result.length > 13) {
+    result = result.slice(0, 13) + '...';
+  }
+
+  return result;
 };
