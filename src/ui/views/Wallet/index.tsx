@@ -168,7 +168,9 @@ const WalletTab = ({ network }) => {
       console.error(`Error fetching price for token:`, error);
       if (retryCount < maxRetries) {
         console.log(
-          `Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
+          `Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${
+            retryCount + 1
+          } of ${maxRetries})`
         );
         setTimeout(() => {
           refreshWithRetry(expiry_time, retryCount + 1);
@@ -179,7 +181,9 @@ const WalletTab = ({ network }) => {
           .then((res) => {
             if (Array.isArray(res) && res.length === 0 && retryCount < maxRetries) {
               console.log(
-                `No data found in storage, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
+                `No data found in storage, retrying in 5 seconds... (Attempt ${
+                  retryCount + 1
+                } of ${maxRetries})`
               );
               setTimeout(() => {
                 refreshWithRetry(expiry_time, retryCount + 1);
