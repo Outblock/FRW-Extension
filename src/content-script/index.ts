@@ -80,6 +80,7 @@ window.addEventListener('message', function (event) {
 // })
 
 const extMessageHandler = (msg, sender) => {
+  console.log(msg, 'msg ===')
   if (msg.type === 'FCL:VIEW:READY') {
     window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
   }

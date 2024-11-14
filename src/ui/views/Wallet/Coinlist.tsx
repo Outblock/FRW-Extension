@@ -25,7 +25,6 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   useEffect(() => {
     setLoading(data.length === 0);
-    console.log('data ', data);
     if (data.length) {
       setCoinList(data);
       setLoading(false);

@@ -3365,6 +3365,16 @@ export class WalletController extends BaseController {
     }
   };
 
+  getProposerAddressAndKeyId = async () => {
+    try {
+      const proposer = await await openapiService.getProposerInfo()
+      return proposer
+    } catch {
+      const network = await this.getNetwork();
+      return defaultConfig.proposer[network];
+    }
+  };
+
   allowLilicoPay = async (): Promise<boolean> => {
     const isFreeGasFeeKillSwitch = await storage.get('freeGas');
     const isFreeGasFeeEnabled = await storage.get('lilicoPayer');

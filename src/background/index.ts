@@ -293,17 +293,21 @@ const handlePreAuthz = async (id) => {
   // setApproval(true);
   // const wallet = await
   const payer = await walletController.getPayerAddressAndKeyId();
+  const proposer = await walletController.getProposerAddressAndKeyId();
+
   const address = await userWalletService.getCurrentAddress();
   const network = await userWalletService.getNetwork();
 
   const ki = await storage.get('keyIndex');
   const keyIndex = Number(ki);
-  const services = preAuthzServiceDefinition(
+  const services = await preAuthzServiceDefinition(
     address,
     keyIndex,
     payer.address,
     payer.keyId,
-    network
+    network,
+    proposer.address,
+    proposer.keyIndex
   );
 
   // console.log('handlePreAuthz ->', services, opener, id)

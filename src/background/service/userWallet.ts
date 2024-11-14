@@ -7,18 +7,11 @@ import {
 } from './networkModel';
 import * as fcl from '@onflow/fcl';
 import * as secp from '@noble/secp256k1';
-import {
-  keyringService,
-  openapiService,
-  proxyService,
-} from 'background/service';
+import { keyringService, openapiService, proxyService } from 'background/service';
 import wallet from 'background/controller/wallet';
 import { getApp } from 'firebase/app';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
-import {
-  findAddressWithSeed,
-  findAddressWithPK,
-} from '@/ui/utils/modules/findAddressWithPK';
+import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
 import { withPrefix } from '@/ui/utils/address';
 import { getAuth, signInAnonymously } from '@firebase/auth';
 import { storage } from '../webapi';
@@ -52,8 +45,7 @@ class UserWallet {
           name: '',
           icon: '',
           address: '',
-          chain_id:
-            process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
           id: 1,
           coins: ['flow'],
         },
@@ -61,8 +53,7 @@ class UserWallet {
           name: '',
           icon: '',
           address: '',
-          chain_id:
-            process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
           id: 1,
           coins: ['flow'],
         },
@@ -196,12 +187,7 @@ class UserWallet {
     return this.store.monitor;
   };
 
-  switchWallet = (
-    walletId: number,
-    blockId: string,
-    sortKey: string,
-    network: string
-  ) => {
+  switchWallet = (walletId: number, blockId: string, sortKey: string, network: string) => {
     const wallets = this.store.wallets[network];
     let chain = {
       name: '',
@@ -282,13 +268,7 @@ class UserWallet {
     // }
     // const account = loggedInAccounts[accountIndex];
     const ktype =
-<<<<<<< HEAD
-      typeof account.signAlgo === 'string'
-        ? getSignAlgo(account.signAlgo)
-        : account.signAlgo;
-=======
       typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
->>>>>>> origin/dev
     const keys = ktype === 1 ? keys1 : kesy2;
     let result = [
       {
@@ -313,17 +293,8 @@ class UserWallet {
     }
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
-<<<<<<< HEAD
-    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
-      Buffer.from('FLOW-V0.0-user').toString('hex'),
-      32
-    );
-    const message =
-      USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
-=======
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
->>>>>>> origin/dev
 
     // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
     const hashAlgo = result[0].hashAlgo;
@@ -331,10 +302,8 @@ class UserWallet {
     const publicKey = result[0].pubK;
     const accountKey = {
       public_key: publicKey,
-      hash_algo:
-        typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo:
-        typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
+      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
+      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
       weight: result[0].weight,
     };
     const deviceInfo = await this.getDeviceInfo();
@@ -345,16 +314,7 @@ class UserWallet {
       hashAlgo,
       keys.pk
     );
-<<<<<<< HEAD
-    return wallet.openapi.loginV3(
-      accountKey,
-      deviceInfo,
-      realSignature,
-      replaceUser
-    );
-=======
     return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
->>>>>>> origin/dev
   };
 
   reSign = async () => {
@@ -462,11 +422,7 @@ class UserWallet {
     };
   };
 
-  signInWithMnemonic = async (
-    mnemonic: string,
-    replaceUser = true,
-    isTemp = true
-  ) => {
+  signInWithMnemonic = async (mnemonic: string, replaceUser = true, isTemp = true) => {
     const result = await findAddressWithSeed(mnemonic, '', isTemp);
     if (!result) {
       throw new Error('No Address Found');
@@ -481,17 +437,8 @@ class UserWallet {
 
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
-<<<<<<< HEAD
-    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
-      Buffer.from('FLOW-V0.0-user').toString('hex'),
-      32
-    );
-    const message =
-      USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
-=======
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
->>>>>>> origin/dev
 
     const privateKey = result[0].pk;
     const hashAlgo = result[0].hashAlgo;
@@ -511,16 +458,7 @@ class UserWallet {
       hashAlgo,
       privateKey
     );
-<<<<<<< HEAD
-    return wallet.openapi.loginV3(
-      accountKey,
-      deviceInfo,
-      realSignature,
-      replaceUser
-    );
-=======
     return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
->>>>>>> origin/dev
   };
 
   sigInWithPk = async (privateKey: string, replaceUser = true) => {
@@ -538,17 +476,8 @@ class UserWallet {
 
     const rightPaddedHexBuffer = (value, pad) =>
       Buffer.from(value.padEnd(pad * 2, 0), 'hex').toString('hex');
-<<<<<<< HEAD
-    const USER_DOMAIN_TAG = rightPaddedHexBuffer(
-      Buffer.from('FLOW-V0.0-user').toString('hex'),
-      32
-    );
-    const message =
-      USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
-=======
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
     const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
->>>>>>> origin/dev
 
     // const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
     const hashAlgo = result[0].hashAlgo;
@@ -568,24 +497,10 @@ class UserWallet {
       hashAlgo,
       privateKey
     );
-<<<<<<< HEAD
-    return wallet.openapi.loginV3(
-      accountKey,
-      deviceInfo,
-      realSignature,
-      replaceUser
-    );
-=======
     return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
->>>>>>> origin/dev
   };
 
-  signInv3 = async (
-    mnemonic: string,
-    accountKey: any,
-    deviceInfo: any,
-    replaceUser = true
-  ) => {
+  signInv3 = async (mnemonic: string, accountKey: any, deviceInfo: any, replaceUser = true) => {
     const app = getApp(process.env.NODE_ENV!);
     const auth = getAuth(app);
     const idToken = await getAuth(app).currentUser?.getIdToken();
@@ -599,8 +514,7 @@ class UserWallet {
     const USER_DOMAIN_TAG = rightPaddedHexBuffer(Buffer.from('FLOW-V0.0-user').toString('hex'), 32);
 
     const hex = secp.utils.bytesToHex;
-    const message =
-      USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
+    const message = USER_DOMAIN_TAG + Buffer.from(idToken, 'utf8').toString('hex');
 
     const messageHash = await secp.utils.sha256(Buffer.from(message, 'hex'));
 
@@ -617,16 +531,7 @@ class UserWallet {
     if (accountKey.public_key === publicKey) {
       const signature = await secp.sign(messageHash, privateKey);
       const realSignature = secp.Signature.fromHex(signature).toCompactHex();
-<<<<<<< HEAD
-      return wallet.openapi.loginV3(
-        accountKey,
-        deviceInfo,
-        realSignature,
-        replaceUser
-      );
-=======
       return wallet.openapi.loginV3(accountKey, deviceInfo, realSignature, replaceUser);
->>>>>>> origin/dev
     } else {
       return false;
     }

@@ -447,14 +447,12 @@ class OpenApiService {
 
     if (user !== null) {
       const idToken = await user.getIdToken();
-      console.log(idToken, 'idToken==new');
       init.headers['Authorization'] = 'Bearer ' + idToken;
     } else {
       // If no user, then sign in as anonymous first
       await signInAnonymously(auth);
       const anonymousUser = await getAuth(app).currentUser;
       const idToken = await anonymousUser?.getIdToken();
-      console.log(idToken, 'idToken==');
       init.headers['Authorization'] = 'Bearer ' + idToken;
     }
 
@@ -916,11 +914,26 @@ class OpenApiService {
   };
 
   getProposer = async () => {
-    const config = this.store.config.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest('GET', '/getProposer', {}, {}, baseURL);
     // (config.method, config.path, {}, { transaction, message: messages });
+    return data;
+  };
+
+  signAsProposer = async (message: string) => {
+    const config = this.store.config.sign_payer;
+    const baseURL = getFirbaseFunctionUrl();
+    // 'http://localhost:5001/lilico-dev/us-central1'
+    const data = await this.sendRequest('POST', '/signAsProposer', {}, { msg: message }, baseURL);
+    // (config.method, config.path, {}, { transaction, message: messages });
+    return data;
+  };
+
+  getProposerInfo = async () => {
+    const baseURL = getFirbaseFunctionUrl();
+    // 'http://localhost:5001/lilico-dev/us-central1'
+    const data = await this.sendRequest('GET', '/getProposerInfo', {}, {}, baseURL);
     return data;
   };
 
