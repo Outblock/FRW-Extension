@@ -37,11 +37,11 @@ export const formatLargeNumber = (num) => {
     num = num.slice(1);
   }
   if (num >= 1e12) {
-    return (num / 1e12).toFixed(1) + 'T'; // Trillions
+    return (num / 1e12).toFixed(3) + 'T'; // Trillions
   } else if (num >= 1e9) {
-    return (num / 1e9).toFixed(1) + 'B'; // Billions
+    return (num / 1e9).toFixed(3) + 'B'; // Billions
   } else if (num >= 1e6) {
-    return (num / 1e6).toFixed(1) + 'M'; // Millions
+    return (num / 1e6).toFixed(3) + 'M'; // Millions
   } else {
     return num.toString(); // Less than 1M, return as-is
   }
