@@ -1,3 +1,6 @@
+import { userWalletService } from '../service';
+import { StorageEvaluator } from '../service/storage-evaluator';
+
 import type { NewsConditionType } from './networkModel';
 import openapi from './openapi';
 
@@ -16,6 +19,12 @@ class ConditionsEvaluator {
       case 'canUpgrade':
         const latestVersion = await openapi.getLatestVersion();
         return this.compareVersions(CURRENT_VERSION, latestVersion) < 0;
+
+      case 'insufficientStorage': {
+        const currentAddress = userWalletService.getCurrentAddress();
+        if (!currentAddress) return false;
+        return this.evaluateStorageCondition(currentAddress);
+      }
 
       case 'unknown':
       default:
@@ -50,6 +59,12 @@ class ConditionsEvaluator {
       }
     }
     return true;
+  }
+
+  async evaluateStorageCondition(address: string): Promise<boolean> {
+    const storageEvaluator = new StorageEvaluator();
+    const { isStorageSufficient } = await storageEvaluator.evaluateStorage(address);
+    return !isStorageSufficient;
   }
 }
 
