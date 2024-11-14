@@ -41,7 +41,7 @@ export default [
         node: true,
       },
       react: {
-        version: '17',
+        version: 'detect', // Change from '17' to 'detect'
       },
     },
     rules: {

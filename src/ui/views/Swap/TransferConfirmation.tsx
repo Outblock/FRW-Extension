@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography, Drawer, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
-import { LLSwap } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import eventBus from '@/eventBus';
-import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
+import { LLSpinner, LLSwap } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
 import Increment from '../../FRWAssets/svg/increment.svg';
 interface TransferConfirmationProps {
@@ -25,9 +23,11 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [, setErrorCode] = useState<number | null>(null);
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
-  const [count, setCount] = useState(0);
+  const count = 0;
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -38,33 +38,18 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     '#41CC5D',
   ];
 
-  // const startCount = () => {
-  //   let count = 0;
-  //   let intervalId;
-  //   if (props.data.contact.address){
-  //     intervalId = setInterval(function()
-  //     {
-  //       count++;
-  //       if (count === 7){count = 0}
-  //       setCount(count);
-  //     },500);
-  //   } else if (!props.data.contact.address) {
-  //     clearInterval(intervalId);
-  //   }
-  // }
-
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [wallet]);
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
-  const execSwap = async () => {
+  const execSwap = useCallback(() => {
     if (!props.data.estimateInfo) {
       return;
     }
@@ -91,32 +76,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
     const estimateIn = resJson.tokenInAmount;
     const amountInMax = estimateIn / (1.0 - slippageRate);
-
-    console.log('props.data.swapTypes -->', props.data.swapTypes);
-
-    console.log(
-      'swapSend 1 -->',
-      tokenKeyFlatSplitPath,
-      amountInMax,
-      storageIn.vault.split('/').pop(),
-      amountOutSplit,
-      storageOut.vault.split('/').pop(),
-      storageOut.balance.split('/').pop(),
-      storageOut.receiver.split('/').pop(),
-      deadline
-    );
-
-    console.log(
-      'swapSend 0 -->',
-      tokenKeyFlatSplitPath,
-      amountInSplit,
-      storageIn.vault.split('/').pop(),
-      amountOutMin,
-      storageOut.vault.split('/').pop(),
-      storageOut.balance.split('/').pop(),
-      storageOut.receiver.split('/').pop(),
-      deadline
-    );
 
     if (props.data.swapTypes) {
       wallet
@@ -177,24 +136,32 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           setFailed(true);
         });
     }
-  };
+  }, [history, props, wallet]);
 
-  const transactionDoneHanlder = (request) => {
-    if (request.msg === 'transactionDone') {
-      updateOccupied();
-    }
-    return true;
-  };
+  const transactionDoneHandler = useCallback(
+    (request) => {
+      if (request.msg === 'transactionDone') {
+        updateOccupied();
+      }
+      // Handle error
+      if (request.msg === 'transactionError') {
+        setFailed(true);
+        setErrorMessage(request.errorMessage);
+        setErrorCode(request.errorCode);
+      }
+      return true;
+    },
+    [updateOccupied]
+  );
 
   useEffect(() => {
-    // startCount();
     getPending();
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, []);
+  }, [getPending, transactionDoneHandler]);
 
   const renderContent = () => (
     <Box
@@ -265,7 +232,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         >
           {colorArray.map((color, index) => (
             <Box sx={{ mx: '5px' }} key={index}>
-              {count === index ? (
+              {count === index ? ( // Note: count is never set, so this is always false unless index is 0
                 <CardMedia sx={{ width: '8px', height: '12px' }} image={IconNext} />
               ) : (
                 <Box
@@ -397,7 +364,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           </Typography>
         </Box>
         {/* <Box sx={{display: 'flex', justifyContent:'space-between'}}>
-          <Typography variant="body1"           
+          <Typography variant="body1"
             sx={{
               alignSelf: 'start',
               fontSize: '12px',
@@ -405,7 +372,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
             }}>
                 Estimated Fees
           </Typography>
-          <Typography variant="body1"           
+          <Typography variant="body1"
             sx={{
               alignSelf: 'end',
               fontSize: '12px',

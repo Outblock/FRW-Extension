@@ -1,15 +1,13 @@
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet, isEmoji } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import eventBus from '@/eventBus';
-import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
+import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { useWallet, isEmoji } from 'ui/utils';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -24,6 +22,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [, setErrorCode] = useState<number | null>(null);
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
@@ -204,6 +204,12 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const transactionDoneHanlder = (request) => {
     if (request.msg === 'transactionDone') {
       updateOccupied();
+    }
+    // Handle error
+    if (request.msg === 'transactionError') {
+      setFailed(true);
+      setErrorMessage(request.errorMessage);
+      setErrorCode(request.errorCode);
     }
     return true;
   };

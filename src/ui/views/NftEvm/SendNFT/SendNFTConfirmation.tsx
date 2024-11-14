@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { EVM_ENDPOINT } from 'consts';
-import { useWallet } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
-import IconFlow from '../../../../components/iconfont/IconFlow';
-import IconNext from 'ui/FRWAssets/svg/next.svg';
-import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Presets } from 'react-component-transition';
-import erc721 from 'background/utils/erc721.abi.json';
+import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
+
+import { MatchMediaType } from '@/ui/utils/url';
+import erc721 from 'background/utils/erc721.abi.json';
+import { EVM_ENDPOINT } from 'consts';
+import IconNext from 'ui/FRWAssets/svg/next.svg';
+import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import IconFlow from '../../../../components/iconfont/IconFlow';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -28,6 +28,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [, setErrorCode] = useState<number | null>(null);
   const [tid, setTid] = useState('');
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
@@ -41,10 +43,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     '#41CC5D',
   ];
   const [erc721Contract, setErcContract] = useState<any>(null);
-  const [web3, setWeb3] = useState<any>(null);
 
-  const startCount = () => {
-    console.log('props.data ', props.data);
+  const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
     if (props.data.contact.address) {
@@ -58,18 +58,18 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     } else if (!props.data.contact.address) {
       clearInterval(intervalId);
     }
-  };
+  }, [props?.data?.contact]);
 
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [wallet]);
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
   const replaceIPFS = (url: string | null): string => {
     if (!url) {
@@ -94,10 +94,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const isEvm = activeChild === 'evm';
     const isEvmAddress = address.length > 20;
     if (isEvm && isEvmAddress) {
-      console.log('send evm to evm');
       await evmToEvm();
     } else if (isEvm && !isEvmAddress) {
-      console.log('send evm to flow');
       await evmToFlow();
     }
   };
@@ -134,7 +132,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         history.push('/dashboard?activity=1');
       })
       .catch((err) => {
-        console.log('err ', err);
+        console.error('err ', err);
         setSending(false);
         setFailed(true);
       });
@@ -161,44 +159,52 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         history.push('/dashboard?activity=1');
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         setSending(false);
         setFailed(true);
       });
   };
 
-  const transactionDoneHanlder = (request) => {
-    if (request.msg === 'transactionDone') {
-      updateOccupied();
-    }
-    return true;
-  };
+  const transactionDoneHandler = useCallback(
+    (request) => {
+      if (request.msg === 'transactionDone') {
+        updateOccupied();
+      }
+      // Handle error
+      if (request.msg === 'transactionError') {
+        setFailed(true);
+        setErrorMessage(request.errorMessage);
+        setErrorCode(request.errorCode);
+      }
+      return true;
+    },
+    [updateOccupied]
+  );
 
   useEffect(() => {
     startCount();
     getPending();
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, [props.data.contact]);
+  }, [getPending, props.data.contact, startCount, transactionDoneHandler]);
 
-  const initializeContract = async () => {
+  const initializeContract = useCallback(async () => {
     const network = await wallet.getNetwork();
     const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
     const web3Instance = new Web3(provider);
-    setWeb3(web3Instance);
     const contractInstance = new web3Instance.eth.Contract(
       erc721,
       props.data.nft.contractEvmAddress
     );
     setErcContract(contractInstance);
-  };
+  }, [props?.data?.nft?.contractEvmAddress, wallet]);
 
   useEffect(() => {
     initializeContract();
-  }, []);
+  }, [initializeContract]);
 
   const renderContent = () => {
     const getUri = () => {
@@ -340,7 +346,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           <Stack direction="row" spacing={1}>
             {props.data.media &&
             props.data.media?.type === MatchMediaType.IMAGE &&
-            props.data.media?.videoURL != null
+            !!props.data.media?.videoURL
               ? getMedia()
               : getUri()}
           </Stack>

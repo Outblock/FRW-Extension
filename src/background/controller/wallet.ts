@@ -49,7 +49,7 @@ import { pk2PubKey, seed2PubKey, formPubKey } from '../../ui/utils/modules/passk
 import { fclTestnetConfig, fclMainnetConfig } from '../fclConfig';
 import type { CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
-import type { NFTData, NFTModel, StorageInfo } from '../service/networkModel';
+import type { NFTData, NFTModel, StorageInfo, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
 import { StorageEvaluator } from '../service/storage-evaluator';
@@ -1572,7 +1572,7 @@ export class WalletController extends BaseController {
     return filteredData;
   };
 
-  getUserWallets = async () => {
+  getUserWallets = async (): Promise<WalletResponse[]> => {
     const network = await this.getNetwork();
     const wallets = await userWalletService.getUserWallets(network);
     if (!wallets[0]) {
@@ -3057,7 +3057,8 @@ export class WalletController extends BaseController {
       // Tell the UI that there was an error
       chrome.runtime.sendMessage({
         msg: 'transactionError',
-        error: err,
+        errorMessage: err.message,
+        errorCode: err.code,
       });
     } finally {
       // Remove the pending transaction from the UI
