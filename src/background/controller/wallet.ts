@@ -2091,8 +2091,24 @@ export class WalletController extends BaseController {
   };
 
   getFlowBalance = async (address) => {
-    const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
-    return account.balance;
+    const cacheKey = `checkFlowBalance${address}`;
+    let balance = await storage.getExpiry(cacheKey);
+    const ttl = 1 * 60 * 1000;
+    if (!balance) {
+      try {
+        const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
+        balance = account.balance;
+        if (balance) {
+          // Store the result in the cache with an expiry
+          await storage.setExpiry(cacheKey, balance, ttl);
+        }
+      } catch (error) {
+        console.error('Error occurred:', error);
+        return {}; // Return an empty object in case of an error
+      }
+    }
+
+    return balance;
   };
 
   getNonce = async (hexEncodedAddress: string): Promise<string> => {
