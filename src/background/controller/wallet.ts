@@ -3037,7 +3037,6 @@ export class WalletController extends BaseController {
     const address = (await this.getCurrentAddress()) || '0x';
     const network = await this.getNetwork();
     try {
-      // @ts-ignore
       chrome.storage.session.set({
         transactionPending: { txId, network, date: new Date() },
       });
@@ -3047,29 +3046,38 @@ export class WalletController extends BaseController {
         network: network,
       });
       transactionService.setPending(txId, address, network, icon, title);
-      await fcl.tx(txId).onceSealed();
 
-      // @ts-ignore
+      // Listen to the transaction until it's sealed.
+      // This will throw an error if there is an error with the transaction
+      await fcl.tx(txId).onceSealed();
+    } catch (err) {
+      // An error has occurred while listening to the transaction
+      console.error('listenTransaction error ', err);
+
+      // Tell the UI that there was an error
+      chrome.runtime.sendMessage({
+        msg: 'transactionError',
+        error: err,
+      });
+    } finally {
+      // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
-      const baseURL = this.getFlowscanUrl();
       transactionService.removePending(txId, address, network);
+
+      // Refresh the transaction list
       this.refreshTransaction(address, 15, 0);
+
+      // Tell the UI that the transaction is done
       eventBus.emit('transactionDone');
       chrome.runtime.sendMessage({
         msg: 'transactionDone',
       });
+
+      // Send a notification to the user
       if (sendNotification) {
+        const baseURL = this.getFlowscanUrl();
         notification.create(`${baseURL}/transaction/${txId}`, title, body, icon);
       }
-    } catch (err) {
-      console.log('listen erro ', err);
-
-      // @ts-ignore
-      await chrome.storage.session.remove('transactionPending');
-      transactionService.removePending(txId, address, network);
-      chrome.runtime.sendMessage({
-        msg: 'transactionDone',
-      });
     }
   };
 
