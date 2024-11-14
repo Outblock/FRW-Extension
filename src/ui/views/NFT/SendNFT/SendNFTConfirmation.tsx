@@ -203,8 +203,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         props.data.nft.collectionContractName,
         props.data.nft.id,
         props.data.contract.evmAddress,
-        encodedData,
-        gas
+        encodedData
       )
       .then(async (txID) => {
         wallet.listenTransaction(
