@@ -1845,10 +1845,9 @@ export class WalletController extends BaseController {
   bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
     const amountStr = amount.toString();
 
-    const amountBN = new BN(amountStr.replace('.', ''));
+    let amountBN = new BN(amountStr);
 
-    const decimalsCount = amountStr.split('.')[1]?.length || 0;
-    const scaleFactor = new BN(10).pow(tokenResult.decimals - decimalsCount);
+    const scaleFactor = new BN(10).pow(new BN(tokenResult.decimals));
 
     // Multiply amountBN by scaleFactor
     const integerAmount = amountBN.multipliedBy(scaleFactor);
