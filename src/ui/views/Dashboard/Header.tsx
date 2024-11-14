@@ -113,11 +113,11 @@ const Header = ({ loading }) => {
 
   const [initialStart, setInitial] = useState(true);
 
+  const [switchLoading, setSwitchLoading] = useState(false);
+
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
   const { unreadCount } = useNews();
-
-  console.log('unreadCount ->', unreadCount);
 
   const toggleDrawer = () => {
     setDrawer(!drawer);
@@ -164,6 +164,14 @@ const Header = ({ loading }) => {
   const [walletList, setWalletList] = useState([]);
 
   const fetchUserWallet = async () => {
+    freshUserWallet();
+    freshUserInfo();
+    const childresp: ChildAccount = await usewallet.checkUserChildAccount();
+    setChildAccount(childresp);
+    usewallet.setChildWallet(childresp);
+  };
+
+  const fetchUserInfo = async () => {
     const userInfo = await usewallet.getUserInfo(false);
     await setUserInfo(userInfo);
     if (userInfo.private == 1) {
@@ -171,12 +179,6 @@ const Header = ({ loading }) => {
     } else {
       setModeAnonymous(true);
     }
-
-    freshUserWallet();
-    freshUserInfo();
-    const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    setChildAccount(childresp);
-    usewallet.setChildWallet(childresp);
   };
 
   const freshUserWallet = async () => {
@@ -194,8 +196,8 @@ const Header = ({ loading }) => {
   const freshUserInfo = async () => {
     const currentWallet = await usewallet.getCurrentWallet();
     const isChild = await usewallet.getActiveWallet();
-    const mainAddress = await usewallet.getMainAddress();
 
+    const mainAddress = await usewallet.getMainAddress();
     if (isChild === 'evm') {
       const res = await usewallet.queryEvmAddress(mainAddress!);
       const evmWallet = await usewallet.getEvmWallet();
@@ -204,12 +206,12 @@ const Header = ({ loading }) => {
       await setCurrent(evmWallet);
       setMainLoading(false);
     } else {
-      await setCurrent(currentWallet);
+      const mainwallet = await usewallet.returnMainWallet();
+      await setCurrent(mainwallet);
       setMainLoading(false);
     }
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
-
     if (mainAddress) {
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
@@ -247,6 +249,7 @@ const Header = ({ loading }) => {
     // usewallet.checkUserDomain(wallet.username);
   };
   const switchAccount = async (account) => {
+    setSwitchLoading(true);
     const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
     await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
     if (account.id) {
@@ -255,10 +258,11 @@ const Header = ({ loading }) => {
       await storage.set('currentId', '');
     }
     await usewallet.lockWallet();
-    history.push('/switchunlock');
     await usewallet.clearWallet();
     await usewallet.refreshAll();
     await usewallet.switchNetwork(switchingTo);
+    setSwitchLoading(false);
+    history.push('/switchunlock');
   };
 
   const loadNetwork = async () => {
@@ -318,8 +322,7 @@ const Header = ({ loading }) => {
 
   const setWallets = async (walletInfo, key) => {
     await usewallet.setActiveWallet(walletInfo, key);
-    const currentWallet = await usewallet.getCurrentWallet();
-    setCurrent(currentWallet);
+
     setMainLoading(false);
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
@@ -397,6 +400,7 @@ const Header = ({ loading }) => {
 
     const addressDone = () => {
       fetchUserWallet();
+      fetchUserInfo();
     };
 
     const changeEmoji = () => {
@@ -757,7 +761,6 @@ const Header = ({ loading }) => {
       </Drawer>
     );
   };
-  console.log('showNewsDrawer', showNewsDrawer);
   const NewsDrawer = () => {
     return (
       <Drawer
@@ -940,6 +943,7 @@ const Header = ({ loading }) => {
               networkColor={networkColor}
               evmLoading={evmLoading}
               modeOn={modeOn}
+              mainAddressLoading={mainAddressLoading}
             />
           )}
           {appBarLabel(current)}
@@ -958,6 +962,7 @@ const Header = ({ loading }) => {
               current={current!}
               switchAccount={switchAccount}
               loggedInAccounts={loggedInAccounts}
+              switchLoading={switchLoading}
             />
           )}
         </Toolbar>

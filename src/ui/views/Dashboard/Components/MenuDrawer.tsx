@@ -11,6 +11,7 @@ import {
   ListItemText,
   Divider,
   CardMedia,
+  Skeleton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useWallet } from 'ui/utils';
@@ -60,6 +61,7 @@ interface MenuDrawerProps {
   networkColor: any;
   evmLoading: boolean;
   modeOn: boolean;
+  mainAddressLoading: boolean;
 }
 
 const MenuDrawer = (props: MenuDrawerProps) => {
@@ -171,10 +173,19 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 </Box>
               </ListItemIcon>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <ListItemText
-                  sx={{ fontSize: '14px', fontWeight: '700' }}
-                  primary={props.userInfo!.nickname}
-                />
+                {!props.mainAddressLoading && props && props.walletList.length ? (
+                  <ListItemText
+                    sx={{ fontSize: '14px', fontWeight: '700' }}
+                    primary={props.userInfo!.nickname}
+                  />
+                ) : (
+                  <Skeleton
+                    variant="rectangular"
+                    width={78}
+                    height={33}
+                    sx={{ borderRadius: '8px' }}
+                  />
+                )}
               </Box>
             </Box>
           )}
