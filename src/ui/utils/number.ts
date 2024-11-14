@@ -48,6 +48,7 @@ export const formatLargeNumber = (num) => {
 };
 
 export const addDotSeparators = (num) => {
+  // replace with http://numeraljs.com/ if more requirements
   const [integerPart, decimalPart] = parseFloat(num).toFixed(8).split('.');
   const newIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
