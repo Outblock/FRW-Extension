@@ -49,8 +49,14 @@ export const formatLargeNumber = (num) => {
 
 export const addDotSeparators = (num) => {
   const [integerPart, decimalPart] = parseFloat(num).toFixed(8).split('.');
+  const newIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  const newintegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  let result = `${newIntegerPart}.${decimalPart}`;
 
-  return `${newintegerPart}.${decimalPart}`;
+  // Check if the total length of the result exceeds 13 characters
+  if (result.length > 13) {
+    result = result.slice(0, 13) + '...';
+  }
+
+  return result;
 };
