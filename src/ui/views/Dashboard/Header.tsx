@@ -346,6 +346,7 @@ const Header = ({ loading }) => {
 
     // Navigate if needed
     history.push('/dashboard');
+    window.location.reload();
   };
 
   const transactionHandler = (request) => {
