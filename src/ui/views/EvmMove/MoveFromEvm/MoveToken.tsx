@@ -125,8 +125,7 @@ const MoveToken = ({
         setAmount(coinInfo.balance - minAmount);
       } else {
         // const minimumValue = minAmount > 0.001 ? minAmount : 0.001;
-        const newAmount = coinInfo.balance - 0;
-        setAmount(newAmount);
+        setAmount(coinInfo.balance);
       }
     }
   };

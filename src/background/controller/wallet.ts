@@ -1297,12 +1297,14 @@ export class WalletController extends BaseController {
         const balanceInfo = allBalanceMap.find((balance) => {
           return balance.address.toLowerCase() === token.address.toLowerCase();
         });
-        let balance = balanceInfo
-          ? Number(balanceInfo.balance) / Math.pow(10, balanceInfo.decimals)
-          : 0;
-        // If the token unit is 'flow', set the balance to flowBalance
+        const balanceBN = balanceInfo
+          ? new BN(balanceInfo.balance).div(new BN(10).pow(new BN(balanceInfo.decimals)))
+          : new BN(0);
+
+        let balance = balanceBN.toString();
         if (token.symbol.toLowerCase() === 'flow') {
-          balance = flowBalance / 1e18;
+          const flowBalanceBN = new BN(flowBalance).div(new BN(10).pow(new BN(18)));
+          balance = flowBalanceBN.toString();
         }
 
         return {
@@ -1382,7 +1384,7 @@ export class WalletController extends BaseController {
         coin: token.name,
         unit: token.symbol,
         icon: token['logoURI'] || placeholder,
-        balance: parseFloat(token.balance),
+        balance: token.balance,
         price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
         change24h:
           allPrice[index] === null || !allPrice[index].price || !allPrice[index].price.change
@@ -1493,7 +1495,7 @@ export class WalletController extends BaseController {
     return NFTCollection;
   };
 
-  private currencyBalance = (balance, price) => {
+  private currencyBalance = (balance: string, price) => {
     const bnBalance = new BN(balance);
     const currencyBalance = bnBalance.times(new BN(price));
     return currencyBalance.toNumber();
@@ -1759,10 +1761,14 @@ export class WalletController extends BaseController {
     await this.getNetwork();
     const amountStr = amount.toString();
 
-    const amountBN = new BN(amountStr.replace('.', ''));
+    const amountBN = new BN(amountStr);
 
-    const decimalsCount = amountStr.split('.')[1]?.length || 0;
-    const scaleFactor = new BN(10).pow(tokenResult!.decimals - decimalsCount);
+    const decimals = tokenResult.decimals ?? 18;
+    if (decimals < 0 || decimals > 77) {
+      // 77 is BN.js max safe decimals
+      throw new Error('Invalid decimals');
+    }
+    const scaleFactor = new BN(10).pow(new BN(decimals));
 
     // Multiply amountBN by scaleFactor
     const integerAmount = amountBN.multipliedBy(scaleFactor);
@@ -1845,17 +1851,19 @@ export class WalletController extends BaseController {
   bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
     const amountStr = amount.toString();
 
-    const amountBN = new BN(amountStr.replace('.', ''));
-
-    const decimalsCount = amountStr.split('.')[1]?.length || 0;
-    const scaleFactor = new BN(10).pow(tokenResult.decimals - decimalsCount);
+    const amountBN = new BN(amountStr);
+    const decimals = tokenResult.decimals ?? 18;
+    if (decimals < 0 || decimals > 77) {
+      // 77 is BN.js max safe decimals
+      throw new Error('Invalid decimals');
+    }
+    const scaleFactor = new BN(10).pow(new BN(decimals));
 
     // Multiply amountBN by scaleFactor
     const integerAmount = amountBN.multipliedBy(scaleFactor);
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
 
     const script = await getScripts('bridge', 'bridgeTokensFromEvmV2');
-
     return await userWalletService.sendTransaction(script, [
       fcl.arg(flowIdentifier, t.String),
       fcl.arg(integerAmountStr, t.UInt256),
