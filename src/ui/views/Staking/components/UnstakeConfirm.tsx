@@ -3,6 +3,8 @@ import { Box, Typography, Drawer, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -22,6 +24,9 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
   const [, setErrorMessage] = useState<string | null>(null);
   const [, setErrorCode] = useState<number | null>(null);
   const [occupied, setOccupied] = useState(false);
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
 
   const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
@@ -296,7 +301,7 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
           </Box>
         </Box>
       </Box>
-
+      {isLowStorage && <WarningStorageLowSnackbar />}
       <Button
         onClick={unstake}
         disabled={sending || occupied}

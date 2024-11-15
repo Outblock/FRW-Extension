@@ -4,7 +4,7 @@ import warningIcon from '../FRWAssets/svg/lowStorage.svg';
 
 import WarningSnackbar from './WarningSnackbar';
 
-export const StorageExceededAlert = () => {
+export const WarningStorageLowSnackbar = () => {
   return (
     <WarningSnackbar
       open={true}

@@ -5,10 +5,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import { MatchMediaType } from '@/ui/utils/url';
 import { LLSpinner, FRWProfileCard, FRWDropdownProfileCard } from 'ui/FRWComponent';
-import { StorageExceededAlert } from 'ui/FRWComponent/StorageExceededAlert';
 import { useWallet } from 'ui/utils';
 import { useStorageCheck } from 'ui/utils/useStorageCheck';
 
@@ -354,7 +354,7 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
           </Presets.TransitionSlideUp>
         )}
         <Box>
-          {isLowStorage && <StorageExceededAlert />}
+          {isLowStorage && <WarningStorageLowSnackbar />}
           <Button
             onClick={sendNFT}
             disabled={sending || occupied}

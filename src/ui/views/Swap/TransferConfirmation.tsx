@@ -5,6 +5,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLSwap } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -27,6 +29,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const [, setErrorCode] = useState<number | null>(null);
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+
   const count = 0;
   const colorArray = [
     '#32E35529',
@@ -382,6 +388,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           </Typography>
         </Box> */}
       </Box>
+      {isLowStorage && <WarningStorageLowSnackbar />}
 
       <Button
         onClick={execSwap}

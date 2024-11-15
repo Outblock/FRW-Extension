@@ -61,6 +61,8 @@ export const useStorageCheck = (): StorageCheckResult => {
     }
   }, [checkStorageStatus, wallet]);
 
+  console.log('sufficient', sufficient);
+  console.log('storageInfo', storageInfo);
   return {
     storageInfo,
     sufficient,

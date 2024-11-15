@@ -5,7 +5,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner, FRWProfileCard, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -20,6 +22,7 @@ interface SendNFTConfirmationProps {
 }
 
 const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
+  console.log('MoveNftConfirmation - NftEvm');
   const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
@@ -29,6 +32,9 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [selectedAccount, setSelectedChildAccount] = useState(null);
   const [childWallets, setChildWallets] = useState({});
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
 
   const getPending = useCallback(async () => {
     const pending = await usewallet.getPendingTx();
@@ -327,6 +333,8 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
             </Box>
           </Presets.TransitionSlideUp>
         )}
+        {isLowStorage && <WarningStorageLowSnackbar />}
+
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}
