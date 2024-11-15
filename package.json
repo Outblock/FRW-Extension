@@ -139,7 +139,7 @@
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@svgr/webpack": "^5.5.0",
-    "@types/chrome": "^0.0.183",
+    "@types/chrome": "^0.0.281",
     "@types/events": "^3.0.0",
     "@types/jest": "^27.4.0",
     "@types/koa-compose": "^3.2.5",
