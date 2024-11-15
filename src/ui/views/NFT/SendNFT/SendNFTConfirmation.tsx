@@ -7,7 +7,9 @@ import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
 
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import erc721 from 'background/utils/erc721.abi.json';
 import { EVM_ENDPOINT } from 'consts';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
@@ -25,6 +27,7 @@ interface SendNFTConfirmationProps {
 }
 
 const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
+  console.log('SendNFTConfirmation');
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
@@ -36,6 +39,10 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [isChild, setIsChild] = useState(false);
   const [erc721Contract, setErcContract] = useState<any>(null);
   const [count, setCount] = useState(0);
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -383,7 +390,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             <LLProfile contact={props.data.contact} />
           )}
         </Box>
-
         <Box
           sx={{
             display: 'flex',
@@ -413,7 +419,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
               />
               <Typography
                 color="text.nonselect"
-                sx={{ fontWeight: '400', display: 'inline-block' }}
+                sx={{
+                  fontWeight: '400',
+                  display: 'inline-block',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '150px',
+                }}
               >
                 {props.data.contract && props.data.contract.name}
               </Typography>
@@ -423,7 +436,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </Stack>
           </Stack>
         </Box>
-
         <Box sx={{ flexGrow: 1 }} />
         {/* <Stack direction="row" spacing={1} sx={{marginBottom: '33px'}}>
           <LLPrimaryButton
@@ -460,6 +472,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Presets.TransitionSlideUp>
         )}
 
+        {isLowStorage && <WarningStorageLowSnackbar />}
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}

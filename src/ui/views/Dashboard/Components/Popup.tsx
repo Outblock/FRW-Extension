@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
@@ -12,18 +12,16 @@ import {
   Avatar,
   CardMedia,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
+import CircularProgress, { circularProgressClasses } from '@mui/material/CircularProgress';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
+
+import type { UserInfoResponse } from 'background/service/networkModel';
 import iconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
+import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
+import popLock from 'ui/FRWAssets/svg/popLock.svg';
 import vmsvg from 'ui/FRWAssets/svg/viewmore.svg';
-import CircularProgress, {
-  circularProgressClasses,
-  CircularProgressProps,
-} from '@mui/material/CircularProgress';
-import { UserInfoResponse } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;

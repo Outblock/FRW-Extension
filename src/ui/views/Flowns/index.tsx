@@ -1,13 +1,14 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Typography, IconButton, Box, CardMedia } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Typography, IconButton, Box, CardMedia } from '@mui/material';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// import '../../Unlock/style.css';
+
 import flownsPBanner from 'ui/FRWAssets/svg/flownsPBanner.svg';
+import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import SubstructIcon from '../../../components/iconfont/IconSubtract';
-import { useWallet } from 'ui/utils';
 
 const Flowns = () => {
   const history = useHistory();

@@ -5,7 +5,7 @@ import { openapiService } from '../service';
 import type { StorageInfo } from './networkModel';
 
 export class StorageEvaluator {
-  private static MINIMUM_STORAGE_BUFFER = 10000; // minimum required storage buffer
+  private static MINIMUM_STORAGE_BUFFER = 100000; // minimum required storage buffer
   private static MINIMUM_FLOW_BALANCE = 0.001; // minimum required FLOW balance
 
   async evaluateStorage(address: string): Promise<{

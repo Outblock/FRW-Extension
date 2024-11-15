@@ -6,6 +6,7 @@ import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -29,6 +30,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+
   const colorArray = [
     '#32E35529',
     '#32E35540',

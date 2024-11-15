@@ -7,7 +7,9 @@ import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
 
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import erc721 from 'background/utils/erc721.abi.json';
 import { EVM_ENDPOINT } from 'consts';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
@@ -25,6 +27,8 @@ interface SendNFTConfirmationProps {
 }
 
 const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
+  console.log('SendNFTConfirmation - NftEvm');
+
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
@@ -35,6 +39,10 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [tid, setTid] = useState('');
   const [occupied, setOccupied] = useState(false);
   const [count, setCount] = useState(0);
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -411,6 +419,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </Box>
           </Presets.TransitionSlideUp>
         )}
+        {isLowStorage && <WarningStorageLowSnackbar />}
 
         <Button
           onClick={sendNFT}

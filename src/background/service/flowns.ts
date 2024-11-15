@@ -1,11 +1,11 @@
-import { createPersistStore } from 'background/utils';
-import * as fcl from '@onflow/fcl';
-import * as sdk from '@onflow/sdk';
 import * as secp from '@noble/secp256k1';
-import HDWallet from 'ethereum-hdwallet';
-import { keyringService, openapiService } from 'background/service';
-import wallet from 'background/controller/wallet';
+import * as fcl from '@onflow/fcl';
+
 import { signMessageHash } from '@/ui/utils/modules/passkey.js';
+import wallet from 'background/controller/wallet';
+import { keyringService, openapiService } from 'background/service';
+import { createPersistStore } from 'background/utils';
+
 import { storage } from '../webapi';
 
 export interface FlownsStore {
