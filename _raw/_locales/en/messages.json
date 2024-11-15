@@ -1315,7 +1315,16 @@
   "Import__Profile": {
     "message": "Import Profile"
   },
-  "Insufficient_storage": {
-    "message": "Insufficient storage."
+  "Insufficient_Storage": {
+    "message": "Insufficient Storage"
+  },
+  "Transaction_failed_storage_exceeded": {
+    "message": "Your transaction failed because it caused your account to fall below the minimum balance of FLOW for your account's storage usage."
+  },
+  "Must_have_minimum_flow_storage": {
+    "message": "You must have least 0.001 FLOW in your account to cover your storage usage."
+  },
+  "Buy_FLOW": {
+    "message": "Buy FLOW"
   }
 }

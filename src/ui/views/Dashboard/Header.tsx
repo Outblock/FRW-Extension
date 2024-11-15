@@ -114,6 +114,8 @@ const Header = ({ loading }) => {
 
   const [initialStart, setInitial] = useState(true);
 
+  const [switchLoading, setSwitchLoading] = useState(false);
+
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
   const { unreadCount } = useNews();
@@ -180,8 +182,8 @@ const Header = ({ loading }) => {
   const freshUserInfo = useCallback(async () => {
     const currentWallet = await usewallet.getCurrentWallet();
     const isChild = await usewallet.getActiveWallet();
-    const mainAddress = await usewallet.getMainAddress();
 
+    const mainAddress = await usewallet.getMainAddress();
     if (isChild === 'evm') {
       const res = await usewallet.queryEvmAddress(mainAddress!);
       const evmWallet = await usewallet.getEvmWallet();
@@ -190,12 +192,12 @@ const Header = ({ loading }) => {
       await setCurrent(evmWallet);
       setMainLoading(false);
     } else {
-      await setCurrent(currentWallet);
+      const mainwallet = await usewallet.returnMainWallet();
+      await setCurrent(mainwallet);
       setMainLoading(false);
     }
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
-
     if (mainAddress) {
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
@@ -250,17 +252,28 @@ const Header = ({ loading }) => {
   }, [freshUserInfo, freshUserWallet, usewallet]);
 
   const switchAccount = async (account) => {
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-    await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
-    if (account.id) {
-      await storage.set('currentId', account.id);
-    } else {
-      await storage.set('currentId', '');
+    setSwitchLoading(true);
+    try {
+      const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+      await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+      if (account.id) {
+        await storage.set('currentId', account.id);
+      } else {
+        await storage.set('currentId', '');
+      }
+
+      await usewallet.lockWallet();
+      await usewallet.clearWallet();
+      await usewallet.refreshAll();
+      await usewallet.switchNetwork(switchingTo);
+
+      history.push('/switchunlock');
+    } catch (error) {
+      console.error('Error during account switch:', error);
+      // Handle any additional error reporting or user feedback here if needed
+    } finally {
+      setSwitchLoading(false);
     }
-    await usewallet.lockWallet();
-    history.push('/switchunlock');
-    await usewallet.clearWallet();
-    await usewallet.switchNetwork(switchingTo);
   };
 
   const loadNetwork = useCallback(async () => {
@@ -321,9 +334,6 @@ const Header = ({ loading }) => {
   const setWallets = async (walletInfo, key) => {
     await usewallet.setActiveWallet(walletInfo, key);
 
-    // Refresh all relevant states
-    const currentWallet = await usewallet.getCurrentWallet();
-    setCurrent(currentWallet);
     setMainLoading(false);
 
     // Clear collections
@@ -962,6 +972,7 @@ const Header = ({ loading }) => {
               networkColor={networkColor}
               evmLoading={evmLoading}
               modeOn={modeOn}
+              mainAddressLoading={mainAddressLoading}
             />
           )}
           {appBarLabel(current)}
@@ -980,6 +991,7 @@ const Header = ({ loading }) => {
               current={current!}
               switchAccount={switchAccount}
               loggedInAccounts={loggedInAccounts}
+              switchLoading={switchLoading}
             />
           )}
         </Toolbar>

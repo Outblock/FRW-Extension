@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import { Typography, Box, Drawer, Grid, Stack, InputBase, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../../FRWComponent';
+import React, { useState, useEffect } from 'react';
+import { useForm, type FieldValues } from 'react-hook-form';
+
+import type { Contact } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
-import { useForm, FieldValues } from 'react-hook-form';
+
+import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../../FRWComponent';
 import { withPrefix } from '../../../utils/address';
-import { Contact } from 'background/service/networkModel';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -53,7 +55,7 @@ const AddOrEditAddress = (props: AddOrEditAddressProps) => {
     setIsValidatingAddress(true);
     const validatedResult = await wallet.checkAddress(address);
     setIsValidatingAddress(false);
-    return validatedResult;
+    return validatedResult ? true : false;
   };
 
   const onSubmit = async (data: FieldValues) => {
@@ -101,7 +103,7 @@ const AddOrEditAddress = (props: AddOrEditAddressProps) => {
         }
       );
     }
-  }, [props.editableContact]);
+  }, [props?.editableContact, props?.isEdit, reset]);
 
   const renderContent = () => (
     <Box

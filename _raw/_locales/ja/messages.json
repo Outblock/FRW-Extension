@@ -1314,5 +1314,17 @@
   },
   "Import__Profile": {
     "message": "プロファイルをインポート"
+  },
+  "Insufficient_Storage": {
+    "message": "ストレージが不足しています"
+  },
+  "Transaction_failed_storage_exceeded": {
+    "message": "取引が失敗しました。アカウントのストレージ使用量により、アカウントの最低FLOW残高を下回ったためです。"
+  },
+  "Must_have_minimum_flow_storage": {
+    "message": "ストレージ使用量をカバーするために、アカウントには少なくとも0.001 FLOWが必要です。"
+  },
+  "Buy_FLOW": {
+    "message": "FLOWを購入"
   }
 }
