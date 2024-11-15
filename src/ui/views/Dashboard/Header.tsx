@@ -248,21 +248,30 @@ const Header = ({ loading }) => {
 
     // usewallet.checkUserDomain(wallet.username);
   };
+
   const switchAccount = async (account) => {
     setSwitchLoading(true);
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-    await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
-    if (account.id) {
-      await storage.set('currentId', account.id);
-    } else {
-      await storage.set('currentId', '');
+    try {
+      const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+      await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+      if (account.id) {
+        await storage.set('currentId', account.id);
+      } else {
+        await storage.set('currentId', '');
+      }
+
+      await usewallet.lockWallet();
+      await usewallet.clearWallet();
+      await usewallet.refreshAll();
+      await usewallet.switchNetwork(switchingTo);
+
+      history.push('/switchunlock');
+    } catch (error) {
+      console.error('Error during account switch:', error);
+      // Handle any additional error reporting or user feedback here if needed
+    } finally {
+      setSwitchLoading(false);
     }
-    await usewallet.lockWallet();
-    await usewallet.clearWallet();
-    await usewallet.refreshAll();
-    await usewallet.switchNetwork(switchingTo);
-    setSwitchLoading(false);
-    history.push('/switchunlock');
   };
 
   const loadNetwork = async () => {
@@ -872,10 +881,10 @@ const Header = ({ loading }) => {
                   border: isPending
                     ? ''
                     : currentNetwork !== 'mainnet'
-                    ? `2px solid ${networkColor(currentNetwork)}`
-                    : isSandbox
-                    ? '2px solid #CCAF21'
-                    : '2px solid #282828',
+                      ? `2px solid ${networkColor(currentNetwork)}`
+                      : isSandbox
+                        ? '2px solid #CCAF21'
+                        : '2px solid #282828',
                   padding: '3px',
                   marginRight: '0px',
                   position: 'relative',
