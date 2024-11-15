@@ -41,7 +41,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [count, setCount] = useState(0);
   const { sufficient: isSufficient } = useStorageCheck();
 
-  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
 
   const colorArray = [
     '#32E35529',
@@ -472,7 +472,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Presets.TransitionSlideUp>
         )}
 
-        {isLowStorage && <WarningStorageLowSnackbar />}
+        <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}

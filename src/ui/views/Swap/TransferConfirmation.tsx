@@ -31,9 +31,11 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const [errorCode, setErrorCode] = useState<number | null>(null);
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
-  const { sufficient: isSufficient } = useStorageCheck();
+  const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
+    useStorageCheck();
 
-  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = isSufficientAfterAction !== undefined && !isSufficientAfterAction; // isSufficientAfterAction is undefined when the storage check is not yet completed
 
   const count = 0;
   const colorArray = [
@@ -389,7 +391,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           </Typography>
         </Box> */}
       </Box>
-      {isLowStorage && <WarningStorageLowSnackbar />}
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
 
       <Button
         onClick={execSwap}

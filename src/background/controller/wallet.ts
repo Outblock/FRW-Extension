@@ -3632,16 +3632,19 @@ export class WalletController extends BaseController {
     movingBetweenEVMAndFlow?: boolean;
   } = {}): Promise<{
     isStorageSufficient: boolean;
+    isStorageSufficientAfterAction: boolean;
     storageInfo: StorageInfo;
   }> => {
     const address = await this.getCurrentAddress();
-    const { isStorageSufficient, storageInfo } = await this.storageEvaluator.evaluateStorage(
-      address!,
-      transferAmount,
-      movingBetweenEVMAndFlow
-    );
+    const { isStorageSufficient, isStorageSufficientAfterAction, storageInfo } =
+      await this.storageEvaluator.evaluateStorage(
+        address!,
+        transferAmount,
+        movingBetweenEVMAndFlow
+      );
     return {
       isStorageSufficient,
+      isStorageSufficientAfterAction,
       storageInfo,
     };
   };

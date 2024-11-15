@@ -5,8 +5,9 @@ import type { StorageInfo } from '@/background/service/networkModel';
 import { useWallet } from './WalletContext';
 
 interface StorageCheckResult {
-  sufficient: boolean | null;
-  storageInfo: StorageInfo | null;
+  sufficient?: boolean;
+  sufficientAfterAction?: boolean;
+  storageInfo?: StorageInfo;
   checkStorageStatus: () => Promise<{ sufficient: boolean; storageInfo: StorageInfo }>;
 }
 
@@ -20,24 +21,36 @@ export const useStorageCheck = ({
 }: UseStorageCheckProps = {}): StorageCheckResult => {
   const wallet = useWallet();
 
-  const [sufficient, setSufficient] = useState<boolean | null>(null);
-
-  const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
+  const [sufficient, setSufficient] = useState<boolean | undefined>(undefined);
+  const [sufficientAfterAction, setSufficientAfterAction] = useState<boolean | undefined>(
+    undefined
+  );
+  const [storageInfo, setStorageInfo] = useState<StorageInfo | undefined>(undefined);
   // Check general storage status
   const checkStorageStatus = useCallback(async (): Promise<{
     sufficient: boolean;
+    sufficientAfterAction: boolean;
     storageInfo: StorageInfo;
   }> => {
     try {
-      const { isStorageSufficient, storageInfo } = await wallet.checkStorageStatus({
-        transferAmount,
-        movingBetweenEVMAndFlow,
-      });
+      const { isStorageSufficient, isStorageSufficientAfterAction, storageInfo } =
+        await wallet.checkStorageStatus({
+          transferAmount,
+          movingBetweenEVMAndFlow,
+        });
 
-      return { sufficient: isStorageSufficient, storageInfo };
+      return {
+        sufficient: isStorageSufficient,
+        sufficientAfterAction: isStorageSufficientAfterAction,
+        storageInfo,
+      };
     } catch (error) {
       console.error('Error checking storage status:', error);
-      return { sufficient: false, storageInfo: { available: 0, used: 0, capacity: 0 } }; // Default to true to not block transactions on error
+      return {
+        sufficient: false,
+        sufficientAfterAction: false,
+        storageInfo: { available: 0, used: 0, capacity: 0 },
+      }; // Default to true to not block transactions on error
     }
   }, [movingBetweenEVMAndFlow, transferAmount, wallet]);
 
@@ -45,12 +58,19 @@ export const useStorageCheck = ({
   useEffect(() => {
     let mounted = true;
     if (wallet) {
-      checkStorageStatus().then(({ sufficient: isSufficient, storageInfo }) => {
-        if (mounted) {
-          setStorageInfo(storageInfo);
-          setSufficient(isSufficient);
+      checkStorageStatus().then(
+        ({
+          sufficient: isSufficient,
+          sufficientAfterAction: isSufficientAfterAction,
+          storageInfo,
+        }) => {
+          if (mounted) {
+            setStorageInfo(storageInfo);
+            setSufficient(isSufficient);
+            setSufficientAfterAction(isSufficientAfterAction);
+          }
         }
-      });
+      );
       return () => {
         mounted = false;
       };
@@ -60,6 +80,7 @@ export const useStorageCheck = ({
   return {
     storageInfo,
     sufficient,
+    sufficientAfterAction,
     checkStorageStatus,
   };
 };
