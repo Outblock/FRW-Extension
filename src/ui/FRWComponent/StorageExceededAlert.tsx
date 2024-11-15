@@ -92,7 +92,7 @@ const StorageExceededAlert: React.FC<StorageExceededAlertProps> = ({ open, onClo
 
         <Typography
           component="a"
-          href="https://docs.lilico.app/storage-fee"
+          href="https://developers.flow.com/build/basics/fees#storage"
           target="_blank"
           sx={{
             fontSize: '16px',
