@@ -1761,9 +1761,14 @@ export class WalletController extends BaseController {
     await this.getNetwork();
     const amountStr = amount.toString();
 
-    let amountBN = new BN(amountStr);
+    const amountBN = new BN(amountStr);
 
-    const scaleFactor = new BN(10).pow(new BN(tokenResult.decimals));
+    const decimals = tokenResult.decimals ?? 18;
+    if (decimals < 0 || decimals > 77) {
+      // 77 is BN.js max safe decimals
+      throw new Error('Invalid decimals');
+    }
+    const scaleFactor = new BN(10).pow(new BN(decimals));
 
     // Multiply amountBN by scaleFactor
     const integerAmount = amountBN.multipliedBy(scaleFactor);
@@ -1846,9 +1851,13 @@ export class WalletController extends BaseController {
   bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
     const amountStr = amount.toString();
 
-    let amountBN = new BN(amountStr);
-
-    const scaleFactor = new BN(10).pow(new BN(tokenResult.decimals));
+    const amountBN = new BN(amountStr);
+    const decimals = tokenResult.decimals ?? 18;
+    if (decimals < 0 || decimals > 77) {
+      // 77 is BN.js max safe decimals
+      throw new Error('Invalid decimals');
+    }
+    const scaleFactor = new BN(10).pow(new BN(decimals));
 
     // Multiply amountBN by scaleFactor
     const integerAmount = amountBN.multipliedBy(scaleFactor);
