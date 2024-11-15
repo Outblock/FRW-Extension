@@ -1313,7 +1313,7 @@ class OpenApiService {
     if (!network) {
       network = await userWalletService.getNetwork();
     }
-    const tokens = await this.getTokenListFromGithub(network);
+    const tokens = await this.getEvmListFromGithub(network);
     // const coins = await remoteFetch.flowCoins();
     return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
   };
@@ -1521,6 +1521,23 @@ class OpenApiService {
     if (gitToken) return gitToken;
 
     const tokens = await this.fetchGitTokenList(network, chainType, childType);
+
+    if (chainType === 'evm') {
+      const evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
+      this.mergeCustomTokens(tokens, evmCustomToken);
+    }
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+    return tokens;
+  };
+
+  getEvmListFromGithub = async (network) => {
+    const chainType = 'evm';
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    if (gitToken) return gitToken;
+
+    const tokens = await this.fetchGitTokenList(network, chainType, chainType);
 
     if (chainType === 'evm') {
       const evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
