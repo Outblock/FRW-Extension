@@ -346,6 +346,8 @@ const Header = ({ loading }) => {
 
     // Navigate if needed
     history.push('/dashboard');
+    //eslint-disable-next-line no-restricted-globals
+    window.location.reload();
   };
 
   const transactionHandler = (request) => {
