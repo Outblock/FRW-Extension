@@ -8,7 +8,9 @@ import { useHistory } from 'react-router-dom';
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import { MatchMediaType } from '@/ui/utils/url';
 import { LLSpinner, FRWProfileCard, FRWDropdownProfileCard } from 'ui/FRWComponent';
+import { StorageExceededAlert } from 'ui/FRWComponent/StorageExceededAlert';
 import { useWallet } from 'ui/utils';
+import { useStorageCheck } from 'ui/utils/useStorageCheck';
 
 import IconFlow from '../../../../components/iconfont/IconFlow';
 
@@ -31,6 +33,9 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [childWallets, setChildWallets] = useState({});
   const [selectedAccount, setSelectedChildAccount] = useState(null);
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
 
   const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
@@ -348,42 +353,45 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
             </Box>
           </Presets.TransitionSlideUp>
         )}
-        <Button
-          onClick={sendNFT}
-          disabled={sending || occupied}
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            height: '50px',
-            borderRadius: '12px',
-            textTransform: 'capitalize',
-            display: 'flex',
-            gap: '12px',
-            mb: '33px',
-          }}
-        >
-          {sending ? (
-            <>
-              <LLSpinner size={28} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                {chrome.i18n.getMessage('Working_on_it')}
-              </Typography>
-            </>
-          ) : (
-            <>
-              {failed ? (
+        <Box>
+          {isLowStorage && <StorageExceededAlert />}
+          <Button
+            onClick={sendNFT}
+            disabled={sending || occupied}
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{
+              height: '50px',
+              borderRadius: '12px',
+              textTransform: 'capitalize',
+              display: 'flex',
+              gap: '12px',
+              mb: '33px',
+            }}
+          >
+            {sending ? (
+              <>
+                <LLSpinner size={28} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                  {chrome.i18n.getMessage('Transaction__failed')}
+                  {chrome.i18n.getMessage('Working_on_it')}
                 </Typography>
-              ) : (
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                  {chrome.i18n.getMessage('Move')}
-                </Typography>
-              )}
-            </>
-          )}
-        </Button>
+              </>
+            ) : (
+              <>
+                {failed ? (
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
+                    {chrome.i18n.getMessage('Transaction__failed')}
+                  </Typography>
+                ) : (
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
+                    {chrome.i18n.getMessage('Move')}
+                  </Typography>
+                )}
+              </>
+            )}
+          </Button>
+        </Box>
       </Box>
     );
   };

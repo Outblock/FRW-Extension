@@ -1314,5 +1314,8 @@
   },
   "Import__Profile": {
     "message": "Import Profile"
+  },
+  "Insufficient_storage": {
+    "message": "Insufficient storage."
   }
 }
