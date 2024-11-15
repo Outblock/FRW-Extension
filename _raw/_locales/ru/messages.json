@@ -1314,5 +1314,17 @@
   },
   "Import__Profile": {
     "message": "Импортировать профиль"
+  },
+  "Insufficient_Storage": {
+    "message": "Недостаточно памяти"
+  },
+  "Transaction_failed_storage_exceeded": {
+    "message": "Ваша транзакция не выполнена, так как ваш баланс упал ниже минимального значения FLOW для использования памяти вашего аккаунта."
+  },
+  "Must_have_minimum_flow_storage": {
+    "message": "На вашем счету должно быть не менее 0.001 FLOW для покрытия использования памяти."
+  },
+  "Buy_FLOW": {
+    "message": "Купить FLOW"
   }
 }

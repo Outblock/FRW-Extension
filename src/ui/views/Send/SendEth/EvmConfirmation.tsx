@@ -6,6 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -24,7 +25,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
-  const [, setErrorCode] = useState<number | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(true);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
@@ -333,21 +335,24 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   );
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '65%',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '65%',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 

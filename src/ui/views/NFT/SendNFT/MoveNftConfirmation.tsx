@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { MatchMediaType } from '@/ui/utils/url';
 import { LLSpinner, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -26,7 +27,8 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
-  const [, setErrorCode] = useState<number | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(false);
   const [childWallet, setChildWallet] = useState(null);
   const [selectedAccount, setSelectedChildAccount] = useState(null);
@@ -422,21 +424,24 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   };
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '457px',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '457px',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 
