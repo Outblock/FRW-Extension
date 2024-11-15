@@ -226,6 +226,11 @@ class UserWallet {
     return withPrefix(wallet.address) || '';
   };
 
+  returnMainWallet = (network: string) => {
+    const wallet = this.store.wallets[network][0].blockchain[0];
+    return wallet;
+  };
+
   getCurrentAddress = (): string => {
     return withPrefix(this.store.currentWallet.address) || '';
   };

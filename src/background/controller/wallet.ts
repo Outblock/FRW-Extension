@@ -941,6 +941,12 @@ export class WalletController extends BaseController {
     return address;
   };
 
+  returnMainWallet = async () => {
+    const network = await this.getNetwork();
+    const wallet = await userWalletService.returnMainWallet(network);
+
+    return wallet;
+  };
   fetchFlownsInbox = async () => {
     const info = await userInfoService.getUserInfo();
     const res = await openapiService.getFlownsInbox(info.username);
@@ -3427,10 +3433,10 @@ export class WalletController extends BaseController {
     return resp;
   };
 
-  flownsResponse = async (script, domain, flownsAddress, lilicoAddress) => {
-    const resp = await flownsService.sendTransaction(script, domain, flownsAddress, lilicoAddress);
-    return resp;
-  };
+  // flownsResponse = async (script, domain, flownsAddress, lilicoAddress) => {
+  //   const resp = await flownsService.sendTransaction(script, domain, flownsAddress, lilicoAddress);
+  //   return resp;
+  // };
 
   setHistory = async (token, nft) => {
     const network = await userWalletService.getNetwork();

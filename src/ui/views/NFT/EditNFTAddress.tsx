@@ -54,7 +54,7 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
     setIsValidatingAddress(true);
     const validatedResult = await wallet.checkAddress(address);
     setIsValidatingAddress(false);
-    return validatedResult;
+    return validatedResult ? true : false;
   };
 
   const onSubmit = async (data: FieldValues) => {
