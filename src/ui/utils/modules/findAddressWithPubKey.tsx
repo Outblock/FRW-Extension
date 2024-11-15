@@ -42,7 +42,7 @@ const findAddres = async (address, pubKeyHex) => {
   return keys.map((key) => {
     return {
       address: address,
-      keyIndex: parseInt(key.index),
+      keyIndex: key.index,
       weight: key.weight,
       hashAlgo: key.hashAlgoString,
       signAlgo: key.signAlgoString,

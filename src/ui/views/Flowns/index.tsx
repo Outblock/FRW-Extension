@@ -19,39 +19,6 @@ const Flowns = () => {
 
   const handleClaiming = async () => {
     setClaiming(true);
-    wallet
-      .flownsPrepare()
-      .then(async (res) => {
-        if (res.status == 400) {
-          setFailed(true);
-          setError(chrome.i18n.getMessage('Domain__already__exist'));
-          return;
-        }
-        const script = res.data.cadence;
-        const domain = res.data.domain;
-        const domainArray = domain.split('.');
-        const flownsAddress = res.data.flowns_server_address;
-        const lilicoAddress = res.data.lilico_server_address;
-        wallet
-          .flownsResponse(script, domainArray[0], flownsAddress, lilicoAddress)
-          .then(async (res) => {
-            wallet.listenTransaction(
-              res['txId'],
-              true,
-              chrome.i18n.getMessage('Domain__creation__complete'),
-              `Your flowns domain ${domain} has been created. \nClick to view this transaction.`
-            );
-            await wallet.setDashIndex(0);
-            history.push('/dashboard?activity=1');
-          })
-          .catch((err) => {
-            console.log(err);
-            setFailed(true);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   const getUsername = async () => {

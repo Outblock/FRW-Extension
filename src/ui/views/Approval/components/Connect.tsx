@@ -120,7 +120,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         f_vsn: '2.0.0',
         address,
         nonce,
-        signatures: [new WalletUtils.CompositeSignature(address, keyIndex, signature)],
+        signatures: [new WalletUtils.CompositeSignature(address!, keyIndex, signature)],
       });
       services.push(accountProofservice);
     }
