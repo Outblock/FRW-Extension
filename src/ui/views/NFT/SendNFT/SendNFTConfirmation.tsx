@@ -6,6 +6,7 @@ import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
 
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { MatchMediaType } from '@/ui/utils/url';
 import erc721 from 'background/utils/erc721.abi.json';
 import { EVM_ENDPOINT } from 'consts';
@@ -29,7 +30,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
-  const [, setErrorCode] = useState<number | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(false);
   const [isChild, setIsChild] = useState(false);
   const [erc721Contract, setErcContract] = useState<any>(null);
@@ -499,21 +501,24 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   };
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '65%',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '65%',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 

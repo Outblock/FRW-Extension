@@ -2893,6 +2893,11 @@ export class WalletController extends BaseController {
     this.refreshAll();
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (!tabs || tabs.length === 0) {
+        console.log('No active tab found');
+        return;
+      }
+      console.log('tabs', tabs);
       if (tabs[0].id) {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'FCW:NETWORK',
