@@ -30,6 +30,7 @@ import {
   stakingService,
   proxyService,
   newsService,
+  mixpanelTrack,
 } from 'background/service';
 import i18n from 'background/service/i18n';
 import { type DisplayedKeryring, KEYRING_CLASS } from 'background/service/keyring';
@@ -85,10 +86,15 @@ export class WalletController extends BaseController {
   constructor() {
     super();
     this.storageEvaluator = new StorageEvaluator();
+    // Initialize mixpanel when wallet controller is instantiated
+    mixpanelTrack.init();
   }
 
   /* wallet */
-  boot = (password) => keyringService.boot(password);
+  boot = async (password) => {
+    const result = await keyringService.boot(password);
+    return result;
+  };
   isBooted = () => keyringService.isBooted();
   loadMemStore = () => keyringService.loadMemStore();
   verifyPassword = (password: string) => keyringService.verifyPassword(password);
@@ -185,9 +191,9 @@ export class WalletController extends BaseController {
     await passwordService.setPassword(password);
 
     sessionService.broadcastEvent('unlock');
-    // if (!alianNameInited && Object.values(alianNames).length === 0) {
-    //   this.initAlianNames();
-    // }
+
+    // Track wallet unlock
+    mixpanelTrack.track('wallet_unlocked');
   };
 
   switchUnlock = async (password: string) => {
@@ -272,6 +278,9 @@ export class WalletController extends BaseController {
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
+
+    // Track wallet lock
+    mixpanelTrack.track('wallet_locked');
   };
 
   // lockadd here
