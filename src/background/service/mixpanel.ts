@@ -1,9 +1,19 @@
 import mixpanel from 'mixpanel-browser';
 
+import { version } from '../../../package.json';
+
 type BaseProperties = {
   wallet_address?: string;
   network?: string;
   timestamp?: number;
+};
+
+// Super properties that will be sent with every event
+type SuperProperties = {
+  app_version: string;
+  platform: 'extension';
+  environment: 'development' | 'production';
+  wallet_type: 'flow';
 };
 
 type TrackingEvents = {
@@ -79,6 +89,17 @@ class MixpanelService {
     return MixpanelService.instance;
   }
 
+  private registerSuperProperties() {
+    const superProperties: SuperProperties = {
+      app_version: version,
+      platform: 'extension',
+      environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+      wallet_type: 'flow',
+    };
+
+    mixpanel.register(superProperties);
+  }
+
   init() {
     if (this.initialized) return;
 
@@ -92,8 +113,12 @@ class MixpanelService {
       debug: process.env.NODE_ENV !== 'production',
       track_pageview: true,
       persistence: 'localStorage',
+      batch_requests: true,
+      batch_size: 10,
+      batch_flush_interval_ms: 2000,
     });
 
+    this.registerSuperProperties();
     this.initialized = true;
   }
 
