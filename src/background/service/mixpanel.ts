@@ -2,6 +2,8 @@ import mixpanel from 'mixpanel-browser';
 
 import { version } from '../../../package.json';
 
+type OnRampSourceType = 'moonpay' | 'coinbase';
+
 type KeyType = 'passkey' | 'google_drive' | 'seed_phrase' | 'keystore' | 'private_key';
 
 type RecoveryMechanismType =
@@ -24,6 +26,7 @@ type SuperProperties = {
   environment: 'development' | 'production';
   wallet_type: 'flow';
 };
+
 type TrackingEvents = {
   // General Events
   script_error: {
@@ -36,12 +39,12 @@ type TrackingEvents = {
     amount: number; // Amount of FLOW. e.g. 200.12
   };
   on_ramp_clicked: {
-    source: 'moonpay' | 'coinbase'; // The on ramp platform the user choose e.g. moonpay or coinbase
+    source: OnRampSourceType; // The on ramp platform the user choose e.g. moonpay or coinbase
   };
   coa_creation: {
     tx_id: string; // The transaction ID
     flow_address: string; //
-    error_message: string; // Any error message
+    error_message?: string; // Any error message
   };
   security_tool: {
     type: 'biometric' | 'pin' | 'none';
@@ -93,7 +96,7 @@ type TrackingEvents = {
   transaction_result: {
     tx_id: string; // The transaction id
     is_successful: boolean; // If the transaction is successful
-    error_message: string; // Error message of transaction
+    error_message?: string; // Error message of transaction
   };
   // Account Events
   account_created: {

@@ -7,7 +7,7 @@ import BN from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
-import web3 from 'web3';
+import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
 import {
@@ -30,6 +30,7 @@ import {
   stakingService,
   proxyService,
   newsService,
+  mixpanelTrack,
 } from 'background/service';
 import i18n from 'background/service/i18n';
 import { type DisplayedKeryring, KEYRING_CLASS } from 'background/service/keyring';
@@ -1681,7 +1682,17 @@ export class WalletController extends BaseController {
 
     const script = await getScripts('evm', 'createCoa');
 
-    return await userWalletService.sendTransaction(script, [fcl.arg(formattedAmount, t.UFix64)]);
+    const txID = await userWalletService.sendTransaction(script, [
+      fcl.arg(formattedAmount, t.UFix64),
+    ]);
+    mixpanelTrack.track('coa_creation', {
+      tx_id: txID,
+      flow_address: (await this.getCurrentAddress()) || '',
+      // Don't see how we can get error message here
+      // If any error is thrown, we won't get a transaction ID
+      // error_message: '',
+    });
+    return txID;
   };
 
   createCoaEmpty = async (): Promise<string> => {
@@ -3069,16 +3080,22 @@ export class WalletController extends BaseController {
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
       await fcl.tx(txId).onceSealed();
-    } catch (err) {
+    } catch (err: unknown) {
       // An error has occurred while listening to the transaction
       console.error('listenTransaction error ', err);
+      if (err instanceof TransactionError) {
+        // Tell the UI that there was an error
+        chrome.runtime.sendMessage({
+          msg: 'transactionError',
+          errorMessage: err.message,
+          errorCode: err.code,
+        });
 
-      // Tell the UI that there was an error
-      chrome.runtime.sendMessage({
-        msg: 'transactionError',
-        errorMessage: err.message,
-        errorCode: err.code,
-      });
+        // mixpanelTrack.track('script_error', {
+        //   error: err.message,
+        //   script_id: somewhere in the error message,
+        // });
+      }
     } finally {
       // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
@@ -3480,6 +3497,12 @@ export class WalletController extends BaseController {
 
   createDelegator = async (amount, node) => {
     const result = await stakingService.createDelegator(amount, node);
+    // Track delegation creation
+    mixpanelTrack.track('delegation_created', {
+      address: (await this.getCurrentAddress()) || '',
+      node_id: node,
+      amount: amount,
+    });
     return result;
   };
 
@@ -3651,6 +3674,14 @@ export class WalletController extends BaseController {
     }
 
     return this.storageEvaluator.canPerformTransaction(address, amount);
+  };
+
+  // Tracking stuff
+
+  onRampClicked = async (source: 'moonpay' | 'coinbase') => {
+    mixpanelTrack.track('on_ramp_clicked', {
+      source: source,
+    });
   };
 }
 
