@@ -261,13 +261,9 @@ const Header = ({ loading }) => {
       }
 
       await usewallet.lockWallet();
-      console.log('lockWallet ');
       await usewallet.clearWallet();
-      console.log('clearWallet ');
       // await usewallet.removeUserInfo();
-      console.log('refreshAll ');
       await usewallet.switchNetwork(switchingTo);
-      console.log('lockWswitchNetworkallet ');
 
       history.push('/switchunlock');
     } catch (error) {
