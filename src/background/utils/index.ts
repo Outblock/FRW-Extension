@@ -1,9 +1,12 @@
 import * as ethUtil from 'ethereumjs-util';
-import pageStateCache from '../service/pageStateCache';
+
 export { default as createPersistStore } from './persisitStore';
 export { default as createSessionStore } from './sessionStore';
-import { storage } from '@/background/webapi';
 import { version } from '@/../package.json';
+import { storage } from '@/background/webapi';
+
+import { mixpanelTrack } from '../service';
+import pageStateCache from '../service/pageStateCache';
 
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
@@ -93,12 +96,22 @@ export const isSameAddress = (a: string, b: string) => {
 };
 
 export const getScripts = async (folder: string, scriptName: string) => {
-  const { data } = await storage.get('cadenceScripts');
-  const files = data[folder];
-  const script = files[scriptName];
-  const scriptString = Buffer.from(script, 'base64').toString('utf-8');
-  const modifiedScriptString = scriptString.replaceAll('<platform_info>', `Extension-${version}`);
-  return modifiedScriptString;
+  try {
+    const { data } = await storage.get('cadenceScripts');
+    const files = data[folder];
+    const script = files[scriptName];
+    const scriptString = Buffer.from(script, 'base64').toString('utf-8');
+    const modifiedScriptString = scriptString.replaceAll('<platform_info>', `Extension-${version}`);
+    return modifiedScriptString;
+  } catch (error) {
+    if (error instanceof Error) {
+      mixpanelTrack.track('script_error', {
+        script_id: scriptName,
+        error: error.message,
+      });
+    }
+    throw error;
+  }
 };
 
 export const findKeyAndInfo = (keys, publicKey) => {

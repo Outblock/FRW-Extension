@@ -238,7 +238,19 @@ class UserWallet {
     return withPrefix(this.store.currentWallet.address) || '';
   };
 
+  private extractScriptName = (cadence: string): string => {
+    const scriptLines = cadence.split('\n');
+    for (const line of scriptLines) {
+      if (line.includes('// Flow Wallet')) {
+        // '    // Flow Wallet - testnet Script  sendNFT - v2.31'
+        const nameMatch = line.match(/\/\/ Flow Wallet -\s*(testnet|mainnet)\s*Script\s+(\w+)/);
+        return nameMatch ? nameMatch[2] : 'unknown_script';
+      }
+    }
+    return 'unknown_script';
+  };
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
+    const scriptName = this.extractScriptName(cadence);
     //add proxy
     try {
       const allowed = await wallet.allowLilicoPay();
@@ -251,26 +263,11 @@ class UserWallet {
         limit: 9999,
       });
 
-      mixpanelTrack.track('cadence_transaction_signed', {
-        cadence: cadence,
-        tx_id: txID,
-        authorizers: [this.getCurrentAddress()],
-        proposer: this.getCurrentAddress(),
-        payer:
-          (allowed
-            ? fcl.withPrefix((await wallet.getPayerAddressAndKeyId()).address)
-            : this.getCurrentAddress()) || '',
-        success: true,
-      });
       return txID;
     } catch (error) {
-      mixpanelTrack.track('cadence_transaction_signed', {
-        cadence: cadence,
-        tx_id: '',
-        authorizers: [this.getCurrentAddress()],
-        proposer: this.getCurrentAddress(),
-        payer: this.getCurrentAddress(),
-        success: false,
+      mixpanelTrack.track('script_error', {
+        script_id: scriptName,
+        error: error,
       });
       throw error;
     }
