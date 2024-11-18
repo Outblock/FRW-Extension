@@ -1326,5 +1326,8 @@
   },
   "Buy_FLOW": {
     "message": "FLOWを購入"
+  },
+  "Insufficient_storage_after_action": {
+    "message": "この操作の後、ストレージが不足しています。"
   }
 }
