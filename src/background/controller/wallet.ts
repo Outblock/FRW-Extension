@@ -1685,13 +1685,19 @@ export class WalletController extends BaseController {
     const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(formattedAmount, t.UFix64),
     ]);
-    mixpanelTrack.track('coa_creation', {
-      tx_id: txID,
-      flow_address: (await this.getCurrentAddress()) || '',
-      // Don't see how we can get error message here
-      // If any error is thrown, we won't get a transaction ID
-      // error_message: '',
-    });
+
+    // try to seal it
+    try {
+      const result = await fcl.tx(txID).onceSealed();
+      console.log('coa creation result ', result);
+      // Track with success
+      await this.trackCoaCreation(txID);
+    } catch (error) {
+      console.error('Error sealing transaction:', error);
+      // Track with error
+      await this.trackCoaCreation(txID, error.message);
+    }
+
     return txID;
   };
 
@@ -1700,7 +1706,29 @@ export class WalletController extends BaseController {
 
     const script = await getScripts('evm', 'createCoaEmpty');
 
-    return await userWalletService.sendTransaction(script, []);
+    const txID = await userWalletService.sendTransaction(script, []);
+
+    // try to seal it
+    try {
+      const result = await fcl.tx(txID).onceSealed();
+      console.log('coa creation result ', result);
+      // Track with success
+      await this.trackCoaCreation(txID);
+    } catch (error) {
+      console.error('Error sealing transaction:', error);
+      // Track with error
+      await this.trackCoaCreation(txID, error.message);
+    }
+
+    return txID;
+  };
+
+  trackCoaCreation = async (txID: string, errorMessage?: string) => {
+    mixpanelTrack.track('coa_creation', {
+      tx_id: txID,
+      flow_address: (await this.getCurrentAddress()) || '',
+      error_message: errorMessage,
+    });
   };
 
   transferFlowEvm = async (
@@ -3402,7 +3430,18 @@ export class WalletController extends BaseController {
   uploadMnemonicToGoogleDrive = async (mnemonic, username, password) => {
     const app = getApp(process.env.NODE_ENV!);
     const user = await getAuth(app).currentUser;
-    return googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
+    try {
+      await googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
+      mixpanelTrack.track('multi_backup_created', {
+        address: (await this.getCurrentAddress()) || '',
+        providers: ['google_drive'],
+      });
+    } catch {
+      mixpanelTrack.track('multi_backup_creation_failed', {
+        address: (await this.getCurrentAddress()) || '',
+        providers: ['google_drive'],
+      });
+    }
   };
 
   loadBackupAccounts = async (): Promise<string[]> => {
