@@ -695,7 +695,30 @@ export class WalletController extends BaseController {
 
   signTransaction = async (type: string, from: string, data: any, options?: any) => {
     const keyring = await keyringService.getKeyringForAccount(from, type);
-    return keyringService.signTransaction(keyring, data, options);
+    const res = await keyringService.signTransaction(keyring, data, options);
+
+    /*
+    cadence_transaction_signed: {
+      cadence: string; // SHA256 Hashed Cadence that was signed.
+      tx_id: string; // String of the transaction ID.
+      authorizers: string[]; // Comma separated list of authorizer account address in the transaction
+      proposer: string; // Address of the transactions proposer.
+      payer: string; // Payer of the transaction.
+      success: boolean; // Boolean of if the transaction was sent successful or not. true/false
+    };
+    evm_transaction_signed: {
+      success: boolean; // Boolean of if the transaction was sent successful or not. true/false
+      flow_address: string; // Address of the account that signed the transaction
+      evm_address: string; // EVM Address of the account that signed the transaction
+      tx_id: string; // transaction id
+    };
+    mixpanelTrack.track('transaction_signed', {
+      address: from,
+      type,
+      ...res,
+    });
+    */
+    return res;
   };
 
   requestKeyring = (type, methodName, keyringId: number | null, ...params) => {

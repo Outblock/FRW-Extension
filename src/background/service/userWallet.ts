@@ -7,7 +7,7 @@ import { withPrefix } from '@/ui/utils/address';
 import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import wallet from 'background/controller/wallet';
-import { keyringService, openapiService } from 'background/service';
+import { keyringService, mixpanelTrack, openapiService } from 'background/service';
 import { createPersistStore } from 'background/utils';
 import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
 
@@ -240,16 +240,40 @@ class UserWallet {
 
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
     //add proxy
-    const allowed = await wallet.allowLilicoPay();
-    const txID = await fcl.mutate({
-      cadence: cadence,
-      args: (arg, t) => args,
-      proposer: this.authorizationFunction,
-      authorizations: [this.authorizationFunction],
-      payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
-      limit: 9999,
-    });
-    return txID;
+    try {
+      const allowed = await wallet.allowLilicoPay();
+      const txID = await fcl.mutate({
+        cadence: cadence,
+        args: (arg, t) => args,
+        proposer: this.authorizationFunction,
+        authorizations: [this.authorizationFunction],
+        payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
+        limit: 9999,
+      });
+
+      mixpanelTrack.track('cadence_transaction_signed', {
+        cadence: cadence,
+        tx_id: txID,
+        authorizers: [this.getCurrentAddress()],
+        proposer: this.getCurrentAddress(),
+        payer:
+          (allowed
+            ? fcl.withPrefix((await wallet.getPayerAddressAndKeyId()).address)
+            : this.getCurrentAddress()) || '',
+        success: true,
+      });
+      return txID;
+    } catch (error) {
+      mixpanelTrack.track('cadence_transaction_signed', {
+        cadence: cadence,
+        tx_id: '',
+        authorizers: [this.getCurrentAddress()],
+        proposer: this.getCurrentAddress(),
+        payer: this.getCurrentAddress(),
+        success: false,
+      });
+      throw error;
+    }
   };
 
   sign = async (signableMessage: string): Promise<string> => {
