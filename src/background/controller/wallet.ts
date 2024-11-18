@@ -3678,7 +3678,7 @@ export class WalletController extends BaseController {
 
   // Tracking stuff
 
-  onRampClicked = async (source: 'moonpay' | 'coinbase') => {
+  trackOnRampClicked = async (source: 'moonpay' | 'coinbase') => {
     mixpanelTrack.track('on_ramp_clicked', {
       source: source,
     });

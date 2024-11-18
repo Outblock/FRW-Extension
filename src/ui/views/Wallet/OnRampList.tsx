@@ -43,7 +43,7 @@ const OnRampList = ({ close }) => {
       });
     }
 
-    wallet.onRampClicked('moonpay');
+    wallet.trackOnRampClicked('moonpay');
   };
 
   const loadCoinbasePay = async () => {
@@ -61,7 +61,7 @@ const OnRampList = ({ close }) => {
         url: onRampURL,
       });
     }
-    wallet.onRampClicked('coinbase');
+    wallet.trackOnRampClicked('coinbase');
   };
 
   return (
