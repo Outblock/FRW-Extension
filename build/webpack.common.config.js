@@ -134,9 +134,9 @@ const config = {
   },
   plugins: [
     new FirebaseFixPlugin(),
-    new ESLintWebpackPlugin({
-      extensions: ['ts', 'tsx', 'js', 'jsx'],
-    }),
+    // new ESLintWebpackPlugin({
+    //   files: '**/*.{ts,tsx,js,jsx}',
+    // }),
     new CopyPlugin({
       patterns: [
         {

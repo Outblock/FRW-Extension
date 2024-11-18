@@ -1,28 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Skeleton,
-  Typography,
-  Drawer,
-  IconButton,
-  Snackbar,
-  Alert,
-  ListItemText,
-  Avatar,
-  CardMedia,
-} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
+import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import selectedCover from 'ui/FRWAssets/svg/selectedCover.svg';
-import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
-import MoveCollectionSelect from '../MoveCollectionSelect';
-import { LLSpinner } from 'ui/FRWComponent';
-import { isValidEthereumAddress } from 'ui/utils/address';
-import AccountMainBox from '../AccountMainBox';
-import selected from 'ui/FRWAssets/svg/selected.svg';
+
+import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
+import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
+import selected from 'ui/FRWAssets/svg/selected.svg';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
+
+import AccountMainBox from '../AccountMainBox';
+import MoveCollectionSelect from '../MoveCollectionSelect';
 
 interface MoveBoardProps {
   showMoveBoard: boolean;
@@ -556,29 +546,12 @@ const MoveToChild = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       )}
-      <Snackbar
+      <WarningSnackbar
         open={errorOpen}
-        autoHideDuration={2000}
         onClose={handleErrorClose}
-        sx={{ zIndex: '2000' }}
-      >
-        <Alert
-          icon={<img src={alertMark} alt="alert icon" />}
-          variant="filled"
-          severity="warning"
-          sx={{
-            color: '#FFFFFF',
-            padding: '0 16px',
-            fontSize: '12px',
-            fontWeight: '400',
-            borderRadius: '24px',
-            margin: '0 auto 80px',
-            zIndex: '2000',
-          }}
-        >
-          {chrome.i18n.getMessage('Cannot_move_more')}
-        </Alert>
-      </Snackbar>
+        alertIcon={alertMark}
+        message={chrome.i18n.getMessage('Cannot_move_more')}
+      />
     </Drawer>
   );
 };

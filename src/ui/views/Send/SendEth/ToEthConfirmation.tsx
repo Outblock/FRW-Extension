@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
-import { LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import eventBus from '@/eventBus';
-import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
+import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
 interface ToEthConfirmationProps {
   isConfirmationOpen: boolean;
@@ -24,9 +24,16 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
+  const { sufficient: isSufficient } = useStorageCheck();
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -37,7 +44,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     '#41CC5D',
   ];
 
-  const startCount = () => {
+  const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
     if (props.data.contact.address) {
@@ -51,33 +58,22 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     } else if (!props.data.contact.address) {
       clearInterval(intervalId);
     }
-  };
+  }, [props?.data?.contact?.address]);
 
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [wallet]);
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
-  const transferToken = async () => {
-    setSending(true);
-    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
-      transferFlow();
-    } else {
-      transferFt();
-    }
-  };
-
-  const transferFlow = async () => {
+  const transferFlow = useCallback(async () => {
     const amount = parseFloat(props.data.amount).toFixed(8);
 
-    console.log('transferToken ->', props.data.contact.address, amount);
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet
       .transferFlowEvm(props.data.contact.address, amount)
       .then(async (txID) => {
@@ -99,16 +95,18 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
         setSending(false);
         setFailed(true);
       });
-  };
+    // Depending on history is probably not great
+  }, [history, props, wallet]);
 
-  const transferFt = async () => {
+  const transferFt = useCallback(async () => {
     const amount = props.data.amount * 1e18;
     setSending(true);
+    // TB: I don't know why this is needed
     const encodedData = props.data.erc20Contract.methods
       .transfer(props.data.contact.address, amount)
       .encodeABI();
     const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
-    console.log('tokenResult ', tokenResult, props.data);
+    // Note that gas is not used in this function
     const gas = '1312d00';
     const value = parseFloat(props.data.amount).toFixed(8);
     const data = encodedData;
@@ -139,28 +137,47 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
         history.push('/dashboard?activity=1');
       })
       .catch((err) => {
-        console.log('transfer error: ', err);
+        console.error('transfer error: ', err);
         setSending(false);
         setFailed(true);
       });
-  };
+    // Depending on history is probably not great
+  }, [history, props, wallet]);
 
-  const transactionDoneHanlder = (request) => {
-    if (request.msg === 'transactionDone') {
-      updateOccupied();
+  const transferToken = useCallback(async () => {
+    setSending(true);
+    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
+      transferFlow();
+    } else {
+      transferFt();
     }
-    return true;
-  };
+  }, [props?.data?.tokenSymbol, transferFlow, transferFt]);
+
+  const transactionDoneHandler = useCallback(
+    (request) => {
+      if (request.msg === 'transactionDone') {
+        updateOccupied();
+      }
+      // Handle error
+      if (request.msg === 'transactionError') {
+        setFailed(true);
+        setErrorMessage(request.errorMessage);
+        setErrorCode(request.errorCode);
+      }
+      return true;
+    },
+    [updateOccupied]
+  );
 
   useEffect(() => {
     startCount();
     getPending();
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, []);
+  }, [getPending, startCount, transactionDoneHandler]);
 
   const renderContent = () => (
     <Box
@@ -342,21 +359,24 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   );
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '65%',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '65%',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 

@@ -1,8 +1,9 @@
-import React, { ReactNode } from 'react';
-import { createContext, useContext } from 'react';
-import { Object } from 'ts-toolbelt';
-import { WalletController as WalletControllerClass } from 'background/controller/wallet';
-import { IExtractFromPromise } from './type';
+import React, { type ReactNode, createContext, useContext } from 'react';
+import type { Object } from 'ts-toolbelt';
+
+import type { WalletController as WalletControllerClass } from 'background/controller/wallet';
+
+import type { IExtractFromPromise } from './type';
 
 export type WalletControllerType = Object.Merge<
   {

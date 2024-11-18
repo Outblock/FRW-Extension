@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import {
   Box,
   List,
@@ -11,23 +11,22 @@ import {
   ListItemText,
   Divider,
   CardMedia,
+  Skeleton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
-import { formatString, isValidEthereumAddress } from 'ui/utils/address';
-import { useHistory } from 'react-router-dom';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
-import importIcon from 'ui/FRWAssets/svg/importIcon.svg';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { makeStyles } from '@mui/styles';
-import { UserInfoResponse } from 'background/service/networkModel';
-import sideMore from '../../../FRWAssets/svg/sideMore.svg';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import type { UserInfoResponse } from 'background/service/networkModel';
+import importIcon from 'ui/FRWAssets/svg/importIcon.svg';
+import popLock from 'ui/FRWAssets/svg/popLock.svg';
+import { useWallet } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
 
 import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
-import NetworkList from './NetworkList';
+import sideMore from '../../../FRWAssets/svg/sideMore.svg';
 
-import evmlogo from 'ui/FRWAssets/image/evmlogo.png';
+import NetworkList from './NetworkList';
 
 const useStyles = makeStyles(() => ({
   menuDrawer: {
@@ -59,6 +58,7 @@ interface MenuDrawerProps {
   networkColor: any;
   evmLoading: boolean;
   modeOn: boolean;
+  mainAddressLoading: boolean;
 }
 
 const MenuDrawer = (props: MenuDrawerProps) => {
@@ -105,7 +105,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
     history.push('/dashboard/enable');
   };
 
-  const checkEvmMode = async () => {
+  const checkEvmMode = useCallback(async () => {
     const activeChild = await usewallet.getActiveWallet();
     if (activeChild === 'evm') {
       setIsEvm(true);
@@ -113,26 +113,25 @@ const MenuDrawer = (props: MenuDrawerProps) => {
       setIsEvm(false);
     }
     setEvmMode(true);
-  };
+  }, [usewallet]);
 
-  const getEvmAddress = async () => {
-    console.log('getEvmAddress ', props.evmLoading, props.evmWallet);
+  const getEvmAddress = useCallback(async () => {
     if (isValidEthereumAddress(props.evmWallet.address)) {
       const result = await usewallet.getBalance(props.evmWallet.address);
       const readBalance = parseFloat(result) / 1e18;
       setEvmBalance(readBalance);
     }
-  };
+  }, [props.evmWallet, usewallet]);
 
   const hasChildAccounts = props.childAccounts && Object.keys(props.childAccounts).length > 0;
 
   useEffect(() => {
     checkEvmMode();
-  }, []);
+  }, [checkEvmMode]);
 
   useEffect(() => {
     getEvmAddress();
-  }, [props.evmWallet]);
+  }, [getEvmAddress, props.evmWallet]);
 
   return (
     <Drawer
@@ -170,10 +169,19 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 </Box>
               </ListItemIcon>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <ListItemText
-                  sx={{ fontSize: '14px', fontWeight: '700' }}
-                  primary={props.userInfo!.nickname}
-                />
+                {!props.mainAddressLoading && props && props.walletList.length ? (
+                  <ListItemText
+                    sx={{ fontSize: '14px', fontWeight: '700' }}
+                    primary={props.userInfo!.nickname}
+                  />
+                ) : (
+                  <Skeleton
+                    variant="rectangular"
+                    width={78}
+                    height={33}
+                    sx={{ borderRadius: '8px' }}
+                  />
+                )}
               </Box>
             </Box>
           )}
