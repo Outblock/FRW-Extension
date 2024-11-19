@@ -22,7 +22,7 @@ class MixpanelBrowserService {
   }) => void;
   private boundTrackUserHandler: (params: { userId: string }) => void;
   private boundTrackResetHandler: () => void;
-
+  private boundTrackTimeHandler: (params: { eventName: keyof TrackingEvents }) => void;
   private constructor() {
     this.initMixpanel();
     // Store bound handlers so we can remove them later
@@ -39,6 +39,9 @@ class MixpanelBrowserService {
     this.boundTrackResetHandler = () => {
       this.reset();
     };
+    this.boundTrackTimeHandler = (params: { eventName: keyof TrackingEvents }) => {
+      this.time(params.eventName);
+    };
 
     this.setupEventListener();
   }
@@ -48,6 +51,7 @@ class MixpanelBrowserService {
     eventBus.addEventListener('track_event', this.boundTrackEventHandler);
     eventBus.addEventListener('track_user', this.boundTrackUserHandler);
     eventBus.addEventListener('track_reset', this.boundTrackResetHandler);
+    eventBus.addEventListener('track_time', this.boundTrackTimeHandler);
   }
 
   init() {
@@ -63,6 +67,9 @@ class MixpanelBrowserService {
     }
     if (this.boundTrackResetHandler) {
       eventBus.removeEventListener('track_reset', this.boundTrackResetHandler);
+    }
+    if (this.boundTrackTimeHandler) {
+      eventBus.removeEventListener('track_time', this.boundTrackTimeHandler);
     }
   }
 
@@ -120,6 +127,10 @@ class MixpanelBrowserService {
       ...baseProps,
       ...properties,
     });
+  }
+
+  time<T extends keyof TrackingEvents>(eventName: T) {
+    mixpanel.time_event(eventName);
   }
 
   identify(userId: string) {

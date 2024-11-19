@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -14,20 +13,23 @@ import {
   LinearProgress,
   CssBaseline,
 } from '@mui/material';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { makeStyles, styled } from '@mui/styles';
+import { Box, ThemeProvider } from '@mui/system';
+import HDWallet from 'ethereum-hdwallet';
+import React, { useEffect, useState } from 'react';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
-import theme from '../../style/LLTheme';
-import { useWallet, saveIndex } from 'ui/utils';
-import { AccountKey } from 'background/service/networkModel';
-import HDWallet from 'ethereum-hdwallet';
-import { LLSpinner } from 'ui/FRWComponent';
+
 import { storage } from '@/background/webapi';
+import type { AccountKey } from 'background/service/networkModel';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet, saveIndex, mixpanelBrowserService } from 'ui/utils';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
+import theme from '../../style/LLTheme';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -217,6 +219,8 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
 
     await saveIndex(username);
     const accountKey = getAccountKey(mnemonic);
+    // track the time until account_created is called
+    mixpanelBrowserService.time('account_created');
     wallet.openapi
       .register(accountKey, username)
       .then((response) => {

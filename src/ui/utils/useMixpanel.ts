@@ -11,6 +11,9 @@ export const useMixpanel = () => {
     },
     []
   );
+  const time = useCallback(<T extends keyof TrackingEvents>(eventName: T) => {
+    mixpanelBrowserService.time(eventName);
+  }, []);
 
   const identify = useCallback((userId: string) => {
     mixpanelBrowserService.identify(userId);
@@ -22,6 +25,7 @@ export const useMixpanel = () => {
 
   return {
     track,
+    time,
     identify,
     reset,
   };

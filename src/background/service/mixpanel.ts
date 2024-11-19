@@ -31,6 +31,12 @@ class MixpanelService {
     });
   }
 
+  time<T extends keyof TrackingEvents>(eventName: T) {
+    eventBus.emit('track_time', {
+      eventName,
+    });
+  }
+
   identify(userId: string) {
     if (!this.initialized) return;
 
