@@ -264,7 +264,7 @@ const Header = ({ loading }) => {
 
       await usewallet.lockWallet();
       await usewallet.clearWallet();
-      await usewallet.refreshAll();
+      // await usewallet.refreshAll();
       await usewallet.switchNetwork(switchingTo);
 
       history.push('/switchunlock');

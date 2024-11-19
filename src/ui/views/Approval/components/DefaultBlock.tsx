@@ -29,6 +29,40 @@ export const DefaultBlock = ({
 }) => {
   const history = useHistory();
 
+  const hexToString = (hex) => {
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    return str;
+  };
+
+  const processItem = (item) => {
+    if (Array.isArray(item)) {
+      return `[${item.map((value) => processItem(value)).join('')}]`;
+    } else if (typeof item === 'object' && item !== null) {
+      if (item.type && item.value !== undefined) {
+        return `{type:${item.type} value:${processItem(item.value)}}`;
+      } else {
+        return `{${Object.entries(item)
+          .map(([key, value]) => `${key}:${processItem(value)}`)
+          .join('')}}`;
+      }
+    } else if (typeof item === 'string' && /^[0-9a-fA-F]+$/.test(item)) {
+      return hexToString(item);
+    } else {
+      return JSON.stringify(item);
+    }
+  };
+
+  const displayCadenceArguments = (cadenceArguments) => {
+    if (!Array.isArray(cadenceArguments)) {
+      console.error('cadenceArguments is not an array:', cadenceArguments);
+      return;
+    }
+    return `[${cadenceArguments.map((item) => processItem(item)).join('\n')}]`;
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '12px' }}>
       <Box sx={{ display: 'flex', gap: '18px', marginBottom: '0px' }}>
@@ -200,7 +234,8 @@ export const DefaultBlock = ({
                   sx={{ fontWeight: '400', fontSize: '10px', fontFamily: 'Inter' }}
                 >
                   <Highlight className="swift">
-                    {`[\n${cadenceArguments.map((item) => `\t${item.value}: ${item.type}`).join(',\n')}\n]`}
+                    {/* {`[\n${cadenceArguments.map((item) => `\t${item.value}: ${item.type}`).join(',\n')}\n]`} */}
+                    {`\n${displayCadenceArguments(cadenceArguments)}\n`}
                   </Highlight>
                 </Typography>
               </Box>
