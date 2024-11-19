@@ -1,25 +1,34 @@
+import GlobalStyles from '@mui/material/GlobalStyles';
+import { ThemeProvider } from '@mui/material/styles';
+import { createMemoryHistory } from 'history';
 import React, { lazy, Suspense } from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
-import { createMemoryHistory } from 'history';
 
-import { WalletProvider } from 'ui/utils';
-import SortHat from './SortHat';
-import Unlock from './Unlock';
-import SwitchUnlock from './SwitchUnlock';
-import RetrievePK from './RetrievePK';
-import InnerRoute from './InnerRoute';
-const AsyncMainRoute = lazy(() => import('./MainRoute'));
-import theme from '../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import GlobalStyles from '@mui/material/GlobalStyles';
-import { PrivateRoute } from 'ui/component';
-import Approval from './Approval';
 import { NewsProvider } from '@/ui/utils/NewsContext';
+import { PrivateRoute } from 'ui/component';
+import { WalletProvider, mixpanelBrowserService } from 'ui/utils';
+
+import theme from '../style/LLTheme';
+
+import Approval from './Approval';
+import InnerRoute from './InnerRoute';
+import RetrievePK from './RetrievePK';
+import SortHat from './SortHat';
+import SwitchUnlock from './SwitchUnlock';
+import Unlock from './Unlock';
+
+const AsyncMainRoute = lazy(() => import('./MainRoute'));
+
 // import Reset from './Reset';
 
 function Main() {
+  React.useEffect(() => {
+    // Initialize mixpanel in the popup
+    // Note: Mixpanel is initialized in the constructor, just calling init here to make sure it is initialized
+    mixpanelBrowserService.init();
+  }, []);
+
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     <Router history={createMemoryHistory}>
       <Route exact path="/">

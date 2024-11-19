@@ -1,6 +1,5 @@
 import { IS_CHROME, CHECK_METAMASK_INSTALLED_URL } from 'consts';
-import { Account } from 'background/service/preference';
-// eslint-disable-next-line @typescript-eslint/no-empty-function
+
 export const noop = () => {};
 
 export * from './WalletContext';
@@ -18,6 +17,8 @@ export * from './options';
 
 export * from './saveStorage';
 
+export * from './mixpanelBrowserService';
+
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',
@@ -31,6 +32,7 @@ type UiTypeCheck = {
 };
 
 export const getUiType = (): UiTypeCheck => {
+  // eslint-disable-next-line no-restricted-globals
   const { pathname } = window.location;
   return Object.entries(UI_TYPE).reduce((m, [key, value]) => {
     m[`is${key}`] = pathname === `/${value}.html`;
@@ -121,11 +123,12 @@ export const isMetaMaskActive = async () => {
   if (!url) return false;
 
   try {
+    // eslint-disable-next-line no-restricted-globals
     const res = await window.fetch(url);
     await res.text();
 
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
