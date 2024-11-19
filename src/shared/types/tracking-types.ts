@@ -1,3 +1,5 @@
+import type { HashAlgoType, SignAlgoType } from './algo-types';
+
 type OnRampSourceType = 'moonpay' | 'coinbase';
 
 type KeyType = 'passkey' | 'google_drive' | 'seed_phrase' | 'keystore' | 'private_key';
@@ -10,10 +12,6 @@ type RecoveryMechanismType =
   | 'device_backup';
 
 type AddressType = 'flow' | 'evm' | 'child' | 'coa';
-
-type SignAlgoType = 'ECDSA_P256' | 'ECDSA_secp256k1';
-
-type HashAlgoType = 'SHA256' | 'SHA3_256';
 
 export type TrackingEvents = {
   // General Events
@@ -89,7 +87,7 @@ export type TrackingEvents = {
   // Account Events
   account_created: {
     public_key: string; // The public key used for creating the new account
-    key_type: KeyType; // The key type of the account
+    key_type?: KeyType; // The key type of the account (if available)
     sign_algo: SignAlgoType; // Signature algorithm of the key
     hash_algo: HashAlgoType; // Hash algo Hash algorithm of the key
   };

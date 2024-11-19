@@ -16,6 +16,7 @@ import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
+import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
@@ -51,6 +52,7 @@ import {
   transactionService,
   nftService,
   googleSafeHostService,
+  mixpanelTrack,
 } from './index';
 
 // import { userInfo } from 'os';
@@ -694,6 +696,13 @@ class OpenApiService {
     );
     await this._signWithCustom(data.data.custom_token);
     await storage.set('currentId', data.data.id);
+
+    // Track the registration
+    mixpanelTrack.track('account_created', {
+      public_key: account_key.public_key,
+      sign_algo: getStringFromSignAlgo(account_key.sign_algo),
+      hash_algo: getStringFromHashAlgo(account_key.hash_algo),
+    });
     return data;
   };
 

@@ -10,6 +10,7 @@ import { getApp } from 'firebase/app';
 import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
+import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
 import {
   keyringService,
   preferenceService,
@@ -42,7 +43,7 @@ import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
-import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
+import { getStoragedAccount } from 'ui/utils';
 import { isValidEthereumAddress, withPrefix } from 'ui/utils/address';
 import { openInternalPageInTab } from 'ui/utils/webapi';
 

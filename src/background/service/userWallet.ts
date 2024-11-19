@@ -3,13 +3,14 @@ import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
 
+import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
 import { withPrefix } from '@/ui/utils/address';
 import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import wallet from 'background/controller/wallet';
 import { keyringService, mixpanelTrack, openapiService } from 'background/service';
 import { createPersistStore } from 'background/utils';
-import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
+import { getStoragedAccount } from 'ui/utils';
 
 import { storage } from '../webapi';
 
