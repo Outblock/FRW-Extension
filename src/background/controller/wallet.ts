@@ -1767,11 +1767,21 @@ export class WalletController extends BaseController {
       recipientEVMAddressHex = recipientEVMAddressHex.substring(2);
     }
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(recipientEVMAddressHex, t.String),
       fcl.arg(formattedAmount, t.UFix64),
       fcl.arg(gasLimit, t.UInt64),
     ]);
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: recipientEVMAddressHex,
+      amount: parseFloat(formattedAmount),
+      ft_identifier: 'FLOW',
+      type: 'evm',
+    });
+
+    return txID;
   };
 
   transferFTToEvm = async (
@@ -1793,7 +1803,7 @@ export class WalletController extends BaseController {
     const regularArray = Array.from(dataArray);
     const gasLimit = 30000000;
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(tokenContractAddress, t.Address),
       fcl.arg(tokenContractName, t.String),
       fcl.arg(formattedAmount, t.UFix64),
@@ -1801,6 +1811,14 @@ export class WalletController extends BaseController {
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: tokenContractAddress,
+      amount: parseFloat(formattedAmount),
+      ft_identifier: tokenContractName,
+      type: 'evm',
+    });
+    return txID;
   };
 
   transferFTToEvmV2 = async (
@@ -1813,11 +1831,21 @@ export class WalletController extends BaseController {
 
     const script = await getScripts('bridge', 'bridgeTokensToEvmAddressV2');
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(vaultIdentifier, t.String),
       fcl.arg(formattedAmount, t.UFix64),
       fcl.arg(recipient, t.String),
     ]);
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: recipient,
+      amount: parseFloat(formattedAmount),
+      ft_identifier: vaultIdentifier,
+      type: 'evm',
+    });
+
+    return txID;
   };
 
   transferFTFromEvm = async (
@@ -1844,11 +1872,21 @@ export class WalletController extends BaseController {
 
     console.log('integerAmountStr amount ', integerAmountStr, amount);
     const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlowV2');
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowidentifier, t.String),
       fcl.arg(integerAmountStr, t.UInt256),
       fcl.arg(receiver, t.Address),
     ]);
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: receiver,
+      amount: parseFloat(integerAmountStr),
+      ft_identifier: flowidentifier,
+      type: 'evm',
+    });
+
+    return txID;
   };
 
   withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
@@ -1856,10 +1894,12 @@ export class WalletController extends BaseController {
     const formattedAmount = parseFloat(amount).toFixed(8);
     const script = await getScripts('evm', 'withdrawCoa');
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(formattedAmount, t.UFix64),
       fcl.arg(address, t.Address),
     ]);
+
+    return txID;
   };
 
   fundFlowEvm = async (amount = '1.0'): Promise<string> => {
@@ -1904,16 +1944,26 @@ export class WalletController extends BaseController {
     }
   };
 
-  bridgeToEvm = async (flowIndentifier, amount = '1.0'): Promise<string> => {
+  bridgeToEvm = async (flowIdentifier, amount = '1.0'): Promise<string> => {
     await this.getNetwork();
     const formattedAmount = parseFloat(amount).toFixed(8);
 
     const script = await getScripts('bridge', 'bridgeTokensToEvmV2');
 
-    return await userWalletService.sendTransaction(script, [
-      fcl.arg(flowIndentifier, t.String),
+    const txID = await userWalletService.sendTransaction(script, [
+      fcl.arg(flowIdentifier, t.String),
       fcl.arg(formattedAmount, t.UFix64),
     ]);
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: await this.getEvmAddress(),
+      amount: parseFloat(formattedAmount),
+      ft_identifier: flowIdentifier,
+      type: 'evm',
+    });
+
+    return txID;
   };
 
   bridgeToFlow = async (flowIdentifier, amount = '1.0', tokenResult): Promise<string> => {
@@ -1932,10 +1982,20 @@ export class WalletController extends BaseController {
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
 
     const script = await getScripts('bridge', 'bridgeTokensFromEvmV2');
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowIdentifier, t.String),
       fcl.arg(integerAmountStr, t.UInt256),
     ]);
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: await this.getEvmAddress(),
+      to_address: (await this.getCurrentAddress()) || '',
+      amount: parseFloat(integerAmountStr),
+      ft_identifier: flowIdentifier,
+      type: 'evm',
+    });
+
+    return txID;
   };
 
   queryEvmAddress = async (address: string): Promise<string | null> => {
@@ -2033,6 +2093,14 @@ export class WalletController extends BaseController {
       fcl.arg(gasLimit, t.UInt64),
     ]);
 
+    mixpanelTrack.track('ft_transfer', {
+      from_address: await this.getEvmAddress(),
+      to_address: to,
+      amount: parseFloat(amount),
+      ft_identifier: 'FLOW',
+      type: 'evm',
+    });
+
     return result;
     // const transaction = await fcl.tx(result).onceSealed();
     // console.log('transaction ', transaction);
@@ -2091,6 +2159,14 @@ export class WalletController extends BaseController {
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: await this.getEvmAddress(),
+      to_address: to,
+      amount: parseFloat(amount),
+      ft_identifier: 'FLOW',
+      type: 'evm',
+    });
 
     console.log('result ', result);
     const res = await fcl.tx(result).onceSealed();
@@ -2186,7 +2262,7 @@ export class WalletController extends BaseController {
     await this.getNetwork();
     const script = await getScripts('ft', 'transferTokens');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
         .replaceAll('<TokenBalancePath>', token.path.balance)
@@ -2195,6 +2271,16 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenAddress>', token.address),
       [fcl.arg(amount, t.UFix64), fcl.arg(address, t.Address)]
     );
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: address,
+      amount: parseFloat(amount),
+      ft_identifier: token.contractName,
+      type: 'evm',
+    });
+
+    return txID;
   };
 
   // TODO: Replace with generic token
@@ -2211,7 +2297,7 @@ export class WalletController extends BaseController {
     }
     await this.getNetwork();
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
         .replaceAll('<TokenBalancePath>', token.path.balance)
@@ -2220,6 +2306,16 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenAddress>', token.address),
       [fcl.arg(amount, t.UFix64), fcl.arg(address, t.Address)]
     );
+
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: address,
+      amount: parseFloat(amount),
+      ft_identifier: token.contractName,
+      type: 'evm',
+    });
+
+    return txID;
   };
 
   revokeKey = async (index: string): Promise<string> => {
@@ -2382,7 +2478,7 @@ export class WalletController extends BaseController {
     }
     const script = await getScripts('hybridCustody', 'transferChildFT');
 
-    return await userWalletService.sendTransaction(
+    const result = await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
         .replaceAll('<TokenBalancePath>', token.path.balance)
@@ -2391,6 +2487,14 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenAddress>', token.address),
       [fcl.arg(childAddress, t.Address), fcl.arg(path, t.String), fcl.arg(amount, t.UFix64)]
     );
+    mixpanelTrack.track('ft_transfer', {
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: childAddress,
+      amount: parseFloat(amount),
+      ft_identifier: token.contractName,
+      type: 'evm',
+    });
+    return result;
   };
 
   sendFTfromChild = async (
@@ -2407,7 +2511,7 @@ export class WalletController extends BaseController {
 
     const script = await getScripts('hybridCustody', 'sendChildFT');
 
-    return await userWalletService.sendTransaction(
+    const result = await userWalletService.sendTransaction(
       script
         .replaceAll('<Token>', token.contractName)
         .replaceAll('<TokenBalancePath>', token.path.balance)
@@ -2421,6 +2525,14 @@ export class WalletController extends BaseController {
         fcl.arg(amount, t.UFix64),
       ]
     );
+    mixpanelTrack.track('ft_transfer', {
+      from_address: childAddress,
+      to_address: receiver,
+      amount: parseFloat(amount),
+      ft_identifier: token.contractName,
+      type: 'evm',
+    });
+    return result;
   };
 
   moveNFTfromChild = async (
@@ -2433,7 +2545,7 @@ export class WalletController extends BaseController {
 
     const script = await getScripts('hybridCustody', 'transferChildNFT');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2446,6 +2558,16 @@ export class WalletController extends BaseController {
         fcl.arg(ids, t.UInt64),
       ]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: nftContractAddress,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: token.contractName,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: true,
+    });
+    return txID;
   };
 
   sendNFTfromChild = async (
@@ -2457,7 +2579,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'sendChildNFT');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2471,6 +2593,16 @@ export class WalletController extends BaseController {
         fcl.arg(ids, t.UInt64),
       ]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: linkedAddress,
+      to_address: receiverAddress,
+      nft_identifier: token.contractName,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   sendNFTtoChild = async (
@@ -2480,7 +2612,7 @@ export class WalletController extends BaseController {
     token
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'transferNFTToChild');
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2489,6 +2621,16 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
       [fcl.arg(linkedAddress, t.Address), fcl.arg(path, t.String), fcl.arg(ids, t.UInt64)]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: linkedAddress,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: token.contractName,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   getChildAccountAllowTypes = async (parent: string, child: string) => {
@@ -2513,19 +2655,39 @@ export class WalletController extends BaseController {
   batchBridgeNftToEvm = async (flowIdentifier: string, ids: Array<number>): Promise<string> => {
     const script = await getScripts('bridge', 'batchBridgeNFTToEvmV2');
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowIdentifier, t.String),
       fcl.arg(ids, t.Array(t.UInt64)),
     ]);
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: flowIdentifier,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: flowIdentifier,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   batchBridgeNftFromEvm = async (flowIdentifier: string, ids: Array<number>): Promise<string> => {
     const script = await getScripts('bridge', 'batchBridgeNFTFromEvmV2');
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowIdentifier, t.String),
       fcl.arg(ids, t.Array(t.UInt256)),
     ]);
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: flowIdentifier,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: flowIdentifier,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   batchTransferNFTToChild = async (
@@ -2536,7 +2698,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'batchTransferNFTToChild');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2549,6 +2711,16 @@ export class WalletController extends BaseController {
         fcl.arg(ids, t.Array(t.UInt64)),
       ]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: childAddr,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: identifier,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   batchTransferChildNft = async (
@@ -2558,7 +2730,7 @@ export class WalletController extends BaseController {
     token
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'batchTransferChildNFT');
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2571,6 +2743,16 @@ export class WalletController extends BaseController {
         fcl.arg(ids, t.Array(t.UInt64)),
       ]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: childAddr,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: identifier,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   sendChildNFTToChild = async (
@@ -2582,7 +2764,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'batchSendChildNFTToChild');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2596,6 +2778,16 @@ export class WalletController extends BaseController {
         fcl.arg(ids, t.Array(t.UInt64)),
       ]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: childAddr,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: identifier,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   batchBridgeChildNFTToEvm = async (
@@ -2606,7 +2798,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'batchBridgeChildNFTToEvm');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2619,6 +2811,16 @@ export class WalletController extends BaseController {
         fcl.arg(ids, t.Array(t.UInt64)),
       ]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: childAddr,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: identifier,
+      from_type: 'flow',
+      to_type: 'evm',
+      isMove: false,
+    });
+    return txID;
   };
 
   batchBridgeChildNFTFromEvm = async (
@@ -2628,11 +2830,21 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'batchBridgeChildNFTFromEvm');
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(identifier, t.String),
       fcl.arg(childAddr, t.Address),
       fcl.arg(ids, t.Array(t.UInt256)),
     ]);
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: childAddr,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: identifier,
+      from_type: 'evm',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   bridgeChildFTToEvm = async (
@@ -2643,7 +2855,7 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'bridgeChildFTToEvm');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2652,17 +2864,26 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
       [fcl.arg(identifier, t.String), fcl.arg(childAddr, t.Address), fcl.arg(amount, t.UFix64)]
     );
+    mixpanelTrack.track('ft_transfer', {
+      from_address: childAddr,
+      to_address: (await this.getCurrentAddress()) || '',
+      ft_identifier: identifier,
+      type: 'evm',
+      amount: amount,
+    });
+    return txID;
   };
 
   bridgeChildFTFromEvm = async (
     childAddr: string,
     vaultIdentifier: string,
     ids: Array<number>,
-    token
+    token,
+    amount: number
   ): Promise<string> => {
     const script = await getScripts('hybridCustody', 'bridgeChildFTFromEvm');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2673,8 +2894,17 @@ export class WalletController extends BaseController {
         fcl.arg(vaultIdentifier, t.String),
         fcl.arg(childAddr, t.Address),
         fcl.arg(ids, t.Array(t.UInt256)),
+        fcl.arg(amount, t.UFix64),
       ]
     );
+    mixpanelTrack.track('ft_transfer', {
+      from_address: childAddr,
+      to_address: (await this.getCurrentAddress()) || '',
+      ft_identifier: vaultIdentifier,
+      type: 'evm',
+      amount: amount,
+    });
+    return txID;
   };
 
   bridgeNftToEvmAddress = async (
@@ -2699,7 +2929,7 @@ export class WalletController extends BaseController {
       contractEVMAddress = contractEVMAddress.substring(2);
     }
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(nftContractAddress, t.Address),
       fcl.arg(nftContractName, t.String),
       fcl.arg(ids, t.UInt64),
@@ -2707,6 +2937,16 @@ export class WalletController extends BaseController {
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: nftContractAddress,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: nftContractName,
+      from_type: 'evm',
+      to_type: 'evm',
+      isMove: false,
+    });
+    return txID;
   };
 
   bridgeNftFromEvmToFlow = async (
@@ -2716,11 +2956,21 @@ export class WalletController extends BaseController {
   ): Promise<string> => {
     const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlowV2');
 
-    return await userWalletService.sendTransaction(script, [
+    const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowIdentifier, t.String),
       fcl.arg(ids, t.UInt256),
       fcl.arg(receiver, t.Address),
     ]);
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: flowIdentifier,
+      to_address: (await this.getCurrentAddress()) || '',
+      nft_identifier: flowIdentifier,
+      from_type: 'evm',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   getAssociatedFlowIdentifier = async (address: string): Promise<string> => {
@@ -2736,7 +2986,7 @@ export class WalletController extends BaseController {
     await this.getNetwork();
     const script = await getScripts('collection', 'sendNFT');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2744,13 +2994,23 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
       [fcl.arg(recipient, t.Address), fcl.arg(parseInt(id), t.UInt64)]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: recipient,
+      nft_identifier: token.contract_name,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   sendNBANFT = async (recipient: string, id: any, token: NFTModel): Promise<string> => {
     await this.getNetwork();
     const script = await getScripts('collection', 'sendNbaNFT');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2758,12 +3018,22 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
       [fcl.arg(recipient, t.Address), fcl.arg(parseInt(id), t.UInt64)]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: recipient,
+      nft_identifier: token.contract_name,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   sendInboxNFT = async (recipient: string, id: any, token: any): Promise<string> => {
     const script = await getScripts('domain', 'sendInboxNFT');
 
-    return await userWalletService.sendTransaction(
+    const txID = await userWalletService.sendTransaction(
       script
         .replaceAll('<NFT>', token.contract_name)
         .replaceAll('<NFTAddress>', token.address)
@@ -2771,6 +3041,16 @@ export class WalletController extends BaseController {
         .replaceAll('<CollectionPublicPath>', token.path.public_path),
       [fcl.arg(recipient, t.Address), fcl.arg(parseInt(id), t.UInt64)]
     );
+    mixpanelTrack.track('nft_transfer', {
+      tx_id: txID,
+      from_address: (await this.getCurrentAddress()) || '',
+      to_address: recipient,
+      nft_identifier: token.contract_name,
+      from_type: 'flow',
+      to_type: 'flow',
+      isMove: false,
+    });
+    return txID;
   };
 
   // SwapTokensForExactTokens
