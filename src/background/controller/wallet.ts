@@ -3397,6 +3397,7 @@ export class WalletController extends BaseController {
     }
     const address = (await this.getCurrentAddress()) || '0x';
     const network = await this.getNetwork();
+
     try {
       chrome.storage.session.set({
         transactionPending: { txId, network, date: new Date() },
@@ -3411,6 +3412,23 @@ export class WalletController extends BaseController {
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
       await fcl.tx(txId).onceSealed();
+
+      // Track the transaction result
+      mixpanelTrack.track('transaction_result', {
+        tx_id: txId,
+        is_successful: true,
+      });
+
+      try {
+        // Send a notification to the user only on success
+        if (sendNotification) {
+          const baseURL = this.getFlowscanUrl();
+          notification.create(`${baseURL}/transaction/${txId}`, title, body, icon);
+        }
+      } catch (err: unknown) {
+        // We don't want to throw an error if the notification fails
+        console.error('listenTransaction notification error ', err);
+      }
     } catch (err: unknown) {
       // An error has occurred while listening to the transaction
       console.error('listenTransaction error ', err);
@@ -3422,10 +3440,19 @@ export class WalletController extends BaseController {
           errorCode: err.code,
         });
 
-        // mixpanelTrack.track('script_error', {
-        //   error: err.message,
-        //   script_id: somewhere in the error message,
-        // });
+        // Track the transaction result
+        mixpanelTrack.track('transaction_result', {
+          tx_id: txId,
+          is_successful: false,
+          error_message: err.message,
+        });
+      } else {
+        // Track the transaction result
+        mixpanelTrack.track('transaction_result', {
+          tx_id: txId,
+          is_successful: false,
+          error_message: 'Unknown Error',
+        });
       }
     } finally {
       // Remove the pending transaction from the UI
@@ -3440,12 +3467,6 @@ export class WalletController extends BaseController {
       chrome.runtime.sendMessage({
         msg: 'transactionDone',
       });
-
-      // Send a notification to the user
-      if (sendNotification) {
-        const baseURL = this.getFlowscanUrl();
-        notification.create(`${baseURL}/transaction/${txId}`, title, body, icon);
-      }
     }
   };
 
