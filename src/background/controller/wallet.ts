@@ -1993,7 +1993,7 @@ export class WalletController extends BaseController {
       to_address: (await this.getCurrentAddress()) || '',
       amount: parseFloat(integerAmountStr),
       ft_identifier: flowIdentifier,
-      type: 'evm',
+      type: 'flow',
     });
 
     return txID;
@@ -2278,7 +2278,7 @@ export class WalletController extends BaseController {
       to_address: address,
       amount: parseFloat(amount),
       ft_identifier: token.contractName,
-      type: 'evm',
+      type: 'flow',
     });
 
     return txID;
@@ -2313,7 +2313,7 @@ export class WalletController extends BaseController {
       to_address: address,
       amount: parseFloat(amount),
       ft_identifier: token.contractName,
-      type: 'evm',
+      type: 'flow',
     });
 
     return txID;
@@ -2493,7 +2493,7 @@ export class WalletController extends BaseController {
       to_address: childAddress,
       amount: parseFloat(amount),
       ft_identifier: token.contractName,
-      type: 'evm',
+      type: 'flow',
     });
     return result;
   };
@@ -2531,7 +2531,7 @@ export class WalletController extends BaseController {
       to_address: receiver,
       amount: parseFloat(amount),
       ft_identifier: token.contractName,
-      type: 'evm',
+      type: 'flow',
     });
     return result;
   };
@@ -2685,7 +2685,7 @@ export class WalletController extends BaseController {
       to_address: (await this.getCurrentAddress()) || '',
       nft_identifier: flowIdentifier,
       from_type: 'flow',
-      to_type: 'flow',
+      to_type: 'evm',
       isMove: false,
     });
     return txID;
@@ -2841,8 +2841,8 @@ export class WalletController extends BaseController {
       from_address: childAddr,
       to_address: (await this.getCurrentAddress()) || '',
       nft_identifier: identifier,
-      from_type: 'evm',
-      to_type: 'flow',
+      from_type: 'flow',
+      to_type: 'evm',
       isMove: false,
     });
     return txID;
@@ -2967,8 +2967,8 @@ export class WalletController extends BaseController {
       from_address: flowIdentifier,
       to_address: (await this.getCurrentAddress()) || '',
       nft_identifier: flowIdentifier,
-      from_type: 'evm',
-      to_type: 'flow',
+      from_type: 'flow',
+      to_type: 'evm',
       isMove: false,
     });
     return txID;
