@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
-import { useHistory } from 'react-router-dom';
 import { Presets } from 'react-component-transition';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import Highlight from 'react-highlight';
@@ -27,8 +26,6 @@ export const DefaultBlock = ({
   setExpanded,
   dedent,
 }) => {
-  const history = useHistory();
-
   const processItem = (item, indentLevel = 0) => {
     const indent = ' '.repeat(indentLevel);
 
