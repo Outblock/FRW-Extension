@@ -107,7 +107,6 @@ const LinkedDetail = () => {
       setChildAccount(childresp[key]);
       setKey(key);
       const catalog = await usewallet.getNftCatalog();
-      console.log('catalog ,', catalog);
 
       const parentaddress = await usewallet.getMainWallet();
 
@@ -118,25 +117,18 @@ const LinkedDetail = () => {
 
       const nftResult = await usewallet.checkAccessibleNft(parentaddress);
       activec.forEach((active) => {
-        console.log('nft result ', active);
         const collection = findObjectByContractName(active, catalog);
         if (collection) {
           collectionMap[collection.contract_name] = { ...collection, total: 0, nfts: [] };
         }
       });
-      console.log('nft result ', nftResult, key);
-
-      nftResult.forEach((nft) => {
-        const someResult = checkContractAddressInCollections(nft, Object.values(collectionMap));
-        console.log('someResult , ', someResult, Object.values(collectionMap));
+      Object.entries(nftResult[key]).forEach((nft) => {
+        const someResult = checkContractAddressInCollections(nft[0], Object.values(collectionMap));
         if (someResult) {
           collectionMap[someResult.contract_name].total! += 1;
           collectionMap[someResult.contract_name].nfts!.push(nft);
         }
       });
-      console.log('collectionMap result ', collectionMap);
-
-      console.log('active check nftResult ', nftResult);
       if (nftResult) {
         setNft(nftResult);
         const collectionsArray = Object.values(collectionMap);
@@ -148,7 +140,6 @@ const LinkedDetail = () => {
       }
 
       setLoading(false);
-      console.log('availableNft ', availableNft, availableFt);
     } catch (error) {
       // Handle any errors that occur during data fetching
       console.error('Error fetching data:', error);
@@ -156,21 +147,22 @@ const LinkedDetail = () => {
     }
   };
 
-  const extractContractAddress = (collection) => {
+  const extractContractName = (collection) => {
     return collection.split('.')[2];
   };
 
   const findObjectByContractName = (contractName, collections) => {
-    const extractedAddress = extractContractAddress(contractName);
-    const foundObject = collections.find((item) => item.contract_name === extractedAddress);
+    const extractedContract = extractContractName(contractName);
+    const foundObject = collections.find((item) => item.contract_name === extractedContract);
     return foundObject || null;
   };
 
   const checkContractAddressInCollections = (nft, activec) => {
-    const contractAddressWithout0x = nft.collectionName;
     const matchedResult = activec.find((collection) => {
-      const extractedAddress = collection.name;
-      return extractedAddress === contractAddressWithout0x;
+      const parts = nft.split('.');
+      const address = `0x${parts[1]}`;
+      const contractName = parts[2];
+      return collection.address === address && collection.contract_name == contractName;
     });
     return matchedResult;
   };
@@ -192,7 +184,6 @@ const LinkedDetail = () => {
 
   const toggleHide = (event) => {
     event.stopPropagation();
-    console.log('hideEmpty ', hideEmpty);
     const prevEmpty = hideEmpty;
     setHide(!prevEmpty);
   };
@@ -200,9 +191,10 @@ const LinkedDetail = () => {
   const navigateWithState = (data, key) => {
     const state = { nft: data };
     localStorage.setItem('nftLinkedState', JSON.stringify(state));
+    const storagePath = data.path.storage_path.split('/')[2];
     if (data.total) {
       history.push({
-        pathname: `/dashboard/nested/linked/collectiondetail/${key + '.' + data.contract_name + '.' + data.total + '.linked'}`,
+        pathname: `/dashboard/nested/linked/collectiondetail/${key + '.' + storagePath + '.' + data.total + '.linked'}`,
         state: {
           collection: data,
           ownerAddress: key,
