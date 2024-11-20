@@ -29,27 +29,19 @@ export const DefaultBlock = ({
 }) => {
   const history = useHistory();
 
-  const hexToString = (hex) => {
-    let str = '';
-    for (let i = 0; i < hex.length; i += 2) {
-      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    }
-    return str;
-  };
+  const processItem = (item, indentLevel = 0) => {
+    const indent = ' '.repeat(indentLevel);
 
-  const processItem = (item) => {
     if (Array.isArray(item)) {
-      return `[${item.map((value) => processItem(value)).join('')}]`;
+      return `[\n${item.map((value) => processItem(value, indentLevel + 1)).join(',\n')}\n${indent}]`;
     } else if (typeof item === 'object' && item !== null) {
       if (item.type && item.value !== undefined) {
-        return `{type:${item.type} value:${processItem(item.value)}}`;
+        return `${indent}{\n${indent}type: ${item.type},\n${indent}value: ${processItem(item.value, indentLevel + 1)}\n${indent}}`;
       } else {
-        return `{${Object.entries(item)
-          .map(([key, value]) => `${key}:${processItem(value)}`)
-          .join('')}}`;
+        return `${indent}{\n${Object.entries(item)
+          .map(([key, value]) => `${indent}${key}: ${processItem(value, indentLevel + 1)}`)
+          .join(',\n')}\n${indent}}`;
       }
-    } else if (typeof item === 'string' && /^[0-9a-fA-F]+$/.test(item)) {
-      return hexToString(item);
     } else {
       return JSON.stringify(item);
     }
@@ -60,7 +52,7 @@ export const DefaultBlock = ({
       console.error('cadenceArguments is not an array:', cadenceArguments);
       return;
     }
-    return `[${cadenceArguments.map((item) => processItem(item)).join('\n')}]`;
+    return `[\n${cadenceArguments.map((item) => processItem(item, 1)).join(',\n')}\n]`;
   };
 
   return (
@@ -234,7 +226,6 @@ export const DefaultBlock = ({
                   sx={{ fontWeight: '400', fontSize: '10px', fontFamily: 'Inter' }}
                 >
                   <Highlight className="swift">
-                    {/* {`[\n${cadenceArguments.map((item) => `\t${item.value}: ${item.type}`).join(',\n')}\n]`} */}
                     {`\n${displayCadenceArguments(cadenceArguments)}\n`}
                   </Highlight>
                 </Typography>
