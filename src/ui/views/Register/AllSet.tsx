@@ -1,20 +1,34 @@
-import React, { useEffect } from 'react';
-import { useWallet } from 'ui/utils';
-import { Box, ThemeProvider } from '@mui/system';
 import { Button, Typography, CssBaseline, CardMedia } from '@mui/material';
-import theme from '../../style/LLTheme';
+import { Box, ThemeProvider } from '@mui/system';
+import React, { useCallback, useEffect } from 'react';
+
 import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
+import { mixpanelBrowserService, useWallet } from 'ui/utils';
+
+import theme from '../../style/LLTheme';
 
 const AllSet = ({ handleClick }) => {
-  const wallets = useWallet();
+  const wallet = useWallet();
 
-  const loadScript = async () => {
-    await wallets.getCadenceScripts();
-  };
+  const loadScript = useCallback(async () => {
+    await wallet.getCadenceScripts();
+  }, [wallet]);
+
+  const trackAccountRecovered = useCallback(async () => {
+    // I'm not sure if this is the best way to track this event
+    // It's hard to know at which point the user recovers the account
+    mixpanelBrowserService.track('account_recovered', {
+      address: (await wallet.getMainAddress()) || '',
+      mechanism: 'multi-backup',
+      methods: [],
+    });
+  }, [wallet]);
 
   useEffect(() => {
-    loadScript();
-  }, []);
+    loadScript().then(() => {
+      trackAccountRecovered();
+    });
+  }, [loadScript, trackAccountRecovered]);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
