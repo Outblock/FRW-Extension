@@ -25,6 +25,7 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { withPrefix, ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { useNews } from '@/ui/utils/NewsContext';
 import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
@@ -116,6 +117,8 @@ const Header = ({ loading }) => {
 
   const [switchLoading, setSwitchLoading] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorCode, setErrorCode] = useState(null);
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
   const { unreadCount } = useNews();
@@ -354,12 +357,18 @@ const Header = ({ loading }) => {
     // This is just to handle pending transactions
     // The header will listen to the transactionPending event
     // It shows spinner on the header when there is a pending transaction
-    // It doesn't need to handle transactionError events
     if (request.msg === 'transactionPending') {
       setIsPending(true);
     }
     if (request.msg === 'transactionDone') {
       setIsPending(false);
+    }
+    // The header should handle transactionError events
+    if (request.msg === 'transactionError') {
+      console.log('transactionError', request.errorMessage, request.errorCode);
+      // The error message is not used anywhere else for now
+      setErrorMessage(request.errorMessage);
+      setErrorCode(request.errorCode);
     }
     return true;
   };
@@ -998,6 +1007,7 @@ const Header = ({ loading }) => {
           )}
         </Toolbar>
       </AppBar>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
     </StyledEngineProvider>
   );
 };
