@@ -29,7 +29,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const { sufficient: isSufficient } = useStorageCheck();
 
-  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
 
   const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
@@ -345,7 +345,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
           </Box>
         </Box>
       </Box>
-      {isLowStorage && <WarningStorageLowSnackbar />}
+      <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
       <Button
         onClick={startStake}
         disabled={sending || occupied}

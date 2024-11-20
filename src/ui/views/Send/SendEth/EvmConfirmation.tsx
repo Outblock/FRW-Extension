@@ -32,9 +32,17 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const [occupied, setOccupied] = useState(true);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
-  const { sufficient: isSufficient } = useStorageCheck();
 
-  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+  const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
+  // TODO: check if this is correct
+  const movingBetweenEVMAndFlow = true;
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount,
+    movingBetweenEVMAndFlow,
+  });
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const colorArray = [
     '#32E35529',
@@ -300,7 +308,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
           </Box>
         </Presets.TransitionSlideUp>
       )}
-      {isLowStorage && <WarningStorageLowSnackbar />}
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
       <Button
         onClick={transferToken}
         disabled={sending || occupied}

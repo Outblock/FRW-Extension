@@ -31,10 +31,18 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
-  const { sufficient: isSufficient } = useStorageCheck();
 
-  const isLowStorage = isSufficient !== null && !isSufficient; // isSufficient is null when the storage check is not yet completed
+  const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
+  // TODO: check if this is correct
+  const movingBetweenEVMAndFlow = true;
+  const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
+    useStorageCheck({
+      transferAmount,
+      movingBetweenEVMAndFlow,
+    });
 
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = isSufficientAfterAction !== undefined && !isSufficientAfterAction; // isSufficientAfterAction is undefined when the storage check is not yet completed
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -44,8 +52,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     '#41CC5D',
     '#41CC5D',
   ];
-  const [showStorageAlert, setShowStorageAlert] = useState(false);
-
   const startCount = () => {
     let count = 0;
     let intervalId;
@@ -69,9 +75,9 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     }
   };
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
   const transferToken = async () => {
     // TODO: Replace it with real data
@@ -219,10 +225,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         setFailed(true);
         setErrorMessage(request.errorMessage);
         setErrorCode(request.errorCode);
-
-        if (request.errorCode === 1103) {
-          setShowStorageAlert(true);
-        }
       }
       return true;
     },
@@ -384,7 +386,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           </Box>
         </Presets.TransitionSlideUp>
       )}
-      {isLowStorage && <WarningStorageLowSnackbar />}
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
 
       <Button
         onClick={transferToken}

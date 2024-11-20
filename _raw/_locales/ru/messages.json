@@ -1326,5 +1326,8 @@
   },
   "Buy_FLOW": {
     "message": "Купить FLOW"
+  },
+  "Insufficient_storage_after_action": {
+    "message": "Недостаточно хранилища после этого действия."
   }
 }
