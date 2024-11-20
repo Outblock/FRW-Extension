@@ -26,18 +26,16 @@ export const DefaultBlock = ({
   setExpanded,
   dedent,
 }) => {
-  const processItem = (item, indentLevel = 0) => {
-    const indent = ' '.repeat(indentLevel);
-
+  const processItem = (item) => {
     if (Array.isArray(item)) {
-      return `[\n${item.map((value) => processItem(value, indentLevel + 1)).join(',\n')}\n${indent}]`;
+      return `[${item.map((value) => processItem(value)).join(',')}]`; // Remove extra spaces
     } else if (typeof item === 'object' && item !== null) {
       if (item.type && item.value !== undefined) {
-        return `${indent}{\n${indent}type: ${item.type},\n${indent}value: ${processItem(item.value, indentLevel + 1)}\n${indent}}`;
+        return `${processItem(item.value)}`; // Display only the value
       } else {
-        return `${indent}{\n${Object.entries(item)
-          .map(([key, value]) => `${indent}${key}: ${processItem(value, indentLevel + 1)}`)
-          .join(',\n')}\n${indent}}`;
+        return `${Object.entries(item)
+          .map(([_, value]) => processItem(value))
+          .join('\n')}`;
       }
     } else {
       return JSON.stringify(item);
@@ -49,7 +47,7 @@ export const DefaultBlock = ({
       console.error('cadenceArguments is not an array:', cadenceArguments);
       return;
     }
-    return `[\n${cadenceArguments.map((item) => processItem(item, 1)).join(',\n')}\n]`;
+    return cadenceArguments.map((item) => processItem(item)).join('\n');
   };
 
   return (
