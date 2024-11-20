@@ -194,6 +194,10 @@ const Header = ({ loading }) => {
       evmWallet.address = evmAddress;
       await setCurrent(evmWallet);
       setMainLoading(false);
+    } else if (isChild) {
+      const currentWallet = await usewallet.getCurrentWallet();
+      await setCurrent(currentWallet);
+      setMainLoading(false);
     } else {
       const mainwallet = await usewallet.returnMainWallet();
       await setCurrent(mainwallet);
@@ -267,7 +271,6 @@ const Header = ({ loading }) => {
 
       await usewallet.lockWallet();
       await usewallet.clearWallet();
-      await usewallet.refreshAll();
       await usewallet.switchNetwork(switchingTo);
 
       history.push('/switchunlock');
