@@ -28,10 +28,10 @@ export const DefaultBlock = ({
 }) => {
   const processItem = (item) => {
     if (Array.isArray(item)) {
-      return `[${item.map((value) => processItem(value)).join(',')}]`; // Remove extra spaces
+      return `[ ${item.map((value) => processItem(value)).join(', ')} ]`;
     } else if (typeof item === 'object' && item !== null) {
       if (item.type && item.value !== undefined) {
-        return `${processItem(item.value)}`; // Display only the value
+        return `${processItem(item.value)}`;
       } else {
         return `${Object.entries(item)
           .map(([_, value]) => processItem(value))
@@ -47,7 +47,7 @@ export const DefaultBlock = ({
       console.error('cadenceArguments is not an array:', cadenceArguments);
       return;
     }
-    return cadenceArguments.map((item) => processItem(item)).join('\n');
+    return cadenceArguments.map((item) => processItem(item)).join('\n\n');
   };
 
   return (
