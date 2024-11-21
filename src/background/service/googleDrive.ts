@@ -330,7 +330,6 @@ class GoogleDriveService {
     // console.log('decryptedBytes ->', decryptedBytes)
     // Convert our bytes back into text
     const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
-    console.log('decryptedText ->', decryptedText);
     return decryptedText.trim();
   };
 
