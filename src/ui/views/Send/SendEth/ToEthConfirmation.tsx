@@ -6,6 +6,7 @@ import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
@@ -30,9 +31,13 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
-  const { sufficient: isSufficient } = useStorageCheck();
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: true,
+  });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const colorArray = [
     '#32E35529',
@@ -318,7 +323,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
           </Box>
         </Presets.TransitionSlideUp>
       )}
-
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
       <Button
         onClick={transferToken}
         disabled={sending || occupied}
