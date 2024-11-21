@@ -28,8 +28,6 @@ import { Presets } from 'react-component-transition';
 
 interface ConnectProps {
   params: any;
-  // onChainChange(chain: CHAINS_ENUM): void;
-  // defaultChain: CHAINS_ENUM;
 }
 
 const EthConfirm = ({ params }: ConnectProps) => {
@@ -108,7 +106,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
   const handleAllow = async () => {
     await checkCoa();
     resolveApproval({
-      defaultChain: 646,
+      defaultChain: 747,
       signPermission: 'MAINNET_AND_TESTNET',
     });
   };

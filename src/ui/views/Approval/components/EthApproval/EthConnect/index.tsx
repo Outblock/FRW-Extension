@@ -15,8 +15,6 @@ import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 
 
 interface ConnectProps {
   params: any;
-  // onChainChange(chain: CHAINS_ENUM): void;
-  // defaultChain: CHAINS_ENUM;
 }
 
 const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
@@ -24,7 +22,6 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
     showChainsModal?: boolean;
   }>();
   const { showChainsModal = false } = state ?? {};
-  const history = useHistory();
   const [, resolveApproval, rejectApproval] = useApproval();
   const { t } = useTranslation();
   const usewallet = useWallet();
@@ -33,7 +30,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   const [appIdentifier, setAppIdentifier] = useState<string | undefined>(undefined);
   const [nonce, setNonce] = useState<string | undefined>(undefined);
   const [opener, setOpener] = useState<number | undefined>(undefined);
-  const [defaultChain, setDefaultChain] = useState('FLOW');
+  const [defaultChain, setDefaultChain] = useState(747);
   const [host, setHost] = useState('');
   const [showMoveBoard, setMoveBoard] = useState(true);
   const [msgNetwork, setMsgNetwork] = useState('testnet');
@@ -70,10 +67,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
       };
       await usewallet.setActiveWallet(walletInfo, 'evm');
     }
-    const site = await usewallet.getSite(origin);
-    const collectList: { name: string; logo_url: string }[] = [];
-    const defaultChain = 'FLOW';
-    const isShowTestnet = false;
+    const defaultChain = network === 'testnet' ? 545 : 747;
 
     setDefaultChain(defaultChain);
 
