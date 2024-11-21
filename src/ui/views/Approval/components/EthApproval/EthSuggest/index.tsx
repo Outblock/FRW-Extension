@@ -20,9 +20,6 @@ const EthSuggest = (data) => {
   const { t } = useTranslation();
   const usewallet = useWallet();
   const [isLoading, setLoading] = useState(false);
-  const [defaultChain, setDefaultChain] = useState('FLOW');
-  const [isEvm, setIsEvm] = useState(false);
-
   // TODO: replace default logo
   const [logo, setLogo] = useState('');
   const [evmAddress, setEvmAddress] = useState('');
