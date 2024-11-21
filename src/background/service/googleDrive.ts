@@ -1,5 +1,5 @@
 import aesjs from 'aes-js';
-import { WalletCore, initWasm } from '@trustwallet/wallet-core';
+
 interface GoogleDriveFileModel {
   kind: string;
   id: string;
