@@ -7,7 +7,7 @@ import BN from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
-import web3 from 'web3';
+import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
 import {
@@ -3069,15 +3069,43 @@ export class WalletController extends BaseController {
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
       await fcl.tx(txId).onceSealed();
-    } catch (err) {
+
+      // Only send a notification if the transaction is successful
+      if (sendNotification) {
+        const baseURL = this.getFlowscanUrl();
+        notification.create(`${baseURL}/transaction/${txId}`, title, body, icon);
+      }
+    } catch (err: unknown) {
       // An error has occurred while listening to the transaction
+      console.log(typeof err);
+      console.log({ err });
       console.error('listenTransaction error ', err);
+      let errorMessage = 'unknown error';
+      let errorCode: number | undefined = undefined;
+
+      if (err instanceof TransactionError) {
+        errorCode = err.code;
+        errorMessage = err.message;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+        // From fcl-core transaction-error.ts
+        const ERROR_CODE_REGEX = /\[Error Code: (\d+)\]/;
+        const match = errorMessage.match(ERROR_CODE_REGEX);
+        errorCode = match ? parseInt(match[1], 10) : undefined;
+      }
+      console.log({
+        msg: 'transactionError',
+        errorMessage,
+        errorCode,
+      });
 
       // Tell the UI that there was an error
       chrome.runtime.sendMessage({
         msg: 'transactionError',
-        errorMessage: err.message,
-        errorCode: err.code,
+        errorMessage,
+        errorCode,
       });
     } finally {
       // Remove the pending transaction from the UI
@@ -3092,12 +3120,6 @@ export class WalletController extends BaseController {
       chrome.runtime.sendMessage({
         msg: 'transactionDone',
       });
-
-      // Send a notification to the user
-      if (sendNotification) {
-        const baseURL = this.getFlowscanUrl();
-        notification.create(`${baseURL}/transaction/${txId}`, title, body, icon);
-      }
     }
   };
 
