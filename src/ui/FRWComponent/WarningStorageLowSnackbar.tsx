@@ -22,11 +22,6 @@ export const WarningStorageLowSnackbar = ({
     return null;
   }
   return (
-    <WarningSnackbar
-      open={true}
-      onClose={() => {}}
-      alertIcon={warningIcon}
-      message={chrome.i18n.getMessage('Insufficient_storage')}
-    />
+    <WarningSnackbar open={true} onClose={() => {}} alertIcon={warningIcon} message={message} />
   );
 };

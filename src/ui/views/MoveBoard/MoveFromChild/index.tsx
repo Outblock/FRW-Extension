@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { isValidEthereumAddress } from '@/ui/utils/address';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import selected from 'ui/FRWAssets/svg/selected.svg';
@@ -45,6 +47,15 @@ const MoveFromChild = (props: MoveBoardProps) => {
     logo: '',
   });
   // console.log('props.loggedInAccounts', props.current)
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: selectedAccount
+      ? isValidEthereumAddress(selectedAccount!['address'])
+      : false,
+  });
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -555,7 +566,10 @@ const MoveFromChild = (props: MoveBoardProps) => {
         </Box>
       )}
       <Box sx={{ flex: '1' }}></Box>
-
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
       <Button
         onClick={moveNFT}
         // disabled={sending || occupied}
