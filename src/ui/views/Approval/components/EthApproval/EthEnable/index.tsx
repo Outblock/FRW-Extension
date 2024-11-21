@@ -14,8 +14,6 @@ import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 
 
 interface ConnectProps {
   params: any;
-  // onChainChange(chain: CHAINS_ENUM): void;
-  // defaultChain: CHAINS_ENUM;
 }
 
 const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
@@ -32,7 +30,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
   const [appIdentifier, setAppIdentifier] = useState<string | undefined>(undefined);
   const [nonce, setNonce] = useState<string | undefined>(undefined);
   const [opener, setOpener] = useState<number | undefined>(undefined);
-  const [defaultChain, setDefaultChain] = useState('FLOW');
+  const [defaultChain, setDefaultChain] = useState(747);
   const [host, setHost] = useState('');
   const [title, setTitle] = useState('');
   const [msgNetwork, setMsgNetwork] = useState('testnet');
@@ -48,7 +46,8 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
     setLogo(icon);
     const site = await wallet.getSite(origin);
     const collectList: { name: string; logo_url: string }[] = [];
-    const defaultChain = 'FLOW';
+    const network = await wallet.getNetwork();
+    const defaultChain = network === 'testnet' ? 545 : 747;
     const isShowTestnet = false;
 
     setDefaultChain(defaultChain);

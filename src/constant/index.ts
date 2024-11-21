@@ -73,6 +73,7 @@ export const SAFE_RPC_METHODS = [
   'eth_signTypedData_v4',
   'wallet_requestPermissions',
   'wallet_getPermissions',
+  'wallet_revokePermissions',
   'wallet_switchEthereumChain',
   'wallet_watchAsset',
   'net_version',

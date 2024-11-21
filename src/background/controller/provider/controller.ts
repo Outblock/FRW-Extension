@@ -197,9 +197,16 @@ class ProviderController extends BaseController {
     });
   };
 
-  ethRequestAccounts = async ({ session: { origin } }) => {
+  ethRequestAccounts = async ({ session: { origin, name, icon } }) => {
     if (!permissionService.hasPermission(origin)) {
-      throw ethErrors.provider.unauthorized();
+      const { defaultChain, signPermission } = await notificationService.requestApproval(
+        {
+          params: { origin, name, icon },
+          approvalComponent: 'EthConnect',
+        },
+        { height: 599 }
+      );
+      permissionService.addConnectedSite(origin, name, icon, defaultChain);
     }
 
     const currentWallet = await Wallet.getMainWallet();
@@ -223,14 +230,6 @@ class ProviderController extends BaseController {
 
       res = await Wallet.queryEvmAddress(currentWallet);
     }
-
-    await notificationService.requestApproval(
-      {
-        params: { origin },
-        approvalComponent: 'EthConnect',
-      },
-      { height: 599 }
-    );
 
     res = ensureEvmAddressPrefix(res);
     const account = res ? [res.toLowerCase()] : [];
@@ -338,6 +337,16 @@ class ProviderController extends BaseController {
       result.push({ parentCapability: 'eth_accounts' });
     }
     return result;
+  };
+
+  walletRevokePermissions = async ({ session: { origin }, data: { params } }) => {
+    const isUnlocked = await Wallet.isUnlocked();
+    if (isUnlocked && Wallet.getConnectedSite(origin)) {
+      if (params?.[0] && 'eth_accounts' in params[0]) {
+        Wallet.removeConnectedSite(origin);
+      }
+    }
+    return null;
   };
 
   walletWatchAsset = async ({ data }) => {
