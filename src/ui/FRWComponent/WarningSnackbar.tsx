@@ -17,7 +17,15 @@ export default function WarningSnackbar({
   message,
 }: WarningSnackbarProps) {
   return (
-    <Snackbar open={open} autoHideDuration={2000} onClose={onClose} sx={{ zIndex: '2000' }}>
+    <Snackbar
+      open={open}
+      autoHideDuration={2000}
+      onClose={onClose}
+      sx={{
+        zIndex: '2000',
+        pointerEvents: 'none', // Allow clicks to pass through
+      }}
+    >
       <Alert
         icon={<img src={alertIcon} alt="alert icon" />}
         variant="filled"
@@ -30,6 +38,7 @@ export default function WarningSnackbar({
           borderRadius: '24px',
           margin: '0 auto 80px',
           zIndex: '2000',
+          pointerEvents: 'auto', // Make the alert itself clickable
         }}
       >
         {message}

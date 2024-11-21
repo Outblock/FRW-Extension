@@ -56,6 +56,8 @@ export const useStorageCheck = ({
 
   // Initial storage check
   useEffect(() => {
+    // Add this to track when the effect is actually running
+
     let mounted = true;
     if (wallet) {
       checkStorageStatus().then(

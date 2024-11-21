@@ -3,6 +3,7 @@ import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from
 import React, { useState, useEffect, useCallback } from 'react';
 
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import selected from 'ui/FRWAssets/svg/selected.svg';

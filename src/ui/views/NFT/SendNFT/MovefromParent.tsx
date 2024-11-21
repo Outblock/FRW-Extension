@@ -34,9 +34,15 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [childWallets, setChildWallets] = useState({});
   const [selectedAccount, setSelectedChildAccount] = useState(null);
-  const { sufficient: isSufficient } = useStorageCheck();
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: selectedAccount
+      ? isValidEthereumAddress(selectedAccount!['address'])
+      : false,
+  });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
@@ -355,7 +361,10 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
           </Presets.TransitionSlideUp>
         )}
         <Box>
-          <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
+          <WarningStorageLowSnackbar
+            isLowStorage={isLowStorage}
+            isLowStorageAfterAction={isLowStorageAfterAction}
+          />
           <Button
             onClick={sendNFT}
             disabled={sending || occupied}
