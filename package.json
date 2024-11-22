@@ -206,7 +206,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "LGPL",
+  "license": "LGPL-3.0-or-later",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs}": "eslint",
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --list-different"
