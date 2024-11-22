@@ -159,8 +159,8 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
         usewallet.listenTransaction(
           createRes,
           true,
-          'Transfer to EVM complete',
-          `Your have moved ${amount} ${tokenResult!.name} to your EVM address ${childAddress}. \nClick to view this transaction.`
+          'Transfer complete',
+          `Your have moved ${amount} ${tokenResult!.name} to your address ${userWallet}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
         history.push('/dashboard?activity=1');
