@@ -19,9 +19,10 @@ import SwitchUnlock from './SwitchUnlock';
 import Unlock from './Unlock';
 
 function Main() {
+  const history = createMemoryHistory();
   return (
     //@ts-ignore
-    <Router history={createMemoryHistory}>
+    <Router history={history}>
       <Route exact path="/">
         <SortHat />
       </Route>

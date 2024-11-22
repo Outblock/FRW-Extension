@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@mui/styles';
 import { Typography, Card, CardActionArea, CardMedia, CardContent, Box } from '@mui/material';
-import { PostMedia } from '@/ui/utils/url';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+
+import type { PostMedia } from '@/ui/utils/url';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
-import queryString from 'query-string';
 
 const useStyles = makeStyles(() => ({
   titleWrapper: {
