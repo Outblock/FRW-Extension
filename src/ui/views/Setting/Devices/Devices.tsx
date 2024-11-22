@@ -1,78 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { styled } from '@mui/system';
-import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
-import { makeStyles } from '@mui/styles';
-import {
-  Box,
-  Typography,
-  Checkbox,
-  CardActionArea,
-  Divider,
-  FormControlLabel,
-  Alert,
-  Snackbar,
-} from '@mui/material';
+
+import { LLHeader } from '@/ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { LLHeader, LLPrimaryButton } from '@/ui/FRWComponent';
-import Pc from '../../../FRWAssets/image/pc.png';
-import Mobile from '../../../FRWAssets/image/mobile.png';
+
 import circlecheck from '../../../FRWAssets/image/circlecheck.png';
 import goto from '../../../FRWAssets/image/goto.png';
+import Mobile from '../../../FRWAssets/image/mobile.png';
+import Pc from '../../../FRWAssets/image/pc.png';
 import QR from '../../../FRWAssets/image/QR2.png';
+
 import WalletConnect from './WalletConnect';
 
 const Devices = () => {
   const usewallet = useWallet();
   const history = useHistory();
 
-  const [showError, setShowError] = useState(false);
-
   const wallet = useWallet();
-  const [privatekey, setKey] = useState('');
-  const [publickey, setPublicKey] = useState('');
-  const [showKey, setShowkey] = useState(null);
   const [devices, setDevices] = useState<any[]>([]);
   const [currentId, setCurrentId] = useState<string>('');
   const [qrCode, setShowQr] = useState<boolean>(false);
 
-  const getDevice = async () => {
+  const getDevice = useCallback(async () => {
     const installationId = await usewallet.openapi.getInstallationId();
-    console.log(' installationId ', installationId);
     setCurrentId(installationId);
     const devices = await usewallet.openapi.deviceList();
     if (devices.data) {
       setDevices(devices.data);
     }
-  };
+  }, [usewallet]);
 
-  const setTab = async () => {
+  const setTab = useCallback(async () => {
     await wallet.setDashIndex(3);
-  };
+  }, [wallet]);
 
-  const toggleKey = async (index) => {
-    if (showKey === index) {
-      setShowkey(null);
-    } else {
-      setShowkey(index);
-    }
-  };
-
-  const toggleQr = async () => {
+  const toggleQr = useCallback(async () => {
     setShowQr(true);
-  };
+  }, []);
 
   useEffect(() => {
     setTab();
     getDevice();
-  }, []);
-
-  const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setShowError(false);
-  };
+  }, [getDevice, setTab]);
 
   return (
     <div className="page">
@@ -117,7 +87,7 @@ const Devices = () => {
         sx={{ width: '339px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.12)' }}
       ></Box>
       {devices
-        .sort((a, b) => (a.id === currentId ? -1 : 1))
+        .sort((a, _b) => (a.id === currentId ? -1 : 1))
         .map((item, index) => (
           <Box
             key={item.id}
@@ -142,7 +112,7 @@ const Devices = () => {
                 {chrome.i18n.getMessage('Current_Sessions')}
               </Typography>
             )}
-            {index == 1 && (
+            {index === 1 && (
               <Typography
                 sx={{
                   color: '#FFFFFF66',
@@ -169,7 +139,7 @@ const Devices = () => {
             >
               <Box sx={{ marginRight: '8px' }}>
                 <img
-                  src={item.device_type == '1' ? Pc : Mobile}
+                  src={item.device_type === '1' ? Pc : Mobile}
                   style={{ width: '24px', height: '24px' }}
                 />
               </Box>
