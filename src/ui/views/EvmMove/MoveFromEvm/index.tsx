@@ -144,8 +144,8 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
         usewallet.listenTransaction(
           createRes,
           true,
-          'Transfer to EVM complete',
-          `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`
+          'Transfer from EVM complete',
+          `Your have moved ${amount} Flow to your address ${userWallet}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
         history.push('/dashboard?activity=1');
@@ -178,8 +178,8 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
         usewallet.listenTransaction(
           createRes,
           true,
-          'Transfer to EVM complete',
-          `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`
+          'Transfer from EVM complete',
+          `Your have moved ${amount} ${flowId.split('.')[2]} to your address ${userWallet}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
         history.push('/dashboard?activity=1');
