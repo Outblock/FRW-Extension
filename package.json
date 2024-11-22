@@ -1,5 +1,5 @@
 {
-  "name": "FlowReferenceWallet",
+  "name": "flow-reference-wallet",
   "version": "2.5.21",
   "description": "Digital wallet created for everyone.",
   "scripts": {
@@ -130,10 +130,10 @@
     "stream-http": "^3.2.0",
     "ts-toolbelt": "^9.6.0",
     "util": "^0.12.3",
+    "vm-browserify": "^1.1.2",
     "wagmi": "^1.4.6",
     "web3": "^4.7.0",
     "web3-utils": "^4.2.2",
-    "yarn": "^1.22.18",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
@@ -206,9 +206,12 @@
   },
   "keywords": [],
   "author": "",
-  "license": "LGPL",
+  "license": "LGPL-3.0-or-later",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs}": "eslint",
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --list-different"
+  },
+  "engines": {
+    "node": ">=22.11.0"
   }
 }

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
+import AndroidIcon from '@mui/icons-material/Android';
+import AppleIcon from '@mui/icons-material/Apple';
+import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import {
   Typography,
   List,
@@ -12,19 +12,21 @@ import {
   CardMedia,
   IconButton,
 } from '@mui/material';
-import IconAccount from '../../../components/iconfont/IconAccount';
-import IconWallet from '../../../components/iconfont/IconWallet';
-import IconAddressbook from '../../../components/iconfont/IconAddressbook';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+
+import { useWallet } from '@/ui/utils';
+import Device from 'ui/FRWAssets/svg/device.svg';
+import IconLink from 'ui/FRWAssets/svg/Iconlink.svg';
+
 import IconAbout from '../../../components/iconfont/IconAbout';
+import IconAccount from '../../../components/iconfont/IconAccount';
+import IconAddressBook from '../../../components/iconfont/IconAddressBook';
 import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import IconBackup from '../../../components/iconfont/IconBackup';
-import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
-import AppleIcon from '@mui/icons-material/Apple';
-import AndroidIcon from '@mui/icons-material/Android';
-import IconLink from 'ui/FRWAssets/svg/iconlink.svg';
-import Device from 'ui/FRWAssets/svg/device.svg';
-import { useWallet } from '@/ui/utils';
 import IconDeveloper from '../../../components/iconfont/IconDeveloper';
+import IconWallet from '../../../components/iconfont/IconWallet';
 
 const useStyles = makeStyles(() => ({
   listDiv: {
@@ -76,22 +78,21 @@ const useStyles = makeStyles(() => ({
 }));
 
 const SettingTab = () => {
-  const { url } = useRouteMatch();
   const classes = useStyles();
   const wallet = useWallet();
   const [isActive, setIsActive] = useState(false);
 
-  const checkIsActive = async () => {
+  const checkIsActive = useCallback(async () => {
     // setSending(true);
     const activeChild = await wallet.getActiveWallet();
     if (activeChild) {
       setIsActive(activeChild);
     }
-  };
+  }, [wallet]);
 
   useEffect(() => {
     checkIsActive();
-  }, []);
+  }, [checkIsActive]);
 
   return (
     <div className="page">
@@ -148,7 +149,7 @@ const SettingTab = () => {
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconAddressbook className={classes.icon} color="#59A1DB" />
+                <IconAddressBook className={classes.icon} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Address__Book')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -209,6 +210,7 @@ const SettingTab = () => {
             // component={Link}
             // to="https://lilico.app"
             disablePadding
+            // eslint-disable-next-line no-restricted-globals
             onClick={() => window.open('https://core.flow.com')}
             className={classes.listItem}
           >
@@ -221,6 +223,7 @@ const SettingTab = () => {
                 {/* <IconEnd size={12} /> */}
                 <IconButton
                   onClick={() =>
+                    // eslint-disable-next-line no-restricted-globals
                     window.open(
                       'https://apps.apple.com/ca/app/flow-wallet-nfts-and-crypto/id6478996750'
                     )
@@ -230,6 +233,7 @@ const SettingTab = () => {
                 </IconButton>
                 <IconButton
                   onClick={() =>
+                    // eslint-disable-next-line no-restricted-globals
                     window.open(
                       'https://play.google.com/store/apps/details?id=com.flowfoundation.wallet'
                     )
