@@ -37,8 +37,8 @@ import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
 
 import MenuDrawer from './Components/MenuDrawer';
 import NewsView from './Components/NewsView';
-import WalletFunction from './Components/WalletFunction';
 import Popup from './Components/Popup';
+import WalletFunction from './Components/WalletFunction';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -100,6 +100,7 @@ const Header = ({ loading }) => {
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
+  const [mainAddress, setMainAddress] = useState('');
 
   const [modeAnonymous, setModeAnonymous] = useState(false);
 
@@ -202,6 +203,7 @@ const Header = ({ loading }) => {
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     if (mainAddress) {
+      setMainAddress(mainAddress);
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
         const evmWallet = await usewallet.getEvmWallet();
@@ -625,6 +627,7 @@ const Header = ({ loading }) => {
           setWallets={setWallets}
           currentWallet={currentWallet}
           current={current}
+          mainAddress={mainAddress}
         />
       </List>
     );

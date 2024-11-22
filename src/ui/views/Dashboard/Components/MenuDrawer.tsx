@@ -241,7 +241,9 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         <Box sx={{ px: '16px' }}>
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
         </Box>
-        {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
+        <Box sx={{ maxHeight: '50vh', overflowY: 'scroll' }}>
+          {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
+        </Box>
         {(isValidEthereumAddress(props.evmWallet.address) || hasChildAccounts) && (
           <Typography
             sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}
