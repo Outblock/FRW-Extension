@@ -1,36 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { useWallet } from 'ui/utils';
-import { formatLargeNumber } from 'ui/utils/number';
-import { Box } from '@mui/system';
-import {
-  Typography,
-  Button,
-  Tab,
-  Tabs,
-  Skeleton,
-  Drawer,
-  ButtonBase,
-  CardMedia,
-} from '@mui/material';
-import theme from '../../style/LLTheme';
-import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded';
-import SwipeableViews from 'react-swipeable-views';
 import FlashOnRoundedIcon from '@mui/icons-material/FlashOnRounded';
-import CoinList from './Coinlist';
-import MoveBoard from '../MoveBoard';
-import { withPrefix } from '../../utils/address';
-import { useHistory } from 'react-router-dom';
-import TransferList from './TransferList';
-import { useLocation } from 'react-router-dom';
+import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded';
+import { Typography, Button, Tab, Tabs, Skeleton, Drawer, CardMedia } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import SwipeableViews from 'react-swipeable-views';
+import ReactTextTransition from 'react-text-transition';
+
 import eventBus from '@/eventBus';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
-import ReactTextTransition from 'react-text-transition';
-import OnRampList from './OnRampList';
+import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
 import iconMove from 'ui/FRWAssets/svg/homeMove.svg';
+import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
 import sendIcon from 'ui/FRWAssets/svg/sendIcon.svg';
 import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
-import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
-import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
+import { useWallet } from 'ui/utils';
+import { formatLargeNumber } from 'ui/utils/number';
+
+import theme from '../../style/LLTheme';
+import { withPrefix } from '../../utils/address';
+import MoveBoard from '../MoveBoard';
+
+import CoinList from './Coinlist';
+import OnRampList from './OnRampList';
+import TransferList from './TransferList';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -67,11 +60,11 @@ const WalletTab = ({ network }) => {
   const [balance, setBalance] = useState<string>('$0.00');
   const [childType, setChildType] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
-  const [childAccount, setChildAccount] = useState<any>({});
+  const [, setChildAccount] = useState<any>({});
   const [txCount, setTxCount] = useState('');
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [swapConfig, setSwapConfig] = useState(false);
+  const [, setSwapConfig] = useState(false);
   const [showMoveBoard, setMoveBoard] = useState(false);
   const [buyHover, setBuyHover] = useState(false);
   const [sendHover, setSendHover] = useState(false);
@@ -81,9 +74,8 @@ const WalletTab = ({ network }) => {
   const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
   const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
 
-  const [incLink, _] = useState(
-    network === 'mainnet' ? 'https://app.increment.fi/swap' : 'https://demo.increment.fi/swap'
-  );
+  const incLink =
+    network === 'mainnet' ? 'https://app.increment.fi/swap' : 'https://demo.increment.fi/swap';
 
   const expiry_time = 60000;
 
@@ -95,7 +87,7 @@ const WalletTab = ({ network }) => {
     setValue(index);
   };
 
-  const setUserAddress = async () => {
+  const setUserAddress = useCallback(async () => {
     let data = '';
     try {
       if (childType === 'evm') {
@@ -119,99 +111,130 @@ const WalletTab = ({ network }) => {
           console.error('Error getting manual address:', error);
         }
       } else {
+        // eslint-disable-next-line no-console
         console.log('Skipped calling getManualAddress to prevent frequent calls');
       }
     }
     return data;
-  };
+  }, [childType, lastManualAddressCallTime, wallet]);
 
   //todo: move to util
   const pollingFunction = (func, time = 1000, endTime, immediate = false) => {
-    immediate && func();
+    if (immediate) {
+      func();
+    }
     const startTime = new Date().getTime();
     const pollTimer = setInterval(async () => {
       const nowTime = new Date().getTime();
       const data = await func();
       if (data.length > 2 || nowTime - startTime >= endTime) {
-        pollTimer && clearInterval(pollTimer);
+        if (pollTimer) {
+          clearInterval(pollTimer);
+        }
         eventBus.emit('addressDone');
       }
     }, time);
     return pollTimer;
   };
 
-  const refreshWithRetry = async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
-    if (childStateLoading) {
-      console.log('childStateLoading.');
-      return;
-    }
-    try {
-      const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-      console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
-
-      if (
-        Array.isArray(refreshedCoinlist) &&
-        refreshedCoinlist.length === 0 &&
-        retryCount < maxRetries
-      ) {
-        console.log(
-          `No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
+  const handleStorageData = useCallback(
+    async (storageData) => {
+      if (storageData) {
+        const uniqueTokens = storageData.filter(
+          (token, index, self) =>
+            index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
         );
-        setTimeout(() => {
-          refreshWithRetry(expiry_time, retryCount + 1);
-        }, delay);
-      } else {
-        console.log(`refreshedCoinlist found, refreshedCoinlist`, refreshedCoinlist);
-        sortWallet(refreshedCoinlist);
-      }
-    } catch (error) {
-      console.error(`Error fetching price for token:`, error);
-      if (retryCount < maxRetries) {
-        console.log(
-          `Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${
-            retryCount + 1
-          } of ${maxRetries})`
-        );
-        setTimeout(() => {
-          refreshWithRetry(expiry_time, retryCount + 1);
-        }, delay);
-      } else {
-        wallet
-          .refreshCoinList(expiry_time)
-          .then((res) => {
-            if (Array.isArray(res) && res.length === 0 && retryCount < maxRetries) {
-              console.log(
-                `No data found in storage, retrying in 5 seconds... (Attempt ${
-                  retryCount + 1
-                } of ${maxRetries})`
-              );
-              setTimeout(() => {
-                refreshWithRetry(expiry_time, retryCount + 1);
-              }, delay);
-            } else {
-              console.log(`res found, refreshedCoinlist`, res);
-              sortWallet(res);
-            }
-          })
-          .catch((err) => {
-            console.error(`Error getting CoinList price for token:`, err);
+        await setCoinData(uniqueTokens);
+        let sum = 0;
+        storageData
+          .filter((item) => item.total !== null)
+          .forEach((coin) => {
+            sum = sum + parseFloat(coin.total);
           });
+        setBalance('$ ' + sum.toFixed(2));
       }
-    }
-  };
+    },
+    [setCoinData, setBalance]
+  );
 
-  const sortWallet = (data) => {
-    const sorted = data.sort((a, b) => {
-      if (b.total === a.total) {
-        return b.balance - a.balance;
-      } else {
-        return b.total - a.total;
+  const sortWallet = useCallback(
+    (data) => {
+      const sorted = data.sort((a, b) => {
+        if (b.total === a.total) {
+          return b.balance - a.balance;
+        } else {
+          return b.total - a.total;
+        }
+      });
+      handleStorageData(sorted);
+    },
+    [handleStorageData]
+  );
+
+  const refreshWithRetry = useCallback(
+    async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
+      if (childStateLoading) {
+        console.log('childStateLoading.');
+        return;
       }
-    });
-    handleStorageData(sorted);
-  };
+      try {
+        const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
+        console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
 
-  const fetchWallet = async () => {
+        if (
+          Array.isArray(refreshedCoinlist) &&
+          refreshedCoinlist.length === 0 &&
+          retryCount < maxRetries
+        ) {
+          console.log(
+            `No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
+          );
+          setTimeout(() => {
+            refreshWithRetry(expiry_time, retryCount + 1);
+          }, delay);
+        } else {
+          console.log(`refreshedCoinlist found, refreshedCoinlist`, refreshedCoinlist);
+          sortWallet(refreshedCoinlist);
+        }
+      } catch (error) {
+        console.error(`Error fetching price for token:`, error);
+        if (retryCount < maxRetries) {
+          console.log(
+            `Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${
+              retryCount + 1
+            } of ${maxRetries})`
+          );
+          setTimeout(() => {
+            refreshWithRetry(expiry_time, retryCount + 1);
+          }, delay);
+        } else {
+          wallet
+            .refreshCoinList(expiry_time)
+            .then((res) => {
+              if (Array.isArray(res) && res.length === 0 && retryCount < maxRetries) {
+                console.log(
+                  `No data found in storage, retrying in 5 seconds... (Attempt ${
+                    retryCount + 1
+                  } of ${maxRetries})`
+                );
+                setTimeout(() => {
+                  refreshWithRetry(expiry_time, retryCount + 1);
+                }, delay);
+              } else {
+                console.log(`res found, refreshedCoinlist`, res);
+                sortWallet(res);
+              }
+            })
+            .catch((err) => {
+              console.error(`Error getting CoinList price for token:`, err);
+            });
+        }
+      }
+    },
+    [childStateLoading, sortWallet, wallet]
+  );
+
+  const fetchWallet = useCallback(async () => {
     // If childType is 'evm', handle it first
     const isChild = await wallet.getActiveWallet();
     if (isChild === 'evm') {
@@ -237,49 +260,32 @@ const WalletTab = ({ network }) => {
       } else {
         sortWallet(refreshedCoinlist);
       }
-    } catch (error) {
+    } catch {
       refreshWithRetry(expiry_time);
     }
-  };
+  }, [address, isActive, refreshWithRetry, sortWallet, wallet]);
 
-  const loadCache = async () => {
+  const loadCache = useCallback(async () => {
     const storageSwap = await wallet.getSwapConfig();
     setSwapConfig(storageSwap);
     const storageData = await wallet.getCoinList(expiry_time);
     sortWallet(storageData);
-  };
+  }, [expiry_time, sortWallet, wallet]);
 
-  const handleStorageData = async (storageData) => {
-    if (storageData) {
-      const uniqueTokens = storageData.filter(
-        (token, index, self) =>
-          index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
-      );
-      await setCoinData(uniqueTokens);
-      let sum = 0;
-      storageData
-        .filter((item) => item.total !== null)
-        .forEach((coin) => {
-          sum = sum + parseFloat(coin.total);
-        });
-      setBalance('$ ' + sum.toFixed(2));
-    }
-  };
-
-  const fetchChildState = async () => {
+  const fetchChildState = useCallback(async () => {
     setChildStateLoading(true);
     const isChild = await wallet.getActiveWallet();
     const childresp = await wallet.checkUserChildAccount();
     setChildAccount(childresp);
     setChildType(isChild);
     if (isChild && isChild !== 'evm') {
-      await setIsActive(false);
+      setIsActive(false);
     } else {
       setIsActive(true);
     }
     setChildStateLoading(false);
     return isChild;
-  };
+  }, [wallet]);
 
   useEffect(() => {
     fetchChildState();
@@ -292,7 +298,7 @@ const WalletTab = ({ network }) => {
     return function cleanup() {
       clearInterval(pollTimer);
     };
-  }, []);
+  }, [fetchChildState, location.search, setUserAddress]);
 
   const goMoveBoard = async () => {
     setMoveBoard(true);
@@ -318,11 +324,11 @@ const WalletTab = ({ network }) => {
       setCoinLoading(false);
       fetchWallet();
     }
-  }, [address]);
+  }, [address, fetchWallet, loadCache]);
 
   useEffect(() => {
     setUserAddress();
-  }, [childType]);
+  }, [childType, setUserAddress]);
 
   useEffect(() => {
     const checkPermission = async () => {
@@ -331,6 +337,17 @@ const WalletTab = ({ network }) => {
     };
 
     checkPermission();
+  }, [wallet]);
+
+  useEffect(() => {
+    // Add event listener for opening onramp
+    const onRampHandler = () => setOnRamp(true);
+    eventBus.addEventListener('openOnRamp', onRampHandler);
+
+    // Clean up listener
+    return () => {
+      eventBus.removeEventListener('openOnRamp', onRampHandler);
+    };
   }, []);
 
   return (
@@ -460,6 +477,7 @@ const WalletTab = ({ network }) => {
                 onMouseEnter={() => setSwapHover(true)}
                 onMouseLeave={() => setSwapHover(false)}
                 onClick={() => {
+                  // eslint-disable-next-line no-restricted-globals
                   window.open(incLink, '_blank', 'noopener,noreferrer');
                 }}
               >

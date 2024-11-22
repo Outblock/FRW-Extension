@@ -3,6 +3,8 @@ import { Box, Typography, Button, IconButton } from '@mui/material';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 
+import eventBus from '@/eventBus';
+
 interface StorageExceededAlertProps {
   open: boolean;
   onClose: () => void;
@@ -13,7 +15,7 @@ const StorageExceededAlert: React.FC<StorageExceededAlertProps> = ({ open, onClo
 
   const handleBuyFlow = () => {
     onClose();
-    history.push('/dashboard/wallet/buy');
+    eventBus.emit('openOnRamp');
   };
 
   if (!open) return null;
@@ -116,7 +118,7 @@ const StorageExceededAlert: React.FC<StorageExceededAlertProps> = ({ open, onClo
             color="inherit"
             onClick={() => {
               onClose();
-              history.push('/deposit');
+              history.push('/dashboard/wallet/deposit');
             }}
             sx={{
               height: '48px',

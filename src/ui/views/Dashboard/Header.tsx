@@ -25,6 +25,7 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { withPrefix, ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { useNews } from '@/ui/utils/NewsContext';
 import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
@@ -110,6 +111,8 @@ const Header = ({ loading }) => {
 
   const [switchLoading, setSwitchLoading] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorCode, setErrorCode] = useState(null);
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
   const { unreadCount } = useNews();
@@ -220,31 +223,13 @@ const Header = ({ loading }) => {
       walletData,
       isChild
     );
-    // if (!isChild) {
-    //   setFlowBalance(keys.balance);
-    // } else {
-    //   usewallet.getUserWallets().then((res) => {
-    //     const address = res[0].blockchain[0].address;
-    //     usewallet.getFlowBalance(address).then((balance) => {
-    //       setFlowBalance(balance);
-    //     });
-    //   });
-    // }
+
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
-
-    // usewallet.checkUserDomain(wallet.username);
   }, [usewallet]);
 
   const fetchUserWallet = useCallback(async () => {
-    // const userInfo = await usewallet.getUserInfo(false);
-    // if (userInfo.private === 1) {
-    //   setModeAnonymous(false);
-    // } else {
-    //   setModeAnonymous(true);
-    // }
-
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
@@ -285,52 +270,12 @@ const Header = ({ loading }) => {
     await setNetwork(network);
   }, [usewallet]);
 
-  // const loadInbox = async () => {
-
-  //   const giftBoxHistory = await usewallet.getHistory();
-  //   const resp = await usewallet.fetchFlownsInbox();
-  //   let tempRead = 0;
-  //   let nftRead = 0;
-  //   Object.keys(resp.vaultBalances).map(() => {
-  //     tempRead += 1;
-  //   });
-  //   Object.keys(resp.collections).map((k) => {
-  //     nftRead += resp.collections[k].length;
-  //   });
-
-  //   giftBoxHistory.token.map((token) => {
-  //     const key = Object.keys(token)[0];
-  //     if (parseFloat(token[key]) === parseFloat(resp.vaultBalances[key])) {
-  //       tempRead -= 1;
-  //     }
-  //   });
-
-  //   Object.keys(giftBoxHistory.nft).map((k) => {
-  //     const arr = giftBoxHistory.nft[k];
-  //     arr.map((v) => {
-  //       if (resp.collections[k].includes(v)) {
-  //         nftRead -= 1;
-  //       }
-  //     })
-  //   });
-  //   const totalUnread = nftRead + tempRead;
-  //   setUnread(totalUnread);
-
-  // }
   const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
     if (developerMode) {
       setModeOn(developerMode);
     }
   };
-
-  // const goToInbox = () => {
-  //   if (domain) {
-  //     history.push('/dashboard/inbox');
-  //   } else {
-  //     history.push('/dashboard/flowns');
-  //   }
-  // }
 
   const setWallets = async (walletInfo, key, index = null) => {
     await usewallet.setActiveWallet(walletInfo, key, index);
@@ -354,12 +299,18 @@ const Header = ({ loading }) => {
     // This is just to handle pending transactions
     // The header will listen to the transactionPending event
     // It shows spinner on the header when there is a pending transaction
-    // It doesn't need to handle transactionError events
     if (request.msg === 'transactionPending') {
       setIsPending(true);
     }
     if (request.msg === 'transactionDone') {
       setIsPending(false);
+    }
+    // The header should handle transactionError events
+    if (request.msg === 'transactionError') {
+      console.log('transactionError', request.errorMessage, request.errorCode);
+      // The error message is not used anywhere else for now
+      setErrorMessage(request.errorMessage);
+      setErrorCode(request.errorCode);
     }
     return true;
   };
@@ -913,6 +864,7 @@ const Header = ({ loading }) => {
           )}
         </Toolbar>
       </AppBar>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
     </StyledEngineProvider>
   );
 };

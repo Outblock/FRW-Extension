@@ -256,15 +256,14 @@ class UserWallet {
   };
 
   getMainWallet = async (network: string) => {
-    const getCurrent = await storage.get('currentWalletIndex');
-    console.log('await storage. ', getCurrent);
     const walletIndex = (await storage.get('currentWalletIndex')) || 0;
     const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return withPrefix(wallet.address) || '';
   };
 
-  returnMainWallet = (network: string) => {
-    const wallet = this.store.wallets[network][0].blockchain[0];
+  returnMainWallet = async (network: string) => {
+    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return wallet;
   };
 

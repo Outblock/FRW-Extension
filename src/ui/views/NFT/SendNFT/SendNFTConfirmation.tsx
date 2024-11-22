@@ -39,9 +39,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [isChild, setIsChild] = useState(false);
   const [erc721Contract, setErcContract] = useState<any>(null);
   const [count, setCount] = useState(0);
-  const { sufficient: isSufficient } = useStorageCheck();
+
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: true, // hard to tell if the user is sending to an evm address or not. True for now.
+  });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const colorArray = [
     '#32E35529',
@@ -472,7 +477,10 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Presets.TransitionSlideUp>
         )}
 
-        <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
+        <WarningStorageLowSnackbar
+          isLowStorage={isLowStorage}
+          isLowStorageAfterAction={isLowStorageAfterAction}
+        />
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}

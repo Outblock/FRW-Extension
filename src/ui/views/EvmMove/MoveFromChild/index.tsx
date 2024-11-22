@@ -1,18 +1,23 @@
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import TransferFrom from '../TransferFrom';
-import MoveToken from './MoveToken';
+import wallet from '@/background/controller/wallet';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
+import type { CoinItem } from 'background/service/coinList';
+import type { Contact } from 'background/service/networkModel';
+import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
+
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
-import { LLSpinner } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
-import wallet from '@/background/controller/wallet';
+import theme from '../../../style/LLTheme';
+import TransferFrom from '../TransferFrom';
+import TransferTo from '../TransferTo';
+
+import MoveToken from './MoveToken';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -87,6 +92,13 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
   const [minAmount, setMinAmount] = useState<any>(0.001);
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: Number(amount) || 0,
+    movingBetweenEVMAndFlow: true,
+  });
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const setUserWallet = async () => {
     // const walletList = await storage.get('userWallet');
@@ -283,6 +295,10 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
       </Box>
 
       <Box sx={{ display: 'flex', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
+        <WarningStorageLowSnackbar
+          isLowStorage={isLowStorage}
+          isLowStorageAfterAction={isLowStorageAfterAction}
+        />
         <Button
           onClick={() => {
             handleMove();

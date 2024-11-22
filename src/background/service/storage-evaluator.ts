@@ -25,11 +25,12 @@ export class StorageEvaluator {
 
     const remainingStorage = storageInfo.capacity - storageInfo.used;
     const isStorageSufficient = remainingStorage >= StorageEvaluator.MINIMUM_STORAGE_BUFFER;
+
     let noStorageAfterAction = false;
 
     if (isStorageSufficient) {
       // Check if there is enough storage after the action
-      if (sendAmount) {
+      if (sendAmount !== undefined) {
         // This is the amount of flow that will be used by the transaction
         const flowUsed =
           sendAmount +
