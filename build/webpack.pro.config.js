@@ -32,6 +32,7 @@ const config = {
       https: require.resolve('https-browserify'),
       buffer: require.resolve('buffer'),
       url: require.resolve('url/'),
+      vm: require.resolve('vm-browserify'),
     },
   },
 };

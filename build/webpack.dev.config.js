@@ -24,6 +24,7 @@ const config = {
   resolve: {
     fallback: {
       fs: false,
+      vm: require.resolve('vm-browserify'),
     },
   },
 };
