@@ -184,6 +184,7 @@ const config = {
   ],
   resolve: {
     alias: {
+      '@': path.resolve(__dirname, '../src'),
       moment: require.resolve('dayjs'),
     },
     plugins: [new TSConfigPathsPlugin()],

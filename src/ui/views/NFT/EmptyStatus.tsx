@@ -1,7 +1,8 @@
-import React from 'react';
-import { makeStyles } from '@mui/styles';
 import { Typography, Box } from '@mui/material';
-import empty_status from '../../FRWAssets/image/empty_status.svg';
+import { makeStyles } from '@mui/styles';
+import React from 'react';
+
+import EmptyStatusSvg from '../../FRWAssets/image/empty_status.svg';
 
 const useStyles = makeStyles(() => ({
   emptyBox: {
@@ -23,7 +24,7 @@ function EmptyStatus() {
   return (
     <>
       <Box className={classes.emptyBox}>
-        <img className={classes.emptyImg} src={empty_status} height="167px" />
+        <EmptyStatusSvg className={classes.emptyImg} height="167px" />
         <Typography component="div" variant="subtitle1">
           {chrome.i18n.getMessage('We__did__not__find__anything__here')}
         </Typography>

@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { Typography, Box, CardMedia } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import React, { useEffect, useState } from 'react';
+
+import { storage } from '@/background/webapi';
+import emoji from 'background/utils/emoji.json';
+import AccountMove from 'ui/FRWAssets/svg/accountMove.svg';
+import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';
 import { useWallet, formatAddress } from 'ui/utils';
 import { ensureEvmAddressPrefix, formatString } from 'ui/utils/address';
-import { Typography, Box, CardMedia } from '@mui/material';
-import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';
-import accountMove from 'ui/FRWAssets/svg/accountMove.svg';
-import emoji from 'background/utils/emoji.json';
-import { storage } from '@/background/webapi';
 
 function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm = false }) {
   const usewallet = useWallet();
@@ -122,7 +123,9 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mx: '8px' }}>
-          <CardMedia sx={{ width: '24px', height: '24px' }} image={accountMove} />
+          <CardMedia sx={{ width: '24px', height: '24px' }}>
+            <AccountMove />
+          </CardMedia>
         </Box>
         <Box
           sx={{

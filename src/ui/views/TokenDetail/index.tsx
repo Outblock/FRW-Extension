@@ -11,7 +11,7 @@ import type { PriceProvider } from '@/background/service/networkModel';
 import { storage } from '@/background/webapi';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import StorageUsageCard from '@/ui/FRWComponent/StorageUsageCard';
-import tips from 'ui/FRWAssets/svg/tips.svg';
+import Tips from 'ui/FRWAssets/svg/tips.svg';
 import { useWallet } from 'ui/utils';
 
 import MoveFromChild from '../EvmMove/MoveFromChild';
@@ -212,7 +212,7 @@ const TokenDetail = () => {
                 backgroundColor: 'error.light',
               }}
             >
-              <img style={{ height: '16px', width: '16px', borderRadius: '16px' }} src={tips}></img>
+              <Tips style={{ height: '16px', width: '16px', borderRadius: '16px' }} />
               <Typography
                 sx={{
                   fontSize: '12px',

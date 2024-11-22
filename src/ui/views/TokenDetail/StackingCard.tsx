@@ -1,7 +1,8 @@
-import React from 'react';
 import { Typography, Box, ButtonBase } from '@mui/material';
-import flowGrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
+
+import FlowGrey from 'ui/FRWAssets/svg/flow-grey.svg';
 import { useWallet } from 'ui/utils';
 
 const StackingCard = ({ network }) => {
@@ -46,10 +47,7 @@ const StackingCard = ({ network }) => {
           </Typography>
         </Box>
         <Box sx={{ flexGrow: 1 }} />
-        <img
-          src={flowGrey}
-          style={{ width: '60px', height: '60px', borderRadius: '30px', padding: '5px' }}
-        />
+        <FlowGrey style={{ width: '60px', height: '60px', borderRadius: '30px', padding: '5px' }} />
       </Box>
     </ButtonBase>
   );

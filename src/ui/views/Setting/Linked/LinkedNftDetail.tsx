@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
-import { StyledEngineProvider } from '@mui/material/styles';
-import { useWallet } from 'ui/utils';
-import { Typography, Container, Box, IconButton, Button, CardMedia } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
-import { PostMedia, MatchMediaType } from '@/ui/utils/url';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import { Typography, Container, Box, IconButton, Button, CardMedia } from '@mui/material';
+import { StyledEngineProvider } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
 import { saveAs } from 'file-saver';
-import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
-import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import type { PostMedia } from '@/ui/utils/url';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
+import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
+import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
+import { useWallet } from 'ui/utils';
+
 import MoveNftConfirmation from '../../NFT/SendNFT/MoveNftConfirmation';
 
 const useStyles = makeStyles(() => ({
@@ -72,13 +74,6 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-interface NFTDetailState {
-  nft: any;
-  media: PostMedia;
-  index: number;
-  ownerAddress: any;
-}
-
 const LinkedNftDetail = () => {
   const emptyContact = {
     address: '',
@@ -91,7 +86,6 @@ const LinkedNftDetail = () => {
   };
 
   const classes = useStyles();
-  const location = useLocation();
   const history = useHistory();
   const usewallet = useWallet();
   const [nftDetail, setDetail] = useState<any>(null);
@@ -100,17 +94,57 @@ const LinkedNftDetail = () => {
   const [ownerAddress, setOwnerAddress] = useState<any>(null);
   const [media, setMedia] = useState<PostMedia | null>(null);
   const [moveOpen, setMoveOpen] = useState<boolean>(false);
-  const [childActive, setChildActive] = useState<boolean>(false);
+  const [, setChildActive] = useState<boolean>(false);
   const [contactOne, setContactOne] = useState<any>(emptyContact);
   const [contactTwo, setContactTwo] = useState<any>(emptyContact);
-  const [isAccessibleNft, setisAccessibleNft] = useState<any>(false);
-  const [nftDetailState, setNftDetailState] = useState({
-    nft: null,
-    media: null,
-    ownerAddress: null,
-    index: null,
-  });
+  const [isAccessibleNft, setIsAccessibleNft] = useState<any>(false);
 
+  const fetchNft = useCallback(
+    async (ownerAddresss) => {
+      const userInfo = await usewallet.getUserInfo(false);
+      const currentAddress = ownerAddresss;
+      const userWallets = await usewallet.getUserWallets();
+      console.log('userWallets ', userWallets);
+      const parentAddress = userWallets[0].blockchain[0].address;
+      const isChild = true;
+      console.log('currentAddress  ', isChild, currentAddress);
+      const userTemplate = {
+        avatar: userInfo.avatar,
+        domain: {
+          domain_type: 0,
+          value: '',
+        },
+      };
+
+      const childResp = await usewallet.checkUserChildAccount();
+      const wallet = childResp[currentAddress!];
+      console.log('checkUserChildAccount ', childResp);
+      const userOne = {
+        avatar: wallet.thumbnail.url,
+        domain: {
+          domain_type: 0,
+          value: '',
+        },
+        address: currentAddress,
+        contact_name: wallet.name,
+      };
+      console.log('checkUserChildAccount ', userOne);
+      const userTwo = {
+        ...userTemplate,
+        address: parentAddress,
+        contact_name: userInfo.nickname,
+      };
+
+      setContactOne(userOne);
+      setContactTwo(userTwo);
+
+      console.log('userInfo ', userInfo);
+      setChildActive(isChild ? true : false);
+
+      await usewallet.setDashIndex(1);
+    },
+    [usewallet]
+  );
   useEffect(() => {
     const savedState = localStorage.getItem('nftDetailState');
     if (savedState) {
@@ -120,56 +154,12 @@ const LinkedNftDetail = () => {
       setOwnerAddress(nftDetail.ownerAddress);
       setMetadata(nftDetail.nft);
       if (nftDetail.isAccessibleNft) {
-        setisAccessibleNft(nftDetail.isAccessibleNft);
+        setIsAccessibleNft(nftDetail.isAccessibleNft);
       }
 
       fetchNft(nftDetail.ownerAddress);
     }
-  }, []);
-
-  const fetchNft = async (ownerAddresss) => {
-    const userInfo = await usewallet.getUserInfo(false);
-    const currentAddress = ownerAddresss;
-    const userWallets = await usewallet.getUserWallets();
-    console.log('userWallets ', userWallets);
-    const parentAddress = userWallets[0].blockchain[0].address;
-    const isChild = true;
-    console.log('currentAddress  ', isChild, currentAddress);
-    const userTemplate = {
-      avatar: userInfo.avatar,
-      domain: {
-        domain_type: 0,
-        value: '',
-      },
-    };
-
-    const childResp = await usewallet.checkUserChildAccount();
-    const wallet = childResp[currentAddress!];
-    console.log('checkUserChildAccount ', childResp);
-    const userOne = {
-      avatar: wallet.thumbnail.url,
-      domain: {
-        domain_type: 0,
-        value: '',
-      },
-      address: currentAddress,
-      contact_name: wallet.name,
-    };
-    console.log('checkUserChildAccount ', userOne);
-    const userTwo = {
-      ...userTemplate,
-      address: parentAddress,
-      contact_name: userInfo.nickname,
-    };
-
-    setContactOne(userOne);
-    setContactTwo(userTwo);
-
-    console.log('userInfo ', userInfo);
-    setChildActive(isChild ? true : false);
-
-    await usewallet.setDashIndex(1);
-  };
+  }, [fetchNft]);
 
   const replaceIPFS = (url: string | null): string => {
     if (!url) {
@@ -312,7 +302,7 @@ const LinkedNftDetail = () => {
             <ArrowBackIcon sx={{ color: 'icon.navi' }} />
           </IconButton>
           {/* {
-            nftDetail && 
+            nftDetail &&
             <>
               <IconButton onClick={handleClick} className={classes.extendMore}>
                 <MoreHorizIcon sx={{ color: 'icon.navi'}} />
@@ -349,7 +339,7 @@ const LinkedNftDetail = () => {
               }}
             >
               <Box className={classes.mediabox}>
-                {media && media?.video != null ? getMedia() : getUri()}
+                {media && media?.video !== null ? getMedia() : getUri()}
               </Box>
               <Box
                 sx={{
@@ -474,10 +464,9 @@ const LinkedNftDetail = () => {
               }
             >
               {/* <IosShareOutlinedIcon color="primary" /> */}
-              <CardMedia
-                image={SendIcon}
-                sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}
-              />
+              <CardMedia sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}>
+                <SendIcon />
+              </CardMedia>
               {chrome.i18n.getMessage('Send')}
             </Button>
           )}
@@ -499,10 +488,9 @@ const LinkedNftDetail = () => {
               onClick={() => setMoveOpen(true)}
             >
               {/* <IosShareOutlinedIcon color="primary" /> */}
-              <CardMedia
-                image={DetailMove}
-                sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}
-              />
+              <CardMedia sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}>
+                <DetailMove />
+              </CardMedia>
               {chrome.i18n.getMessage('Move')}
             </Button>
           )}

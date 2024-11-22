@@ -323,7 +323,6 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
                 py: '8px',
               }}
             >
-              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
               <InfoIcon
                 fontSize="medium"
                 color="primary"

@@ -6,11 +6,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { storage } from '@/background/webapi';
 import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
 import { permissionService } from 'background/service';
-import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
-import Link from 'ui/FRWAssets/svg/link.svg';
-import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
-import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
-import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
+import Flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import LinkSvg from 'ui/FRWAssets/svg/link.svg';
+import LinkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
+import MainnetSvg from 'ui/FRWAssets/svg/mainnet.svg';
+import TestnetSvg from 'ui/FRWAssets/svg/testnet.svg';
 import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
 import theme from 'ui/style/LLTheme';
 import { useApproval, useWallet } from 'ui/utils';
@@ -339,8 +339,9 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
                     backgroundColor: 'text.secondary',
                     marginRight: '8px',
                   }}
-                  image={flowgrey}
-                />
+                >
+                  <Flowgrey />
+                </CardMedia>
                 <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>FLOW Address</Typography>
               </Box>
               <Box>
@@ -361,8 +362,9 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
                 <CardMedia
                   component="img"
                   sx={{ height: '18px', width: '18px', borderRadius: '18px', marginRight: '8px' }}
-                  image={linkGlobe}
-                />
+                >
+                  <LinkGlobe />
+                </CardMedia>
                 <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>
                   {chrome.i18n.getMessage('Network')}
                 </Typography>
@@ -445,7 +447,7 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
               }}
             >
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img
+                <TestnetSvg
                   style={{
                     height: '60px',
                     width: '60px',
@@ -454,7 +456,6 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
                     backgroundColor: networkColor(currentNetwork),
                     objectFit: 'cover',
                   }}
-                  src={testnetsvg}
                 />
                 <Typography
                   sx={{
@@ -469,9 +470,9 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
                   {currentNetwork}
                 </Typography>
               </Box>
-              <img style={{ width: '116px' }} src={Link} />
+              <LinkSvg style={{ width: '116px' }} />
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <img
+                <MainnetSvg
                   style={{
                     height: '60px',
                     width: '60px',
@@ -480,7 +481,6 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
                     backgroundColor: networkColor(msgNetwork),
                     objectFit: 'cover',
                   }}
-                  src={mainnetsvg}
                 />
                 <Typography
                   sx={{

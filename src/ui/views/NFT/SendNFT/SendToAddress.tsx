@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Tab,
@@ -11,25 +11,26 @@ import {
   ListItemAvatar,
   ListItemText,
 } from '@mui/material';
-import { useWallet } from 'ui/utils';
-import { useTheme, styled } from '@mui/material/styles';
-import SwipeableViews from 'react-swipeable-views';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SearchIcon from '@mui/icons-material/Search';
-import { useHistory, useLocation } from 'react-router-dom';
-import AddressBookList from '../../Send/AddressBookList';
-import AccountsList from '../../Send/AccountsList';
-import SearchList from '../../Send/SearchList';
-import RecentList from '../../Send/RecentList';
-import { Contact } from 'background/service/networkModel';
-import { isEmpty } from 'lodash';
+import { useTheme, styled, StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { StyledEngineProvider } from '@mui/material/styles';
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import SendNFTConfirmation from './SendNFTConfirmation';
-import { MatchMedia } from '@/ui/utils/url';
-import IconAbout from '../../../../components/iconfont/IconAbout';
+import { isEmpty } from 'lodash';
+import React, { useState, useEffect } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import SwipeableViews from 'react-swipeable-views';
+
 import { LLHeader } from '@/ui/FRWComponent';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
+import type { MatchMedia } from '@/ui/utils/url';
+import type { Contact } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
+
+import IconAbout from '../../../../components/iconfont/IconAbout';
+import AccountsList from '../../Send/AccountsList';
+import AddressBookList from '../../Send/AddressBookList';
+import RecentList from '../../Send/RecentList';
+import SearchList from '../../Send/SearchList';
+
+import SendNFTConfirmation from './SendNFTConfirmation';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
@@ -237,7 +238,7 @@ const SendToAddress = () => {
   };
 
   const returnFilteredCollections = (contractList, NFT) => {
-    return contractList.filter((collection) => collection.name == NFT.collectionName);
+    return contractList.filter((collection) => collection.name === NFT.collectionName);
   };
 
   useEffect(() => {
@@ -502,7 +503,6 @@ const SendToAddress = () => {
                 <TabPanel value={tabValue} index={0} dir={theme.direction}>
                   <RecentList
                     filteredContacts={recentContacts}
-                    isLoading={isLoading}
                     handleClick={(eachgroup) => {
                       searchResult = eachgroup;
                       setConfirmationOpen(true);
@@ -579,7 +579,6 @@ const SendToAddress = () => {
             {searched && !searchContacts.length && (
               <ListItem sx={{ backgroundColor: '#000000' }}>
                 <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
-                  {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
                   <IconAbout size={20} color="#E54040" />
                 </ListItemAvatar>
                 <ListItemText>

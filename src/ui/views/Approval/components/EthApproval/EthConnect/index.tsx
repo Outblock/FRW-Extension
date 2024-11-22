@@ -1,17 +1,20 @@
+import { Stack, Box, Typography, Divider, CardMedia, Card } from '@mui/material';
+import { ThemeProvider } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useHistory } from 'react-router-dom';
+
+import enableBg from 'ui/FRWAssets/image/enableBg.png';
+import Flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import LinkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
+import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 'ui/FRWComponent';
+import theme from 'ui/style/LLTheme';
 import { useApproval, useWallet, formatAddress } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
-import enableBg from 'ui/FRWAssets/image/enableBg.png';
-import { ThemeProvider } from '@mui/system';
-import { Stack, Box, Typography, Divider, CardMedia, Card } from '@mui/material';
-import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
-import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+
 import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
-import theme from 'ui/style/LLTheme';
+
 // import EthMove from '../EthMove';
-import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 'ui/FRWComponent';
 
 interface ConnectProps {
   params: any;
@@ -175,8 +178,9 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
                 <CardMedia
                   component="img"
                   sx={{ width: '16px', height: '16px', marginRight: '8px' }}
-                  image={linkGlobe}
-                />
+                >
+                  <LinkGlobe />
+                </CardMedia>
                 <Typography color="secondary.main" variant="overline">
                   {origin}
                 </Typography>
@@ -240,8 +244,9 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
                       backgroundColor: 'text.secondary',
                       marginRight: '8px',
                     }}
-                    image={flowgrey}
-                  />
+                  >
+                    <Flowgrey />
+                  </CardMedia>
                   <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>EVM on Flow</Typography>
                 </Box>
                 <Box>
@@ -262,8 +267,9 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
                   <CardMedia
                     component="img"
                     sx={{ height: '18px', width: '18px', borderRadius: '18px', marginRight: '8px' }}
-                    image={linkGlobe}
-                  />
+                  >
+                    <LinkGlobe />
+                  </CardMedia>
                   <Typography sx={{ color: '#FFFFFF66', fontSize: '12px' }}>
                     {chrome.i18n.getMessage('Network')}
                   </Typography>

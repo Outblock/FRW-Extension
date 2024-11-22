@@ -33,7 +33,7 @@ import { useWallet, formatAddress } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
-import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
+import EyeOffSvg from '../../FRWAssets/svg/EyeOff.svg';
 
 import MenuDrawer from './Components/MenuDrawer';
 import NewsView from './Components/NewsView';
@@ -619,7 +619,7 @@ const Header = ({ loading }) => {
               </Tooltip>
               {modeAnonymous && (
                 <Tooltip title={chrome.i18n.getMessage('Anonymous__mode__on')} arrow>
-                  <img style={{ display: 'inline-block', width: '20px' }} src={EyeOff} />
+                  <EyeOffSvg style={{ display: 'inline-block', width: '20px' }} />
                 </Tooltip>
               )}
             </Box>

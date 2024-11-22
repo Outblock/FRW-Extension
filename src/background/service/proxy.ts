@@ -1,23 +1,13 @@
-import { createPersistStore } from 'background/utils';
-import {
-  WalletResponse,
-  BlockchainResponse,
-  ChildAccount,
-  DeviceInfoRequest,
-} from './networkModel';
-import * as fcl from '@onflow/fcl';
-import * as secp from '@noble/secp256k1';
-import { keyringService, openapiService } from 'background/service';
-import wallet from 'background/controller/wallet';
-import { getApp } from 'firebase/app';
-import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
-import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
-import { withPrefix } from '@/ui/utils/address';
-import { getAuth, signInAnonymously } from '@firebase/auth';
-import { storage } from '../webapi';
-import SignClient from '@walletconnect/sign-client';
-import { FCLWalletConnectMethod } from '@/ui/utils/type';
 import { Core } from '@walletconnect/core';
+import SignClient from '@walletconnect/sign-client';
+
+import { FCLWalletConnectMethod } from '@/ui/utils/type';
+import wallet from 'background/controller/wallet';
+import { keyringService, openapiService } from 'background/service';
+
+import { storage } from '../webapi';
+
+import type { DeviceInfoRequest } from './networkModel';
 
 class Proxy {
   proxySign = async (token: string, userId: string) => {
@@ -49,7 +39,6 @@ class Proxy {
     const topicId = await storage.get(`${currentId}Topic`);
     try {
       const signwallet = await SignClient.init({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: Unreachable code error
         core: new Core({
           projectId: process.env.WC_PROJECTID,
@@ -113,7 +102,6 @@ class Proxy {
     const topicId = await storage.get(`${currentId}Topic`);
     try {
       const signwallet = await SignClient.init({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: Unreachable code error
         core: new Core({
           projectId: process.env.WC_PROJECTID,

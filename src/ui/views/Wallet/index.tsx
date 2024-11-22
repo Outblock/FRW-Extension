@@ -9,11 +9,11 @@ import ReactTextTransition from 'react-text-transition';
 
 import eventBus from '@/eventBus';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
-import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
-import iconMove from 'ui/FRWAssets/svg/homeMove.svg';
-import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
-import sendIcon from 'ui/FRWAssets/svg/sendIcon.svg';
-import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
+import BuyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
+import IconMove from 'ui/FRWAssets/svg/homeMove.svg';
+import ReceiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
+import SendIcon from 'ui/FRWAssets/svg/sendIcon.svg';
+import SwapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
 import { useWallet } from 'ui/utils';
 import { formatLargeNumber } from 'ui/utils/number';
 
@@ -443,7 +443,9 @@ const WalletTab = ({ network }) => {
                   transition: 'width 0.3s ease-in-out',
                 }}
               >
-                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={sendIcon} />
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }}>
+                  <SendIcon />
+                </CardMedia>
                 {sendHover && (
                   <Typography
                     sx={{
@@ -481,7 +483,9 @@ const WalletTab = ({ network }) => {
                   window.open(incLink, '_blank', 'noopener,noreferrer');
                 }}
               >
-                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={swapIcon} />
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }}>
+                  <SwapIcon />
+                </CardMedia>
                 {swapHover && (
                   <Typography
                     sx={{
@@ -520,7 +524,9 @@ const WalletTab = ({ network }) => {
               onMouseLeave={() => setReceiveHover(false)}
               onClick={() => history.push('/dashboard/wallet/deposit')}
             >
-              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={receiveIcon} />
+              <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }}>
+                <ReceiveIcon />
+              </CardMedia>
               {receiveHover && (
                 <Typography
                   sx={{
@@ -556,7 +562,9 @@ const WalletTab = ({ network }) => {
                 onMouseLeave={() => setBuyHover(false)}
                 onClick={() => setOnRamp(true)}
               >
-                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }} image={buyIcon} />
+                <CardMedia sx={{ width: '20px', height: '20px', color: 'FFF' }}>
+                  <BuyIcon />
+                </CardMedia>
                 {buyHover && (
                   <Typography
                     sx={{
@@ -582,10 +590,9 @@ const WalletTab = ({ network }) => {
                 onClick={() => goMoveBoard()}
                 sx={{ height: '36px', borderRadius: '24px', px: '12px' }}
               >
-                <CardMedia
-                  sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }}
-                  image={iconMove}
-                />
+                <CardMedia sx={{ width: '20px', height: '20px', marginRight: '4px', color: 'FFF' }}>
+                  <IconMove />
+                </CardMedia>
                 <Typography
                   sx={{
                     fontWeight: 'normal',

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
-import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
-import closex from 'ui/assets/closex.svg';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+
+import Closex from 'ui/assets/closex.svg';
+import { useWallet, formatAddress, isEmoji } from 'ui/utils';
+
+import theme from '../style/LLTheme';
 
 const useStyles = makeStyles(() => ({
   ContactCardAvatar: {
@@ -154,7 +156,9 @@ export const LLContactCard = ({ contact, hideCloseButton, isSend = false, isLoad
               history.push('/dashboard/wallet/send');
             }}
           >
-            <CardMedia sx={{ width: '11px', height: '11px' }} image={closex} />
+            <CardMedia sx={{ width: '11px', height: '11px' }}>
+              <Closex />
+            </CardMedia>
           </IconButton>
         ) : contact.type === 4 && !contactAdd ? (
           <IconButton

@@ -1,14 +1,14 @@
-import React from 'react';
-import { Box, ThemeProvider } from '@mui/system';
 import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/system';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+import appicon from '../../FRWAssets/image/appicon.png';
+import Create from '../../FRWAssets/svg/create.svg';
+import ImportPng from '../../FRWAssets/svg/import.svg';
+import Qr from '../../FRWAssets/svg/scanIcon.svg';
 import theme from '../../style/LLTheme';
 import RegisterHeader from '../Register/RegisterHeader';
-import appicon from '../../FRWAssets/image/appicon.png';
-import create from '../../FRWAssets/svg/create.svg';
-import importPng from '../../FRWAssets/svg/import.svg';
-import qr from '../../FRWAssets/svg/scanIcon.svg';
-import { Link } from 'react-router-dom';
-import IconFlow from '../../../components/iconfont/IconFlow';
 
 const WelcomePage = () => {
   return (
@@ -123,8 +123,9 @@ const WelcomePage = () => {
                 <CardMedia
                   component="img"
                   sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                  image={create}
-                />
+                >
+                  <Create />
+                </CardMedia>
                 <Typography
                   variant="subtitle1"
                   sx={{ fontWeight: '600', fontSize: '14px' }}
@@ -133,42 +134,6 @@ const WelcomePage = () => {
                   {chrome.i18n.getMessage('Create_a_new_wallet')}
                 </Typography>
               </Button>
-
-              {/* <Button
-                variant="contained"
-                color="secondary"
-                component={Link}
-                to="/import"
-                size="large"
-                sx={{
-                  display: 'flex',
-                  width: '332px',
-                  height: '48px',
-                  borderRadius: '24px',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  textTransform: 'capitalize',
-                  marginBottom: '16px',
-                  border: '1px solid #E5E5E5',
-                  backgroundColor: 'transparent',
-                  paddingLeft: '32px'
-                }}
-              >
-                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: '600',
-                    fontSize: '14px',
-                    color: '#FFF',
-                    '&:hover': {
-                      color: 'background.paper'
-                    }
-                  }}
-                >
-                  {chrome.i18n.getMessage('Import_your_wallet')}
-                </Typography>
-              </Button> */}
 
               <Button
                 variant="contained"
@@ -193,8 +158,9 @@ const WelcomePage = () => {
                 <CardMedia
                   component="img"
                   sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                  image={qr}
-                />
+                >
+                  <Qr />
+                </CardMedia>
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -244,8 +210,9 @@ const WelcomePage = () => {
                   <CardMedia
                     component="img"
                     sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                    image={importPng}
-                  />
+                  >
+                    <ImportPng />
+                  </CardMedia>
                   <Typography
                     variant="subtitle1"
                     sx={{

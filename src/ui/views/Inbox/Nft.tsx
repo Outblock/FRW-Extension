@@ -1,22 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { Typography, ListItem, ListItemText, Skeleton, List, CardMedia } from '@mui/material';
 import { Box, ThemeProvider } from '@mui/system';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import theme from '../../style/LLTheme';
-import { useWallet } from 'ui/utils';
-import {
-  Typography,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  ListItemIcon,
-  Skeleton,
-  ListItemButton,
-  List,
-  CardMedia,
-} from '@mui/material';
-import activity from 'ui/FRWAssets/svg/activity.svg';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+
 import fallback from 'ui/FRWAssets/image/errorImage.png';
+import Activity from 'ui/FRWAssets/svg/activity.svg';
+import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import theme from '../../style/LLTheme';
 
 const Nft = ({ data }) => {
   const wallet = useWallet();
@@ -156,7 +148,7 @@ const Nft = ({ data }) => {
                                   alignItems: 'center',
                                 }}
                               >
-                                {ids == ibx ? (
+                                {ids === ibx ? (
                                   <Box
                                     sx={{
                                       borderRadius: '14.5px',
@@ -223,10 +215,9 @@ const Nft = ({ data }) => {
                   backgroundColor: '#000',
                 }}
               >
-                <CardMedia
-                  sx={{ width: '100px', height: '102px', margin: '50px auto 0' }}
-                  image={activity}
-                />
+                <CardMedia sx={{ width: '100px', height: '102px', margin: '50px auto 0' }}>
+                  <Activity />
+                </CardMedia>
                 <Typography
                   variant="overline"
                   sx={{

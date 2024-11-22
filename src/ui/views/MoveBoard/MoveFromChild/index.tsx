@@ -8,8 +8,8 @@ import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSn
 import { isValidEthereumAddress } from '@/ui/utils/address';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
-import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
-import selected from 'ui/FRWAssets/svg/selected.svg';
+import MoveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
+import Selected from 'ui/FRWAssets/svg/selected.svg';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -413,11 +413,9 @@ const MoveFromChild = (props: MoveBoardProps) => {
               sx={{ width: '12px', height: '12px', marginLeft: '4px' }}
               image={'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png'}
             />
-            <CardMedia
-              component="img"
-              sx={{ width: '16px', height: '16px', marginLeft: '4px' }}
-              image={moveSelectDrop}
-            />
+            <CardMedia component="img" sx={{ width: '16px', height: '16px', marginLeft: '4px' }}>
+              <MoveSelectDrop />
+            </CardMedia>
           </Button>
         )}
       </Box>
@@ -473,8 +471,9 @@ const MoveFromChild = (props: MoveBoardProps) => {
                           zIndex: '2000',
                           position: 'absolute',
                         }}
-                        image={selected}
-                      />
+                      >
+                        <Selected />
+                      </CardMedia>
                     </Box>
                   )}
                   <CardMedia

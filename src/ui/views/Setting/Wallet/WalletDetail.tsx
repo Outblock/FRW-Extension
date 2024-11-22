@@ -26,7 +26,7 @@ import type { StorageInfo } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 
 import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
-import editEmoji from '../../../FRWAssets/svg/editEmoji.svg';
+import EditEmoji from '../../../FRWAssets/svg/editEmoji.svg';
 
 import EditProfile from './EditProfile';
 
@@ -381,11 +381,9 @@ const WalletDetail = () => {
                 </Typography>
                 <Box sx={{ flex: '1' }}></Box>
                 <ListItemIcon aria-label="end" sx={{ minWidth: '20px' }}>
-                  <CardMedia
-                    component="img"
-                    sx={{ width: '20px', height: '20px' }}
-                    image={editEmoji}
-                  />
+                  <CardMedia component="img" sx={{ width: '20px', height: '20px' }}>
+                    <EditEmoji />
+                  </CardMedia>
                 </ListItemIcon>
               </ListItemButton>
             </ListItem>

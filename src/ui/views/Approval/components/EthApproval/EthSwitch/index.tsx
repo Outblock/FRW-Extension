@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet, formatAddress } from 'ui/utils';
-// import { CHAINS_ENUM } from 'consts';
-import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
-import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
-import theme from 'ui/style/LLTheme';
-import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
+import { ThemeProvider } from '@mui/system';
 import { WalletUtils } from '@onflow/fcl';
-import Link from 'ui/FRWAssets/svg/link.svg';
-import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
-import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
-import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
-import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
+import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
+import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import LinkSvg from 'ui/FRWAssets/svg/link.svg';
+import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
+import MainnetSvg from 'ui/FRWAssets/svg/mainnet.svg';
+import TestnetSvg from 'ui/FRWAssets/svg/testnet.svg';
+import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
+import theme from 'ui/style/LLTheme';
+import { useApproval, useWallet, formatAddress } from 'ui/utils';
+// import { CHAINS_ENUM } from 'consts';
 
 interface ConnectProps {
   params: any;
@@ -143,7 +143,7 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
             }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img
+              <TestnetSvg
                 style={{
                   height: '60px',
                   width: '60px',
@@ -152,7 +152,6 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
                   backgroundColor: networkColor(currentNetwork),
                   objectFit: 'cover',
                 }}
-                src={testnetsvg}
               />
               <Typography
                 sx={{
@@ -167,9 +166,9 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
                 {currentNetwork}
               </Typography>
             </Box>
-            <img style={{ width: '116px' }} src={Link} />
+            <LinkSvg style={{ width: '116px' }} />
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img
+              <MainnetSvg
                 style={{
                   height: '60px',
                   width: '60px',
@@ -178,7 +177,6 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
                   backgroundColor: networkColor(target),
                   objectFit: 'cover',
                 }}
-                src={mainnetsvg}
               />
               <Typography
                 sx={{

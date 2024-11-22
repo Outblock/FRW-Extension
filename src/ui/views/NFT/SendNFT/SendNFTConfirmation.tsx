@@ -374,7 +374,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             {colorArray.map((color, index) => (
               <Box sx={{ mx: '5px' }} key={index}>
                 {count === index ? (
-                  <CardMedia sx={{ width: '8px', height: '12px' }} image={IconNext} />
+                  <CardMedia sx={{ width: '8px', height: '12px' }}>
+                    <IconNext />
+                  </CardMedia>
                 ) : (
                   <Box
                     key={index}
@@ -464,7 +466,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
                 py: '8px',
               }}
             >
-              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
               <InfoIcon
                 fontSize="medium"
                 color="primary"

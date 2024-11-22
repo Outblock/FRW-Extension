@@ -1,11 +1,10 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Typography, IconButton, Box, Link, CardMedia } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Typography, IconButton, Box, Link, CardMedia } from '@mui/material';
+
+import EnableBg from 'ui/FRWAssets/image/enableBg.png';
 import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// import '../../Unlock/style.css';
-import enableBg from 'ui/FRWAssets/image/enableBg.png';
-// import enableBg from 'ui/FRWAssets/svg/enableBg.svg';
 import { useWallet } from 'ui/utils';
 
 const Enable = () => {
@@ -87,7 +86,9 @@ const Enable = () => {
           alignItems: 'center',
         }}
       >
-        <CardMedia component="img" sx={{ width: '196px', height: '196px' }} image={enableBg} />
+        <CardMedia component="img" sx={{ width: '196px', height: '196px' }}>
+          <EnableBg />
+        </CardMedia>
         <Typography
           variant="subtitle1"
           sx={{

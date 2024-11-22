@@ -18,13 +18,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import type { UserInfoResponse } from 'background/service/networkModel';
-import importIcon from 'ui/FRWAssets/svg/importIcon.svg';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
+import ImportIcon from 'ui/FRWAssets/svg/importIcon.svg';
+import PopLock from 'ui/FRWAssets/svg/popLock.svg';
 import { useWallet } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
-import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
-import sideMore from '../../../FRWAssets/svg/sideMore.svg';
+import Rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
+import SideMore from '../../../FRWAssets/svg/sideMore.svg';
 
 import NetworkList from './NetworkList';
 
@@ -117,7 +117,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
   }, [usewallet]);
 
   const getEvmAddress = useCallback(async () => {
-    console.log(props.evmAddress);
     if (isValidEthereumAddress(props.evmAddress)) {
       const result = await usewallet.getBalance(props.evmAddress);
       const readBalance = parseFloat(result) / 1e18;
@@ -160,13 +159,8 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 <img src={props.userInfo!.avatar} width="48px" />
 
                 <Box sx={{ paddingTop: '4px', px: '2px' }}>
-                  {/* {props.otherAccounts && props.otherAccounts.map((account, index) => (
-              <IconButton key={index} edge="end" aria-label="account" onClick={() => props.switchAccount(account)}>
-                <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
-              </IconButton>
-            ))} */}
                   <IconButton edge="end" aria-label="close" onClick={props.togglePop}>
-                    <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
+                    <SideMore style={{ display: 'inline-block', width: '24px' }} />
                   </IconButton>
                 </Box>
               </ListItemIcon>
@@ -235,8 +229,9 @@ const MenuDrawer = (props: MenuDrawerProps) => {
               </Box>
               <CardMedia
                 sx={{ width: '20px', height: '20px', display: 'block', marginLeft: '6px' }}
-                image={rightarrow}
-              />
+              >
+                <Rightarrow />
+              </CardMedia>
             </ListItemButton>
           </ListItem>
         )}
@@ -529,11 +524,9 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                   marginRight: '12px',
                 }}
               >
-                <CardMedia
-                  component="img"
-                  sx={{ width: '16px', height: '16px' }}
-                  image={importIcon}
-                />
+                <CardMedia component="img" sx={{ width: '16px', height: '16px' }}>
+                  <ImportIcon />
+                </CardMedia>
               </ListItemIcon>
               <Typography
                 variant="body1"
@@ -565,7 +558,9 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                   marginRight: '12px',
                 }}
               >
-                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popLock} />
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }}>
+                  <PopLock />
+                </CardMedia>
               </ListItemIcon>
               <Typography
                 variant="body1"

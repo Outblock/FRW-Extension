@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
   Stack,
   Box,
@@ -9,10 +8,12 @@ import {
   AccordionDetails,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { useWallet } from 'ui/utils';
+import React, { useEffect, useState } from 'react';
+
 import { UserInfoResponse } from 'background/service/networkModel';
 import IconCheck from 'ui/assets/check.svg';
-import Link from 'ui/FRWAssets/svg/link.svg';
+import LinkSvg from 'ui/FRWAssets/svg/link.svg';
+import { useWallet } from 'ui/utils';
 
 const useStyles = makeStyles({
   IconCheck: {
@@ -80,7 +81,7 @@ export const LinkingBlock = ({ image, accountTitle, userInfo }) => {
                 {accountTitle}
               </Typography>
             </Box>
-            <img style={{ width: '108px' }} src={Link} />
+            <LinkSvg style={{ width: '108px' }} />
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {userInfo && (
                 <img
@@ -117,12 +118,10 @@ export const LinkingBlock = ({ image, accountTitle, userInfo }) => {
           {chrome.i18n.getMessage('This_App_would_like_to')}
         </Typography>
         <Typography sx={{ fontSize: '14px', color: '#FFFFFF', marginTop: '4px' }}>
-          <img className={classes.IconCheck} src={IconCheck} /> Delegate dApp account to your Flow
-          Wallet
+          <IconCheck className={classes.IconCheck} /> Delegate dApp account to your Flow Wallet
         </Typography>
         <Typography sx={{ fontSize: '14px', color: '#FFFFFF', marginTop: '8px' }}>
-          <img className={classes.IconCheck} src={IconCheck} /> Flow Wallet will manage linked
-          account{' '}
+          <IconCheck className={classes.IconCheck} /> Flow Wallet will manage linked account{' '}
         </Typography>
       </Box>
     </Box>

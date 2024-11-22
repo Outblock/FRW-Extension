@@ -1,16 +1,16 @@
+import 'reflect-metadata'; // Add this at the top
+
 import { ethErrors } from 'eth-rpc-errors';
-import {
-  keyringService,
-  notificationService,
-  permissionService,
-  userWalletService,
-} from 'background/service';
+
+import eventBus from '@/eventBus';
+import { isValidEthereumAddress } from '@/ui/utils/address';
+import { keyringService, notificationService, permissionService } from 'background/service';
 import { PromiseFlow, underline2Camelcase } from 'background/utils';
 import { EVENTS } from 'consts';
-import providerController from './controller';
-import eventBus from '@/eventBus';
+
 import Wallet from '../wallet';
-import { isValidEthereumAddress } from '@/ui/utils/address';
+
+import providerController from './controller';
 
 const isSignApproval = (type: string) => {
   const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx', 'EthConfirm'];

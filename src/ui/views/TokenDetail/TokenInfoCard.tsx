@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
+import type { TokenInfo } from 'flow-native-token-registry';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { LLPrimaryButton } from '@/ui/FRWComponent';
+import IconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 import { useWallet } from 'ui/utils';
 import { addDotSeparators } from 'ui/utils/number';
-import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
-import IconChevronRight from '../../../components/iconfont/IconChevronRight';
-import { LLPrimaryButton } from '@/ui/FRWComponent';
-import { TokenInfo } from 'flow-native-token-registry';
-import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 
-import { useHistory } from 'react-router-dom';
+import IconChevronRight from '../../../components/iconfont/IconChevronRight';
+
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
 const TokenInfoCard = ({
@@ -26,9 +28,9 @@ const TokenInfoCard = ({
   const history = useHistory();
   const isMounted = useRef(true);
   const [balance, setBalance] = useState(0);
-  const [active, setIsActive] = useState(true);
+  const [, setIsActive] = useState(true);
   const [data, setData] = useState<TokenInfo | undefined>(undefined);
-  const [evmEnabled, setEvmEnabled] = useState<boolean>(false);
+  const [, setEvmEnabled] = useState<boolean>(false);
 
   const [canMoveChild, setCanMoveChild] = useState(true);
 
@@ -43,14 +45,14 @@ const TokenInfoCard = ({
     };
 
     checkPermission();
-  }, [balance]);
+  }, [balance, tokenInfo.custom, wallet]);
 
   const toSend = async () => {
     await wallet.setCurrentCoin(token);
     history.push('/dashboard/wallet/send');
   };
 
-  const getActive = async () => {
+  const getActive = useCallback(async () => {
     const evmEnabled = await wallet.getEvmEnabled();
     setEvmEnabled(evmEnabled);
     const isChild = await wallet.getActiveWallet();
@@ -84,7 +86,7 @@ const TokenInfoCard = ({
       isMounted.current = false; // Mark component as unmounted
       clearTimeout(timerId); // Clear the timer
     };
-  };
+  }, [setAccessible, token, tokenInfo, wallet]);
 
   const moveToken = () => {
     if (childType && childType !== 'evm') {
@@ -102,7 +104,7 @@ const TokenInfoCard = ({
     return () => {
       isMounted.current = false;
     };
-  }, [token]);
+  }, [getActive, token]);
 
   return (
     <Box
@@ -137,6 +139,7 @@ const TokenInfoCard = ({
               }
             ></img>
             <ButtonBase
+              // eslint-disable-next-line no-restricted-globals
               onClick={() => data.extensions && window.open(data.extensions.website, '_blank')}
             >
               <Box
@@ -188,10 +191,9 @@ const TokenInfoCard = ({
                   <Typography sx={{ fontWeight: 'normal', color: '#41CC5D' }}>
                     {chrome.i18n.getMessage('Move')}
                   </Typography>
-                  <CardMedia
-                    sx={{ width: '12px', height: '12px', marginLeft: '4px' }}
-                    image={iconMove}
-                  />
+                  <CardMedia sx={{ width: '12px', height: '12px', marginLeft: '4px' }}>
+                    <IconMove />
+                  </CardMedia>
                 </Box>
               </ButtonBase>
             )}

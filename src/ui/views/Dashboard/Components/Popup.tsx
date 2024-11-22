@@ -17,10 +17,10 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import type { UserInfoResponse } from 'background/service/networkModel';
-import iconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import vmsvg from 'ui/FRWAssets/svg/viewmore.svg';
+import IconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
+import PopAdd from 'ui/FRWAssets/svg/popAdd.svg';
+import PopLock from 'ui/FRWAssets/svg/popLock.svg';
+import VmSvg from 'ui/FRWAssets/svg/viewmore.svg';
 import { useWallet } from 'ui/utils';
 
 interface TransferConfirmationProps {
@@ -153,11 +153,9 @@ const Popup = (props: TransferConfirmationProps) => {
                         </Box>
                       </ListItemText>
                       {user.username === props.userInfo.username && (
-                        <CardMedia
-                          component="img"
-                          sx={{ width: '16px', height: '16px' }}
-                          image={iconCheck}
-                        />
+                        <CardMedia component="img" sx={{ width: '16px', height: '16px' }}>
+                          <IconCheck />
+                        </CardMedia>
                       )}
                       {props.switchLoading && index === loadingIndex && (
                         <CircularProgress
@@ -199,8 +197,9 @@ const Popup = (props: TransferConfirmationProps) => {
                   <CardMedia
                     component="img"
                     sx={{ width: '16px', height: '16px', display: 'inline', paddingLeft: '8px' }}
-                    image={vmsvg}
-                  />
+                  >
+                    <VmSvg />
+                  </CardMedia>
                 </Button>
               )}
             </Box>
@@ -244,11 +243,9 @@ const Popup = (props: TransferConfirmationProps) => {
                     marginRight: '12px',
                   }}
                 >
-                  <CardMedia
-                    component="img"
-                    sx={{ width: '24px', height: '24px' }}
-                    image={popAdd}
-                  />
+                  <CardMedia component="img" sx={{ width: '24px', height: '24px' }}>
+                    <PopAdd />
+                  </CardMedia>
                 </ListItemIcon>
                 <Typography
                   variant="body1"
@@ -282,7 +279,9 @@ const Popup = (props: TransferConfirmationProps) => {
                   marginRight: '12px',
                 }}
               >
-                <CardMedia component="img" sx={{ width: '24px', height: '24px' }} image={popLock} />
+                <CardMedia component="img" sx={{ width: '24px', height: '24px' }}>
+                  <PopLock />
+                </CardMedia>
               </ListItemIcon>
               <Typography
                 variant="body1"

@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@mui/styles';
-import { Box, Drawer, Grid, Typography, Stack, InputBase } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import { LLPrimaryButton, LLSecondaryButton, LLSpinner } from '../../../FRWComponent';
-import { useWallet } from 'ui/utils';
-import { useForm, FieldValues } from 'react-hook-form';
+import { Box, Drawer, Grid, Typography, Stack } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect } from 'react';
+import { useForm, type FieldValues } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
+
 import UnlinkSVG from 'ui/FRWAssets/svg/unlink.svg';
+import { useWallet } from 'ui/utils';
+
+import { LLPrimaryButton, LLSecondaryButton, LLSpinner } from '../../../FRWComponent';
 
 const useStyles = makeStyles(() => ({
   IconCheck: {
@@ -187,7 +188,7 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
               <Box className={classes.normalLine}></Box>
             )} */}
 
-            <img src={UnlinkSVG} />
+            <UnlinkSVG />
 
             <Box
               sx={{

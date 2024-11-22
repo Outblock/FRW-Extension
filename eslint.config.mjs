@@ -16,12 +16,9 @@ export default [
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 'latest',
+      ecmaVersion: 2022,
       sourceType: 'module',
       parser: typescriptParser,
-      parserOptions: {
-        project: true,
-      },
       globals: {
         ...globals.browser,
         ...globals.es2021,

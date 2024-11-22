@@ -6,14 +6,14 @@ import React from 'react';
 interface WarningSnackbarProps {
   open: boolean;
   onClose: () => void;
-  alertIcon: string;
+  alertIcon: React.FC;
   message: string;
 }
 
 export default function WarningSnackbar({
   open,
   onClose,
-  alertIcon,
+  alertIcon: AlertIcon,
   message,
 }: WarningSnackbarProps) {
   return (
@@ -27,7 +27,7 @@ export default function WarningSnackbar({
       }}
     >
       <Alert
-        icon={<img src={alertIcon} alt="alert icon" />}
+        icon={<AlertIcon />}
         variant="filled"
         severity="warning"
         sx={{

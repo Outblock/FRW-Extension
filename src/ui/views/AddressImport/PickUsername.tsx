@@ -1,14 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import {
+  CircularProgress,
+  IconButton,
+  Button,
+  Typography,
+  FormControl,
+  Input,
+  InputAdornment,
+  CssBaseline,
+} from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import theme from '../../style/LLTheme';
-import EmailIcon from '../../assets/alternate-email.svg';
+import React, { useEffect, useState } from 'react';
 import { Presets } from 'react-component-transition';
+
 import { useWallet } from 'ui/utils';
-import { CircularProgress, IconButton } from '@mui/material';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
+import EmailIcon from '../../assets/alternate-email.svg';
+import theme from '../../style/LLTheme';
 
 const useStyles = makeStyles((theme) => ({
   customInputLabel: {
@@ -118,7 +128,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         .checkUsername(username.toLowerCase())
         .then((response) => {
           setLoading(false);
-          if (response.data.username != username.toLowerCase()) {
+          if (response.data.username !== username.toLowerCase()) {
             setLoading(false);
             return;
           }
@@ -126,7 +136,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             setUsernameValid(true);
             setHelperText(usernameCorrect);
           } else {
-            if (response.message == 'Username is reserved') {
+            if (response.message === 'Username is reserved') {
               setErrorMessage(
                 chrome.i18n.getMessage('This__username__is__reserved__Please__contact')
               );
@@ -180,7 +190,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
               }}
               startAdornment={
                 <InputAdornment position="start">
-                  <img src={EmailIcon} />
+                  <EmailIcon />
                 </InputAdornment>
               }
               endAdornment={

@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
+import React, { useState, useEffect } from 'react';
+
 // import { useHistory, useLocation } from 'react-router-dom';
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from './TransferAmount';
-import SwapTarget from './SwapTarget';
+import { LLHeader } from '@/ui/FRWComponent';
+import type { CoinItem } from 'background/service/coinList';
+import type { Contact } from 'background/service/networkModel';
+import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
+
 import IconSwitch from '../../../components/iconfont/IconSwitch';
-import TransferConfirmation from './TransferConfirmation';
+import Increment from '../../FRWAssets/svg/increment.svg';
+import theme from '../../style/LLTheme';
+
 import SelectToken from './SelectToken';
-import { LLSpinner } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
+import SwapTarget from './SwapTarget';
+import TransferAmount from './TransferAmount';
+import TransferConfirmation from './TransferConfirmation';
+
 // import { Presets } from 'react-component-transition';
 // import CancelIcon from '../../../components/iconfont/IconClose';
-import { LLHeader } from '@/ui/FRWComponent';
 // import { TokenListProvider } from 'flow-native-token-registry';
-
-import Increment from '../../FRWAssets/svg/increment.svg';
 
 const Swap = () => {
   enum ENV {
@@ -185,7 +188,7 @@ const Swap = () => {
         let price: any = result.data.tokenOutAmount / parseFloat(result.data.tokenInAmount);
         price = (Math.round(price * 1000) / 1000).toFixed(3);
         setPrice(price);
-        if (errorType == Error.Fail) {
+        if (errorType === Error.Fail) {
           setErrorType(null);
         }
         setEstimateInfo(result.data);
@@ -219,7 +222,7 @@ const Swap = () => {
         let price: any = result.data.tokenOutAmount / parseFloat(result.data.tokenInAmount);
         price = (Math.round(price * 1000) / 1000).toFixed(3);
         setPrice(price);
-        if (errorType == Error.Fail) {
+        if (errorType === Error.Fail) {
           setErrorType(null);
         }
         setEstimateInfo(result.data);
@@ -409,10 +412,7 @@ const Swap = () => {
               >
                 {estimateInfo ? (
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <img
-                      src={Increment}
-                      style={{ height: '14px', width: '14px', marginRight: '4px' }}
-                    />
+                    <Increment style={{ height: '14px', width: '14px', marginRight: '4px' }} />
                     Increment.fi
                   </Box>
                 ) : (
@@ -443,7 +443,7 @@ const Swap = () => {
               </Typography>
             </Box>
             {/* <Box sx={{display: 'flex', justifyContent:'space-between'}}>
-              <Typography variant="body1"           
+              <Typography variant="body1"
                 sx={{
                   alignSelf: 'start',
                   fontSize: '12px',
@@ -451,7 +451,7 @@ const Swap = () => {
                 }}>
                 Estimated Fees
               </Typography>
-              <Typography variant="body1"           
+              <Typography variant="body1"
                 sx={{
                   alignSelf: 'end',
                   fontSize: '12px',
@@ -477,7 +477,7 @@ const Swap = () => {
                 textTransform: 'capitalize',
               }}
               disabled={
-                outAmount <= 0 || Number(amount) <= 0 || errorType || isLoading || token1 == null
+                outAmount <= 0 || Number(amount) <= 0 || errorType || isLoading || token1 === null
               }
             >
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
