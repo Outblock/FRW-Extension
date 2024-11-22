@@ -1,5 +1,5 @@
 {
-  "name": "FlowReferenceWallet",
+  "name": "flow-reference-wallet",
   "version": "2.5.21",
   "description": "Digital wallet created for everyone.",
   "scripts": {
@@ -7,11 +7,11 @@
     "prepare:pro": "node ./build/prepareManifest.js pro",
     "clean": "mkdir -p dist && rm -rf dist/* && cp -r _raw/* dist",
     "winClean": "if not exist dist mkdir dist && del /Q /F dist\\* && xcopy /E /I _raw dist",
-    "winBuild:dev": "set NODE_OPTIONS=--max-old-space-size=8192 && copy _raw\\manifest\\manifest.dev.json _raw\\manifest.json && npm run prepare:dev && npm run winClean && webpack --progress --env config=dev",
-    "build:dev": "NODE_OPTIONS=--max-old-space-size=8192 && cp _raw/manifest/manifest.dev.json _raw/manifest.json && npm run prepare:dev && npm run clean && webpack --progress --env config=dev",
-    "winBuild:pro": "copy _raw\\manifest\\manifest.pro.json _raw\\manifest.json && npm run prepare:pro && npm run winClean && webpack --progress --env config=pro",
-    "build:pro": "cp _raw/manifest/manifest.pro.json _raw/manifest.json && npm run prepare:pro && npm run clean && webpack --progress --env config=pro",
-    "build:test": "cp _raw/manifest/manifest.dev.json _raw/manifest.json && npm run clean && webpack --progress --env config=none",
+    "winBuild:dev": "set NODE_OPTIONS=--max-old-space-size=8192 && copy _raw\\manifest\\manifest.dev.json _raw\\manifest.json && pnpm run prepare:dev && pnpm run winClean && webpack --progress --env config=dev",
+    "build:dev": "NODE_OPTIONS=--max-old-space-size=8192 && cp _raw/manifest/manifest.dev.json _raw/manifest.json && pnpm run prepare:dev && pnpm run clean && webpack --progress --env config=dev",
+    "winBuild:pro": "copy _raw\\manifest\\manifest.pro.json _raw\\manifest.json && pnpm run prepare:pro && pnpm run winClean && webpack --progress --env config=pro",
+    "build:pro": "cp _raw/manifest/manifest.pro.json _raw/manifest.json && pnpm run prepare:pro && pnpm run clean && webpack --progress --env config=pro",
+    "build:test": "cp _raw/manifest/manifest.dev.json _raw/manifest.json && pnpm run clean && webpack --progress --env config=none",
     "lint:fix": "eslint --fix .",
     "lint": "eslint .",
     "format:fix": "prettier --write .",
@@ -19,7 +19,8 @@
     "icon": "npx iconfont-h5",
     "test": "jest",
     "pub": "node build/release.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.1.0",
@@ -31,6 +32,7 @@
     "@emotion/styled": "^11.6.0",
     "@firebase/auth": "^1.0.0",
     "@firebase/remote-config": "^0.4.4",
+    "@firebase/util": "^1.10.2",
     "@ledgerhq/hw-app-eth": "^6.0.2",
     "@ledgerhq/hw-transport-webusb": "^6.0.2",
     "@metamask/eth-sig-util": "^4.0.0",
@@ -41,6 +43,7 @@
     "@mui/lab": "^5.0.0-alpha.65",
     "@mui/material": "^5.14.11",
     "@mui/styles": "^5.3.0",
+    "@mui/system": "^5.16.7",
     "@noble/secp256k1": "^1.5.1",
     "@onflow/fcl": "^1.9.0",
     "@onflow/fcl-wc": "^5.0.1",
@@ -59,9 +62,11 @@
     "@types/lodash": "^4.14.172",
     "@walletconnect/client": "^1.5.5",
     "@walletconnect/core": "2.10.3",
+    "@walletconnect/jsonrpc-utils": "^1.0.8",
     "@walletconnect/modal": "^2.6.2",
     "@walletconnect/sign-client": "^2.10.6",
     "@walletconnect/types": "^2.10.6",
+    "@walletconnect/utils": "^2.17.2",
     "@walletconnect/web3wallet": "^1.9.3",
     "@zxing/library": "0.8.0",
     "aes-js": "^3.1.2",
@@ -91,6 +96,7 @@
     "firebase": "^10.0.0",
     "flow-native-token-registry": "0.1.6",
     "hdkey": "0.8.0",
+    "history": "4",
     "koa-compose": "^4.1.0",
     "lodash": "^4.17.21",
     "loglevel": "^1.7.1",
@@ -130,10 +136,12 @@
     "stream-http": "^3.2.0",
     "ts-toolbelt": "^9.6.0",
     "util": "^0.12.3",
+    "uuid": "^11.0.3",
+    "vm-browserify": "^1.1.2",
     "wagmi": "^1.4.6",
     "web3": "^4.7.0",
     "web3-utils": "^4.2.2",
-    "yarn": "^1.22.18",
+    "webextension-polyfill": "^0.12.0",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
@@ -206,9 +214,13 @@
   },
   "keywords": [],
   "author": "",
-  "license": "LGPL",
+  "license": "LGPL-3.0-or-later",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs}": "eslint",
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --list-different"
+  },
+  "engines": {
+    "node": ">=22.11.0",
+    "pnpm": ">=9"
   }
 }

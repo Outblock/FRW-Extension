@@ -1,24 +1,24 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import Synce from './Sync';
-import RegisterPager from './Register/RegisterPager';
-import RecoverRegister from './RecoverRegister';
-import AddressImport from './AddressImport';
-import AddRegister from './AddWelcome/AddRegister';
-import AddImport from './AddWelcome/AddressImport';
-import AddSync from './AddWelcome/Sync';
-// import ProxySync from './AddWelcome/ProxySync';
-import AddWelcome from './AddWelcome';
-import GoogleImport from './AddressImport/GoogleImport';
-import AddGoogle from './AddWelcome/AddressImport/GoogleImport';
-import Forgot from './Forgot';
-import Reset from './Forgot/Reset';
-import Recover from './Forgot/Recover';
-import WelcomePage from './WelcomePage';
-import './MainRoute.css';
 import { spring, AnimatedSwitch } from 'react-router-transition';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
+import AddressImport from './AddressImport';
+import GoogleImport from './AddressImport/GoogleImport';
+import AddWelcome from './AddWelcome';
+import AddRegister from './AddWelcome/AddRegister';
+import AddImport from './AddWelcome/AddressImport';
+import AddGoogle from './AddWelcome/AddressImport/GoogleImport';
+import AddSync from './AddWelcome/Sync';
+// import ProxySync from './AddWelcome/ProxySync';
+import Forgot from './Forgot';
+import Recover from './Forgot/Recover';
+import Reset from './Forgot/Reset';
+import RecoverRegister from './RecoverRegister';
+import RegisterPager from './Register/RegisterPager';
+import Synce from './Sync';
+import WelcomePage from './WelcomePage';
+
+import './MainRoute.css';
 
 const LogPageView = () => {
   return null;
@@ -61,7 +61,7 @@ const bounceTransition = {
   },
 };
 
-const Main = () => {
+export const MainRoute: React.FC = () => {
   return (
     <div style={{ display: 'contents' }}>
       <Route path="/" component={LogPageView} />
@@ -95,5 +95,3 @@ const Main = () => {
     </div>
   );
 };
-
-export default Main;

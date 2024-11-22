@@ -2,9 +2,9 @@
 
 ### Install dependency
 
-1. Install Node.js version 14 or later
-2. Install Yarn `npm install -g yarn`
-3. Run `yarn intall` to install dependency
+1. Install Node.js version v22.11 or later
+2. Install pnpm `npm install -g pnpm`
+3. Run `pnpm i` to install dependencies
 
 ### Configure google-services.json
 
@@ -18,9 +18,9 @@ You should have three different versions of the .env file: one for debug, one fo
 
 ### Development
 
-Run `yarn build:dev` or `yarn winBuild:dev` for Windows enviornment to develop with file watching and development log.
+Run `pnpm build:dev` or `pnpm winBuild:dev` for Windows environment to develop with file watching and development log.
 
-Run `yarn build:pro` or `yarn winBuild:pro` for Windows enviornment to build a production package, the output extension package is located in the dist folder.
+Run `pnpm build:pro` or `pnpm winBuild:pro` for Windows environment to build a production package, the output extension package is located in the dist folder.
 
 ### Language
 

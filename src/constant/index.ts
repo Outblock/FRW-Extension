@@ -1,5 +1,6 @@
-import IconEN from 'ui/assets/langs/en.svg';
 import { CHAINS, CHAINS_ENUM, Chain } from '@debank/common';
+
+import IconEN from 'ui/assets/langs/en.svg';
 
 export { CHAINS, CHAINS_ENUM };
 
@@ -94,7 +95,7 @@ if (IS_CHROME) {
   }
 }
 
-export const IS_AFTER_CHROME91 = IS_CHROME ? chromeVersion && chromeVersion >= 91 : false;
+export const IS_AFTER_CHROME94 = IS_CHROME ? chromeVersion && chromeVersion >= 94 : false;
 
 export const GAS_LEVEL_TEXT = {
   slow: 'Standard',
