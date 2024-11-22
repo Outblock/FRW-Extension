@@ -6,7 +6,6 @@ export { default as EthConnect } from './EthApproval/EthConnect';
 export { default as EthSuggest } from './EthApproval/EthSuggest';
 export { default as EthConfirm } from './EthApproval/EthConfirm';
 export { default as EthEnable } from './EthApproval/EthEnable';
-export { default as EthMove } from './EthApproval/EthMove';
 export { default as EthSwitch } from './EthApproval/EthSwitch';
 export { default as EthSignType } from './EthApproval/EthSignType';
 export { default as EthSignV1 } from './EthApproval/EthSignV1';
