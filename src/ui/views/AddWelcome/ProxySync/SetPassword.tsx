@@ -11,10 +11,10 @@ import {
   Alert,
   Snackbar,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
@@ -307,7 +307,11 @@ const SetPassword = ({
                   </InputAdornment>
                 }
               />
-              <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+              {password && (
+                <Slide direction="up" mountOnEnter unmountOnExit>
+                  {helperText}
+                </Slide>
+              )}
             </FormGroup>
           </Box>
 

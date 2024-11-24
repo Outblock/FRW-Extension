@@ -1,6 +1,6 @@
 import { Typography, FormControl, Input, Box } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import React from 'react';
-import { Presets } from 'react-component-transition';
 
 const SeedPhrase = ({ helperText, msgBgColor, mnemonic, setmnemonic }) => {
   return (
@@ -41,8 +41,8 @@ const SeedPhrase = ({ helperText, msgBgColor, mnemonic, setmnemonic }) => {
               },
             }}
           />
-          <Presets.TransitionSlideUp>
-            {mnemonic && (
+          {mnemonic && (
+            <Slide direction="up" mountOnEnter unmountOnExit>
               <Box
                 sx={{
                   width: '95%',
@@ -53,8 +53,8 @@ const SeedPhrase = ({ helperText, msgBgColor, mnemonic, setmnemonic }) => {
               >
                 <Box sx={{ p: '4px' }}>{helperText}</Box>
               </Box>
-            )}
-          </Presets.TransitionSlideUp>
+            </Slide>
+          )}
         </FormControl>
       </Box>
     </Box>

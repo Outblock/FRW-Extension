@@ -14,11 +14,11 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import HDWallet from 'ethereum-hdwallet';
 import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
@@ -279,9 +279,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
-              {password && helperText}
-            </Presets.TransitionSlideUp>
+            <Slide style={{ marginBottom: '24px' }}>{password && helperText}</Slide>
           </FormGroup>
         </Box>
 

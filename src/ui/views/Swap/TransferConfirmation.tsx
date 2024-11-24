@@ -1,8 +1,8 @@
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
@@ -260,7 +260,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
       <Box sx={{ flexGrow: 1 }} />
       {occupied && (
-        <Presets.TransitionSlideUp>
+        <Slide direction="up" mountOnEnter unmountOnExit>
           <Box
             sx={{
               width: '95%',
@@ -279,7 +279,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
               {chrome.i18n.getMessage('Your_address_is_currently_processing_another_transaction')}
             </Typography>
           </Box>
-        </Presets.TransitionSlideUp>
+        </Slide>
       )}
 
       <Box

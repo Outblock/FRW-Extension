@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Typography,
@@ -14,16 +16,15 @@ import {
   Tooltip,
   Avatar,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
+import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import CloseIcon from '@mui/icons-material/Close';
+import BN from 'bignumber.js';
+import React, { useState, useEffect } from 'react';
+
+import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
 import IconSwitch from '../../../components/iconfont/IconSwitch';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
-import { StyledEngineProvider } from '@mui/material/styles';
-import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
-import SelectIcon from '@mui/icons-material/ArrowDropDown';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {

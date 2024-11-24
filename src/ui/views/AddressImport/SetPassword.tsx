@@ -14,10 +14,10 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
@@ -320,9 +320,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
-              {password && helperText}
-            </Presets.TransitionSlideUp>
+            {password && <Slide style={{ marginBottom: '24px' }}>{helperText}</Slide>}
             <Input
               sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
               id="pass2"
@@ -345,9 +343,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
-              {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp>
+            {confirmPassword && (
+              <Slide style={{ height: '40px', display: 'flex' }}>{helperMatch}</Slide>
+            )}
           </FormGroup>
         </Box>
 

@@ -1,7 +1,6 @@
-import { IconButton, Typography } from '@mui/material';
+import { IconButton, Slide, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { LLPinAlert } from '@/ui/FRWComponent';
@@ -156,25 +155,9 @@ const GoogleImport = () => {
             </Typography>
           </Box>
 
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-          >
+          <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </ComponentTransition>
+          </Slide>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

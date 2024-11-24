@@ -1,8 +1,8 @@
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
 
@@ -394,7 +394,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           />
         </Stack> */}
         {occupied && (
-          <Presets.TransitionSlideUp>
+          <Slide direction="up" mountOnEnter unmountOnExit>
             <Box
               sx={{
                 width: '95%',
@@ -417,7 +417,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
                 {chrome.i18n.getMessage('Your__address__is__currently__processing')}
               </Typography>
             </Box>
-          </Presets.TransitionSlideUp>
+          </Slide>
         )}
         <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
 

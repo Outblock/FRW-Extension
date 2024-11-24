@@ -11,10 +11,10 @@ import {
   Alert,
   Snackbar,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 
 import { LLSpinner } from 'ui/FRWComponent';
@@ -286,7 +286,11 @@ const SetPassword = ({ handleClick, mnemonic, pk, username }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+            {password && (
+              <Slide direction="up" mountOnEnter unmountOnExit>
+                {helperText}
+              </Slide>
+            )}
             <Input
               sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
               id="pass2"
@@ -309,9 +313,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
-              {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp>
+            {confirmPassword && (
+              <Slide style={{ height: '40px', display: 'flex' }}>{helperMatch}</Slide>
+            )}
           </FormGroup>
         </Box>
 

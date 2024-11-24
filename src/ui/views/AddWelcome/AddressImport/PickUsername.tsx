@@ -7,10 +7,10 @@ import {
   Input,
   InputAdornment,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Presets } from 'react-component-transition';
 
 import { useWallet } from 'ui/utils';
 
@@ -212,8 +212,8 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>
-              {username && (
+            {username && (
+              <Slide direction="up" mountOnEnter unmountOnExit>
                 <Box
                   sx={{
                     width: '95%',
@@ -224,8 +224,8 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
                 >
                   <Box sx={{ p: '4px' }}>{helperText}</Box>
                 </Box>
-              )}
-            </Presets.TransitionSlideUp>
+              </Slide>
+            )}
           </FormControl>
         </Box>
 

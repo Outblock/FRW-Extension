@@ -13,11 +13,11 @@ import {
   Chip,
   Tooltip,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import BN from 'bignumber.js';
-import React, { useState, useEffect } from 'react';
-import { Presets } from 'react-component-transition';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 
@@ -145,13 +145,13 @@ const MoveToken = ({
     setCoinType(!coinType);
   };
 
-  const currentCoinType = () => {
+  const currentCoinType = useCallback(() => {
     setCoin(coinInfo.unit);
-  };
+  }, [coinInfo.unit]);
 
   useEffect(() => {
     currentCoinType();
-  }, []);
+  }, [currentCoinType]);
 
   useEffect(() => {
     if (coinType) {
@@ -168,7 +168,7 @@ const MoveToken = ({
         setAmount(parseFloat(value.toFixed(3)));
       }
     }
-  }, [secondAmount]);
+  }, [coinInfo.balance, coinInfo.price, coinType, secondAmount, setAmount, setExceed]);
 
   useEffect(() => {
     if (!coinType) {
@@ -185,7 +185,7 @@ const MoveToken = ({
         setSecondAmount(value);
       }
     }
-  }, [amount, coin]);
+  }, [amount, coin, coinInfo, coinType, setExceed, setSecondAmount]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -268,8 +268,8 @@ const MoveToken = ({
             <Typography>{coinInfo.balance}</Typography>
           </Box>
         </Box>
-        <Presets.TransitionSlideUp>
-          {exceed && (
+        {exceed && (
+          <Slide direction="up" mountOnEnter unmountOnExit>
             <Box
               sx={{
                 display: 'flex',
@@ -293,8 +293,8 @@ const MoveToken = ({
                     : '')}
               </Typography>
             </Box>
-          )}
-        </Presets.TransitionSlideUp>
+          </Slide>
+        )}
       </Box>
     </StyledEngineProvider>
   );

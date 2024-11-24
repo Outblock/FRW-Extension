@@ -1,7 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { LLHeader } from '@/ui/FRWComponent';
@@ -175,11 +175,11 @@ const SendAmount = () => {
                   isSend={true}
                 />
               </Box>
-              <Presets.TransitionSlideUp>
-                {validated !== null &&
-                  (validated ? (
-                    <></>
-                  ) : (
+              {validated !== null &&
+                (validated ? (
+                  <></>
+                ) : (
+                  <Slide direction="up" mountOnEnter unmountOnExit>
                     <Box
                       sx={{
                         width: '95%',
@@ -202,8 +202,8 @@ const SendAmount = () => {
                         </Typography>
                       </Box>
                     </Box>
-                  ))}
-              </Presets.TransitionSlideUp>
+                  </Slide>
+                ))}
             </Box>
 
             <Typography

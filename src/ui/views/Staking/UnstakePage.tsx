@@ -1,7 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Typography, CardMedia } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory, useParams, useLocation } from 'react-router-dom';
 
 import { LLHeader } from '@/ui/FRWComponent';

@@ -1,9 +1,9 @@
 import { Typography, Tabs, Tab, CircularProgress, Button, Snackbar, Alert } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import * as bip39 from 'bip39';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Presets } from 'react-component-transition';
 
 import { storage } from '@/background/webapi';
 import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
@@ -189,7 +189,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
   );
   useEffect(() => {
     setMnemonicValid(false);
-    setHelperText(MnemonicLoading);
+    setHelperText(<MnemonicLoading />);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       setLoading(false);
@@ -208,7 +208,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
       }
 
       setMnemonicValid(true);
-      setHelperText(MnemonicCorrect);
+      setHelperText(<MnemonicCorrect />);
       storage.set('premnemonic', formatted);
       setMnemonic(formatted);
     }, 500);
@@ -218,7 +218,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
 
   useEffect(() => {
     setMnemonicValid(false);
-    setHelperText(MnemonicLoading);
+    setHelperText(<MnemonicLoading />);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       setLoading(false);
@@ -226,7 +226,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
       const isvalid = hexRegex.test(pk);
       if (isvalid) {
         setMnemonicValid(true);
-        setHelperText(PrivateCorrect);
+        setHelperText(<PrivateCorrect />);
         return;
       } else {
         setErrorMessage(chrome.i18n.getMessage('Private__is__invalid'));

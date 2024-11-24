@@ -1,8 +1,8 @@
 import InfoIcon from '@mui/icons-material/Info';
 import { Button, Typography } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
-import { Presets } from 'react-component-transition';
 
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -95,7 +95,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
 
         <Box sx={{ flexGrow: 1 }} />
         {backupErr && (
-          <Presets.TransitionSlideUp>
+          <Slide direction="up" mountOnEnter unmountOnExit>
             <Box
               sx={{
                 width: '95%',
@@ -121,7 +121,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
                 )}
               </Typography>
             </Box>
-          </Presets.TransitionSlideUp>
+          </Slide>
         )}
         <Button
           onClick={handleBackup}

@@ -7,11 +7,11 @@ import {
   Alert,
   Button,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import * as bip39 from 'bip39';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
 
 import { storage } from '@/background/webapi';
 import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
@@ -213,8 +213,8 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
                   setMnemonic(event.target.value);
                 }}
               />
-              <Presets.TransitionSlideUp>
-                {mnemonic && (
+              {mnemonic && (
+                <Slide direction="up" mountOnEnter unmountOnExit>
                   <Box
                     sx={{
                       width: '95%',
@@ -225,8 +225,8 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
                   >
                     <Box sx={{ p: '4px' }}>{helperText}</Box>
                   </Box>
-                )}
-              </Presets.TransitionSlideUp>
+                </Slide>
+              )}
             </FormControl>
           </Box>
 

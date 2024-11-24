@@ -18,7 +18,7 @@ import SwapTarget from './SwapTarget';
 import TransferAmount from './TransferAmount';
 import TransferConfirmation from './TransferConfirmation';
 
-// import { Presets } from 'react-component-transition';
+// import Slide from '@mui/material/Slide';
 // import CancelIcon from '../../../components/iconfont/IconClose';
 // import { TokenListProvider } from 'flow-native-token-registry';
 const USER_CONTACT = {

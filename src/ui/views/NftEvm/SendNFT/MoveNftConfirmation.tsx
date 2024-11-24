@@ -1,8 +1,8 @@
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
@@ -310,7 +310,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
         <Box sx={{ flexGrow: 1 }} />
         {occupied && (
-          <Presets.TransitionSlideUp>
+          <Slide direction="up" mountOnEnter unmountOnExit>
             <Box
               sx={{
                 width: '95%',
@@ -333,7 +333,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
                 {chrome.i18n.getMessage('Your__address__is__currently__processing')}
               </Typography>
             </Box>
-          </Presets.TransitionSlideUp>
+          </Slide>
         )}
         <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
 

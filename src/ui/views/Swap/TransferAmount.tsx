@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import {
   Box,
   Typography,
@@ -15,14 +16,14 @@ import {
   Stack,
   Avatar,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import IconFlow from '../../../components/iconfont/IconFlow';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
+import Slide from '@mui/material/Slide';
 import { StyledEngineProvider } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
 import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
-import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import React, { useState, useEffect } from 'react';
+
+import CancelIcon from '../../../components/iconfont/IconClose';
+import IconFlow from '../../../components/iconfont/IconFlow';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -134,7 +135,7 @@ const TransferAmount = ({
         removeError();
       }
     }
-  }, [amount]);
+  }, [amount, coinInfo, removeError, setError]);
 
   return (
     <StyledEngineProvider injectFirst>

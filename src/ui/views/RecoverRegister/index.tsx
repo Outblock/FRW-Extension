@@ -3,7 +3,6 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { IconButton, Typography, Snackbar, SnackbarContent, Slide } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState, useEffect } from 'react';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
@@ -199,25 +198,9 @@ const RecoverRegister = () => {
             </Typography>
           </Box>
 
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-          >
+          <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </ComponentTransition>
+          </Slide>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

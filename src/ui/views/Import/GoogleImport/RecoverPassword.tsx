@@ -10,14 +10,13 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline,
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
 
 import { LLSpinner, LLNotFound } from '@/ui/FRWComponent';
@@ -256,8 +255,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
   }, [isCheck, lastPassword]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       {!showDialog ? (
         <Box className="registerBox">
           <Typography variant="h4">
@@ -305,7 +303,9 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                   </InputAdornment>
                 }
               />
-              <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+              <Slide direction="up" mountOnEnter unmountOnExit>
+                {password && helperText}
+              </Slide>
               <Input
                 sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
                 id="pass2"
@@ -330,9 +330,9 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                   </InputAdornment>
                 }
               />
-              <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
+              <Slide style={{ height: '40px', display: 'flex' }}>
                 {confirmPassword && helperMatch}
-              </Presets.TransitionSlideUp>
+              </Slide>
             </FormGroup>
           </Box>
 
@@ -383,7 +383,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
           {errorMessage}
         </Alert>
       </Snackbar>
-    </ThemeProvider>
+    </>
   );
 };
 

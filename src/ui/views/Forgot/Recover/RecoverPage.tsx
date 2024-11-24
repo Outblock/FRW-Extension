@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
-import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import { Typography, Box, FormControl, List, ListItem, ListItemText } from '@mui/material';
-import { LLPrimaryButton, CredentialBox, LLSecondaryButton } from 'ui/FRWComponent';
-import { Input } from '@mui/material';
-import { Presets } from 'react-component-transition';
-import CancelIcon from '../../../../components/iconfont/IconClose';
+import { Typography, Box, FormControl, Input } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { LLPrimaryButton, CredentialBox, LLSecondaryButton } from 'ui/FRWComponent';
+import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
+
+import CancelIcon from '../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -149,8 +150,8 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
           onKeyDown={handleKeyDown}
         />
 
-        <Presets.TransitionSlideUp>
-          {showError && (
+        {showError && (
+          <Slide direction="up" mountOnEnter unmountOnExit>
             <Box
               sx={{
                 width: '95%',
@@ -161,8 +162,8 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
             >
               <Box sx={{ p: '4px' }}>{usernameError()}</Box>
             </Box>
-          )}
-        </Presets.TransitionSlideUp>
+          </Slide>
+        )}
       </FormControl>
 
       <Box

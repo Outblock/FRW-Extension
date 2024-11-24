@@ -2,9 +2,9 @@ import InfoIcon from '@mui/icons-material/Info';
 import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import { Button, Typography, IconButton } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
-import { Presets } from 'react-component-transition';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
 
@@ -188,7 +188,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
             justifyContent: 'flex-end',
           }}
         >
-          <Presets.TransitionSlideUp>
+          <Slide direction="up" mountOnEnter unmountOnExit>
             <Box
               sx={{
                 width: '95%',
@@ -212,7 +212,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
                 )}
               </Typography>
             </Box>
-          </Presets.TransitionSlideUp>
+          </Slide>
           <Button
             disabled={!canGoNext}
             onClick={handleClick}

@@ -1,10 +1,10 @@
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Button, Typography, IconButton, Input, InputAdornment, FormGroup } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
 
 import { useWallet } from 'ui/utils';
 
@@ -160,7 +160,11 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+            {password && (
+              <Slide direction="up" mountOnEnter unmountOnExit>
+                {helperText}
+              </Slide>
+            )}
           </FormGroup>
         </Box>
 

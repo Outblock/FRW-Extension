@@ -8,11 +8,12 @@ import {
   CardActionArea,
   Divider,
   FormControlLabel,
+  Fade,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 
 import { storage } from '@/background/webapi';
 import { LLHeader } from '@/ui/FRWComponent';
@@ -243,9 +244,8 @@ const DeveloperMode = () => {
           }}
         />
       </Box>
-
-      <Presets.TransitionFade>
-        {modeOn && (
+      {modeOn && (
+        <Fade>
           <Box sx={{ pb: '20px' }}>
             <Typography
               variant="h6"
@@ -433,8 +433,8 @@ const DeveloperMode = () => {
               /> */}
             </Box>
           </Box>
-        )}
-      </Presets.TransitionFade>
+        </Fade>
+      )}
     </div>
   );
 };

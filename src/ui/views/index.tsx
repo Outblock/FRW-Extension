@@ -1,9 +1,10 @@
+import { CssBaseline } from '@mui/material';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 
-import theme from '@/ui/style/LLTheme';
+import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
 import { WalletProvider } from 'ui/utils';
@@ -15,6 +16,8 @@ import RetrievePK from './RetrievePK';
 import SortHat from './SortHat';
 import SwitchUnlock from './SwitchUnlock';
 import Unlock from './Unlock';
+
+const theme = createTheme(themeOptions);
 
 function Main() {
   return (
@@ -39,8 +42,11 @@ function Main() {
 }
 
 const App = ({ wallet }: { wallet: any }) => {
+  console.log('Theme:', theme); // Add this to debug
+
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <WalletProvider wallet={wallet}>
         <NewsProvider>
           <GlobalStyles

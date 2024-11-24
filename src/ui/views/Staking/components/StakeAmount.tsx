@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import {
   Box,
   Typography,
@@ -15,13 +16,13 @@ import {
   Stack,
   Avatar,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import StakeConfirm from './StakeConfirm';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
+import Slide from '@mui/material/Slide';
 import { StyledEngineProvider } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
 import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
-import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import StakeConfirm from './StakeConfirm';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -129,15 +130,15 @@ const StakeAmount = ({
         removeError();
       }
     }
-  }, [amount]);
+  }, [amount, coinInfo, removeError, setError, setLess]);
 
-  const currentCoinType = () => {
+  const currentCoinType = useCallback(() => {
     setCoin(coinInfo.unit);
-  };
+  }, [coinInfo.unit]);
 
   useEffect(() => {
     currentCoinType();
-  }, []);
+  }, [currentCoinType]);
 
   return (
     <StyledEngineProvider injectFirst>

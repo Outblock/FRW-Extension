@@ -1,7 +1,6 @@
-import { IconButton, Snackbar, Alert } from '@mui/material';
+import { IconButton, Snackbar, Alert, Slide } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
 import { storage } from 'background/webapi';
@@ -143,25 +142,13 @@ const Reset = () => {
             <div style={{ flexGrow: 1 }}></div>
           </Box>
 
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
+          <Slide
+            direction={direction === Direction.Left ? 'left' : 'right'}
+            mountOnEnter
+            unmountOnExit
           >
             {page(activeIndex)}
-          </ComponentTransition>
+          </Slide>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

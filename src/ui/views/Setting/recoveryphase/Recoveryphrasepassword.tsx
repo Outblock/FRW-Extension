@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Input, FormControl, Typography, Button, Fade } from '@mui/material';
 import Box from '@mui/material/Box';
-import { Typography, Button } from '@mui/material';
-import { Input, FormControl } from '@mui/material';
-import { useWallet } from 'ui/utils';
-import { LLHeader } from '@/ui/FRWComponent';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import { Presets } from 'react-component-transition';
+import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
-import { useHistory } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+
+import { LLHeader } from '@/ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import CancelIcon from '../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -45,7 +45,7 @@ const Recoveryphrasepassword = () => {
     }
   };
 
-  const verify = async () => {
+  const verify = useCallback(() => {
     setMatch(false);
 
     if (confirmPassword.length > 7) {
@@ -58,28 +58,28 @@ const Recoveryphrasepassword = () => {
           setMatch(false);
         });
     }
-  };
+  }, [confirmPassword, wallet]);
 
-  const setTab = async () => {
+  const setTab = useCallback(async () => {
     await wallet.setDashIndex(3);
-  };
+  }, [wallet]);
 
-  const navigate = async () => {
+  const navigate = useCallback(async () => {
     history.push({
       pathname: '/dashboard/nested/recoveryphrasedetail',
       state: {
         password: confirmPassword,
       },
     });
-  };
+  }, [confirmPassword, history]);
 
   useEffect(() => {
     setTab();
-  }, []);
+  }, [setTab]);
 
   useEffect(() => {
     verify();
-  }, [confirmPassword]);
+  }, [confirmPassword, verify]);
 
   const passwordError = () => (
     <Box
@@ -133,24 +133,26 @@ const Recoveryphrasepassword = () => {
             onKeyDown={handleKeyDown}
           />
 
-          <Presets.TransitionSlideUp>
-            {confirmPassword && !isMatch && (
-              <Box
-                sx={{
-                  width: '95%',
-                  backgroundColor: 'error.light',
-                  mx: 'auto',
-                  borderRadius: '0 0 12px 12px',
-                }}
-              >
-                <Box sx={{ p: '4px' }}>{passwordError()}</Box>
-              </Box>
-            )}
-          </Presets.TransitionSlideUp>
+          <Slide direction="up" mountOnEnter unmountOnExit>
+            <>
+              {confirmPassword && !isMatch && (
+                <Box
+                  sx={{
+                    width: '95%',
+                    backgroundColor: 'error.light',
+                    mx: 'auto',
+                    borderRadius: '0 0 12px 12px',
+                  }}
+                >
+                  <Box sx={{ p: '4px' }}>{passwordError()}</Box>
+                </Box>
+              )}
+            </>
+          </Slide>
 
           {/* <Box sx={{flexGrow: 1}}/> */}
 
-          <Presets.TransitionFade>
+          <Fade>
             <Box
               sx={{
                 backgroundColor: 'rgba(247, 87, 68, 0.1)',
@@ -190,7 +192,7 @@ const Recoveryphrasepassword = () => {
                 {chrome.i18n.getMessage('If__someone__has__your__secret__phrase')}
               </Typography>
             </Box>
-          </Presets.TransitionFade>
+          </Fade>
         </FormControl>
 
         <Box sx={{ flexGrow: 1 }} />

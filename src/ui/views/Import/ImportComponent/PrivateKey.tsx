@@ -1,7 +1,6 @@
-import { useEffect, useState, useContext } from 'react';
-import React from 'react';
 import { Typography, FormControl, Input, Box } from '@mui/material';
-import { Presets } from 'react-component-transition';
+import Slide from '@mui/material/Slide';
+import React from 'react';
 
 const PrivateKey = ({ helperText, msgBgColor, pk, setpk }) => {
   return (
@@ -39,8 +38,8 @@ const PrivateKey = ({ helperText, msgBgColor, pk, setpk }) => {
               },
             }}
           />
-          <Presets.TransitionSlideUp>
-            {pk && (
+          {pk && (
+            <Slide direction="up" mountOnEnter unmountOnExit>
               <Box
                 sx={{
                   width: '95%',
@@ -51,8 +50,8 @@ const PrivateKey = ({ helperText, msgBgColor, pk, setpk }) => {
               >
                 <Box sx={{ p: '4px' }}>{helperText}</Box>
               </Box>
-            )}
-          </Presets.TransitionSlideUp>
+            </Slide>
+          )}
         </FormControl>
       </Box>
     </Box>

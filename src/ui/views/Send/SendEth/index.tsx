@@ -1,6 +1,6 @@
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory, useLocation } from 'react-router-dom';
 import Web3 from 'web3';
 
@@ -176,9 +176,9 @@ const SendEth = () => {
                   isSend={true}
                 />
               </Box>
-              <Presets.TransitionSlideUp>
-                {validated !== null &&
-                  (validated ? (
+              {validated !== null && (
+                <Slide direction="up" mountOnEnter unmountOnExit>
+                  {validated ? (
                     <></>
                   ) : (
                     <Box
@@ -203,8 +203,9 @@ const SendEth = () => {
                         </Typography>
                       </Box>
                     </Box>
-                  ))}
-              </Presets.TransitionSlideUp>
+                  )}
+                </Slide>
+              )}
             </Box>
 
             <Typography

@@ -1,7 +1,7 @@
 import { Typography, CircularProgress } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { Box } from '@mui/system';
 import React from 'react';
-import { Presets } from 'react-component-transition';
 
 import CheckCircleIcon from '../../components/iconfont/IconCheckmark';
 import CancelIcon from '../../components/iconfont/IconClose';
@@ -70,8 +70,8 @@ export const LLFormHelperText = (props: LLFormHelperTextProps) => {
 
   return (
     <>
-      <Presets.TransitionSlideUp>
-        {inputValue && (
+      {inputValue && (
+        <Slide direction="up" mountOnEnter unmountOnExit>
           <Box
             sx={{
               width: '95%',
@@ -84,8 +84,8 @@ export const LLFormHelperText = (props: LLFormHelperTextProps) => {
               {genHelperText(isValidating, isValid, errorMsg, successMsg)}
             </Box>
           </Box>
-        )}
-      </Presets.TransitionSlideUp>
+        </Slide>
+      )}
     </>
   );
 };
