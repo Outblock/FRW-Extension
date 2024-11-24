@@ -154,9 +154,11 @@ const NFTTab = () => {
               <Typography component="div" variant="h5">
                 {nftCount > 0 ? `${nftCount} NFTs` : 'NFT'}
               </Typography>
-              <IconButton aria-label="close" color="primary" size="small">
-                <ReplayRoundedIcon fontSize="inherit" />
-              </IconButton>
+              <ReplayRoundedIcon
+                fontSize="small"
+                color="primary"
+                sx={{ ml: 1 }} // Adds margin left to icon
+              />
             </ButtonBase>
           </Tooltip>
 
