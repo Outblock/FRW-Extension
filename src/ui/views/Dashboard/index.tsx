@@ -101,7 +101,6 @@ const Dashboard = ({ value, setValue }) => {
       >
         {currentNetwork === 'testnet' && value === 0 && <LLTestnetIndicator />}
         {/* <Header loading={loading} /> */}
-
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
           index={value}

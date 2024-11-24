@@ -1,5 +1,6 @@
 import * as fcl from '@onflow/fcl';
 import { send as httpSend } from '@onflow/transport-http';
+
 import { storage } from './webapi';
 
 const CONTRACTS_URL =

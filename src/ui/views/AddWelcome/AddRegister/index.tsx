@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/system';
+import * as bip39 from 'bip39';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
+import { useHistory } from 'react-router-dom';
+
+import { LLPinAlert } from '@/ui/FRWComponent';
+import Confetti from '@/ui/FRWComponent/Confetti';
+import { storage } from 'background/webapi';
+import { useWallet } from 'ui/utils';
+
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 import theme from '../../../style/LLTheme';
-import RegisterHeader from './RegisterHeader';
+
+import AllSet from './AllSet';
+import GoogleBackup from './GoogleBackup';
 import PickUsername from './PickUsername';
 import RecoveryPhrase from './RecoveryPhrase';
+import RegisterHeader from './RegisterHeader';
 import RepeatPhrase from './RepeatPhrase';
-import GoogleBackup from './GoogleBackup';
-import AllSet from './AllSet';
 import SetPassword from './SetPassword';
-import Particles from 'react-tsparticles';
-import * as bip39 from 'bip39';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../../Import/options';
-import { useWallet } from 'ui/utils';
-import { storage } from 'background/webapi';
 
 enum Direction {
   Right,
@@ -31,13 +33,13 @@ const AddRegister = () => {
   const [direction, setDirection] = useState(Direction.Right);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState(null);
-  const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
+  const [mnemonic] = useState(bip39.generateMnemonic());
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
   };
 
-  const loadView = async () => {
+  const loadView = useCallback(async () => {
     // console.log(wallet);
     wallet
       .getCurrentAccount()
@@ -49,14 +51,14 @@ const AddRegister = () => {
       .catch(() => {
         return;
       });
-  };
+  }, [wallet, history]);
 
-  const loadTempPassword = async () => {
+  const loadTempPassword = useCallback(async () => {
     const temp = await storage.get('tempPassword');
     if (temp) {
       setPassword(temp);
     }
-  };
+  }, []);
 
   const goNext = () => {
     setDirection(Direction.Right);
@@ -115,9 +117,7 @@ const AddRegister = () => {
   useEffect(() => {
     loadView();
     loadTempPassword();
-  }, []);
-
-  const height = [480, 600, 640, 620, 480, 480];
+  }, [loadView, loadTempPassword]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -132,15 +132,10 @@ const AddRegister = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 5 && (
-          <Particles
-            //@ts-expect-error customized option
-            options={options}
-          />
-        )}
+        {activeIndex === 5 && <Confetti />}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 5} />
+        <LLPinAlert open={activeIndex === 5} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}

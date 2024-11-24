@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/system';
+import React, { useEffect, useState } from 'react';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
+import { useHistory, useLocation } from 'react-router-dom';
+
+import { LLPinAlert } from '@/ui/FRWComponent';
+import Confetti from '@/ui/FRWComponent/Confetti';
+
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 import theme from '../../../style/LLTheme';
-import RegisterHeader from '../../Register/RegisterHeader';
 import AllSet from '../../Register/AllSet';
+import RegisterHeader from '../../Register/RegisterHeader';
+
 import DecryptWallet from './DecryptWallet';
-import RecoveryPhrase from './RecoveryPhrase';
 import GoogleAccounts from './GoogleAccounts';
 import RecoveryPassword from './RecoverPassword';
-import Particles from 'react-tsparticles';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { LLPinAlert } from '@/ui/FRWComponent';
-import options from '../options';
+import RecoveryPhrase from './RecoveryPhrase';
 
 enum Direction {
   Right,
@@ -111,13 +113,8 @@ const GoogleImport = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 4 && (
-          <Particles
-            // @ts-expect-error customized options
-            options={options}
-          />
-        )}
-        <LLPinAlert open={activeIndex == 4} />
+        {activeIndex === 4 && <Confetti />}
+        <LLPinAlert open={activeIndex === 4} />
         <RegisterHeader />
         <Box sx={{ flexGrow: 0.7 }} />
         <Box

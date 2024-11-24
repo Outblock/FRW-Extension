@@ -1,6 +1,5 @@
 import { IS_CHROME, CHECK_METAMASK_INSTALLED_URL } from 'consts';
-import { Account } from 'background/service/preference';
-// eslint-disable-next-line @typescript-eslint/no-empty-function
+
 export const noop = () => {};
 
 export * from './WalletContext';
@@ -13,8 +12,6 @@ export * from './webapi';
 export * from './time';
 
 export * from './number';
-
-export * from './options';
 
 export * from './saveStorage';
 

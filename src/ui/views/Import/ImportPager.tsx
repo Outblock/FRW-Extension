@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/system';
+import React, { useState } from 'react';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
+import { useHistory } from 'react-router-dom';
+
+import Confetti from '@/ui/FRWComponent/Confetti';
+import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
 import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
-import ImportRecoveryPhrase from './ImportRecoveryPhrase';
 import AllSet from '../Register/AllSet';
+import RegisterHeader from '../Register/RegisterHeader';
+
+import ImportRecoveryPhrase from './ImportRecoveryPhrase';
 import RecoverPassword from './RecoverPassword';
-import Particles from 'react-tsparticles';
-import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { useWallet } from 'ui/utils';
-import options from './options';
 
 enum Direction {
   Right,
@@ -68,7 +70,7 @@ const ImportPager = () => {
       }
       setLoading(false);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setShowError(true);
       setErrorMessage(chrome.i18n.getMessage('Something__is__wrong'));
       setLoading(false);
@@ -116,14 +118,9 @@ const ImportPager = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 2 && (
-          <Particles
-            // @ts-expect-error customized options
-            options={options}
-          />
-        )}
+        {activeIndex === 2 && <Confetti />}
 
-        <LLPinAlert open={activeIndex == 2} />
+        <LLPinAlert open={activeIndex === 2} />
 
         <RegisterHeader />
         <Box sx={{ flexGrow: 1 }} />

@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
-import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
-import ResetRecoveryPhrase from './ResetRecoveryPhrase';
-import AllSet from '../Register/AllSet';
-import RecoverPassword from './RecoverPassword';
-import Particles from 'react-tsparticles';
-import { LLSpinner } from 'ui/FRWComponent';
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
-import { useWallet } from 'ui/utils';
+import { Box, ThemeProvider } from '@mui/system';
+import React, { useState } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import options from '../Import/options';
+import { useHistory } from 'react-router-dom';
+
+import Confetti from '@/ui/FRWComponent/Confetti';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import BackButtonIcon from '../../../components/iconfont/IconBackButton';
+import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
+import theme from '../../style/LLTheme';
+import AllSet from '../Register/AllSet';
+import RegisterHeader from '../Register/RegisterHeader';
+
+import RecoverPassword from './RecoverPassword';
+import ResetRecoveryPhrase from './ResetRecoveryPhrase';
 
 enum Direction {
   Right,
@@ -104,12 +106,8 @@ const Reset = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 2 && (
-          <Particles
-            // @ts-expect-error customized options
-            options={options}
-          />
-        )}
+        {activeIndex === 2 && <Confetti />}
+
         <RegisterHeader />
         <Box sx={{ flexGrow: 1 }} />
         <Box

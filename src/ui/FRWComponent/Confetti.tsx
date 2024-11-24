@@ -1,25 +1,31 @@
-const Options = {
+import React, { useCallback } from 'react';
+import Particles, { type IParticlesProps } from 'react-tsparticles';
+import { loadFull } from 'tsparticles';
+
+const CONFETTI_OPTIONS: IParticlesProps['options'] = {
   fullScreen: true,
   fpsLimit: 120,
   detectRetina: true,
-  emitters: {
-    direction: 'bottom',
-    startCount: 0,
-    position: { x: 50, y: 0 },
-    size: {
-      width: 20,
-      height: 0,
+  emitters: [
+    {
+      direction: 'bottom',
+      startCount: 0,
+      position: { x: 50, y: 0 },
+      size: {
+        width: 20,
+        height: 0,
+      },
+      rate: {
+        delay: 0,
+        quantity: 2,
+      },
+      life: {
+        count: 200,
+        duration: 0.01,
+        // delay:0.6,
+      },
     },
-    rate: {
-      delay: 0,
-      quantity: 2,
-    },
-    life: {
-      count: 200,
-      duration: 0.01,
-      // delay:0.6,
-    },
-  },
+  ],
   particles: {
     number: {
       value: 250,
@@ -121,5 +127,29 @@ const Options = {
     },
   },
 };
+// Confetti component
+// This is using the particles library.
+// It would be a good idea to replace it with react-confetti
 
-export { Options };
+const Confetti = () => {
+  const particlesInit = useCallback(async (engine) => {
+    // you can initiate the tsParticles instance (engine) here, adding custom shapes or presets
+    // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
+    // starting from v2 you can add only the features you need reducing the bundle size
+    await loadFull(engine);
+  }, []);
+  const particlesLoaded = useCallback(async (_container) => {
+    console.log(_container);
+  }, []);
+  console.log('Confetti');
+  return (
+    <Particles
+      id="tsparticles"
+      options={CONFETTI_OPTIONS}
+      init={particlesInit}
+      loaded={particlesLoaded}
+    />
+  );
+};
+
+export default Confetti;

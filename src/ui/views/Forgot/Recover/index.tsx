@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { IconButton, Snackbar, Alert } from '@mui/material';
 import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
+import { useHistory } from 'react-router-dom';
+
 import { storage } from 'background/webapi';
-import Particles from 'react-tsparticles';
-import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
-import RecoverPage from './RecoverPage';
-import ShowKey from './ShowKey';
+import { useWallet } from 'ui/utils';
+
+import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 import theme from '../../../style/LLTheme';
 import RegisterHeader from '../../Register/RegisterHeader';
-import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { useWallet, Options } from 'ui/utils';
+
+import RecoverPage from './RecoverPage';
+import ShowKey from './ShowKey';
 
 enum Direction {
   Right,
@@ -22,21 +23,11 @@ const Recover = () => {
   const history = useHistory();
   const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
-  const [mnemonic, setMnemonic] = useState('');
-  const [pk, setPk] = useState(null);
-  const [username, setUsername] = useState('');
-  const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
+  const [errMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
-  const [loading, setLoading] = useState(false);
-  const [password, setPassword] = useState(null);
-  const [accounts, setAccounts] = useState<any>([]);
-  const [isImport, setImport] = useState<any>(false);
+  const [, setPassword] = useState(null);
   const [dataArray, setArray] = useState<any[]>([]);
-
-  const getUsername = (username: string) => {
-    setUsername(username.toLowerCase());
-  };
 
   const loadTempPassword = async () => {
     const temp = await storage.get('tempPassword');
@@ -45,7 +36,7 @@ const Recover = () => {
     }
   };
 
-  const loadView = async () => {
+  const loadView = useCallback(async () => {
     // console.log(wallet);
     wallet
       .getCurrentAccount()
@@ -57,7 +48,7 @@ const Recover = () => {
       .catch(() => {
         return;
       });
-  };
+  }, [history, wallet]);
   const goNext = () => {
     setDirection(Direction.Right);
     if (activeIndex < 5) {
@@ -65,10 +56,6 @@ const Recover = () => {
     } else {
       window.close();
     }
-  };
-  const goEnd = () => {
-    setDirection(Direction.Right);
-    onChange(5);
   };
 
   const goBack = () => {
@@ -103,9 +90,8 @@ const Recover = () => {
   };
 
   useEffect(() => {
-    console.log('wallet');
     loadView();
-  }, []);
+  }, [loadView]);
 
   return (
     <ThemeProvider theme={theme}>

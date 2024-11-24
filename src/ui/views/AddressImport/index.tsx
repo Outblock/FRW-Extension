@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { IconButton, Typography } from '@mui/material';
 import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
-import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
-import AllSet from '../Register/AllSet';
-import SeedPhrase from './importComponent/SeedPhrase';
-import PickUsername from './PickUsername';
-import SetPassword from './SetPassword';
-import GoogleBackup from './GoogleBackup';
-import RecoverPassword from './RecoverPassword';
-import Particles from 'react-tsparticles';
-import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { useWallet, Options } from 'ui/utils';
+import { useHistory } from 'react-router-dom';
+
+import Confetti from '@/ui/FRWComponent/Confetti';
+import { LLPinAlert } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import BackButtonIcon from '../../../components/iconfont/IconBackButton';
+import theme from '../../style/LLTheme';
+import AllSet from '../Register/AllSet';
+import RegisterHeader from '../Register/RegisterHeader';
+
 import ImportPager from './ImportPager';
+import PickUsername from './PickUsername';
+import RecoverPassword from './RecoverPassword';
+import SetPassword from './SetPassword';
 
 enum Direction {
   Right,
@@ -30,19 +30,17 @@ const AddressImport = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [pk, setPk] = useState(null);
   const [username, setUsername] = useState('');
-  const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
-  const [showError, setShowError] = useState(false);
+  const [, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
+  const [, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
-  const [loading, setLoading] = useState(false);
-  const [password, setPassword] = useState(null);
+  const [, setPassword] = useState(null);
   const [accounts, setAccounts] = useState<any>([]);
-  const [isImport, setImport] = useState<any>(false);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
   };
 
-  const loadView = async () => {
+  const loadView = useCallback(async () => {
     // console.log(wallet);
     wallet
       .getCurrentAccount()
@@ -54,7 +52,8 @@ const AddressImport = () => {
       .catch(() => {
         return;
       });
-  };
+  }, [wallet, history]);
+
   const goNext = () => {
     setDirection(Direction.Right);
     if (activeIndex < 4) {
@@ -138,9 +137,8 @@ const AddressImport = () => {
   };
 
   useEffect(() => {
-    console.log('wallet');
     loadView();
-  }, []);
+  }, [loadView]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -155,15 +153,10 @@ const AddressImport = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 4 && (
-          <Particles
-            //@ts-expect-error customized option
-            options={Options}
-          />
-        )}
+        {activeIndex === 4 && <Confetti />}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 4} />
+        <LLPinAlert open={activeIndex === 4} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}

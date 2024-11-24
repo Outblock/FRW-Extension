@@ -1,25 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
+import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { IconButton, Typography, Snackbar, SnackbarContent, Slide } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/system';
+import React, { useState, useEffect } from 'react';
+import { ComponentTransition, AnimationTypes } from 'react-component-transition';
+import { useHistory } from 'react-router-dom';
+
+import { storage } from '@/background/webapi';
+import Confetti from '@/ui/FRWComponent/Confetti';
+
+import lilicoIcon from '../../..//..//_raw/images/icon-48.png';
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
 import theme from '../../style/LLTheme';
+
+import AllSet from './AllSet';
 import PickUsername from './PickUsername';
 import RecoveryPhrase from './RecoveryPhrase';
-import AllSet from './AllSet';
 import SetPassword from './SetPassword';
-import Particles from 'react-tsparticles';
-import { storage } from '@/background/webapi';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
-import lilicoIcon from '../../..//..//_raw/images/icon-48.png';
+
 enum Direction {
   Right,
   Left,
 }
-import options from '../Import/options';
-
 const RecoverRegister = () => {
   const history = useHistory();
   const [activeIndex, onChange] = useState(0);
@@ -82,8 +84,6 @@ const RecoverRegister = () => {
     return <Slide {...props} direction="left" />;
   };
 
-  const height = [480, 520, 580, 480, 480];
-
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -97,19 +97,12 @@ const RecoverRegister = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 3 && (
-          <Particles
-            //@ts-expect-error customized option
-            options={options}
-          />
-        )}
-        {/* <RegisterHeader /> */}
+        {activeIndex === 3 && <Confetti />}
 
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           TransitionComponent={slideTransition}
-          open={activeIndex == 3}
-          // onClose={handleClose}
+          open={activeIndex === 3}
         >
           <SnackbarContent
             style={{ background: 'rgba(252, 129, 74, 0.8)' }}
