@@ -1,8 +1,8 @@
-import browser, { Runtime } from 'webextension-polyfill';
+import browser, { type Runtime } from 'webextension-polyfill';
+
 import Message from './index';
 class PortMessage extends Message {
   port: Runtime.Port | null = null;
-  listenCallback: any;
 
   constructor(port?: Runtime.Port) {
     super();

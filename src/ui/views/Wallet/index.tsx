@@ -477,7 +477,6 @@ const WalletTab = ({ network }) => {
                 onMouseEnter={() => setSwapHover(true)}
                 onMouseLeave={() => setSwapHover(false)}
                 onClick={() => {
-                  // eslint-disable-next-line no-restricted-globals
                   window.open(incLink, '_blank', 'noopener,noreferrer');
                 }}
               >

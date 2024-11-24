@@ -1,3 +1,7 @@
+import * as fcl from '@onflow/fcl';
+import type { Method } from 'axios';
+import dayjs from 'dayjs';
+import { initializeApp, getApp } from 'firebase/app';
 import {
   getAuth,
   signInWithCustomToken,
@@ -5,12 +9,8 @@ import {
   indexedDBLocalPersistence,
   signInAnonymously,
   onAuthStateChanged,
-} from '@firebase/auth';
-import type { Unsubscribe } from '@firebase/util';
-import * as fcl from '@onflow/fcl';
-import type { Method } from 'axios';
-import dayjs from 'dayjs';
-import { initializeApp, getApp } from 'firebase/app';
+  type Unsubscribe,
+} from 'firebase/auth';
 import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
@@ -83,10 +83,9 @@ const remoteFetch = fetchConfig;
 const pricesMap = {};
 
 const waitForAuthInit = async () => {
-  let unsubscribe: Promise<Unsubscribe>;
+  let unsubscribe: Unsubscribe;
   await new Promise<void>((resolve) => {
-    // @ts-expect-error firebase auth function
-    unsubscribe = auth.onAuthStateChanged((user) => resolve());
+    unsubscribe = auth.onAuthStateChanged((_user) => resolve());
   });
   (await unsubscribe!)();
 };

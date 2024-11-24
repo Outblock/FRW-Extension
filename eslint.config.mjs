@@ -49,7 +49,10 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports', disallowTypeAnnotations: false },
+      ],
 
       // React rules
       'react/react-in-jsx-scope': 'error', // Required for React 17
@@ -78,9 +81,6 @@ export default [
       eqeqeq: ['error', 'always'],
       'no-unused-expressions': 'error',
       'no-duplicate-imports': 'error',
-
-      // Chrome extension specific
-      'no-restricted-globals': ['error', 'window', 'document'],
     },
   },
 
@@ -90,6 +90,24 @@ export default [
     rules: {
       'no-restricted-globals': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+
+  // Background-specific config for chrome extension
+  {
+    files: ['**/src/background/**/*.{js,jsx,ts,tsx}'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'window',
+          message: 'Do not use window in background scripts - use globalThis instead',
+        },
+        {
+          name: 'document',
+          message: 'DOM APIs are not available in background scripts',
+        },
+      ],
     },
   },
 ];
