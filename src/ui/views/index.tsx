@@ -4,11 +4,10 @@ import { createMemoryHistory } from 'history';
 import React from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 
+import theme from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
 import { WalletProvider } from 'ui/utils';
-
-import theme from '../style/LLTheme';
 
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';

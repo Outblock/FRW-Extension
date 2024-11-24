@@ -1,10 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import Views from './views';
-import { Message } from '@/utils';
-import { getUITypeName } from 'ui/utils';
+import { createRoot } from 'react-dom/client';
+
 import eventBus from '@/eventBus';
+import { Message } from '@/utils';
 import { EVENTS } from 'consts';
+import { getUITypeName } from 'ui/utils';
+
+import Views from './views';
 // import './style/index.less';
 
 function initAppMeta() {
@@ -54,7 +56,6 @@ const wallet: Record<string, any> = new Proxy(
               },
             }
           );
-          break;
         default:
           return function (...params: any) {
             chrome.runtime.sendMessage(
@@ -63,7 +64,7 @@ const wallet: Record<string, any> = new Proxy(
                 method: key,
                 params,
               },
-              function (response) {
+              function (_response) {
                 // console.log('portMessageChannel 3 ->', response);
               }
             );
@@ -97,4 +98,6 @@ eventBus.addEventListener(EVENTS.broadcastToBackground, (data) => {
   });
 });
 
-ReactDOM.render(<Views wallet={wallet} />, document.getElementById('root'));
+const container = document.getElementById('root');
+const root = createRoot(container!); // createRoot(container!) if you use TypeScript
+root.render(<Views wallet={wallet} />);

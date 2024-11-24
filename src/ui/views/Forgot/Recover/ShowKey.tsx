@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
-import theme from '../../../style/LLTheme';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
-import IconCopy from '../../../../components/iconfont/IconCopy';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState } from 'react';
+
 import { useWallet } from 'ui/utils';
+
+import IconCopy from '../../../../components/iconfont/IconCopy';
 import ResetModal from '../../../FRWComponent/PopupModal/resetModal';
-import { LLWarningButton } from 'ui/FRWComponent';
 
 const ShowKey = ({ handleClick, mnemonic }) => {
   const usewallet = useWallet();
@@ -36,8 +36,7 @@ const ShowKey = ({ handleClick, mnemonic }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4" sx={{ fontWeight: 700 }} color="neutral.contrastText">
           {chrome.i18n.getMessage('Save_your_Private_Key')}
@@ -221,7 +220,7 @@ const ShowKey = ({ handleClick, mnemonic }) => {
           errorMessage={chrome.i18n.getMessage('This_action_will_remove')}
         />
       )}
-    </ThemeProvider>
+    </>
   );
 };
 
