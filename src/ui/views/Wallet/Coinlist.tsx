@@ -1,8 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { useHistory } from 'react-router-dom';
-import theme from '../../style/LLTheme';
-import { formatLargeNumber } from 'ui/utils/number';
 import {
   Typography,
   ListItem,
@@ -14,7 +9,14 @@ import {
   List,
   IconButton,
 } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { formatLargeNumber } from 'ui/utils/number';
+
 import IconCreate from '../../../components/iconfont/IconCreate';
+
 import TokenDropdown from './TokenDropdown';
 
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
@@ -156,7 +158,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {!childType && (
         <Box sx={{ display: 'flex', px: '12px', pt: '4px' }}>
           <Box sx={{ flexGrow: 1 }} />
@@ -238,7 +240,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               );
             })}
       </List>
-    </ThemeProvider>
+    </>
   );
 };
 

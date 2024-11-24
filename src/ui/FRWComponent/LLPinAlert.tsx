@@ -1,8 +1,8 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { Snackbar, SnackbarContent, Slide } from '@mui/material';
-import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import { Snackbar, SnackbarContent, Slide, Box, Typography } from '@mui/material';
+import React from 'react';
+
 import lilicoIcon from '../../../_raw/images/icon-128.png';
 
 const slideTransition = (props) => {

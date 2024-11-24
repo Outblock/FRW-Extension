@@ -1,5 +1,5 @@
 import { IconButton, Snackbar, Alert } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
@@ -8,7 +8,6 @@ import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import theme from '../../../style/LLTheme';
 import RegisterHeader from '../../Register/RegisterHeader';
 
 import ResetPage from './ResetPage';
@@ -99,7 +98,7 @@ const Reset = () => {
   }, [loadView]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -177,7 +176,7 @@ const Reset = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

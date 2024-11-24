@@ -1,5 +1,5 @@
 import { IconButton, Typography } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -9,7 +9,6 @@ import Confetti from '@/ui/FRWComponent/Confetti';
 import { storage } from 'background/webapi';
 
 import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
-import theme from '../../../../style/LLTheme';
 import AllSet from '../../../Register/AllSet';
 import RegisterHeader from '../../../Register/RegisterHeader';
 
@@ -107,7 +106,7 @@ const GoogleImport = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -188,7 +187,7 @@ const GoogleImport = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

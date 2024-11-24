@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, CssBaseline } from '@mui/material';
-import theme from '../../style/LLTheme';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
-import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
-import IconCopy from '../../../components/iconfont/IconCopy';
-import { Presets } from 'react-component-transition';
 import InfoIcon from '@mui/icons-material/Info';
+import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import { Button, Typography } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Presets } from 'react-component-transition';
+
+import IconCopy from '../../../components/iconfont/IconCopy';
 
 const randomElement = (list: any[]) => {
   return list[Math.floor(Math.random() * list.length)];
@@ -40,9 +40,9 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
   const checkMatch = () => {
     const correctMatch = chosenIndex.map((index) => mnemonicArray[index]);
     if (
-      selectedPhrase[0] == correctMatch[0] &&
-      selectedPhrase[1] == correctMatch[1] &&
-      selectedPhrase[2] == correctMatch[2]
+      selectedPhrase[0] === correctMatch[0] &&
+      selectedPhrase[1] === correctMatch[1] &&
+      selectedPhrase[2] === correctMatch[2]
     ) {
       handleClick();
       return;
@@ -56,7 +56,7 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
     }, 5000);
   };
 
-  const handleRandom = () => {
+  const handleRandom = useCallback(() => {
     const arr: number[] = [];
     // [[0,1,2,3],[4,5,6,7],[8,9,10,11]]
     const repeatIndex: number[][] = [[], [], []];
@@ -66,7 +66,7 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
     positionList.forEach((list, i) => {
       const picked = randomElement(list);
       const exclude = fullIndex
-        .filter((item) => item != picked)
+        .filter((item) => item !== picked)
         .sort(() => {
           return Math.random() - 0.5;
         });
@@ -79,14 +79,14 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
     });
     setChosen(arr);
     setRepeat(repeatMap);
-  };
+  }, [mnemonicArray, positionList]);
+
   useEffect(() => {
     handleRandom();
-  }, []);
+  }, [handleRandom]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4" sx={{ fontWeight: 700 }} color="neutral.contrastText">
           {chrome.i18n.getMessage('Verify') + ' '}
@@ -153,14 +153,14 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
                               height: '100%',
                               width: '100%',
                               borderRadius: '8px',
-                              backgroundColor: `${selectedPhrase[i] == v ? '#fff' : 'none'}`,
+                              backgroundColor: `${selectedPhrase[i] === v ? '#fff' : 'none'}`,
                             }}
                           >
                             <Typography
                               variant="body1"
                               sx={{
                                 fontWeight: 700,
-                                color: `${selectedPhrase[i] == v ? '#000' : 'text.primary'}`,
+                                color: `${selectedPhrase[i] === v ? '#000' : 'text.primary'}`,
                               }}
                             >
                               {v}
@@ -211,7 +211,7 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
             </Presets.TransitionSlideUp>
           )}
           <Button
-            disabled={selectedPhrase.length != 3}
+            disabled={selectedPhrase.length !== 3}
             onClick={checkMatch}
             variant="contained"
             color="secondary"
@@ -228,7 +228,7 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
           </Button>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

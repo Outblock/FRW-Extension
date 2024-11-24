@@ -1,6 +1,6 @@
 import { IconButton, Typography } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
-import React, { useEffect, useState } from 'react';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -8,7 +8,6 @@ import { LLPinAlert } from '@/ui/FRWComponent';
 import Confetti from '@/ui/FRWComponent/Confetti';
 
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import theme from '../../../style/LLTheme';
 import AllSet from '../../Register/AllSet';
 import RegisterHeader from '../../Register/RegisterHeader';
 
@@ -54,16 +53,16 @@ const GoogleImport = () => {
     }
   };
 
-  const getGoogleAccounts = async () => {
+  const getGoogleAccounts = useCallback(async () => {
     // const backupFile = await storage.get('googleBackup');
     // await setBackup(backupFile);
-    const users = location.state.accounts;
+    const users = location?.state?.accounts;
     setAccounts(users);
-  };
+  }, [location?.state?.accounts]);
 
   useEffect(() => {
     getGoogleAccounts();
-  }, []);
+  }, [getGoogleAccounts]);
 
   const page = (index) => {
     switch (index) {
@@ -98,10 +97,8 @@ const GoogleImport = () => {
     }
   };
 
-  const heights = [500, 500, 600, 600, 500];
-
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -182,7 +179,7 @@ const GoogleImport = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

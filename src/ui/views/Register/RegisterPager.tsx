@@ -1,5 +1,5 @@
 import { IconButton, Typography } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import { Box } from '@mui/system';
 import * as bip39 from 'bip39';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
@@ -10,7 +10,6 @@ import Confetti from '@/ui/FRWComponent/Confetti';
 import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import theme from '../../style/LLTheme';
 
 import AllSet from './AllSet';
 import GoogleBackup from './GoogleBackup';
@@ -110,7 +109,7 @@ const RegisterPager = () => {
   }, [loadView]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -197,7 +196,7 @@ const RegisterPager = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

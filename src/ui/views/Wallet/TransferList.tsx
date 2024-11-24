@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { useWallet } from 'ui/utils';
-import { formatString } from 'ui/utils/address';
-import theme from '../../style/LLTheme';
+import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
+import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import {
   Typography,
   ListItem,
@@ -14,14 +12,17 @@ import {
   CardMedia,
   Button,
 } from '@mui/material';
-import activity from 'ui/FRWAssets/svg/activity.svg';
+import { Box } from '@mui/system';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import activity from 'ui/FRWAssets/svg/activity.svg';
+import { useWallet } from 'ui/utils';
+import { formatString } from 'ui/utils/address';
+
 // import IconExec from '../../../components/iconfont/IconExec';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 // import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
-import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
-import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
 dayjs.extend(relativeTime);
 
 const TransferList = ({ setCount }) => {
@@ -34,7 +35,7 @@ const TransferList = ({ setCount }) => {
   const [address, setAddress] = useState<string | null>('0x');
   const [showButton, setShowButton] = useState(false);
 
-  const fetchTransaction = async () => {
+  const fetchTransaction = useCallback(async () => {
     setLoading(true);
     const monitor = await wallet.getMonitor();
     setMonitor(monitor);
@@ -52,17 +53,20 @@ const TransferList = ({ setCount }) => {
         setShowButton(data['count'] > 15);
       }
       setTx(data['list']);
-    } catch (e) {
+    } catch {
       setLoading(false);
     }
-  };
+  }, [wallet, setCount]);
 
-  const extMessageHandler = (req) => {
-    if (req.msg === 'transferListReceived') {
-      fetchTransaction();
-    }
-    return true;
-  };
+  const extMessageHandler = useCallback(
+    (req) => {
+      if (req.msg === 'transferListReceived') {
+        fetchTransaction();
+      }
+      return true;
+    },
+    [fetchTransaction]
+  );
 
   useEffect(() => {
     fetchTransaction();
@@ -71,7 +75,7 @@ const TransferList = ({ setCount }) => {
     return () => {
       chrome.runtime.onMessage.removeListener(extMessageHandler);
     };
-  }, []);
+  }, [extMessageHandler, fetchTransaction]);
 
   const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp);
@@ -98,7 +102,7 @@ const TransferList = ({ setCount }) => {
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
               }}
             >
-              {props.type == 1
+              {props.type === 1
                 ? (isReceive ? '+' : '-') + `${props.amount}`.replace(/^-/, '')
                 : `${props.token}`}
             </Typography>
@@ -182,7 +186,7 @@ const TransferList = ({ setCount }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {!isLoading ? (
         <Box>
           {transaction && transaction.length ? (
@@ -208,10 +212,10 @@ const TransferList = ({ setCount }) => {
                       sx={{ paddingRight: '0px' }}
                       dense={true}
                       onClick={() => {
-                        {
-                          monitor === 'flowscan'
-                            ? window.open(`${flowscanURL}/tx/${tx.hash}`)
-                            : window.open(`${viewSource}/${tx.hash}`);
+                        if (monitor === 'flowscan') {
+                          window.open(`${flowscanURL}/tx/${tx.hash}`);
+                        } else {
+                          window.open(`${viewSource}/${tx.hash}`);
                         }
                       }}
                     >
@@ -301,7 +305,7 @@ const TransferList = ({ setCount }) => {
           );
         })
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

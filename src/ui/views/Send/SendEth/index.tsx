@@ -1,50 +1,48 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Presets } from 'react-component-transition';
 import { useHistory, useLocation } from 'react-router-dom';
+import Web3 from 'web3';
+
+import { LLHeader } from '@/ui/FRWComponent';
+import { type CoinItem } from 'background/service/coinList';
+import { type Contact } from 'background/service/networkModel';
+import erc20ABI from 'background/utils/erc20.abi.json';
 import { EVM_ENDPOINT } from 'consts';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from '../TransferAmount';
+import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { withPrefix, isValidEthereumAddress } from 'ui/utils/address';
-import ToEthConfirmation from './ToEthConfirmation';
-import EvmConfirmation from './EvmConfirmation';
-import { LLContactCard } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
-import { Presets } from 'react-component-transition';
+
 import CancelIcon from '../../../../components/iconfont/IconClose';
-import { LLHeader } from '@/ui/FRWComponent';
-import Web3 from 'web3';
-import erc20ABI from 'background/utils/erc20.abi.json';
+import TransferAmount from '../TransferAmount';
+
+import EvmConfirmation from './EvmConfirmation';
+import ToEthConfirmation from './ToEthConfirmation';
 
 interface ContactState {
   contact: Contact;
 }
+const USER_CONTACT = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+} as unknown as Contact;
 
+const EMPTY_COIN: CoinItem = {
+  coin: '',
+  unit: '',
+  balance: 0,
+  price: 0,
+  change24h: 0,
+  total: 0,
+  icon: '',
+};
 const SendEth = () => {
-  const userContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
-
-  const empty: CoinItem = {
-    coin: '',
-    unit: '',
-    balance: 0,
-    price: 0,
-    change24h: 0,
-    total: 0,
-    icon: '',
-  };
-
-  const history = useHistory();
   const location = useLocation<ContactState>();
   const usewallet = useWallet();
   const [userWallet, setWallet] = useState<any>(null);
@@ -55,16 +53,30 @@ const SendEth = () => {
   const [amount, setAmount] = useState<string | undefined>(undefined);
   const [secondAmount, setSecondAmount] = useState('0');
   const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(userContact);
+  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
   const [network, setNetwork] = useState('mainnet');
-  const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
+  const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<string>('');
   const [minAmount, setMinAmount] = useState<any>(0);
   const [erc20Contract, setErc20Contract] = useState<any>(null);
   const [web3, setWeb3] = useState<any>(null);
 
-  const setUserWallet = async () => {
+  const setUserMinAmount = useCallback(
+    async (address: string) => {
+      try {
+        // Try fetching the min amount from the API
+        const minAmount = await usewallet.openapi.getAccountMinFlow(address);
+        setMinAmount(minAmount);
+      } catch (error) {
+        // If there's an error, set the min amount to 0.001
+        console.error('Error fetching min amount:', error);
+        setMinAmount(0.001);
+      }
+    },
+    [usewallet]
+  );
+  const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
@@ -99,6 +111,8 @@ const SendEth = () => {
 
     const info = await usewallet.getUserInfo(false);
     const ct = await usewallet.getActiveWallet();
+
+    const userContact = { ...USER_CONTACT };
     if (ct === 'evm') {
       userContact.address = withPrefix(wallet.address) || '';
     } else {
@@ -106,23 +120,11 @@ const SendEth = () => {
     }
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
-    setUserMinAmount();
+    setUserMinAmount(userContact.address);
     setUser(userContact);
-  };
+  }, [setUserMinAmount, usewallet]);
 
-  const setUserMinAmount = async () => {
-    try {
-      // Try fetching the min amount from the API
-      const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
-      setMinAmount(minAmount);
-    } catch (error) {
-      // If there's an error, set the min amount to 0.001
-      console.error('Error fetching min amount:', error);
-      setMinAmount(0.001);
-    }
-  };
-
-  const checkAddress = async () => {
+  const checkAddress = useCallback(async () => {
     const childType = await usewallet.getActiveWallet();
     console.log(' childType ', childType);
     setChildType(childType);
@@ -138,31 +140,31 @@ const SendEth = () => {
       setValidated(false);
     }
     setLoading(false);
-  };
+  }, [setLoading, setValidated, location?.state?.contact?.address, usewallet]);
 
   const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
-  const updateCoinInfo = () => {
+  const updateCoinInfo = useCallback(() => {
     const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
     if (coin) {
       setCoinInfo(coin);
     }
-  };
+  }, [coinList, currentCoin]);
 
   useEffect(() => {
     setUserWallet();
     checkAddress();
-  }, []);
+  }, [setUserWallet, checkAddress]);
 
   useEffect(() => {
     updateCoinInfo();
-  }, [currentCoin]);
+  }, [currentCoin, updateCoinInfo]);
 
   return (
     <div className="page">
-      <ThemeProvider theme={theme}>
+      <>
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <LLHeader title={chrome.i18n.getMessage('Send_to')} help={true} />
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '16px' }}>
@@ -346,7 +348,7 @@ const SendEth = () => {
             />
           )}
         </Box>
-      </ThemeProvider>
+      </>
     </div>
   );
 };

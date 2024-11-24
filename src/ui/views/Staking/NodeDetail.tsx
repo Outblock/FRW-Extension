@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, IconButton, ButtonBase } from '@mui/material';
-import { useHistory, useParams, useLocation } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import StakeAmount from './components/StakeAmount';
+import { Box, Button, Typography, IconButton, ButtonBase } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory, useParams, useLocation } from 'react-router-dom';
+
+import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
+
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
+
+import StakeAmount from './components/StakeAmount';
 import nodeList from './nodeList.json';
 
 const NodeDetail = () => {
@@ -43,13 +44,13 @@ const NodeDetail = () => {
   const [errorType, setErrorType] = useState<any>(null);
   const [current, setCurrent] = useState<any>(nodeList);
 
-  const setUserWallet = async () => {
+  const setUserWallet = useCallback(async () => {
     const nodeid = location['nodeid'];
     const delegateid = location['delegateid'];
     setNodeid(nodeid);
     setDelegate(delegateid);
     const currentNode = nodeList.filter((node) => {
-      return node.id == nodeid;
+      return node.id === nodeid;
     });
     setCurrent(currentNode[0]);
     // const walletList = await storage.get('userWallet');
@@ -91,7 +92,7 @@ const NodeDetail = () => {
     setEpochStart(epochStart);
 
     return;
-  };
+  }, [location, usewallet]);
 
   const getDate = () => {
     const date = new Date();
@@ -213,18 +214,18 @@ const NodeDetail = () => {
       });
   };
 
-  const getApy = async () => {
+  const getApy = useCallback(async () => {
     const result = await usewallet.getApr();
     setApr(result);
-  };
+  }, [usewallet]);
 
   useEffect(() => {
     getApy();
     setUserWallet();
-  }, []);
+  }, [getApy, setUserWallet]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -1004,7 +1005,7 @@ const NodeDetail = () => {
           </Button>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -12,21 +11,22 @@ import {
   InputAdornment,
   FormGroup,
   LinearProgress,
-  CssBaseline,
 } from '@mui/material';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { makeStyles, styled } from '@mui/styles';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
-import theme from '../../../style/LLTheme';
-import { useWallet, getHashAlgo, getSignAlgo, saveIndex } from 'ui/utils';
+
+import { storage } from '@/background/webapi';
 import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
-import { storage } from '@/background/webapi';
+import { useWallet, getHashAlgo, getSignAlgo, saveIndex } from 'ui/utils';
+
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -151,13 +151,13 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
     setShowError(false);
   };
 
-  const loadTempPassword = async () => {
+  const loadTempPassword = useCallback(async () => {
     setPassword(tempPassword);
-  };
+  }, [tempPassword]);
 
   useEffect(() => {
     loadTempPassword();
-  }, []);
+  }, [loadTempPassword]);
 
   const successInfo = (message) => {
     return (
@@ -280,8 +280,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
   }, [password]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
@@ -392,7 +391,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
           {errMessage}
         </Alert>
       </Snackbar>
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -58,7 +58,7 @@ export default [
       'react/react-in-jsx-scope': 'error', // Required for React 17
       'react/prop-types': 'off',
       'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/exhaustive-deps': 'error',
 
       // Import rules
       'import/no-unresolved': 'error',

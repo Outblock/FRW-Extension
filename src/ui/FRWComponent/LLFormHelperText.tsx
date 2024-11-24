@@ -1,11 +1,10 @@
+import { Typography, CircularProgress } from '@mui/material';
+import { Box } from '@mui/system';
 import React from 'react';
 import { Presets } from 'react-component-transition';
-import { Box, ThemeProvider } from '@mui/system';
-import { Typography, CircularProgress } from '@mui/material';
-import CancelIcon from '../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../components/iconfont/IconCheckmark';
-import theme from '../style/LLTheme';
 
+import CheckCircleIcon from '../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../components/iconfont/IconClose';
 interface LLFormHelperTextProps {
   inputValue: any;
   isValid: boolean;
@@ -70,7 +69,7 @@ export const LLFormHelperText = (props: LLFormHelperTextProps) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Presets.TransitionSlideUp>
         {inputValue && (
           <Box
@@ -87,6 +86,6 @@ export const LLFormHelperText = (props: LLFormHelperTextProps) => {
           </Box>
         )}
       </Presets.TransitionSlideUp>
-    </ThemeProvider>
+    </>
   );
 };

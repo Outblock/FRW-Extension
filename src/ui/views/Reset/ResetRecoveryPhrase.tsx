@@ -1,6 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { makeStyles } from '@mui/styles';
 import {
   Typography,
   FormControl,
@@ -9,16 +6,19 @@ import {
   Snackbar,
   Alert,
   Button,
-  CssBaseline,
 } from '@mui/material';
-import theme from '../../style/LLTheme';
-import { Presets } from 'react-component-transition';
-import { useWallet } from 'ui/utils';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import { makeStyles } from '@mui/styles';
+import { Box } from '@mui/system';
 import * as bip39 from 'bip39';
-import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Presets } from 'react-component-transition';
+
 import { storage } from '@/background/webapi';
+import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles((theme) => ({
   customInputLabel: {
@@ -42,6 +42,43 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
+const MnemonicError = (errorMsg) => (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+    }}
+  >
+    <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+    <Typography variant="body1" color="error">
+      {errorMsg}
+    </Typography>
+  </Box>
+);
+
+const MnemonicCorrect = (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+    }}
+  >
+    <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
+    <Typography variant="body1" color="success.main">
+      {chrome.i18n.getMessage('Recovery__phrase__valid')}
+    </Typography>
+  </Box>
+);
+
+const MnemonicLoading = () => (
+  <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+    <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
+    {chrome.i18n.getMessage('Checking')}
+  </Typography>
+);
 
 const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
   const classes = useStyles();
@@ -77,47 +114,6 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
     }
   };
 
-  const mnemonicError = (errorMsg) => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="error">
-        {errorMsg}
-      </Typography>
-    </Box>
-  );
-
-  const mnemonicCorrect = (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="success.main">
-        {chrome.i18n.getMessage('Recovery__phrase__valid')}
-      </Typography>
-    </Box>
-  );
-
-  const mnemonicLoading = () => (
-    <Typography
-      variant="body1"
-      color="text.secondary"
-      sx={{ display: 'flex', alignItems: 'center' }}
-    >
-      <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
-      {chrome.i18n.getMessage('Checking')}
-    </Typography>
-  );
-
   const renderSnackBar = () => {
     return (
       <Snackbar
@@ -138,15 +134,23 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
       </Snackbar>
     );
   };
+  const setErrorMessage = useCallback(
+    (message: string) => {
+      setLoading(false);
+      setMnemonicValid(false);
+      setHelperText(MnemonicError(message));
+    },
+    [setLoading, setMnemonicValid, setHelperText]
+  );
 
   useEffect(() => {
     setMnemonicValid(false);
-    setHelperText(mnemonicLoading);
+    setHelperText(MnemonicLoading);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       setLoading(false);
       const length = mnemonic.trim().split(/\s+/g).length;
-      if (!(length == 12 || length == 24)) {
+      if (!(length === 12 || length === 24)) {
         setErrorMessage(
           chrome.i18n.getMessage('Recovery_phrases_word_count_must_be_12_or_24_words')
         );
@@ -160,19 +164,13 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
       }
 
       setMnemonicValid(true);
-      setHelperText(mnemonicCorrect);
+      setHelperText(MnemonicCorrect);
       storage.set('premnemonic', formatted);
       setMnemonic(formatted);
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [mnemonic]);
-
-  const setErrorMessage = (message: string) => {
-    setLoading(false);
-    setMnemonicValid(false);
-    setHelperText(mnemonicError(message));
-  };
+  }, [mnemonic, setErrorMessage]);
 
   const msgBgColor = () => {
     if (isLoading) {
@@ -182,8 +180,7 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       {!showDialog ? (
         <Box className="registerBox">
           <Typography variant="h4">
@@ -262,7 +259,7 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
       ) : (
         <LLNotFound setShowDialog={setShowDialog} />
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

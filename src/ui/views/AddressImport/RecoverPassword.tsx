@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -11,18 +10,19 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline,
 } from '@mui/material';
-import { LLSpinner } from 'ui/FRWComponent';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { makeStyles, styled } from '@mui/styles';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
 import { Presets } from 'react-component-transition';
 import zxcvbn from 'zxcvbn';
-import theme from '../../style/LLTheme';
-import { useWallet, saveIndex } from 'ui/utils';
+
 import { storage } from 'background/webapi';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet, saveIndex } from 'ui/utils';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -241,8 +241,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
   }, [confirmPassword, password]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Welcome__Back')}
@@ -377,7 +376,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
           {errorMessage}
         </Alert>
       </Snackbar>
-    </ThemeProvider>
+    </>
   );
 };
 

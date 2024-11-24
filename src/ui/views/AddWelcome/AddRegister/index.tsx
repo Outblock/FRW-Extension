@@ -1,5 +1,5 @@
 import { IconButton, Typography } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import { Box } from '@mui/system';
 import * as bip39 from 'bip39';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
@@ -11,7 +11,6 @@ import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import theme from '../../../style/LLTheme';
 
 import AllSet from './AllSet';
 import GoogleBackup from './GoogleBackup';
@@ -120,7 +119,7 @@ const AddRegister = () => {
   }, [loadView, loadTempPassword]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -207,7 +206,7 @@ const AddRegister = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

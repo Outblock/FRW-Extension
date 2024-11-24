@@ -1,6 +1,5 @@
-import { useEffect, useState, useContext } from 'react';
-import React from 'react';
 import { Typography, FormControl, Input, Box } from '@mui/material';
+import React from 'react';
 import { Presets } from 'react-component-transition';
 
 const SeedPhrase = ({ helperText, msgBgColor, mnemonic, setmnemonic }) => {

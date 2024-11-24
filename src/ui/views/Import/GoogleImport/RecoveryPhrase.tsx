@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
-import theme from '../../../style/LLTheme';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
-import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
-import IconCopy from '../../../../components/iconfont/IconCopy';
-import { Presets } from 'react-component-transition';
 import InfoIcon from '@mui/icons-material/Info';
+import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import { Button, Typography, IconButton } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState } from 'react';
+import { Presets } from 'react-component-transition';
+
+import IconCopy from '../../../../components/iconfont/IconCopy';
 
 const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   const [canGoNext, setCanGoNext] = useState(true);
   const [isCoverBlur, coverBlur] = useState(false);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4" sx={{ fontWeight: 700 }} color="neutral.contrastText">
           {chrome.i18n.getMessage('Review') + ' '}
@@ -233,7 +232,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           </Button>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

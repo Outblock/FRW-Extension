@@ -1,5 +1,5 @@
 import { IconButton, Typography } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
@@ -9,7 +9,6 @@ import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import theme from '../../style/LLTheme';
 import AllSet from '../Register/AllSet';
 import RegisterHeader from '../Register/RegisterHeader';
 
@@ -141,7 +140,7 @@ const AddressImport = () => {
   }, [loadView]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -226,7 +225,7 @@ const AddressImport = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

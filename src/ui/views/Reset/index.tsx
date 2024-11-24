@@ -1,5 +1,5 @@
 import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { ComponentTransition, AnimationTypes } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
@@ -10,7 +10,6 @@ import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
 import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
-import theme from '../../style/LLTheme';
 import AllSet from '../Register/AllSet';
 import RegisterHeader from '../Register/RegisterHeader';
 
@@ -94,7 +93,7 @@ const Reset = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -210,7 +209,7 @@ const Reset = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

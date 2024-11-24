@@ -1,8 +1,7 @@
-import React from 'react';
 import { Box, Typography, Avatar, Skeleton } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
+import React from 'react';
+
 import { formatAddress } from 'ui/utils';
 
 export const LLProfile = ({ contact, isLoading = false }) => {
@@ -18,7 +17,7 @@ export const LLProfile = ({ contact, isLoading = false }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -64,6 +63,6 @@ export const LLProfile = ({ contact, isLoading = false }) => {
         )}
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

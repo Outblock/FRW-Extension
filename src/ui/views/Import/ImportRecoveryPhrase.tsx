@@ -1,26 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
+import { Typography, Tabs, Tab, CircularProgress, Button, Snackbar, Alert } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import {
-  Typography,
-  Tabs,
-  Tab,
-  CircularProgress,
-  Button,
-  Snackbar,
-  Alert,
-  CssBaseline,
-} from '@mui/material';
-import theme from '../../style/LLTheme';
-import { Presets } from 'react-component-transition';
-import { useWallet } from 'ui/utils';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import { Box } from '@mui/system';
 import * as bip39 from 'bip39';
-import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Presets } from 'react-component-transition';
+
 import { storage } from '@/background/webapi';
-import SeedPhrase from './ImportComponent/SeedPhrase';
+import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
+
 import PrivateKey from './ImportComponent/PrivateKey';
+import SeedPhrase from './ImportComponent/SeedPhrase';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -70,6 +63,58 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const mnemonicError = (errorMsg) => (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+    }}
+  >
+    <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+    <Typography variant="body1" color="text.error">
+      {errorMsg}
+    </Typography>
+  </Box>
+);
+
+const MnemonicCorrect: React.FC = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+    }}
+  >
+    <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
+    <Typography variant="body1" color="success.main">
+      {chrome.i18n.getMessage('Recovery__phrase__valid')}
+    </Typography>
+  </Box>
+);
+
+const PrivateCorrect: React.FC = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+    }}
+  >
+    <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
+    <Typography variant="body1" color="success.main">
+      {chrome.i18n.getMessage('Private__key_valid')}
+    </Typography>
+  </Box>
+);
+
+const MnemonicLoading: React.FC = () => (
+  <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+    <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
+    {chrome.i18n.getMessage('Checking')}
+  </Typography>
+);
+
 const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUsername }) => {
   const classes = useStyles();
   const wallet = useWallet();
@@ -85,7 +130,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
   const [showDialog, setShowDialog] = useState(false);
   const [showError, setShowError] = useState(false);
 
-  const [helperText, setHelperText] = useState(<div />);
+  const [helperText, setHelperText] = useState<React.ReactNode>(<div />);
   const [selectedTab, setSelectedTab] = useState(0);
 
   const signIn = async () => {
@@ -134,91 +179,22 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
     }
   };
 
-  const mnemonicError = (errorMsg) => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="text.error">
-        {errorMsg}
-      </Typography>
-    </Box>
+  const setErrorMessage = useCallback(
+    (message: string) => {
+      setLoading(false);
+      setMnemonicValid(false);
+      setHelperText(mnemonicError(message));
+    },
+    [setLoading, setMnemonicValid, setHelperText]
   );
-
-  const mnemonicCorrect = (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="success.main">
-        {chrome.i18n.getMessage('Recovery__phrase__valid')}
-      </Typography>
-    </Box>
-  );
-
-  const privateCorrect = (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="success.main">
-        {chrome.i18n.getMessage('Private__key_valid')}
-      </Typography>
-    </Box>
-  );
-
-  const mnemonicLoading = () => (
-    <Typography
-      variant="body1"
-      color="text.secondary"
-      sx={{ display: 'flex', alignItems: 'center' }}
-    >
-      <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
-      {chrome.i18n.getMessage('Checking')}
-    </Typography>
-  );
-
-  const renderSnackBar = () => {
-    return (
-      <Snackbar
-        autoHideDuration={6000}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        open={showError}
-        onClose={() => setShowError(false)}
-      >
-        <Alert
-          variant="filled"
-          severity="error"
-          onClose={() => {
-            setShowError(false);
-          }}
-        >
-          Something went wrong, please try again later
-        </Alert>
-      </Snackbar>
-    );
-  };
-
   useEffect(() => {
     setMnemonicValid(false);
-    setHelperText(mnemonicLoading);
+    setHelperText(MnemonicLoading);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       setLoading(false);
       const length = mnemonic.trim().split(/\s+/g).length;
-      if (!(length == 12 || length == 24)) {
+      if (!(length === 12 || length === 24)) {
         setErrorMessage(
           chrome.i18n.getMessage('Recovery__phrases__word__count__must__be__12__or__24__words')
         );
@@ -232,17 +208,17 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
       }
 
       setMnemonicValid(true);
-      setHelperText(mnemonicCorrect);
+      setHelperText(MnemonicCorrect);
       storage.set('premnemonic', formatted);
       setMnemonic(formatted);
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [mnemonic]);
+  }, [mnemonic, setErrorMessage]);
 
   useEffect(() => {
     setMnemonicValid(false);
-    setHelperText(mnemonicLoading);
+    setHelperText(MnemonicLoading);
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       setLoading(false);
@@ -250,7 +226,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
       const isvalid = hexRegex.test(pk);
       if (isvalid) {
         setMnemonicValid(true);
-        setHelperText(privateCorrect);
+        setHelperText(PrivateCorrect);
         return;
       } else {
         setErrorMessage(chrome.i18n.getMessage('Private__is__invalid'));
@@ -259,13 +235,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [pk]);
-
-  const setErrorMessage = (message: string) => {
-    setLoading(false);
-    setMnemonicValid(false);
-    setHelperText(mnemonicError(message));
-  };
+  }, [pk, setErrorMessage]);
 
   const msgBgColor = () => {
     if (isLoading) {
@@ -279,8 +249,7 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       {!showDialog ? (
         <Box className="registerBox">
           <Typography variant="h4">
@@ -333,12 +302,27 @@ const ImportRecoveryPhrase = ({ handleClick, confirmMnemonic, confirmPk, setUser
             </Typography>
           </Button>
 
-          {renderSnackBar()}
+          <Snackbar
+            autoHideDuration={6000}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            open={showError}
+            onClose={() => setShowError(false)}
+          >
+            <Alert
+              variant="filled"
+              severity="error"
+              onClose={() => {
+                setShowError(false);
+              }}
+            >
+              Something went wrong, please try again later
+            </Alert>
+          </Snackbar>
         </Box>
       ) : (
         <LLNotFound setShowDialog={setShowDialog} />
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

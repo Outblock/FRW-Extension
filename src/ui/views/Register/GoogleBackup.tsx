@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, CssBaseline } from '@mui/material';
-import theme from '../../style/LLTheme';
-import { useWallet } from 'ui/utils';
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
-import { LLSpinner } from 'ui/FRWComponent';
 import InfoIcon from '@mui/icons-material/Info';
+import { Button, Typography } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState } from 'react';
 import { Presets } from 'react-component-transition';
+
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 
 const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
   const wallets = useWallet();
@@ -33,8 +34,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
     }
   };
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
@@ -169,7 +169,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
           </Typography>
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

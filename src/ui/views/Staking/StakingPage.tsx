@@ -1,23 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, CardMedia } from '@mui/material';
-import { useHistory, useParams, useLocation } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import StakeAmount from './components/StakeAmount';
-import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
-import IconSwitch from '../../../components/iconfont/IconSwitch';
-import { LLSpinner } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
-import { Presets } from 'react-component-transition';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import { LLHeader } from '@/ui/FRWComponent';
+import { Box, Button, Typography, CardMedia } from '@mui/material';
 import { TokenListProvider } from 'flow-native-token-registry';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Presets } from 'react-component-transition';
+import { useParams } from 'react-router-dom';
+
+import { LLHeader } from '@/ui/FRWComponent';
+import { type CoinItem } from 'background/service/coinList';
+import { useWallet } from 'ui/utils';
+
+import StakeAmount from './components/StakeAmount';
 import StakeConfirm from './components/StakeConfirm';
 
-import Increment from '../../FRWAssets/svg/increment.svg';
+const FLOW_TOKEN = {
+  name: 'Flow',
+  address: {
+    mainnet: '0x1654653399040a61',
+    testnet: '0x7e60df042a9c0868',
+    crescendo: '0x7e60df042a9c0868',
+  },
+  contract_name: 'FlowToken',
+  storage_path: {
+    balance: '/public/flowTokenBalance',
+    vault: '/storage/flowTokenVault',
+    receiver: '/public/flowTokenReceiver',
+  },
+  decimal: 8,
+  icon: 'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png',
+  symbol: 'flow',
+  website: 'https://www.onflow.org',
+};
+const EMPTY_COIN: CoinItem = {
+  coin: '',
+  unit: '',
+  balance: 0,
+  price: 0,
+  change24h: 0,
+  total: 0,
+  icon: '',
+};
 
 const StakingPage = () => {
   enum ENV {
@@ -36,34 +57,6 @@ const StakingPage = () => {
   //   CDN = 'CDN'
   // }
 
-  const flowToken = {
-    name: 'Flow',
-    address: {
-      mainnet: '0x1654653399040a61',
-      testnet: '0x7e60df042a9c0868',
-      crescendo: '0x7e60df042a9c0868',
-    },
-    contract_name: 'FlowToken',
-    storage_path: {
-      balance: '/public/flowTokenBalance',
-      vault: '/storage/flowTokenVault',
-      receiver: '/public/flowTokenReceiver',
-    },
-    decimal: 8,
-    icon: 'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png',
-    symbol: 'flow',
-    website: 'https://www.onflow.org',
-  };
-  const empty: CoinItem = {
-    coin: '',
-    unit: '',
-    balance: 0,
-    price: 0,
-    change24h: 0,
-    total: 0,
-    icon: '',
-  };
-
   const usewallet = useWallet();
   const location = useParams();
   const [userWallet, setWallet] = useState<any>(null);
@@ -73,7 +66,7 @@ const StakingPage = () => {
   const [amount, setAmount] = useState<string | undefined>('0');
   const [outAmount, setOutAmount] = useState<any>(0);
   const [network, setNetwork] = useState('mainnet');
-  const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
+  const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [nodeid, setNodeid] = useState<any>(null);
   const [delegateid, setDelegate] = useState<any>(null);
   const [token1, setToken1] = useState<any>(null);
@@ -87,7 +80,7 @@ const StakingPage = () => {
     const inputAmount = (coinInfo.balance * value).toString();
     setAmount(inputAmount);
   };
-  const setUserWallet = async () => {
+  const setUserWallet = useCallback(async () => {
     const nodeid = location['nodeid'];
     const delegateid = location['delegateid'];
     setNodeid(nodeid);
@@ -108,22 +101,22 @@ const StakingPage = () => {
     setCoinInfo(coinInfo!);
     setLoading(false);
     return;
-  };
+  }, [location, usewallet]);
 
-  const getApy = async () => {
+  const getApy = useCallback(async () => {
     const result = await usewallet.getApr();
     setApr(result);
-  };
+  }, [usewallet]);
 
   useEffect(() => {
     getApy();
     setUserWallet();
-    setToken0(flowToken);
-  }, []);
+    setToken0(FLOW_TOKEN);
+  }, [getApy, setUserWallet]);
 
   return (
     <div className="page">
-      <ThemeProvider theme={theme}>
+      <>
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <LLHeader title="Staking (Beta)" help={false} />
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '16px' }}>
@@ -366,7 +359,7 @@ const StakingPage = () => {
             }}
           />
         </Box>
-      </ThemeProvider>
+      </>
     </div>
   );
 };
