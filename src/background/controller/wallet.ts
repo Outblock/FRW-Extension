@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAuth } from '@firebase/auth';
 import * as fcl from '@onflow/fcl';
 import * as t from '@onflow/types';
 import BN from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
 import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';

@@ -1,16 +1,14 @@
+import React, { useEffect, useState } from 'react';
 import { Typography, Box, CardMedia } from '@mui/material';
-import React, { useEffect, useState, useCallback } from 'react';
-
-import Certificate from 'ui/FRWAssets/svg/Certificate.svg';
-import Crown from 'ui/FRWAssets/svg/crown.svg';
-import Dashboard from 'ui/FRWAssets/svg/Dashboard.svg';
-import Synchronize from 'ui/FRWAssets/svg/Synchronize.svg';
-import TimeClock from 'ui/FRWAssets/svg/TimeClock.svg';
 import { LLHeader, LLPrimaryButton } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
-
 import StakeCard from './components/StakeCard';
+import crown from 'ui/FRWAssets/svg/crown.svg';
+import TimeClock from 'ui/FRWAssets/svg/TimeClock.svg';
+import Synchronize from 'ui/FRWAssets/svg/Synchronize.svg';
+import Dashboard from 'ui/FRWAssets/svg/Dashboard.svg';
+import Certificate from 'ui/FRWAssets/svg/Certificate.svg';
 import nodeList from './nodeList.json';
+import { useWallet } from 'ui/utils';
 interface NoStakeProps {
   noStakeOpen: boolean;
   network: string;
@@ -23,14 +21,14 @@ interface NoStakeProps {
 const NoStake = (props: NoStakeProps) => {
   const usewallet = useWallet();
   const [apr, setApr] = useState<any>(0);
-  const getApy = useCallback(async () => {
+  const getApy = async () => {
     const result = await usewallet.getApr();
     setApr(result);
-  }, [usewallet]);
+  };
 
   useEffect(() => {
     getApy();
-  }, [getApy]);
+  }, []);
 
   return (
     <Box
@@ -79,7 +77,7 @@ const NoStake = (props: NoStakeProps) => {
               {chrome.i18n.getMessage('Recommend')}
             </Typography>
             {nodeList
-              .filter((item) => item.name === 'Lilico')
+              .filter((item) => item.name == 'Lilico')
               .map((item) => (
                 <StakeCard
                   name={item.name}
@@ -105,7 +103,7 @@ const NoStake = (props: NoStakeProps) => {
             </Typography>
 
             {nodeList
-              .filter((item) => item.name !== 'Lilico')
+              .filter((item) => item.name != 'Lilico')
               .map((item) => (
                 <StakeCard
                   name={item.name}
@@ -190,9 +188,7 @@ const NoStake = (props: NoStakeProps) => {
               }}
             >
               <Box sx={{ width: '32px' }}>
-                <CardMedia sx={{ width: '32px', height: '32px' }}>
-                  <Crown />
-                </CardMedia>
+                <CardMedia sx={{ width: '32px', height: '32px' }} image={crown} />
               </Box>
               <Typography
                 display="inline"
@@ -238,9 +234,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia sx={{ width: '24px', height: '24px' }}>
-                  <Dashboard />
-                </CardMedia>
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={Dashboard} />
               </Box>
               <Typography
                 component="div"
@@ -276,9 +270,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia sx={{ width: '24px', height: '24px' }}>
-                  <Synchronize />
-                </CardMedia>
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={Synchronize} />
               </Box>
               <Typography
                 component="div"
@@ -322,9 +314,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia sx={{ width: '24px', height: '24px' }}>
-                  <TimeClock />
-                </CardMedia>
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={TimeClock} />
               </Box>
               <Typography
                 component="div"
@@ -359,9 +349,7 @@ const NoStake = (props: NoStakeProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <CardMedia sx={{ width: '24px', height: '24px' }}>
-                  <Certificate />
-                </CardMedia>
+                <CardMedia sx={{ width: '24px', height: '24px' }} image={Certificate} />
               </Box>
               <Typography
                 component="div"

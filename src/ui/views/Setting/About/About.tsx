@@ -1,16 +1,14 @@
-import { Typography, Box, CardMedia } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-
-import packageJson from '@/../package.json';
-import { LLHeader } from '@/ui/FRWComponent';
-import discord from 'ui/FRWAssets/image/discord.png';
-import lilo from 'ui/FRWAssets/image/lilo.png';
+import { makeStyles } from '@mui/styles';
+import { Typography, Box, CardMedia } from '@mui/material';
 import twitter from 'ui/FRWAssets/image/twitter.png';
+import discord from 'ui/FRWAssets/image/discord.png';
 import X from 'ui/FRWAssets/svg/xLogo.svg';
+import lilo from 'ui/FRWAssets/image/lilo.png';
+import { version } from '@/../package.json';
 // import '../../Unlock/style.css';
-const { version } = packageJson;
+import { LLHeader } from '@/ui/FRWComponent';
 
 const useStyles = makeStyles(() => ({
   arrowback: {
@@ -137,7 +135,7 @@ const About = () => {
         </ListItem>
 
         <Divider sx={{ width: '90%' }} variant="middle"/>
-
+    
         <ListItem
           button
           component={Link}
@@ -191,9 +189,11 @@ const About = () => {
                 alignItems: 'center',
               }}
             >
-              <CardMedia component="img" sx={{ margin: '8px auto', width: '32px', height: '32px' }}>
-                <X />
-              </CardMedia>
+              <CardMedia
+                component="img"
+                sx={{ margin: '8px auto', width: '32px', height: '32px' }}
+                image={X}
+              />
               <Typography color="text" sx={{ textTransform: 'none' }} align="center">
                 X
               </Typography>

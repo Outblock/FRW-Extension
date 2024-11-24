@@ -1,21 +1,19 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
-import { Typography, Container, Box, IconButton, Button, CardMedia } from '@mui/material';
-import { StyledEngineProvider } from '@mui/material/styles';
-import { makeStyles } from '@mui/styles';
-import { saveAs } from 'file-saver';
 import React, { useState, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-
-import { type PostMedia } from '@/ui/utils/url';
-import fallback from 'ui/FRWAssets/image/errorImage.png';
-import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
-import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
+import { makeStyles } from '@mui/styles';
+import { StyledEngineProvider } from '@mui/material/styles';
 import { useWallet } from 'ui/utils';
-
-import MovefromParent from './SendNFT/MovefromParent';
+import { Typography, Container, Box, IconButton, Button, CardMedia } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
+import { PostMedia, MatchMediaType } from '@/ui/utils/url';
+import { saveAs } from 'file-saver';
+import SendIcon from 'ui/FRWAssets/svg/detailSend.svg';
+import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';
+import fallback from 'ui/FRWAssets/image/errorImage.png';
 import MoveNftConfirmation from './SendNFT/MoveNftConfirmation';
+import MovefromParent from './SendNFT/MovefromParent';
 
 const useStyles = makeStyles(() => ({
   pageContainer: {
@@ -346,7 +344,7 @@ const Detail = () => {
               }}
             >
               <Box className={classes.mediabox}>
-                {media && media?.video !== null ? getMedia() : getUri()}
+                {media && media?.video != null ? getMedia() : getUri()}
               </Box>
               <Box
                 sx={{
@@ -466,9 +464,10 @@ const Detail = () => {
               }
             >
               {/* <IosShareOutlinedIcon color="primary" /> */}
-              <CardMedia sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}>
-                <SendIcon />
-              </CardMedia>
+              <CardMedia
+                image={SendIcon}
+                sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}
+              />
               {chrome.i18n.getMessage('Send')}
             </Button>
           )}
@@ -489,9 +488,10 @@ const Detail = () => {
               onClick={() => setMoveOpen(true)}
             >
               {/* <IosShareOutlinedIcon color="primary" /> */}
-              <CardMedia sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}>
-                <DetailMove />
-              </CardMedia>
+              <CardMedia
+                image={DetailMove}
+                sx={{ width: '20px', height: '20px', color: '#fff', marginRight: '8px' }}
+              />
               {chrome.i18n.getMessage('Move')}
             </Button>
           )}

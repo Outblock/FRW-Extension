@@ -1,24 +1,14 @@
-import {
-  CircularProgress,
-  IconButton,
-  Button,
-  Typography,
-  FormControl,
-  Input,
-  InputAdornment,
-  CssBaseline,
-} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { Box, ThemeProvider } from '@mui/system';
-import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
-
-import { useWallet } from 'ui/utils';
-
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
 import CancelIcon from '../../../components/iconfont/IconClose';
-import EmailIcon from '../../assets/alternate-email.svg';
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import theme from '../../style/LLTheme';
+import EmailIcon from '../../assets/alternate-email.svg';
+import { Presets } from 'react-component-transition';
+import { useWallet } from 'ui/utils';
+import { CircularProgress, IconButton } from '@mui/material';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -124,7 +114,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         .checkUsername(username.toLowerCase())
         .then((response) => {
           setLoading(false);
-          if (response.data.username !== username.toLowerCase()) {
+          if (response.data.username != username.toLowerCase()) {
             setLoading(false);
             return;
           }
@@ -181,7 +171,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
               }}
               startAdornment={
                 <InputAdornment position="start">
-                  <EmailIcon />
+                  <img src={EmailIcon} />
                 </InputAdornment>
               }
               endAdornment={

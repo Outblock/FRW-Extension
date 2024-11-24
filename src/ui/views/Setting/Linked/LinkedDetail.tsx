@@ -1,6 +1,6 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import React, { useState, useEffect } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+import { makeStyles } from '@mui/styles';
 import {
   Typography,
   IconButton,
@@ -18,23 +18,20 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-import React, { useState, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
-
-import { LLSecondaryButton } from '@/ui/FRWComponent';
-import type { UserInfoResponse } from 'background/service/networkModel';
-import placeholder from 'ui/FRWAssets/image/placeholder.png';
-import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
-import { useWallet } from 'ui/utils';
-
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import IconCopy from '../../../../components/iconfont/IconCopy';
-
+import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
+import { Link } from 'react-router-dom';
+import { useWallet } from 'ui/utils';
 // import '../../Unlock/style.css';
-
-import EditAccount from './EditAccount';
+import { LLSecondaryButton } from '@/ui/FRWComponent';
+import { UserInfoResponse } from 'background/service/networkModel';
 import UnlinkAccount from './UnlinkAccount';
-
+import EditAccount from './EditAccount';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import placeholder from 'ui/FRWAssets/image/placeholder.png';
 // import fetchRemoteConfig from 'background/utils/remoteConfig';
 
 type ChildAccount = {
@@ -165,7 +162,7 @@ const LinkedDetail = () => {
       const parts = nft.split('.');
       const address = `0x${parts[1]}`;
       const contractName = parts[2];
-      return collection.address === address && collection.contract_name === contractName;
+      return collection.address === address && collection.contract_name == contractName;
     });
     return matchedResult;
   };
@@ -295,9 +292,8 @@ const LinkedDetail = () => {
                     marginLeft: '16px',
                     alignItems: 'center',
                   }}
-                >
-                  <IconNext />
-                </CardMedia>
+                  image={IconNext}
+                />
               </CardActionArea>
             );
           })

@@ -1,13 +1,12 @@
-import InfoIcon from '@mui/icons-material/Info';
-import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
-import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
 import React, { useState } from 'react';
-import { Presets } from 'react-component-transition';
-
-import IconCopy from '../../../components/iconfont/IconCopy';
+import { Box, ThemeProvider } from '@mui/system';
+import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
 import theme from '../../style/LLTheme';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
+import IconCopy from '../../../components/iconfont/IconCopy';
+import { Presets } from 'react-component-transition';
+import InfoIcon from '@mui/icons-material/Info';
 
 const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   const [canGoNext, setCanGoNext] = useState(false);
@@ -203,6 +202,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
                 py: '8px',
               }}
             >
+              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
               <InfoIcon
                 fontSize="medium"
                 style={{ margin: '0px 12px auto 12px', color: '#E54040' }}

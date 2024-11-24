@@ -1,13 +1,10 @@
 import * as ethUtil from 'ethereumjs-util';
-
+import pageStateCache from '../service/pageStateCache';
 export { default as createPersistStore } from './persisitStore';
 export { default as createSessionStore } from './sessionStore';
-import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
+import { version } from '@/../package.json';
 
-import pageStateCache from '../service/pageStateCache';
-
-const { version: version } = packageJson;
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
 const retrieveValuePath = (obj) => {

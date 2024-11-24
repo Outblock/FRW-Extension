@@ -1,5 +1,8 @@
+import { useEffect, useState, useContext } from 'react';
+import React from 'react';
 import {
   Box,
+  Button,
   Typography,
   CardMedia,
   TextareaAutosize,
@@ -7,16 +10,15 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import React, { useEffect, useState } from 'react';
-
-import { storage } from 'background/webapi';
-
+import { LLSpinner } from 'ui/FRWComponent';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Expand from '../FRWAssets/svg/expand.svg';
 import Hide from '../FRWAssets/svg/hide.svg';
+import { styled } from '@mui/material/styles';
+import { storage } from 'background/webapi';
 
-const useStyles = makeStyles((_theme) => ({
+const useStyles = makeStyles((theme) => ({
   form: {
     width: '100%', // Fix full width
     display: 'flex',
@@ -115,13 +117,9 @@ const KeyPathInput = (props) => {
       <StyledAccordionSummary
         expandIcon={
           expanded ? (
-            <CardMedia component="img" sx={{ width: '18px', height: '18px' }}>
-              <Hide />
-            </CardMedia>
+            <CardMedia component="img" sx={{ width: '18px', height: '18px' }} image={Hide} />
           ) : (
-            <CardMedia component="img" sx={{ width: '18px', height: '18px' }}>
-              <Expand />
-            </CardMedia>
+            <CardMedia component="img" sx={{ width: '18px', height: '18px' }} image={Expand} />
           )
         }
         aria-controls="additional-options-content"

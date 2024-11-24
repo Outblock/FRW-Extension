@@ -169,9 +169,11 @@ const SettingTab = () => {
             >
               <ListItemButton className={classes.itemButton}>
                 <ListItemIcon sx={{ minWidth: '25px' }}>
-                  <CardMedia className={classes.icon} sx={{ height: '16px', width: '16px' }}>
-                    <IconLink />
-                  </CardMedia>
+                  <CardMedia
+                    className={classes.icon}
+                    sx={{ height: '16px', width: '16px' }}
+                    image={IconLink}
+                  />
                 </ListItemIcon>
                 <ListItemText primary={chrome.i18n.getMessage('Linked_Account')} />
                 <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -278,9 +280,8 @@ const SettingTab = () => {
                 <CardMedia
                   className={classes.icon}
                   sx={{ height: '16px', width: '19px', marginRight: '13px' }}
-                >
-                  <Device />
-                </CardMedia>
+                  image={Device}
+                />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Devices')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>

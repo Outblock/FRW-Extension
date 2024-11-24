@@ -1,13 +1,12 @@
+import React, { useEffect, useState } from 'react';
 import { List, CardMedia, Typography, ButtonBase, Box } from '@mui/material';
-import { isEmpty } from 'lodash';
-import React from 'react';
-
-import EmptyAddress from 'ui/assets/emptyAddress.svg';
+import { groupBy, isEmpty } from 'lodash';
+import { LLContactCard, FWContactCard } from '../../FRWComponent';
+import { useHistory } from 'react-router-dom';
+import EmptyAddress from 'ui/assets/EmptyAddress.svg';
 import { isEmoji } from 'ui/utils';
 
-import { LLContactCard, FWContactCard } from '../../FRWComponent';
-
-const RecentList = ({ filteredContacts, handleClick }) => {
+const RecentList = ({ filteredContacts, isLoading, handleClick }) => {
   return (
     <Box sx={{ height: '100%' }}>
       {!isEmpty(filteredContacts) ? (
@@ -38,9 +37,10 @@ const RecentList = ({ filteredContacts, handleClick }) => {
             backgroundColor: '#000000',
           }}
         >
-          <CardMedia sx={{ width: '154px', height: '120px', margin: '50px auto 0' }}>
-            <EmptyAddress />
-          </CardMedia>
+          <CardMedia
+            sx={{ width: '154px', height: '120px', margin: '50px auto 0' }}
+            image={EmptyAddress}
+          />
           <Typography
             variant="overline"
             sx={{

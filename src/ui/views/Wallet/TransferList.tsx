@@ -1,6 +1,8 @@
-import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
-import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import React, { useEffect, useState } from 'react';
+import { Box, ThemeProvider } from '@mui/system';
+import { useWallet } from 'ui/utils';
+import { formatString } from 'ui/utils/address';
+import theme from '../../style/LLTheme';
 import {
   Typography,
   ListItem,
@@ -12,19 +14,14 @@ import {
   CardMedia,
   Button,
 } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import activity from 'ui/FRWAssets/svg/activity.svg';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import React, { useCallback, useEffect, useState } from 'react';
-
-import Activity from 'ui/FRWAssets/svg/activity.svg';
-import { useWallet } from 'ui/utils';
-import { formatString } from 'ui/utils/address';
-
-import theme from '../../style/LLTheme';
-
 // import IconExec from '../../../components/iconfont/IconExec';
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 // import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
+import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
+import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
 dayjs.extend(relativeTime);
 
 const TransferList = ({ setCount }) => {
@@ -37,7 +34,7 @@ const TransferList = ({ setCount }) => {
   const [address, setAddress] = useState<string | null>('0x');
   const [showButton, setShowButton] = useState(false);
 
-  const fetchTransaction = useCallback(async () => {
+  const fetchTransaction = async () => {
     setLoading(true);
     const monitor = await wallet.getMonitor();
     setMonitor(monitor);
@@ -55,20 +52,17 @@ const TransferList = ({ setCount }) => {
         setShowButton(data['count'] > 15);
       }
       setTx(data['list']);
-    } catch {
+    } catch (e) {
       setLoading(false);
     }
-  }, [setCount, wallet]);
+  };
 
-  const extMessageHandler = useCallback(
-    (req) => {
-      if (req.msg === 'transferListReceived') {
-        fetchTransaction();
-      }
-      return true;
-    },
-    [fetchTransaction]
-  );
+  const extMessageHandler = (req) => {
+    if (req.msg === 'transferListReceived') {
+      fetchTransaction();
+    }
+    return true;
+  };
 
   useEffect(() => {
     fetchTransaction();
@@ -77,7 +71,7 @@ const TransferList = ({ setCount }) => {
     return () => {
       chrome.runtime.onMessage.removeListener(extMessageHandler);
     };
-  }, [extMessageHandler, fetchTransaction]);
+  }, []);
 
   const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp);
@@ -104,7 +98,7 @@ const TransferList = ({ setCount }) => {
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
               }}
             >
-              {props.type === 1
+              {props.type == 1
                 ? (isReceive ? '+' : '-') + `${props.amount}`.replace(/^-/, '')
                 : `${props.token}`}
             </Typography>
@@ -214,12 +208,10 @@ const TransferList = ({ setCount }) => {
                       sx={{ paddingRight: '0px' }}
                       dense={true}
                       onClick={() => {
-                        if (monitor === 'flowscan') {
-                          // eslint-disable-next-line no-restricted-globals
-                          window.open(`${flowscanURL}/tx/${tx.hash}`);
-                        } else {
-                          // eslint-disable-next-line no-restricted-globals
-                          window.open(`${viewSource}/${tx.hash}`);
+                        {
+                          monitor === 'flowscan'
+                            ? window.open(`${flowscanURL}/tx/${tx.hash}`)
+                            : window.open(`${viewSource}/${tx.hash}`);
                         }
                       }}
                     >
@@ -255,7 +247,6 @@ const TransferList = ({ setCount }) => {
                     variant="text"
                     endIcon={<ChevronRightRoundedIcon />}
                     onClick={() => {
-                      // eslint-disable-next-line no-restricted-globals
                       window.open(`${flowscanURL}/account/${address}`, '_blank');
                     }}
                   >
@@ -276,9 +267,10 @@ const TransferList = ({ setCount }) => {
                 backgroundColor: '#000',
               }}
             >
-              <CardMedia sx={{ width: '100px', height: '102px', margin: '50px auto 0' }}>
-                <Activity />
-              </CardMedia>
+              <CardMedia
+                sx={{ width: '100px', height: '102px', margin: '50px auto 0' }}
+                image={activity}
+              />
               <Typography
                 variant="overline"
                 sx={{

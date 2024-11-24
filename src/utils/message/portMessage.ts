@@ -1,6 +1,7 @@
 import Message from './index';
 class PortMessage extends Message {
   port: chrome.runtime.Port | null = null;
+  listenCallback: any;
 
   constructor(port?: chrome.runtime.Port) {
     super();

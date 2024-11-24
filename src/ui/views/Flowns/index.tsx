@@ -3,7 +3,7 @@ import { Typography, IconButton, Box, CardMedia } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import FlownsPBanner from 'ui/FRWAssets/svg/flownsPBanner.svg';
+import flownsPBanner from 'ui/FRWAssets/svg/flownsPBanner.svg';
 import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -51,9 +51,10 @@ const Flowns = () => {
           <ArrowBackIcon sx={{ color: 'icon.navi' }} />
         </IconButton>
         <Box sx={{ position: 'relative', width: '100%', marginLeft: '45px', alignItems: 'center' }}>
-          <CardMedia sx={{ width: '260px', height: '34px', borderRadius: '12px' }}>
-            <FlownsPBanner />
-          </CardMedia>
+          <CardMedia
+            sx={{ width: '260px', height: '34px', borderRadius: '12px' }}
+            image={flownsPBanner}
+          />
         </Box>
       </Box>
       <Box

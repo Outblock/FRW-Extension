@@ -1,14 +1,12 @@
-import InfoIcon from '@mui/icons-material/Info';
-import { Button, Typography, CssBaseline } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
 import React, { useState } from 'react';
-import { Presets } from 'react-component-transition';
-
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
-
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
+import { Box, ThemeProvider } from '@mui/system';
+import { Button, Typography, CssBaseline } from '@mui/material';
 import theme from '../../style/LLTheme';
+import { useWallet } from 'ui/utils';
+import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
+import { LLSpinner } from 'ui/FRWComponent';
+import InfoIcon from '@mui/icons-material/Info';
+import { Presets } from 'react-component-transition';
 
 const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
   const wallets = useWallet();
@@ -111,6 +109,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
                 marginBottom: '-8px',
               }}
             >
+              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
               <InfoIcon
                 fontSize="medium"
                 color="primary"

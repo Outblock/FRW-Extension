@@ -1,7 +1,3 @@
-import * as fcl from '@onflow/fcl';
-import type { Method } from 'axios';
-import dayjs from 'dayjs';
-import { initializeApp, getApp } from 'firebase/app';
 import {
   getAuth,
   signInWithCustomToken,
@@ -9,8 +5,12 @@ import {
   indexedDBLocalPersistence,
   signInAnonymously,
   onAuthStateChanged,
-  type Unsubscribe,
-} from 'firebase/auth';
+} from '@firebase/auth';
+import type { Unsubscribe } from '@firebase/util';
+import * as fcl from '@onflow/fcl';
+import type { Method } from 'axios';
+import dayjs from 'dayjs';
+import { initializeApp, getApp } from 'firebase/app';
 import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';

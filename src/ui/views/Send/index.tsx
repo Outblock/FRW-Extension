@@ -1,8 +1,7 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
-import SearchIcon from '@mui/icons-material/Search';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
+  InputBase,
   Tab,
   Tabs,
   Typography,
@@ -16,23 +15,23 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { useTheme, StyledEngineProvider } from '@mui/material/styles';
-import { makeStyles } from '@mui/styles';
-import { isEmpty } from 'lodash';
-import React, { useState, useEffect, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
-import SwipeableViews from 'react-swipeable-views';
-
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import type { Contact } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
-
-import IconAbout from '../../../components/iconfont/IconAbout';
-
-import AccountsList from './AccountsList';
+import { useTheme, styled } from '@mui/material/styles';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
+import SearchIcon from '@mui/icons-material/Search';
+import { useHistory } from 'react-router-dom';
 import AddressBookList from './AddressBookList';
-import RecentList from './RecentList';
+import AccountsList from './AccountsList';
 import SearchList from './SearchList';
+import RecentList from './RecentList';
+import { Contact } from 'background/service/networkModel';
+import { isEmpty } from 'lodash';
+import { makeStyles } from '@mui/styles';
+import { StyledEngineProvider } from '@mui/material/styles';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
+import SwipeableViews from 'react-swipeable-views';
+import IconAbout from '../../../components/iconfont/IconAbout';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
@@ -40,7 +39,7 @@ export enum SendPageTabOptions {
   Accounts = 'Accounts',
 }
 
-const useStyles = makeStyles((_theme) => ({
+const useStyles = makeStyles((theme) => ({
   page: {
     display: 'flex',
     flexDirection: 'column',
@@ -69,6 +68,41 @@ const useStyles = makeStyles((_theme) => ({
     justifyContent: 'space-between',
     display: 'flex',
     flexDirection: 'column',
+  },
+}));
+
+const ArrowBackIconWrapper = styled('div')(() => ({
+  paddingLeft: '10px',
+  width: '100%',
+  position: 'absolute',
+  cursor: 'pointer',
+}));
+
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+  margin: '0px 18px 24px 18px',
+  height: '56px',
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: (theme.palette as any).icon.navi,
+  width: '100%',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(2),
+    paddingLeft: theme.spacing(8),
+    width: '100%',
   },
 }));
 
@@ -129,7 +163,7 @@ const Send = () => {
   const [searched, setSearched] = useState<boolean>(false);
   const [hasNoFilteredContacts, setHasNoFilteredContacts] = useState<boolean>(false);
 
-  const fetchAddressBook = useCallback(async () => {
+  const fetchAddressBook = async () => {
     await wallet.setDashIndex(0);
     try {
       const response = await wallet.getAddressBook();
@@ -168,11 +202,11 @@ const Send = () => {
     } catch (err) {
       console.log('err: ', err);
     }
-  }, [wallet]);
+  };
 
   useEffect(() => {
     fetchAddressBook();
-  }, [fetchAddressBook]);
+  }, []);
 
   const checkContain = (searchResult: Contact) => {
     if (sortedContacts.some((e) => e.contact_name === searchResult.username)) {
@@ -368,6 +402,19 @@ const Send = () => {
     }
   };
 
+  const handleClick = (eachgroup) => {
+    const history = useHistory();
+
+    const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+
+    const pathname = isEvmAddress ? '/dashboard/wallet/sendEth' : '/dashboard/wallet/sendAmount';
+
+    history.push({
+      pathname: pathname,
+      state: { contact: eachgroup },
+    });
+  };
+
   return (
     <StyledEngineProvider injectFirst>
       <div className={`${classes.page} page`}>
@@ -390,12 +437,7 @@ const Send = () => {
             </Typography>
           </Grid>
           <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-            <IconButton
-              onClick={() =>
-                // eslint-disable-next-line no-restricted-globals
-                window.open('https://wallet.flow.com/contact', '_blank')
-              }
-            >
+            <IconButton onClick={() => window.open('https://wallet.flow.com/contact', '_blank')}>
               <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
                 <HelpOutlineRoundedIcon sx={{ color: 'icon.navi' }} />
               </Tooltip>
@@ -476,6 +518,7 @@ const Send = () => {
                 <TabPanel value={tabValue} index={0} dir={theme.direction}>
                   <RecentList
                     filteredContacts={recentContacts}
+                    isLoading={isLoading}
                     handleClick={(eachgroup) => {
                       const isEvmAddress = isValidEthereumAddress(eachgroup.address);
 
@@ -583,6 +626,7 @@ const Send = () => {
             {searched && !searchContacts.length && (
               <ListItem sx={{ backgroundColor: '#000000' }}>
                 <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
+                  {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
                   <IconAbout size={20} color="#E54040" />
                 </ListItemAvatar>
                 <ListItemText>

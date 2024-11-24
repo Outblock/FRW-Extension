@@ -1,16 +1,15 @@
-import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
 import React from 'react';
-import { Link } from 'react-router-dom';
-
-import IconFlow from '../../../components/iconfont/IconFlow';
+import { Box, ThemeProvider } from '@mui/system';
+import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
+import theme from '../../style/LLTheme';
+import RegisterHeader from '../Register/RegisterHeader';
 import appicon from '../../FRWAssets/image/appicon.png';
 import create from '../../FRWAssets/svg/create.svg';
 import importPng from '../../FRWAssets/svg/import.svg';
-import Recover from '../../FRWAssets/svg/recover.svg';
-import ResetSvg from '../../FRWAssets/svg/resetarrow.svg';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
+import recover from '../../FRWAssets/svg/recover.svg';
+import reset from '../../FRWAssets/svg/resetarrow.svg';
+import { Link } from 'react-router-dom';
+import IconFlow from '../../../components/iconfont/IconFlow';
 
 const Forgot = () => {
   return (
@@ -87,9 +86,8 @@ const Forgot = () => {
               <CardMedia
                 component="img"
                 sx={{ marginRight: '16px', width: '48px', height: '48px', color: '#FFFFFFCC' }}
-              >
-                <ResetSvg />
-              </CardMedia>
+                image={reset}
+              />
               <Box
                 sx={{
                   display: 'flex',
@@ -145,9 +143,8 @@ const Forgot = () => {
               <CardMedia
                 component="img"
                 sx={{ marginRight: '16px', width: '48px', height: '48px', color: '#FFFFFFCC' }}
-              >
-                <Recover />
-              </CardMedia>
+                image={recover}
+              />
               <Box
                 sx={{
                   display: 'flex',

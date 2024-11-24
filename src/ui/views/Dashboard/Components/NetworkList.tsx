@@ -1,16 +1,10 @@
-import { Box, ListItemButton, Typography, ListItem, ListItemIcon, CardMedia } from '@mui/material';
 import React, { useState, useEffect, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
-
+import { Box, ListItemButton, Typography, ListItem, ListItemIcon, CardMedia } from '@mui/material';
 import { useWallet } from 'ui/utils';
-
-import MainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
-import NetworkLink from '../../../FRWAssets/svg/networkLink.svg';
-import TestnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
-
-const IndicatorImage: React.FC<{ currentNetwork: string }> = ({ currentNetwork }) => {
-  return currentNetwork === 'mainnet' ? <MainnetIndicator /> : <TestnetIndicator />;
-};
+import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
+import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
+import networkLink from '../../../FRWAssets/svg/networkLink.svg';
+import { useHistory } from 'react-router-dom';
 
 const NetworkList = ({ networkColor, currentNetwork }) => {
   const usewallet = useWallet();
@@ -34,12 +28,10 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
     };
 
     // Add event listener for clicks
-    // eslint-disable-next-line no-restricted-globals
     document.addEventListener('mousedown', handleClickOutside);
 
     // Cleanup the event listener
     return () => {
-      // eslint-disable-next-line no-restricted-globals
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownRef]);
@@ -58,8 +50,18 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
     if (currentNetwork !== network) {
       // TODO: replace it with better UX
       history.push('/dashboard');
-      // eslint-disable-next-line no-restricted-globals
       window.location.reload();
+    }
+  };
+
+  const getIndicatorImage = () => {
+    switch (currentNetwork) {
+      case 'mainnet':
+        return mainnetIndicator;
+      case 'testnet':
+        return testnetIndicator;
+      default:
+        return mainnetIndicator; // Default to mainnet if no match
     }
   };
 
@@ -97,9 +99,7 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
               marginRight: '12px',
             }}
           >
-            <CardMedia component="img" sx={{ width: '16px', height: '16px' }}>
-              <NetworkLink />
-            </CardMedia>
+            <CardMedia component="img" sx={{ width: '16px', height: '16px' }} image={networkLink} />
           </ListItemIcon>
           <Typography
             variant="body1"
@@ -151,9 +151,8 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
             height: '16px',
             transform: `rotate(${indicatorRotation}deg)`,
           }}
-        >
-          <IndicatorImage currentNetwork={currentNetwork} />
-        </CardMedia>
+          image={getIndicatorImage()}
+        />
         {showDropdown && (
           <ListItem
             ref={dropdownRef}

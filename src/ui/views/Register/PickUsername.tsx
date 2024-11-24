@@ -1,24 +1,14 @@
-import {
-  CircularProgress,
-  IconButton,
-  Button,
-  Typography,
-  FormControl,
-  Input,
-  InputAdornment,
-  CssBaseline,
-} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { Box, ThemeProvider } from '@mui/system';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
-
-import { useWallet } from 'ui/utils';
-
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
 import CancelIcon from '../../../components/iconfont/IconClose';
-import EmailIcon from '../../assets/alternate-email.svg';
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import theme from '../../style/LLTheme';
+import EmailIcon from '../../assets/alternate-email.svg';
+import { Presets } from 'react-component-transition';
+import { useWallet } from 'ui/utils';
+import { CircularProgress, IconButton } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   customInputLabel: {
@@ -40,20 +30,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-const UsernameCorrect = (
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-    }}
-  >
-    <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
-    <Typography variant="body1" color="success.main">
-      {chrome.i18n.getMessage('Sounds_good')}
-    </Typography>
-  </Box>
-);
 
 const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
   const classes = useStyles();
@@ -81,7 +57,20 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
       </Typography>
     </Box>
   );
-
+  const usernameCorrect = (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+    >
+      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
+      <Typography variant="body1" color="success.main">
+        {chrome.i18n.getMessage('Sounds_good')}
+      </Typography>
+    </Box>
+  );
   const usernameLoading = () => (
     <Typography
       variant="body1"
@@ -96,18 +85,15 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
   const [username, setUsername] = useState(savedUsername || '');
   const [helperText, setHelperText] = useState(<div />);
 
-  const setErrorMessage = useCallback(
-    (message: string) => {
-      setLoading(false);
-      setUsernameValid(false);
-      setHelperText(usernameError(message));
-    },
-    [setLoading, setUsernameValid, setHelperText]
-  );
+  const regex = /^[A-Za-z0-9]{3,15}$/;
+
+  const setErrorMessage = (message: string) => {
+    setLoading(false);
+    setUsernameValid(false);
+    setHelperText(usernameError(message));
+  };
 
   useEffect(() => {
-    const regexExp = /^[A-Za-z0-9]{3,15}$/;
-
     setUsernameValid(false);
     setHelperText(usernameLoading);
     setLoading(true);
@@ -122,7 +108,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         return;
       }
 
-      if (!regexExp.test(username)) {
+      if (!regex.test(username)) {
         setErrorMessage(
           chrome.i18n.getMessage('Your__username__can__only__contain__letters__and__numbers')
         );
@@ -132,15 +118,15 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         .checkUsername(username.toLowerCase())
         .then((response) => {
           setLoading(false);
-          if (response.data.username !== username.toLowerCase()) {
+          if (response.data.username != username.toLowerCase()) {
             setLoading(false);
             return;
           }
           if (response.data.unique) {
             setUsernameValid(true);
-            setHelperText(UsernameCorrect);
+            setHelperText(usernameCorrect);
           } else {
-            if (response.message === 'Username is reserved') {
+            if (response.message == 'Username is reserved') {
               setErrorMessage(
                 chrome.i18n.getMessage('This__username__is__reserved__Please__contact')
               );
@@ -155,7 +141,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [setErrorMessage, username, wallet.openapi]);
+  }, [username]);
 
   const msgBgColor = () => {
     if (isLoading) {
@@ -194,7 +180,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
               }}
               startAdornment={
                 <InputAdornment position="start">
-                  <EmailIcon />
+                  <img src={EmailIcon} />
                 </InputAdornment>
               }
               endAdornment={

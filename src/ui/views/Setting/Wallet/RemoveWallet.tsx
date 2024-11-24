@@ -1,16 +1,14 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Typography, Box, IconButton, Skeleton, Button } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@mui/styles';
 import { useHistory } from 'react-router-dom';
-
-import { LLSecondaryButton } from '@/ui/FRWComponent';
-import { withPrefix } from '@/ui/utils/address';
-import type { UserInfoResponse } from 'background/service/networkModel';
-import { useWallet } from 'ui/utils';
 import { openInternalPageInTab } from 'ui/utils/webapi';
-
-import ResetSvg from '../../../FRWAssets/svg/reset.svg';
+import { Typography, Box, IconButton, Skeleton, Button } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import reset from '../../../FRWAssets/svg/reset.svg';
+import { useWallet } from 'ui/utils';
+import { UserInfoResponse } from 'background/service/networkModel';
+import { withPrefix } from '@/ui/utils/address';
+import { LLSecondaryButton } from '@/ui/FRWComponent';
 
 const useStyles = makeStyles(() => ({
   arrowback: {
@@ -152,7 +150,7 @@ const RemoveWallet = ({ hideBackButton = false }) => {
       )}
 
       <Box className={classes.titleBox}>
-        <ResetSvg width="56px" style={{ margin: '5px auto' }} />
+        <img src={reset} alt="reset" width="56px" style={{ margin: '5px auto' }} />
         <Typography variant="h6" component="div" sx={{ margin: '5px auto', textAlign: 'center' }}>
           {chrome.i18n.getMessage('Are__you__sure__you__want__to__reset__your__wallet')}
         </Typography>

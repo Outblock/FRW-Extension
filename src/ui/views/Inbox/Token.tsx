@@ -1,3 +1,8 @@
+import React, { useEffect, useState } from 'react';
+import { Box, ThemeProvider } from '@mui/system';
+import { useHistory } from 'react-router-dom';
+import theme from '../../style/LLTheme';
+import { useWallet } from 'ui/utils';
 import {
   Typography,
   ListItem,
@@ -9,18 +14,11 @@ import {
   List,
   CardMedia,
 } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import activity from 'ui/FRWAssets/svg/activity.svg';
+import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
 import { setDefaultWordlist } from 'bip39';
 import { reject } from 'lodash';
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-
 import { TokenModel } from 'background/service/networkModel';
-import Activity from 'ui/FRWAssets/svg/activity.svg';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
-
-import theme from '../../style/LLTheme';
 
 const Token = ({ data }) => {
   const wallet = useWallet();
@@ -89,7 +87,7 @@ const Token = ({ data }) => {
                 {(Object.keys(inbox['vaultBalances']) || []).map((ibx: any, v: any) => {
                   const contractName = ibx.split('.')[2];
                   const token = tokens.find(
-                    (item) => item.contract_name.toLowerCase() === contractName.toLowerCase()
+                    (item) => item.contract_name.toLowerCase() == contractName.toLowerCase()
                   );
                   let tokenIcon = 'https://lilico.app/placeholder-2.0.png';
                   if (token) {
@@ -230,9 +228,10 @@ const Token = ({ data }) => {
                   backgroundColor: '#000',
                 }}
               >
-                <CardMedia sx={{ width: '100px', height: '102px', margin: '50px auto 0' }}>
-                  <Activity />
-                </CardMedia>
+                <CardMedia
+                  sx={{ width: '100px', height: '102px', margin: '50px auto 0' }}
+                  image={activity}
+                />
                 <Typography
                   variant="overline"
                   sx={{

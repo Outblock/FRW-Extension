@@ -1,5 +1,4 @@
-/* eslint-disable no-restricted-globals */
-const IconClose = chrome.runtime.getURL('assets/close.svg');
+import IconClose from '../assets/close.svg';
 interface Options {
   content: string;
   closeButton: HTMLElement | string;
@@ -195,10 +194,8 @@ function notice(options: Partial<Options>) {
     onHide: () => {
       if (container && !container?.hasChildNodes()) {
         document.body.removeChild(container);
-        if (style) {
-          document.body.removeChild(style);
-          style = null;
-        }
+        style && document.body.removeChild(style);
+        style = null;
         container = null;
       }
     },

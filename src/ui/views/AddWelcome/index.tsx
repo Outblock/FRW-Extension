@@ -1,16 +1,15 @@
-import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
 import React from 'react';
-import { Link } from 'react-router-dom';
-
-import IconFlow from '../../../components/iconfont/IconFlow';
-import appicon from '../../FRWAssets/image/appicon.png';
-import Create from '../../FRWAssets/svg/create.svg';
-import ImportPng from '../../FRWAssets/svg/import.svg';
-import outside from '../../FRWAssets/svg/importoutside.svg';
-import Qr from '../../FRWAssets/svg/scanIcon.svg';
+import { Box, ThemeProvider } from '@mui/system';
+import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
 import theme from '../../style/LLTheme';
 import RegisterHeader from '../Register/RegisterHeader';
+import appicon from '../../FRWAssets/image/appicon.png';
+import create from '../../FRWAssets/svg/create.svg';
+import importPng from '../../FRWAssets/svg/import.svg';
+import qr from '../../FRWAssets/svg/scanIcon.svg';
+import outside from '../../FRWAssets/svg/importoutside.svg';
+import { Link } from 'react-router-dom';
+import IconFlow from '../../../components/iconfont/IconFlow';
 
 const AddWelcome = () => {
   return (
@@ -125,9 +124,8 @@ const AddWelcome = () => {
                 <CardMedia
                   component="img"
                   sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                >
-                  <Create />
-                </CardMedia>
+                  image={create}
+                />
                 <Typography
                   variant="subtitle1"
                   sx={{ fontWeight: '600', fontSize: '14px' }}
@@ -136,6 +134,43 @@ const AddWelcome = () => {
                   {chrome.i18n.getMessage('Create_a_new_wallet')}
                 </Typography>
               </Button>
+
+              {/* 
+              <Button
+                variant="contained"
+                color="secondary"
+                component={Link}
+                to="/proxysync"
+                size="large"
+                sx={{
+                  display: 'flex',
+                  width: '332px',
+                  height: '48px',
+                  borderRadius: '24px',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  textTransform: 'capitalize',
+                  marginBottom: '16px',
+                  border: '1px solid #E5E5E5',
+                  backgroundColor: 'transparent',
+                  paddingLeft: '32px'
+                }}
+              >
+                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    color: '#FFF',
+                    '&:hover': {
+                      color: 'background.paper'
+                    }
+                  }}
+                >
+                  Proxy
+                </Typography>
+              </Button> */}
 
               <Button
                 variant="contained"
@@ -160,9 +195,8 @@ const AddWelcome = () => {
                 <CardMedia
                   component="img"
                   sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                >
-                  <Qr />
-                </CardMedia>
+                  image={qr}
+                />
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -212,9 +246,8 @@ const AddWelcome = () => {
                   <CardMedia
                     component="img"
                     sx={{ marginRight: '8px', width: '18px', height: '18px' }}
-                  >
-                    <ImportPng />
-                  </CardMedia>
+                    image={importPng}
+                  />
                   <Typography
                     variant="subtitle1"
                     sx={{

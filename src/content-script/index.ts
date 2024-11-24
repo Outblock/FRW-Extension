@@ -1,8 +1,6 @@
-/* eslint-disable no-restricted-globals */
 import { nanoid } from 'nanoid';
-import { v4 as uuid } from 'uuid';
-
 import { Message } from 'utils';
+import { v4 as uuid } from 'uuid';
 
 const channelName = nanoid();
 
@@ -83,39 +81,35 @@ window.addEventListener('message', function (event) {
 
 const extMessageHandler = (msg, sender) => {
   if (msg.type === 'FCL:VIEW:READY') {
-    if (window) {
-      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
-    }
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
   }
 
   if (msg.f_type && msg.f_type === 'PollingResponse') {
-    if (window) {
-      window.postMessage(JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' })), '*');
-    }
+    window &&
+      window.postMessage(
+        JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' } || {})),
+        '*'
+      );
   }
 
   if (msg.data?.f_type && msg.data?.f_type === 'PreAuthzResponse') {
-    if (window) {
-      window.postMessage(JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' })), '*');
-    }
+    window &&
+      window.postMessage(
+        JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' } || {})),
+        '*'
+      );
   }
 
   if (msg.type === 'FCL:VIEW:CLOSE') {
-    if (window) {
-      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
-    }
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
   }
 
   if (msg.type === 'FLOW::TX') {
-    if (window) {
-      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
-    }
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
   }
 
   if (msg.type === 'LILICO:NETWORK') {
-    if (window) {
-      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
-    }
+    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
   }
 
   return true;

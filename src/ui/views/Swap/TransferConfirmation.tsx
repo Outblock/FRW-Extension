@@ -242,9 +242,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           {colorArray.map((color, index) => (
             <Box sx={{ mx: '5px' }} key={index}>
               {count === index ? ( // Note: count is never set, so this is always false unless index is 0
-                <CardMedia sx={{ width: '8px', height: '12px' }}>
-                  <IconNext />
-                </CardMedia>
+                <CardMedia sx={{ width: '8px', height: '12px' }} image={IconNext} />
               ) : (
                 <Box
                   key={index}
@@ -275,6 +273,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
               py: '8px',
             }}
           >
+            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
             <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
             <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
               {chrome.i18n.getMessage('Your_address_is_currently_processing_another_transaction')}
@@ -340,7 +339,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           >
             {props.data.estimateInfo ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Increment style={{ height: '14px', width: '14px', marginRight: '4px' }} />
+                <img
+                  src={Increment}
+                  style={{ height: '14px', width: '14px', marginRight: '4px' }}
+                />
                 Increment.fi
               </Box>
             ) : (

@@ -1,22 +1,19 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
-import { Presets } from 'react-component-transition';
+import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
 import { useHistory, useLocation } from 'react-router-dom';
-
-import { LLHeader } from '@/ui/FRWComponent';
-import type { CoinItem } from 'background/service/coinList';
-import type { Contact } from 'background/service/networkModel';
-import { LLContactCard } from 'ui/FRWComponent';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { CoinItem } from 'background/service/coinList';
+import theme from '../../style/LLTheme';
+import { ThemeProvider } from '@mui/material/styles';
+import TransferAmount from './TransferAmount';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
-
-import CancelIcon from '../../../components/iconfont/IconClose';
-import theme from '../../style/LLTheme';
-
-import TransferAmount from './TransferAmount';
 import TransferConfirmation from './TransferConfirmation';
+import { LLContactCard } from 'ui/FRWComponent';
+import { Contact } from 'background/service/networkModel';
+import { Presets } from 'react-component-transition';
+import CancelIcon from '../../../components/iconfont/IconClose';
+import { LLHeader } from '@/ui/FRWComponent';
 
 interface ContactState {
   contact: Contact;

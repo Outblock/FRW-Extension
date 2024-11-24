@@ -1,18 +1,15 @@
-import { generateOnRampURL } from '@coinbase/cbpay-js';
-import CloseIcon from '@mui/icons-material/Close';
-import { Typography, ButtonBase, Grid, IconButton } from '@mui/material';
-import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-
+import { Box } from '@mui/system';
 import { useWallet } from 'ui/utils';
-
 // import theme from '../../style/LLTheme';
+import { Typography, ButtonBase, Grid, IconButton } from '@mui/material';
 // import { initOnRamp } from '@coinbase/cbpay-js';
+import { generateOnRampURL } from '@coinbase/cbpay-js';
 // import { LLHeader } from '@/ui/FRWComponent';
 // import Coinbase from '../../FRWAssets/svg/coinbasepay-txt.svg';
-
-import Coinbase from '../../FRWAssets/svg/coinbase-pay.svg';
+import CloseIcon from '@mui/icons-material/Close';
 import MoonPay from '../../FRWAssets/svg/moonpay.svg';
+import Coinbase from '../../FRWAssets/svg/coinbase-pay.svg';
 
 const OnRampList = ({ close }) => {
   const wallet = useWallet();
@@ -88,14 +85,14 @@ const OnRampList = ({ close }) => {
           sx={{ width: '100%', backgroundColor: '#242424', borderRadius: '12px', height: '80px' }}
           onClick={loadMoonPay}
         >
-          <MoonPay style={{ height: '40px' }} />
+          <img src={MoonPay} style={{ height: '40px' }} />
         </ButtonBase>
 
         <ButtonBase
           sx={{ width: '100%', backgroundColor: '#0052FF', borderRadius: '8px', height: '80px' }}
           onClick={loadCoinbasePay}
         >
-          <Coinbase style={{ height: '50px' }} />
+          <img src={Coinbase} style={{ height: '50px' }} />
         </ButtonBase>
       </Box>
     </Box>

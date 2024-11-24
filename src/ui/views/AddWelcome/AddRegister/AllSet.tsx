@@ -1,11 +1,9 @@
-import { Button, Typography, CssBaseline, CardMedia } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
 import React, { useEffect } from 'react';
-
-import { storage } from 'background/webapi';
-import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
-
+import { Box, ThemeProvider } from '@mui/system';
+import { Button, Typography, CssBaseline, CardMedia } from '@mui/material';
 import theme from '../../../style/LLTheme';
+import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
+import { storage } from 'background/webapi';
 
 const AllSet = ({ handleClick }) => {
   const removeTempPass = () => {
@@ -19,9 +17,10 @@ const AllSet = ({ handleClick }) => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="registerBox">
-        <CardMedia sx={{ margin: '0 auto', width: '172px', height: '172px', display: 'block' }}>
-          <AllSetIcon />
-        </CardMedia>
+        <CardMedia
+          sx={{ margin: '0 auto', width: '172px', height: '172px', display: 'block' }}
+          image={AllSetIcon}
+        />
         <Typography variant="h4">
           {chrome.i18n.getMessage('You__are')}
           <Box display="inline" color="primary.main">

@@ -1,11 +1,10 @@
-import { Box, CardMedia, Typography } from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-
-import IconCheck from 'ui/assets/check.svg';
+import { makeStyles } from '@mui/styles';
+import { Box, CardMedia, Typography } from '@mui/material';
+import Avatar from '@mui/material/Avatar';
 import { LLPrimaryButton } from 'ui/FRWComponent';
+import IconCheck from 'ui/assets/check.svg';
 
 const useStyles = makeStyles({
   IconCheck: {
@@ -175,7 +174,7 @@ export const LLLinkingLoading = ({ linkingDone, image, accountTitle, userInfo })
                 marginBottom: '100px',
               }}
             >
-              <IconCheck className={classes.IconCheck} />
+              <img className={classes.IconCheck} src={IconCheck} />
               <Typography
                 sx={{
                   fontSize: '16px',
