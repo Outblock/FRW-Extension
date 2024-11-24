@@ -1,6 +1,5 @@
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ThemeProvider } from '@mui/material/styles';
-import { createMemoryHistory } from 'history';
 import React from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 
@@ -18,10 +17,9 @@ import SwitchUnlock from './SwitchUnlock';
 import Unlock from './Unlock';
 
 function Main() {
-  const history = createMemoryHistory();
   return (
     //@ts-ignore
-    <Router history={history}>
+    <Router>
       <Route exact path="/">
         <SortHat />
       </Route>
