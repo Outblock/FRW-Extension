@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconAVector11Stroke = ({ size, color, style: _style, ...rest }) => {
+const IconAVector11Stroke = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -18,10 +18,6 @@ const IconAVector11Stroke = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconAVector11Stroke.defaultProps = {
-  size: 18,
 };
 
 export default IconAVector11Stroke;

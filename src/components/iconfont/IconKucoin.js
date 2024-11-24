@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconKucoin = ({ size, color, style: _style, ...rest }) => {
+const IconKucoin = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -22,10 +22,6 @@ const IconKucoin = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconKucoin.defaultProps = {
-  size: 18,
 };
 
 export default IconKucoin;

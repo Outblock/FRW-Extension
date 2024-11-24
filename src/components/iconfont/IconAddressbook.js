@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconAddressBook = ({ size, color, style: _style, ...rest }) => {
+const IconAddressBook = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -18,10 +18,6 @@ const IconAddressBook = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconAddressBook.defaultProps = {
-  size: 18,
 };
 
 export default IconAddressBook;
