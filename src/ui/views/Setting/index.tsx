@@ -210,7 +210,6 @@ const SettingTab = () => {
             // component={Link}
             // to="https://lilico.app"
             disablePadding
-            // eslint-disable-next-line no-restricted-globals
             onClick={() => window.open('https://core.flow.com')}
             className={classes.listItem}
           >
@@ -223,7 +222,6 @@ const SettingTab = () => {
                 {/* <IconEnd size={12} /> */}
                 <IconButton
                   onClick={() =>
-                    // eslint-disable-next-line no-restricted-globals
                     window.open(
                       'https://apps.apple.com/ca/app/flow-wallet-nfts-and-crypto/id6478996750'
                     )
@@ -233,7 +231,6 @@ const SettingTab = () => {
                 </IconButton>
                 <IconButton
                   onClick={() =>
-                    // eslint-disable-next-line no-restricted-globals
                     window.open(
                       'https://play.google.com/store/apps/details?id=com.flowfoundation.wallet'
                     )

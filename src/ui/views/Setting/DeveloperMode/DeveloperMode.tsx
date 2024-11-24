@@ -211,7 +211,6 @@ const DeveloperMode = () => {
 
     if (currentNetwork !== network) {
       // TODO: replace it with better UX
-      // eslint-disable-next-line no-restricted-globals
       window.location.reload();
     }
   };

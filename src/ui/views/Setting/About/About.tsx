@@ -1,14 +1,15 @@
+import { Typography, Box, CardMedia } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
-import { Typography, Box, CardMedia } from '@mui/material';
-import twitter from 'ui/FRWAssets/image/twitter.png';
-import discord from 'ui/FRWAssets/image/discord.png';
-import X from 'ui/FRWAssets/svg/xLogo.svg';
-import lilo from 'ui/FRWAssets/image/lilo.png';
-import { version } from '@/../package.json';
-// import '../../Unlock/style.css';
+
+import packageJson from '@/../package.json';
 import { LLHeader } from '@/ui/FRWComponent';
+import discord from 'ui/FRWAssets/image/discord.png';
+import lilo from 'ui/FRWAssets/image/lilo.png';
+import X from 'ui/FRWAssets/svg/xLogo.svg';
+const { version } = packageJson;
+// import '../../Unlock/style.css';
 
 const useStyles = makeStyles(() => ({
   arrowback: {
@@ -135,7 +136,7 @@ const About = () => {
         </ListItem>
 
         <Divider sx={{ width: '90%' }} variant="middle"/>
-    
+
         <ListItem
           button
           component={Link}
