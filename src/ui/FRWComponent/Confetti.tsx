@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react';
-import Particles, { type IParticlesProps } from 'react-tsparticles';
+import Particles, { initParticlesEngine, type IParticlesProps } from '@tsparticles/react';
+import React, { useEffect, useRef } from 'react';
 import { loadFull } from 'tsparticles';
 
 const CONFETTI_OPTIONS: IParticlesProps['options'] = {
-  fullScreen: true,
-  fpsLimit: 120,
-  detectRetina: true,
+  fullScreen: {
+    zIndex: 1,
+  },
   emitters: [
     {
       direction: 'bottom',
@@ -22,7 +22,7 @@ const CONFETTI_OPTIONS: IParticlesProps['options'] = {
       life: {
         count: 200,
         duration: 0.01,
-        // delay:0.6,
+        // delay: 0.6,
       },
     },
   ],
@@ -35,19 +35,25 @@ const CONFETTI_OPTIONS: IParticlesProps['options'] = {
     },
     shape: {
       type: ['square', 'circle', 'heart'],
+      options: {},
     },
     opacity: {
-      value: 1,
+      value: {
+        min: 0,
+        max: 1,
+      },
       animation: {
         enable: true,
-        minimumValue: 0,
         speed: 0.5,
         startValue: 'max',
         destroy: 'min',
       },
     },
     size: {
-      value: 5,
+      value: {
+        min: 2,
+        max: 5,
+      },
     },
     links: {
       enable: false,
@@ -73,10 +79,12 @@ const CONFETTI_OPTIONS: IParticlesProps['options'] = {
         enable: true,
         acceleration: 20,
       },
-      speed: 90,
-      decay: 1 - 0.9,
-      direction: -90,
-      random: true,
+      speed: {
+        min: 20,
+        max: 90,
+      },
+      decay: 0.1,
+      //direction: 'left',
       straight: false,
       outModes: {
         default: 'none',
@@ -89,6 +97,7 @@ const CONFETTI_OPTIONS: IParticlesProps['options'] = {
         max: 360,
       },
       direction: 'random',
+      move: true,
       animation: {
         enable: true,
         speed: 60,
@@ -97,6 +106,7 @@ const CONFETTI_OPTIONS: IParticlesProps['options'] = {
     tilt: {
       direction: 'random',
       enable: true,
+      move: true,
       value: {
         min: 0,
         max: 360,
@@ -120,6 +130,7 @@ const CONFETTI_OPTIONS: IParticlesProps['options'] = {
     wobble: {
       distance: 20,
       enable: true,
+      move: true,
       speed: {
         min: -15,
         max: 15,
@@ -127,29 +138,34 @@ const CONFETTI_OPTIONS: IParticlesProps['options'] = {
     },
   },
 };
+
+export const useParticlesInit = () => {
+  const initRef = useRef<Promise<boolean> | null | boolean>(false);
+
+  useEffect(() => {
+    if (!initRef.current) {
+      initRef.current = initParticlesEngine(async (engine) => {
+        await loadFull(engine);
+      }).then(() => {
+        return true;
+      });
+    }
+  }, []);
+
+  return !!initRef.current;
+};
+
 // Confetti component
 // This is using the particles library.
 // It would be a good idea to replace it with react-confetti
-
 const Confetti = () => {
-  const particlesInit = useCallback(async (engine) => {
-    // you can initiate the tsParticles instance (engine) here, adding custom shapes or presets
-    // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
-    // starting from v2 you can add only the features you need reducing the bundle size
-    await loadFull(engine);
-  }, []);
-  const particlesLoaded = useCallback(async (_container) => {
-    console.log(_container);
-  }, []);
+  const isInitialized = useParticlesInit();
+
+  if (!isInitialized) {
+    return null;
+  }
   console.log('Confetti');
-  return (
-    <Particles
-      id="tsparticles"
-      options={CONFETTI_OPTIONS}
-      init={particlesInit}
-      loaded={particlesLoaded}
-    />
-  );
+  return <Particles id="tsparticles" options={CONFETTI_OPTIONS} />;
 };
 
 export default Confetti;

@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { getApp, initializeApp } from 'firebase/app';
 import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
@@ -49,7 +49,7 @@ const Dashboard = ({ value, setValue }) => {
     setValue(index);
   };
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     //todo fix cadence loading
     await wallet.getCadenceScripts();
@@ -83,11 +83,11 @@ const Dashboard = ({ value, setValue }) => {
     setNetwork(network);
     setDomain(userDomain);
     setLoading(false);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     fetchAll();
-  }, [wallet]);
+  }, [fetchAll, wallet]);
 
   return (
     <div className="page">
