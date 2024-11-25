@@ -193,7 +193,7 @@
     "ts-import-plugin": "^1.6.7",
     "ts-loader": "^9.5.1",
     "tsconfig-paths-webpack-plugin": "^3.5.2",
-    "typescript": "^5.6.3",
+    "typescript": "^5.7.2",
     "typescript-eslint": "^8.15.0",
     "typescript-transform-paths": "^3.5.2",
     "url-loader": "^4.1.1",
@@ -214,5 +214,11 @@
   "engines": {
     "node": ">=22.11.0",
     "pnpm": ">=9"
+  },
+  "pnpm": {
+    "shamefully-hoist": true,
+    "node-linker": "hoisted",
+    "strict-peer-dependencies": false,
+    "auto-install-peers": true
   }
 }
