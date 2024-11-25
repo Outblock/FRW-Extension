@@ -28,6 +28,8 @@
     "@dnd-kit/core": "^4.0.3",
     "@dnd-kit/sortable": "^5.1.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
     "@ledgerhq/hw-app-eth": "^6.41.1",
     "@ledgerhq/hw-transport-webusb": "^6.29.4",
     "@metamask/eth-sig-util": "^4.0.1",
@@ -182,6 +184,7 @@
     "postcss-loader": "^5.3.0",
     "postcss-nested": "^5.0.6",
     "prettier": "^3.3.3",
+    "react-devtools": "^4.x.x",
     "react-i18next": "^15.1.1",
     "react-iconfont-cli": "^2.0.2",
     "shelljs": "^0.8.5",
@@ -199,8 +202,7 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^3.11.3",
     "webpack-merge": "^5.10.0",
-    "zip-dir": "^2.0.0",
-    "react-devtools": "^4.x.x"
+    "zip-dir": "^2.0.0"
   },
   "keywords": [],
   "author": "",
