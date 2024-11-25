@@ -22,7 +22,7 @@ import IconLink from 'ui/FRWAssets/svg/Iconlink.svg';
 
 import IconAbout from '../../../components/iconfont/IconAbout';
 import IconAccount from '../../../components/iconfont/IconAccount';
-import IconAddressBook from '../../../components/iconfont/IconAddressBook';
+import IconAddressBook from '../../../components/iconfont/IconAddressbook';
 import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import IconBackup from '../../../components/iconfont/IconBackup';
 import IconDeveloper from '../../../components/iconfont/IconDeveloper';
