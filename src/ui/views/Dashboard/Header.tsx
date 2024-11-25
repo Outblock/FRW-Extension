@@ -258,29 +258,32 @@ const Header = ({ loading }) => {
     usewallet.setChildWallet(childresp);
   }, [freshUserInfo, freshUserWallet, usewallet]);
 
-  const switchAccount = async (account) => {
-    setSwitchLoading(true);
-    try {
-      const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-      await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
-      if (account.id) {
-        await storage.set('currentId', account.id);
-      } else {
-        await storage.set('currentId', '');
+  const switchAccount = useCallback(
+    async (account) => {
+      setSwitchLoading(true);
+      try {
+        const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+        await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+        if (account.id) {
+          await storage.set('currentId', account.id);
+        } else {
+          await storage.set('currentId', '');
+        }
+
+        await usewallet.lockWallet();
+        await usewallet.clearWallet();
+        await usewallet.switchNetwork(switchingTo);
+
+        history.push('/switchunlock');
+      } catch (error) {
+        console.error('Error during account switch:', error);
+        // Handle any additional error reporting or user feedback here if needed
+      } finally {
+        setSwitchLoading(false);
       }
-
-      await usewallet.lockWallet();
-      await usewallet.clearWallet();
-      await usewallet.switchNetwork(switchingTo);
-
-      history.push('/switchunlock');
-    } catch (error) {
-      console.error('Error during account switch:', error);
-      // Handle any additional error reporting or user feedback here if needed
-    } finally {
-      setSwitchLoading(false);
-    }
-  };
+    },
+    [usewallet, history]
+  );
 
   const loadNetwork = useCallback(async () => {
     const network = await usewallet.getNetwork();

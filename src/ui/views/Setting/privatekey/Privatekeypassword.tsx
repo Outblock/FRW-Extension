@@ -150,7 +150,7 @@ const PrivateKeyPassword = () => {
 
           {/* <Box sx={{flexGrow: 1}}/> */}
 
-          <Fade>
+          <Fade in={true}>
             <Box
               sx={{
                 backgroundColor: 'rgba(247, 87, 68, 0.1)',
