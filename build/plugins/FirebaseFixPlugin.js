@@ -5,7 +5,15 @@ class FirebaseFixPlugin {
       for (const asset in compilation.assets) {
         if (/\.(js|jsx)$/.test(asset)) {
           let content = compilation.assets[asset].source();
+          // Convert Buffer to string if needed
+          if (Buffer.isBuffer(content)) {
+            content = content.toString('utf-8');
+          }
 
+          // Convert other types to string if needed
+          if (typeof content !== 'string') {
+            content = content.toString();
+          }
           // Replace the _loadJS function
           content = content.replace(
             /function\s*\w*\s*_loadJS\([\w\s,]*\)\s*{([\w\W]*?)}$/gim,
