@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import { Typography, Box, Drawer, Grid, Stack, InputBase, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../FRWComponent';
-import { useWallet } from 'ui/utils';
-import { useForm, FieldValues } from 'react-hook-form';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useForm, type FieldValues } from 'react-hook-form';
+
 import { storage } from '@/background/webapi';
+import { useWallet } from 'ui/utils';
+
+import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../FRWComponent';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -54,7 +56,7 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
     setIsValidatingAddress(true);
     const validatedResult = await wallet.checkAddress(address);
     setIsValidatingAddress(false);
-    return validatedResult;
+    return validatedResult ? true : false;
   };
 
   const onSubmit = async (data: FieldValues) => {
@@ -86,16 +88,16 @@ const EditNFTAddress = (props: EditNFTAddressProps) => {
         }
       );
     }
-  }, [props.address]);
+  }, [props?.address, props?.isEdit, reset]);
 
-  const fetchNetworks = async () => {
+  const fetchNetworks = useCallback(async () => {
     const currentNetwork = await wallet.getNetwork();
     setNetwork(currentNetwork);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     fetchNetworks();
-  }, []);
+  }, [fetchNetworks]);
 
   const renderContent = () => (
     <Box

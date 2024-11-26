@@ -1,39 +1,47 @@
 // FirebaseFixPlugin.js
 class FirebaseFixPlugin {
   apply(compiler) {
-    compiler.hooks.emit.tapAsync('FirebaseFixPlugin', (compilation, callback) => {
-      for (const asset in compilation.assets) {
-        if (/\.(js|jsx)$/.test(asset)) {
-          let content = compilation.assets[asset].source();
+    compiler.hooks.compilation.tap('FirebaseFixPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'FirebaseFixPlugin',
+          stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_COMPATIBILITY,
+        },
+        (assets) => {
+          for (const [name, asset] of Object.entries(assets)) {
+            if (/\.(js|jsx)$/.test(name)) {
+              let content = asset.source();
 
-          // Replace the _loadJS function
-          content = content.replace(
-            /function\s*\w*\s*_loadJS\([\w\s,]*\)\s*{([\w\W]*?)}$/gim,
-            'function _loadJS() { return Promise.resolve(); };'
-          );
+              console.log('About to fix firebase stuff', name);
+              console.log('typeof content', typeof content);
 
-          // Replace the Google reCAPTCHA string
-          content = content.replace('https://www.google.com/recaptcha/enterprise.js?render=', '');
+              // Replace the _loadJS function
+              content = content.replace(
+                /function\s*\w*\s*_loadJS\([\w\s,]*\)\s*\{([\w\W]*?)\}$/gim,
+                'function _loadJS() { return Promise.resolve(); };'
+              );
 
-          content = content.replace('https://www.google.com/recaptcha/api.js?', '');
+              // Replace the Google reCAPTCHA string
+              content = content.replace(
+                /https:\/\/www\.google\.com\/recaptcha\/(enterprise|api)\.js(\?render=)?/g,
+                ''
+              );
 
-          content = content.replace(
-            /_loadJS\(`https:\/\/apis\.google\.com\/js\/api\.js\?onload=\$\{([^}]+)\}`\)/g,
-            '_loadJS(`${$1}`)'
-          );
+              content = content.replace(
+                /_loadJS\(`https:\/\/apis\.google\.com\/js\/api\.js(\?onload=\$\{([^}]+)\})?`\)/g,
+                '_loadJS(`${$1}`)'
+              );
 
-          content = content.replace(
-            /\(`https:\/\/apis\.google\.com\/js\/api\.js\?onload=\$\{t\}`\)/g,
-            '(`${t}`)'
-          );
+              content = content.replace(
+                /\(`https:\/\/apis\.google\.com\/js\/api\.js(\?onload=\$\{t\})?`\)/g,
+                '(`${t}`)'
+              );
 
-          compilation.assets[asset] = {
-            source: () => content,
-            size: () => content.length,
-          };
+              compilation.updateAsset(name, new compiler.webpack.sources.RawSource(content));
+            }
+          }
         }
-      }
-      callback();
+      );
     });
   }
 }

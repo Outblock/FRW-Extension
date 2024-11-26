@@ -14,8 +14,6 @@ import * as fcl from '@onflow/fcl';
 
 interface ConnectProps {
   params: any;
-  // onChainChange(chain: CHAINS_ENUM): void;
-  // defaultChain: CHAINS_ENUM;
 }
 
 const EthSignType = ({ params }: ConnectProps) => {
@@ -87,8 +85,9 @@ const EthSignType = ({ params }: ConnectProps) => {
 
   const handleAllow = async () => {
     await checkCoa();
+    const network = await wallet.getNetwork();
     resolveApproval({
-      defaultChain: 646,
+      defaultChain: network === 'testnet' ? 545 : 747,
       signPermission: 'MAINNET_AND_TESTNET',
     });
   };

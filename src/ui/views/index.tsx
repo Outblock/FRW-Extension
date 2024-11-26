@@ -1,27 +1,28 @@
-import React, { lazy, Suspense } from 'react';
-import { HashRouter as Router, Route } from 'react-router-dom';
-import { createMemoryHistory } from 'history';
-
-import { WalletProvider } from 'ui/utils';
-import SortHat from './SortHat';
-import Unlock from './Unlock';
-import SwitchUnlock from './SwitchUnlock';
-import RetrievePK from './RetrievePK';
-import InnerRoute from './InnerRoute';
-const AsyncMainRoute = lazy(() => import('./MainRoute'));
-import theme from '../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { PrivateRoute } from 'ui/component';
-import Approval from './Approval';
+import { ThemeProvider } from '@mui/material/styles';
+import { createMemoryHistory } from 'history';
+import React from 'react';
+import { HashRouter as Router, Route } from 'react-router-dom';
+
 import { NewsProvider } from '@/ui/utils/NewsContext';
-// import Reset from './Reset';
+import { PrivateRoute } from 'ui/component';
+import { WalletProvider } from 'ui/utils';
+
+import theme from '../style/LLTheme';
+
+import Approval from './Approval';
+import InnerRoute from './InnerRoute';
+import { MainRoute } from './MainRoute';
+import RetrievePK from './RetrievePK';
+import SortHat from './SortHat';
+import SwitchUnlock from './SwitchUnlock';
+import Unlock from './Unlock';
 
 function Main() {
+  const history = createMemoryHistory();
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    <Router history={createMemoryHistory}>
+    <Router history={history}>
       <Route exact path="/">
         <SortHat />
       </Route>
@@ -29,9 +30,7 @@ function Main() {
       <Route exact path="/unlock" component={Unlock} />
       <Route exact path="/switchunlock" component={SwitchUnlock} />
       <Route exact path="/retrieve" component={RetrievePK} />
-      <Suspense fallback={null}>
-        <AsyncMainRoute />
-      </Suspense>
+      <MainRoute />
       <Route path="/dashboard">
         <InnerRoute />
       </Route>

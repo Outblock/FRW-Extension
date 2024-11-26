@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet, isEmoji } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
-import IconFlow from '../../../../components/iconfont/IconFlow';
-import IconNext from 'ui/FRWAssets/svg/next.svg';
-import { MatchMediaType } from '@/ui/utils/url';
 import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Presets } from 'react-component-transition';
-import erc721 from 'background/utils/erc721.abi.json';
+import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
+
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { MatchMediaType } from '@/ui/utils/url';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
+import erc721 from 'background/utils/erc721.abi.json';
 import { EVM_ENDPOINT } from 'consts';
+import IconNext from 'ui/FRWAssets/svg/next.svg';
+import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { useWallet, isEmoji } from 'ui/utils';
+
+import IconFlow from '../../../../components/iconfont/IconFlow';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -24,16 +27,27 @@ interface SendNFTConfirmationProps {
 }
 
 const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
+  console.log('SendNFTConfirmation');
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [tid, setTid] = useState(undefined);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(false);
   const [isChild, setIsChild] = useState(false);
   const [erc721Contract, setErcContract] = useState<any>(null);
   const [count, setCount] = useState(0);
-  const [web3, setWeb3] = useState<any>(null);
+
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: true, // hard to tell if the user is sending to an evm address or not. True for now.
+  });
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
+
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -44,7 +58,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     '#41CC5D',
   ];
 
-  const startCount = () => {
+  const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
     if (props.data.contact.address) {
@@ -58,18 +72,18 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     } else if (!props.data.contact.address) {
       clearInterval(intervalId);
     }
-  };
+  }, [props?.data?.contact?.address]);
 
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [wallet]);
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
   const replaceIPFS = (url: string | null): string => {
     if (!url) {
@@ -94,13 +108,10 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const isEvm = activeChild === 'evm';
     const isEvmAddress = address.length > 20;
     if (!isEvm && isEvmAddress && !isChild) {
-      console.log('send flow to evm');
       await flowToEvm();
     } else if (isChild || props.data.linked) {
-      console.log('send child nft');
       sendChildNft();
     } else {
-      console.log('send nft');
       try {
         const childresp = await wallet.checkUserChildAccount();
         let containsKey = false;
@@ -117,7 +128,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             parseInt(props.data.nft.id),
             props.data.contract
           );
-        } else if (props.data.contract.contract_name.trim() == 'TopShot') {
+        } else if (props.data.contract.contract_name.trim() === 'TopShot') {
           txID = await wallet.sendNBANFT(
             props.data.contact.address,
             parseInt(props.data.nft.id),
@@ -142,7 +153,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         history.push('/dashboard?activity=1');
         props.handleAddBtnClicked();
       } catch (error) {
-        console.log(error);
+        console.error(error);
         setFailed(true);
         setSending(false);
       } finally {
@@ -155,7 +166,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     setSending(true);
     try {
       let txID = '';
-      console.log('props.data ', props.data);
 
       txID = await wallet.sendNFTfromChild(
         props.data.userContact.address,
@@ -176,7 +186,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
       history.push('/dashboard?activity=1');
       props.handleAddBtnClicked();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setFailed(true);
       setSending(false);
     } finally {
@@ -184,17 +194,13 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     }
   };
 
-  const removeHexPrefix = (address) => {
-    return address.startsWith('0x') ? address.slice(2) : address;
-  };
-
   const flowToEvm = async () => {
     setSending(true);
-    console.log('props ', props);
     const data = await wallet.getEvmAddress();
     const encodedData = erc721Contract.methods
       .safeTransferFrom(data, props.data.contact.address, props.data.nft.id)
       .encodeABI();
+    // NOTE: hardcoded gas limit and this is not used
     const gas = '1312d00';
     setSending(true);
     wallet
@@ -203,8 +209,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         props.data.nft.collectionContractName,
         props.data.nft.id,
         props.data.contract.evmAddress,
-        encodedData,
-        gas
+        encodedData
       )
       .then(async (txID) => {
         wallet.listenTransaction(
@@ -219,52 +224,58 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         history.push('/dashboard?activity=1');
       })
       .catch((err) => {
-        console.log('send flow to evm encounter error: ', err);
+        console.error('send flow to evm encounter error: ', err);
         setSending(false);
         setFailed(true);
       });
   };
 
-  const transactionDoneHanlder = (request) => {
-    if (request.msg === 'transactionDone') {
-      updateOccupied();
-    }
-    return true;
-  };
+  const transactionDoneHandler = useCallback(
+    (request) => {
+      if (request.msg === 'transactionDone') {
+        updateOccupied();
+      }
+      // Handle error
+      if (request.msg === 'transactionError') {
+        setFailed(true);
+        setErrorMessage(request.errorMessage);
+        setErrorCode(request.errorCode);
+      }
+      return true;
+    },
+    [updateOccupied]
+  );
 
   useEffect(() => {
     startCount();
     getPending();
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, [props.data.contact]);
+  }, [getPending, props.data.contact, startCount, transactionDoneHandler]);
 
-  const checkChild = async () => {
-    const ischild = await wallet.getActiveWallet();
-    setIsChild(ischild);
-  };
+  const checkChild = useCallback(async () => {
+    const isChild = await wallet.getActiveWallet();
+    setIsChild(isChild);
+  }, [wallet]);
 
-  const initializeContract = async () => {
+  const initializeContract = useCallback(async () => {
     const network = await wallet.getNetwork();
     const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
     const web3Instance = new Web3(provider);
-    console.log('web3Instance ', web3Instance);
-    setWeb3(web3Instance);
     const contractInstance = new web3Instance.eth.Contract(
       erc721,
       props.data.nft.contractEvmAddress
     );
-    console.log('contractInstance ', contractInstance);
     setErcContract(contractInstance);
-  };
+  }, [props?.data?.nft?.contractEvmAddress, wallet]);
 
   useEffect(() => {
     initializeContract();
     checkChild();
-  }, []);
+  }, [checkChild, initializeContract]);
 
   const renderContent = () => {
     const getUri = () => {
@@ -327,24 +338,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         >
           <Grid item xs={1}></Grid>
           <Grid item xs={10}>
-            {tid ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography variant="h1" align="center" py="14px" fontSize="20px">
-                  {chrome.i18n.getMessage('Transaction__created')}
-                </Typography>
-              </Box>
-            ) : (
-              <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="20px">
-                {chrome.i18n.getMessage('Send')} NFT
-              </Typography>
-            )}
+            <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="20px">
+              {chrome.i18n.getMessage('Send')} NFT
+            </Typography>
           </Grid>
           <Grid item xs={1}>
             <IconButton onClick={props.handleCloseIconClicked}>
@@ -399,7 +395,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             <LLProfile contact={props.data.contact} />
           )}
         </Box>
-
         <Box
           sx={{
             display: 'flex',
@@ -414,7 +409,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           <Stack direction="row" spacing={1}>
             {props.data.media &&
             props.data.media?.type === MatchMediaType.IMAGE &&
-            props.data.media?.videoURL != null
+            !!props.data.media?.videoURL
               ? getMedia()
               : getUri()}
           </Stack>
@@ -429,7 +424,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
               />
               <Typography
                 color="text.nonselect"
-                sx={{ fontWeight: '400', display: 'inline-block' }}
+                sx={{
+                  fontWeight: '400',
+                  display: 'inline-block',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '150px',
+                }}
               >
                 {props.data.contract && props.data.contract.name}
               </Typography>
@@ -439,7 +441,6 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             </Stack>
           </Stack>
         </Box>
-
         <Box sx={{ flexGrow: 1 }} />
         {/* <Stack direction="row" spacing={1} sx={{marginBottom: '33px'}}>
           <LLPrimaryButton
@@ -476,6 +477,10 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           </Presets.TransitionSlideUp>
         )}
 
+        <WarningStorageLowSnackbar
+          isLowStorage={isLowStorage}
+          isLowStorageAfterAction={isLowStorageAfterAction}
+        />
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}
@@ -517,21 +522,24 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   };
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '65%',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '65%',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 

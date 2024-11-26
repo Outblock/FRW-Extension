@@ -1,4 +1,5 @@
 import * as fcl from '@onflow/fcl';
+
 import { fclMainnetConfig } from 'background/fclConfig';
 
 export const findAddressWithKey = async (pubKeyHex, address) => {
@@ -35,14 +36,14 @@ const findAddres = async (address, pubKeyHex) => {
     .filter((key) => key.publicKey === pubKeyHex && !key.revoked)
     .filter((key) => key.weight >= 1000);
 
-  if (keys.length == 0) {
+  if (keys.length === 0) {
     return null;
   }
 
   return keys.map((key) => {
     return {
       address: address,
-      keyIndex: parseInt(key.index),
+      keyIndex: key.index,
       weight: key.weight,
       hashAlgo: key.hashAlgoString,
       signAlgo: key.signAlgoString,

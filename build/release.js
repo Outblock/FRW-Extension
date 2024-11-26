@@ -26,7 +26,7 @@ async function release() {
 }
 
 function bundle(version) {
-  shell.exec('yarn build:pro');
+  shell.exec('pnpm build:pro');
   const distPath = path.resolve(PROJECT_ROOT, 'dist');
   zipdir(distPath, { saveTo: `FlowCore_${version}.zip` });
 }

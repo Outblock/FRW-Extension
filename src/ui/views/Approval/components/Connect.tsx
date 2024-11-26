@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet } from 'ui/utils';
-// import { CHAINS_ENUM } from 'consts';
-import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
-import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
-import { permissionService } from 'background/service';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import theme from 'ui/style/LLTheme';
-import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
+import { ThemeProvider } from '@mui/system';
 import { WalletUtils } from '@onflow/fcl';
-import Link from 'ui/FRWAssets/svg/link.svg';
-import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
-import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
-import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
-import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { storage } from '@/background/webapi';
+import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
+import { permissionService } from 'background/service';
+import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import Link from 'ui/FRWAssets/svg/link.svg';
+import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
+import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
+import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
+import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
+import theme from 'ui/style/LLTheme';
+import { useApproval, useWallet } from 'ui/utils';
+// import { CHAINS_ENUM } from 'consts';
+
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 
 interface ConnectProps {
   params: any;
@@ -25,14 +24,8 @@ interface ConnectProps {
   // defaultChain: CHAINS_ENUM;
 }
 
-const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
-  const { state } = useLocation<{
-    showChainsModal?: boolean;
-  }>();
-  const { showChainsModal = false } = state ?? {};
-  const history = useHistory();
+const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
   const [, resolveApproval, rejectApproval] = useApproval();
-  const { t } = useTranslation();
   const wallet = useWallet();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,7 +44,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
   // TODO: replace default logo
   const [logo, setLogo] = useState('');
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (opener) {
       if (windowId) {
         chrome.windows.update(windowId, { focused: true });
@@ -67,7 +60,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     }
     setApproval(false);
     rejectApproval('User rejected the request.');
-  };
+  }, [opener, rejectApproval, windowId]);
 
   const handleSwitchNetwork = async () => {
     wallet.switchNetwork(msgNetwork);
@@ -120,7 +113,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
         f_vsn: '2.0.0',
         address,
         nonce,
-        signatures: [new WalletUtils.CompositeSignature(address, keyIndex, signature)],
+        signatures: [new WalletUtils.CompositeSignature(address!, keyIndex, signature)],
       });
       services.push(accountProofservice);
     }
@@ -159,22 +152,24 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     // }
     if (msg.type === 'FCL:VIEW:READY:RESPONSE') {
       console.log('FCL:VIEW:READY:RESPONSE ', msg);
-      msg.host && setHost(msg.host);
+      if (msg.host) {
+        setHost(msg.host);
+      }
       if (!msg.host) {
         setHost(msg.config.client.hostname);
       }
       setMsgNetwork(msg.config.client.network);
       setAppIdentifier(msg.body?.appIdentifier);
       setNonce(msg.body?.nonce);
-      msg.config.app.title && setTitle(msg.config.app.title);
-      msg.config.app.icon && setLogo(msg.config.app.icon);
+      if (msg.config.app.title) setTitle(msg.config.app.title);
+      if (msg.config.app.icon) setLogo(msg.config.app.icon);
     }
 
     sendResponse({ status: 'ok' });
     return true;
   };
 
-  const checkNetwork = async () => {
+  const checkNetwork = useCallback(async () => {
     const address = await wallet.getCurrentAddress();
     console.log('address currentAddress ', address);
     setCurrentAddress(address!);
@@ -188,18 +183,18 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     } else {
       setShowSwitch(false);
     }
-  };
+  }, [wallet, msgNetwork, showSwitch]);
 
   useEffect(() => {
     checkNetwork();
-  }, [msgNetwork, currentNetwork]);
+  }, [msgNetwork, currentNetwork, checkNetwork]);
 
   useEffect(() => {
     /**
      * We can't use "chrome.runtime.sendMessage" for sending messages from React.
      * For sending messages from React we need to specify which tab to send it to.
      */
-    chrome.tabs &&
+    if (chrome.tabs) {
       chrome.tabs
         .query({
           active: true,
@@ -214,7 +209,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
            * in the specified tab for the current extension.
            */
 
-          const targetTab = tabs.filter((item) => item.id == tabId);
+          const targetTab = tabs.filter((item) => item.id === tabId);
           let host = '';
           if (targetTab[0].url) {
             host = new URL(targetTab[0].url).host;
@@ -227,7 +222,7 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
           setHost(host);
           chrome.tabs.sendMessage(targetTab[0].id || 0, { type: 'FCL:VIEW:READY' });
         });
-
+    }
     /**
      * Fired when a message is sent from either an extension process or a content script.
      */
@@ -236,13 +231,21 @@ const Connect = ({ params: { icon, origin, tabId } }: ConnectProps) => {
     return () => {
       chrome.runtime?.onMessage.removeListener(extMessageHandler);
     };
-  }, []);
+  }, [tabId]);
 
-  window.onbeforeunload = () => {
-    if (!approval) {
-      handleCancel();
-    }
-  };
+  useEffect(() => {
+    const handleWindowRemoved = (wId: number) => {
+      if (wId === windowId && !approval) {
+        handleCancel();
+      }
+    };
+
+    chrome.windows.onRemoved.addListener(handleWindowRemoved);
+
+    return () => {
+      chrome.windows.onRemoved.removeListener(handleWindowRemoved);
+    };
+  }, [approval, handleCancel, windowId]);
 
   const networkColor = (network: string) => {
     switch (network) {

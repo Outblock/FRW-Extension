@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet, isEmoji } from 'ui/utils';
-import { LLProfile, FRWProfile } from 'ui/FRWComponent';
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import eventBus from '@/eventBus';
-import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
+import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { useWallet, isEmoji } from 'ui/utils';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -24,9 +25,24 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
+
+  const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
+  // TODO: check if this is correct
+  const movingBetweenEVMAndFlow = true;
+  const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
+    useStorageCheck({
+      transferAmount,
+      movingBetweenEVMAndFlow,
+    });
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = isSufficientAfterAction !== undefined && !isSufficientAfterAction; // isSufficientAfterAction is undefined when the storage check is not yet completed
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -36,7 +52,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     '#41CC5D',
     '#41CC5D',
   ];
-
   const startCount = () => {
     let count = 0;
     let intervalId;
@@ -60,9 +75,9 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     }
   };
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
   const transferToken = async () => {
     // TODO: Replace it with real data
@@ -201,20 +216,28 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       });
   };
 
-  const transactionDoneHanlder = (request) => {
-    if (request.msg === 'transactionDone') {
-      updateOccupied();
-    }
-    return true;
-  };
+  const transactionDoneHandler = useCallback(
+    (request) => {
+      if (request.msg === 'transactionDone') {
+        updateOccupied();
+      }
+      if (request.msg === 'transactionError') {
+        setFailed(true);
+        setErrorMessage(request.errorMessage);
+        setErrorCode(request.errorCode);
+      }
+      return true;
+    },
+    [updateOccupied]
+  );
 
   useEffect(() => {
     startCount();
     getPending();
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
   }, []);
 
@@ -363,6 +386,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           </Box>
         </Presets.TransitionSlideUp>
       )}
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
 
       <Button
         onClick={transferToken}
@@ -404,21 +431,24 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   );
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '65%',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '65%',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 

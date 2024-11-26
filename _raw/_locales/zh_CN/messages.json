@@ -1314,5 +1314,20 @@
   },
   "Import__Profile": {
     "message": "导入账户"
+  },
+  "Insufficient_Storage": {
+    "message": "存储不足"
+  },
+  "Transaction_failed_storage_exceeded": {
+    "message": "您的交易失败，因为它导致您的账户余额低于账户存储使用的最低FLOW余额。"
+  },
+  "Must_have_minimum_flow_storage": {
+    "message": "您的账户必须至少有 0.001 FLOW 以覆盖存储使用。"
+  },
+  "Buy_FLOW": {
+    "message": "购买 FLOW"
+  },
+  "Insufficient_storage_after_action": {
+    "message": "此操作后存储空间不足。"
   }
 }

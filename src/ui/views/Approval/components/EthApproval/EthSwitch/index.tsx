@@ -19,8 +19,6 @@ import { storage } from '@/background/webapi';
 
 interface ConnectProps {
   params: any;
-  // onChainChange(chain: CHAINS_ENUM): void;
-  // defaultChain: CHAINS_ENUM;
 }
 
 const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
@@ -63,7 +61,7 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
       setMsgNetwork(target);
     }
     resolveApproval({
-      defaultChain: 'FLOW',
+      defaultChain: target === 'testnet' ? 545 : 747,
       signPermission: 'MAINNET_AND_TESTNET',
     });
   };

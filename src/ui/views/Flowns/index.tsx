@@ -1,13 +1,14 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Typography, IconButton, Box, CardMedia } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Typography, IconButton, Box, CardMedia } from '@mui/material';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// import '../../Unlock/style.css';
+
 import flownsPBanner from 'ui/FRWAssets/svg/flownsPBanner.svg';
+import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import SubstructIcon from '../../../components/iconfont/IconSubtract';
-import { useWallet } from 'ui/utils';
 
 const Flowns = () => {
   const history = useHistory();
@@ -19,39 +20,6 @@ const Flowns = () => {
 
   const handleClaiming = async () => {
     setClaiming(true);
-    wallet
-      .flownsPrepare()
-      .then(async (res) => {
-        if (res.status == 400) {
-          setFailed(true);
-          setError(chrome.i18n.getMessage('Domain__already__exist'));
-          return;
-        }
-        const script = res.data.cadence;
-        const domain = res.data.domain;
-        const domainArray = domain.split('.');
-        const flownsAddress = res.data.flowns_server_address;
-        const lilicoAddress = res.data.lilico_server_address;
-        wallet
-          .flownsResponse(script, domainArray[0], flownsAddress, lilicoAddress)
-          .then(async (res) => {
-            wallet.listenTransaction(
-              res['txId'],
-              true,
-              chrome.i18n.getMessage('Domain__creation__complete'),
-              `Your flowns domain ${domain} has been created. \nClick to view this transaction.`
-            );
-            await wallet.setDashIndex(0);
-            history.push('/dashboard?activity=1');
-          })
-          .catch((err) => {
-            console.log(err);
-            setFailed(true);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   const getUsername = async () => {
