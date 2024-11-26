@@ -43,7 +43,7 @@
     "@noble/secp256k1": "^1.7.1",
     "@onflow/fcl": "^1.12.3",
     "@onflow/fcl-wc": "^5.4.0",
-    "@onflow/transport-http": "1.5.0-alpha.1",
+    "@onflow/transport-http": "1.10.2",
     "@onflow/types": "^1.4.0",
     "@rabby-wallet/eth-hd-keyring": "^3.6.12",
     "@rabby-wallet/eth-lattice-keyring": "^0.4.4",

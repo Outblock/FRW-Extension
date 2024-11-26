@@ -69,8 +69,8 @@ importers:
         specifier: ^5.4.0
         version: 5.4.0(@onflow/fcl-core@1.12.0(google-protobuf@3.21.4))(@types/react@18.3.12)(react@18.3.1)
       '@onflow/transport-http':
-        specifier: 1.5.0-alpha.1
-        version: 1.5.0-alpha.1
+        specifier: 1.10.2
+        version: 1.10.2
       '@onflow/types':
         specifier: ^1.4.0
         version: 1.4.0
@@ -2078,9 +2078,6 @@ packages:
 
   '@onflow/transport-http@1.10.2':
     resolution: {integrity: sha512-dXi4pe1K29kJ4AbHH4eBIZ3JhYoo68sl5vlJzm5w1MMApHUWDIeDDDFh1opvqyvE3W8uBCe7+hVrigMZAZyHJA==}
-
-  '@onflow/transport-http@1.5.0-alpha.1':
-    resolution: {integrity: sha512-hHZDoWG+/Bp3fAr9i5Lmb3qhH0BEhsB6Y/3xtrg9cm/anNGzmbRKbdKdB/QuCVDMGcjLiOWIq+Z/jh05BxuMVA==}
 
   '@onflow/typedefs@1.3.1':
     resolution: {integrity: sha512-rYMSt2KRr1DG5Z9CQu4PzyT1uKPNZRrjHBTAEinjvcFeqdHF/BW93Wzvx/yYK+RF4aepDLrvkshjAHPfwUkh2g==}
@@ -11907,18 +11904,6 @@ snapshots:
       - bufferutil
       - encoding
       - utf-8-validate
-
-  '@onflow/transport-http@1.5.0-alpha.1':
-    dependencies:
-      '@babel/runtime': 7.26.0
-      '@onflow/util-address': 1.2.2
-      '@onflow/util-invariant': 1.2.3
-      '@onflow/util-logger': 1.3.2
-      '@onflow/util-template': 1.2.2
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - '@onflow/util-config'
-      - encoding
 
   '@onflow/typedefs@1.3.1':
     dependencies:
