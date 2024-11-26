@@ -1007,17 +1007,20 @@ export class WalletController extends BaseController {
     return listCoins;
   };
 
-  private async getFlowTokenPrice(flowPrice: string): Promise<any> {
+  private async getFlowTokenPrice(flowPrice?: string): Promise<any> {
     const cachedFlowTokenPrice = await storage.getExpiry('flowTokenPrice');
     if (cachedFlowTokenPrice) {
-      cachedFlowTokenPrice.price.last = flowPrice;
+      if (flowPrice) {
+        cachedFlowTokenPrice.price.last = flowPrice;
+      }
       return cachedFlowTokenPrice;
-    } else {
-      const result = await openapiService.getTokenPrice('flow');
-      result.price.last = flowPrice;
-      await storage.setExpiry('flowTokenPrice', result, 300000); // Cache for 5 minutes
-      return result;
     }
+    const result = await openapiService.getTokenPrice('flow');
+    if (flowPrice) {
+      result.price.last = flowPrice;
+    }
+    await storage.setExpiry('flowTokenPrice', result, 300000); // Cache for 5 minutes
+    return result;
   }
 
   private async getFixedTokenPrice(symbol: string): Promise<any> {
