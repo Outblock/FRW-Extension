@@ -27,6 +27,9 @@ class FirebaseFixPlugin {
                 ''
               );
 
+              // https://apis.google.com/js/api.js
+              content = content.replace(/https:\/\/apis\.google\.com\/js\/api\.js/g, '');
+
               content = content.replace(
                 /_loadJS\(`https:\/\/apis\.google\.com\/js\/api\.js(\?onload=\$\{([^}]+)\})?`\)/g,
                 '_loadJS(`${$1}`)'
