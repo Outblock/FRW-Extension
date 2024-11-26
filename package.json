@@ -25,8 +25,6 @@
   "dependencies": {
     "@coinbase/cbpay-js": "^1.10.0",
     "@debank/common": "^0.3.60",
-    "@dnd-kit/core": "^4.0.3",
-    "@dnd-kit/sortable": "^5.1.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
