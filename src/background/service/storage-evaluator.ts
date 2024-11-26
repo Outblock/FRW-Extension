@@ -9,8 +9,7 @@ interface EvaluateStorageResult {
   storageInfo: StorageInfo;
 }
 export class StorageEvaluator {
-  private static MINIMUM_STORAGE_BUFFER = 100000; // minimum required storage buffer
-  private static MINIMUM_FLOW_BALANCE = 0.001; // minimum required FLOW balance
+  private static MINIMUM_STORAGE_BUFFER = 10000; // minimum required storage buffer (10,000 bytes)
   private static FIXED_MOVE_FEE = 0.001;
   private static AVERAGE_TX_FEE = 0.001;
   private static BYTES_PER_FLOW = 100 * 1024 * 1024; // 100 MB
