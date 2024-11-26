@@ -213,6 +213,19 @@ const tempEmoji = {
   bgcolor: '#FFE4C4',
 };
 
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1000;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['', 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function formatStorageInfo(used: number | undefined, capacity: number | undefined) {
+  return `${formatBytes((used || 0) * 10)} / ${formatBytes((capacity || 0) * 10)}`;
+}
+
 const WalletDetail = () => {
   const classes = useStyles();
   const usewallet = useWallet();
@@ -298,15 +311,6 @@ const WalletDetail = () => {
     return (used / capacity) * 100;
   }
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1000;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['', 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  }
-
   const checkKeyphrase = useCallback(async () => {
     const keyrings = await usewallet.checkMnemonics();
     await setIsKeyphrase(keyrings);
@@ -390,7 +394,7 @@ const WalletDetail = () => {
               </ListItemButton>
             </ListItem>
           </List>
-          {userWallet && !isValidEthereumAddress(userWallet[0].blockchain[0].address) && (
+          {false && userWallet && !isValidEthereumAddress(userWallet[0].blockchain[0].address) && (
             <>
               <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
                 <ListItem
@@ -473,7 +477,7 @@ const WalletDetail = () => {
                 />
               </Box>
 
-              {storageInfo && (
+              {!!storageInfo && (
                 <Box className={classes.gasBox}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <Typography
@@ -503,7 +507,7 @@ const WalletDetail = () => {
                         color={gasKillSwitch ? 'text.secondary' : 'error.main'}
                         sx={{ weight: 400, fontSize: '12px' }}
                       >
-                        {`${formatBytes(storageInfo.used * 10)} / ${formatBytes(storageInfo.capacity * 10)}`}
+                        {`${formatStorageInfo(storageInfo?.used, storageInfo?.capacity)}`}
                       </Typography>
                     </Box>
                     <LinearProgress

@@ -75,7 +75,7 @@ const tempEmoji = [
   },
 ];
 
-const Header = ({ loading }) => {
+const Header = ({ loading = false }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
@@ -117,7 +117,7 @@ const Header = ({ loading }) => {
 
   const [switchLoading, setSwitchLoading] = useState(false);
 
-  const [errorMessage, setErrorMessage] = useState('');
+  const [, setErrorMessage] = useState('');
   const [errorCode, setErrorCode] = useState(null);
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
@@ -370,7 +370,7 @@ const Header = ({ loading }) => {
     }
     // The header should handle transactionError events
     if (request.msg === 'transactionError') {
-      console.log('transactionError', request.errorMessage, request.errorCode);
+      console.warn('transactionError', request.errorMessage, request.errorCode);
       // The error message is not used anywhere else for now
       setErrorMessage(request.errorMessage);
       setErrorCode(request.errorCode);

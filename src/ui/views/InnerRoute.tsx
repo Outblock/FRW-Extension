@@ -1,6 +1,6 @@
 import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
-import { withRouter } from 'react-router-dom';
+import { Switch, withRouter, type RouteComponentProps } from 'react-router-dom';
 
 import { PrivateRoute } from 'ui/component';
 import { useWallet } from 'ui/utils';
@@ -67,11 +67,8 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Inner = (props) => {
+const InnerRoute = (props: RouteComponentProps) => {
   const classes = useStyles();
-  // const location = useLocation();
-  // const history = useHistory();
-  const [loading, setLoading] = useState(false);
   const [value, setValue] = useState(0);
 
   const wallet = useWallet();
@@ -97,161 +94,154 @@ const Inner = (props) => {
   return (
     <React.Fragment>
       <div className={classes.innerWrapper}>
-        <Header loading={loading} />
+        <Header />
 
         <div className="route-wrapper" id="scrollableTab">
-          {' '}
-          <PrivateRoute exact path={`${props.match.url}/`}>
-            <Dashboard value={value} setValue={setValue} />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/addressbook`}>
-            <AddressBook />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/settingone`}>
-            <Settingone />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/security`}>
-            <Security />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/switchaccount`}>
-            <Switchaccount />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/privatekeypassword`}>
-            <PrivateKeyPassword />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/keylist`}>
-            <KeyList />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/keydetail`}>
-            <Keydetail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/recoveryphrasepassword`}>
-            <Recoveryphrasepassword />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/recoveryphrasedetail`}>
-            <RecoveryPhasesDetail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/resetpwd`}>
-            <Resetpwd />
-          </PrivateRoute>
-          <PrivateRoute
-            path={`${props.match.url}/nested/collectiondetail/:collection_address_name`}
-          >
-            <CollectionDetail />
-          </PrivateRoute>
-          <PrivateRoute
-            path={`${props.match.url}/nested/evm/collectiondetail/:collection_address_name`}
-          >
-            <EvmCollectionDetail />
-          </PrivateRoute>
-          <PrivateRoute
-            path={`${props.match.url}/nested/linked/collectiondetail/:collection_address_name`}
-          >
-            <LinkedCollection />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/nftdetail/:id`}>
-            <Detail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/linkednftdetail/:id`}>
-            <LinkedNftDetail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nft/send`}>
-            <SendToAddress />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nftevm/detail/:id`}>
-            <NftEvmDetail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nftevm/send`}>
-            <SendNftEvm />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/wallet/send`}>
-            <Send />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/wallet/swap`}>
-            <Swap />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/wallet/deposit`}>
-            <Deposit />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/wallet/sendAmount`}>
-            <SendAmount />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/wallet/sendeth`}>
-            <SendEth />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/token/:id`}>
-            <TokenDetail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/tokenlist`}>
-            <TokenList />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/addcustomevm`}>
-            <AddCustomEvmToken />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/nested/add_list`}>
-            <AddList />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/about`}>
-            <About />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/linked`}>
-            <Linked />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/linkeddetail/:key`}>
-            <LinkedDetail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/developerMode`}>
-            <DeveloperMode />
-          </PrivateRoute>
-          {/* <PrivateRoute path={`${props.match.url}/setting/devices`}>
-            <Devices />
-          </PrivateRoute> */}
-          <PrivateRoute path={`${props.match.url}/setting/deviceinfo`}>
-            <DeviceInfo />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/wallet/detail`}>
-            <WalletDetail />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/wallet`}>
-            <WalletList />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/removeWallet`}>
-            <RemoveWallet />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/account`}>
-            <Account />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/setting/backups`}>
-            <ManageBackups />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/flowns`}>
-            <Flowns />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/enable`}>
-            <Enable />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/inbox`}>
-            <Inbox />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/staking/page/:nodeid/:delegateid`}>
-            <StakingPage />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/unstake/page/:nodeid/:delegateid`}>
-            <UnstakePage />
-          </PrivateRoute>
-          <PrivateRoute path={`${props.match.url}/staking/node/:nodeid/:delegateid`}>
-            <NodeDetail />
-          </PrivateRoute>
-          {/* =======
-            <Route exact path="/dashboard" component={Dashboard} />
-            <Route path="/dashboard/nested/settingtwo" component={Settingtwo} />
-            <Route path="/dashboard/nested/settingone" component={Settingone} />
-            <Route path="/dashboard/nested/switchaccount" component={Switchaccount} />
-            <Route path="/dashboard/nested/security" component={Security} /> */}
+          <Switch>
+            <PrivateRoute exact path={`${props.match.url}/`}>
+              <Dashboard value={value} setValue={setValue} />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/addressbook`}>
+              <AddressBook />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/settingone`}>
+              <Settingone />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/security`}>
+              <Security />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/switchaccount`}>
+              <Switchaccount />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/privatekeypassword`}>
+              <PrivateKeyPassword />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/keylist`}>
+              <KeyList />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/keydetail`}>
+              <Keydetail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/recoveryphrasepassword`}>
+              <Recoveryphrasepassword />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/recoveryphrasedetail`}>
+              <RecoveryPhasesDetail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/resetpwd`}>
+              <Resetpwd />
+            </PrivateRoute>
+            <PrivateRoute
+              path={`${props.match.url}/nested/collectiondetail/:collection_address_name`}
+            >
+              <CollectionDetail />
+            </PrivateRoute>
+            <PrivateRoute
+              path={`${props.match.url}/nested/evm/collectiondetail/:collection_address_name`}
+            >
+              <EvmCollectionDetail />
+            </PrivateRoute>
+            <PrivateRoute
+              path={`${props.match.url}/nested/linked/collectiondetail/:collection_address_name`}
+            >
+              <LinkedCollection />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/nftdetail/:id`}>
+              <Detail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/linkednftdetail/:id`}>
+              <LinkedNftDetail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nft/send`}>
+              <SendToAddress />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nftevm/detail/:id`}>
+              <NftEvmDetail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nftevm/send`}>
+              <SendNftEvm />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/wallet/send`}>
+              <Send />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/wallet/swap`}>
+              <Swap />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/wallet/deposit`}>
+              <Deposit />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/wallet/sendAmount`}>
+              <SendAmount />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/wallet/sendeth`}>
+              <SendEth />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/token/:id`}>
+              <TokenDetail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/tokenlist`}>
+              <TokenList />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/addcustomevm`}>
+              <AddCustomEvmToken />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/nested/add_list`}>
+              <AddList />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/about`}>
+              <About />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/linked`}>
+              <Linked />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/linkeddetail/:key`}>
+              <LinkedDetail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/developerMode`}>
+              <DeveloperMode />
+            </PrivateRoute>
+
+            <PrivateRoute path={`${props.match.url}/setting/deviceinfo`}>
+              <DeviceInfo />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/wallet/detail`}>
+              <WalletDetail />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/wallet`}>
+              <WalletList />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/removeWallet`}>
+              <RemoveWallet />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/account`}>
+              <Account />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/setting/backups`}>
+              <ManageBackups />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/flowns`}>
+              <Flowns />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/enable`}>
+              <Enable />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/inbox`}>
+              <Inbox />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/staking/page/:nodeid/:delegateid`}>
+              <StakingPage />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/unstake/page/:nodeid/:delegateid`}>
+              <UnstakePage />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/staking/node/:nodeid/:delegateid`}>
+              <NodeDetail />
+            </PrivateRoute>
+          </Switch>
         </div>
       </div>
     </React.Fragment>
   );
 };
 
-export default withRouter(Inner);
+export default withRouter(InnerRoute);
