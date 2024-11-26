@@ -129,7 +129,7 @@ const TokenDetail = () => {
     }
     setProviders(result);
     if (result.length === 0) {
-      const data = await usewallet.openapi.getTokenPrices();
+      const data = await usewallet.openapi.getTokenPrices('pricesMap');
       const price = await usewallet.openapi.getPricesByAddress(tokenResult!.address, data);
       if (price) {
         setPrice(price);
