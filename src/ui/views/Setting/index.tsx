@@ -28,6 +28,10 @@ import IconBackup from '../../../components/iconfont/IconBackup';
 import IconDeveloper from '../../../components/iconfont/IconDeveloper';
 import IconWallet from '../../../components/iconfont/IconWallet';
 
+// Feature flags
+const SHOW_DEVICES = false;
+
+// Styles
 const useStyles = makeStyles(() => ({
   listDiv: {
     justifyContent: 'center',
@@ -265,29 +269,33 @@ const SettingTab = () => {
 
           <Divider sx={{ width: '90%' }} variant="middle" />
 
-          <ListItem
-            button
-            component={Link}
-            to="/dashboard/setting/devices"
-            disablePadding
-            className={classes.listItem}
-          >
-            <ListItemButton className={classes.itemButton}>
-              <ListItemIcon sx={{ minWidth: '25px' }}>
-                <CardMedia
-                  className={classes.icon}
-                  sx={{ height: '16px', width: '19px', marginRight: '13px' }}
-                  image={Device}
-                />
-              </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Devices')} />
-              <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                <IconEnd size={12} />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
+          {SHOW_DEVICES && (
+            <>
+              <ListItem
+                button
+                component={Link}
+                to="/dashboard/setting/devices"
+                disablePadding
+                className={classes.listItem}
+              >
+                <ListItemButton className={classes.itemButton}>
+                  <ListItemIcon sx={{ minWidth: '25px' }}>
+                    <CardMedia
+                      className={classes.icon}
+                      sx={{ height: '16px', width: '19px', marginRight: '13px' }}
+                      image={Device}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={chrome.i18n.getMessage('Devices')} />
+                  <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                    <IconEnd size={12} />
+                  </ListItemIcon>
+                </ListItemButton>
+              </ListItem>
 
-          <Divider sx={{ width: '90%' }} variant="middle" />
+              <Divider sx={{ width: '90%' }} variant="middle" />
+            </>
+          )}
 
           <ListItem
             button
