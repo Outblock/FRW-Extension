@@ -297,7 +297,7 @@ const handlePreAuthz = async (id) => {
 
   const address = await userWalletService.getCurrentAddress();
   const network = await userWalletService.getNetwork();
-
+  const isEnabled = await walletController.allowLilicoPay();
   const ki = await storage.get('keyIndex');
   const keyIndex = Number(ki);
   const services = await preAuthzServiceDefinition(
@@ -307,7 +307,8 @@ const handlePreAuthz = async (id) => {
     payer.keyId,
     network,
     proposer.address,
-    proposer.keyIndex
+    proposer.keyIndex,
+    isEnabled
   );
 
   // console.log('handlePreAuthz ->', services, opener, id)

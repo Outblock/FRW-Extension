@@ -154,6 +154,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
     if (!signable) {
       return;
     }
+    setIsLoading(true);
     setApproval(true);
     const signedMessage = await wallet.signMessage(signable.message);
 
@@ -161,7 +162,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
     // console.log('signedMessage ->', signedMessage)
 
     if (opener) {
-      console.log(signable,'signable')
+      console.log(signable, 'signable');
       sendSignature(signable, signedMessage);
       const value = await sessionStorage.getItem('pendingRefBlockId');
       // console.log('pendingRefBlockId ->', value);
@@ -181,7 +182,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
         // signPayer(mockSignable)
         // sendSignature(mockSignable, payerSig)
         // setApproval(true);
-        // resolveApproval();
+        resolveApproval();
         // setApproval(true);
         // resolveApproval();
       } else {

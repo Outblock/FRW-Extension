@@ -7,6 +7,7 @@ import { getAuth } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 
+const functionsUrl = getFirbaseFunctionUrl();
 export function serviceDefinition(address, keyId, type, network, opts = {}) {
   const definition = {
     f_type: 'Service',
@@ -70,7 +71,7 @@ export async function httpPayerServiceDefinition(address, keyId, type, network, 
     uid: `fcw#${type}`,
     method: 'HTTP/POST',
     network: network || 'unknown',
-    endpoint: 'http://127.0.0.1:5001/lilico-dev/us-central1/payer',
+    endpoint: `${functionsUrl}/payer`,
     identity: {
       address: address,
       keyId: keyId,
@@ -97,7 +98,7 @@ export async function httpProposerServiceDefinition(address, keyId, type, networ
     uid: `fcw#${type}`,
     method: 'HTTP/POST',
     network: network || 'unknown',
-    endpoint: 'http://127.0.0.1:5001/lilico-dev/us-central1/proposer',
+    endpoint: `${functionsUrl}/proposer`,
     identity: {
       address: address,
       keyId: keyId,
@@ -110,7 +111,6 @@ export async function httpProposerServiceDefinition(address, keyId, type, networ
           },
   };
 
-  console.log(definition, 'proposer definition ============================!!!!');
   return definition;
 }
 
@@ -121,15 +121,19 @@ export async function preAuthzServiceDefinition(
   payerKeyId,
   network,
   proposerAddress,
-  proposerKeyId
+  proposerKeyId,
+  isEnabled = false
 ) {
   return {
     f_type: 'PreAuthzResponse',
     f_vsn: '1.0.0',
     // proposer: serviceDefinition(address, keyId, 'authz', network),
     proposer: await httpProposerServiceDefinition(proposerAddress, proposerKeyId, 'authz', network),
-    payer: [await httpPayerServiceDefinition(payerAddress, payerKeyId, 'authz', network)],
-    // payer: [serviceDefinition(payerAddress, payerKeyId, 'authz', network)],
+    payer: [
+      isEnabled
+        ? await httpPayerServiceDefinition(payerAddress, payerKeyId, 'authz', network)
+        : serviceDefinition(payerAddress, payerKeyId, 'authz', network),
+    ],
     authorization: [serviceDefinition(address, keyId, 'authz', network)],
   };
 }
