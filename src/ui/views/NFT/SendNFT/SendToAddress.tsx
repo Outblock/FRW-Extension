@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Tab,
@@ -11,25 +11,26 @@ import {
   ListItemAvatar,
   ListItemText,
 } from '@mui/material';
-import { useWallet } from 'ui/utils';
-import { useTheme, styled } from '@mui/material/styles';
-import SwipeableViews from 'react-swipeable-views';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SearchIcon from '@mui/icons-material/Search';
-import { useHistory, useLocation } from 'react-router-dom';
-import AddressBookList from '../../Send/AddressBookList';
-import AccountsList from '../../Send/AccountsList';
-import SearchList from '../../Send/SearchList';
-import RecentList from '../../Send/RecentList';
-import { Contact } from 'background/service/networkModel';
-import { isEmpty } from 'lodash';
+import { StyledEngineProvider, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { StyledEngineProvider } from '@mui/material/styles';
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import SendNFTConfirmation from './SendNFTConfirmation';
-import { MatchMedia } from '@/ui/utils/url';
-import IconAbout from '../../../../components/iconfont/IconAbout';
+import { isEmpty } from 'lodash';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import SwipeableViews from 'react-swipeable-views';
+
 import { LLHeader } from '@/ui/FRWComponent';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
+import { type MatchMedia } from '@/ui/utils/url';
+import { type Contact } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
+
+import IconAbout from '../../../../components/iconfont/IconAbout';
+import AccountsList from '../../Send/AccountsList';
+import AddressBookList from '../../Send/AddressBookList';
+import RecentList from '../../Send/RecentList';
+import SearchList from '../../Send/SearchList';
+
+import SendNFTConfirmation from './SendNFTConfirmation';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
@@ -37,7 +38,7 @@ export enum SendPageTabOptions {
   Accounts = 'Accounts',
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((_theme) => ({
   page: {
     display: 'flex',
     flexDirection: 'column',
@@ -67,13 +68,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-}));
-
-const ArrowBackIconWrapper = styled('div')(() => ({
-  paddingLeft: '10px',
-  width: '100%',
-  position: 'absolute',
-  cursor: 'pointer',
 }));
 
 interface TabPanelProps {
@@ -123,23 +117,22 @@ interface NFTDetailState {
   linked?: string;
 }
 
+const USER_CONTACT: Contact = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+};
+
 const SendToAddress = () => {
   const classes = useStyles();
   const theme = useTheme();
-  const history = useHistory();
   const wallet = useWallet();
   const location = useLocation();
-
-  const userContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -152,13 +145,13 @@ const SendToAddress = () => {
   const [searched, setSearched] = useState<boolean>(false);
   const [hasNoFilteredContacts, setHasNoFilteredContacts] = useState<boolean>(false);
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-  const [userInfo, setUser] = useState<Contact>(userContact);
+  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
   const [contractInfo, setContractInfo] = useState<any>(null);
   const [nftDetail, setDetail] = useState<any>(null);
   const [media, setMedia] = useState<MatchMedia | null>(null);
   const state = location.state as NFTDetailState;
 
-  const fetchAddressBook = async () => {
+  const fetchAddressBook = useCallback(async () => {
     try {
       const response = await wallet.getAddressBook();
       let recent = await wallet.getRecent();
@@ -187,39 +180,50 @@ const SendToAddress = () => {
       setFilteredContacts(sortedContacts);
       setIsLoading(false);
     } catch (err) {
-      console.log('err: ', err);
+      console.error('err: ', err);
     }
-  };
+  }, [wallet]);
 
-  const setUserInfo = async () => {
+  const setUserInfo = useCallback(async () => {
     await wallet.setDashIndex(1);
     const info = await wallet.getUserInfo(false);
     const currentWallet = await wallet.getCurrentWallet();
     const linked = state.linked;
     console.log(';linked ', linked);
     const isChild = await wallet.getActiveWallet();
+
+    let userContact = { ...USER_CONTACT };
     if (isChild) {
       const childResp = await wallet.checkUserChildAccount();
       const cwallet = childResp[currentWallet.address!];
-      userContact.address = withPrefix(currentWallet.address!) || '';
-      userContact.avatar = cwallet.thumbnail.url;
-      userContact.contact_name = cwallet.name;
+      userContact = {
+        ...USER_CONTACT,
+        address: withPrefix(currentWallet.address!) || '',
+        avatar: cwallet.thumbnail.url,
+        contact_name: cwallet.name,
+      };
     } else if (linked) {
       const childResp = await wallet.checkUserChildAccount();
       const cwallet = childResp[linked!];
-      userContact.address = withPrefix(linked!) || '';
-      userContact.avatar = cwallet.thumbnail.url;
-      userContact.contact_name = cwallet.name;
+      userContact = {
+        ...USER_CONTACT,
+        address: withPrefix(linked!) || '',
+        avatar: cwallet.thumbnail.url,
+        contact_name: cwallet.name,
+      };
     } else {
-      userContact.address = withPrefix(currentWallet.address) || '';
-      userContact.avatar = info.avatar;
-      userContact.contact_name = info.username;
+      userContact = {
+        ...USER_CONTACT,
+        address: withPrefix(currentWallet.address) || '',
+        avatar: info.avatar,
+        contact_name: info.username,
+      };
     }
     console.log('userContact ', userContact);
     setUser(userContact);
-  };
+  }, [wallet, state.linked]);
 
-  const fetchNFTInfo = async () => {
+  const fetchNFTInfo = useCallback(async () => {
     const NFT = state.nft;
 
     const media = state.media;
@@ -234,82 +238,91 @@ const SendToAddress = () => {
     if (filteredCollections.length > 0) {
       setContractInfo(filteredCollections[0]);
     }
-  };
+  }, [wallet, state.nft, state.media]);
 
   const returnFilteredCollections = (contractList, NFT) => {
-    return contractList.filter((collection) => collection.name == NFT.collectionName);
+    return contractList.filter((collection) => collection.name === NFT.collectionName);
   };
 
   useEffect(() => {
     fetchNFTInfo();
     setUserInfo();
     fetchAddressBook();
-  }, []);
+  }, [fetchNFTInfo, setUserInfo, fetchAddressBook]);
 
-  const checkContain = (searchResult: Contact) => {
-    if (sortedContacts.some((e) => e.contact_name === searchResult.username)) {
-      return true;
-    }
-    return false;
-  };
+  const checkContain = useCallback(
+    (searchResult: Contact) => {
+      if (sortedContacts.some((e) => e.contact_name === searchResult.username)) {
+        return true;
+      }
+      return false;
+    },
+    [sortedContacts]
+  );
 
-  const checkContainDomain = (searchResult: string) => {
-    if (sortedContacts.some((e) => e.domain?.value === searchResult)) {
-      return true;
-    }
-    return false;
-  };
+  const checkContainDomain = useCallback(
+    (searchResult: string) => {
+      if (sortedContacts.some((e) => e.domain?.value === searchResult)) {
+        return true;
+      }
+      return false;
+    },
+    [sortedContacts]
+  );
 
-  const checkDomain = async (searchType: number, keys = searchKey) => {
-    const fArray = searchContacts;
-    let result = '';
-    let group = '';
-    let keyword = keys;
-    if (keyword.includes('.')) {
-      keyword = keys.substring(0, keys.lastIndexOf('.'));
-    }
-    switch (searchType) {
-      case 0:
-        result = await wallet.openapi.getFindAddress(keyword + '');
-        group = '.find';
-        keys = keyword + '.find';
-        break;
-      case 1:
-        result = await wallet.openapi.getFlownsAddress(keyword + '');
-        group = '.flowns';
-        keys = keyword + '.fn';
-        break;
-      case 2:
-        result = await wallet.openapi.getFlownsAddress(keyword + '', 'meow');
-        group = '.meow';
-        keys = keyword + '.meow';
-        break;
-    }
-    const domainRresult = {
-      address: '',
-      contact_name: '',
-      avatar: '',
-      domain: {
-        domain_type: 0,
-        value: '',
-      },
-    } as Contact;
+  const checkDomain = useCallback(
+    async (searchType: number, keys = searchKey) => {
+      const fArray = searchContacts;
+      let result = '';
+      let group = '';
+      let keyword = keys;
+      if (keyword.includes('.')) {
+        keyword = keys.substring(0, keys.lastIndexOf('.'));
+      }
+      switch (searchType) {
+        case 0:
+          result = await wallet.openapi.getFindAddress(keyword + '');
+          group = '.find';
+          keys = keyword + '.find';
+          break;
+        case 1:
+          result = await wallet.openapi.getFlownsAddress(keyword + '');
+          group = '.flowns';
+          keys = keyword + '.fn';
+          break;
+        case 2:
+          result = await wallet.openapi.getFlownsAddress(keyword + '', 'meow');
+          group = '.meow';
+          keys = keyword + '.meow';
+          break;
+      }
+      const domainRresult = {
+        address: '',
+        contact_name: '',
+        avatar: '',
+        domain: {
+          domain_type: 0,
+          value: '',
+        },
+      } as Contact;
 
-    if (result) {
-      domainRresult['group'] = group;
-      domainRresult.address = result;
-      domainRresult.contact_name = keys;
-      domainRresult.domain!.domain_type = searchType;
-      domainRresult.domain!.value = keys;
-      domainRresult.type! = checkContainDomain(keys) ? 2 : 4;
-      fArray.push(domainRresult);
-      setSearchContacts(fArray);
-      setHasNoFilteredContacts(false);
-    }
-    return;
-  };
+      if (result) {
+        domainRresult['group'] = group;
+        domainRresult.address = result;
+        domainRresult.contact_name = keys;
+        domainRresult.domain!.domain_type = searchType;
+        domainRresult.domain!.value = keys;
+        domainRresult.type! = checkContainDomain(keys) ? 2 : 4;
+        fArray.push(domainRresult);
+        setSearchContacts(fArray);
+        setHasNoFilteredContacts(false);
+      }
+      return;
+    },
+    [checkContainDomain, searchContacts, searchKey, wallet.openapi]
+  );
 
-  const searchUser = async () => {
+  const searchUser = useCallback(async () => {
     let result = await wallet.openapi.searchUser(searchKey);
     result = result.data.users;
     const fArray = searchContacts;
@@ -340,12 +353,9 @@ const SendToAddress = () => {
       setSearchContacts(fArray);
     }
     return;
-  };
-  // const resetSearch = async () => {
-  //   const emptya = []
-  //   setSearchContacts(emptya);
-  // }
-  const searchAll = async () => {
+  }, [wallet.openapi, searchKey, searchContacts, checkContain]);
+
+  const searchAll = useCallback(async () => {
     // await resetSearch();
     setSearching(true);
     setIsLoading(true);
@@ -362,7 +372,7 @@ const SendToAddress = () => {
     setHasNoFilteredContacts(false);
     setSearched(true);
     setIsLoading(false);
-  };
+  }, [checkDomain, searchUser]);
 
   const checkKey = async (e) => {
     if (e.code === 'Enter') {

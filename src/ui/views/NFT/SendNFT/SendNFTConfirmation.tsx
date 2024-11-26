@@ -488,6 +488,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           color="primary"
           size="large"
           sx={{
+            width: '100%',
             height: '50px',
             borderRadius: '12px',
             textTransform: 'capitalize',

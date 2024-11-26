@@ -320,6 +320,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
         size="large"
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',
