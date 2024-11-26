@@ -1,8 +1,8 @@
 import { Typography, Box, CardMedia } from '@mui/material';
 import React, { useEffect, useState, useCallback } from 'react';
 
+import crown from 'ui/FRWAssets/image/crown.png';
 import Certificate from 'ui/FRWAssets/svg/Certificate.svg';
-import crown from 'ui/FRWAssets/svg/crown.svg';
 import Dashboard from 'ui/FRWAssets/svg/Dashboard.svg';
 import Synchronize from 'ui/FRWAssets/svg/Synchronize.svg';
 import TimeClock from 'ui/FRWAssets/svg/TimeClock.svg';
