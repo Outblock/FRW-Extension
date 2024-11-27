@@ -2,9 +2,9 @@
 // @ts-nocheck
 // import { walletController } from './index';
 
-import { params } from '@onflow/fcl';
 import { getAuth } from '@firebase/auth';
-import { initializeApp } from '@firebase/app';
+import { initializeApp } from 'firebase/app';
+
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 
 const functionsUrl = getFirbaseFunctionUrl();
@@ -63,7 +63,7 @@ export function serviceDefinition(address, keyId, type, network, opts = {}) {
 export async function httpPayerServiceDefinition(address, keyId, type, network, opts = {}) {
   const app = initializeApp(getFirbaseConfig(), process.env.NODE_ENV);
 
-  let idToken = await getAuth(app).currentUser.getIdToken();
+  const idToken = await getAuth(app).currentUser.getIdToken();
   const definition = {
     f_type: 'Service',
     f_vsn: '1.0.0',
@@ -90,7 +90,7 @@ export async function httpPayerServiceDefinition(address, keyId, type, network, 
 export async function httpProposerServiceDefinition(address, keyId, type, network, opts = {}) {
   const app = initializeApp(getFirbaseConfig(), process.env.NODE_ENV);
 
-  let idToken = await getAuth(app).currentUser.getIdToken();
+  const idToken = await getAuth(app).currentUser.getIdToken();
   const definition = {
     f_type: 'Service',
     f_vsn: '1.0.0',
