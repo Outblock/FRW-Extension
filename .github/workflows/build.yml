@@ -2,15 +2,13 @@ name: Production Build
 
 on:
   pull_request:
-    types: [ready_for_review, draft_created, synchronize]
-    branches: [dev, master]
+    types: [opened, reopened, synchronize, ready_for_review]
   push:
     branches: [dev, master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
 
     strategy:
       matrix:
