@@ -2,7 +2,7 @@ name: Production Build
 
 on:
   pull_request:
-    types: [ready_for_review, synchronize]
+    types: [ready_for_review, draft_created, synchronize]
     branches: [dev, master]
   push:
     branches: [dev, master]
