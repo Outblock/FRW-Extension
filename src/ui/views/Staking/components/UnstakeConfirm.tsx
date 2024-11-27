@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, Typography, Drawer, IconButton, Button } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { LLSwap } from 'ui/FRWComponent';
-import IconNext from 'ui/FRWAssets/svg/next.svg';
-import eventBus from '@/eventBus';
-import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
 
-import Increment from '../../FRWAssets/svg/increment.svg';
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
   data: any;
@@ -25,36 +22,26 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(false);
-  const [tid, setTid] = useState<string>('');
+  const { sufficient: isSufficient } = useStorageCheck();
 
-  // const startCount = () => {
-  //   let count = 0;
-  //   let intervalId;
-  //   if (props.data.contact.address){
-  //     intervalId = setInterval(function()
-  //     {
-  //       count++;
-  //       if (count === 7){count = 0}
-  //       setCount(count);
-  //     },500);
-  //   } else if (!props.data.contact.address) {
-  //     clearInterval(intervalId);
-  //   }
-  // }
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
 
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [wallet]);
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
-  const unstake = () => {
+  const unstake = useCallback(() => {
     setSending(true);
     const amount = parseFloat(props.data.amount).toFixed(8);
 
@@ -73,27 +60,36 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
         history.push('/dashboard?activity=1');
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         setSending(false);
       });
-  };
+  }, [history, props, wallet]);
 
-  const transactionDoneHanlder = (request) => {
-    if (request.msg === 'transactionDone') {
-      updateOccupied();
-    }
-    return true;
-  };
+  const transactionDoneHandler = useCallback(
+    (request) => {
+      if (request.msg === 'transactionDone') {
+        updateOccupied();
+      }
+      // Handle error
+      if (request.msg === 'transactionError') {
+        setFailed(true);
+        setErrorMessage(request.errorMessage);
+        setErrorCode(request.errorCode);
+      }
+      return true;
+    },
+    [updateOccupied]
+  );
 
   useEffect(() => {
     // startCount();
     getPending();
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, []);
+  }, [getPending, transactionDoneHandler]);
 
   const renderContent = () => (
     <Box
@@ -307,7 +303,7 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
           </Box>
         </Box>
       </Box>
-
+      <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
       <Button
         onClick={unstake}
         disabled={sending || occupied}
@@ -349,21 +345,24 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
   );
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '77%',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '77%',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 

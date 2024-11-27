@@ -1,11 +1,11 @@
-import { createPersistStore } from 'background/utils';
-import * as fcl from '@onflow/fcl';
-import * as sdk from '@onflow/sdk';
 import * as secp from '@noble/secp256k1';
-import HDWallet from 'ethereum-hdwallet';
-import { keyringService, openapiService } from 'background/service';
-import wallet from 'background/controller/wallet';
+import * as fcl from '@onflow/fcl';
+
 import { signMessageHash } from '@/ui/utils/modules/passkey.js';
+import wallet from 'background/controller/wallet';
+import { keyringService, openapiService } from 'background/service';
+import { createPersistStore } from 'background/utils';
+
 import { storage } from '../webapi';
 
 export interface FlownsStore {
@@ -85,60 +85,60 @@ class Flowns {
     return this.store.newInbox[network];
   };
 
-  sendTransaction = async (
-    cadence: string,
-    domainName: string,
-    flownsAddress: string,
-    lilicoAddress: string
-  ): Promise<string> => {
-    this.flownsAddr = flownsAddress;
-    const walletAddress = await wallet.getCurrentAddress();
-    // TODO: FIX ME
-    const walletKeyIndex = 0;
-    const account = await fcl.send([fcl.getAccount(walletAddress!)]).then(fcl.decode);
-    const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
+  // sendTransaction = async (
+  //   cadence: string,
+  //   domainName: string,
+  //   flownsAddress: string,
+  //   lilicoAddress: string
+  // ): Promise<string> => {
+  //   this.flownsAddr = flownsAddress;
+  //   const walletAddress = await wallet.getCurrentAddress();
+  //   // TODO: FIX ME
+  //   const walletKeyIndex = 0;
+  //   const account = await fcl.send([fcl.getAccount(walletAddress!)]).then(fcl.decode);
+  //   const latestSealedBlock = await fcl.send([fcl.getBlock(true)]).then(fcl.decode);
 
-    const refBlock = latestSealedBlock.id;
-    const sequenceNum = account.keys[walletKeyIndex].sequenceNumber;
+  //   const refBlock = latestSealedBlock.id;
+  //   const sequenceNum = account.keys[walletKeyIndex].sequenceNumber;
 
-    const payer = await wallet.getPayerAddressAndKeyId();
-    const payerAddress = fcl.withPrefix(payer.address);
-    const lilicAccount = lilicoAddress;
-    const payloadSigsArray: any[] = [];
+  //   const payer = await wallet.getPayerAddressAndKeyId();
+  //   const payerAddress = fcl.withPrefix(payer.address);
+  //   const lilicAccount = lilicoAddress;
+  //   const payloadSigsArray: any[] = [];
 
-    const tx = {
-      cadence,
-      refBlock,
-      arguments: [
-        {
-          type: 'String',
-          value: domainName,
-        },
-      ],
-      proposalKey: {
-        address: walletAddress,
-        keyId: walletKeyIndex,
-        sequenceNum: sequenceNum,
-      },
-      payer: payerAddress,
-      payloadSigs: payloadSigsArray,
-      authorizers: [walletAddress, lilicAccount, flownsAddress],
-      computeLimit: '9999',
-    };
-    const message = sdk.encodeTransactionPayload(tx);
-    const signature = await this.sign(message);
-    const userSigs = {
-      address: walletAddress,
-      keyId: walletKeyIndex,
-      sig: signature,
-    };
+  //   const tx = {
+  //     cadence,
+  //     refBlock,
+  //     arguments: [
+  //       {
+  //         type: 'String',
+  //         value: domainName,
+  //       },
+  //     ],
+  //     proposalKey: {
+  //       address: walletAddress,
+  //       keyId: walletKeyIndex,
+  //       sequenceNum: sequenceNum,
+  //     },
+  //     payer: payerAddress,
+  //     payloadSigs: payloadSigsArray,
+  //     authorizers: [walletAddress, lilicAccount, flownsAddress],
+  //     computeLimit: '9999',
+  //   };
+  //   const message = sdk.encodeTransactionPayload(tx);
+  //   const signature = await this.sign(message);
+  //   const userSigs = {
+  //     address: walletAddress,
+  //     keyId: walletKeyIndex,
+  //     sig: signature,
+  //   };
 
-    tx.payloadSigs.push(userSigs);
-    const messagePayload = sdk.encodeTransactionPayload(tx);
-    const response = await openapiService.flownsTransaction(tx, messagePayload);
+  //   tx.payloadSigs.push(userSigs);
+  //   const messagePayload = sdk.encodeTransactionPayload(tx);
+  //   const response = await openapiService.flownsTransaction(tx, messagePayload);
 
-    return response.data;
-  };
+  //   return response.data;
+  // };
 
   sign = async (signableMessage: string): Promise<string> => {
     const hashAlgo = await storage.get('hashAlgo');

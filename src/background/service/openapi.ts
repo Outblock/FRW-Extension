@@ -20,6 +20,7 @@ import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
+import { isValidEthereumAddress } from 'ui/utils/address';
 
 import { getPeriodFrequency } from '../../utils';
 import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
@@ -516,61 +517,42 @@ class OpenApiService {
     }
   };
 
-  getTokenPrices = async () => {
-    const tokenPriceMap = await storage.getExpiry('pricesMap');
-    if (tokenPriceMap) {
-      return tokenPriceMap;
-    } else {
-      let data: any = [];
-      try {
-        const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
-        data = response.data || []; // Ensure data is set to an empty array if response.data is undefined
-      } catch (error) {
-        console.error('Error fetching prices:', error);
-        data = []; // Set data to empty array in case of an error
-      }
-
-      if (pricesMap && pricesMap['FLOW']) {
-        return pricesMap;
-      }
-      data.map((d) => {
-        const { rateToUSD, contractName, contractAddress } = d;
-        const key = contractName.toLowerCase() + '' + contractAddress.toLowerCase();
-        pricesMap[key] = rateToUSD.toFixed(8);
-      });
-      await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
-      return pricesMap;
+  getTokenPrices = async (storageKey: string, isEvm: boolean = false) => {
+    const cachedPrices = await storage.getExpiry(storageKey);
+    if (cachedPrices) {
+      return cachedPrices;
     }
-  };
 
-  getTokenEvmPrices = async () => {
-    const tokenPriceMap = await storage.getExpiry('evmPrice');
-    if (tokenPriceMap) {
-      return tokenPriceMap;
-    } else {
-      let data: any = [];
-      try {
-        const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
-        data = response.data || []; // Ensure data is set to an empty array if response.data is undefined
-      } catch (error) {
-        console.error('Error fetching prices:', error);
-        data = []; // Set data to empty array in case of an error
-      }
+    const pricesMap: Record<string, string> = {};
 
-      data.map((d) => {
-        if (d.evmAddress) {
-          const { rateToUSD, evmAddress } = d;
+    try {
+      const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
+      const data = response?.data || [];
+
+      data.forEach((token) => {
+        if (isEvm && token.evmAddress) {
+          // EVM price
+          const { rateToUSD, evmAddress } = token;
           const key = evmAddress.toLowerCase();
-          pricesMap[key] = rateToUSD.toFixed(5);
-        } else {
-          const { rateToUSD, symbol } = d;
+          pricesMap[key] = Number(rateToUSD).toFixed(8);
+        } else if (!isEvm && token.contractName && token.contractAddress) {
+          // Flow chain price
+          const { rateToUSD, contractName, contractAddress } = token;
+          const key = `${contractName.toLowerCase()}${contractAddress.toLowerCase()}`;
+          pricesMap[key] = Number(rateToUSD).toFixed(8);
+        } else if (isEvm && token.symbol) {
+          // Handle fallback for EVM tokens
+          const { rateToUSD, symbol } = token;
           const key = symbol.toUpperCase();
-          pricesMap[key] = rateToUSD.toFixed(5);
+          pricesMap[key] = Number(rateToUSD).toFixed(8);
         }
       });
-      await storage.setExpiry('evmPrice', pricesMap, 300000); // 5 minutes in milliseconds
-      return pricesMap;
+    } catch (error) {
+      console.error('Error fetching prices:', error);
     }
+
+    await storage.setExpiry(storageKey, pricesMap, 300000);
+    return pricesMap;
   };
 
   getPricesBySymbol = async (symbol: string, data) => {
@@ -1324,13 +1306,20 @@ class OpenApiService {
   };
 
   getEvmTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
-    // FIX ME: Get defaultTokenList from firebase remote config
     if (!network) {
       network = await userWalletService.getNetwork();
     }
-    const tokens = await this.getTokenListFromGithub(network);
-    // const coins = await remoteFetch.flowCoins();
-    return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
+
+    const tokens = await this.getEvmListFromGithub(network);
+
+    const tokenInfo = tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
+
+    if (tokenInfo && isValidEthereumAddress(tokenInfo.address)) {
+      return tokenInfo;
+    }
+
+    const freshTokens = await this.refreshEvmGitToken(network);
+    return freshTokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
   };
 
   getTokenInfoByContract = async (contractName: string): Promise<TokenModel | undefined> => {
@@ -1546,6 +1535,23 @@ class OpenApiService {
     return tokens;
   };
 
+  getEvmListFromGithub = async (network) => {
+    const chainType = 'evm';
+
+    const gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
+    if (gitToken) return gitToken;
+
+    const tokens = await this.fetchGitTokenList(network, chainType, chainType);
+
+    if (chainType === 'evm') {
+      const evmCustomToken = (await storage.get(`${network}evmCustomToken`)) || [];
+      this.mergeCustomTokens(tokens, evmCustomToken);
+    }
+
+    storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);
+    return tokens;
+  };
+
   refreshEvmGitToken = async (network) => {
     const chainType = 'evm';
     let gitToken = await storage.getExpiry(`GitTokenList${network}${chainType}`);
@@ -1555,6 +1561,8 @@ class OpenApiService {
     this.mergeCustomTokens(gitToken, evmCustomToken);
 
     storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);
+
+    return gitToken;
   };
 
   refreshCustomEvmGitToken = async (network) => {

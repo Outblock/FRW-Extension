@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
@@ -12,15 +12,16 @@ import {
   Avatar,
   CardMedia,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
+import CircularProgress, { circularProgressClasses } from '@mui/material/CircularProgress';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
-import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
-import iconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
-import vmsvg from 'ui/FRWAssets/svg/viewmore.svg';
 
-import { UserInfoResponse } from 'background/service/networkModel';
+import type { UserInfoResponse } from 'background/service/networkModel';
+import iconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
+import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
+import popLock from 'ui/FRWAssets/svg/popLock.svg';
+import vmsvg from 'ui/FRWAssets/svg/viewmore.svg';
+import { useWallet } from 'ui/utils';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -32,12 +33,14 @@ interface TransferConfirmationProps {
   current: any;
   switchAccount: any;
   loggedInAccounts: any;
+  switchLoading: boolean;
 }
 
 const Popup = (props: TransferConfirmationProps) => {
   const usewallet = useWallet();
   const history = useHistory();
   const [viewmore, setMore] = useState<boolean>(false);
+  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
 
   return (
     <Drawer
@@ -108,6 +111,7 @@ const Popup = (props: TransferConfirmationProps) => {
                     key={user.username}
                     onClick={() => {
                       if (user.username !== props.userInfo.username) {
+                        setLoadingIndex(index); // Set the loading index
                         props.switchAccount(userWithIndex);
                       }
                     }}
@@ -153,6 +157,23 @@ const Popup = (props: TransferConfirmationProps) => {
                           component="img"
                           sx={{ width: '16px', height: '16px' }}
                           image={iconCheck}
+                        />
+                      )}
+                      {props.switchLoading && index === loadingIndex && (
+                        <CircularProgress
+                          variant="indeterminate"
+                          // disableShrink
+                          sx={{
+                            color: 'primary.main',
+                            animationDuration: '2000ms',
+                            [`& .${circularProgressClasses.circle}`]: {
+                              strokeLinecap: 'round',
+                            },
+                          }}
+                          size={'16px'}
+                          thickness={5}
+                          value={10}
+                          {...props}
                         />
                       )}
                     </ListItemButton>

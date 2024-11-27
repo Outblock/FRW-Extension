@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
+import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
-import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
-import { FRWProfileCard, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
-import IconFlow from '../../../../components/iconfont/IconFlow';
-import IconNext from 'ui/FRWAssets/svg/next.svg';
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
-import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
+import { LLSpinner, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from 'ui/utils/address';
+
+import IconFlow from '../../../../components/iconfont/IconFlow';
 
 interface SendNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -22,44 +24,38 @@ interface SendNFTConfirmationProps {
 }
 
 const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
+  console.log('MoveNftConfirmation');
   const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [tid, setTid] = useState(undefined);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
   const [occupied, setOccupied] = useState(false);
   const [childWallet, setChildWallet] = useState(null);
   const [selectedAccount, setSelectedChildAccount] = useState(null);
   const [childWallets, setChildWallets] = useState({});
-  const [count, setCount] = useState(0);
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: selectedAccount
+      ? isValidEthereumAddress(selectedAccount!['address'])
+      : false,
+  });
 
-  const startCount = () => {
-    console.log('props.data ', props.data);
-    let count = 0;
-    let intervalId;
-    if (props.data.contact.address) {
-      intervalId = setInterval(function () {
-        count++;
-        if (count === 7) {
-          count = 0;
-        }
-        setCount(count);
-      }, 500);
-    } else if (!props.data.contact.address) {
-      clearInterval(intervalId);
-    }
-  };
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [usewallet]);
 
-  const updateOccupied = () => {
+  const updateOccupied = useCallback(() => {
     setOccupied(false);
-  };
+  }, []);
 
   const replaceIPFS = (url: string | null): string => {
     if (!url) {
@@ -87,7 +83,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   };
 
   const returnFilteredCollections = (contractList, NFT) => {
-    return contractList.filter((collection) => collection.name == NFT.collectionName);
+    return contractList.filter((collection) => collection.name === NFT.collectionName);
   };
 
   const moveNFTToFlow = async () => {
@@ -116,7 +112,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         history.push('/dashboard?activity=1');
       })
       .catch((err) => {
-        console.log('err ', err);
+        console.error('err ', err);
         setSending(false);
         setFailed(true);
       });
@@ -127,7 +123,6 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     const address = await usewallet.getCurrentAddress();
     const contractList = await usewallet.openapi.getAllNft();
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft);
-    console.log(' as moveToEvm', address!, props.data, [props.data.nft.id], filteredCollections[0]);
     usewallet
       .batchBridgeChildNFTToEvm(
         address!,
@@ -148,30 +143,37 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         history.push('/dashboard?activity=1');
       })
       .catch((err) => {
-        console.log('err ', err);
+        console.error('err ', err);
         setSending(false);
         setFailed(true);
       });
   };
 
-  const transactionDoneHanlder = (request) => {
-    if (request.msg === 'transactionDone') {
-      updateOccupied();
-    }
-    return true;
-  };
+  const transactionDoneHandler = useCallback(
+    (request) => {
+      if (request.msg === 'transactionDone') {
+        updateOccupied();
+      }
+      if (request.msg === 'transactionError') {
+        setFailed(true);
+        setErrorMessage(request.errorMessage);
+        setErrorCode(request.errorCode);
+      }
+      return true;
+    },
+    [updateOccupied]
+  );
 
   useEffect(() => {
-    startCount();
     getPending();
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, [props.data.contact]);
+  }, [getPending, props.data.contact, transactionDoneHandler]);
 
-  const getChildResp = async () => {
+  const getChildResp = useCallback(async () => {
     const childresp = await usewallet.checkUserChildAccount();
     const parentAddress = await usewallet.getMainAddress();
     const emojires = await usewallet.getEmoji();
@@ -211,19 +213,19 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
-  };
+  }, [usewallet]);
 
-  const getUserContact = async () => {
+  const getUserContact = useCallback(async () => {
     if (props.data.userContact) {
       const childresp = await usewallet.checkUserChildAccount();
       setChildWallet(childresp[props.data.userContact.address]);
     }
-  };
+  }, [props.data.userContact, usewallet]);
 
   useEffect(() => {
     getChildResp();
     getUserContact();
-  }, []);
+  }, [getChildResp, getUserContact]);
 
   const renderContent = () => {
     const getUri = () => {
@@ -286,24 +288,9 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         >
           <Grid item xs={1}></Grid>
           <Grid item xs={10}>
-            {tid ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography variant="h1" align="center" py="14px" fontSize="20px">
-                  {chrome.i18n.getMessage('Transaction__created')}
-                </Typography>
-              </Box>
-            ) : (
-              <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="20px">
-                {chrome.i18n.getMessage('Move')} NFT
-              </Typography>
-            )}
+            <Typography variant="h1" align="center" py="14px" fontWeight="bold" fontSize="20px">
+              {chrome.i18n.getMessage('Move')} NFT
+            </Typography>
           </Grid>
           <Grid item xs={1}>
             <IconButton onClick={props.handleCloseIconClicked}>
@@ -351,7 +338,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           <Stack direction="row" spacing={1}>
             {props.data.media &&
             props.data.media?.type === MatchMediaType.IMAGE &&
-            props.data.media?.videoURL != null
+            !!props.data.media?.videoURL
               ? getMedia()
               : getUri()}
           </Stack>
@@ -382,6 +369,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
+
         {occupied && (
           <Presets.TransitionSlideUp>
             <Box
@@ -408,6 +396,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
             </Box>
           </Presets.TransitionSlideUp>
         )}
+        <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}
@@ -449,21 +438,24 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   };
 
   return (
-    <Drawer
-      anchor="bottom"
-      open={props.isConfirmationOpen}
-      transitionDuration={300}
-      PaperProps={{
-        sx: {
-          width: '100%',
-          height: '457px',
-          bgcolor: 'background.paper',
-          borderRadius: '18px 18px 0px 0px',
-        },
-      }}
-    >
-      {renderContent()}
-    </Drawer>
+    <>
+      <Drawer
+        anchor="bottom"
+        open={props.isConfirmationOpen}
+        transitionDuration={300}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            height: '457px',
+            bgcolor: 'background.paper',
+            borderRadius: '18px 18px 0px 0px',
+          },
+        }}
+      >
+        {renderContent()}
+      </Drawer>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+    </>
   );
 };
 
