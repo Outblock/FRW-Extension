@@ -1,0 +1,67 @@
+name: Get Development Config
+
+permissions:
+  contents: read
+  actions: write
+  deployments: write
+  environments: read
+
+on:
+  workflow_dispatch: # Simple trigger with no inputs needed
+
+jobs:
+  generate-config:
+    runs-on: ubuntu-latest
+    environment: development
+
+    # Only allow this for actual users with correct permissions
+    if: |
+      github.actor != 'dependabot[bot]' &&
+      github.actor != 'dependabot-preview[bot]' &&
+      contains(github.event.sender.type, 'User')
+
+    steps:
+      - name: Check User Permission
+        id: check_permission
+        run: |
+          permission=$(curl -H "Authorization: token ${{ github.token }}" \
+            "https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission" \
+            | jq -r .permission)
+          if [[ "$permission" != "admin" && "$permission" != "write" ]]; then
+            echo "User does not have sufficient permissions"
+            exit 1
+          fi
+
+      - name: Generate Environment File
+        run: |
+          cat << EOF > .env.dev
+          # Google drive
+          GD_BACKUP_NAME="${{ vars.GD_BACKUP_NAME }}"
+          GD_FOLDER="${{ vars.GD_FOLDER }}"
+          GD_AES_KEY="${{ secrets.GD_AES_KEY }}"
+          GD_IV="${{ secrets.GD_IV }}"
+
+          # Firebase
+          FB_API_KEY="${{ secrets.FB_API_KEY }}"
+          FB_AUTH_DOMAIN="${{ secrets.FB_AUTH_DOMAIN }}"
+          FB_DATABASE_URL="${{ secrets.FB_DATABASE_URL }}"
+          FB_PROJECTID="${{ secrets.FB_PROJECTID }}"
+          FB_STORAGE_BUCKET="${{ secrets.FB_STORAGE_BUCKET }}"
+          FB_MESSAGING_SENDER_ID="${{ secrets.FB_MESSAGING_SENDER_ID }}"
+          FB_APP_ID="${{ secrets.FB_APP_ID }}"
+          FB_MEASUREMENT_ID="${{ secrets.FB_MEASUREMENT_ID }}"
+          FB_FUNCTIONS="${{ secrets.FB_FUNCTIONS }}"
+
+          # Other configs
+          OAUTH2_CLIENT_ID="${{ secrets.OAUTH2_CLIENT_ID }}"
+          OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"
+          WC_PROJECTID="${{ secrets.WC_PROJECTID }}"
+          MIXPANEL_TOKEN="${{ secrets.MIXPANEL_TOKEN }}"
+          EOF
+
+      - name: Upload config file
+        uses: actions/upload-artifact@v3
+        with:
+          name: dev-config
+          path: .env.dev
+          retention-days: 1
