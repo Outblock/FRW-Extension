@@ -515,61 +515,42 @@ class OpenApiService {
     }
   };
 
-  getTokenPrices = async () => {
-    const tokenPriceMap = await storage.getExpiry('pricesMap');
-    if (tokenPriceMap) {
-      return tokenPriceMap;
-    } else {
-      let data: any = [];
-      try {
-        const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
-        data = response.data || []; // Ensure data is set to an empty array if response.data is undefined
-      } catch (error) {
-        console.error('Error fetching prices:', error);
-        data = []; // Set data to empty array in case of an error
-      }
-
-      if (pricesMap && pricesMap['FLOW']) {
-        return pricesMap;
-      }
-      data.map((d) => {
-        const { rateToUSD, contractName, contractAddress } = d;
-        const key = contractName.toLowerCase() + '' + contractAddress.toLowerCase();
-        pricesMap[key] = rateToUSD.toFixed(8);
-      });
-      await storage.setExpiry('pricesMap', pricesMap, 300000); // 5 minutes in milliseconds
-      return pricesMap;
+  getTokenPrices = async (storageKey: string, isEvm: boolean = false) => {
+    const cachedPrices = await storage.getExpiry(storageKey);
+    if (cachedPrices) {
+      return cachedPrices;
     }
-  };
 
-  getTokenEvmPrices = async () => {
-    const tokenPriceMap = await storage.getExpiry('evmPrice');
-    if (tokenPriceMap) {
-      return tokenPriceMap;
-    } else {
-      let data: any = [];
-      try {
-        const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
-        data = response.data || []; // Ensure data is set to an empty array if response.data is undefined
-      } catch (error) {
-        console.error('Error fetching prices:', error);
-        data = []; // Set data to empty array in case of an error
-      }
+    const pricesMap: Record<string, string> = {};
 
-      data.map((d) => {
-        if (d.evmAddress) {
-          const { rateToUSD, evmAddress } = d;
+    try {
+      const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
+      const data = response?.data || [];
+
+      data.forEach((token) => {
+        if (isEvm && token.evmAddress) {
+          // EVM price
+          const { rateToUSD, evmAddress } = token;
           const key = evmAddress.toLowerCase();
-          pricesMap[key] = rateToUSD.toFixed(5);
-        } else {
-          const { rateToUSD, symbol } = d;
+          pricesMap[key] = Number(rateToUSD).toFixed(8);
+        } else if (!isEvm && token.contractName && token.contractAddress) {
+          // Flow chain price
+          const { rateToUSD, contractName, contractAddress } = token;
+          const key = `${contractName.toLowerCase()}${contractAddress.toLowerCase()}`;
+          pricesMap[key] = Number(rateToUSD).toFixed(8);
+        } else if (isEvm && token.symbol) {
+          // Handle fallback for EVM tokens
+          const { rateToUSD, symbol } = token;
           const key = symbol.toUpperCase();
-          pricesMap[key] = rateToUSD.toFixed(5);
+          pricesMap[key] = Number(rateToUSD).toFixed(8);
         }
       });
-      await storage.setExpiry('evmPrice', pricesMap, 300000); // 5 minutes in milliseconds
-      return pricesMap;
+    } catch (error) {
+      console.error('Error fetching prices:', error);
     }
+
+    await storage.setExpiry(storageKey, pricesMap, 300000);
+    return pricesMap;
   };
 
   getPricesBySymbol = async (symbol: string, data) => {

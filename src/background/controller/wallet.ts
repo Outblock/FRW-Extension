@@ -1007,65 +1007,76 @@ export class WalletController extends BaseController {
     return listCoins;
   };
 
-  private tokenPrice = async (tokenSymbol: string, address: string, data, contractName: string) => {
+  private async getFlowTokenPrice(flowPrice?: string): Promise<any> {
+    const cachedFlowTokenPrice = await storage.getExpiry('flowTokenPrice');
+    if (cachedFlowTokenPrice) {
+      if (flowPrice) {
+        cachedFlowTokenPrice.price.last = flowPrice;
+      }
+      return cachedFlowTokenPrice;
+    }
+    const result = await openapiService.getTokenPrice('flow');
+    if (flowPrice) {
+      result.price.last = flowPrice;
+    }
+    await storage.setExpiry('flowTokenPrice', result, 300000); // Cache for 5 minutes
+    return result;
+  }
+
+  private async getFixedTokenPrice(symbol: string): Promise<any> {
+    if (symbol === 'usdc') {
+      return await openapiService.getUSDCPrice();
+    } else if (symbol === 'fusd') {
+      return Promise.resolve({
+        price: { last: '1.0', change: { percentage: '0.0' } },
+      });
+    }
+    return null;
+  }
+
+  private async calculateTokenPrice(token: string, price: string | null): Promise<any> {
+    if (price) {
+      return { price: { last: price, change: { percentage: '0.0' } } };
+    } else {
+      return { price: { last: '0.0', change: { percentage: '0.0' } } };
+    }
+  }
+
+  private async tokenPrice(
+    tokenSymbol: string,
+    address: string,
+    data: Record<string, any>,
+    contractName: string
+  ) {
     const token = tokenSymbol.toLowerCase();
-    const key = contractName.toLowerCase() + '' + address.toLowerCase();
+    const key = `${contractName.toLowerCase()}${address.toLowerCase()}`;
     const price = await openapiService.getPricesByKey(key, data);
 
-    switch (token) {
-      case 'flow': {
-        const flowTokenPrice = await storage.getExpiry('flowTokenPrice');
-        if (flowTokenPrice) {
-          return flowTokenPrice;
-        } else {
-          const result = await openapiService.getTokenPrice('flow');
-          await storage.setExpiry('flowTokenPrice', result, 300000); // 5 minutes in milliseconds
-          return result;
-        }
-      }
-      case 'usdc':
-        return await openapiService.getUSDCPrice();
-      case 'fusd':
-        return Promise.resolve({
-          price: { last: '1.0', change: { percentage: '0.0' } },
-        });
-      default:
-        if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } };
-        } else {
-          return null;
-        }
+    if (token === 'flow') {
+      const flowPrice = price || data['FLOW'];
+      return this.getFlowTokenPrice(flowPrice);
     }
-  };
 
-  private evmtokenPrice = async (tokeninfo, data) => {
+    const fixedTokenPrice = await this.getFixedTokenPrice(token);
+    if (fixedTokenPrice) return fixedTokenPrice;
+
+    return this.calculateTokenPrice(token, price);
+  }
+
+  private async evmtokenPrice(tokeninfo, data) {
     const token = tokeninfo.symbol.toLowerCase();
     const price = await openapiService.getPricesByEvmaddress(tokeninfo.address, data);
-    switch (token) {
-      case 'flow': {
-        const flowTokenPrice = await storage.getExpiry('flowTokenPrice');
-        if (flowTokenPrice) {
-          return flowTokenPrice;
-        } else {
-          const result = await openapiService.getTokenPrice('flow');
-          await storage.setExpiry('flowTokenPrice', result, 300000); // 5 minutes in milliseconds
-          return result;
-        }
-      }
-      case 'usdc':
-        return await openapiService.getUSDCPrice();
-      case 'fusd':
-        return Promise.resolve({
-          price: { last: '1.0', change: { percentage: '0.0' } },
-        });
-      default:
-        if (price) {
-          return { price: { last: price, change: { percentage: '0.0' } } };
-        } else {
-          return { price: { last: 0, change: { percentage: '0.0' } } };
-        }
+
+    if (token === 'flow') {
+      const flowPrice = price || data['FLOW'];
+      return this.getFlowTokenPrice(flowPrice);
     }
-  };
+
+    const fixedTokenPrice = await this.getFixedTokenPrice(token);
+    if (fixedTokenPrice) return fixedTokenPrice;
+
+    return this.calculateTokenPrice(token, price);
+  }
 
   refreshCoinList = async (
     _expiry = 5000,
@@ -1093,7 +1104,7 @@ export class WalletController extends BaseController {
         console.error('Error refresh token list balance:', error);
         throw new Error('Failed to refresh token list balance');
       }
-      const data = await openapiService.getTokenPrices();
+      const data = await openapiService.getTokenPrices('pricesMap');
       // Map over tokenList to get prices and handle errors individually
       const pricesPromises = tokenList.map(async (token) => {
         try {
@@ -1195,7 +1206,7 @@ export class WalletController extends BaseController {
         throw new Error('Failed to fetch token list balance');
       }
 
-      const data = await openapiService.getTokenPrices();
+      const data = await openapiService.getTokenPrices('pricesMap');
 
       // Map over tokenList to get prices and handle errors individually
       const pricesPromises = tokenList.map(async (token) => {
@@ -1320,37 +1331,6 @@ export class WalletController extends BaseController {
       });
     };
 
-    // const customToken = (mergedList, evmCustomToken) => {
-    //   return mergedList.map(token => {
-    //     const balanceInfo = evmCustomToken.map(customToken => {
-    //       if (customToken.address.toLowerCase() === token.address.toLowerCase()) {
-
-    //         return {
-    //           ...token,
-    //           custom: true
-    //         }
-
-    //       } else {
-    //         return {
-
-    //           "chainId": 747,
-    //           "address": customToken.address,
-    //           "symbol": customToken.unit,
-    //           "name": customToken.coin,
-    //           "decimals": customToken.decimals,
-    //           "logoURI": "",
-    //           "flowIdentifier": "",
-    //           "tags": [],
-    //           "balance": 0,
-    //           custom: true
-
-    //         }
-    //       }
-    //     });
-    //     return balanceInfo;
-    //   });
-    // };
-
     const customToken = (coins, evmCustomToken) => {
       const updatedList = [...coins];
 
@@ -1381,9 +1361,8 @@ export class WalletController extends BaseController {
 
     const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
 
-    const data = await openapiService.getTokenEvmPrices();
+    const data = await openapiService.getTokenPrices('evmPrice', true);
     const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
-
     const allPrice = await Promise.all(prices);
     const coins: CoinItem[] = mergedList.map((token, index) => {
       return {
