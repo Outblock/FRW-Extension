@@ -22,7 +22,7 @@ import IconLink from 'ui/FRWAssets/svg/Iconlink.svg';
 
 import IconAbout from '../../../components/iconfont/IconAbout';
 import IconAccount from '../../../components/iconfont/IconAccount';
-import IconAddressBook from '../../../components/iconfont/IconAddressBook';
+import IconAddressbook from '../../../components/iconfont/IconAddressbook';
 import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import IconBackup from '../../../components/iconfont/IconBackup';
 import IconDeveloper from '../../../components/iconfont/IconDeveloper';
@@ -153,7 +153,7 @@ const SettingTab = () => {
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconAddressBook className={classes.icon} color="#59A1DB" />
+                <IconAddressbook className={classes.icon} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Address__Book')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>

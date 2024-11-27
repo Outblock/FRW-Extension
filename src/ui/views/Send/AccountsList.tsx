@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { List, ListSubheader, CardMedia, Typography, ButtonBase, Box } from '@mui/material';
+import { List, ListSubheader, ButtonBase, Box } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useWallet } from 'ui/utils';
+
 import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import EmptyAddress from 'ui/assets/EmptyAddress.svg';
+import { useWallet } from 'ui/utils';
+
+import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
 
 type ChildAccount = {
   [key: string]: {
@@ -20,13 +21,13 @@ type ChildAccount = {
 const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
   const usewallet = useWallet();
 
-  const [grouped, setGrouped] = useState<any>([]);
+  const [, setGrouped] = useState<any>([]);
   const [childAccounts, setChildAccount] = useState<any[]>([]);
 
   const [walletList, setWalletList] = useState<any[]>([]);
   const [evmAddress, setEvmAddress] = useState<any[]>([]);
 
-  const getWallet = async () => {
+  const getWallet = useCallback(async () => {
     const wallet = await usewallet.getUserWallets();
     const fData = wallet.filter((item) => item.blockchain !== null);
     const currentNetwork = await usewallet.getNetwork();
@@ -35,8 +36,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     if (!Array.isArray(sortData)) {
       sortData = [];
     }
-    const filteredData = (sortData || []).filter((wallet, index) => {
-      return wallet.chain_id == currentNetwork;
+    const filteredData = (sortData || []).filter((wallet, _index) => {
+      return wallet.chain_id === currentNetwork;
     });
     const walletData = (filteredData || []).map((wallet, index) => {
       return {
@@ -52,7 +53,6 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
       const cAccountArray = convertObjectToContactArray(childresp);
       setChildAccount(cAccountArray);
     }
-    console.log('childresp ', wdArray);
 
     // putDeviceInfo(fData);
     await setWalletList(wdArray);
@@ -69,7 +69,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
         setEvmAddress([evmData]);
       }
     }
-  };
+  }, [usewallet]);
 
   function convertObjectToContactArray(data) {
     return Object.keys(data).map((address, index) => ({
@@ -89,7 +89,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
   async function convertArrayToContactArray(array, emojiList) {
     // Fetch emoji list
 
-    return array.map((item, index) => {
+    return array.map((item, _index) => {
       return {
         id: item.id,
         contact_name: emojiList[0].name, // Use the corresponding emoji name
@@ -119,7 +119,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     const group = groupBy(filteredContacts, (contact) => contact.contact_name[0]);
     setGrouped(group);
     getWallet();
-  }, [filteredContacts]);
+  }, [filteredContacts, getWallet]);
 
   const history = useHistory();
 

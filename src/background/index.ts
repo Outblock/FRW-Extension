@@ -413,3 +413,5 @@ chrome.runtime.onConnect.addListener((port) => {
 function onMessage(msg, port) {
   console.log('received', msg, 'from', port.sender);
 }
+
+console.log('Is fetch native?', fetch.toString().includes('[native code]'));

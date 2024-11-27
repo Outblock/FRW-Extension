@@ -104,6 +104,7 @@ export const fclMainnetConfig = async () => {
   const config = fcl
     .config()
     .put('accessNode.api', 'https://rest-mainnet.onflow.org')
+    // note this is the default transport. We don't really need to set this
     .put('sdk.transport', httpSend)
     .put('flow.network', 'mainnet');
 
@@ -123,6 +124,7 @@ export const fclTestnetConfig = async () => {
   const config = fcl
     .config()
     .put('accessNode.api', 'https://rest-testnet.onflow.org')
+    // note this is the default transport. We don't really need to set this
     .put('sdk.transport', httpSend)
     .put('flow.network', 'testnet');
 
