@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { List, ListSubheader, CardMedia, Typography, ButtonBase, Box } from '@mui/material';
+import { List, ListSubheader, ButtonBase, Box } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useWallet } from 'ui/utils';
+
 import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import EmptyAddress from 'ui/assets/EmptyAddress.svg';
+import { useWallet } from 'ui/utils';
+
+import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
 
 type ChildAccount = {
   [key: string]: {
@@ -26,7 +27,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
   const [walletList, setWalletList] = useState<any[]>([]);
   const [evmAddress, setEvmAddress] = useState<any[]>([]);
 
-  const getWallet = async () => {
+  const getWallet = useCallback(async () => {
     const wallet = await usewallet.getUserWallets();
     const fData = wallet.filter((item) => item.blockchain !== null);
     const currentNetwork = await usewallet.getNetwork();
@@ -36,7 +37,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
       sortData = [];
     }
     const filteredData = (sortData || []).filter((wallet, index) => {
-      return wallet.chain_id == currentNetwork;
+      return wallet.chain_id === currentNetwork;
     });
     const walletData = (filteredData || []).map((wallet, index) => {
       return {
@@ -69,7 +70,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
         setEvmAddress([evmData]);
       }
     }
-  };
+  }, [usewallet]);
 
   function convertObjectToContactArray(data) {
     return Object.keys(data).map((address, index) => ({
@@ -119,7 +120,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     const group = groupBy(filteredContacts, (contact) => contact.contact_name[0]);
     setGrouped(group);
     getWallet();
-  }, [filteredContacts]);
+  }, [filteredContacts, getWallet]);
 
   const history = useHistory();
 
