@@ -201,7 +201,6 @@ const config = (env) => {
       },
       plugins: [new TsconfigPathsPlugin()],
       fallback: {
-        http: require.resolve('stream-http'),
         stream: require.resolve('stream-browserify'),
         crypto: require.resolve('crypto-browserify'),
         os: require.resolve('os-browserify/browser'),

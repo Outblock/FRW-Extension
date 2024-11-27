@@ -29,8 +29,6 @@ const configs = {
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
       fallback: {
-        http: require.resolve('stream-http'),
-        https: require.resolve('https-browserify'),
         buffer: require.resolve('buffer'),
         url: require.resolve('url/'),
       },
