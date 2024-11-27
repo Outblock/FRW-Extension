@@ -198,9 +198,14 @@ const config = (env) => {
     resolve: {
       alias: {
         moment: require.resolve('dayjs'),
+        // Forces all cross-fetch imports to use the same instance
+        'cross-fetch': require.resolve('cross-fetch'),
       },
       plugins: [new TsconfigPathsPlugin()],
       fallback: {
+        // Removes polyfills that were interfering with native fetch
+        http: false,
+        https: false,
         stream: require.resolve('stream-browserify'),
         crypto: require.resolve('crypto-browserify'),
         os: require.resolve('os-browserify/browser'),
