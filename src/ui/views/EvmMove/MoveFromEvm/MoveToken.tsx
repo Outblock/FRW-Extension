@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import {
   Box,
   Typography,
@@ -13,14 +13,15 @@ import {
   Chip,
   Tooltip,
 } from '@mui/material';
+import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
+import BN from 'bignumber.js';
+import React, { useState, useEffect } from 'react';
+import { Presets } from 'react-component-transition';
+
+import CancelIcon from '../../../../components/iconfont/IconClose';
 import IconFlow from '../../../../components/iconfont/IconFlow';
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
-import { StyledEngineProvider } from '@mui/material/styles';
-import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {

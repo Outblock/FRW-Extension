@@ -20,6 +20,7 @@ import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
+import { isValidEthereumAddress } from 'ui/utils/address';
 
 import { getPeriodFrequency } from '../../utils';
 import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
@@ -1290,13 +1291,20 @@ class OpenApiService {
   };
 
   getEvmTokenInfo = async (name: string, network = ''): Promise<TokenInfo | undefined> => {
-    // FIX ME: Get defaultTokenList from firebase remote config
     if (!network) {
       network = await userWalletService.getNetwork();
     }
+
     const tokens = await this.getEvmListFromGithub(network);
-    // const coins = await remoteFetch.flowCoins();
-    return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
+
+    const tokenInfo = tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
+
+    if (tokenInfo && isValidEthereumAddress(tokenInfo.address)) {
+      return tokenInfo;
+    }
+
+    const freshTokens = await this.refreshEvmGitToken(network);
+    return freshTokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());
   };
 
   getTokenInfoByContract = async (contractName: string): Promise<TokenModel | undefined> => {
@@ -1538,6 +1546,8 @@ class OpenApiService {
     this.mergeCustomTokens(gitToken, evmCustomToken);
 
     storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);
+
+    return gitToken;
   };
 
   refreshCustomEvmGitToken = async (network) => {
