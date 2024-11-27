@@ -4,6 +4,7 @@ import { getAuth } from '@firebase/auth';
 import * as fcl from '@onflow/fcl';
 import * as t from '@onflow/types';
 import BN from 'bignumber.js';
+import * as bip39 from 'bip39';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
@@ -3384,6 +3385,10 @@ export class WalletController extends BaseController {
   };
 
   uploadMnemonicToGoogleDrive = async (mnemonic, username, password) => {
+    const isValidMnemonic = bip39.validateMnemonic(mnemonic);
+    if (!isValidMnemonic) {
+      throw new Error('Invalid mnemonic');
+    }
     const app = getApp(process.env.NODE_ENV!);
     const user = await getAuth(app).currentUser;
     return googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
