@@ -57,6 +57,8 @@ export function serviceDefinition(address, keyId, type, network, opts = {}) {
     definition.method = 'EXT/RPC';
     definition.data = opts;
   }
+
+  console.log('definition', definition);
   return definition;
 }
 
@@ -81,6 +83,7 @@ export async function httpPayerServiceDefinition(address, keyId, type, network, 
         ? opts.params
         : {
             idToken,
+            network,
           },
   };
 
@@ -108,6 +111,7 @@ export async function httpProposerServiceDefinition(address, keyId, type, networ
         ? opts.params
         : {
             idToken,
+            network,
           },
   };
 
@@ -124,6 +128,7 @@ export async function preAuthzServiceDefinition(
   proposerKeyId,
   isEnabled = false
 ) {
+  console.log('pre-auth', 'address:', address, '====');
   return {
     f_type: 'PreAuthzResponse',
     f_vsn: '1.0.0',
