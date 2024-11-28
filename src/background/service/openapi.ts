@@ -41,9 +41,6 @@ import {
   PriceProvider,
 } from './networkModel';
 
-// import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
-// import configJson from 'background/utils/firebase.config.json';
-
 import {
   userWalletService,
   coinListService,

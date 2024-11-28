@@ -10,6 +10,7 @@
     "winBuild:dev": "set NODE_OPTIONS=--max-old-space-size=8192 && copy _raw\\manifest\\manifest.dev.json _raw\\manifest.json && pnpm run prepare:dev && pnpm run winClean && webpack --progress --env config=dev",
     "build:dev": "NODE_OPTIONS=--max-old-space-size=8192 && cp _raw/manifest/manifest.dev.json _raw/manifest.json && pnpm run prepare:dev && pnpm run clean && webpack --progress --env config=dev",
     "winBuild:pro": "copy _raw\\manifest\\manifest.pro.json _raw\\manifest.json && pnpm run prepare:pro && pnpm run winClean && webpack --progress --env config=pro",
+    "build:ci": "cp _raw/manifest/manifest.pro.json _raw/manifest.json && pnpm run prepare:pro && webpack --env config=pro",
     "build:pro": "cp _raw/manifest/manifest.pro.json _raw/manifest.json && pnpm run prepare:pro && pnpm run clean && webpack --progress --env config=pro",
     "build:test": "cp _raw/manifest/manifest.dev.json _raw/manifest.json && pnpm run clean && webpack --progress --env config=none",
     "lint:fix": "eslint --fix .",
@@ -20,7 +21,8 @@
     "test": "jest",
     "pub": "node build/release.js",
     "prepare": "husky",
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "setup-secrets": "node build/setup-github-secrets.js"
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.1.0",
@@ -146,6 +148,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
+    "@octokit/rest": "^19.0.13",
     "@svgr/webpack": "^5.5.0",
     "@types/chrome": "^0.0.281",
     "@types/events": "^3.0.0",
@@ -182,6 +185,7 @@
     "husky": "^9.1.6",
     "i18next": "^20.3.2",
     "jest": "^27.4.7",
+    "libsodium-wrappers": "^0.7.15",
     "lint-staged": ">=10",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
