@@ -1,13 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useWallet } from 'ui/utils';
-import { addDotSeparators } from 'ui/utils/number';
 import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
-import IconChevronRight from '../../../components/iconfont/IconChevronRight';
-import { LLPrimaryButton } from '@/ui/FRWComponent';
-import { TokenInfo } from 'flow-native-token-registry';
-import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
-
+import type { TokenInfo } from 'flow-native-token-registry';
+import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
+
+import { LLPrimaryButton } from '@/ui/FRWComponent';
+import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
+import { useWallet } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
+import { addDotSeparators } from 'ui/utils/number';
+
+import IconChevronRight from '../../../components/iconfont/IconChevronRight';
+
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
 const TokenInfoCard = ({
@@ -71,7 +74,7 @@ const TokenInfoCard = ({
           .getWalletTokenBalance(token)
           .then((response) => {
             if (isMounted.current) {
-              setBalance(parseFloat(parseFloat(response).toFixed(3)));
+              setBalance(parseFloat(response));
             }
           })
           .catch((err) => {
@@ -93,6 +96,18 @@ const TokenInfoCard = ({
       wallet.setCurrentCoin(data?.symbol);
       setMoveOpen(true);
     }
+  };
+
+  const getUrl = (data) => {
+    if (data.extensions?.website?.trim()) {
+      return data.extensions.website;
+    }
+    if (isValidEthereumAddress(data.address)) {
+      return `https://evm.flowscan.io/token/${data.address}`;
+    } else if (data.symbol.toLowerCase() === 'flow') {
+      return 'https://flow.com/';
+    }
+    return `https://flowscan.io/account/${data.address}/tokens`;
   };
 
   useEffect(() => {
@@ -137,7 +152,8 @@ const TokenInfoCard = ({
               }
             ></img>
             <ButtonBase
-              onClick={() => data.extensions && window.open(data.extensions.website, '_blank')}
+              // eslint-disable-next-line no-restricted-globals
+              onClick={() => window.open(getUrl(data), '_blank')}
             >
               <Box
                 sx={{
@@ -164,9 +180,7 @@ const TokenInfoCard = ({
                 >
                   {data.name}
                 </Typography>
-                {data.extensions &&
-                  data.extensions.website &&
-                  data.extensions.website.trim() !== '' && <IconChevronRight size={20} />}
+                <IconChevronRight size={20} />
               </Box>
             </ButtonBase>
 
@@ -209,7 +223,7 @@ const TokenInfoCard = ({
             </Typography>
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>
-            ${addDotSeparators((balance * price).toFixed(3))} {chrome.i18n.getMessage('USD')}
+            ${addDotSeparators(balance * price)} {chrome.i18n.getMessage('USD')}
           </Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
             {(!childType || childType === 'evm') && (

@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconAddressBook = ({ size, color, style: _style, ...rest }) => {
+const IconAddressbook = ({ size, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -20,8 +20,8 @@ const IconAddressBook = ({ size, color, style: _style, ...rest }) => {
   );
 };
 
-IconAddressBook.defaultProps = {
+IconAddressbook.defaultProps = {
   size: 18,
 };
 
-export default IconAddressBook;
+export default IconAddressbook;
