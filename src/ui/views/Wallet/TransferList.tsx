@@ -101,7 +101,7 @@ const TransferList = ({ setCount }) => {
             <Typography
               variant="body1"
               sx={{
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: '500',
                 textAlign: 'end',
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
@@ -155,7 +155,7 @@ const TransferList = ({ setCount }) => {
               <Typography
                 variant="body1"
                 sx={{
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: '500',
                   maxWidth: '180px',
                   wordWrap: 'break-word',
