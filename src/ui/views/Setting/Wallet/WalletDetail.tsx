@@ -394,7 +394,7 @@ const WalletDetail = () => {
               </ListItemButton>
             </ListItem>
           </List>
-          {false && userWallet && !isValidEthereumAddress(userWallet[0].blockchain[0].address) && (
+          {userWallet && !isValidEthereumAddress(userWallet[0].blockchain[0].address) && (
             <>
               <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
                 <ListItem
@@ -476,8 +476,7 @@ const WalletDetail = () => {
                   }}
                 />
               </Box>
-
-              {!!storageInfo && (
+              {!!storageInfo /* TODO: remove this after the storage usage card is implemented */ && (
                 <Box className={classes.gasBox}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <Typography
