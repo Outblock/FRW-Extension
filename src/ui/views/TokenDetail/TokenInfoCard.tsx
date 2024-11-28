@@ -1,12 +1,12 @@
 import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
-import type { TokenInfo } from 'flow-native-token-registry';
+import { type TokenInfo } from 'flow-native-token-registry';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { LLPrimaryButton } from '@/ui/FRWComponent';
+import { isValidEthereumAddress } from '@/ui/utils/address';
 import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 import { useWallet } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
 import { addDotSeparators } from 'ui/utils/number';
 
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
@@ -218,7 +218,7 @@ const TokenInfoCard = ({
             </Typography>
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>
-            ${addDotSeparators((balance * price).toFixed(3))} {chrome.i18n.getMessage('USD')}
+            ${addDotSeparators(balance * price)} {chrome.i18n.getMessage('USD')}
           </Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
             {(!childType || childType === 'evm') && (

@@ -219,7 +219,11 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                     </ListItemIcon>
                     <StartListItemText
                       primary={coin.coin}
-                      price={coin.price}
+                      price={
+                        typeof coin.price === 'number' && !isNaN(coin.price)
+                          ? coin.price.toFixed(3)
+                          : 'N/A'
+                      }
                       change={parseFloat(coin.change24h.toFixed(2))}
                     />
                   </ListItemButton>

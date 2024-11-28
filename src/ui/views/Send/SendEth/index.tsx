@@ -18,7 +18,6 @@ import TransferAmount from '../TransferAmount';
 
 import EvmConfirmation from './EvmConfirmation';
 import ToEthConfirmation from './ToEthConfirmation';
-
 interface ContactState {
   contact: Contact;
 }
@@ -106,7 +105,18 @@ const SendEth = () => {
     setCoinList(coinList);
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
 
-    coinInfo!.total = coinInfo!.balance * coinInfo!.price;
+    if (
+      coinInfo?.balance &&
+      coinInfo?.price &&
+      !isNaN(coinInfo.balance) &&
+      !isNaN(coinInfo.price)
+    ) {
+      coinInfo.total =
+        parseFloat(coinInfo.balance.toString()) * parseFloat(coinInfo.price.toString());
+    } else {
+      console.error('Invalid balance or price in coinInfo');
+      coinInfo!.total = 0;
+    }
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);

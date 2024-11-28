@@ -11,8 +11,8 @@ import {
   ListItemButton,
   CardMedia,
   Button,
+  Box,
 } from '@mui/material';
-import { Box } from '@mui/system';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -20,7 +20,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import activity from 'ui/FRWAssets/svg/activity.svg';
 import { useWallet } from 'ui/utils';
 import { formatString } from 'ui/utils/address';
-
 // import IconExec from '../../../components/iconfont/IconExec';
 // import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
 dayjs.extend(relativeTime);
@@ -88,6 +87,14 @@ const TransferList = ({ setCount }) => {
   const EndListItemText = (props) => {
     const isReceive = props.txType === 2;
     const isFT = props.type === 1;
+
+    const calculateMaxWidth = () => {
+      const textLength =
+        props.type === 1 ? `${props.amount}`.replace(/^-/, '').length : `${props.token}`.length;
+      const baseWidth = 30;
+      const additionalWidth = textLength * 8;
+      return `${Math.min(baseWidth + additionalWidth, 70)}px`;
+    };
     return (
       <ListItemText
         disableTypography={true}
@@ -100,7 +107,7 @@ const TransferList = ({ setCount }) => {
                 fontWeight: '500',
                 textAlign: 'end',
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
-                maxWidth: '100px',
+                maxWidth: calculateMaxWidth(),
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -152,7 +159,7 @@ const TransferList = ({ setCount }) => {
                 sx={{
                   fontSize: 14,
                   fontWeight: '500',
-                  maxWidth: '150px',
+                  maxWidth: '180px',
                   wordWrap: 'break-word',
                   textAlign: 'start',
                 }}
@@ -222,10 +229,12 @@ const TransferList = ({ setCount }) => {
                       sx={{ paddingRight: '0px' }}
                       dense={true}
                       onClick={() => {
-                        if (monitor === 'flowscan') {
-                          window.open(`${flowscanURL}/tx/${tx.hash}`);
-                        } else {
-                          window.open(`${viewSource}/${tx.hash}`);
+                        {
+                          const url =
+                            monitor === 'flowscan'
+                              ? `${flowscanURL}/tx/${tx.hash}`
+                              : `${viewSource}/${tx.hash}`;
+                          window.open(url);
                         }
                       }}
                     >
