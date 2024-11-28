@@ -74,7 +74,7 @@ const TokenInfoCard = ({
           .getWalletTokenBalance(token)
           .then((response) => {
             if (isMounted.current) {
-              setBalance(parseFloat(parseFloat(response).toFixed(3)));
+              setBalance(parseFloat(response));
             }
           })
           .catch((err) => {
@@ -104,6 +104,8 @@ const TokenInfoCard = ({
     }
     if (isValidEthereumAddress(data.address)) {
       return `https://evm.flowscan.io/token/${data.address}`;
+    } else if (data.symbol.toLowerCase() === 'flow') {
+      return 'https://flow.com/';
     }
     return `https://flowscan.io/account/${data.address}/tokens`;
   };
