@@ -183,7 +183,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   };
 
   const transferFt = async () => {
-    const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
+    const tokenResult = await wallet.openapi.getEvmTokenInfo(props.data.tokenSymbol);
     console.log('tokenResult ', tokenResult, props.data.amount);
 
     wallet
