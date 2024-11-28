@@ -990,22 +990,43 @@ export class WalletController extends BaseController {
   };
 
   //coinList
-  getCoinList = async (_expiry = 5000): Promise<CoinItem[]> => {
-    const network = await this.getNetwork();
-    const now = new Date();
-    const expiry = coinListService.getExpiry();
-    let childType = await userWalletService.getActiveWallet();
-    childType = childType === 'evm' ? 'evm' : 'coinItem';
-    // compare the expiry time of the item with the current time
-    if (now.getTime() > expiry) {
-      if (childType === 'evm') {
-        await this.refreshEvmList(_expiry);
-      } else {
-        await this.refreshCoinList(_expiry);
+  getCoinList = async (_expiry = 60000, currentEnv = ''): Promise<CoinItem[]> => {
+    try {
+      const network = await this.getNetwork();
+      const now = new Date();
+      const expiry = coinListService.getExpiry();
+
+      // Determine childType: use currentEnv if not empty, otherwise fallback to active wallet type
+      let childType = currentEnv || (await userWalletService.getActiveWallet());
+      childType = childType === 'evm' ? 'evm' : 'coinItem';
+
+      // Otherwise, fetch from the coinListService
+      const listCoins = coinListService.listCoins(network, childType);
+
+      // Validate and ensure listCoins is of type CoinItem[]
+      if (
+        !listCoins ||
+        !Array.isArray(listCoins) ||
+        listCoins.length === 0 ||
+        now.getTime() > expiry
+      ) {
+        console.log('listCoins is empty or invalid, refreshing...');
+        let refreshedList;
+        if (childType === 'evm') {
+          refreshedList = await this.refreshEvmList(_expiry);
+        } else {
+          refreshedList = await this.refreshCoinList(_expiry);
+        }
+        if (refreshedList) {
+          return refreshedList;
+        }
       }
+
+      return listCoins;
+    } catch (error) {
+      console.error('Error fetching coin list:', error);
+      throw new Error('Failed to fetch coin list'); // Re-throw the error with a custom message
     }
-    const listCoins = coinListService.listCoins(network, childType);
-    return listCoins;
   };
 
   private async getFlowTokenPrice(flowPrice?: string): Promise<any> {
@@ -1080,7 +1101,7 @@ export class WalletController extends BaseController {
   }
 
   refreshCoinList = async (
-    _expiry = 5000,
+    _expiry = 60000,
     { signal } = { signal: new AbortController().signal }
   ) => {
     try {
@@ -1156,14 +1177,7 @@ export class WalletController extends BaseController {
       // Add all coins at once
       if (signal.aborted) throw new Error('Operation aborted');
       coinListService.addCoins(coins, network);
-
-      // const allTokens = await openapiService.getAllTokenInfo();
-      // const enabledSymbols = tokenList.map((token) => token.symbol);
-      // const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
-      // console.log('disableSymbols are these ', disableSymbols, enabledSymbols, coins)
-      // disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
-      const coinListResult = coinListService.listCoins(network);
-      return coinListResult;
+      return coins;
     } catch (err) {
       if (err.message === 'Operation aborted') {
         console.error('refreshCoinList operation aborted.');
@@ -1291,7 +1305,7 @@ export class WalletController extends BaseController {
     }
   };
 
-  refreshEvmList = async (_expiry = 5000) => {
+  refreshEvmList = async (_expiry = 60000) => {
     const now = new Date();
     const exp = _expiry + now.getTime();
     coinListService.setExpiry(exp);
@@ -1385,18 +1399,8 @@ export class WalletController extends BaseController {
     });
 
     const coinWithCustom = await customToken(coins, evmCustomToken);
-
-    coinWithCustom
-      .sort((a, b) => {
-        if (b.total === a.total) {
-          return b.balance - a.balance;
-        } else {
-          return b.total - a.total;
-        }
-      })
-      .map((coin) => coinListService.addCoin(coin, network, 'evm'));
-
-    return coinListService.listCoins(network, 'evm');
+    coinWithCustom.map((coin) => coinListService.addCoin(coin, network, 'evm'));
+    return coinWithCustom;
   };
 
   reqeustEvmNft = async () => {
