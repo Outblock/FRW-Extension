@@ -1,9 +1,9 @@
 // import { useTranslation } from 'react-i18next';
 import { Input, Typography, Box, FormControl } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
+import SlideDown from '@/ui/FRWComponent/SlideDown';
 import lilo from 'ui/FRWAssets/image/lilo.png';
 import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
 import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
@@ -33,6 +33,15 @@ const useStyles = makeStyles(() => ({
     },
   },
 }));
+
+const UsernameError: React.FC = () => (
+  <Box display="flex" flexDirection="row" alignItems="center">
+    <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+    <Typography variant="body1" color="text.secondary">
+      {chrome.i18n.getMessage('Incorrect__Password')}
+    </Typography>
+  </Box>
+);
 
 const Unlock = () => {
   const wallet = useWallet();
@@ -70,21 +79,6 @@ const Unlock = () => {
     }
   };
 
-  const usernameError = () => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="text.secondary">
-        {chrome.i18n.getMessage('Incorrect__Password')}
-      </Typography>
-    </Box>
-  );
-
   return (
     <Box
       sx={{
@@ -118,7 +112,15 @@ const Unlock = () => {
         </Typography>
       </Box>
 
-      <FormControl sx={{ flexGrow: 1, width: '90%', display: 'flex', flexDirection: 'column' }}>
+      <FormControl
+        sx={{
+          flexGrow: 1,
+          width: '90%',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+        }}
+      >
         <Input
           id="textfield"
           type="password"
@@ -135,22 +137,20 @@ const Unlock = () => {
           onKeyDown={handleKeyDown}
         />
 
-        {showError && (
-          <Slide direction="up" mountOnEnter unmountOnExit>
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '0 0 12px 12px',
-              }}
-            >
-              <Box sx={{ p: '4px' }}>{usernameError()}</Box>
+        <SlideDown show={showError}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '0 0 12px 12px',
+            }}
+          >
+            <Box display="flex" flexDirection="row" sx={{ p: '4px' }}>
+              <UsernameError />
             </Box>
-          </Slide>
-        )}
-
-        {/* <Box sx={{flexGrow: 1}}/> */}
+          </Box>
+        </SlideDown>
       </FormControl>
 
       <Box sx={{ width: '90%', marginBottom: '32px' }}>

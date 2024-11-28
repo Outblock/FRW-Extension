@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import eventBus from '@/eventBus';
@@ -100,4 +100,8 @@ eventBus.addEventListener(EVENTS.broadcastToBackground, (data) => {
 
 const container = document.getElementById('root');
 const root = createRoot(container!); // createRoot(container!) if you use TypeScript
-root.render(<Views wallet={wallet} />);
+root.render(
+  <StrictMode>
+    <Views wallet={wallet} />
+  </StrictMode>
+);
