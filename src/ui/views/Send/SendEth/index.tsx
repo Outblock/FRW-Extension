@@ -1,22 +1,25 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
-import { useHistory, useLocation } from 'react-router-dom';
-import { EVM_ENDPOINT } from 'consts';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../../style/LLTheme';
 import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from '../TransferAmount';
+import React, { useState, useEffect } from 'react';
+import { Presets } from 'react-component-transition';
+import { useHistory, useLocation } from 'react-router-dom';
+import Web3 from 'web3';
+
+import { LLHeader } from '@/ui/FRWComponent';
+import type { CoinItem } from 'background/service/coinList';
+import type { Contact } from 'background/service/networkModel';
+import erc20ABI from 'background/utils/erc20.abi.json';
+import { EVM_ENDPOINT } from 'consts';
+import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { withPrefix, isValidEthereumAddress } from 'ui/utils/address';
-import ToEthConfirmation from './ToEthConfirmation';
-import EvmConfirmation from './EvmConfirmation';
-import { LLContactCard } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
-import { Presets } from 'react-component-transition';
+
 import CancelIcon from '../../../../components/iconfont/IconClose';
-import { LLHeader } from '@/ui/FRWComponent';
-import Web3 from 'web3';
-import erc20ABI from 'background/utils/erc20.abi.json';
+import theme from '../../../style/LLTheme';
+import TransferAmount from '../TransferAmount';
+
+import EvmConfirmation from './EvmConfirmation';
+import ToEthConfirmation from './ToEthConfirmation';
 
 interface ContactState {
   contact: Contact;
@@ -94,7 +97,18 @@ const SendEth = () => {
     setCoinList(coinList);
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
 
-    coinInfo!.total = coinInfo!.balance * coinInfo!.price;
+    if (
+      coinInfo?.balance &&
+      coinInfo?.price &&
+      !isNaN(coinInfo.balance) &&
+      !isNaN(coinInfo.price)
+    ) {
+      coinInfo.total =
+        parseFloat(coinInfo.balance.toString()) * parseFloat(coinInfo.price.toString());
+    } else {
+      console.error('Invalid balance or price in coinInfo');
+      coinInfo!.total = 0;
+    }
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);

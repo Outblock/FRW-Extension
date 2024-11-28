@@ -85,6 +85,14 @@ const TransferList = ({ setCount }) => {
   const EndListItemText = (props) => {
     const isReceive = props.txType === 2;
     const isFT = props.type === 1;
+
+    const calculateMaxWidth = () => {
+      const textLength =
+        props.type === 1 ? `${props.amount}`.replace(/^-/, '').length : `${props.token}`.length;
+      const baseWidth = 30;
+      const additionalWidth = textLength * 8;
+      return `${Math.min(baseWidth + additionalWidth, 70)}px`;
+    };
     return (
       <ListItemText
         disableTypography={true}
@@ -97,7 +105,7 @@ const TransferList = ({ setCount }) => {
                 fontWeight: '500',
                 textAlign: 'end',
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
-                maxWidth: '100px',
+                maxWidth: calculateMaxWidth(),
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -149,7 +157,7 @@ const TransferList = ({ setCount }) => {
                 sx={{
                   fontSize: 14,
                   fontWeight: '500',
-                  maxWidth: '150px',
+                  maxWidth: '180px',
                   wordWrap: 'break-word',
                   textAlign: 'start',
                 }}
