@@ -1,10 +1,10 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { LLHeader } from '@/ui/FRWComponent';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type CoinItem } from 'background/service/coinList';
 import { type Contact } from 'background/service/networkModel';
 import { LLContactCard } from 'ui/FRWComponent';
@@ -179,7 +179,7 @@ const SendAmount = () => {
                 (validated ? (
                   <></>
                 ) : (
-                  <Slide direction="up" mountOnEnter unmountOnExit>
+                  <SlideRelative show={true} direction="up">
                     <Box
                       sx={{
                         width: '95%',
@@ -202,7 +202,7 @@ const SendAmount = () => {
                         </Typography>
                       </Box>
                     </Box>
-                  </Slide>
+                  </SlideRelative>
                 ))}
             </Box>
 

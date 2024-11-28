@@ -7,11 +7,11 @@ import {
   Input,
   InputAdornment,
 } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
@@ -93,7 +93,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     </Typography>
   );
 
-  const [username, setUsername] = useState(savedUsername || '');
+  const [username, setUsername] = useState<string>(savedUsername || '');
   const [helperText, setHelperText] = useState(<div />);
 
   const setErrorMessage = useCallback(
@@ -208,20 +208,18 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
                 </InputAdornment>
               }
             />
-            {username && (
-              <Slide direction="up" mountOnEnter unmountOnExit>
-                <Box
-                  sx={{
-                    width: '95%',
-                    backgroundColor: msgBgColor(),
-                    mx: 'auto',
-                    borderRadius: '0 0 12px 12px',
-                  }}
-                >
-                  <Box sx={{ p: '4px' }}>{helperText}</Box>
-                </Box>
-              </Slide>
-            )}
+            <SlideRelative direction="down" show={!!username}>
+              <Box
+                sx={{
+                  width: '95%',
+                  backgroundColor: msgBgColor(),
+                  mx: 'auto',
+                  borderRadius: '0 0 12px 12px',
+                }}
+              >
+                <Box sx={{ p: '4px' }}>{helperText}</Box>
+              </Box>
+            </SlideRelative>
           </FormControl>
         </Box>
 

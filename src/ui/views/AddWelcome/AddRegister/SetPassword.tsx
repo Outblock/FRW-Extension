@@ -14,7 +14,6 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import HDWallet from 'ethereum-hdwallet';
@@ -22,6 +21,7 @@ import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
@@ -279,7 +279,11 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
                 </InputAdornment>
               }
             />
-            <Slide style={{ marginBottom: '24px' }}>{password && helperText}</Slide>
+            <Box style={{ marginBottom: '24px' }}>
+              <SlideRelative show={!!password} direction="down">
+                {helperText}
+              </SlideRelative>
+            </Box>
           </FormGroup>
         </Box>
 

@@ -1,29 +1,18 @@
 import SelectIcon from '@mui/icons-material/ArrowDropDown';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import {
   Box,
   Typography,
   Button,
-  ListItemText,
-  Select,
-  MenuItem,
-  ListItemIcon,
   FormControl,
   InputAdornment,
   Input,
   Chip,
-  Tooltip,
   Stack,
   Avatar,
 } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import BN from 'bignumber.js';
-import React, { useState, useEffect } from 'react';
-
-import CancelIcon from '../../../components/iconfont/IconClose';
-import IconFlow from '../../../components/iconfont/IconFlow';
+import React, { useEffect } from 'react';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {

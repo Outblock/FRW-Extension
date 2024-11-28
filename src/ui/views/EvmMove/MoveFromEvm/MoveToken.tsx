@@ -13,11 +13,12 @@ import {
   Chip,
   Tooltip,
 } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 
 import CancelIcon from '../../../../components/iconfont/IconClose';
 import IconFlow from '../../../../components/iconfont/IconFlow';
@@ -265,33 +266,31 @@ const MoveToken = ({
             <Typography>{coinInfo.balance}</Typography>
           </Box>
         </Box>
-        {exceed && (
-          <Slide direction="up" mountOnEnter unmountOnExit>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '0 0 12px 12px',
-              }}
+        <SlideRelative direction="down" show={exceed}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '0 0 12px 12px',
+            }}
+          >
+            <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}
             >
-              <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}
-              >
-                {chrome.i18n.getMessage('Insufficient_balance') +
-                  (coin === 'flow'
-                    ? chrome.i18n.getMessage('on_Flow_the_balance_cant_less_than_0001_FLOW')
-                    : '')}
-              </Typography>
-            </Box>
-          </Slide>
-        )}
+              {chrome.i18n.getMessage('Insufficient_balance') +
+                (coin === 'flow'
+                  ? chrome.i18n.getMessage('on_Flow_the_balance_cant_less_than_0001_FLOW')
+                  : '')}
+            </Typography>
+          </Box>
+        </SlideRelative>
       </Box>
     </StyledEngineProvider>
   );

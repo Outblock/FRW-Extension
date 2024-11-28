@@ -1,15 +1,16 @@
 // import { useTranslation } from 'react-i18next';
 import { Input, Typography, Box, FormControl } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import lilo from 'ui/FRWAssets/image/lilo.png';
 import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
 import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
 import { openInternalPageInTab } from 'ui/utils/webapi';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
+
 import './style.css';
 
 const useStyles = makeStyles(() => ({
@@ -144,20 +145,18 @@ const SwitchUnlock = () => {
           onKeyDown={handleKeyDown}
         />
 
-        {showError && (
-          <Slide direction="up" mountOnEnter unmountOnExit>
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '0 0 12px 12px',
-              }}
-            >
-              <Box sx={{ p: '4px' }}>{usernameError()}</Box>
-            </Box>
-          </Slide>
-        )}
+        <SlideRelative direction="down" show={showError}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '0 0 12px 12px',
+            }}
+          >
+            <Box sx={{ p: '4px' }}>{usernameError()}</Box>
+          </Box>
+        </SlideRelative>
 
         {/* <Box sx={{flexGrow: 1}}/> */}
       </FormControl>

@@ -10,7 +10,6 @@ import {
   FormControlLabel,
   Fade,
 } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';

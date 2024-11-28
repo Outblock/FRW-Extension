@@ -11,13 +11,13 @@ import {
   Alert,
   Snackbar,
 } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
 
@@ -302,11 +302,9 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                   </InputAdornment>
                 }
               />
-              {password && (
-                <Slide direction="up" mountOnEnter unmountOnExit>
-                  {helperText}
-                </Slide>
-              )}
+              <SlideRelative direction="down" show={!!password}>
+                {helperText}
+              </SlideRelative>
               <Input
                 sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
                 id="pass2"
@@ -331,9 +329,9 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                   </InputAdornment>
                 }
               />
-              <Slide style={{ height: '40px', display: 'flex' }}>
-                <>{confirmPassword && helperMatch}</>
-              </Slide>
+              <SlideRelative show={!!confirmPassword} direction="down">
+                {helperMatch}
+              </SlideRelative>
             </FormGroup>
           </Box>
 

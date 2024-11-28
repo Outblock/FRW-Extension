@@ -14,13 +14,13 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, getHashAlgo, getSignAlgo, saveIndex } from 'ui/utils';
@@ -326,7 +326,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
                 </InputAdornment>
               }
             />
-            {password && <Slide style={{ marginBottom: '24px' }}>{helperText}</Slide>}
+            <SlideRelative show={!!password} direction="down">
+              <Box style={{ marginBottom: '24px' }}>{helperText}</Box>
+            </SlideRelative>
           </FormGroup>
         </Box>
 

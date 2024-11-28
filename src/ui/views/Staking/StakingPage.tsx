@@ -1,7 +1,4 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Typography, CardMedia } from '@mui/material';
-import Slide from '@mui/material/Slide';
-import { TokenListProvider } from 'flow-native-token-registry';
+import { Box, Button, Typography } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 

@@ -1,10 +1,11 @@
-import { IconButton, Slide, Typography } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { LLPinAlert } from '@/ui/FRWComponent';
 import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 import AllSet from '../../Register/AllSet';
@@ -155,9 +156,9 @@ const GoogleImport = () => {
             </Typography>
           </Box>
 
-          <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </Slide>
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

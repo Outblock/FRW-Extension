@@ -1,21 +1,15 @@
 import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import { Snackbar, SnackbarContent, Slide, Box, Typography } from '@mui/material';
+import { Snackbar, SnackbarContent, Box, Typography } from '@mui/material';
 import React from 'react';
 
 import lilicoIcon from '../../../_raw/images/icon-128.png';
 
-const slideTransition = (props) => {
-  return <Slide {...props} direction="left" />;
-};
+import SlideLeftRight from './SlideLeftRight';
 
 export const LLPinAlert = ({ open }) => {
   return (
-    <Snackbar
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      TransitionComponent={slideTransition}
-      open={open}
-    >
+    <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={open}>
       <SnackbarContent
         sx={{
           borderRadius: '12px',

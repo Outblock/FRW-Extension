@@ -1,9 +1,11 @@
-import { IconButton, Slide } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -143,9 +145,9 @@ const Sync = () => {
               </IconButton>
             )}
 
-            <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
+            <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
               {page(activeIndex)}
-            </Slide>
+            </SlideLeftRight>
           </Box>
         </Box>
 

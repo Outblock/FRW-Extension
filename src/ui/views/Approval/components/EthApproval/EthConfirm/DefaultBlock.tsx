@@ -9,7 +9,6 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import React, { useState, useEffect } from 'react';
 import Highlight from 'react-highlight';
 import { useHistory } from 'react-router-dom';

@@ -1,18 +1,10 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Typography, CardMedia } from '@mui/material';
-import Slide from '@mui/material/Slide';
+import { Box, Button, Typography } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
-import { useHistory, useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { LLHeader } from '@/ui/FRWComponent';
 import { type CoinItem } from 'background/service/coinList';
-import { Contact } from 'background/service/networkModel';
-import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
-
-import CancelIcon from '../../../components/iconfont/IconClose';
-import IconSwitch from '../../../components/iconfont/IconSwitch';
 
 import UnstakeAmount from './components/UnstakeAmount';
 import UnstakeConfirm from './components/UnstakeConfirm';

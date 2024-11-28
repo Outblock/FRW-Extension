@@ -1,6 +1,7 @@
 import { Typography, FormControl, Input, Box } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import React from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 
 const PrivateKey = ({ helperText, msgBgColor, pk, setpk }) => {
   return (
@@ -38,20 +39,18 @@ const PrivateKey = ({ helperText, msgBgColor, pk, setpk }) => {
               },
             }}
           />
-          {pk && (
-            <Slide direction="up" mountOnEnter unmountOnExit>
-              <Box
-                sx={{
-                  width: '95%',
-                  backgroundColor: msgBgColor(),
-                  mx: 'auto',
-                  borderRadius: '0 0 12px 12px',
-                }}
-              >
-                <Box sx={{ p: '4px' }}>{helperText}</Box>
-              </Box>
-            </Slide>
-          )}
+          <SlideRelative direction="down" show={!!pk}>
+            <Box
+              sx={{
+                width: '95%',
+                backgroundColor: msgBgColor(),
+                mx: 'auto',
+                borderRadius: '0 0 12px 12px',
+              }}
+            >
+              <Box sx={{ p: '4px' }}>{helperText}</Box>
+            </Box>
+          </SlideRelative>
         </FormControl>
       </Box>
     </Box>

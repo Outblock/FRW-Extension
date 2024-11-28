@@ -1,28 +1,7 @@
-import SelectIcon from '@mui/icons-material/ArrowDropDown';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
-import {
-  Box,
-  Typography,
-  Button,
-  ListItemText,
-  Select,
-  MenuItem,
-  ListItemIcon,
-  FormControl,
-  InputAdornment,
-  Input,
-  Chip,
-  Tooltip,
-  Stack,
-  Avatar,
-} from '@mui/material';
-import Slide from '@mui/material/Slide';
+import { Box, Typography, FormControl, InputAdornment, Input, Stack } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
-
-import StakeConfirm from './StakeConfirm';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {

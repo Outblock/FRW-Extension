@@ -13,13 +13,13 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Slide from '@mui/material/Slide';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { LLSpinner, LLNotFound } from '@/ui/FRWComponent';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet, saveIndex } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
@@ -303,9 +303,9 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                   </InputAdornment>
                 }
               />
-              <Slide direction="up" mountOnEnter unmountOnExit>
-                {password && helperText}
-              </Slide>
+              <SlideRelative show={!!password} direction="down">
+                {helperText}
+              </SlideRelative>
               <Input
                 sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
                 id="pass2"
@@ -330,9 +330,9 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                   </InputAdornment>
                 }
               />
-              <Slide style={{ height: '40px', display: 'flex' }}>
-                {confirmPassword && helperMatch}
-              </Slide>
+              <SlideRelative show={!!confirmPassword} direction="down">
+                {helperMatch}
+              </SlideRelative>
             </FormGroup>
           </Box>
 

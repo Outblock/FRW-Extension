@@ -1,11 +1,11 @@
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Button, Typography, IconButton, Input, InputAdornment, FormGroup } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
 
 import CancelIcon from '../../../../../components/iconfont/IconClose';
@@ -160,11 +160,9 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
                 </InputAdornment>
               }
             />
-            {password && (
-              <Slide direction="up" mountOnEnter unmountOnExit>
-                {helperText}
-              </Slide>
-            )}
+            <SlideRelative direction="down" show={!!password}>
+              {helperText}
+            </SlideRelative>
           </FormGroup>
         </Box>
 

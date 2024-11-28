@@ -1,9 +1,10 @@
-import { IconButton, Typography, Snackbar, Alert, Slide } from '@mui/material';
+import { IconButton, Typography, Snackbar, Alert } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import { storage } from 'background/webapi';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -228,10 +229,75 @@ const AddressImport = () => {
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/5
             </Typography>
           </Box>
+          <SlideLeftRight
+            show={activeIndex === 0}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <ImportPager
+              setMnemonic={setMnemonic}
+              setPk={setPk}
+              setAccounts={setAccounts}
+              accounts={accounts}
+              mnemonic={mnemonic}
+              pk={pk}
+              setUsername={setUsername}
+              goPassword={goPassword}
+              handleClick={goNext}
+              setErrorMessage={setErrorMessage}
+              setShowError={setShowError}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 1}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
+          </SlideLeftRight>
 
-          <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
-            {page(activeIndex)}
-          </Slide>
+          <SlideLeftRight
+            show={activeIndex === 2}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <SetPassword
+              handleClick={goGoogle}
+              tempPassword={password}
+              mnemonic={mnemonic}
+              pk={pk}
+              username={username}
+              accounts={accounts}
+              goEnd={goEnd}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 3}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <RecoverPassword
+              handleClick={goNext}
+              mnemonic={mnemonic}
+              pk={pk}
+              tempPassword={password}
+              goEnd={goEnd}
+              accountKey={accounts}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 4}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <GoogleBackup
+              handleClick={goNext}
+              mnemonic={mnemonic}
+              username={username}
+              password={password}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 5}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <AllSet handleClick={goNext} />
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

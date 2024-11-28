@@ -2,9 +2,10 @@ import InfoIcon from '@mui/icons-material/Info';
 import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import { Button, Typography, IconButton } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 
 import IconCopy from '../../../../components/iconfont/IconCopy';
 
@@ -187,7 +188,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           justifyContent: 'flex-end',
         }}
       >
-        <Slide direction="up" mountOnEnter unmountOnExit>
+        <SlideRelative direction="down" show={true}>
           <Box
             sx={{
               width: '95%',
@@ -209,7 +210,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
               {chrome.i18n.getMessage('Please__notice__that__If__you__lose__you__can__not__access')}
             </Typography>
           </Box>
-        </Slide>
+        </SlideRelative>
         <Button
           disabled={!canGoNext}
           onClick={handleClick}

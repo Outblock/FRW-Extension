@@ -1,11 +1,11 @@
 import { Typography, Button, Fade, Input, FormControl } from '@mui/material';
 import Box from '@mui/material/Box';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 
 import { LLHeader } from '@/ui/FRWComponent';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
 
 import CancelIcon from '../../../../components/iconfont/IconClose';
@@ -133,20 +133,18 @@ const PrivateKeyPassword = () => {
             onKeyDown={handleKeyDown}
           />
 
-          {confirmPassword && !isMatch && (
-            <Slide direction="up" mountOnEnter unmountOnExit>
-              <Box
-                sx={{
-                  width: '95%',
-                  backgroundColor: 'error.light',
-                  mx: 'auto',
-                  borderRadius: '0 0 12px 12px',
-                }}
-              >
-                <Box sx={{ p: '4px' }}>{passwordError()}</Box>
-              </Box>
-            </Slide>
-          )}
+          <SlideRelative direction="down" show={!!confirmPassword && !isMatch}>
+            <Box
+              sx={{
+                width: '95%',
+                backgroundColor: 'error.light',
+                mx: 'auto',
+                borderRadius: '0 0 12px 12px',
+              }}
+            >
+              <Box sx={{ p: '4px' }}>{passwordError()}</Box>
+            </Box>
+          </SlideRelative>
 
           {/* <Box sx={{flexGrow: 1}}/> */}
 

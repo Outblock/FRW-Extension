@@ -1,12 +1,13 @@
 import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import { IconButton, Typography, Snackbar, SnackbarContent, Slide } from '@mui/material';
+import { IconButton, Typography, Snackbar, SnackbarContent } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 
 import lilicoIcon from '../../..//..//_raw/images/icon-48.png';
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
@@ -27,6 +28,7 @@ const RecoverRegister = () => {
   const [username, setUsername] = useState('');
   const [mnemonic, setMnemonic] = useState('');
 
+  const pageRef = useRef<HTMLDivElement>(null);
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
   };
@@ -61,7 +63,7 @@ const RecoverRegister = () => {
     }
   };
 
-  const page = (index) => {
+  const Page = React.forwardRef(({ index }: { index: number }, pageRef) => {
     switch (index) {
       case 0:
         return (
@@ -74,13 +76,9 @@ const RecoverRegister = () => {
       case 3:
         return <AllSet handleClick={goNext} />;
       default:
-        return <div />;
+        return <Box />;
     }
-  };
-
-  const slideTransition = (props) => {
-    return <Slide {...props} direction="left" />;
-  };
+  });
 
   return (
     <>
@@ -97,11 +95,7 @@ const RecoverRegister = () => {
       >
         {activeIndex === 3 && <Confetti />}
 
-        <Snackbar
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          TransitionComponent={slideTransition}
-          open={activeIndex === 3}
-        >
+        <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={activeIndex === 3}>
           <SnackbarContent
             style={{ background: 'rgba(252, 129, 74, 0.8)' }}
             sx={{ borderRadius: '12px', opacity: '1', backdropFilter: 'blur(5px)' }}
@@ -198,9 +192,9 @@ const RecoverRegister = () => {
             </Typography>
           </Box>
 
-          <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
-            {page(activeIndex)}
-          </Slide>
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
+            <Page index={activeIndex} />
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

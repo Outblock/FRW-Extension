@@ -1,10 +1,10 @@
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import Web3 from 'web3';
 
 import { LLHeader } from '@/ui/FRWComponent';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type CoinItem } from 'background/service/coinList';
 import { type Contact } from 'background/service/networkModel';
 import erc20ABI from 'background/utils/erc20.abi.json';
@@ -176,36 +176,34 @@ const SendEth = () => {
                   isSend={true}
                 />
               </Box>
-              {validated !== null && (
-                <Slide direction="up" mountOnEnter unmountOnExit>
-                  {validated ? (
-                    <></>
-                  ) : (
+              <SlideRelative direction="down" show={validated !== null}>
+                {validated ? (
+                  <></>
+                ) : (
+                  <Box
+                    sx={{
+                      width: '95%',
+                      backgroundColor: 'error.light',
+                      mx: 'auto',
+                      borderRadius: '0 0 12px 12px',
+                    }}
+                  >
                     <Box
                       sx={{
-                        width: '95%',
-                        backgroundColor: 'error.light',
-                        mx: 'auto',
-                        borderRadius: '0 0 12px 12px',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-                        <Typography variant="body1" color="text.secondary">
-                          {chrome.i18n.getMessage('Invalid_address_in')}
-                          {` ${network}`}
-                        </Typography>
-                      </Box>
+                      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+                      <Typography variant="body1" color="text.secondary">
+                        {chrome.i18n.getMessage('Invalid_address_in')}
+                        {` ${network}`}
+                      </Typography>
                     </Box>
-                  )}
-                </Slide>
-              )}
+                  </Box>
+                )}
+              </SlideRelative>
             </Box>
 
             <Typography

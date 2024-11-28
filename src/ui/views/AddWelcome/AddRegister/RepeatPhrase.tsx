@@ -1,8 +1,9 @@
 import InfoIcon from '@mui/icons-material/Info';
 import { Button, Typography } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 
 const randomElement = (list: any[]) => {
   return list[Math.floor(Math.random() * list.length)];
@@ -185,31 +186,25 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
             justifyContent: 'flex-end',
           }}
         >
-          {incorrect && (
-            <Slide direction="up" mountOnEnter unmountOnExit>
-              <Box
-                sx={{
-                  width: '95%',
-                  backgroundColor: 'error.light',
-                  mx: 'auto',
-                  borderRadius: '12px 12px 0 0',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  py: '8px',
-                }}
-              >
-                <InfoIcon
-                  fontSize="medium"
-                  color="error"
-                  style={{ margin: '0px 12px auto 12px' }}
-                />
-                <Typography variant="body1" color="error.main" sx={{ fontSize: '14px' }}>
-                  {chrome.i18n.getMessage('Incorrect_recovery_phrases_please_try_again')}
-                </Typography>
-              </Box>
-            </Slide>
-          )}
+          <SlideRelative direction="down" show={incorrect}>
+            <Box
+              sx={{
+                width: '95%',
+                backgroundColor: 'error.light',
+                mx: 'auto',
+                borderRadius: '12px 12px 0 0',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                py: '8px',
+              }}
+            >
+              <InfoIcon fontSize="medium" color="error" style={{ margin: '0px 12px auto 12px' }} />
+              <Typography variant="body1" color="error.main" sx={{ fontSize: '14px' }}>
+                {chrome.i18n.getMessage('Incorrect_recovery_phrases_please_try_again')}
+              </Typography>
+            </Box>
+          </SlideRelative>
           <Button
             disabled={selectedPhrase.length !== 3}
             onClick={checkMatch}

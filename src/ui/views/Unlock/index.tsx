@@ -3,7 +3,7 @@ import { Input, Typography, Box, FormControl } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
-import SlideDown from '@/ui/FRWComponent/SlideDown';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import lilo from 'ui/FRWAssets/image/lilo.png';
 import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
 import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
@@ -137,7 +137,7 @@ const Unlock = () => {
           onKeyDown={handleKeyDown}
         />
 
-        <SlideDown show={showError}>
+        <SlideRelative direction="down" show={showError}>
           <Box
             sx={{
               width: '95%',
@@ -150,7 +150,7 @@ const Unlock = () => {
               <UsernameError />
             </Box>
           </Box>
-        </SlideDown>
+        </SlideRelative>
       </FormControl>
 
       <Box sx={{ width: '90%', marginBottom: '32px' }}>

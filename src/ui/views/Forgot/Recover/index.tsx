@@ -1,8 +1,10 @@
-import { IconButton, Snackbar, Alert, Slide } from '@mui/material';
+import { IconButton, Snackbar, Alert } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
@@ -137,9 +139,9 @@ const Recover = () => {
             <div style={{ flexGrow: 1 }}></div>
           </Box>
 
-          <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </Slide>
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

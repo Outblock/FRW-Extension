@@ -1,9 +1,10 @@
-import { IconButton, Slide, Typography } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -201,9 +202,62 @@ const AddressImport = () => {
             </Typography>
           </Box>
 
-          <Slide direction={direction === Direction.Left ? 'left' : 'right'}>
-            {page(activeIndex)}
-          </Slide>
+          <SlideLeftRight
+            show={activeIndex === 0}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <ImportPager
+              setMnemonic={setMnemonic}
+              setPk={setPk}
+              setAccounts={setAccounts}
+              accounts={accounts}
+              mnemonic={mnemonic}
+              pk={pk}
+              setUsername={setUsername}
+              goPassword={goPassword}
+              handleClick={goNext}
+              setErrorMessage={setErrorMessage}
+              setShowError={setShowError}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 1}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 2}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <SetPassword
+              handleClick={goEnd}
+              setExPassword={setPassword}
+              mnemonic={mnemonic}
+              pk={pk}
+              username={username}
+              accounts={accounts}
+              goEnd={goEnd}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 3}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <RecoverPassword
+              handleClick={goNext}
+              mnemonic={mnemonic}
+              pk={pk}
+              username={username}
+              goEnd={goEnd}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 4}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <AllSet handleClick={goNext} />
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />

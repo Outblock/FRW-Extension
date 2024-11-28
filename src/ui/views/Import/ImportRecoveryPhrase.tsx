@@ -1,5 +1,4 @@
 import { Typography, Tabs, Tab, CircularProgress, Button, Snackbar, Alert } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import * as bip39 from 'bip39';

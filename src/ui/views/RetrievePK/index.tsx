@@ -1,9 +1,9 @@
 // import { useTranslation } from 'react-i18next';
 import { Input, Typography, Box, FormControl, List, ListItem, ListItemText } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLPrimaryButton, CredentialBox, LLSecondaryButton } from 'ui/FRWComponent';
 import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
 
@@ -156,20 +156,18 @@ const RetrievePK = () => {
               onKeyDown={handleKeyDown}
             />
 
-            {showError && (
-              <Slide direction="up" mountOnEnter unmountOnExit>
-                <Box
-                  sx={{
-                    width: '95%',
-                    backgroundColor: 'error.light',
-                    mx: 'auto',
-                    borderRadius: '0 0 12px 12px',
-                  }}
-                >
-                  <Box sx={{ p: '4px' }}>{usernameError()}</Box>
-                </Box>
-              </Slide>
-            )}
+            <SlideRelative direction="down" show={showError}>
+              <Box
+                sx={{
+                  width: '95%',
+                  backgroundColor: 'error.light',
+                  mx: 'auto',
+                  borderRadius: '0 0 12px 12px',
+                }}
+              >
+                <Box sx={{ p: '4px' }}>{usernameError()}</Box>
+              </Box>
+            </SlideRelative>
           </FormControl>
         </>
       )}

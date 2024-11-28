@@ -11,12 +11,12 @@ import {
   Button,
 } from '@mui/material';
 import Box from '@mui/material/Box';
-import Slide from '@mui/material/Slide';
 import { makeStyles } from '@mui/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
 
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
@@ -328,11 +328,9 @@ const Resetpassword = () => {
                 </InputAdornment>
               }
             />
-            {password && (
-              <Slide direction="up" mountOnEnter unmountOnExit>
-                {helperText}
-              </Slide>
-            )}
+            <SlideRelative direction="down" show={!!password}>
+              {helperText}
+            </SlideRelative>
             <Input
               sx={{
                 pb: '15px',
@@ -365,9 +363,9 @@ const Resetpassword = () => {
                 </InputAdornment>
               }
             />
-            {confirmPassword && (
-              <Slide style={{ height: '40px', display: 'flex' }}>{helperMatch}</Slide>
-            )}
+            <SlideRelative direction="down" show={!!confirmPassword}>
+              {helperMatch}
+            </SlideRelative>
           </FormGroup>
         </Box>
         <Box

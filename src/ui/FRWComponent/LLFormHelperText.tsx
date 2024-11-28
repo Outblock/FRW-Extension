@@ -1,10 +1,11 @@
 import { Typography, CircularProgress } from '@mui/material';
-import Slide from '@mui/material/Slide';
 import { Box } from '@mui/system';
 import React from 'react';
 
 import CheckCircleIcon from '../../components/iconfont/IconCheckmark';
 import CancelIcon from '../../components/iconfont/IconClose';
+
+import SlideRelative from './SlideRelative';
 interface LLFormHelperTextProps {
   inputValue: any;
   isValid: boolean;
@@ -70,22 +71,18 @@ export const LLFormHelperText = (props: LLFormHelperTextProps) => {
 
   return (
     <>
-      {inputValue && (
-        <Slide direction="up" mountOnEnter unmountOnExit>
-          <Box
-            sx={{
-              width: '95%',
-              backgroundColor: msgBgColor(),
-              mx: 'auto',
-              borderRadius: '0 0 12px 12px',
-            }}
-          >
-            <Box sx={{ p: '4px' }}>
-              {genHelperText(isValidating, isValid, errorMsg, successMsg)}
-            </Box>
-          </Box>
-        </Slide>
-      )}
+      <SlideRelative direction="down" show={inputValue}>
+        <Box
+          sx={{
+            width: '95%',
+            backgroundColor: msgBgColor(),
+            mx: 'auto',
+            borderRadius: '0 0 12px 12px',
+          }}
+        >
+          <Box sx={{ p: '4px' }}>{genHelperText(isValidating, isValid, errorMsg, successMsg)}</Box>
+        </Box>
+      </SlideRelative>
     </>
   );
 };

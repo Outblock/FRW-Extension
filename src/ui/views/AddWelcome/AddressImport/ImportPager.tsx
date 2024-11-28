@@ -1,7 +1,5 @@
 import { Box, Tabs, Tab, Typography } from '@mui/material';
-import Slide from '@mui/material/Slide';
-import * as bip39 from 'bip39';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState } from 'react';
 
 import { storage } from '@/background/webapi';
 import { useWallet } from 'ui/utils';

@@ -1,9 +1,11 @@
-import { IconButton, Typography, Button, Snackbar, Alert, Slide } from '@mui/material';
+import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -164,13 +166,9 @@ const ImportPager = () => {
             </Typography>
           </Box>
 
-          <Slide
-            direction={direction === Direction.Left ? 'left' : 'right'}
-            mountOnEnter
-            unmountOnExit
-          >
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </Slide>
+          </SlideLeftRight>
         </Box>
 
         {activeIndex === 0 && (
