@@ -79,16 +79,19 @@ const useStyles = makeStyles(() => ({
 
 const SettingTab = () => {
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [isActive, setIsActive] = useState(false);
+  const [isKeyphrase, setIsKeyphrase] = useState(false);
 
   const checkIsActive = useCallback(async () => {
     // setSending(true);
-    const activeChild = await wallet.getActiveWallet();
+    const activeChild = await usewallet.getActiveWallet();
     if (activeChild) {
       setIsActive(activeChild);
     }
-  }, [wallet]);
+    const keyrings = await usewallet.checkMnemonics();
+    await setIsKeyphrase(keyrings);
+  }, [usewallet]);
 
   useEffect(() => {
     checkIsActive();
@@ -184,24 +187,25 @@ const SettingTab = () => {
           )}
 
           {!isActive && <Divider sx={{ width: '90%' }} variant="middle" />}
-
-          <ListItem
-            button
-            component={Link}
-            to="/dashboard/setting/backups"
-            disablePadding
-            className={classes.listItem}
-          >
-            <ListItemButton className={classes.itemButton}>
-              <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconBackup className={classes.iconOthers} color="#59A1DB" />
-              </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Backup')} />
-              <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                <IconEnd size={12} />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
+          {isKeyphrase && (
+            <ListItem
+              button
+              component={Link}
+              to="/dashboard/setting/backups"
+              disablePadding
+              className={classes.listItem}
+            >
+              <ListItemButton className={classes.itemButton}>
+                <ListItemIcon sx={{ minWidth: '25px' }}>
+                  <IconBackup className={classes.iconOthers} color="#59A1DB" />
+                </ListItemIcon>
+                <ListItemText primary={chrome.i18n.getMessage('Backup')} />
+                <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                  <IconEnd size={12} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
 
         <List className={classes.list} sx={{ margin: '8px auto 18px auto', pt: 0, pb: 0 }}>
