@@ -100,6 +100,10 @@ const TransferList = ({ setCount }) => {
                 fontWeight: '500',
                 textAlign: 'end',
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
+                maxWidth: '100px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               {props.type === 1
@@ -137,7 +141,7 @@ const TransferList = ({ setCount }) => {
         disableTypography={true}
         primary={
           !isLoading ? (
-            <Box sx={{ display: 'flex', gap: '3px' }}>
+            <Box sx={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
               {props.txType === 1 ? (
                 <CallMadeRoundedIcon sx={{ color: 'info.main', width: '18px' }} />
               ) : (
@@ -145,7 +149,13 @@ const TransferList = ({ setCount }) => {
               )}
               <Typography
                 variant="body1"
-                sx={{ fontSize: 14, fontWeight: '500', textAlign: 'start' }}
+                sx={{
+                  fontSize: 14,
+                  fontWeight: '500',
+                  maxWidth: '150px',
+                  wordWrap: 'break-word',
+                  textAlign: 'start',
+                }}
               >
                 {props.title}
               </Typography>
