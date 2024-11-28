@@ -1,8 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { useHistory } from 'react-router-dom';
-import theme from '../../style/LLTheme';
-import { formatLargeNumber } from 'ui/utils/number';
 import {
   Typography,
   ListItem,
@@ -14,7 +9,15 @@ import {
   List,
   IconButton,
 } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/system';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { formatLargeNumber } from 'ui/utils/number';
+
 import IconCreate from '../../../components/iconfont/IconCreate';
+import theme from '../../style/LLTheme';
+
 import TokenDropdown from './TokenDropdown';
 
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
@@ -217,7 +220,11 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                     </ListItemIcon>
                     <StartListItemText
                       primary={coin.coin}
-                      price={coin.price}
+                      price={
+                        typeof coin.price === 'number' && !isNaN(coin.price)
+                          ? coin.price.toFixed(3)
+                          : 'N/A'
+                      }
                       change={parseFloat(coin.change24h.toFixed(2))}
                     />
                   </ListItemButton>
