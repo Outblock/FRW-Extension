@@ -73,16 +73,15 @@ jobs:
           EOF
 
       - name: Build production
-        run: pnpm run build:pro
+        run: pnpm run build:ci
         env:
           CI: true
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: extension-build
           path: dist/
-          retention-days: 7
 
       - name: Check build size
         run: |
