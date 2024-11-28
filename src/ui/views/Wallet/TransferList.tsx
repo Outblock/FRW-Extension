@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { useWallet } from 'ui/utils';
-import { formatString } from 'ui/utils/address';
-import theme from '../../style/LLTheme';
+import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
+import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import {
   Typography,
   ListItem,
@@ -14,14 +12,17 @@ import {
   CardMedia,
   Button,
 } from '@mui/material';
-import activity from 'ui/FRWAssets/svg/activity.svg';
+import { Box, ThemeProvider } from '@mui/system';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-// import IconExec from '../../../components/iconfont/IconExec';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-// import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
-import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
-import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
+import React, { useEffect, useState } from 'react';
+
+import activity from 'ui/FRWAssets/svg/activity.svg';
+import { useWallet } from 'ui/utils';
+import { formatString } from 'ui/utils/address';
+
+import theme from '../../style/LLTheme';
+
 dayjs.extend(relativeTime);
 
 const TransferList = ({ setCount }) => {
@@ -96,9 +97,13 @@ const TransferList = ({ setCount }) => {
                 fontWeight: '500',
                 textAlign: 'end',
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
+                maxWidth: '100px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
-              {props.type == 1
+              {props.type === 1
                 ? (isReceive ? '+' : '-') + `${props.amount}`.replace(/^-/, '')
                 : `${props.token}`}
             </Typography>
@@ -133,7 +138,7 @@ const TransferList = ({ setCount }) => {
         disableTypography={true}
         primary={
           !isLoading ? (
-            <Box sx={{ display: 'flex', gap: '3px' }}>
+            <Box sx={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
               {props.txType === 1 ? (
                 <CallMadeRoundedIcon sx={{ color: 'info.main', width: '18px' }} />
               ) : (
@@ -141,7 +146,13 @@ const TransferList = ({ setCount }) => {
               )}
               <Typography
                 variant="body1"
-                sx={{ fontSize: 14, fontWeight: '500', textAlign: 'start' }}
+                sx={{
+                  fontSize: 14,
+                  fontWeight: '500',
+                  maxWidth: '150px',
+                  wordWrap: 'break-word',
+                  textAlign: 'start',
+                }}
               >
                 {props.title}
               </Typography>
@@ -209,9 +220,12 @@ const TransferList = ({ setCount }) => {
                       dense={true}
                       onClick={() => {
                         {
-                          monitor === 'flowscan'
-                            ? window.open(`${flowscanURL}/tx/${tx.hash}`)
-                            : window.open(`${viewSource}/${tx.hash}`);
+                          const url =
+                            monitor === 'flowscan'
+                              ? `${flowscanURL}/tx/${tx.hash}`
+                              : `${viewSource}/${tx.hash}`;
+                          // eslint-disable-next-line no-restricted-globals
+                          window.open(url);
                         }
                       }}
                     >
@@ -247,6 +261,7 @@ const TransferList = ({ setCount }) => {
                     variant="text"
                     endIcon={<ChevronRightRoundedIcon />}
                     onClick={() => {
+                      // eslint-disable-next-line no-restricted-globals
                       window.open(`${flowscanURL}/account/${address}`, '_blank');
                     }}
                   >
