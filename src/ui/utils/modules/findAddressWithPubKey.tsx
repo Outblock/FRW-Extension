@@ -1,4 +1,5 @@
 import * as fcl from '@onflow/fcl';
+
 import { fclMainnetConfig, fclTestnetConfig } from 'background/fclConfig';
 import { userWalletService } from 'background/service';
 
