@@ -102,7 +102,7 @@ class MixpanelBrowserService {
 
     mixpanel.init(token, {
       debug: process.env.NODE_ENV !== 'production',
-      track_pageview: true,
+      track_pageview: 'full-url', // track the full url including the hash
       persistence: 'localStorage',
       batch_requests: true,
       batch_size: 10,

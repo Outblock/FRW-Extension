@@ -27,7 +27,6 @@ function Main() {
   }, []);
 
   return (
-    //@ts-ignore
     <Router>
       <Route exact path="/">
         <SortHat />
@@ -48,8 +47,6 @@ function Main() {
 }
 
 const App = ({ wallet }: { wallet: any }) => {
-  console.log('Theme:', theme); // Add this to debug
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
