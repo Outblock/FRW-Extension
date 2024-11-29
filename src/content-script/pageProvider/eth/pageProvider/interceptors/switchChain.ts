@@ -1,8 +1,8 @@
+import IconArrow from '../../assets/arrow.svg';
 import IconFlow from '../../assets/flow.svg';
 import IconWarning from '../../assets/warning.svg';
-import IconArrow from '../../assets/arrow.svg';
-import notice from '../notice';
 import { isInSameOriginIframe } from '../../utils/iframe';
+import notice from '../notice';
 
 let instance: ReturnType<typeof notice> | null;
 

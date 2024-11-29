@@ -1,8 +1,9 @@
-import IconMetamask from '../../assets/metamask.svg';
-import IconFlow from '../../assets/flow.svg';
-import notice from '../notice';
-import { isInSameOriginIframe } from '../../utils/iframe';
 import { flow } from 'lodash';
+
+import IconFlow from '../../assets/flow.svg';
+import IconMetamask from '../../assets/metamask.svg';
+import { isInSameOriginIframe } from '../../utils/iframe';
+import notice from '../notice';
 
 let instance: ReturnType<typeof notice> | null;
 
