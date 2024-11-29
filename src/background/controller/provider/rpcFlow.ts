@@ -1,4 +1,7 @@
 import { ethErrors } from 'eth-rpc-errors';
+
+import eventBus from '@/eventBus';
+import { isValidEthereumAddress } from '@/ui/utils/address';
 import {
   keyringService,
   notificationService,
@@ -7,10 +10,10 @@ import {
 } from 'background/service';
 import { PromiseFlow, underline2Camelcase } from 'background/utils';
 import { EVENTS } from 'consts';
-import providerController from './controller';
-import eventBus from '@/eventBus';
+
 import Wallet from '../wallet';
-import { isValidEthereumAddress } from '@/ui/utils/address';
+
+import providerController from './controller';
 
 const isSignApproval = (type: string) => {
   const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx', 'EthConfirm'];
