@@ -17,8 +17,8 @@ import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
 import { useWallet } from 'ui/utils';
 import { formatLargeNumber } from 'ui/utils/number';
 
+import { withPrefix } from '../../../shared/utils/address';
 import theme from '../../style/LLTheme';
-import { withPrefix } from '../../utils/address';
 import MoveBoard from '../MoveBoard';
 
 import CoinList from './Coinlist';

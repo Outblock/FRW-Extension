@@ -10,9 +10,9 @@ import {
 } from 'firebase/auth';
 
 import eventBus from '@/eventBus';
+import { Message } from '@/shared/utils/messaging';
 import type { WalletController } from 'background/controller/wallet';
 import { EVENTS } from 'consts';
-import { Message } from 'utils';
 
 import { providerController, walletController } from './controller';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';

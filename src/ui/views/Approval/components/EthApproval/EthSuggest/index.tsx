@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
+import { withPrefix } from '@/shared/utils/address';
 import { EVM_ENDPOINT } from 'consts';
 import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
 import { useApproval, useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
 // import EthMove from '../EthMove';
 
 const EthSuggest = (data) => {

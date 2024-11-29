@@ -3,12 +3,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 // import { useHistory, useLocation } from 'react-router-dom';
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import { type CoinItem } from 'background/service/coinList';
 import { type Contact } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
 
 import IconSwitch from '../../../components/iconfont/IconSwitch';
 import Increment from '../../FRWAssets/svg/increment.svg';

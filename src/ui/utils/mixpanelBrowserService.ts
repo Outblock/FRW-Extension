@@ -3,7 +3,8 @@ import mixpanel from 'mixpanel-browser';
 import eventBus from '@/eventBus';
 import type { TrackingEvents } from '@/shared/types/tracking-types';
 
-import { version } from '../../../package.json';
+import packageJson from '../../../package.json';
+const { version } = packageJson;
 
 // Super properties that will be sent with every event
 type SuperProperties = {

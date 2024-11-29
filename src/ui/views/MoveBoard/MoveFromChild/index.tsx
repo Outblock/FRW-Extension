@@ -3,9 +3,9 @@ import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { isValidEthereumAddress } from '@/ui/utils/address';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';

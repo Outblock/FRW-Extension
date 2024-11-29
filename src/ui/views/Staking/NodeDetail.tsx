@@ -3,9 +3,9 @@ import { Box, Button, Typography, IconButton, ButtonBase } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams, useLocation } from 'react-router-dom';
 
+import { withPrefix } from '@/shared/utils/address';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
 
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
 
