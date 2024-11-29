@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -9,9 +8,9 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
@@ -56,7 +55,7 @@ export const FRWDropdownProfileCard = ({
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -147,6 +146,6 @@ export const FRWDropdownProfileCard = ({
           </Select>
         </FormControl>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

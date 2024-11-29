@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Typography, Avatar, Skeleton } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
+
+import theme from '../style/LLTheme';
 
 const tempEmoji = {
   emoji: '🥥',
@@ -16,36 +18,38 @@ export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fr
   const [emoji, setEmoji] = useState(tempEmoji);
   const [isload, setLoad] = useState(true);
 
-  const getEmoji = async () => {
+  const getEmoji = useCallback(async () => {
     setLoad(true);
     console.log('FRWTargetProfile ', isEvm, contact, emoji, fromEvm);
     if (isEvm) {
       const currentWallet = await usewallet.getEvmWallet();
       console.log('getEvmWallet ', currentWallet);
-      const emojiObject = tempEmoji;
-      emojiObject.emoji = currentWallet.icon;
-      emojiObject.name = currentWallet.name;
-      emojiObject.bgcolor = currentWallet.color;
-      emojiObject['type'] = 'evm';
+      const emojiObject = {
+        ...tempEmoji,
+        emoji: currentWallet.icon,
+        name: currentWallet.name,
+        bgcolor: currentWallet.color,
+        type: 'evm',
+      };
       setEmoji(emojiObject);
-      setLoad(false);
     } else {
       const currentWallet = await usewallet.getCurrentWallet();
-      const emojiObject = tempEmoji;
-      emojiObject.emoji = currentWallet.icon;
-      emojiObject.name = currentWallet.name;
-      emojiObject.bgcolor = currentWallet.color;
-      emojiObject['type'] = 'parent';
+      const emojiObject = {
+        ...tempEmoji,
+        emoji: currentWallet.icon,
+        name: currentWallet.name,
+        bgcolor: currentWallet.color,
+        type: 'parent',
+      };
       setEmoji(emojiObject);
-      setLoad(false);
     }
-
+    setLoad(false);
     console.log('emoji ', emoji);
-  };
+  }, [isEvm, contact, emoji, fromEvm, usewallet]);
 
   useEffect(() => {
     getEmoji();
-  }, [contact]);
+  }, [getEmoji]);
 
   return (
     <ThemeProvider theme={theme}>

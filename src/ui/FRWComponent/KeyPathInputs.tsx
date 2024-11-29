@@ -1,8 +1,5 @@
-import { useEffect, useState, useContext } from 'react';
-import React from 'react';
 import {
   Box,
-  Button,
   Typography,
   CardMedia,
   TextareaAutosize,
@@ -10,13 +7,14 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { LLSpinner } from 'ui/FRWComponent';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import React, { useEffect, useState } from 'react';
+
+import { storage } from 'background/webapi';
+
 import Expand from '../FRWAssets/svg/expand.svg';
 import Hide from '../FRWAssets/svg/hide.svg';
-import { styled } from '@mui/material/styles';
-import { storage } from 'background/webapi';
 
 const useStyles = makeStyles((theme) => ({
   form: {
