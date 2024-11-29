@@ -1,4 +1,5 @@
 import { createPersistStore, createSessionStore } from 'background/utils';
+
 import { TransactionItem } from './networkModel';
 interface TransactionStore {
   expiry: number;

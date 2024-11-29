@@ -1,3 +1,7 @@
+import * as fcl from '@onflow/fcl';
+import type { Method } from 'axios';
+import dayjs from 'dayjs';
+import { initializeApp, getApp } from 'firebase/app';
 import {
   getAuth,
   signInWithCustomToken,
@@ -5,17 +9,15 @@ import {
   indexedDBLocalPersistence,
   signInAnonymously,
   onAuthStateChanged,
-} from '@firebase/auth';
-import type { Unsubscribe } from '@firebase/util';
-import * as fcl from '@onflow/fcl';
-import type { Method } from 'axios';
-import dayjs from 'dayjs';
-import { initializeApp, getApp } from 'firebase/app';
+  type Unsubscribe,
+} from 'firebase/auth';
 import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
+import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
+import { isValidFlowAddress } from '@/ui/utils/address';
 import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
@@ -41,9 +43,6 @@ import {
   PriceProvider,
 } from './networkModel';
 
-// import { getRemoteConfig, fetchAndActivate, getValue } from 'firebase/remote-config';
-// import configJson from 'background/utils/firebase.config.json';
-
 import {
   userWalletService,
   coinListService,
@@ -52,8 +51,8 @@ import {
   transactionService,
   nftService,
   googleSafeHostService,
+  mixpanelTrack,
 } from './index';
-import { isValidFlowAddress } from '@/ui/utils/address';
 // import { userInfo } from 'os';
 // import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
@@ -84,10 +83,9 @@ const remoteFetch = fetchConfig;
 const pricesMap = {};
 
 const waitForAuthInit = async () => {
-  let unsubscribe: Promise<Unsubscribe>;
+  let unsubscribe: Unsubscribe;
   await new Promise<void>((resolve) => {
-    // @ts-expect-error firebase auth function
-    unsubscribe = auth.onAuthStateChanged((user) => resolve());
+    unsubscribe = auth.onAuthStateChanged((_user) => resolve());
   });
   (await unsubscribe!)();
 };
@@ -676,6 +674,13 @@ class OpenApiService {
     );
     await this._signWithCustom(data.data.custom_token);
     await storage.set('currentId', data.data.id);
+
+    // Track the registration
+    mixpanelTrack.track('account_created', {
+      public_key: account_key.public_key,
+      sign_algo: getStringFromSignAlgo(account_key.sign_algo),
+      hash_algo: getStringFromHashAlgo(account_key.hash_algo),
+    });
     return data;
   };
 

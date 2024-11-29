@@ -1,7 +1,8 @@
+import { max } from 'lodash';
 import LRU from 'lru-cache';
+
 import { createPersistStore } from 'background/utils';
 import { INTERNAL_REQUEST_ORIGIN } from 'consts';
-import { max } from 'lodash';
 
 export interface ConnectedSite {
   origin: string;
