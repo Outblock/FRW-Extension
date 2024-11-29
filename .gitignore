@@ -12,6 +12,7 @@ yarn.lock
 .env.pro
 dist.zip
 _raw/manifest.json
+_raw/react-devtools.js
 yarn-error.log
 dist2
 src/background/utils/firebase.config.json
