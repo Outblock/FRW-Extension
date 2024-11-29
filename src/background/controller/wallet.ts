@@ -61,7 +61,7 @@ import BaseController from './base';
 import provider from './provider';
 
 // eslint-disable-next-line import/order,no-restricted-imports
-import { pk2PubKey, seed2PubKey, formPubKey } from '@/ui/utils/modules/passkey';
+import { pk2PubKey, seed2PubKey, formPubKey } from '@/ui/utils/modules/passkey.js';
 
 interface Keyring {
   type: string;

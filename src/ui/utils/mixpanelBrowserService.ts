@@ -1,7 +1,6 @@
 import mixpanel from 'mixpanel-browser';
 
-import eventBus from '@/eventBus';
-import type { TrackingEvents } from '@/shared/types/tracking-types';
+import type { TrackingEvents, TrackMessage } from '@/shared/types/tracking-types';
 
 import packageJson from '../../../package.json';
 const { version } = packageJson;
@@ -17,42 +16,52 @@ type SuperProperties = {
 class MixpanelBrowserService {
   private static instance: MixpanelBrowserService;
   private initialized = false;
-  private boundTrackEventHandler: <T extends keyof TrackingEvents>(params: {
-    eventName: T;
-    properties?: TrackingEvents[T];
-  }) => void;
-  private boundTrackUserHandler: (params: { userId: string }) => void;
-  private boundTrackResetHandler: () => void;
-  private boundTrackTimeHandler: (params: { eventName: keyof TrackingEvents }) => void;
+
+  private mixpanelEventMessageHandler: (message: TrackMessage) => void;
+
   private constructor() {
     this.initMixpanel();
-    // Store bound handlers so we can remove them later
-    this.boundTrackEventHandler = <T extends keyof TrackingEvents>(params: {
-      eventName: T;
-      properties?: TrackingEvents[T];
-    }) => {
-      this.track(params.eventName, params.properties);
-    };
 
-    this.boundTrackUserHandler = (params: { userId: string }) => {
-      this.identify(params.userId);
-    };
-    this.boundTrackResetHandler = () => {
-      this.reset();
-    };
-    this.boundTrackTimeHandler = (params: { eventName: keyof TrackingEvents }) => {
-      this.time(params.eventName);
+    this.mixpanelEventMessageHandler = (message: TrackMessage) => {
+      switch (message.msg) {
+        case 'track_event':
+          // TypeScript knows eventName and properties are available here
+          this.track(message.eventName, message.properties);
+          break;
+        case 'track_user':
+          // TypeScript knows userId is available here
+          this.identify(message.userId);
+          break;
+        case 'track_reset':
+          // TypeScript knows this is just a reset message
+          this.reset();
+          break;
+        case 'track_time':
+          // TypeScript knows eventName is available here
+          this.time(message.eventName);
+          break;
+      }
     };
 
     this.setupEventListener();
   }
 
   private setupEventListener() {
-    // Bind event handlers to the event bus
-    eventBus.addEventListener('track_event', this.boundTrackEventHandler);
-    eventBus.addEventListener('track_user', this.boundTrackUserHandler);
-    eventBus.addEventListener('track_reset', this.boundTrackResetHandler);
-    eventBus.addEventListener('track_time', this.boundTrackTimeHandler);
+    // Listen for messages from the background script
+    // This feels blunt as we have to switch on the message type
+    // TODO: We should use a more elegant approach to filter messages based on the sender
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      switch (message.msg) {
+        case 'track_event':
+        case 'track_user':
+        case 'track_reset':
+        case 'track_time':
+          this.mixpanelEventMessageHandler(message);
+          sendResponse({ success: true });
+          break;
+      }
+      return true; // Keep the message channel open for asynchronous response
+    });
   }
 
   init() {
@@ -60,18 +69,8 @@ class MixpanelBrowserService {
     // Mixpanel is initialized in the constructor
   }
   cleanup() {
-    if (this.boundTrackEventHandler) {
-      eventBus.removeEventListener('track_event', this.boundTrackEventHandler);
-    }
-    if (this.boundTrackUserHandler) {
-      eventBus.removeEventListener('track_user', this.boundTrackUserHandler);
-    }
-    if (this.boundTrackResetHandler) {
-      eventBus.removeEventListener('track_reset', this.boundTrackResetHandler);
-    }
-    if (this.boundTrackTimeHandler) {
-      eventBus.removeEventListener('track_time', this.boundTrackTimeHandler);
-    }
+    // Remove the event listener
+    chrome.runtime.onMessage.removeListener(this.mixpanelEventMessageHandler);
   }
 
   static getInstance(): MixpanelBrowserService {
