@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { useWallet } from 'ui/utils';
-import { formatString } from 'ui/utils/address';
-import theme from '../../style/LLTheme';
+import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
+import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import {
   Typography,
   ListItem,
@@ -13,15 +11,17 @@ import {
   ListItemButton,
   CardMedia,
   Button,
+  Box,
 } from '@mui/material';
-import activity from 'ui/FRWAssets/svg/activity.svg';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import activity from 'ui/FRWAssets/svg/activity.svg';
+import { useWallet } from 'ui/utils';
+import { formatString } from 'ui/utils/address';
 // import IconExec from '../../../components/iconfont/IconExec';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 // import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
-import CallMadeRoundedIcon from '@mui/icons-material/CallMadeRounded';
-import CallReceivedRoundedIcon from '@mui/icons-material/CallReceivedRounded';
 dayjs.extend(relativeTime);
 
 const TransferList = ({ setCount }) => {
@@ -34,7 +34,7 @@ const TransferList = ({ setCount }) => {
   const [address, setAddress] = useState<string | null>('0x');
   const [showButton, setShowButton] = useState(false);
 
-  const fetchTransaction = async () => {
+  const fetchTransaction = useCallback(async () => {
     setLoading(true);
     const monitor = await wallet.getMonitor();
     setMonitor(monitor);
@@ -52,17 +52,20 @@ const TransferList = ({ setCount }) => {
         setShowButton(data['count'] > 15);
       }
       setTx(data['list']);
-    } catch (e) {
+    } catch {
       setLoading(false);
     }
-  };
+  }, [wallet, setCount]);
 
-  const extMessageHandler = (req) => {
-    if (req.msg === 'transferListReceived') {
-      fetchTransaction();
-    }
-    return true;
-  };
+  const extMessageHandler = useCallback(
+    (req) => {
+      if (req.msg === 'transferListReceived') {
+        fetchTransaction();
+      }
+      return true;
+    },
+    [fetchTransaction]
+  );
 
   useEffect(() => {
     fetchTransaction();
@@ -71,7 +74,7 @@ const TransferList = ({ setCount }) => {
     return () => {
       chrome.runtime.onMessage.removeListener(extMessageHandler);
     };
-  }, []);
+  }, [extMessageHandler, fetchTransaction]);
 
   const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp);
@@ -84,6 +87,14 @@ const TransferList = ({ setCount }) => {
   const EndListItemText = (props) => {
     const isReceive = props.txType === 2;
     const isFT = props.type === 1;
+
+    const calculateMaxWidth = () => {
+      const textLength =
+        props.type === 1 ? `${props.amount}`.replace(/^-/, '').length : `${props.token}`.length;
+      const baseWidth = 30;
+      const additionalWidth = textLength * 8;
+      return `${Math.min(baseWidth + additionalWidth, 70)}px`;
+    };
     return (
       <ListItemText
         disableTypography={true}
@@ -92,13 +103,17 @@ const TransferList = ({ setCount }) => {
             <Typography
               variant="body1"
               sx={{
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: '500',
                 textAlign: 'end',
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
+                maxWidth: calculateMaxWidth(),
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
-              {props.type == 1
+              {props.type === 1
                 ? (isReceive ? '+' : '-') + `${props.amount}`.replace(/^-/, '')
                 : `${props.token}`}
             </Typography>
@@ -133,7 +148,7 @@ const TransferList = ({ setCount }) => {
         disableTypography={true}
         primary={
           !isLoading ? (
-            <Box sx={{ display: 'flex', gap: '3px' }}>
+            <Box sx={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
               {props.txType === 1 ? (
                 <CallMadeRoundedIcon sx={{ color: 'info.main', width: '18px' }} />
               ) : (
@@ -141,7 +156,13 @@ const TransferList = ({ setCount }) => {
               )}
               <Typography
                 variant="body1"
-                sx={{ fontSize: 14, fontWeight: '500', textAlign: 'start' }}
+                sx={{
+                  fontSize: 12,
+                  fontWeight: '500',
+                  maxWidth: '180px',
+                  wordWrap: 'break-word',
+                  textAlign: 'start',
+                }}
               >
                 {props.title}
               </Typography>
@@ -182,7 +203,7 @@ const TransferList = ({ setCount }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {!isLoading ? (
         <Box>
           {transaction && transaction.length ? (
@@ -209,9 +230,11 @@ const TransferList = ({ setCount }) => {
                       dense={true}
                       onClick={() => {
                         {
-                          monitor === 'flowscan'
-                            ? window.open(`${flowscanURL}/tx/${tx.hash}`)
-                            : window.open(`${viewSource}/${tx.hash}`);
+                          const url =
+                            monitor === 'flowscan'
+                              ? `${flowscanURL}/tx/${tx.hash}`
+                              : `${viewSource}/${tx.hash}`;
+                          window.open(url);
                         }
                       }}
                     >
@@ -301,7 +324,7 @@ const TransferList = ({ setCount }) => {
           );
         })
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

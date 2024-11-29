@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
+import AndroidIcon from '@mui/icons-material/Android';
+import AppleIcon from '@mui/icons-material/Apple';
+import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import {
   Typography,
   List,
@@ -12,20 +12,26 @@ import {
   CardMedia,
   IconButton,
 } from '@mui/material';
-import IconAccount from '../../../components/iconfont/IconAccount';
-import IconWallet from '../../../components/iconfont/IconWallet';
-import IconAddressbook from '../../../components/iconfont/IconAddressbook';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+
+import { useWallet } from '@/ui/utils';
+import Device from 'ui/FRWAssets/svg/device.svg';
+import IconLink from 'ui/FRWAssets/svg/Iconlink.svg';
+
 import IconAbout from '../../../components/iconfont/IconAbout';
+import IconAccount from '../../../components/iconfont/IconAccount';
+import IconAddressbook from '../../../components/iconfont/IconAddressbook';
 import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import IconBackup from '../../../components/iconfont/IconBackup';
-import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
-import AppleIcon from '@mui/icons-material/Apple';
-import AndroidIcon from '@mui/icons-material/Android';
-import IconLink from 'ui/FRWAssets/svg/iconlink.svg';
-import Device from 'ui/FRWAssets/svg/device.svg';
-import { useWallet } from '@/ui/utils';
 import IconDeveloper from '../../../components/iconfont/IconDeveloper';
+import IconWallet from '../../../components/iconfont/IconWallet';
 
+// Feature flags
+const SHOW_DEVICES = false;
+
+// Styles
 const useStyles = makeStyles(() => ({
   listDiv: {
     justifyContent: 'center',
@@ -76,22 +82,24 @@ const useStyles = makeStyles(() => ({
 }));
 
 const SettingTab = () => {
-  const { url } = useRouteMatch();
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [isActive, setIsActive] = useState(false);
+  const [isKeyphrase, setIsKeyphrase] = useState(false);
 
-  const checkIsActive = async () => {
+  const checkIsActive = useCallback(async () => {
     // setSending(true);
-    const activeChild = await wallet.getActiveWallet();
+    const activeChild = await usewallet.getActiveWallet();
     if (activeChild) {
       setIsActive(activeChild);
     }
-  };
+    const keyrings = await usewallet.checkMnemonics();
+    await setIsKeyphrase(keyrings);
+  }, [usewallet]);
 
   useEffect(() => {
     checkIsActive();
-  }, []);
+  }, [checkIsActive]);
 
   return (
     <div className="page">
@@ -183,24 +191,25 @@ const SettingTab = () => {
           )}
 
           {!isActive && <Divider sx={{ width: '90%' }} variant="middle" />}
-
-          <ListItem
-            button
-            component={Link}
-            to="/dashboard/setting/backups"
-            disablePadding
-            className={classes.listItem}
-          >
-            <ListItemButton className={classes.itemButton}>
-              <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconBackup className={classes.iconOthers} color="#59A1DB" />
-              </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Backup')} />
-              <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                <IconEnd size={12} />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
+          {isKeyphrase && (
+            <ListItem
+              button
+              component={Link}
+              to="/dashboard/setting/backups"
+              disablePadding
+              className={classes.listItem}
+            >
+              <ListItemButton className={classes.itemButton}>
+                <ListItemIcon sx={{ minWidth: '25px' }}>
+                  <IconBackup className={classes.iconOthers} color="#59A1DB" />
+                </ListItemIcon>
+                <ListItemText primary={chrome.i18n.getMessage('Backup')} />
+                <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                  <IconEnd size={12} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
 
         <List className={classes.list} sx={{ margin: '8px auto 18px auto', pt: 0, pb: 0 }}>
@@ -264,29 +273,33 @@ const SettingTab = () => {
 
           <Divider sx={{ width: '90%' }} variant="middle" />
 
-          <ListItem
-            button
-            component={Link}
-            to="/dashboard/setting/devices"
-            disablePadding
-            className={classes.listItem}
-          >
-            <ListItemButton className={classes.itemButton}>
-              <ListItemIcon sx={{ minWidth: '25px' }}>
-                <CardMedia
-                  className={classes.icon}
-                  sx={{ height: '16px', width: '19px', marginRight: '13px' }}
-                  image={Device}
-                />
-              </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Devices')} />
-              <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                <IconEnd size={12} />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
+          {SHOW_DEVICES && (
+            <>
+              <ListItem
+                button
+                component={Link}
+                to="/dashboard/setting/devices"
+                disablePadding
+                className={classes.listItem}
+              >
+                <ListItemButton className={classes.itemButton}>
+                  <ListItemIcon sx={{ minWidth: '25px' }}>
+                    <CardMedia
+                      className={classes.icon}
+                      sx={{ height: '16px', width: '19px', marginRight: '13px' }}
+                      image={Device}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={chrome.i18n.getMessage('Devices')} />
+                  <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                    <IconEnd size={12} />
+                  </ListItemIcon>
+                </ListItemButton>
+              </ListItem>
 
-          <Divider sx={{ width: '90%' }} variant="middle" />
+              <Divider sx={{ width: '90%' }} variant="middle" />
+            </>
+          )}
 
           <ListItem
             button

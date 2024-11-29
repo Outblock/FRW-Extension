@@ -1,7 +1,8 @@
+import { max } from 'lodash';
 import LRU from 'lru-cache';
+
 import { createPersistStore } from 'background/utils';
 import { INTERNAL_REQUEST_ORIGIN } from 'consts';
-import { max } from 'lodash';
 
 export interface ConnectedSite {
   origin: string;
@@ -58,10 +59,9 @@ class PermissionService {
     origin: string,
     name: string,
     icon: string,
-    defaultChain = 545,
+    defaultChain = 747,
     isSigned = false
   ) => {
-    console.log('origin ', origin);
     if (!this.lruCache) return;
     this.lruCache.set(origin, {
       origin,
@@ -71,7 +71,6 @@ class PermissionService {
       isSigned,
       isTop: false,
     });
-    console.log('lruCache ', this.lruCache);
     this.sync();
   };
 

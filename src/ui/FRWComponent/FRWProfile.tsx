@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Typography, Avatar, Skeleton } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 
 const tempEmoji = {
@@ -15,21 +14,21 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false }) => {
   const usewallet = useWallet();
   const [emoji, setEmoji] = useState(tempEmoji);
 
-  const getEmoji = async () => {
+  const getEmoji = useCallback(async () => {
     const emojiList = await usewallet.getEmoji();
     if (isEvm) {
       setEmoji(emojiList[1]);
     } else {
       setEmoji(emojiList[0]);
     }
-  };
+  }, [isEvm, usewallet]);
 
   useEffect(() => {
     getEmoji();
-  }, [contact]);
+  }, [contact, getEmoji]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -78,6 +77,6 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false }) => {
         )}
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

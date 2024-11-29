@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Typography, IconButton, Box, Input, Avatar } from '@mui/material';
-import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import { Switch, switchClasses } from '@mui/base/Switch';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// import '../../Unlock/style.css';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import { useWallet } from 'ui/utils';
-import { flexbox, styled } from '@mui/system';
-import claimDomain from 'ui/FRWAssets/image/claimDomain.png';
-import bannerbackground from 'ui/FRWAssets/svg/banner-background.svg';
-import { LLHeader } from '@/ui/FRWComponent';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import { Typography, IconButton, Box, Avatar } from '@mui/material';
+import { styled } from '@mui/system';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { useWallet } from 'ui/utils';
+
 import EditAccount from './EditAccount';
-import { concatSig } from 'eth-sig-util';
 
 const orange = {
   500: '#41CC5D',
@@ -35,13 +30,13 @@ const Root = styled('span')(
     // margin: 0;
     margin-left: auto;
     cursor: pointer;
-  
-    &.${switchUnstyledClasses.disabled} {
+
+    &.${switchClasses.disabled} {
       opacity: 0.4;
       cursor: not-allowed;
     }
-  
-    & .${switchUnstyledClasses.track} {
+
+    & .${switchClasses.track} {
       background: ${theme.palette.mode === 'dark' ? grey[600] : grey[400]};
       border-radius: 10px;
       display: block;
@@ -49,8 +44,8 @@ const Root = styled('span')(
       width: 100%;
       position: absolute;
     }
-  
-    & .${switchUnstyledClasses.thumb} {
+
+    & .${switchClasses.thumb} {
       display: block;
       width: 14px;
       height: 14px;
@@ -61,25 +56,25 @@ const Root = styled('span')(
       position: relative;
       transition: all 200ms ease;
     }
-  
-    &.${switchUnstyledClasses.focusVisible} .${switchUnstyledClasses.thumb} {
+
+    &.${switchClasses.focusVisible} .${switchClasses.thumb} {
       background-color: ${grey[500]};
       box-shadow: 0 0 1px 8px rgba(0, 0, 0, 0.25);
     }
-  
-    &.${switchUnstyledClasses.checked} {
-      .${switchUnstyledClasses.thumb} {
+
+    &.${switchClasses.checked} {
+      .${switchClasses.thumb} {
         left: 17px;
         top: 3px;
         background-color: #fff;
       }
-  
-      .${switchUnstyledClasses.track} {
+
+      .${switchClasses.track} {
         background: ${orange[500]};
       }
     }
-  
-    & .${switchUnstyledClasses.input} {
+
+    & .${switchClasses.input} {
       cursor: inherit;
       position: absolute;
       width: 100%;
@@ -96,40 +91,24 @@ const Root = styled('span')(
 const Flowns = () => {
   const history = useHistory();
   const wallet = useWallet();
-  const [claiming, setClaiming] = useState(false);
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
   const [isEdit, setEdit] = useState(false);
   const [avatar, setAvatar] = useState('');
   const [modeAnonymous, setModeAnonymous] = useState(false);
-  const [domain, setDomain] = useState('');
-  const [showPop, setShowPop] = useState(false);
 
-  const handleClaiming = () => {
-    setClaiming(true);
-  };
-
-  const getUsername = async () => {
+  const getUsername = useCallback(async () => {
     const userInfo = await wallet.getUserInfo(false);
     setUsername(userInfo.username);
     setNickname(userInfo.nickname);
     setAvatar(userInfo.avatar);
-  };
-
-  const updatePreference = async (modeAnonymous) => {
-    if (modeAnonymous) {
-      await wallet.updateProfilePreference(2);
-    } else {
-      await wallet.updateProfilePreference(1);
-    }
-    await getAnonymousMode();
-  };
+  }, [wallet]);
 
   const toggleEdit = () => {
     setEdit(!isEdit);
   };
 
-  const getAnonymousMode = async () => {
+  const getAnonymousMode = useCallback(async () => {
     // const domain = await wallet.fetchUserDomain();
     // if (domain) {
     //   setDomain(domain);
@@ -142,21 +121,33 @@ const Flowns = () => {
     } else {
       setModeAnonymous(true);
     }
-  };
+  }, [wallet]);
 
-  const refreshUsername = async () => {
+  const updatePreference = useCallback(
+    async (modeAnonymous) => {
+      if (modeAnonymous) {
+        await wallet.updateProfilePreference(2);
+      } else {
+        await wallet.updateProfilePreference(1);
+      }
+      await getAnonymousMode();
+    },
+    [getAnonymousMode, wallet]
+  );
+
+  const refreshUsername = useCallback(async () => {
     const userInfo = await wallet.getUserInfo(true);
     setUsername(userInfo.username);
-  };
+  }, [wallet]);
 
-  const switchAnonymousMode = async () => {
+  const switchAnonymousMode = useCallback(async () => {
     await updatePreference(!modeAnonymous);
-  };
+  }, [updatePreference, modeAnonymous]);
 
   useEffect(() => {
     getAnonymousMode();
     getUsername();
-  }, []);
+  }, [getAnonymousMode, getUsername]);
 
   return (
     <div className="page">
@@ -263,9 +254,11 @@ const Flowns = () => {
                 )}
               </Typography>
             </Box>
-            <SwitchUnstyled
+            <Switch
               checked={modeAnonymous}
-              component={Root}
+              slots={{
+                root: Root,
+              }}
               onChange={() => {
                 switchAnonymousMode();
               }}
@@ -286,26 +279,26 @@ const Flowns = () => {
                 {username}.meow
               </Typography>
             </Box>
-            <CheckCircleIcon 
+            <CheckCircleIcon
               size={24}
               color={'#41CC5D'}
             />
           </Box>
           } */}
           {/* {showPop &&
-            <Box sx={{display:'flex',justifyContent:'space-between', 
-            //  width:'100%', 
+            <Box sx={{display:'flex',justifyContent:'space-between',
+            //  width:'100%',
               alignItems: 'center',
               border: '1px solid #FFFFFF',
               borderRadius:'12px',
               padding:'0px 15px 0px 0px',
-              marginTop: '16px',            
+              marginTop: '16px',
               backgroundImage:`url(${bannerbackground})`,
               backgroundSize: '370px, 60px'
-              
+
             }}
             >
-              <Box 
+              <Box
                 sx={{
                   width: '254px',
                   height: '46px',
@@ -327,7 +320,7 @@ const Flowns = () => {
                   {chrome.i18n.getMessage('Claim__for__your')}
                   <Typography
                     display="inline"
-                    sx={{ 
+                    sx={{
                       fontWeight: 'bold',
                       fontSize:'12px',
                       color:'#FFFFFF'

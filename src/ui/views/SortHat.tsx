@@ -1,9 +1,9 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
+
+import { Spin } from 'ui/component';
 import { useWallet, getUiType, useApproval } from 'ui/utils';
 import { openInternalPageInTab } from 'ui/utils/webapi';
-import { Spin } from 'ui/component';
 
 const SortHat = () => {
   const wallet = useWallet();
@@ -11,7 +11,7 @@ const SortHat = () => {
   // eslint-disable-next-line prefer-const
   let [getApproval, , rejectApproval] = useApproval();
 
-  const loadView = async () => {
+  const loadView = useCallback(async () => {
     const UIType = getUiType();
     const isInNotification = UIType.isNotification;
     const isInTab = UIType.isTab;
@@ -58,11 +58,11 @@ const SortHat = () => {
     } else {
       setTo('/dashboard');
     }
-  };
+  }, [getApproval, rejectApproval, wallet]);
 
   useEffect(() => {
     loadView();
-  }, []);
+  }, [loadView]);
 
   return (
     // <Box sx={{}}>

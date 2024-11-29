@@ -1,20 +1,19 @@
+import { Typography, Button, CardMedia } from '@mui/material';
+import { Box } from '@mui/system';
 import React from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
+import { Link } from 'react-router-dom';
+
+import IconFlow from '../../../components/iconfont/IconFlow';
 import appicon from '../../FRWAssets/image/appicon.png';
 import create from '../../FRWAssets/svg/create.svg';
 import importPng from '../../FRWAssets/svg/import.svg';
-import qr from '../../FRWAssets/svg/scanIcon.svg';
 import outside from '../../FRWAssets/svg/importoutside.svg';
-import { Link } from 'react-router-dom';
-import IconFlow from '../../../components/iconfont/IconFlow';
+import qr from '../../FRWAssets/svg/scanIcon.svg';
+import RegisterHeader from '../Register/RegisterHeader';
 
 const AddWelcome = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -96,11 +95,10 @@ const AddWelcome = () => {
                   margin: '24px 0 44px',
                 }}
               >
-                {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
-                {chrome.i18n.getMessage('A_crypto_wallet_on_Flow')}
-                <Typography sx={{ color: 'primary.light', display: 'inline' }}>
-                  <span> {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}</span>
-                </Typography>
+                {chrome.i18n.getMessage('A_crypto_wallet_on_Flow')}{' '}
+                <Box component="span" sx={{ color: 'primary.light' }}>
+                  {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}
+                </Box>
               </Typography>
 
               <Button
@@ -134,43 +132,6 @@ const AddWelcome = () => {
                   {chrome.i18n.getMessage('Create_a_new_wallet')}
                 </Typography>
               </Button>
-
-              {/* 
-              <Button
-                variant="contained"
-                color="secondary"
-                component={Link}
-                to="/proxysync"
-                size="large"
-                sx={{
-                  display: 'flex',
-                  width: '332px',
-                  height: '48px',
-                  borderRadius: '24px',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  textTransform: 'capitalize',
-                  marginBottom: '16px',
-                  border: '1px solid #E5E5E5',
-                  backgroundColor: 'transparent',
-                  paddingLeft: '32px'
-                }}
-              >
-                <CardMedia component="img" sx={{ marginRight: '8px', width: '18px', height: '18px' }} image={importPng} />
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: '600',
-                    fontSize: '14px',
-                    color: '#FFF',
-                    '&:hover': {
-                      color: 'background.paper'
-                    }
-                  }}
-                >
-                  Proxy
-                </Typography>
-              </Button> */}
 
               <Button
                 variant="contained"
@@ -276,7 +237,7 @@ const AddWelcome = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

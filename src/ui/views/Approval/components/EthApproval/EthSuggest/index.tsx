@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
-import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
-import theme from 'ui/style/LLTheme';
-// import EthMove from '../EthMove';
-import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
 import { Contract, ethers } from 'ethers';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+
 import { storage } from '@/background/webapi';
 import { EVM_ENDPOINT } from 'consts';
+import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
+import { useApproval, useWallet } from 'ui/utils';
+import { withPrefix } from 'ui/utils/address';
+// import EthMove from '../EthMove';
 
 const EthSuggest = (data) => {
   const { state } = useLocation<{
@@ -20,83 +19,83 @@ const EthSuggest = (data) => {
   const { t } = useTranslation();
   const usewallet = useWallet();
   const [isLoading, setLoading] = useState(false);
-  const [defaultChain, setDefaultChain] = useState('FLOW');
-  const [isEvm, setIsEvm] = useState(false);
-
   // TODO: replace default logo
   const [logo, setLogo] = useState('');
   const [evmAddress, setEvmAddress] = useState('');
   const [isValidatingAddress, setIsValidatingAddress] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<boolean>(false);
   const [coinInfo, setCoinInfo] = useState<any>({});
-  const init = async () => {
+
+  const addCustom = useCallback(
+    async (address) => {
+      setLoading(true);
+      const contractAddress = withPrefix(address)!.toLowerCase();
+      const network = await usewallet.getNetwork();
+      const provider = new ethers.JsonRpcProvider(EVM_ENDPOINT[network]);
+      const evmAddress = await usewallet.getEvmAddress();
+      const ftContract = new Contract(
+        contractAddress!,
+        [
+          'function name() view returns (string)',
+          'function symbol() view returns (string)',
+          'function totalSupply() view returns (uint256)',
+          'function decimals() view returns (uint8)',
+          'function balanceOf(address) view returns (uint)',
+        ],
+        provider
+      );
+
+      // Helper function to handle contract calls
+      async function getContractData(contract, method, ...args) {
+        try {
+          const result = await contract[method](...args);
+          if (!result || result === '0x') {
+            console.error(`No data returned for method: ${method}`);
+            return null;
+          }
+          return result;
+        } catch (error) {
+          console.error(`Error calling ${method}:`, error);
+          return null;
+        }
+      }
+
+      const decimals = await getContractData(ftContract, 'decimals');
+      const name = await getContractData(ftContract, 'name');
+      const symbol = await getContractData(ftContract, 'symbol');
+      const balance = await ftContract.balanceOf(evmAddress);
+      console.log('balance ', evmAddress, balance);
+
+      if (decimals !== null && name !== null && symbol !== null) {
+        const info = {
+          coin: name,
+          unit: symbol,
+          icon: '',
+          price: 0,
+          change24h: 0,
+          total: Number(balance) / Math.pow(10, Number(decimals)),
+          address: contractAddress?.toLowerCase(),
+          decimals: Number(decimals),
+        };
+
+        const flowId = await usewallet.getAssociatedFlowIdentifier(contractAddress);
+        info['flowIdentifier'] = flowId;
+        setCoinInfo(info);
+        setLoading(false);
+      } else {
+        console.error('Failed to retrieve all required data for the token.');
+        setIsValidatingAddress(false);
+        setValidationError(true);
+        setLoading(false);
+      }
+    },
+    [usewallet]
+  );
+  const init = useCallback(async () => {
     console.log('suggest data ', data);
     const contractAddress = data.params.data.params.options.address;
     addCustom(contractAddress);
-  };
-
-  const addCustom = async (address) => {
-    setLoading(true);
-    const contractAddress = withPrefix(address)!.toLowerCase();
-    const network = await usewallet.getNetwork();
-    const provider = new ethers.JsonRpcProvider(EVM_ENDPOINT[network]);
-    const evmAddress = await usewallet.getEvmAddress();
-    const ftContract = new Contract(
-      contractAddress!,
-      [
-        'function name() view returns (string)',
-        'function symbol() view returns (string)',
-        'function totalSupply() view returns (uint256)',
-        'function decimals() view returns (uint8)',
-        'function balanceOf(address) view returns (uint)',
-      ],
-      provider
-    );
-
-    // Helper function to handle contract calls
-    async function getContractData(contract, method, ...args) {
-      try {
-        const result = await contract[method](...args);
-        if (!result || result === '0x') {
-          console.error(`No data returned for method: ${method}`);
-          return null;
-        }
-        return result;
-      } catch (error) {
-        console.error(`Error calling ${method}:`, error);
-        return null;
-      }
-    }
-
-    const decimals = await getContractData(ftContract, 'decimals');
-    const name = await getContractData(ftContract, 'name');
-    const symbol = await getContractData(ftContract, 'symbol');
-    const balance = await ftContract.balanceOf(evmAddress);
-    console.log('balance ', evmAddress, balance);
-
-    if (decimals !== null && name !== null && symbol !== null) {
-      const info = {
-        coin: name,
-        unit: symbol,
-        icon: '',
-        price: 0,
-        change24h: 0,
-        total: Number(balance) / Math.pow(10, Number(decimals)),
-        address: contractAddress?.toLowerCase(),
-        decimals: Number(decimals),
-      };
-
-      const flowId = await usewallet.getAssociatedFlowIdentifier(contractAddress);
-      info['flowIdentifier'] = flowId;
-      setCoinInfo(info);
-      setLoading(false);
-    } else {
-      console.error('Failed to retrieve all required data for the token.');
-      setIsValidatingAddress(false);
-      setValidationError(true);
-      setLoading(false);
-    }
-  };
+  }, [addCustom, data]);
 
   const importCustom = async () => {
     setLoading(true);
@@ -133,7 +132,7 @@ const EthSuggest = (data) => {
 
   useEffect(() => {
     init();
-  }, []);
+  }, [init]);
 
   const renderContent = () => (
     <Box sx={{ padingTop: '18px', height: '100vh' }}>
@@ -253,9 +252,9 @@ const EthSuggest = (data) => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box>{renderContent()}</Box>
-    </ThemeProvider>
+    </>
   );
 };
 

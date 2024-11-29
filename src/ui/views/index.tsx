@@ -1,25 +1,23 @@
+import { CssBaseline } from '@mui/material';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { ThemeProvider } from '@mui/material/styles';
-import { createMemoryHistory } from 'history';
-import React, { lazy, Suspense } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 
+import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
 import { WalletProvider, mixpanelBrowserService } from 'ui/utils';
 
-import theme from '../style/LLTheme';
-
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
+import { MainRoute } from './MainRoute';
 import RetrievePK from './RetrievePK';
 import SortHat from './SortHat';
 import SwitchUnlock from './SwitchUnlock';
 import Unlock from './Unlock';
 
-const AsyncMainRoute = lazy(() => import('./MainRoute'));
-
-// import Reset from './Reset';
+const theme = createTheme(themeOptions);
 
 function Main() {
   React.useEffect(() => {
@@ -30,7 +28,7 @@ function Main() {
 
   return (
     //@ts-ignore
-    <Router history={createMemoryHistory}>
+    <Router>
       <Route exact path="/">
         <SortHat />
       </Route>
@@ -38,9 +36,7 @@ function Main() {
       <Route exact path="/unlock" component={Unlock} />
       <Route exact path="/switchunlock" component={SwitchUnlock} />
       <Route exact path="/retrieve" component={RetrievePK} />
-      <Suspense fallback={null}>
-        <AsyncMainRoute />
-      </Suspense>
+      <MainRoute />
       <Route path="/dashboard">
         <InnerRoute />
       </Route>
@@ -52,8 +48,11 @@ function Main() {
 }
 
 const App = ({ wallet }: { wallet: any }) => {
+  console.log('Theme:', theme); // Add this to debug
+
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <WalletProvider wallet={wallet}>
         <NewsProvider>
           <GlobalStyles

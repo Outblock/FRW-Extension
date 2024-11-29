@@ -1,9 +1,11 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import selected from 'ui/FRWAssets/svg/selected.svg';
@@ -44,6 +46,15 @@ const MoveToChild = (props: MoveBoardProps) => {
     logo: '',
   });
   // console.log('props.loggedInAccounts', props.current)
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: selectedAccount
+      ? isValidEthereumAddress(selectedAccount!['address'])
+      : false,
+  });
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -52,42 +63,48 @@ const MoveToChild = (props: MoveBoardProps) => {
     setShowError(false);
   };
 
-  const findCollectionByContractName = () => {
+  const findCollectionByContractName = useCallback(() => {
     if (collectionList) {
       const collection = collectionList.find((collection) => collection.id === selectedCollection);
       console.log('setCurrentCollection ', collection);
       setCurrentCollection(collection);
     }
-  };
+  }, [collectionList, selectedCollection]);
 
-  const fetchCollectionCache = async (address: string) => {
-    try {
-      const list = await usewallet.getCollectionCache();
-      if (list && list.length > 0) {
-        return list;
-      } else {
-        const list = await fetchLatestCollection(address);
-        return list;
+  const fetchLatestCollection = useCallback(
+    async (address: string) => {
+      try {
+        const list = await usewallet.refreshCollection(address);
+        if (list && list.length > 0) {
+          return list;
+        }
+      } catch (err) {
+        console.log(err);
       }
-    } catch {
-      fetchLatestCollection(address);
-    } finally {
-      console.log('done');
-    }
-  };
+    },
+    [usewallet]
+  );
 
-  const fetchLatestCollection = async (address: string) => {
-    try {
-      const list = await usewallet.refreshCollection(address);
-      if (list && list.length > 0) {
-        return list;
+  const fetchCollectionCache = useCallback(
+    async (address: string) => {
+      try {
+        const list = await usewallet.getCollectionCache();
+        if (list && list.length > 0) {
+          return list;
+        } else {
+          const list = await fetchLatestCollection(address);
+          return list;
+        }
+      } catch {
+        fetchLatestCollection(address);
+      } finally {
+        console.log('done');
       }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    },
+    [fetchLatestCollection, usewallet]
+  );
 
-  const requestCadenceNft = async () => {
+  const requestCadenceNft = useCallback(async () => {
     setIsLoading(true);
     try {
       const address = await usewallet.getCurrentAddress();
@@ -114,9 +131,9 @@ const MoveToChild = (props: MoveBoardProps) => {
       setCadenceNft(null);
       setIsLoading(false);
     }
-  };
+  }, [fetchCollectionCache, usewallet]);
 
-  const requestCollectionInfo = async () => {
+  const requestCollectionInfo = useCallback(async () => {
     if (selectedCollection) {
       try {
         const address = await usewallet.getCurrentAddress();
@@ -130,7 +147,7 @@ const MoveToChild = (props: MoveBoardProps) => {
         setIsLoading(false);
       }
     }
-  };
+  }, [selectedCollection, usewallet]);
 
   const toggleSelectNft = async (nftId) => {
     const tempIdArray = [...nftIdArray];
@@ -211,17 +228,17 @@ const MoveToChild = (props: MoveBoardProps) => {
   useEffect(() => {
     setIsLoading(true);
     requestCadenceNft();
-  }, []);
+  }, [requestCadenceNft]);
 
   useEffect(() => {
     setIsLoading(true);
     requestCollectionInfo();
-  }, [selectedCollection]);
+  }, [requestCollectionInfo, selectedCollection]);
 
   useEffect(() => {
     setIsLoading(true);
     findCollectionByContractName();
-  }, [collectionList, selectedCollection]);
+  }, [collectionList, findCollectionByContractName, selectedCollection]);
 
   const replaceIPFS = (url: string | null): string => {
     if (!url) {
@@ -493,6 +510,10 @@ const MoveToChild = (props: MoveBoardProps) => {
         </Box>
       )}
       <Box sx={{ flex: '1' }}></Box>
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
 
       <Button
         onClick={moveNFT}
@@ -505,6 +526,7 @@ const MoveToChild = (props: MoveBoardProps) => {
         }
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',

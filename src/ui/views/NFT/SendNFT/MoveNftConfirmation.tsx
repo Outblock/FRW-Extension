@@ -2,9 +2,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -36,9 +36,15 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const [childWallet, setChildWallet] = useState(null);
   const [selectedAccount, setSelectedChildAccount] = useState(null);
   const [childWallets, setChildWallets] = useState({});
-  const { sufficient: isSufficient } = useStorageCheck();
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: selectedAccount
+      ? isValidEthereumAddress(selectedAccount!['address'])
+      : false,
+  });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const getPending = useCallback(async () => {
     const pending = await usewallet.getPendingTx();
@@ -364,32 +370,26 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
         <Box sx={{ flexGrow: 1 }} />
 
-        {occupied && (
-          <Presets.TransitionSlideUp>
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '12px 12px 0 0',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                py: '8px',
-              }}
-            >
-              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon
-                fontSize="medium"
-                color="primary"
-                style={{ margin: '0px 12px auto 12px' }}
-              />
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
-                {chrome.i18n.getMessage('Your__address__is__currently__processing')}
-              </Typography>
-            </Box>
-          </Presets.TransitionSlideUp>
-        )}
+        <SlideRelative direction="down" show={occupied}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '12px 12px 0 0',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              py: '8px',
+            }}
+          >
+            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
+            <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+              {chrome.i18n.getMessage('Your__address__is__currently__processing')}
+            </Typography>
+          </Box>
+        </SlideRelative>
         <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
         <Button
           onClick={sendNFT}
@@ -398,6 +398,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           color="primary"
           size="large"
           sx={{
+            width: '100%',
             height: '50px',
             borderRadius: '12px',
             textTransform: 'capitalize',

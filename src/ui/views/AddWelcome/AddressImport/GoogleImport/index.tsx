@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
 import { IconButton, Typography } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+
+import { LLPinAlert } from '@/ui/FRWComponent';
+import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { storage } from 'background/webapi';
+
 import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
-import theme from '../../../../style/LLTheme';
-import RegisterHeader from '../../../Register/RegisterHeader';
 import AllSet from '../../../Register/AllSet';
+import RegisterHeader from '../../../Register/RegisterHeader';
+
 import DecryptWallet from './DecryptWallet';
-import RecoveryPhrase from './RecoveryPhrase';
 import GoogleAccounts from './GoogleAccounts';
 import RecoveryPassword from './RecoverPassword';
-import Particles from 'react-tsparticles';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { LLPinAlert } from '@/ui/FRWComponent';
-import { Options } from 'ui/utils';
-import { storage } from 'background/webapi';
+import RecoveryPhrase from './RecoveryPhrase';
 
 enum Direction {
   Right,
@@ -53,14 +55,14 @@ const GoogleImport = () => {
     }
   };
 
-  const loadTempPassword = async () => {
+  const loadTempPassword = useCallback(async () => {
     const temp = await storage.get('tempPassword');
     if (temp) {
       setPassword(temp);
     }
-  };
+  }, []);
 
-  const getGoogleAccounts = async () => {
+  const getGoogleAccounts = useCallback(async () => {
     // const backupFile = await storage.get('googleBackup');
     // await setBackup(backupFile);
     const users = location.state.accounts;
@@ -71,12 +73,12 @@ const GoogleImport = () => {
     } else {
       setAccounts(users);
     }
-  };
+  }, [location?.state?.accounts]);
 
   useEffect(() => {
     getGoogleAccounts();
     loadTempPassword();
-  }, []);
+  }, [getGoogleAccounts, loadTempPassword]);
 
   const page = (index) => {
     switch (index) {
@@ -104,10 +106,8 @@ const GoogleImport = () => {
     }
   };
 
-  const heights = [500, 500, 600, 600, 500];
-
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -119,13 +119,8 @@ const GoogleImport = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 4 && (
-          <Particles
-            // @ts-expect-error customized options
-            options={Options}
-          />
-        )}
-        <LLPinAlert open={activeIndex == 4} />
+        {activeIndex === 4 && <Confetti />}
+        <LLPinAlert open={activeIndex === 4} />
         <RegisterHeader />
         <Box sx={{ flexGrow: 0.7 }} />
         <Box
@@ -170,30 +165,14 @@ const GoogleImport = () => {
             </Typography>
           </Box>
 
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-          >
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </ComponentTransition>
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

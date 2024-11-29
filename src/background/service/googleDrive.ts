@@ -1,4 +1,5 @@
 import aesjs from 'aes-js';
+
 interface GoogleDriveFileModel {
   kind: string;
   id: string;
@@ -32,7 +33,7 @@ class GoogleDriveService {
 
   hasBackup = async () => {
     const files = await this.listFiles();
-    return files.length > 0;
+    return files;
   };
 
   hasUserBackup = async (username: string): Promise<boolean> => {
@@ -43,7 +44,7 @@ class GoogleDriveService {
   hasGooglePremission = async (): Promise<boolean> => {
     try {
       const token = await this.getAuthTokenWrapper(false);
-      return token != undefined || token != null;
+      return token !== undefined && token !== null;
     } catch (err) {
       return false;
     }
@@ -74,6 +75,27 @@ class GoogleDriveService {
     };
   };
 
+  parseGoogleText = (encryptedData: string) => {
+    let encryptedHex;
+
+    // Attempt to parse the data as JSON
+    try {
+      const sanitizedData = encryptedData.replace(/\s+/g, '');
+      const parsedData = JSON.parse(sanitizedData);
+      encryptedHex = parsedData?.hex || parsedData;
+    } catch (error) {
+      console.warn('JSON parsing failed, checking if raw hex string:', error.message);
+
+      const rawHex = encryptedData.replace(/\s+/g, '');
+      if (/^[0-9a-fA-F]+$/.test(rawHex)) {
+        encryptedHex = rawHex;
+      } else {
+        throw new Error('Invalid input: not JSON and not a valid hex string');
+      }
+    }
+    return encryptedHex;
+  };
+
   uploadMnemonicToGoogleDrive = async (
     mnemonic: string,
     username: string,
@@ -81,20 +103,16 @@ class GoogleDriveService {
     password: string
   ) => {
     // TODO: FIX this
-    // const hasBackup =  await this.hasBackup()
     const item = this.encodeToDriveItem(mnemonic, username, uid, password);
     const files = await this.listFiles();
-    if (files.length === 0) {
-      // No backup
-      const content = this.encrypt(JSON.stringify([item]), this.AES_KEY);
-      return await this.createFile(content);
+    if (!files) {
+      return [];
     }
-    // Has backup then append the file
-    const fileId = files[0].id;
+    const fileId = files.id;
     this.fileId = fileId;
-    const fileContent = await this.getFile(fileId);
-    const text = await fileContent.text();
-    const decodeContent = await this.decrypt(JSON.parse(text), this.AES_KEY);
+    const text = await this.getFile(fileId);
+    const parsedText = this.parseGoogleText(text);
+    const decodeContent = await this.decrypt(parsedText, this.AES_KEY);
     const content: DriveItem[] = JSON.parse(decodeContent);
     const result = content.filter((file) => file.username !== username);
     result.unshift(item);
@@ -104,20 +122,15 @@ class GoogleDriveService {
 
   loadBackup = async (): Promise<DriveItem[]> => {
     const files = await this.listFiles();
-    if (files.length === 0) {
+    if (!files) {
       return [];
     }
-    const firstOutblockBackup = files.find((file) => file.name === 'outblock_backup');
-    if (!firstOutblockBackup) {
-      return [];
-    }
-    const fileId = firstOutblockBackup.id;
+    const fileId = files.id;
     this.fileId = fileId;
-    const fileContent = await this.getFile(fileId);
-    const text = await fileContent.text();
-    const decodeContent = await this.decrypt(JSON.parse(text), this.AES_KEY);
+    const text = await this.getFile(fileId);
+    const parsedText = this.parseGoogleText(text);
+    const decodeContent = await this.decrypt(parsedText, this.AES_KEY);
     const content: DriveItem[] = JSON.parse(decodeContent);
-    console.log('content ', content);
     this.fileList = content;
     return content;
   };
@@ -163,15 +176,18 @@ class GoogleDriveService {
     return null;
   };
 
-  listFiles = async (): Promise<GoogleDriveFileModel[]> => {
+  listFiles = async (): Promise<GoogleDriveFileModel> => {
     const { files } = await this.sendRequest('drive/v3/files/', 'GET', {
       spaces: 'appDataFolder',
     }).then((response) => response.json());
-    return files;
+    const firstOutblockBackup = files.find((file) => file.name === 'outblock_backup');
+    return firstOutblockBackup;
   };
 
   getFile = async (fileId: string) => {
-    return await this.sendRequest(`drive/v3/files/${fileId}/`, 'GET', { alt: 'media' });
+    const result = await this.sendRequest(`drive/v3/files/${fileId}/`, 'GET', { alt: 'media' });
+    const text = await result.text();
+    return text;
   };
 
   createFile = async (content: string) => {
@@ -189,7 +205,6 @@ class GoogleDriveService {
     const form = new FormData();
     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
     form.append('file', file);
-    // return await this.makeXMLRequest('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', form)
 
     return await this.sendRequest(
       'upload/drive/v3/files',
@@ -249,7 +264,10 @@ class GoogleDriveService {
 
   deleteAllFile = async () => {
     const files = await this.listFiles();
-    return Promise.all(files.map((file) => this.deleteFile(file.id)));
+    if (!files) {
+      return;
+    }
+    return this.deleteFile(files.id);
   };
 
   sendRequest = async (
@@ -312,7 +330,6 @@ class GoogleDriveService {
     // console.log('decryptedBytes ->', decryptedBytes)
     // Convert our bytes back into text
     const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
-    // console.log('decryptedText ->', decryptedText);
     return decryptedText.trim();
   };
 

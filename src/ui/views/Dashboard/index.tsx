@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
+import { getApp, initializeApp } from 'firebase/app';
+import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation, useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
-import WalletTab from '../Wallet';
+
+import { getFirbaseConfig } from 'background/utils/firebaseConfig';
+import { LLTestnetIndicator } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
 import NFTTab from '../NFT';
 import NftEvm from '../NftEvm';
-import Staking from '../Staking';
 import SettingTab from '../Setting';
-import { useLocation, useHistory } from 'react-router-dom';
+import Staking from '../Staking';
+import WalletTab from '../Wallet';
+
 import NavBar from './NavBar';
-import { useWallet } from 'ui/utils';
-import { LLTestnetIndicator } from 'ui/FRWComponent';
-import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
-import { getApp, initializeApp } from 'firebase/app';
-import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -32,12 +34,6 @@ function TabPanel(props) {
   );
 }
 
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
 const Dashboard = ({ value, setValue }) => {
   // const [value, setValue] = React.useState('wallet');
   const history = useHistory();
@@ -53,7 +49,7 @@ const Dashboard = ({ value, setValue }) => {
     setValue(index);
   };
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     //todo fix cadence loading
     await wallet.getCadenceScripts();
@@ -87,11 +83,11 @@ const Dashboard = ({ value, setValue }) => {
     setNetwork(network);
     setDomain(userDomain);
     setLoading(false);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     fetchAll();
-  }, [wallet]);
+  }, [fetchAll, wallet]);
 
   return (
     <div className="page">
@@ -105,7 +101,6 @@ const Dashboard = ({ value, setValue }) => {
       >
         {currentNetwork === 'testnet' && value === 0 && <LLTestnetIndicator />}
         {/* <Header loading={loading} /> */}
-
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
           index={value}

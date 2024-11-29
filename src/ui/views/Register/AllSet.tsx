@@ -1,11 +1,9 @@
-import { Button, Typography, CssBaseline, CardMedia } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
+import { Button, Typography, CardMedia } from '@mui/material';
+import { Box } from '@mui/system';
 import React, { useCallback, useEffect } from 'react';
 
 import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
-import { mixpanelBrowserService, useWallet } from 'ui/utils';
-
-import theme from '../../style/LLTheme';
+import { useWallet, mixpanelBrowserService } from 'ui/utils';
 
 const AllSet = ({ handleClick }) => {
   const wallet = useWallet();
@@ -29,9 +27,9 @@ const AllSet = ({ handleClick }) => {
       trackAccountRecovered();
     });
   }, [loadScript, trackAccountRecovered]);
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <CardMedia
           sx={{ margin: '0 auto', width: '172px', height: '172px', display: 'block' }}
@@ -66,7 +64,7 @@ const AllSet = ({ handleClick }) => {
           </Typography>
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

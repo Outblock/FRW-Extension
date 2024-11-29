@@ -2,10 +2,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -39,9 +39,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const [isChild, setIsChild] = useState(false);
   const [erc721Contract, setErcContract] = useState<any>(null);
   const [count, setCount] = useState(0);
-  const { sufficient: isSufficient } = useStorageCheck();
+
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: true, // hard to tell if the user is sending to an evm address or not. True for now.
+  });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const colorArray = [
     '#32E35529',
@@ -445,34 +450,31 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             type="submit"
           />
         </Stack> */}
-        {occupied && (
-          <Presets.TransitionSlideUp>
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '12px 12px 0 0',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                py: '8px',
-              }}
-            >
-              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon
-                fontSize="medium"
-                color="primary"
-                style={{ margin: '0px 12px auto 12px' }}
-              />
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
-                {chrome.i18n.getMessage('Your__address__is__currently__processing')}
-              </Typography>
-            </Box>
-          </Presets.TransitionSlideUp>
-        )}
+        <SlideRelative direction="down" show={occupied}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '12px 12px 0 0',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              py: '8px',
+            }}
+          >
+            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
+            <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+              {chrome.i18n.getMessage('Your__address__is__currently__processing')}
+            </Typography>
+          </Box>
+        </SlideRelative>
 
-        <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
+        <WarningStorageLowSnackbar
+          isLowStorage={isLowStorage}
+          isLowStorageAfterAction={isLowStorageAfterAction}
+        />
         <Button
           onClick={sendNFT}
           disabled={sending || occupied}
@@ -480,6 +482,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           color="primary"
           size="large"
           sx={{
+            width: '100%',
             height: '50px',
             borderRadius: '12px',
             textTransform: 'capitalize',

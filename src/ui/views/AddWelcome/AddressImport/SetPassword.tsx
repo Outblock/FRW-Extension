@@ -11,24 +11,23 @@ import {
   InputAdornment,
   FormGroup,
   LinearProgress,
-  CssBaseline,
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
-import React, { useEffect, useState } from 'react';
-import { Presets } from 'react-component-transition';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import CancelIcon from '../../../../components/iconfont/IconClose';
-import theme from '../../../style/LLTheme';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -153,13 +152,13 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
     setShowError(false);
   };
 
-  const loadTempPassword = async () => {
+  const loadTempPassword = useCallback(async () => {
     setPassword(tempPassword);
-  };
+  }, [tempPassword]);
 
   useEffect(() => {
     loadTempPassword();
-  }, []);
+  }, [loadTempPassword]);
 
   const successInfo = (message) => {
     return (
@@ -282,8 +281,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
   }, [password]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
@@ -329,9 +327,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
-              {password && helperText}
-            </Presets.TransitionSlideUp>
+            <SlideRelative show={!!password} direction="down">
+              <Box style={{ marginBottom: '24px' }}>{helperText}</Box>
+            </SlideRelative>
           </FormGroup>
         </Box>
 
@@ -394,7 +392,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
           {errMessage}
         </Alert>
       </Snackbar>
-    </ThemeProvider>
+    </>
   );
 };
 

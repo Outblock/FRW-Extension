@@ -1,4 +1,5 @@
-import React from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
 import {
   Stack,
   Box,
@@ -8,12 +9,11 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
-import { useHistory } from 'react-router-dom';
-import { Presets } from 'react-component-transition';
-import IconFlow from '../../../../components/iconfont/IconFlow';
+import Fade from '@mui/material/Fade';
+import React from 'react';
 import Highlight from 'react-highlight';
+
+import IconFlow from '../../../../components/iconfont/IconFlow';
 
 export const DefaultBlock = ({
   title,
@@ -27,7 +27,29 @@ export const DefaultBlock = ({
   setExpanded,
   dedent,
 }) => {
-  const history = useHistory();
+  const processItem = (item) => {
+    if (Array.isArray(item)) {
+      return `[ ${item.map((value) => processItem(value)).join(', ')} ]`;
+    } else if (typeof item === 'object' && item !== null) {
+      if (item.type && item.value !== undefined) {
+        return `${processItem(item.value)}`;
+      } else {
+        return `${Object.entries(item)
+          .map(([_, value]) => processItem(value))
+          .join('\n')}`;
+      }
+    } else {
+      return JSON.stringify(item);
+    }
+  };
+
+  const displayCadenceArguments = (cadenceArguments) => {
+    if (!Array.isArray(cadenceArguments)) {
+      console.error('cadenceArguments is not an array:', cadenceArguments);
+      return;
+    }
+    return cadenceArguments.map((item) => processItem(item)).join('\n\n');
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '12px' }}>
@@ -50,7 +72,7 @@ export const DefaultBlock = ({
       </Box>
       <Divider />
 
-      <Presets.TransitionFade>
+      <Fade in={true}>
         {auditor && (
           <Stack direction="column" spacing="12px" sx={{ justifyContent: 'space-between' }}>
             <Box
@@ -92,7 +114,7 @@ export const DefaultBlock = ({
             </Box>
           </Stack>
         )}
-      </Presets.TransitionFade>
+      </Fade>
 
       <Box sx={{ borderRadius: '12px', overflow: 'hidden', width: '100%', display: 'table' }}>
         <Accordion
@@ -200,7 +222,7 @@ export const DefaultBlock = ({
                   sx={{ fontWeight: '400', fontSize: '10px', fontFamily: 'Inter' }}
                 >
                   <Highlight className="swift">
-                    {`[\n${cadenceArguments.map((item) => `\t${item.value}: ${item.type}`).join(',\n')}\n]`}
+                    {`\n${displayCadenceArguments(cadenceArguments)}\n`}
                   </Highlight>
                 </Typography>
               </Box>

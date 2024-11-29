@@ -1,5 +1,4 @@
 import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
-import { ThemeProvider } from '@mui/system';
 import { WalletUtils } from '@onflow/fcl';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -12,7 +11,6 @@ import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
 import mainnetsvg from 'ui/FRWAssets/svg/mainnet.svg';
 import testnetsvg from 'ui/FRWAssets/svg/testnet.svg';
 import { LLPrimaryButton, LLSecondaryButton, LLConnectLoading } from 'ui/FRWComponent';
-import theme from 'ui/style/LLTheme';
 import { useApproval, useWallet } from 'ui/utils';
 // import { CHAINS_ENUM } from 'consts';
 
@@ -401,7 +399,7 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {showSwitch ? (
         <Box
           sx={{
@@ -515,7 +513,7 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
       ) : (
         <Box>{renderContent()}</Box>
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

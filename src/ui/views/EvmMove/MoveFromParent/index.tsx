@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import TransferFrom from '../TransferFrom';
-import TransferTo from '../TransferTo';
-import MoveToken from './MoveToken';
+import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import wallet from '@/background/controller/wallet';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
+import type { CoinItem } from 'background/service/coinList';
+import type { Contact } from 'background/service/networkModel';
+import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 import { withPrefix } from 'ui/utils/address';
+
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
-import { LLSpinner } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
-import wallet from '@/background/controller/wallet';
+import theme from '../../../style/LLTheme';
+import TransferFrom from '../TransferFrom';
+import TransferTo from '../TransferTo';
+
+import MoveToken from './MoveToken';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -22,6 +26,37 @@ interface TransferConfirmationProps {
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
 }
+const USER_CONTACT = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+} as unknown as Contact;
+
+const CHILD_CONTACT = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+} as unknown as Contact;
+
+const EMPTY_COIN: CoinItem = {
+  coin: '',
+  unit: '',
+  balance: 0,
+  price: 0,
+  change24h: 0,
+  total: 0,
+  icon: '',
+};
 
 const MoveFromParent = (props: TransferConfirmationProps) => {
   enum ENV {
@@ -38,37 +73,6 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
   //   Static = 'Static',
   //   CDN = 'CDN'
   // }
-  const userContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
-
-  const childContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
-
-  const empty: CoinItem = {
-    coin: '',
-    unit: '',
-    balance: 0,
-    price: 0,
-    change24h: 0,
-    total: 0,
-    icon: '',
-  };
 
   const usewallet = useWallet();
   const history = useHistory();
@@ -78,18 +82,25 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
   // const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>('');
   // const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(userContact);
-  const [childUserInfo, setChildUser] = useState<Contact>(childContact);
+  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
+  const [childUserInfo, setChildUser] = useState<Contact>(CHILD_CONTACT);
   const [network, setNetwork] = useState('mainnet');
   const [childAddress, setChildAddress] = useState('');
-  const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
+  const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
   const [minAmount, setMinAmount] = useState<any>(0.001);
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: Number(amount) || 0,
+    movingBetweenEVMAndFlow: true,
+  });
 
-  const setUserWallet = async () => {
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
+
+  const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
@@ -108,25 +119,26 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
-    userContact.address = withPrefix(wallet) || '';
-    userContact.avatar = info.avatar;
-    userContact.contact_name = info.username;
+    const userContact = {
+      ...USER_CONTACT,
+      address: withPrefix(wallet) || '',
+      avatar: info.avatar,
+      contact_name: info.username,
+    };
     setUser(userContact);
 
     const childResp = await usewallet.checkUserChildAccount();
     const cwallet = childResp[currentAddress!];
-    childContact.address = withPrefix(currentAddress!) || '';
-    childContact.avatar = cwallet.thumbnail.url;
-    childContact.contact_name = cwallet.name;
+    const childContact = {
+      ...CHILD_CONTACT,
+      address: withPrefix(currentAddress!) || '',
+      avatar: cwallet.thumbnail.url,
+      contact_name: cwallet.name,
+    };
 
     setChildUser(childContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
-    setUserMinAmount();
-    return;
-  };
-
-  const setUserMinAmount = async () => {
     try {
       // Try fetching the min amount from the API
       const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
@@ -136,7 +148,11 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
       console.error('Error fetching min amount:', error);
       setMinAmount(0.001);
     }
-  };
+
+    return;
+  }, [usewallet]);
+
+  const setUserMinAmount = async () => {};
 
   const moveToken = async () => {
     setLoading(true);
@@ -148,8 +164,8 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
         usewallet.listenTransaction(
           createRes,
           true,
-          'Transfer to EVM complete',
-          `Your have moved ${amount} Flow to your EVM address ${childAddress}. \nClick to view this transaction.`
+          'Transfer complete',
+          `Your have moved ${amount} Flow to your address ${childAddress}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
         history.push('/dashboard?activity=1');
@@ -167,22 +183,22 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     moveToken();
   };
 
-  const handleCoinInfo = async () => {
+  const handleCoinInfo = useCallback(async () => {
     if (coinList.length > 0) {
       const coinInfo = coinList.find(
         (coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase()
       );
       setCoinInfo(coinInfo!);
     }
-  };
+  }, [coinList, currentCoin]);
 
   useEffect(() => {
     setUserWallet();
-  }, []);
+  }, [setUserWallet]);
 
   useEffect(() => {
     handleCoinInfo();
-  }, [currentCoin]);
+  }, [currentCoin, handleCoinInfo]);
 
   return (
     <Drawer
@@ -286,6 +302,11 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
       </Box>
 
       <Box sx={{ display: 'flex', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
+        <WarningStorageLowSnackbar
+          isLowStorage={isLowStorage}
+          isLowStorageAfterAction={isLowStorageAfterAction}
+        />
+
         <Button
           onClick={() => {
             handleMove();

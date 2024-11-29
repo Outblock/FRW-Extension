@@ -1,18 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Avatar,
-  Skeleton,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
-import { makeStyles } from '@mui/styles';
-import { useWallet, formatAddress } from 'ui/utils';
+import { Box, Typography, Avatar } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import { useWallet } from 'ui/utils';
 import { isValidEthereumAddress } from 'ui/utils/address';
 
 const tempEmoji = {
@@ -36,21 +25,21 @@ export const FRWChildProfile = ({ contact, address, isLoading = false }) => {
     }
   };
 
-  const getEmoji = async () => {
+  const getEmoji = useCallback(async () => {
     const emojiList = await usewallet.getEmoji();
     if (isValidEthereumAddress(contact.address)) {
       setEmoji(emojiList[1]);
     } else {
       setEmoji(emojiList[0]);
     }
-  };
+  }, [contact, usewallet]);
 
   useEffect(() => {
     getEmoji();
-  }, [contact]);
+  }, [contact, getEmoji]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -79,6 +68,6 @@ export const FRWChildProfile = ({ contact, address, isLoading = false }) => {
           </Box>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

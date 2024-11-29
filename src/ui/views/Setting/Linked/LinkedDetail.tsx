@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import {
   Typography,
   IconButton,
@@ -18,20 +18,24 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import IconCopy from '../../../../components/iconfont/IconCopy';
-import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
-import { Link } from 'react-router-dom';
-import { useWallet } from 'ui/utils';
-// import '../../Unlock/style.css';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+
 import { LLSecondaryButton } from '@/ui/FRWComponent';
-import { UserInfoResponse } from 'background/service/networkModel';
-import UnlinkAccount from './UnlinkAccount';
-import EditAccount from './EditAccount';
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { type UserInfoResponse } from 'background/service/networkModel';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
+import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
+import { useWallet } from 'ui/utils';
+
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import IconCopy from '../../../../components/iconfont/IconCopy';
+
+// import '../../Unlock/style.css';
+
+import EditAccount from './EditAccount';
+import UnlinkAccount from './UnlinkAccount';
+
 // import fetchRemoteConfig from 'background/utils/remoteConfig';
 
 type ChildAccount = {
@@ -70,6 +74,26 @@ interface Collection {
   nfts: any[];
 }
 
+const extractContractName = (collection) => {
+  return collection.split('.')[2];
+};
+
+const findObjectByContractName = (contractName, collections) => {
+  const extractedContract = extractContractName(contractName);
+  const foundObject = collections.find((item) => item.contract_name === extractedContract);
+  return foundObject || null;
+};
+
+const checkContractAddressInCollections = (nft, activec) => {
+  const matchedResult = activec.find((collection) => {
+    const parts = nft.split('.');
+    const address = `0x${parts[1]}`;
+    const contractName = parts[2];
+    return collection.address === address && collection.contract_name === contractName;
+  });
+  return matchedResult;
+};
+
 const LinkedDetail = () => {
   const location = useParams();
 
@@ -93,7 +117,7 @@ const LinkedDetail = () => {
     setValue(newValue);
   };
 
-  const fetchUserWallet = async () => {
+  const fetchUserWallet = useCallback(async () => {
     try {
       const childresp = await usewallet.checkUserChildAccount();
       const isChild = await usewallet.getActiveWallet();
@@ -107,7 +131,6 @@ const LinkedDetail = () => {
       setChildAccount(childresp[key]);
       setKey(key);
       const catalog = await usewallet.getNftCatalog();
-      console.log('catalog ,', catalog);
 
       const parentaddress = await usewallet.getMainWallet();
 
@@ -118,25 +141,18 @@ const LinkedDetail = () => {
 
       const nftResult = await usewallet.checkAccessibleNft(parentaddress);
       activec.forEach((active) => {
-        console.log('nft result ', active);
         const collection = findObjectByContractName(active, catalog);
         if (collection) {
           collectionMap[collection.contract_name] = { ...collection, total: 0, nfts: [] };
         }
       });
-      console.log('nft result ', nftResult, key);
-
-      nftResult.forEach((nft) => {
-        const someResult = checkContractAddressInCollections(nft, Object.values(collectionMap));
-        console.log('someResult , ', someResult, Object.values(collectionMap));
+      Object.entries(nftResult[key]).forEach((nft) => {
+        const someResult = checkContractAddressInCollections(nft[0], Object.values(collectionMap));
         if (someResult) {
           collectionMap[someResult.contract_name].total! += 1;
           collectionMap[someResult.contract_name].nfts!.push(nft);
         }
       });
-      console.log('collectionMap result ', collectionMap);
-
-      console.log('active check nftResult ', nftResult);
       if (nftResult) {
         setNft(nftResult);
         const collectionsArray = Object.values(collectionMap);
@@ -148,39 +164,19 @@ const LinkedDetail = () => {
       }
 
       setLoading(false);
-      console.log('availableNft ', availableNft, availableFt);
     } catch (error) {
       // Handle any errors that occur during data fetching
       console.error('Error fetching data:', error);
       setLoading(false);
     }
-  };
-
-  const extractContractAddress = (collection) => {
-    return collection.split('.')[2];
-  };
-
-  const findObjectByContractName = (contractName, collections) => {
-    const extractedAddress = extractContractAddress(contractName);
-    const foundObject = collections.find((item) => item.contract_name === extractedAddress);
-    return foundObject || null;
-  };
-
-  const checkContractAddressInCollections = (nft, activec) => {
-    const contractAddressWithout0x = nft.collectionName;
-    const matchedResult = activec.find((collection) => {
-      const extractedAddress = collection.name;
-      return extractedAddress === contractAddressWithout0x;
-    });
-    return matchedResult;
-  };
+  }, [usewallet, location]);
 
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
 
-  const getUserInfo = async () => {
+  const getUserInfo = useCallback(async () => {
     const userResult = await usewallet.getUserInfo(false);
     await setUserInfo(userResult);
-  };
+  }, [usewallet]);
 
   const showUnlink = async (condition) => {
     await setUnlinking(condition);
@@ -192,7 +188,6 @@ const LinkedDetail = () => {
 
   const toggleHide = (event) => {
     event.stopPropagation();
-    console.log('hideEmpty ', hideEmpty);
     const prevEmpty = hideEmpty;
     setHide(!prevEmpty);
   };
@@ -200,9 +195,10 @@ const LinkedDetail = () => {
   const navigateWithState = (data, key) => {
     const state = { nft: data };
     localStorage.setItem('nftLinkedState', JSON.stringify(state));
+    const storagePath = data.path.storage_path.split('/')[2];
     if (data.total) {
       history.push({
-        pathname: `/dashboard/nested/linked/collectiondetail/${key + '.' + data.contract_name + '.' + data.total + '.linked'}`,
+        pathname: `/dashboard/nested/linked/collectiondetail/${key + '.' + storagePath + '.' + data.total + '.linked'}`,
         state: {
           collection: data,
           ownerAddress: key,
@@ -214,7 +210,7 @@ const LinkedDetail = () => {
   useEffect(() => {
     getUserInfo();
     fetchUserWallet();
-  }, []);
+  }, [getUserInfo, fetchUserWallet]);
 
   const nftContent = () => {
     const filteredNftCollection = availableNftCollection.filter(

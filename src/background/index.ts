@@ -1,13 +1,13 @@
 import 'reflect-metadata';
+import { ethErrors } from 'eth-rpc-errors';
+import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   signInAnonymously,
   indexedDBLocalPersistence,
   setPersistence,
   onAuthStateChanged,
-} from '@firebase/auth';
-import { ethErrors } from 'eth-rpc-errors';
-import { initializeApp } from 'firebase/app';
+} from 'firebase/auth';
 
 import eventBus from '@/eventBus';
 import type { WalletController } from 'background/controller/wallet';
@@ -415,3 +415,5 @@ chrome.runtime.onConnect.addListener((port) => {
 function onMessage(msg, port) {
   console.log('received', msg, 'from', port.sender);
 }
+
+console.log('Is fetch native?', fetch.toString().includes('[native code]'));

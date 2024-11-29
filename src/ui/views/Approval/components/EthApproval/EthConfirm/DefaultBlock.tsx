@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
 import {
   Stack,
   Box,
@@ -8,14 +9,14 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
-import { useHistory } from 'react-router-dom';
-import { Presets } from 'react-component-transition';
-import IconFlow from '../../../../../../components/iconfont/IconFlow';
+import React, { useState, useEffect } from 'react';
 import Highlight from 'react-highlight';
+import { useHistory } from 'react-router-dom';
+
 import { getScripts } from 'background/utils';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
+
+import IconFlow from '../../../../../../components/iconfont/IconFlow';
 
 export const DefaultBlock = ({
   title,

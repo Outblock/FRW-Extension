@@ -1,11 +1,11 @@
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, Typography, Drawer, Grid, Button, IconButton } from '@mui/material';
+import { type TokenInfo } from 'flow-native-token-registry';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Box, Typography, Drawer, Grid, Button, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { TokenInfo } from 'flow-native-token-registry';
 
 interface AddTokenConfirmationProps {
   isConfirmationOpen: boolean;
@@ -136,6 +136,7 @@ const AddTokenConfirmation = (props: AddTokenConfirmationProps) => {
         size="large"
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',

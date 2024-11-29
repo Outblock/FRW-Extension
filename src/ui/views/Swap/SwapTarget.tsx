@@ -1,29 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  ListItemText,
-  Select,
-  MenuItem,
-  ListItemIcon,
-  FormControl,
-  InputAdornment,
-  Input,
-  Chip,
-  Tooltip,
-  Avatar,
-} from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import IconFlow from '../../../components/iconfont/IconFlow';
-import IconSwitch from '../../../components/iconfont/IconSwitch';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
-import { StyledEngineProvider } from '@mui/material/styles';
-import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
 import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import { Box, Typography, Button, FormControl, InputAdornment, Input, Avatar } from '@mui/material';
+import { StyledEngineProvider } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
+import React from 'react';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {

@@ -1,10 +1,12 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
+import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { isValidEthereumAddress } from '@/ui/utils/address';
+import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
 import selected from 'ui/FRWAssets/svg/selected.svg';
@@ -22,11 +24,24 @@ interface MoveBoardProps {
   handleReturnHome: () => void;
 }
 
+// Utility functions
+const extractContractAddress = (collection) => {
+  return collection.split('.')[2];
+};
+
+const checkContractAddressInCollections = (nft, activec) => {
+  const contractAddressWithout0x = nft.collection.contract_name;
+  const isActiveCollect = activec.some((collection) => {
+    const extractedAddress = extractContractAddress(collection);
+    return extractedAddress === contractAddressWithout0x;
+  });
+  return isActiveCollect;
+};
+
 const MoveFromChild = (props: MoveBoardProps) => {
   const usewallet = useWallet();
   const history = useHistory();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [cadenceNft, setCadenceNft] = useState<any>(null);
   const [collectionList, setCollectionList] = useState<any>(null);
   const [selectedCollection, setSelected] = useState<string>('');
   const [collectionDetail, setCollectionDetail] = useState<any>(null);
@@ -35,7 +50,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
   const [failed, setFailed] = useState(false);
   const [errorOpen, setShowError] = useState(false);
   const [selectCollection, setSelectCollection] = useState(false);
-  const [activeCollection, setActiveCollection] = useState([]);
   const [selectedAccount, setSelectedChildAccount] = useState(null);
   const [currentCollection, setCurrentCollection] = useState<any>({
     CollectionName: '',
@@ -45,6 +59,15 @@ const MoveFromChild = (props: MoveBoardProps) => {
     logo: '',
   });
   // console.log('props.loggedInAccounts', props.current)
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    movingBetweenEVMAndFlow: selectedAccount
+      ? isValidEthereumAddress(selectedAccount!['address'])
+      : false,
+  });
+
+  const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -53,41 +76,47 @@ const MoveFromChild = (props: MoveBoardProps) => {
     setShowError(false);
   };
 
-  const findCollectionByContractName = () => {
+  const findCollectionByContractName = useCallback(() => {
     if (collectionList) {
       const collection = collectionList.find((collection) => collection.id === selectedCollection);
       setCurrentCollection(collection);
     }
-  };
+  }, [collectionList, selectedCollection]);
 
-  const fetchCollectionCache = async (address: string) => {
-    try {
-      const list = await usewallet.getCollectionCache();
-      if (list && list.length > 0) {
-        return list;
-      } else {
-        const list = await fetchLatestCollection(address);
-        return list;
+  const fetchLatestCollection = useCallback(
+    async (address: string) => {
+      try {
+        const list = await usewallet.refreshCollection(address);
+        if (list && list.length > 0) {
+          return list;
+        }
+      } catch (err) {
+        console.log(err);
       }
-    } catch {
-      fetchLatestCollection(address);
-    } finally {
-      console.log('done');
-    }
-  };
+    },
+    [usewallet]
+  );
 
-  const fetchLatestCollection = async (address: string) => {
-    try {
-      const list = await usewallet.refreshCollection(address);
-      if (list && list.length > 0) {
-        return list;
+  const fetchCollectionCache = useCallback(
+    async (address: string) => {
+      try {
+        const list = await usewallet.getCollectionCache();
+        if (list && list.length > 0) {
+          return list;
+        } else {
+          const list = await fetchLatestCollection(address);
+          return list;
+        }
+      } catch {
+        fetchLatestCollection(address);
+      } finally {
+        console.log('done');
       }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    },
+    [fetchLatestCollection, usewallet]
+  );
 
-  const requestCadenceNft = async () => {
+  const requestCadenceNft = useCallback(async () => {
     setIsLoading(true);
     try {
       const address = await usewallet.getCurrentAddress();
@@ -100,7 +129,6 @@ const MoveFromChild = (props: MoveBoardProps) => {
       );
 
       setSelected(filteredCadenceResult![0].collection.id);
-      setActiveCollection(activec);
 
       const extractedObjects = filteredCadenceResult!.map((obj) => {
         return {
@@ -113,17 +141,15 @@ const MoveFromChild = (props: MoveBoardProps) => {
       });
 
       setCollectionList(extractedObjects);
-      setCadenceNft(filteredCadenceResult);
     } catch (error) {
       console.error('Error fetching NFT data:', error);
       setSelected('');
       setCollectionList(null);
-      setCadenceNft(null);
       setIsLoading(false);
     }
-  };
+  }, [fetchCollectionCache, usewallet]);
 
-  const requestCollectionInfo = async () => {
+  const requestCollectionInfo = useCallback(async () => {
     if (selectedCollection) {
       try {
         const address = await usewallet.getCurrentAddress();
@@ -136,7 +162,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
         setIsLoading(false);
       }
     }
-  };
+  }, [selectedCollection, usewallet]);
 
   const toggleSelectNft = async (nftId) => {
     const tempIdArray = [...nftIdArray];
@@ -256,33 +282,20 @@ const MoveFromChild = (props: MoveBoardProps) => {
       });
   };
 
-  const extractContractAddress = (collection) => {
-    return collection.split('.')[2];
-  };
-
-  const checkContractAddressInCollections = (nft, activec) => {
-    const contractAddressWithout0x = nft.collection.contract_name;
-    const isActiveCollect = activec.some((collection) => {
-      const extractedAddress = extractContractAddress(collection);
-      return extractedAddress === contractAddressWithout0x;
-    });
-    return isActiveCollect;
-  };
-
   useEffect(() => {
     setIsLoading(true);
     requestCadenceNft();
-  }, []);
+  }, [requestCadenceNft]);
 
   useEffect(() => {
     setIsLoading(true);
     requestCollectionInfo();
-  }, [selectedCollection]);
+  }, [selectedCollection, requestCollectionInfo]);
 
   useEffect(() => {
     setIsLoading(true);
     findCollectionByContractName();
-  }, [collectionList, selectedCollection]);
+  }, [collectionList, selectedCollection, findCollectionByContractName]);
 
   const replaceIPFS = (url: string | null): string => {
     if (!url) {
@@ -555,7 +568,10 @@ const MoveFromChild = (props: MoveBoardProps) => {
         </Box>
       )}
       <Box sx={{ flex: '1' }}></Box>
-
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
       <Button
         onClick={moveNFT}
         // disabled={sending || occupied}
@@ -567,6 +583,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
         }
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',

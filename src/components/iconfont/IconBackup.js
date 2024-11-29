@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconBackup = ({ size, color, style: _style, ...rest }) => {
+const IconBackup = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -18,10 +18,6 @@ const IconBackup = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconBackup.defaultProps = {
-  size: 18,
 };
 
 export default IconBackup;

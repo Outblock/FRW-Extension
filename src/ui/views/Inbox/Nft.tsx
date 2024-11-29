@@ -1,8 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { useHistory } from 'react-router-dom';
-import theme from '../../style/LLTheme';
-import { useWallet } from 'ui/utils';
 import {
   Typography,
   ListItem,
@@ -14,9 +9,14 @@ import {
   List,
   CardMedia,
 } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import fallback from 'ui/FRWAssets/image/errorImage.png';
 import activity from 'ui/FRWAssets/svg/activity.svg';
 import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
-import fallback from 'ui/FRWAssets/image/errorImage.png';
+import { useWallet } from 'ui/utils';
 
 const Nft = ({ data }) => {
   const wallet = useWallet();
@@ -70,7 +70,7 @@ const Nft = ({ data }) => {
   }, [data]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <List sx={{ padding: '0 17px', marginTop: '19px', background: '#000' }}>
         {!isLoading ? (
           <Box>
@@ -156,7 +156,7 @@ const Nft = ({ data }) => {
                                   alignItems: 'center',
                                 }}
                               >
-                                {ids == ibx ? (
+                                {ids === ibx ? (
                                   <Box
                                     sx={{
                                       borderRadius: '14.5px',
@@ -265,7 +265,7 @@ const Nft = ({ data }) => {
           })
         )}
       </List>
-    </ThemeProvider>
+    </>
   );
 };
 

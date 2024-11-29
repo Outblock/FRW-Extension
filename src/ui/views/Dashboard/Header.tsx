@@ -25,6 +25,7 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
+import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { withPrefix, ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { useNews } from '@/ui/utils/NewsContext';
 import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
@@ -74,7 +75,7 @@ const tempEmoji = [
   },
 ];
 
-const Header = ({ loading }) => {
+const Header = ({ loading = false }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
@@ -116,6 +117,8 @@ const Header = ({ loading }) => {
 
   const [switchLoading, setSwitchLoading] = useState(false);
 
+  const [, setErrorMessage] = useState('');
+  const [errorCode, setErrorCode] = useState(null);
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
   const { unreadCount } = useNews();
@@ -191,6 +194,10 @@ const Header = ({ loading }) => {
       evmWallet.address = evmAddress;
       await setCurrent(evmWallet);
       setMainLoading(false);
+    } else if (isChild) {
+      const currentWallet = await usewallet.getCurrentWallet();
+      await setCurrent(currentWallet);
+      setMainLoading(false);
     } else {
       const mainwallet = await usewallet.returnMainWallet();
       await setCurrent(mainwallet);
@@ -251,30 +258,32 @@ const Header = ({ loading }) => {
     usewallet.setChildWallet(childresp);
   }, [freshUserInfo, freshUserWallet, usewallet]);
 
-  const switchAccount = async (account) => {
-    setSwitchLoading(true);
-    try {
-      const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-      await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
-      if (account.id) {
-        await storage.set('currentId', account.id);
-      } else {
-        await storage.set('currentId', '');
+  const switchAccount = useCallback(
+    async (account) => {
+      setSwitchLoading(true);
+      try {
+        const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+        await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+        if (account.id) {
+          await storage.set('currentId', account.id);
+        } else {
+          await storage.set('currentId', '');
+        }
+
+        await usewallet.lockWallet();
+        await usewallet.clearWallet();
+        await usewallet.switchNetwork(switchingTo);
+
+        history.push('/switchunlock');
+      } catch (error) {
+        console.error('Error during account switch:', error);
+        // Handle any additional error reporting or user feedback here if needed
+      } finally {
+        setSwitchLoading(false);
       }
-
-      await usewallet.lockWallet();
-      await usewallet.clearWallet();
-      await usewallet.refreshAll();
-      await usewallet.switchNetwork(switchingTo);
-
-      history.push('/switchunlock');
-    } catch (error) {
-      console.error('Error during account switch:', error);
-      // Handle any additional error reporting or user feedback here if needed
-    } finally {
-      setSwitchLoading(false);
-    }
-  };
+    },
+    [usewallet, history]
+  );
 
   const loadNetwork = useCallback(async () => {
     const network = await usewallet.getNetwork();
@@ -346,7 +355,6 @@ const Header = ({ loading }) => {
 
     // Navigate if needed
     history.push('/dashboard');
-    //eslint-disable-next-line no-restricted-globals
     window.location.reload();
   };
 
@@ -354,12 +362,18 @@ const Header = ({ loading }) => {
     // This is just to handle pending transactions
     // The header will listen to the transactionPending event
     // It shows spinner on the header when there is a pending transaction
-    // It doesn't need to handle transactionError events
     if (request.msg === 'transactionPending') {
       setIsPending(true);
     }
     if (request.msg === 'transactionDone') {
       setIsPending(false);
+    }
+    // The header should handle transactionError events
+    if (request.msg === 'transactionError') {
+      console.warn('transactionError', request.errorMessage, request.errorCode);
+      // The error message is not used anywhere else for now
+      setErrorMessage(request.errorMessage);
+      setErrorCode(request.errorCode);
     }
     return true;
   };
@@ -998,6 +1012,7 @@ const Header = ({ loading }) => {
           )}
         </Toolbar>
       </AppBar>
+      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
     </StyledEngineProvider>
   );
 };

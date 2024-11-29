@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet } from 'ui/utils';
-// import { CHAINS_ENUM } from 'consts';
-import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, CardMedia } from '@mui/material';
-import theme from 'ui/style/LLTheme';
-import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
-import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
-import { UserInfoResponse } from 'background/service/networkModel';
-import { isValidEthereumAddress } from 'ui/utils/address';
-import { formatAddress } from 'ui/utils';
 import * as fcl from '@onflow/fcl';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+// import { CHAINS_ENUM } from 'consts';
+import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
+import { type UserInfoResponse } from 'background/service/networkModel';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
+import { useApproval, useWallet, formatAddress } from 'ui/utils';
+import { isValidEthereumAddress } from 'ui/utils/address';
 
 interface ConnectProps {
   params: any;
-  // onChainChange(chain: CHAINS_ENUM): void;
-  // defaultChain: CHAINS_ENUM;
 }
 
 const EthSignType = ({ params }: ConnectProps) => {
@@ -64,7 +60,7 @@ const EthSignType = ({ params }: ConnectProps) => {
     sig: string | null;
   }
 
-  const extractData = () => {
+  const extractData = useCallback(() => {
     console.log('obj ', params);
     let data = '';
     let address = '';
@@ -79,7 +75,7 @@ const EthSignType = ({ params }: ConnectProps) => {
     const jsonObject = JSON.parse(data);
     setMessages(jsonObject);
     console.log('data, ', data);
-  };
+  }, [params]);
 
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
@@ -87,8 +83,9 @@ const EthSignType = ({ params }: ConnectProps) => {
 
   const handleAllow = async () => {
     await checkCoa();
+    const network = await wallet.getNetwork();
     resolveApproval({
-      defaultChain: 646,
+      defaultChain: network === 'testnet' ? 545 : 747,
       signPermission: 'MAINNET_AND_TESTNET',
     });
   };
@@ -114,7 +111,7 @@ const EthSignType = ({ params }: ConnectProps) => {
     if (params) {
       extractData();
     }
-  }, []);
+  }, [extractData, params]);
 
   const JsonRenderer = ({ data }) => {
     // Recursive function to render objects, including arrays and nested objects
@@ -246,7 +243,7 @@ const EthSignType = ({ params }: ConnectProps) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {isLoading ? (
         <Box>
           {accountLinking ? (
@@ -324,7 +321,7 @@ const EthSignType = ({ params }: ConnectProps) => {
           </Box>
         </Box>
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

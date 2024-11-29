@@ -124,6 +124,9 @@
         margin: 0px;
       }
     </style>
+    <% if (devMode && hasDevTools) { %>
+    <script src="react-devtools.js"></script>
+    <% } %>
   </head>
 
   <body class="h-full">

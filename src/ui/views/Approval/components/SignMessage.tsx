@@ -1,8 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet } from 'ui/utils';
-// import { CHAINS_ENUM } from 'consts';
-import { ThemeProvider } from '@mui/system';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Stack,
   Box,
@@ -12,13 +8,15 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import theme from 'ui/style/LLTheme';
 import * as fcl from '@onflow/fcl';
-import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
-import './github-dark-dimmed.css';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { storage } from '@/background/webapi';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
+import { useApproval, useWallet } from 'ui/utils';
+
+import './github-dark-dimmed.css';
 
 interface ConnectProps {
   params: any;
@@ -103,7 +101,9 @@ const SignMessage = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
 
   const extMessageHandler = (msg, sender, sendResponse) => {
     if (msg.type === 'FCL:VIEW:READY:RESPONSE') {
-      msg.host && setHost(msg.host);
+      if (msg.host) {
+        setHost(msg.host);
+      }
       if (msg.config.app.title) {
         setTitle(msg.config.app.title);
       }
@@ -119,14 +119,14 @@ const SignMessage = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
   };
 
   useEffect(() => {
-    chrome.tabs &&
+    if (chrome.tabs) {
       chrome.tabs
         .query({
           active: true,
           currentWindow: false,
         })
         .then((tabs) => {
-          const targetTab = tabs.filter((item) => item.id == tabId);
+          const targetTab = tabs.filter((item) => item.id === tabId);
 
           let host = '';
           if (targetTab[0].url) {
@@ -139,6 +139,7 @@ const SignMessage = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
           setOpener(targetTab[0].id);
           chrome.tabs.sendMessage(targetTab[0].id || 0, { type: 'FCL:VIEW:READY' });
         });
+    }
 
     chrome.runtime?.onMessage.addListener(extMessageHandler);
 
@@ -147,7 +148,7 @@ const SignMessage = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
         console.log('removeListener');
       });
     };
-  }, []);
+  }, [tabId]);
 
   window.onbeforeunload = () => {
     if (!approval) {
@@ -167,7 +168,7 @@ const SignMessage = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
   //   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           margin: '18px 18px 0px 18px',
@@ -254,7 +255,7 @@ const SignMessage = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
           />
         </Stack>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

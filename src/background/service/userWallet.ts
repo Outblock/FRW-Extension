@@ -1,7 +1,7 @@
-import { getAuth, signInAnonymously } from '@firebase/auth';
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
 import { withPrefix } from '@/ui/utils/address';

@@ -1,27 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  ListItemText,
-  Select,
-  MenuItem,
-  ListItemIcon,
-  FormControl,
-  InputAdornment,
-  Input,
-  Chip,
-  Tooltip,
-  Stack,
-  Avatar,
-} from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import StakeConfirm from './StakeConfirm';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
+import { Box, Typography, FormControl, InputAdornment, Input, Stack } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
-import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
-import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -129,15 +109,15 @@ const StakeAmount = ({
         removeError();
       }
     }
-  }, [amount]);
+  }, [amount, coinInfo, removeError, setError, setLess]);
 
-  const currentCoinType = () => {
+  const currentCoinType = useCallback(() => {
     setCoin(coinInfo.unit);
-  };
+  }, [coinInfo.unit]);
 
   useEffect(() => {
     currentCoinType();
-  }, []);
+  }, [currentCoinType]);
 
   return (
     <StyledEngineProvider injectFirst>

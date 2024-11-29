@@ -13,8 +13,6 @@ export * from './time';
 
 export * from './number';
 
-export * from './options';
-
 export * from './saveStorage';
 
 export * from './mixpanelBrowserService';

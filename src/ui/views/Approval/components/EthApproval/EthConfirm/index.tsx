@@ -1,35 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet } from 'ui/utils';
-// import { CHAINS_ENUM } from 'consts';
-import { ThemeProvider } from '@mui/system';
-import {
-  Stack,
-  Box,
-  Typography,
-  Divider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import theme from 'ui/style/LLTheme';
+import { Stack, Box } from '@mui/material';
 import * as fcl from '@onflow/fcl';
-import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
-import Highlight from 'react-highlight';
-import * as secp from '@noble/secp256k1';
-import { SHA3 } from 'sha3';
-import { DefaultBlock } from './DefaultBlock';
-import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
-import { UserInfoResponse } from 'background/service/networkModel';
 import dedent from 'dedent';
-import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
-import { Presets } from 'react-component-transition';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
+import { type UserInfoResponse } from 'background/service/networkModel';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
+import { useApproval, useWallet } from 'ui/utils';
+
+import { DefaultBlock } from './DefaultBlock';
 
 interface ConnectProps {
   params: any;
-  // onChainChange(chain: CHAINS_ENUM): void;
-  // defaultChain: CHAINS_ENUM;
 }
 
 const EthConfirm = ({ params }: ConnectProps) => {
@@ -108,15 +91,15 @@ const EthConfirm = ({ params }: ConnectProps) => {
   const handleAllow = async () => {
     await checkCoa();
     resolveApproval({
-      defaultChain: 646,
+      defaultChain: 747,
       signPermission: 'MAINNET_AND_TESTNET',
     });
   };
 
-  const loadPayer = async () => {
+  const loadPayer = useCallback(async () => {
     const isEnabled = await usewallet.allowLilicoPay();
     setLilicoEnabled(isEnabled);
-  };
+  }, [usewallet]);
 
   const checkCoa = async () => {
     setLoading(true);
@@ -140,10 +123,10 @@ const EthConfirm = ({ params }: ConnectProps) => {
       loadPayer();
       extractData(params);
     }
-  }, []);
+  }, [loadPayer, params]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {isLoading ? (
         <Box>
           {accountLinking ? (
@@ -217,7 +200,7 @@ const EthConfirm = ({ params }: ConnectProps) => {
           </Box>
         </Box>
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

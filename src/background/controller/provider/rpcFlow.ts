@@ -1,4 +1,7 @@
 import { ethErrors } from 'eth-rpc-errors';
+
+import eventBus from '@/eventBus';
+import { isValidEthereumAddress } from '@/ui/utils/address';
 import {
   keyringService,
   notificationService,
@@ -7,10 +10,10 @@ import {
 } from 'background/service';
 import { PromiseFlow, underline2Camelcase } from 'background/utils';
 import { EVENTS } from 'consts';
-import providerController from './controller';
-import eventBus from '@/eventBus';
+
 import Wallet from '../wallet';
-import { isValidEthereumAddress } from '@/ui/utils/address';
+
+import providerController from './controller';
 
 const isSignApproval = (type: string) => {
   const SIGN_APPROVALS = ['SignText', 'SignTypedData', 'SignTx', 'EthConfirm'];
@@ -62,25 +65,6 @@ const flowContext = flow
       if (mapMethod === 'ethAccounts' && (!site || !isUnlock)) {
         throw new Error('Origin not connected. Please connect first.');
       }
-      // console.log('isUnlock ', isUnlock)
-      // await notificationService.requestApproval(
-      //   {
-      //     params: { origin, name },
-      //     approvalComponent: 'EthConnect', lock: true
-      //   },
-      //   { height: 599 }
-      // );
-      // if (!isUnlock) {
-      //   ctx.request.requestedApproval = true;
-      //   lockedOrigins.add(origin);
-      //   try {
-      //     await notificationService.requestApproval({ lock: true });
-      //     lockedOrigins.delete(origin);
-      //   } catch (e) {
-      //     lockedOrigins.delete(origin);
-      //     throw e;
-      //   }
-      // }
     }
 
     return next();

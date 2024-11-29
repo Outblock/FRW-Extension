@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
 import { List, ListSubheader, CardMedia, Typography, ButtonBase, Box } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import { LLContactCard } from '../../FRWComponent';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import EmptyAddress from 'ui/assets/EmptyAddress.svg';
+
+import emptyAddress from 'ui/assets/emptyAddress.svg';
+
+import { LLContactCard } from '../../FRWComponent';
 
 const AddressBookList = ({ filteredContacts, isLoading, handleClick }) => {
   const [grouped, setGrouped] = useState<any>([]);
@@ -62,7 +64,7 @@ const AddressBookList = ({ filteredContacts, isLoading, handleClick }) => {
         >
           <CardMedia
             sx={{ width: '154px', height: '120px', margin: '50px auto 0' }}
-            image={EmptyAddress}
+            image={emptyAddress}
           />
           <Typography
             variant="overline"

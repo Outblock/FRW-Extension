@@ -1,12 +1,14 @@
 import * as ethUtil from 'ethereumjs-util';
 
-export { default as createPersistStore } from './persisitStore';
-export { default as createSessionStore } from './sessionStore';
-import { version } from '@/../package.json';
+import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
 
+const { version } = packageJson;
 import { mixpanelTrack } from '../service';
 import pageStateCache from '../service/pageStateCache';
+
+export { default as createPersistStore } from './persisitStore';
+export { default as createSessionStore } from './sessionStore';
 
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
