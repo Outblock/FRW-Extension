@@ -108,6 +108,17 @@ export default [
           message: 'DOM APIs are not available in background scripts',
         },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['ui/*', '**/ui/**'],
+              message: 'UI components/modules cannot be imported into background scripts',
+            },
+          ],
+        },
+      ],
     },
   },
 ];
