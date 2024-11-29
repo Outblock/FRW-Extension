@@ -1,8 +1,7 @@
-import { createTheme } from '@mui/material/styles';
-import { Theme as SystemTheme } from '@mui/system';
+import { createTheme, type ThemeOptions } from '@mui/material/styles';
 import './fonts.css';
 
-const theme: SystemTheme = createTheme({
+const themeOptions: ThemeOptions = {
   components: {
     MuiCssBaseline: {
       styleOverrides: {
@@ -157,7 +156,7 @@ const theme: SystemTheme = createTheme({
       fontWeight: 600,
     },
   },
-});
+};
 
 declare module '@mui/material/Button' {
   interface ButtonPropsColorOverrides {
@@ -165,4 +164,4 @@ declare module '@mui/material/Button' {
   }
 }
 
-export default theme;
+export default themeOptions;
