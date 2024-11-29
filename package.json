@@ -10,7 +10,7 @@
     "winBuild:dev": "set NODE_OPTIONS=--max-old-space-size=8192 && copy _raw\\manifest\\manifest.dev.json _raw\\manifest.json && pnpm run prepare:dev && pnpm run winClean && webpack --progress --env config=dev",
     "build:dev": "NODE_OPTIONS=--max-old-space-size=8192 && cp _raw/manifest/manifest.dev.json _raw/manifest.json && pnpm run prepare:dev && pnpm run clean && webpack --progress --env config=dev",
     "winBuild:pro": "copy _raw\\manifest\\manifest.pro.json _raw\\manifest.json && pnpm run prepare:pro && pnpm run winClean && webpack --progress --env config=pro",
-    "build:ci": "cp _raw/manifest/manifest.pro.json _raw/manifest.json && pnpm run prepare:pro && webpack --env config=pro",
+    "build:ci": "cp _raw/manifest/manifest.pro.json _raw/manifest.json && pnpm run prepare:pro && pnpm run clean && webpack --env config=pro",
     "build:pro": "cp _raw/manifest/manifest.pro.json _raw/manifest.json && pnpm run prepare:pro && pnpm run clean && webpack --progress --env config=pro",
     "build:test": "cp _raw/manifest/manifest.dev.json _raw/manifest.json && pnpm run clean && webpack --progress --env config=none",
     "lint:fix": "eslint --fix .",
