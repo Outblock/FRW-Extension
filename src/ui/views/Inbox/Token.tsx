@@ -1,8 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { useHistory } from 'react-router-dom';
-import theme from '../../style/LLTheme';
-import { useWallet } from 'ui/utils';
 import {
   Typography,
   ListItem,
@@ -14,11 +9,16 @@ import {
   List,
   CardMedia,
 } from '@mui/material';
-import activity from 'ui/FRWAssets/svg/activity.svg';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import { Box } from '@mui/system';
 import { setDefaultWordlist } from 'bip39';
 import { reject } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import { TokenModel } from 'background/service/networkModel';
+import activity from 'ui/FRWAssets/svg/activity.svg';
+import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
 const Token = ({ data }) => {
   const wallet = useWallet();
@@ -61,11 +61,11 @@ const Token = ({ data }) => {
     });
   };
 
-  const getToken = () => {
+  const getToken = useCallback(() => {
     wallet.openapi.getAllToken().then((res) => {
       setTokens(res);
     });
-  };
+  }, [setTokens, wallet.openapi]);
 
   useEffect(() => {
     setLoading(data === null);
@@ -75,10 +75,10 @@ const Token = ({ data }) => {
       checkEmpty(data);
       setLoading(false);
     }
-  }, [data]);
+  }, [data, getToken]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <List sx={{ padding: '0 17px', marginTop: '19px', background: '#000000' }}>
         {!isLoading ? (
           <Box>
@@ -87,7 +87,7 @@ const Token = ({ data }) => {
                 {(Object.keys(inbox['vaultBalances']) || []).map((ibx: any, v: any) => {
                   const contractName = ibx.split('.')[2];
                   const token = tokens.find(
-                    (item) => item.contract_name.toLowerCase() == contractName.toLowerCase()
+                    (item) => item.contract_name.toLowerCase() === contractName.toLowerCase()
                   );
                   let tokenIcon = 'https://lilico.app/placeholder-2.0.png';
                   if (token) {
@@ -270,7 +270,7 @@ const Token = ({ data }) => {
           })
         )}
       </List>
-    </ThemeProvider>
+    </>
   );
 };
 

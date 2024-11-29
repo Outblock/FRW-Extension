@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconFusd = ({ size, color, style: _style, ...rest }) => {
+const IconFusd = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -26,10 +26,6 @@ const IconFusd = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconFusd.defaultProps = {
-  size: 18,
 };
 
 export default IconFusd;

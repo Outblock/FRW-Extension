@@ -1,6 +1,6 @@
 import { List, ListSubheader, ButtonBase, Box } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
@@ -21,7 +21,7 @@ type ChildAccount = {
 const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
   const usewallet = useWallet();
 
-  const [grouped, setGrouped] = useState<any>([]);
+  const [, setGrouped] = useState<any>([]);
   const [childAccounts, setChildAccount] = useState<any[]>([]);
 
   const [walletList, setWalletList] = useState<any[]>([]);
@@ -36,7 +36,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     if (!Array.isArray(sortData)) {
       sortData = [];
     }
-    const filteredData = (sortData || []).filter((wallet, index) => {
+    const filteredData = (sortData || []).filter((wallet, _index) => {
       return wallet.chain_id === currentNetwork;
     });
     const walletData = (filteredData || []).map((wallet, index) => {
@@ -53,7 +53,6 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
       const cAccountArray = convertObjectToContactArray(childresp);
       setChildAccount(cAccountArray);
     }
-    console.log('childresp ', wdArray);
 
     // putDeviceInfo(fData);
     await setWalletList(wdArray);
@@ -90,7 +89,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
   async function convertArrayToContactArray(array, emojiList) {
     // Fetch emoji list
 
-    return array.map((item, index) => {
+    return array.map((item, _index) => {
       return {
         id: item.id,
         contact_name: emojiList[0].name, // Use the corresponding emoji name

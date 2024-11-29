@@ -1,5 +1,6 @@
 import * as fcl from '@onflow/fcl';
 import { send as httpSend } from '@onflow/transport-http';
+
 import { storage } from './webapi';
 
 const CONTRACTS_URL =
@@ -103,6 +104,7 @@ export const fclMainnetConfig = async () => {
   const config = fcl
     .config()
     .put('accessNode.api', 'https://rest-mainnet.onflow.org')
+    // note this is the default transport. We don't really need to set this
     .put('sdk.transport', httpSend)
     .put('flow.network', 'mainnet');
 
@@ -122,6 +124,7 @@ export const fclTestnetConfig = async () => {
   const config = fcl
     .config()
     .put('accessNode.api', 'https://rest-testnet.onflow.org')
+    // note this is the default transport. We don't really need to set this
     .put('sdk.transport', httpSend)
     .put('flow.network', 'testnet');
 

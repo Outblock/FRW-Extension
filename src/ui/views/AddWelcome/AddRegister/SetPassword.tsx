@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -12,22 +11,23 @@ import {
   InputAdornment,
   FormGroup,
   LinearProgress,
-  CssBaseline,
 } from '@mui/material';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { Presets } from 'react-component-transition';
-import zxcvbn from 'zxcvbn';
-import theme from '../../../style/LLTheme';
-import { useWallet, saveIndex } from 'ui/utils';
-import { AccountKey } from 'background/service/networkModel';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { makeStyles, styled } from '@mui/styles';
+import { Box } from '@mui/system';
 import HDWallet from 'ethereum-hdwallet';
-import { LLSpinner } from 'ui/FRWComponent';
+import React, { useEffect, useState } from 'react';
+import zxcvbn from 'zxcvbn';
+
 import { storage } from '@/background/webapi';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { type AccountKey } from 'background/service/networkModel';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet, saveIndex } from 'ui/utils';
+
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -238,8 +238,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">{chrome.i18n.getMessage('Confirm__Password')} </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -280,9 +279,11 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
-              {password && helperText}
-            </Presets.TransitionSlideUp>
+            <Box style={{ marginBottom: '24px' }}>
+              <SlideRelative show={!!password} direction="down">
+                {helperText}
+              </SlideRelative>
+            </Box>
           </FormGroup>
         </Box>
 
@@ -345,7 +346,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
           {errMessage}
         </Alert>
       </Snackbar>
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -1,19 +1,21 @@
+import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
+import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
+
+import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
 import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
-import ImportRecoveryPhrase from './ImportRecoveryPhrase';
 import AllSet from '../Register/AllSet';
+import RegisterHeader from '../Register/RegisterHeader';
+
+import ImportRecoveryPhrase from './ImportRecoveryPhrase';
 import RecoverPassword from './RecoverPassword';
-import Particles from 'react-tsparticles';
-import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { useWallet } from 'ui/utils';
-import options from './options';
 
 enum Direction {
   Right,
@@ -68,7 +70,7 @@ const ImportPager = () => {
       }
       setLoading(false);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setShowError(true);
       setErrorMessage(chrome.i18n.getMessage('Something__is__wrong'));
       setLoading(false);
@@ -105,7 +107,7 @@ const ImportPager = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -116,14 +118,9 @@ const ImportPager = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 2 && (
-          <Particles
-            // @ts-expect-error customized options
-            options={options}
-          />
-        )}
+        {activeIndex === 2 && <Confetti />}
 
-        <LLPinAlert open={activeIndex == 2} />
+        <LLPinAlert open={activeIndex === 2} />
 
         <RegisterHeader />
         <Box sx={{ flexGrow: 1 }} />
@@ -169,25 +166,9 @@ const ImportPager = () => {
             </Typography>
           </Box>
 
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-          >
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </ComponentTransition>
+          </SlideLeftRight>
         </Box>
 
         {activeIndex === 0 && (
@@ -225,7 +206,7 @@ const ImportPager = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-
 import { Box, CardMedia, Typography } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
+import React, { useState, useEffect } from 'react';
 
 export const LLConnectLoading = ({ logo }) => {
   const [count, setCount] = useState(0);

@@ -1,6 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
@@ -53,7 +53,7 @@ const MoveEvm = (props: MoveBoardProps) => {
     setShowError(false);
   };
 
-  const updateCurrentCollection = async () => {
+  const updateCurrentCollection = useCallback(async () => {
     if (collectionList && cadenceNft) {
       const collection = collectionList.find((collection) => collection.id === selectedCollection);
 
@@ -61,9 +61,9 @@ const MoveEvm = (props: MoveBoardProps) => {
       setCollectionDetail(collection);
       setCollectionInfo(cadenceResult);
     }
-  };
+  }, [collectionList, cadenceNft, selectedCollection, usewallet]);
 
-  const requestCadenceNft = async () => {
+  const requestCadenceNft = useCallback(async () => {
     const cadenceResult = await usewallet.reqeustEvmNft();
     const tokensWithNfts = cadenceResult.filter((token) => token.ids && token.ids.length > 0);
     const filteredData = tokensWithNfts.filter((item) => item.collection.flowIdentifier);
@@ -86,7 +86,7 @@ const MoveEvm = (props: MoveBoardProps) => {
       setCollectionInfo({ nfts: [] });
     }
     setLoading(false);
-  };
+  }, [usewallet]);
 
   const toggleSelectNft = async (nftId) => {
     const tempIdArray = [...nftIdArray];
@@ -175,11 +175,11 @@ const MoveEvm = (props: MoveBoardProps) => {
 
   useEffect(() => {
     requestCadenceNft();
-  }, []);
+  }, [requestCadenceNft]);
 
   useEffect(() => {
     updateCurrentCollection();
-  }, [collectionList, cadenceNft, selectedCollection]);
+  }, [collectionList, cadenceNft, selectedCollection, updateCurrentCollection]);
 
   return (
     <Drawer
@@ -458,6 +458,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         disabled={!collectionDetail || collectionDetail.NftCount === 0}
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',

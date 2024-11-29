@@ -1,28 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import SelectIcon from '@mui/icons-material/ArrowDropDown';
 import {
   Box,
   Typography,
   Button,
-  ListItemText,
-  Select,
-  MenuItem,
-  ListItemIcon,
   FormControl,
   InputAdornment,
   Input,
   Chip,
-  Tooltip,
   Stack,
   Avatar,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import IconFlow from '../../../components/iconfont/IconFlow';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import { StyledEngineProvider } from '@mui/material/styles';
-import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
-import SelectIcon from '@mui/icons-material/ArrowDropDown';
+import { makeStyles } from '@mui/styles';
+import React, { useEffect } from 'react';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -134,7 +124,7 @@ const TransferAmount = ({
         removeError();
       }
     }
-  }, [amount]);
+  }, [amount, coinInfo, removeError, setError]);
 
   return (
     <StyledEngineProvider injectFirst>

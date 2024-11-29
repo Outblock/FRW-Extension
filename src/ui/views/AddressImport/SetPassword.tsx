@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -12,21 +11,22 @@ import {
   InputAdornment,
   FormGroup,
   LinearProgress,
-  CssBaseline,
 } from '@mui/material';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { Presets } from 'react-component-transition';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { makeStyles, styled } from '@mui/styles';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
-import theme from '../../style/LLTheme';
-import { useWallet, getHashAlgo, getSignAlgo, saveIndex } from 'ui/utils';
+
+import { storage } from '@/background/webapi';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
-import { storage } from '@/background/webapi';
+import { useWallet, getHashAlgo, getSignAlgo, saveIndex } from 'ui/utils';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -273,8 +273,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
   }, [confirmPassword, password]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
@@ -321,9 +320,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
-              {password && helperText}
-            </Presets.TransitionSlideUp>
+            <SlideRelative direction="down" show={!!password}>
+              {helperText}
+            </SlideRelative>
             <Input
               sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
               id="pass2"
@@ -346,9 +345,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
-              {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp>
+            <SlideRelative show={!!confirmPassword} direction="down">
+              {helperMatch}
+            </SlideRelative>
           </FormGroup>
         </Box>
 
@@ -411,7 +410,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accou
           {errMessage}
         </Alert>
       </Snackbar>
-    </ThemeProvider>
+    </>
   );
 };
 

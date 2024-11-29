@@ -1,6 +1,7 @@
-import React from 'react';
-import { styled } from '@mui/material/styles';
 import { Box, Grid, IconButton, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import React from 'react';
+
 import IconCopy from '../../components/iconfont/IconCopy';
 
 export const CredentialBox = ({ data }) => {

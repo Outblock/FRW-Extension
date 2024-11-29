@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import { Stack, Box } from '@mui/material';
+import * as fcl from '@onflow/fcl';
+import dedent from 'dedent';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import {
+  LLPrimaryButton,
+  LLSecondaryButton,
+  LLConnectLoading,
+  LLLinkingLoading,
+} from '@/ui/FRWComponent';
+import { type UserInfoResponse } from 'background/service/networkModel';
 import { useApproval, useWallet } from 'ui/utils';
 // import { CHAINS_ENUM } from 'consts';
-import { ThemeProvider } from '@mui/system';
-import {
-  Stack,
-  Box,
-  Typography,
-  Divider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import theme from 'ui/style/LLTheme';
-import * as fcl from '@onflow/fcl';
-import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
-import Highlight from 'react-highlight';
+
 import './github-dark-dimmed.css';
-import * as secp from '@noble/secp256k1';
-import { SHA3 } from 'sha3';
-import IconFlow from '../../../../components/iconfont/IconFlow';
+
 import { DefaultBlock } from './DefaultBlock';
 import { LinkingBlock } from './LinkingBlock';
-import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
-import { UserInfoResponse } from 'background/service/networkModel';
-import dedent from 'dedent';
-import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
-import { Presets } from 'react-component-transition';
 
 interface ConnectProps {
   params: any;
@@ -35,7 +25,7 @@ interface ConnectProps {
   // defaultChain: CHAINS_ENUM;
 }
 
-const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) => {
+const Confirmation = ({ params: { icon, origin, tabId, type } }: ConnectProps) => {
   const [, resolveApproval, rejectApproval, linkningConfirm] = useApproval();
   const { t } = useTranslation();
   const wallet = useWallet();
@@ -85,10 +75,10 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
     sig: string | null;
   }
 
-  const getUserInfo = async () => {
+  const getUserInfo = useCallback(async () => {
     const userResult = await wallet.getUserInfo(false);
     await setUserInfo(userResult);
-  };
+  }, [wallet]);
 
   // useEffect(() => {
   //   getUserInfo();
@@ -100,17 +90,20 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
   //   }
   // }, [accountArgs])
 
-  const fetchTxInfo = async (cadence: string) => {
-    // const account = await wallet.getCurrentAccount();
-    const network = await wallet.getNetwork();
-    const result = await wallet.openapi.getTransactionTemplate(cadence, network);
-    if (result != null) {
-      setAuditor(result);
-      setExpanded(false);
-    }
-  };
+  const fetchTxInfo = useCallback(
+    async (cadence: string) => {
+      // const account = await wallet.getCurrentAccount();
+      const network = await wallet.getNetwork();
+      const result = await wallet.openapi.getTransactionTemplate(cadence, network);
+      if (result !== null) {
+        setAuditor(result);
+        setExpanded(false);
+      }
+    },
+    [wallet]
+  );
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (opener) {
       if (windowId) {
         chrome.windows.update(windowId, { focused: true });
@@ -126,28 +119,33 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
       setApproval(false);
       rejectApproval('User rejected the request.');
     }
-  };
+  }, [opener, windowId, rejectApproval]);
 
-  const fclCallback = (data) => {
-    if (typeof data != 'object') return;
-    if (data.type !== 'FCL:VIEW:READY:RESPONSE') return;
-    const newSignable: Signable = data.body;
-    const hostname = data.config?.client?.hostname;
-    hostname && setHost(hostname);
-    setImage(data.config.app.icon);
-    setAccountTitle(data.config.app.title);
-    const firstLine = newSignable.cadence.trim().split('\n')[0];
+  const fclCallback = useCallback(
+    (data) => {
+      if (typeof data !== 'object') return;
+      if (data.type !== 'FCL:VIEW:READY:RESPONSE') return;
+      const newSignable: Signable = data.body;
+      const hostname = data.config?.client?.hostname;
+      if (hostname) {
+        setHost(hostname);
+      }
+      setImage(data.config.app.icon);
+      setAccountTitle(data.config.app.title);
+      const firstLine = newSignable.cadence.trim().split('\n')[0];
 
-    const isAccountLinking = firstLine.includes('#allowAccountLinking');
-    setAccountLinking(isAccountLinking);
-    if (isAccountLinking) {
-      setAccountArgs(newSignable['args']);
-    }
-    setSignable(newSignable);
-    getUserInfo();
+      const isAccountLinking = firstLine.includes('#allowAccountLinking');
+      setAccountLinking(isAccountLinking);
+      if (isAccountLinking) {
+        setAccountArgs(newSignable['args']);
+      }
+      setSignable(newSignable);
+      getUserInfo();
 
-    fetchTxInfo(newSignable.cadence);
-  };
+      fetchTxInfo(newSignable.cadence);
+    },
+    [fetchTxInfo, getUserInfo]
+  );
 
   const sendAuthzToFCL = async () => {
     console.log('sendAuthzToFCL ==>', signable);
@@ -188,82 +186,92 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
     }
   };
 
-  const sendSignature = (signable, signedMessage) => {
-    if (opener) {
-      chrome.tabs.sendMessage(opener, {
-        f_type: 'PollingResponse',
-        f_vsn: '1.0.0',
-        status: 'APPROVED',
-        reason: null,
-        data: new fcl.WalletUtils.CompositeSignature(signable.addr, signable.keyId, signedMessage),
-      });
-    }
-  };
+  const sendSignature = useCallback(
+    (signable, signedMessage) => {
+      if (opener) {
+        chrome.tabs.sendMessage(opener, {
+          f_type: 'PollingResponse',
+          f_vsn: '1.0.0',
+          status: 'APPROVED',
+          reason: null,
+          data: new fcl.WalletUtils.CompositeSignature(
+            signable.addr,
+            signable.keyId,
+            signedMessage
+          ),
+        });
+      }
+    },
+    [opener]
+  );
 
-  const signPayer = async (signable) => {
-    setIsLoading(true);
-    const value = await sessionStorage.getItem('pendingRefBlockId');
+  const signPayer = useCallback(
+    async (signable) => {
+      setIsLoading(true);
+      const value = await sessionStorage.getItem('pendingRefBlockId');
 
-    console.log('signPayer ->', signable.voucher.refBlock, value, signable.roles.payer);
+      console.log('signPayer ->', signable.voucher.refBlock, value, signable.roles.payer);
 
-    if (signable.roles.payer !== true) {
-      return;
-    }
+      if (signable.roles.payer !== true) {
+        return;
+      }
 
-    if (signable.voucher.refBlock !== value) {
-      return;
-    }
+      if (signable.voucher.refBlock !== value) {
+        return;
+      }
 
-    try {
-      const signedMessage = await wallet.signPayer(signable);
-      sendSignature(signable, signedMessage);
-      setApproval(true);
-      // if (accountLinking) {
-      //   await linkningConfirm();
-      // } else {
-      //   resolveApproval();
-      //   setIsLoading(false);
-      // }
-      resolveApproval();
-      setIsLoading(false);
-    } catch (err) {
-      setIsLoading(false);
-      handleCancel();
-    }
-  };
+      try {
+        const signedMessage = await wallet.signPayer(signable);
+        sendSignature(signable, signedMessage);
+        setApproval(true);
+        // if (accountLinking) {
+        //   await linkningConfirm();
+        // } else {
+        //   resolveApproval();
+        //   setIsLoading(false);
+        // }
+        resolveApproval();
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        handleCancel();
+      }
+    },
+    [wallet, sendSignature, resolveApproval, handleCancel, setIsLoading]
+  );
 
-  const loadPayer = async () => {
+  const loadPayer = useCallback(async () => {
     const isEnabled = await wallet.allowLilicoPay();
     setLilicoEnabled(isEnabled);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     loadPayer();
 
     return () => {
       sessionStorage.removeItem('pendingRefBlockId');
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
       // @ts-ignore
       chrome.storage.session?.remove('pendingRefBlockId');
     };
-  }, []);
+  }, [loadPayer]);
 
   useEffect(() => {
     console.log('pendingRefBlockId ->', lilicoEnabled, signable, approval);
     if (lilicoEnabled && signable && signable.message && approval) {
       signPayer(signable);
     }
-  }, [signable]);
+  }, [approval, lilicoEnabled, signPayer, signable]);
 
   useEffect(() => {
-    chrome.tabs &&
+    if (chrome.tabs) {
       chrome.tabs
         .query({
           active: true,
           currentWindow: false,
         })
         .then((tabs) => {
-          const targetTab = tabs.filter((item) => item.id == tabId);
+          const targetTab = tabs.filter((item) => item.id === tabId);
 
           let host = '';
           if (targetTab[0].url) {
@@ -276,6 +284,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
           setOpener(targetTab[0].id);
           chrome.tabs.sendMessage(targetTab[0].id || 0, { type: 'FCL:VIEW:READY' });
         });
+    }
 
     const extMessageHandler = (msg, sender, sendResponse) => {
       // console.log('extMessageHandler -->', msg);
@@ -283,14 +292,18 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
       if (msg.type === 'FCL:VIEW:READY:RESPONSE') {
         console.log('extMessageHandler -->', msg.type, msg);
 
-        msg.host && setHost(msg.host);
+        if (msg.host) {
+          setHost(msg.host);
+        }
         if (msg.config?.app?.title) {
           setTitle(msg.config.app.title);
         }
         if (msg.config?.app?.icon) {
           setLogo(msg.config.app.icon);
         }
-        setCadenceScript(msg.body.cadence);
+        if (msg.body?.cadence) {
+          setCadenceScript(msg.body.cadence);
+        }
         if (msg.body?.args?.length > 0) {
           setCadenceArguments(msg.body.args);
         }
@@ -318,7 +331,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
         console.log('removeListener');
       });
     };
-  }, []);
+  }, [fclCallback, tabId]);
 
   window.onbeforeunload = () => {
     if (!approval) {
@@ -327,7 +340,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {isLoading ? (
         <Box>
           {accountLinking ? (
@@ -387,8 +400,8 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
           </Stack>
         </Box>
       )}
-    </ThemeProvider>
+    </>
   );
 };
 
-export default Confimation;
+export default Confirmation;

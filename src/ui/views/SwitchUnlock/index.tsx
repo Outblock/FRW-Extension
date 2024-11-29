@@ -1,14 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
-import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import { Typography, Box, FormControl } from '@mui/material';
-import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
-import { Input } from '@mui/material';
-import { Presets } from 'react-component-transition';
-import CancelIcon from '../../../components/iconfont/IconClose';
+import { Input, Typography, Box, FormControl } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import React, { useEffect, useRef, useState } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import lilo from 'ui/FRWAssets/image/lilo.png';
+import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
+import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
 import { openInternalPageInTab } from 'ui/utils/webapi';
+
+import CancelIcon from '../../../components/iconfont/IconClose';
+
 import './style.css';
 
 const useStyles = makeStyles(() => ({
@@ -143,20 +145,18 @@ const SwitchUnlock = () => {
           onKeyDown={handleKeyDown}
         />
 
-        <Presets.TransitionSlideUp>
-          {showError && (
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '0 0 12px 12px',
-              }}
-            >
-              <Box sx={{ p: '4px' }}>{usernameError()}</Box>
-            </Box>
-          )}
-        </Presets.TransitionSlideUp>
+        <SlideRelative direction="down" show={showError}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '0 0 12px 12px',
+            }}
+          >
+            <Box sx={{ p: '4px' }}>{usernameError()}</Box>
+          </Box>
+        </SlideRelative>
 
         {/* <Box sx={{flexGrow: 1}}/> */}
       </FormControl>

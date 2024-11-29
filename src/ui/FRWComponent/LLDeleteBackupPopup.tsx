@@ -1,6 +1,8 @@
-import React from 'react';
 import { Typography, Box, Drawer, Stack } from '@mui/material';
+import React from 'react';
+
 import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
+
 import IconSubtract from '../../components/iconfont/IconSubtract';
 
 interface DeleteBackupProps {

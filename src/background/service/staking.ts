@@ -1,14 +1,8 @@
-import { createPersistStore, getScripts } from 'background/utils';
-import * as t from '@onflow/types';
 import * as fcl from '@onflow/fcl';
-import * as secp from '@noble/secp256k1';
-import { keyringService, openapiService, userWalletService } from 'background/service';
-import wallet from 'background/controller/wallet';
-import { getApp } from 'firebase/app';
-import { getAuth } from '@firebase/auth';
-import { withPrefix } from '@/ui/utils/address';
-import fetchConfig from 'background/utils/remoteConfig';
-import { storage } from '@/background/webapi';
+import * as t from '@onflow/types';
+
+import { userWalletService } from 'background/service';
+import { createPersistStore, getScripts } from 'background/utils';
 
 interface StakingStore {
   nodeList: Record<string, any>;

@@ -1,9 +1,22 @@
 import 'reflect-metadata';
 import { ethErrors } from 'eth-rpc-errors';
-import { WalletController } from 'background/controller/wallet';
-import { Message } from 'utils';
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  signInAnonymously,
+  indexedDBLocalPersistence,
+  setPersistence,
+  onAuthStateChanged,
+} from 'firebase/auth';
+
+import eventBus from '@/eventBus';
+import type { WalletController } from 'background/controller/wallet';
 import { EVENTS } from 'consts';
-import { storage } from './webapi';
+import { Message } from 'utils';
+
+import { providerController, walletController } from './controller';
+import { preAuthzServiceDefinition } from './controller/serviceDefinition';
+import { fclTestnetConfig, fclMainnetConfig } from './fclConfig';
 import {
   permissionService,
   preferenceService,
@@ -23,23 +36,8 @@ import {
   flownsService,
   stakingService,
 } from './service';
-import { providerController, walletController } from './controller';
-
-import eventBus from '@/eventBus';
-
-import { initializeApp, getApp } from 'firebase/app';
-import { getMessaging, getToken } from 'firebase/messaging';
-import {
-  getAuth,
-  signInAnonymously,
-  indexedDBLocalPersistence,
-  setPersistence,
-  onAuthStateChanged,
-} from '@firebase/auth';
-import { fclTestnetConfig, fclMainnetConfig } from './fclConfig';
 import { getFirbaseConfig } from './utils/firebaseConfig';
-import { getRemoteConfig } from 'firebase/remote-config';
-import { preAuthzServiceDefinition } from './controller/serviceDefinition';
+import { storage } from './webapi';
 const { PortMessage } = Message;
 
 const chromeWindow = await chrome.windows.getCurrent();
@@ -171,7 +169,7 @@ function deleteTimer(port) {
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request == 'ping') {
+  if (request === 'ping') {
     sendResponse('pong');
     return;
   }
@@ -182,7 +180,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 chrome.runtime.onConnect.addListener((port) => {
   // openapiService.getConfig();
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   port._timer = setTimeout(forceReconnect, 250e3, port);
   port.onDisconnect.addListener(deleteTimer);
@@ -347,11 +344,12 @@ const extMessageHandler = (msg, sender, sendResponse) => {
       })
       .then((tabs) => {
         const tabId = tabs[0].id;
-        tabId &&
+        if (tabId) {
           chrome.tabs.sendMessage(tabId, {
             type: 'FCW:NETWORK',
             network: userWalletService.getNetwork(),
           });
+        }
       });
   }
   // Launches extension popup window
@@ -380,7 +378,7 @@ const extMessageHandler = (msg, sender, sendResponse) => {
                 params: { tabId, type: service.type },
                 approvalComponent: findPath(service),
               },
-              { height: service.type == 'authz' ? 700 : 620 }
+              { height: service.type === 'authz' ? 700 : 620 }
             )
             .then((res) => {
               if (res === 'unlocked') {
@@ -389,7 +387,7 @@ const extMessageHandler = (msg, sender, sendResponse) => {
                     params: { tabId, type: service.type },
                     approvalComponent: findPath(service),
                   },
-                  { height: service.type == 'authz' ? 700 : 620 }
+                  { height: service.type === 'authz' ? 700 : 620 }
                 );
               }
             });
@@ -415,3 +413,5 @@ chrome.runtime.onConnect.addListener((port) => {
 function onMessage(msg, port) {
   console.log('received', msg, 'from', port.sender);
 }
+
+console.log('Is fetch native?', fetch.toString().includes('[native code]'));
