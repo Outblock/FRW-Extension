@@ -35,6 +35,7 @@ import {
   passwordService,
   flownsService,
   stakingService,
+  mixpanelTrack,
 } from './service';
 import { getFirbaseConfig } from './utils/firebaseConfig';
 import { storage } from './webapi';
@@ -136,6 +137,7 @@ async function restoreAppState() {
   await passwordService.init();
   await flownsService.init();
   await stakingService.init();
+  await mixpanelTrack.init();
   // rpcCache.start();
 
   appStoreLoaded = true;

@@ -1,5 +1,7 @@
 import { createPersistStore } from 'background/utils';
 
+import { mixpanelTrack } from './mixpanel';
+
 export interface UserInfoStore {
   avatar: string;
   nickname: string;
@@ -56,10 +58,17 @@ class UserInfo {
       this.store.avatar = url.toString();
     }
     this.store.avatar = data['avatar'];
+
+    // identify the user
+    mixpanelTrack.identify(this.store.user_id);
+
+    // TODO: track the user info if not in private mode
   };
 
   addUserId = (userId: string) => {
     this.store.user_id = userId;
+    // identify the user
+    mixpanelTrack.identify(this.store.user_id);
   };
 
   removeUserInfo = () => {
@@ -68,6 +77,8 @@ class UserInfo {
 
   updateUserInfo = (data: UserInfoStore) => {
     this.store = data;
+    // identify the user
+    mixpanelTrack.identify(this.store.user_id);
   };
 
   setDashIndex = (data: number) => {

@@ -1,6 +1,6 @@
 import { Typography, Card, CardActionArea, CardMedia, CardContent, Box } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 import type { PostMedia } from '@/ui/utils/url';
@@ -102,7 +102,7 @@ const GridView = ({
   const [isAccessible, setAccessible] = useState(true);
   const [media, setGetMediea] = useState<PostMedia | null>(null);
 
-  const fecthMedia = async () => {
+  const fetchMedia = useCallback(async () => {
     // const bestMedia = await findBestMedia(data, blockList)
     setGetMediea(data.postMedia);
     if (accessible) {
@@ -115,7 +115,7 @@ const GridView = ({
         }
       });
     }
-  };
+  }, [data, accessible]);
 
   const navigateWithState = (data, media, index, ownerAddress, isAccessibleNft) => {
     const state = {
@@ -129,8 +129,8 @@ const GridView = ({
   };
 
   useEffect(() => {
-    fecthMedia();
-  }, []);
+    fetchMedia();
+  }, [fetchMedia]);
 
   const TilteWordWrapped = (desc) => {
     if (!desc) return null;

@@ -15,6 +15,8 @@ export * from './number';
 
 export * from './saveStorage';
 
+export * from './mixpanelBrowserService';
+
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',
@@ -28,6 +30,7 @@ type UiTypeCheck = {
 };
 
 export const getUiType = (): UiTypeCheck => {
+  // eslint-disable-next-line no-restricted-globals
   const { pathname } = window.location;
   return Object.entries(UI_TYPE).reduce((m, [key, value]) => {
     m[`is${key}`] = pathname === `/${value}.html`;
@@ -118,11 +121,12 @@ export const isMetaMaskActive = async () => {
   if (!url) return false;
 
   try {
+    // eslint-disable-next-line no-restricted-globals
     const res = await window.fetch(url);
     await res.text();
 
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -137,70 +141,6 @@ export const ellipsisOverflowedText = (str: string, length = 5, removeLastComma 
   }
   return `${cut}...`;
 };
-
-export function getHashAlgo(value: string): number {
-  switch (value) {
-    case 'unknown':
-      return 0;
-    case 'SHA2_256':
-      return 1;
-    case 'SHA2_384':
-      return 2;
-    case 'SHA3_256':
-      return 3;
-    case 'SHA3_384':
-      return 4;
-    default:
-      return -1; // Handle unknown values
-  }
-}
-
-export function getSignAlgo(value: string): number {
-  switch (value) {
-    case 'unknown':
-      return 0;
-    case 'ECDSA_P256':
-      return 1;
-    case 'ECDSA_p256':
-      return 1;
-    case 'ECDSA_SECP256k1':
-      return 2;
-    case 'ECDSA_secp256k1':
-      return 2;
-    default:
-      return -1; // Handle unknown values
-  }
-}
-
-export function getStringFromHashAlgo(value: number): string {
-  switch (value) {
-    case 0:
-      return 'unknown';
-    case 1:
-      return 'SHA2_256';
-    case 2:
-      return 'SHA2_384';
-    case 3:
-      return 'SHA3_256';
-    case 4:
-      return 'SHA3_384';
-    default:
-      return 'unknown'; // Handle unknown values
-  }
-}
-
-export function getStringFromSignAlgo(value: number): string {
-  switch (value) {
-    case 0:
-      return 'unknown';
-    case 1:
-      return 'ECDSA_P256';
-    case 2:
-      return 'ECDSA_SECP256k1';
-    default:
-      return 'unknown'; // Handle unknown values
-  }
-}
 
 export const formatAddress = (address) => {
   if (address && address.length >= 30) {

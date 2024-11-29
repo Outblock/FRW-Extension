@@ -7,7 +7,7 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
-import { WalletProvider } from 'ui/utils';
+import { WalletProvider, mixpanelBrowserService } from 'ui/utils';
 
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
@@ -20,6 +20,12 @@ import Unlock from './Unlock';
 const theme = createTheme(themeOptions);
 
 function Main() {
+  React.useEffect(() => {
+    // Initialize mixpanel in the popup
+    // Note: Mixpanel is initialized in the constructor, just calling init here to make sure it is initialized
+    mixpanelBrowserService.init();
+  }, []);
+
   return (
     //@ts-ignore
     <Router>

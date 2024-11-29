@@ -2,8 +2,9 @@ import * as ethUtil from 'ethereumjs-util';
 
 import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
-const { version } = packageJson;
 
+const { version } = packageJson;
+import { mixpanelTrack } from '../service';
 import pageStateCache from '../service/pageStateCache';
 
 export { default as createPersistStore } from './persisitStore';
@@ -97,12 +98,22 @@ export const isSameAddress = (a: string, b: string) => {
 };
 
 export const getScripts = async (folder: string, scriptName: string) => {
-  const { data } = await storage.get('cadenceScripts');
-  const files = data[folder];
-  const script = files[scriptName];
-  const scriptString = Buffer.from(script, 'base64').toString('utf-8');
-  const modifiedScriptString = scriptString.replaceAll('<platform_info>', `Extension-${version}`);
-  return modifiedScriptString;
+  try {
+    const { data } = await storage.get('cadenceScripts');
+    const files = data[folder];
+    const script = files[scriptName];
+    const scriptString = Buffer.from(script, 'base64').toString('utf-8');
+    const modifiedScriptString = scriptString.replaceAll('<platform_info>', `Extension-${version}`);
+    return modifiedScriptString;
+  } catch (error) {
+    if (error instanceof Error) {
+      mixpanelTrack.track('script_error', {
+        script_id: scriptName,
+        error: error.message,
+      });
+    }
+    throw error;
+  }
 };
 
 export const findKeyAndInfo = (keys, publicKey) => {

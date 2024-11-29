@@ -3,18 +3,31 @@ import { Box } from '@mui/system';
 import React, { useCallback, useEffect } from 'react';
 
 import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
-import { useWallet } from 'ui/utils';
+import { useWallet, mixpanelBrowserService } from 'ui/utils';
 
 const AllSet = ({ handleClick }) => {
-  const wallets = useWallet();
+  const wallet = useWallet();
 
   const loadScript = useCallback(async () => {
-    await wallets.getCadenceScripts();
-  }, [wallets]);
+    await wallet.getCadenceScripts();
+  }, [wallet]);
+
+  const trackAccountRecovered = useCallback(async () => {
+    // I'm not sure if this is the best way to track this event
+    // It's hard to know at which point the user recovers the account
+    mixpanelBrowserService.track('account_recovered', {
+      address: (await wallet.getMainAddress()) || '',
+      mechanism: 'multi-backup',
+      methods: [],
+    });
+  }, [wallet]);
 
   useEffect(() => {
-    loadScript();
-  }, [loadScript]);
+    loadScript().then(() => {
+      trackAccountRecovered();
+    });
+  }, [loadScript, trackAccountRecovered]);
+
   return (
     <>
       <Box className="registerBox">
