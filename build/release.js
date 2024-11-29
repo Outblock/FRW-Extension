@@ -1,5 +1,5 @@
 const path = require('path');
-const { prompt } = require('enquirer');
+const { prompt: enquirerPrompt } = require('enquirer');
 const fs = require('fs-extra');
 const shell = require('shelljs');
 const zipdir = require('zip-dir');
@@ -7,7 +7,7 @@ const zipdir = require('zip-dir');
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 async function release() {
-  const input = await prompt({
+  const input = await enquirerPrompt({
     type: 'input',
     name: 'version',
     message: '[Flow Wallet] Please input the release version:',
@@ -26,7 +26,7 @@ async function release() {
 }
 
 function bundle(version) {
-  shell.exec('yarn build:pro');
+  shell.exec('pnpm build:pro');
   const distPath = path.resolve(PROJECT_ROOT, 'dist');
   zipdir(distPath, { saveTo: `FlowCore_${version}.zip` });
 }

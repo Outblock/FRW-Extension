@@ -40,7 +40,7 @@ class AssetReplacePlugin {
 
         for (const chunk of compilation.chunks.values()) {
           const fileName = chunk.files.values().next().value;
-          if (!replaceArr.includes(([, assetName]) => assetName === fileName)) {
+          if (!replaceArr.some(([, assetName]) => assetName === fileName)) {
             compilation.updateAsset(fileName, (content) => {
               const result = replaceFn(content.source());
 
