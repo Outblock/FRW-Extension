@@ -1,6 +1,6 @@
 // import abi from 'human-standard-token-abi';
-import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
+import { ethers } from 'ethers';
 
 // const hstInterface = new ethers.utils.Interface(abi);
 
