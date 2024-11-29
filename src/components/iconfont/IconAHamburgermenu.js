@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconAHamburgermenu = ({ size, color, style: _style, ...rest }) => {
+const IconAHamburgermenu = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -18,10 +18,6 @@ const IconAHamburgermenu = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconAHamburgermenu.defaultProps = {
-  size: 18,
 };
 
 export default IconAHamburgermenu;

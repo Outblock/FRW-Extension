@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * @param {string | string[] | undefined} color
  * @param {number} index

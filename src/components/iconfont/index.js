@@ -34,7 +34,7 @@ import IconAbout from './IconAbout';
 import IconCreate from './IconCreate';
 import IconLock from './IconLock';
 import IconUserSwitch from './IconUserSwitch';
-import IconAddressBook from './IconAddressBook';
+import IconAddressbook from './IconAddressbook';
 import IconAVector11Stroke from './IconAVector11Stroke';
 import IconMax from './IconMax';
 import IconVector2 from './IconVector2';
@@ -85,7 +85,7 @@ export { default as IconAbout } from './IconAbout';
 export { default as IconCreate } from './IconCreate';
 export { default as IconLock } from './IconLock';
 export { default as IconUserSwitch } from './IconUserSwitch';
-export { default as IconAddressBook } from './IconAddressBook';
+export { default as IconAddressbook } from './IconAddressbook';
 export { default as IconAVector11Stroke } from './IconAVector11Stroke';
 export { default as IconMax } from './IconMax';
 export { default as IconVector2 } from './IconVector2';
@@ -173,7 +173,7 @@ const IconFont = ({ name, ...rest }) => {
     case 'User-switch':
       return <IconUserSwitch {...rest} />;
     case 'Address-book':
-      return <IconAddressBook {...rest} />;
+      return <IconAddressbook {...rest} />;
     case 'a-Vector11Stroke':
       return <IconAVector11Stroke {...rest} />;
     case 'max':
