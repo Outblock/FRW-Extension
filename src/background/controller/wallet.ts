@@ -11,7 +11,10 @@ import { getAuth } from 'firebase/auth';
 import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
+import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+// eslint-disable-next-line import/order,no-restricted-imports
+import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
   preferenceService,
@@ -43,15 +46,10 @@ import fetchConfig from 'background/utils/remoteConfig';
 import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
-import placeholder from 'ui/FRWAssets/image/placeholder.png';
-import { getStoragedAccount } from 'ui/utils';
-import { isValidEthereumAddress, withPrefix } from 'ui/utils/address';
-import { openInternalPageInTab } from 'ui/utils/webapi';
 
-import { findAddressWithNetwork } from '../../ui/utils/modules/findAddressWithPK';
-import { pk2PubKey, seed2PubKey, formPubKey } from '../../ui/utils/modules/passkey';
 import { fclTestnetConfig, fclMainnetConfig } from '../fclConfig';
-import type { CoinItem } from '../service/coinList';
+import placeholder from '../images/placeholder.png';
+import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import type { NFTData, NFTModel, StorageInfo, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
@@ -59,9 +57,13 @@ import type { Account } from '../service/preference';
 import { StorageEvaluator } from '../service/storage-evaluator';
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
+import { getStoragedAccount } from '../utils/getStoragedAccount';
 
 import BaseController from './base';
 import provider from './provider';
+
+// eslint-disable-next-line import/order,no-restricted-imports
+import { pk2PubKey, seed2PubKey, formPubKey } from '@/ui/utils/modules/passkey.js';
 
 interface Keyring {
   type: string;
@@ -288,7 +290,7 @@ export class WalletController extends BaseController {
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openInternalPageInTab('addwelcome', true);
+    openIndexPage('addwelcome');
     await this.switchNetwork(switchingTo);
   };
 
@@ -302,7 +304,7 @@ export class WalletController extends BaseController {
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openInternalPageInTab('reset', true);
+    openIndexPage('reset');
     await this.switchNetwork(switchingTo);
   };
 
@@ -317,7 +319,7 @@ export class WalletController extends BaseController {
 
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openInternalPageInTab('restore', true);
+    openIndexPage('restore');
     await this.switchNetwork(switchingTo);
   };
 
@@ -4074,10 +4076,12 @@ export class WalletController extends BaseController {
   // Check the storage status
   checkStorageStatus = async ({
     transferAmount,
+    coin,
     movingBetweenEVMAndFlow,
   }: {
-    transferAmount?: number;
-    movingBetweenEVMAndFlow?: boolean;
+    transferAmount?: number; // amount in coins
+    coin?: string; // coin name
+    movingBetweenEVMAndFlow?: boolean; // are we moving between EVM and Flow?
   } = {}): Promise<{
     isStorageSufficient: boolean;
     isStorageSufficientAfterAction: boolean;
@@ -4088,6 +4092,7 @@ export class WalletController extends BaseController {
       await this.storageEvaluator.evaluateStorage(
         address!,
         transferAmount,
+        coin,
         movingBetweenEVMAndFlow
       );
     return {
