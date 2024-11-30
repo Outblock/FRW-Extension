@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@mui/styles';
-import { useHistory } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Switch, switchClasses } from '@mui/base/Switch';
 import {
   Typography,
   Box,
@@ -16,16 +13,21 @@ import {
   Snackbar,
   CardMedia,
 } from '@mui/material';
-import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
-import { useWallet } from 'ui/utils';
-import { StorageInfo, UserInfoResponse } from 'background/service/networkModel';
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import { LLHeader } from '@/ui/FRWComponent';
+import LinearProgress from '@mui/material/LinearProgress';
+import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/system';
-import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+
 import { storage } from '@/background/webapi';
-import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
+import { LLHeader } from '@/ui/FRWComponent';
+import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
+import type { StorageInfo } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
+
+import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 import editEmoji from '../../../FRWAssets/svg/editEmoji.svg';
+
 import EditProfile from './EditProfile';
 
 const useStyles = makeStyles(() => ({
@@ -148,12 +150,12 @@ const Root = styled('span')(
     margin-left: auto;
     cursor: pointer;
 
-    &.${switchUnstyledClasses.disabled} {
+    &.${switchClasses.disabled} {
       opacity: 0.4;
       cursor: not-allowed;
     }
 
-    & .${switchUnstyledClasses.track} {
+    & .${switchClasses.track} {
       background: ${theme.palette.mode === 'dark' ? grey[600] : grey[400]};
       border-radius: 10px;
       display: block;
@@ -162,7 +164,7 @@ const Root = styled('span')(
       position: absolute;
     }
 
-    & .${switchUnstyledClasses.thumb} {
+    & .${switchClasses.thumb} {
       display: block;
       width: 14px;
       height: 14px;
@@ -174,24 +176,24 @@ const Root = styled('span')(
       transition: all 200ms ease;
     }
 
-    &.${switchUnstyledClasses.focusVisible} .${switchUnstyledClasses.thumb} {
+    &.${switchClasses.focusVisible} .${switchClasses.thumb} {
       background-color: ${grey[500]};
       box-shadow: 0 0 1px 8px rgba(0, 0, 0, 0.25);
     }
 
-    &.${switchUnstyledClasses.checked} {
-      .${switchUnstyledClasses.thumb} {
+    &.${switchClasses.checked} {
+      .${switchClasses.thumb} {
         left: 17px;
         top: 3px;
         background-color: #fff;
       }
 
-      .${switchUnstyledClasses.track} {
+      .${switchClasses.track} {
         background: ${orange[500]};
       }
     }
 
-    & .${switchUnstyledClasses.input} {
+    & .${switchClasses.input} {
       cursor: inherit;
       position: absolute;
       width: 100%;
@@ -211,20 +213,31 @@ const tempEmoji = {
   bgcolor: '#FFE4C4',
 };
 
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1000;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['', 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function formatStorageInfo(used: number | undefined, capacity: number | undefined) {
+  return `${formatBytes((used || 0) * 10)} / ${formatBytes((capacity || 0) * 10)}`;
+}
+
 const WalletDetail = () => {
   const classes = useStyles();
-  const history = useHistory();
   const usewallet = useWallet();
 
-  const [isLoading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [userWallet, setWallet] = useState<any>(null);
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
-  const [walletName, setWalletName] = useState('');
+  const [, setWalletName] = useState('');
   const [showProfile, setShowProfile] = useState(false);
   const [gasKillSwitch, setGasKillSwitch] = useState(false);
   const [modeGas, setGasMode] = useState(false);
   const [showError, setShowError] = useState(false);
-  const [walletList, setWalletList] = useState([]);
+  const [, setWalletList] = useState([]);
   const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
   const [isKeyphrase, setIsKeyphrase] = useState(false);
   const [emoji, setEmoji] = useState<any>(tempEmoji);
@@ -236,20 +249,20 @@ const WalletDetail = () => {
     setShowError(false);
   };
 
-  const loadGasMode = async () => {
+  const loadGasMode = useCallback(async () => {
     const isFreeGasFeeEnabled = await storage.get('lilicoPayer');
     if (isFreeGasFeeEnabled) {
       setGasMode(isFreeGasFeeEnabled);
     }
-  };
+  }, []);
 
-  const loadGasKillSwitch = async () => {
-    const config = await usewallet.getPayerAddressAndKeyId();
+  const loadGasKillSwitch = useCallback(async () => {
+    await usewallet.getPayerAddressAndKeyId();
     const isFreeGasFeeEnabled = await storage.get('freeGas');
     if (isFreeGasFeeEnabled) {
       setGasKillSwitch(isFreeGasFeeEnabled);
     }
-  };
+  }, [usewallet]);
 
   const switchGasMode = async () => {
     setGasMode(!modeGas);
@@ -276,7 +289,7 @@ const WalletDetail = () => {
     });
   };
 
-  const setUserWallet = async () => {
+  const setUserWallet = useCallback(async () => {
     await usewallet.setDashIndex(3);
     const savedWallet = await storage.get('walletDetail');
     const walletDetail = JSON.parse(savedWallet);
@@ -289,15 +302,13 @@ const WalletDetail = () => {
       selectingEmoji['bgcolor'] = walletDetail.wallet.color;
       setEmoji(selectingEmoji);
     }
-  };
+  }, [usewallet]);
 
-  const loadStorageInfo = async () => {
+  const loadStorageInfo = useCallback(async () => {
     const address = await usewallet.getCurrentAddress();
-    console.log('loadStorageInfo ->', address);
     const info = await usewallet.openapi.getStorageInfo(address!);
     setStorageInfo(info);
-    console.log('loadStorageInfo ->', info);
-  };
+  }, [usewallet]);
 
   function storageCapacity(storage): number {
     const used = storage?.used ?? 1;
@@ -305,19 +316,10 @@ const WalletDetail = () => {
     return (used / capacity) * 100;
   }
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1000;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['', 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  }
-
-  const checkKeyphrase = async () => {
+  const checkKeyphrase = useCallback(async () => {
     const keyrings = await usewallet.checkMnemonics();
     await setIsKeyphrase(keyrings);
-  };
+  }, [usewallet]);
 
   useEffect(() => {
     setUserWallet();
@@ -325,7 +327,7 @@ const WalletDetail = () => {
     loadGasMode();
     loadStorageInfo();
     checkKeyphrase();
-  }, []);
+  }, [checkKeyphrase, loadGasKillSwitch, loadGasMode, loadStorageInfo, setUserWallet]);
 
   useEffect(() => {
     const list = wallets(userWallet);
@@ -342,215 +344,209 @@ const WalletDetail = () => {
   return (
     <div className="page" style={{ display: 'flex', flexDirection: 'column' }}>
       <LLHeader title={chrome.i18n.getMessage('Account')} help={false} />
-      {userWallet && (
-        <Box
-          px="20px"
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            flexGrow: 1,
-          }}
-        >
-          <Box>
-            <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
-              <ListItem
-                disablePadding
-                className={classes.listItem}
-                onClick={() => toggleEditProfile()}
-              >
-                <ListItemButton className={classes.itemButton}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      height: '32px',
-                      width: '32px',
-                      borderRadius: '32px',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: emoji.bgcolor,
-                      marginRight: '12px',
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                      {emoji.emoji}
-                    </Typography>
-                  </Box>
-                  <Typography
-                    sx={{
-                      color: '##FFFFFF',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      marginRight: '4px',
-                    }}
-                  >
-                    {emoji.name}
+
+      <Box
+        px="20px"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          flexGrow: 1,
+        }}
+      >
+        <Box>
+          <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
+            <ListItem
+              disablePadding
+              className={classes.listItem}
+              onClick={() => toggleEditProfile()}
+            >
+              <ListItemButton className={classes.itemButton}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    height: '32px',
+                    width: '32px',
+                    borderRadius: '32px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: emoji['bgcolor'],
+                    marginRight: '12px',
+                  }}
+                >
+                  <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
+                    {emoji.emoji}
                   </Typography>
-                  <Box sx={{ flex: '1' }}></Box>
-                  <ListItemIcon aria-label="end" sx={{ minWidth: '20px' }}>
-                    <CardMedia
-                      component="img"
-                      sx={{ width: '20px', height: '20px' }}
-                      image={editEmoji}
-                    />
-                  </ListItemIcon>
-                </ListItemButton>
-              </ListItem>
-            </List>
-            {!isValidEthereumAddress(userWallet[0].blockchain[0].address) && (
-              <>
-                <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
+                </Box>
+                <Typography
+                  sx={{
+                    color: '##FFFFFF',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    marginRight: '4px',
+                  }}
+                >
+                  {emoji.name}
+                </Typography>
+                <Box sx={{ flex: '1' }}></Box>
+                <ListItemIcon aria-label="end" sx={{ minWidth: '20px' }}>
+                  <CardMedia
+                    component="img"
+                    sx={{ width: '20px', height: '20px' }}
+                    image={editEmoji}
+                  />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          </List>
+          {userWallet && !isValidEthereumAddress(userWallet[0].blockchain[0].address) && (
+            <>
+              <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
+                <ListItem
+                  button
+                  component={Link}
+                  to="/dashboard/nested/privatekeypassword"
+                  disablePadding
+                  className={classes.listItem}
+                >
+                  <ListItemButton className={classes.itemButton}>
+                    <ListItemText primary={chrome.i18n.getMessage('Private__Key')} />
+                    <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                      <IconEnd size={12} />
+                    </ListItemIcon>
+                  </ListItemButton>
+                </ListItem>
+                {isKeyphrase && <Divider sx={{ width: '90%' }} variant="middle" />}
+
+                {isKeyphrase && (
                   <ListItem
                     button
                     component={Link}
-                    to="/dashboard/nested/privatekeypassword"
+                    to="/dashboard/nested/recoveryphrasepassword"
                     disablePadding
                     className={classes.listItem}
                   >
                     <ListItemButton className={classes.itemButton}>
-                      <ListItemText primary={chrome.i18n.getMessage('Private__Key')} />
+                      <ListItemText primary={chrome.i18n.getMessage('Recovery__Phrase')} />
                       <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
                         <IconEnd size={12} />
                       </ListItemIcon>
                     </ListItemButton>
                   </ListItem>
-                  {isKeyphrase && <Divider sx={{ width: '90%' }} variant="middle" />}
+                )}
+              </List>
 
-                  {isKeyphrase && (
-                    <ListItem
-                      button
-                      component={Link}
-                      to="/dashboard/nested/recoveryphrasepassword"
-                      disablePadding
-                      className={classes.listItem}
-                    >
-                      <ListItemButton className={classes.itemButton}>
-                        <ListItemText primary={chrome.i18n.getMessage('Recovery__Phrase')} />
-                        <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                          <IconEnd size={12} />
-                        </ListItemIcon>
-                      </ListItemButton>
-                    </ListItem>
-                  )}
+              <Box>
+                <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/dashboard/nested/keylist"
+                    disablePadding
+                    className={classes.listItem}
+                  >
+                    <ListItemButton className={classes.itemButton}>
+                      <ListItemText primary={'Account Keys'} />
+                      <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                        <IconEnd size={12} />
+                      </ListItemIcon>
+                    </ListItemButton>
+                  </ListItem>
                 </List>
+              </Box>
 
-                <Box>
-                  <List className={classes.list} sx={{ margin: '8px auto 8px auto', pt: 0, pb: 0 }}>
-                    <ListItem
-                      button
-                      component={Link}
-                      to="/dashboard/nested/keylist"
-                      disablePadding
-                      className={classes.listItem}
-                    >
-                      <ListItemButton className={classes.itemButton}>
-                        <ListItemText primary={'Account Keys'} />
-                        <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                          <IconEnd size={12} />
-                        </ListItemIcon>
-                      </ListItemButton>
-                    </ListItem>
-                  </List>
+              <Box className={classes.gasBox}>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant="body1" color="neutral.contrastText" style={{ weight: 600 }}>
+                    {chrome.i18n.getMessage('Free__Gas__Fee')}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                    sx={{ weight: 400, fontSize: '12px' }}
+                  >
+                    {gasKillSwitch
+                      ? chrome.i18n.getMessage('Allow__lilico__to__pay__the__gas__fee')
+                      : chrome.i18n.getMessage('This__feature__has__been__disabled__temporarily')}
+                  </Typography>
                 </Box>
-
+                <Switch
+                  disabled={!gasKillSwitch}
+                  checked={modeGas}
+                  slots={{
+                    root: Root,
+                  }}
+                  onChange={() => {
+                    switchGasMode();
+                  }}
+                />
+              </Box>
+              {!!storageInfo /* TODO: remove this after the storage usage card is implemented */ && (
                 <Box className={classes.gasBox}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <Typography
                       variant="body1"
                       color="neutral.contrastText"
                       style={{ weight: 600 }}
                     >
-                      {chrome.i18n.getMessage('Free__Gas__Fee')}
+                      {chrome.i18n.getMessage('Storage')}
                     </Typography>
-                    <Typography
-                      variant="body1"
-                      color={gasKillSwitch ? 'text.secondary' : 'error.main'}
-                      sx={{ weight: 400, fontSize: '12px' }}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '100%',
+                        justifyContent: 'space-between',
+                      }}
                     >
-                      {gasKillSwitch
-                        ? chrome.i18n.getMessage('Allow__lilico__to__pay__the__gas__fee')
-                        : chrome.i18n.getMessage('This__feature__has__been__disabled__temporarily')}
-                    </Typography>
-                  </Box>
-                  <SwitchUnstyled
-                    disabled={!gasKillSwitch}
-                    checked={modeGas}
-                    component={Root}
-                    onChange={() => {
-                      switchGasMode();
-                    }}
-                  />
-                </Box>
-
-                {storageInfo && (
-                  <Box className={classes.gasBox}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                       <Typography
                         variant="body1"
-                        color="neutral.contrastText"
-                        style={{ weight: 600 }}
+                        color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                        sx={{ weight: 400, fontSize: '12px' }}
                       >
-                        {chrome.i18n.getMessage('Storage')}
+                        {`${storageCapacity(storageInfo).toFixed(2)}%`}
                       </Typography>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          width: '100%',
-                          justifyContent: 'space-between',
-                        }}
+                      <Typography
+                        variant="body1"
+                        color={gasKillSwitch ? 'text.secondary' : 'error.main'}
+                        sx={{ weight: 400, fontSize: '12px' }}
                       >
-                        <Typography
-                          variant="body1"
-                          color={gasKillSwitch ? 'text.secondary' : 'error.main'}
-                          sx={{ weight: 400, fontSize: '12px' }}
-                        >
-                          {`${storageCapacity(storageInfo).toFixed(2)}%`}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color={gasKillSwitch ? 'text.secondary' : 'error.main'}
-                          sx={{ weight: 400, fontSize: '12px' }}
-                        >
-                          {`${formatBytes(storageInfo.used * 10)} / ${formatBytes(
-                            storageInfo.capacity * 10
-                          )}`}
-                        </Typography>
-                      </Box>
-                      <LinearProgress
-                        variant="determinate"
-                        value={storageCapacity(storageInfo)}
-                        sx={{ height: '8px', borderRadius: '4px' }}
-                      ></LinearProgress>
+                        {`${formatStorageInfo(storageInfo?.used, storageInfo?.capacity)}`}
+                      </Typography>
                     </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={storageCapacity(storageInfo)}
+                      sx={{ height: '8px', borderRadius: '4px' }}
+                    ></LinearProgress>
                   </Box>
-                )}
-              </>
-            )}
-          </Box>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Button
-            variant="contained"
-            disableElevation
-            color="error"
-            component={Link}
-            to="/dashboard/setting/removeWallet"
-            sx={{
-              width: '100% !important',
-              height: '48px',
-              borderRadius: '12px',
-              // margin: '80px auto 20px 20px',
-              marginBottom: '16px',
-              textTransform: 'none',
-              alignSelf: 'center',
-            }}
-          >
-            <Typography color="text">{chrome.i18n.getMessage('Reset_Wallet')}</Typography>
-          </Button>
+                </Box>
+              )}
+            </>
+          )}
         </Box>
-      )}
+
+        <Box sx={{ flexGrow: 1 }} />
+
+        <Button
+          variant="contained"
+          disableElevation
+          color="error"
+          component={Link}
+          to="/dashboard/setting/removeWallet"
+          sx={{
+            width: '100% !important',
+            height: '48px',
+            borderRadius: '12px',
+            // margin: '80px auto 20px 20px',
+            marginBottom: '16px',
+            textTransform: 'none',
+            alignSelf: 'center',
+          }}
+        >
+          <Typography color="text">{chrome.i18n.getMessage('Reset_Wallet')}</Typography>
+        </Button>
+      </Box>
 
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
         <Alert

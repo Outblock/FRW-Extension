@@ -1,48 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { styled } from '@mui/system';
-import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
-import { makeStyles } from '@mui/styles';
-import {
-  Box,
-  Typography,
-  Checkbox,
-  CardActionArea,
-  Divider,
-  FormControlLabel,
-  Alert,
-  Snackbar,
-} from '@mui/material';
-import { useWallet } from 'ui/utils';
-import { LLHeader, LLPrimaryButton } from '@/ui/FRWComponent';
+import { Box, Typography } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+
+import { LLHeader } from '@/ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
 interface LocationState {
   deviceItem?: any;
 }
 
 const DeviceInfo = () => {
-  const usewallet = useWallet();
-  const history = useHistory();
-
-  const [showError, setShowError] = useState(false);
   const location = useLocation<LocationState>();
   const wallet = useWallet();
   const [devices, setDevices] = useState<any>({});
 
-  const getDevice = async () => {
+  const getDevice = useCallback(async () => {
     const deviceItem = location.state?.deviceItem;
     setDevices(deviceItem);
-  };
+  }, [location.state?.deviceItem]);
 
-  const setTab = async () => {
+  const setTab = useCallback(async () => {
     await wallet.setDashIndex(3);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     setTab();
     getDevice();
-  }, []);
+  }, [getDevice, setTab]);
 
   const formatDate = (dateString) => {
     const months = [

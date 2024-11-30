@@ -22,12 +22,16 @@ import IconLink from 'ui/FRWAssets/svg/Iconlink.svg';
 
 import IconAbout from '../../../components/iconfont/IconAbout';
 import IconAccount from '../../../components/iconfont/IconAccount';
-import IconAddressBook from '../../../components/iconfont/IconAddressbook';
+import IconAddressbook from '../../../components/iconfont/IconAddressbook';
 import IconEnd from '../../../components/iconfont/IconAVector11Stroke';
 import IconBackup from '../../../components/iconfont/IconBackup';
 import IconDeveloper from '../../../components/iconfont/IconDeveloper';
 import IconWallet from '../../../components/iconfont/IconWallet';
 
+// Feature flags
+const SHOW_DEVICES = false;
+
+// Styles
 const useStyles = makeStyles(() => ({
   listDiv: {
     justifyContent: 'center',
@@ -152,7 +156,7 @@ const SettingTab = () => {
           >
             <ListItemButton className={classes.itemButton}>
               <ListItemIcon sx={{ minWidth: '25px' }}>
-                <IconAddressBook className={classes.icon} color="#59A1DB" />
+                <IconAddressbook className={classes.icon} color="#59A1DB" />
               </ListItemIcon>
               <ListItemText primary={chrome.i18n.getMessage('Address__Book')} />
               <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
@@ -214,7 +218,6 @@ const SettingTab = () => {
             // component={Link}
             // to="https://lilico.app"
             disablePadding
-            // eslint-disable-next-line no-restricted-globals
             onClick={() => window.open('https://core.flow.com')}
             className={classes.listItem}
           >
@@ -227,7 +230,6 @@ const SettingTab = () => {
                 {/* <IconEnd size={12} /> */}
                 <IconButton
                   onClick={() =>
-                    // eslint-disable-next-line no-restricted-globals
                     window.open(
                       'https://apps.apple.com/ca/app/flow-wallet-nfts-and-crypto/id6478996750'
                     )
@@ -237,7 +239,6 @@ const SettingTab = () => {
                 </IconButton>
                 <IconButton
                   onClick={() =>
-                    // eslint-disable-next-line no-restricted-globals
                     window.open(
                       'https://play.google.com/store/apps/details?id=com.flowfoundation.wallet'
                     )
@@ -272,29 +273,33 @@ const SettingTab = () => {
 
           <Divider sx={{ width: '90%' }} variant="middle" />
 
-          <ListItem
-            button
-            component={Link}
-            to="/dashboard/setting/devices"
-            disablePadding
-            className={classes.listItem}
-          >
-            <ListItemButton className={classes.itemButton}>
-              <ListItemIcon sx={{ minWidth: '25px' }}>
-                <CardMedia
-                  className={classes.icon}
-                  sx={{ height: '16px', width: '19px', marginRight: '13px' }}
-                  image={Device}
-                />
-              </ListItemIcon>
-              <ListItemText primary={chrome.i18n.getMessage('Devices')} />
-              <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-                <IconEnd size={12} />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
+          {SHOW_DEVICES && (
+            <>
+              <ListItem
+                button
+                component={Link}
+                to="/dashboard/setting/devices"
+                disablePadding
+                className={classes.listItem}
+              >
+                <ListItemButton className={classes.itemButton}>
+                  <ListItemIcon sx={{ minWidth: '25px' }}>
+                    <CardMedia
+                      className={classes.icon}
+                      sx={{ height: '16px', width: '19px', marginRight: '13px' }}
+                      image={Device}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={chrome.i18n.getMessage('Devices')} />
+                  <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
+                    <IconEnd size={12} />
+                  </ListItemIcon>
+                </ListItemButton>
+              </ListItem>
 
-          <Divider sx={{ width: '90%' }} variant="middle" />
+              <Divider sx={{ width: '90%' }} variant="middle" />
+            </>
+          )}
 
           <ListItem
             button

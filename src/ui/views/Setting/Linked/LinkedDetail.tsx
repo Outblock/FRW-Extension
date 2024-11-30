@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import {
   Typography,
   IconButton,
@@ -18,20 +18,24 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import IconCopy from '../../../../components/iconfont/IconCopy';
-import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
-import { Link } from 'react-router-dom';
-import { useWallet } from 'ui/utils';
-// import '../../Unlock/style.css';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+
 import { LLSecondaryButton } from '@/ui/FRWComponent';
-import { UserInfoResponse } from 'background/service/networkModel';
-import UnlinkAccount from './UnlinkAccount';
-import EditAccount from './EditAccount';
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { type UserInfoResponse } from 'background/service/networkModel';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
+import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
+import { useWallet } from 'ui/utils';
+
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import IconCopy from '../../../../components/iconfont/IconCopy';
+
+// import '../../Unlock/style.css';
+
+import EditAccount from './EditAccount';
+import UnlinkAccount from './UnlinkAccount';
+
 // import fetchRemoteConfig from 'background/utils/remoteConfig';
 
 type ChildAccount = {
@@ -70,6 +74,26 @@ interface Collection {
   nfts: any[];
 }
 
+const extractContractName = (collection) => {
+  return collection.split('.')[2];
+};
+
+const findObjectByContractName = (contractName, collections) => {
+  const extractedContract = extractContractName(contractName);
+  const foundObject = collections.find((item) => item.contract_name === extractedContract);
+  return foundObject || null;
+};
+
+const checkContractAddressInCollections = (nft, activec) => {
+  const matchedResult = activec.find((collection) => {
+    const parts = nft.split('.');
+    const address = `0x${parts[1]}`;
+    const contractName = parts[2];
+    return collection.address === address && collection.contract_name === contractName;
+  });
+  return matchedResult;
+};
+
 const LinkedDetail = () => {
   const location = useParams();
 
@@ -93,7 +117,7 @@ const LinkedDetail = () => {
     setValue(newValue);
   };
 
-  const fetchUserWallet = async () => {
+  const fetchUserWallet = useCallback(async () => {
     try {
       const childresp = await usewallet.checkUserChildAccount();
       const isChild = await usewallet.getActiveWallet();
@@ -145,34 +169,14 @@ const LinkedDetail = () => {
       console.error('Error fetching data:', error);
       setLoading(false);
     }
-  };
-
-  const extractContractName = (collection) => {
-    return collection.split('.')[2];
-  };
-
-  const findObjectByContractName = (contractName, collections) => {
-    const extractedContract = extractContractName(contractName);
-    const foundObject = collections.find((item) => item.contract_name === extractedContract);
-    return foundObject || null;
-  };
-
-  const checkContractAddressInCollections = (nft, activec) => {
-    const matchedResult = activec.find((collection) => {
-      const parts = nft.split('.');
-      const address = `0x${parts[1]}`;
-      const contractName = parts[2];
-      return collection.address === address && collection.contract_name == contractName;
-    });
-    return matchedResult;
-  };
+  }, [usewallet, location]);
 
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
 
-  const getUserInfo = async () => {
+  const getUserInfo = useCallback(async () => {
     const userResult = await usewallet.getUserInfo(false);
     await setUserInfo(userResult);
-  };
+  }, [usewallet]);
 
   const showUnlink = async (condition) => {
     await setUnlinking(condition);
@@ -206,7 +210,7 @@ const LinkedDetail = () => {
   useEffect(() => {
     getUserInfo();
     fetchUserWallet();
-  }, []);
+  }, [getUserInfo, fetchUserWallet]);
 
   const nftContent = () => {
     const filteredNftCollection = availableNftCollection.filter(
