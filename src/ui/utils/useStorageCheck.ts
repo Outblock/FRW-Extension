@@ -12,12 +12,14 @@ interface StorageCheckResult {
 }
 
 interface UseStorageCheckProps {
-  transferAmount?: number | undefined;
+  transferAmount?: number;
+  coin?: string;
   movingBetweenEVMAndFlow?: boolean;
 }
 export const useStorageCheck = ({
-  transferAmount,
-  movingBetweenEVMAndFlow,
+  transferAmount, // amount in coins
+  coin, // coin name
+  movingBetweenEVMAndFlow = false, // are we moving between EVM and Flow?
 }: UseStorageCheckProps = {}): StorageCheckResult => {
   const wallet = useWallet();
 
@@ -26,6 +28,7 @@ export const useStorageCheck = ({
     undefined
   );
   const [storageInfo, setStorageInfo] = useState<StorageInfo | undefined>(undefined);
+
   // Check general storage status
   const checkStorageStatus = useCallback(async (): Promise<{
     sufficient: boolean;
@@ -35,7 +38,8 @@ export const useStorageCheck = ({
     try {
       const { isStorageSufficient, isStorageSufficientAfterAction, storageInfo } =
         await wallet.checkStorageStatus({
-          transferAmount,
+          transferAmount: transferAmount,
+          coin,
           movingBetweenEVMAndFlow,
         });
 
@@ -52,7 +56,7 @@ export const useStorageCheck = ({
         storageInfo: { available: 0, used: 0, capacity: 0 },
       }; // Default to true to not block transactions on error
     }
-  }, [movingBetweenEVMAndFlow, transferAmount, wallet]);
+  }, [movingBetweenEVMAndFlow, transferAmount, wallet, coin]);
 
   // Initial storage check
   useEffect(() => {
