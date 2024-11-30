@@ -1,23 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { TabPanel, TabsList, Tabs, Tab } from '@mui/base';
+import { buttonClasses } from '@mui/base/Button';
+import { tabClasses } from '@mui/base/Tab';
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import { Typography, Button, Box, ButtonBase, IconButton, Tooltip } from '@mui/material';
 import { styled } from '@mui/system';
-import { TabPanel, TabsList, Tabs, Tab } from '@mui/base';
-import { buttonUnstyledClasses } from '@mui/core/ButtonUnstyled';
-import { tabClasses } from '@mui/base/Tab';
-import { useWallet } from 'ui/utils';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+
 import { storage } from '@/background/webapi';
+import { useWallet } from 'ui/utils';
+
+import EditNFTAddress from './EditNFTAddress';
 import GridTab from './GridTab';
 import ListTab from './ListTab';
-import EditNFTAddress from './EditNFTAddress';
-import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 
 const NFTTab = () => {
   const wallet = useWallet();
 
   const [address, setAddress] = useState<string | null>('');
   const [value, setValue] = useState(0);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [isEdit] = useState<boolean>(false);
   const [isAddAddressOpen, setIsAddAddressOpen] = useState<boolean>(false);
   const [nftCount, setCount] = useState<number>(0);
   const [accessible, setAccessible] = useState<any>([]);
@@ -27,17 +29,7 @@ const NFTTab = () => {
   const listRef = useRef<any>(null);
   const [childType, setChildType] = useState<string>('');
 
-  useEffect(() => {
-    fetchPreferedTab();
-    loadNFTs();
-  }, []);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-    storage.set('PreferredNFT', newValue);
-  };
-
-  const loadNFTs = async () => {
+  const loadNFTs = useCallback(async () => {
     const isChild = await wallet.getActiveWallet();
     const address = await wallet.getCurrentAddress();
     setAddress(address);
@@ -58,9 +50,17 @@ const NFTTab = () => {
       setIsActive(true);
     }
     // setAddress(address);
+  }, [wallet]);
+  useEffect(() => {
+    fetchPreferredTab();
+    loadNFTs();
+  }, [loadNFTs]);
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+    storage.set('PreferredNFT', newValue);
   };
 
-  const fetchPreferedTab = async () => {
+  const fetchPreferredTab = async () => {
     const tab = await storage.get('PreferredNFT');
     if (tab) {
       setValue(tab);
@@ -80,7 +80,9 @@ const NFTTab = () => {
   };
 
   const StyledTab = styled(Tab)`
-    font-family: IBM Plex Sans, sans-serif;
+    font-family:
+      IBM Plex Sans,
+      sans-serif;
     color: '#111111';
     cursor: pointer;
     font-size: 0.875rem;
@@ -111,7 +113,7 @@ const NFTTab = () => {
       padding: 2px 13px;
     }
 
-    &.${buttonUnstyledClasses.disabled} {
+    &.${buttonClasses.disabled} {
       opacity: 0.24;
       cursor: not-allowed;
     }
@@ -152,9 +154,11 @@ const NFTTab = () => {
               <Typography component="div" variant="h5">
                 {nftCount > 0 ? `${nftCount} NFTs` : 'NFT'}
               </Typography>
-              <IconButton aria-label="close" color="primary" size="small">
-                <ReplayRoundedIcon fontSize="inherit" />
-              </IconButton>
+              <ReplayRoundedIcon
+                fontSize="small"
+                color="primary"
+                sx={{ ml: 1 }} // Adds margin left to icon
+              />
             </ButtonBase>
           </Tooltip>
 
