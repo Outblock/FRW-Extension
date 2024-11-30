@@ -1,7 +1,7 @@
 import { ethErrors } from 'eth-rpc-errors';
 
 import eventBus from '@/eventBus';
-import { isValidEthereumAddress } from '@/ui/utils/address';
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import {
   keyringService,
   notificationService,

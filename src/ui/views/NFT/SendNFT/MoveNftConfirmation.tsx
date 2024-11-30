@@ -4,6 +4,7 @@ import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } f
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
@@ -11,7 +12,6 @@ import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { ensureEvmAddressPrefix, isValidEthereumAddress } from 'ui/utils/address';
 
 import IconFlow from '../../../../components/iconfont/IconFlow';
 

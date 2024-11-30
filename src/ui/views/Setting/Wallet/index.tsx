@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
 import {
   Typography,
   List,
@@ -11,12 +9,16 @@ import {
   CardMedia,
   Box,
 } from '@mui/material';
-import { isValidEthereumAddress } from 'ui/utils/address';
-import { storage } from 'background/webapi';
-import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useRouteMatch } from 'react-router-dom';
+
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import { useWallet } from '@/ui/utils';
+import { storage } from 'background/webapi';
 import { formatAddress } from 'ui/utils';
+
+import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 
 const tempEmoji = [
   {
@@ -46,7 +48,46 @@ const Wallet = () => {
     storage.set('walletDetail', JSON.stringify(walletDetailInfo));
   }
 
-  const setUserWallet = async () => {
+  const fetchBalances = useCallback(
+    async (wallet) => {
+      const updatedData = await Promise.all(
+        wallet.map(async (item) => {
+          const blockchainData = await Promise.all(
+            item.blockchain.map(async (bc) => {
+              const balance = await usewallet.getFlowBalance(bc.address);
+              return { ...bc, balance };
+            })
+          );
+          return { ...item, blockchain: blockchainData };
+        })
+      );
+      return updatedData;
+    },
+    [usewallet]
+  );
+
+  const fetchEvmBalances = useCallback(
+    async (wallet) => {
+      const updatedData = await Promise.all(
+        wallet.map(async (item) => {
+          const blockchainData = await Promise.all(
+            item.blockchain.map(async (bc) => {
+              let balance = '';
+              if (isValidEthereumAddress(bc.address)) {
+                balance = await usewallet.getBalance(bc.address);
+              }
+              return { ...bc, balance };
+            })
+          );
+          return { ...item, blockchain: blockchainData };
+        })
+      );
+      return updatedData;
+    },
+    [usewallet]
+  );
+
+  const setUserWallet = useCallback(async () => {
     await usewallet.setDashIndex(3);
     const emojires = await usewallet.getEmoji();
     const wallet = await usewallet.getUserWallets();
@@ -60,7 +101,7 @@ const Wallet = () => {
     }
     setEmojis(emojires);
     setWallet(fectechdWallet);
-  };
+  }, [usewallet, fetchBalances, fetchEvmBalances]);
 
   const transformData = (data) => {
     return data.map((item, index) => ({
@@ -81,42 +122,9 @@ const Wallet = () => {
     }));
   };
 
-  const fetchBalances = async (wallet) => {
-    const updatedData = await Promise.all(
-      wallet.map(async (item) => {
-        const blockchainData = await Promise.all(
-          item.blockchain.map(async (bc) => {
-            const balance = await usewallet.getFlowBalance(bc.address);
-            return { ...bc, balance };
-          })
-        );
-        return { ...item, blockchain: blockchainData };
-      })
-    );
-    return updatedData;
-  };
-
-  const fetchEvmBalances = async (wallet) => {
-    const updatedData = await Promise.all(
-      wallet.map(async (item) => {
-        const blockchainData = await Promise.all(
-          item.blockchain.map(async (bc) => {
-            let balance = '';
-            if (isValidEthereumAddress(bc.address)) {
-              balance = await usewallet.getBalance(bc.address);
-            }
-            return { ...bc, balance };
-          })
-        );
-        return { ...item, blockchain: blockchainData };
-      })
-    );
-    return updatedData;
-  };
-
   useEffect(() => {
     setUserWallet();
-  }, []);
+  }, [setUserWallet]);
 
   return (
     <div className="page">

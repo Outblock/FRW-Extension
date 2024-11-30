@@ -2,14 +2,12 @@ import { TypedDataUtils, SignTypedDataVersion, normalize } from '@metamask/eth-s
 import * as fcl from '@onflow/fcl';
 import BigNumber from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
-import { isHexString, intToHex } from 'ethereumjs-util';
+import { intToHex } from 'ethereumjs-util';
 import { ethers } from 'ethers';
 import RLP from 'rlp';
 import Web3 from 'web3';
-import { stringToHex } from 'web3-utils';
 
-import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import { signWithKey } from '@/ui/utils/modules/passkey.js';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import {
   permissionService,
   sessionService,
@@ -22,6 +20,9 @@ import { EVM_ENDPOINT } from 'consts';
 import { storage } from '../../webapi';
 import BaseController from '../base';
 import Wallet from '../wallet';
+
+// eslint-disable-next-line import/order,no-restricted-imports
+import { signWithKey } from '@/ui/utils/modules/passkey.js';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission
@@ -69,6 +70,7 @@ function createAndEncodeCOAOwnershipProof(
   return encodedData; // Convert the encoded data to a hexadecimal string for easy display or transmission
 }
 
+// Should not be in controller
 async function signMessage(msgParams, opts = {}) {
   const web3 = new Web3();
   const textData = msgParams.data;
@@ -386,7 +388,8 @@ class ProviderController extends BaseController {
         });
     }
   };
-
+  /*
+  // Should not be in controller
   personalSign = async ({ data, approvalRes, session }) => {
     if (!data.params) return;
     const [string, from] = data.params;
@@ -400,7 +403,7 @@ class ProviderController extends BaseController {
     });
     return result;
   };
-
+ */
   private _checkAddress = async (address) => {
     return normalize(address).toLowerCase();
   };

@@ -3,13 +3,13 @@ import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type CoinItem } from 'background/service/coinList';
 import { type Contact } from 'background/service/networkModel';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 

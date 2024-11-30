@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {
   Typography,
   Box,
@@ -9,16 +9,19 @@ import {
   FormControl,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useHistory } from 'react-router-dom';
-import { LLPrimaryButton, LLFormHelperText } from '../../../FRWComponent';
-import { useWallet } from 'ui/utils';
-import { useForm } from 'react-hook-form';
-import { withPrefix, isValidEthereumAddress } from '../../../utils/address';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Contract, ethers } from 'ethers';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useHistory } from 'react-router-dom';
+
 import { storage } from '@/background/webapi';
-import AddCustomEvmForm from './CustomEvmForm';
 import { EVM_ENDPOINT } from 'consts';
+import { useWallet } from 'ui/utils';
+
+import { withPrefix, isValidEthereumAddress } from '../../../../shared/utils/address';
+import { LLPrimaryButton, LLFormHelperText } from '../../../FRWComponent';
+
+import AddCustomEvmForm from './CustomEvmForm';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,

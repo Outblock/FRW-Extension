@@ -25,14 +25,16 @@ class MixpanelService {
     this.initialized = true;
   }
   track<T extends keyof TrackingEvents>(eventName: T, properties?: TrackingEvents[T]) {
-    eventBus.emit('track_event', {
+    chrome.runtime.sendMessage({
+      msg: 'track_event',
       eventName,
       properties,
     });
   }
 
   time<T extends keyof TrackingEvents>(eventName: T) {
-    eventBus.emit('track_time', {
+    chrome.runtime.sendMessage({
+      msg: 'track_time',
       eventName,
     });
   }
@@ -40,7 +42,8 @@ class MixpanelService {
   identify(userId: string) {
     if (!this.initialized) return;
 
-    eventBus.emit('track_user', {
+    chrome.runtime.sendMessage({
+      msg: 'track_user',
       userId,
     });
   }
@@ -48,7 +51,9 @@ class MixpanelService {
   reset() {
     if (!this.initialized) return;
 
-    eventBus.emit('track_reset');
+    chrome.runtime.sendMessage({
+      msg: 'track_reset',
+    });
   }
 }
 

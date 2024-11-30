@@ -4,13 +4,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import wallet from '@/background/controller/wallet';
+import { withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import type { Contact } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
 
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
 import theme from '../../../style/LLTheme';

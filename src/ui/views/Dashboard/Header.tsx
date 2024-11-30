@@ -25,12 +25,11 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
+import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
-import { withPrefix, ensureEvmAddressPrefix } from '@/ui/utils/address';
 import { useNews } from '@/ui/utils/NewsContext';
 import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
 import { useWallet, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';

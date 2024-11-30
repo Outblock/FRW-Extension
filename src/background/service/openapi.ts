@@ -16,14 +16,14 @@ import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
+import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
 import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
-import { isValidEthereumAddress } from 'ui/utils/address';
 
-import { getPeriodFrequency } from '../../utils';
 import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
 
 import {

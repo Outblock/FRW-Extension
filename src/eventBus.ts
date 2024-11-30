@@ -1,5 +1,9 @@
 type Listener = (params?: any) => void;
-
+/**
+ * EventBus is a singleton class that allows for event-based communication between different parts of the application.
+ * It provides methods for emitting events, listening for events, and removing event listeners.
+ * IMPORTANT: This only works in one thread - either the background, content script, or UI. It does not work across threads.
+ */
 class EventBus {
   events: Record<string, Listener[]> = {};
 

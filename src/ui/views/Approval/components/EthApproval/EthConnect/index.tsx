@@ -3,12 +3,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useHistory } from 'react-router-dom';
 
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import enableBg from 'ui/FRWAssets/image/enableBg.png';
 import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
 import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
 import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 'ui/FRWComponent';
 import { useApproval, useWallet, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
 
 import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
 

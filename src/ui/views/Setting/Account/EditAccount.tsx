@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import { Typography, Box, Drawer, Grid, Stack, InputBase, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../../FRWComponent';
+import React, { useState, useEffect } from 'react';
+import { useForm, type FieldValues } from 'react-hook-form';
+
 import { useWallet } from 'ui/utils';
-import { useForm, FieldValues } from 'react-hook-form';
-import { withPrefix } from '../../../utils/address';
-import { Contact } from 'background/service/networkModel';
+
+import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../../FRWComponent';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -75,7 +75,7 @@ const EditAccount = (props: EditAccountProps) => {
         keepSubmitCount: true,
       }
     );
-  }, [props.avatar, props.nickname]);
+  }, [props.avatar, props.nickname, reset]);
 
   const renderContent = () => (
     <Box
