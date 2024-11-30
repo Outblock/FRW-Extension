@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { Box, IconButton, Menu, MenuItem } from '@mui/material';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+
 import IconCreate from '../../../components/iconfont/IconCreate';
 
 const TokenDropdown = () => {

@@ -1,19 +1,18 @@
+import { Typography, Button, CardMedia } from '@mui/material';
+import { Box } from '@mui/system';
 import React from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Typography, Button, CssBaseline, CardMedia } from '@mui/material';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
+import { Link } from 'react-router-dom';
+
+import IconFlow from '../../../components/iconfont/IconFlow';
 import appicon from '../../FRWAssets/image/appicon.png';
 import create from '../../FRWAssets/svg/create.svg';
 import importPng from '../../FRWAssets/svg/import.svg';
 import qr from '../../FRWAssets/svg/scanIcon.svg';
-import { Link } from 'react-router-dom';
-import IconFlow from '../../../components/iconfont/IconFlow';
+import RegisterHeader from '../Register/RegisterHeader';
 
 const WelcomePage = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -302,7 +301,7 @@ const WelcomePage = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

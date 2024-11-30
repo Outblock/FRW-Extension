@@ -1,28 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { Box } from '@mui/system';
-import { useWallet } from 'ui/utils';
-// import theme from '../../style/LLTheme';
-import { Typography, ButtonBase, Grid, IconButton } from '@mui/material';
-// import { initOnRamp } from '@coinbase/cbpay-js';
 import { generateOnRampURL } from '@coinbase/cbpay-js';
+import CloseIcon from '@mui/icons-material/Close';
+import { Typography, ButtonBase, Grid, IconButton } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import { useWallet } from 'ui/utils';
+
+// import theme from '../../style/LLTheme';
+// import { initOnRamp } from '@coinbase/cbpay-js';
 // import { LLHeader } from '@/ui/FRWComponent';
 // import Coinbase from '../../FRWAssets/svg/coinbasepay-txt.svg';
-import CloseIcon from '@mui/icons-material/Close';
-import MoonPay from '../../FRWAssets/svg/moonpay.svg';
+
 import Coinbase from '../../FRWAssets/svg/coinbase-pay.svg';
+import MoonPay from '../../FRWAssets/svg/moonpay.svg';
 
 const OnRampList = ({ close }) => {
   const wallet = useWallet();
   const [address, setAddress] = useState<string | null>(null);
 
-  const loadAddress = async () => {
+  const loadAddress = useCallback(async () => {
     const address = await wallet.getCurrentAddress();
     setAddress(address);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     loadAddress();
-  }, []);
+  }, [loadAddress]);
 
   const loadMoonPay = async () => {
     if (!address) {
@@ -39,6 +42,8 @@ const OnRampList = ({ close }) => {
         url: response?.data?.url,
       });
     }
+
+    wallet.trackOnRampClicked('moonpay');
   };
 
   const loadCoinbasePay = async () => {
@@ -56,6 +61,7 @@ const OnRampList = ({ close }) => {
         url: onRampURL,
       });
     }
+    wallet.trackOnRampClicked('coinbase');
   };
 
   return (

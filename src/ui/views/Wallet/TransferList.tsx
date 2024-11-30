@@ -11,18 +11,17 @@ import {
   ListItemButton,
   CardMedia,
   Button,
+  Box,
 } from '@mui/material';
-import { Box, ThemeProvider } from '@mui/system';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import activity from 'ui/FRWAssets/svg/activity.svg';
 import { useWallet } from 'ui/utils';
 import { formatString } from 'ui/utils/address';
-
-import theme from '../../style/LLTheme';
-
+// import IconExec from '../../../components/iconfont/IconExec';
+// import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
 dayjs.extend(relativeTime);
 
 const TransferList = ({ setCount }) => {
@@ -35,7 +34,7 @@ const TransferList = ({ setCount }) => {
   const [address, setAddress] = useState<string | null>('0x');
   const [showButton, setShowButton] = useState(false);
 
-  const fetchTransaction = async () => {
+  const fetchTransaction = useCallback(async () => {
     setLoading(true);
     const monitor = await wallet.getMonitor();
     setMonitor(monitor);
@@ -53,17 +52,20 @@ const TransferList = ({ setCount }) => {
         setShowButton(data['count'] > 15);
       }
       setTx(data['list']);
-    } catch (e) {
+    } catch {
       setLoading(false);
     }
-  };
+  }, [wallet, setCount]);
 
-  const extMessageHandler = (req) => {
-    if (req.msg === 'transferListReceived') {
-      fetchTransaction();
-    }
-    return true;
-  };
+  const extMessageHandler = useCallback(
+    (req) => {
+      if (req.msg === 'transferListReceived') {
+        fetchTransaction();
+      }
+      return true;
+    },
+    [fetchTransaction]
+  );
 
   useEffect(() => {
     fetchTransaction();
@@ -72,7 +74,7 @@ const TransferList = ({ setCount }) => {
     return () => {
       chrome.runtime.onMessage.removeListener(extMessageHandler);
     };
-  }, []);
+  }, [extMessageHandler, fetchTransaction]);
 
   const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp);
@@ -85,6 +87,14 @@ const TransferList = ({ setCount }) => {
   const EndListItemText = (props) => {
     const isReceive = props.txType === 2;
     const isFT = props.type === 1;
+
+    const calculateMaxWidth = () => {
+      const textLength =
+        props.type === 1 ? `${props.amount}`.replace(/^-/, '').length : `${props.token}`.length;
+      const baseWidth = 30;
+      const additionalWidth = textLength * 8;
+      return `${Math.min(baseWidth + additionalWidth, 70)}px`;
+    };
     return (
       <ListItemText
         disableTypography={true}
@@ -93,11 +103,11 @@ const TransferList = ({ setCount }) => {
             <Typography
               variant="body1"
               sx={{
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: '500',
                 textAlign: 'end',
                 color: isReceive && isFT ? 'success.main' : 'text.primary',
-                maxWidth: '100px',
+                maxWidth: calculateMaxWidth(),
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -147,9 +157,9 @@ const TransferList = ({ setCount }) => {
               <Typography
                 variant="body1"
                 sx={{
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: '500',
-                  maxWidth: '150px',
+                  maxWidth: '180px',
                   wordWrap: 'break-word',
                   textAlign: 'start',
                 }}
@@ -193,7 +203,7 @@ const TransferList = ({ setCount }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {!isLoading ? (
         <Box>
           {transaction && transaction.length ? (
@@ -224,7 +234,6 @@ const TransferList = ({ setCount }) => {
                             monitor === 'flowscan'
                               ? `${flowscanURL}/tx/${tx.hash}`
                               : `${viewSource}/${tx.hash}`;
-                          // eslint-disable-next-line no-restricted-globals
                           window.open(url);
                         }
                       }}
@@ -261,7 +270,6 @@ const TransferList = ({ setCount }) => {
                     variant="text"
                     endIcon={<ChevronRightRoundedIcon />}
                     onClick={() => {
-                      // eslint-disable-next-line no-restricted-globals
                       window.open(`${flowscanURL}/account/${address}`, '_blank');
                     }}
                   >
@@ -316,7 +324,7 @@ const TransferList = ({ setCount }) => {
           );
         })
       )}
-    </ThemeProvider>
+    </>
   );
 };
 
