@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Dialog,
@@ -10,6 +9,7 @@ import {
   Select,
   Typography,
 } from '@mui/material';
+import React from 'react';
 
 const stepBox = () => {
   return (

@@ -63,7 +63,7 @@ type ChildAccount = {
   };
 };
 
-const Header = ({ loading }) => {
+const Header = ({ loading = false }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
@@ -112,7 +112,7 @@ const Header = ({ loading }) => {
 
   const [switchLoading, setSwitchLoading] = useState(false);
 
-  const [errorMessage, setErrorMessage] = useState('');
+  const [, setErrorMessage] = useState('');
   const [errorCode, setErrorCode] = useState(null);
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
@@ -239,30 +239,32 @@ const Header = ({ loading }) => {
     usewallet.setChildWallet(childresp);
   }, [freshUserInfo, freshUserWallet, usewallet]);
 
-  const switchAccount = async (account) => {
-    setSwitchLoading(true);
-    try {
-      const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
-      console.log('account ', account);
-      await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
-      if (account.id) {
-        await storage.set('currentId', account.id);
-      } else {
-        await storage.set('currentId', '');
+  const switchAccount = useCallback(
+    async (account) => {
+      setSwitchLoading(true);
+      try {
+        const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+        await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
+        if (account.id) {
+          await storage.set('currentId', account.id);
+        } else {
+          await storage.set('currentId', '');
+        }
+
+        await usewallet.lockWallet();
+        await usewallet.clearWallet();
+        await usewallet.switchNetwork(switchingTo);
+
+        history.push('/switchunlock');
+      } catch (error) {
+        console.error('Error during account switch:', error);
+        // Handle any additional error reporting or user feedback here if needed
+      } finally {
+        setSwitchLoading(false);
       }
-
-      await usewallet.lockWallet();
-      await usewallet.clearWallet();
-      await usewallet.switchNetwork(switchingTo);
-
-      history.push('/switchunlock');
-    } catch (error) {
-      console.error('Error during account switch:', error);
-      // Handle any additional error reporting or user feedback here if needed
-    } finally {
-      setSwitchLoading(false);
-    }
-  };
+    },
+    [usewallet, history]
+  );
 
   const loadNetwork = useCallback(async () => {
     const network = await usewallet.getNetwork();
@@ -293,7 +295,6 @@ const Header = ({ loading }) => {
 
     // Navigate if needed
     history.push('/dashboard');
-    //eslint-disable-next-line no-restricted-globals
     window.location.reload();
   };
 
@@ -309,7 +310,7 @@ const Header = ({ loading }) => {
     }
     // The header should handle transactionError events
     if (request.msg === 'transactionError') {
-      console.log('transactionError', request.errorMessage, request.errorCode);
+      console.warn('transactionError', request.errorMessage, request.errorCode);
       // The error message is not used anywhere else for now
       setErrorMessage(request.errorMessage);
       setErrorCode(request.errorCode);

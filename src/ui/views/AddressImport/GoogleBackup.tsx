@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, CssBaseline } from '@mui/material';
-import theme from '../../style/LLTheme';
-import { useWallet } from 'ui/utils';
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
-import { LLSpinner } from 'ui/FRWComponent';
 import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
+import { Button, Typography } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 
 const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
   const wallets = useWallet();
@@ -33,8 +34,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
     }
   };
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
@@ -94,35 +94,29 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        {backupErr && (
-          <Presets.TransitionSlideUp>
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '12px 12px 0 0',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                py: '8px',
-                marginBottom: '-8px',
-              }}
-            >
-              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon
-                fontSize="medium"
-                color="primary"
-                style={{ margin: '0px 12px auto 12px' }}
-              />
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
-                {chrome.i18n.getMessage(
-                  'Backup_failed_you_may_still_conduct_backup_inside_extension'
-                )}
-              </Typography>
-            </Box>
-          </Presets.TransitionSlideUp>
-        )}
+        <SlideRelative direction="down" show={backupErr}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '12px 12px 0 0',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              py: '8px',
+              marginBottom: '-8px',
+            }}
+          >
+            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
+            <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+              {chrome.i18n.getMessage(
+                'Backup_failed_you_may_still_conduct_backup_inside_extension'
+              )}
+            </Typography>
+          </Box>
+        </SlideRelative>
         <Button
           onClick={handleBackup}
           disabled={loading}
@@ -169,7 +163,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
           </Typography>
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 
