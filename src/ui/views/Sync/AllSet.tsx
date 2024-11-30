@@ -1,13 +1,12 @@
+import { Button, Typography, CardMedia } from '@mui/material';
+import { Box } from '@mui/system';
 import React from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, CssBaseline, CardMedia } from '@mui/material';
-import theme from '../../style/LLTheme';
+
 import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
 
 const AllSet = ({ handleClick }) => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <CardMedia
           sx={{ margin: '0 auto', width: '172px', height: '172px', display: 'block' }}
@@ -42,7 +41,7 @@ const AllSet = ({ handleClick }) => {
           </Typography>
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

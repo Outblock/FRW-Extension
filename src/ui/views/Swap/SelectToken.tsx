@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Typography,
@@ -19,18 +19,14 @@ import {
   ListItemButton,
   ListItemText,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
-import { LLProfile } from 'ui/FRWComponent';
-import IconNext from 'ui/FRWAssets/svg/next.svg';
-import IconSwitch from '../../../components/iconfont/IconSwitch';
-import eventBus from '@/eventBus';
-import InfoIcon from '@mui/icons-material/Info';
-import { Presets } from 'react-component-transition';
-import SearchIcon from '@mui/icons-material/Search';
 import { makeStyles } from '@mui/styles';
-import { IconCheckmark, IconPlus } from '../../../components/iconfont';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { useWallet } from 'ui/utils';
+
+import { IconCheckmark } from '../../../components/iconfont';
+import IconSwitch from '../../../components/iconfont/IconSwitch';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -77,14 +73,14 @@ const SelectToken = (props: TransferConfirmationProps) => {
   const [token0, setToken0] = useState(null);
   const [token1, setToken1] = useState(null);
 
-  const setToken = async () => {
+  const setToken = useCallback(async () => {
     if (props.data.token0) {
       setToken0(props.data.token0.contract_name);
     }
     if (props.data.token1) {
       setToken1(props.data.token1.contract_name);
     }
-  };
+  }, [props.data.token0, props.data.token1]);
 
   const setSelectToken = (token) => {
     props.updateCoinInfo(token);
@@ -95,12 +91,12 @@ const SelectToken = (props: TransferConfirmationProps) => {
   useEffect(() => {
     // startCount();
     setToken();
-  }, [props.data.token0]);
+  }, [props.data.token0, setToken]);
 
   useEffect(() => {
     // startCount();
     setToken();
-  }, [props.data.token1]);
+  }, [props.data.token1, setToken]);
 
   const renderContent = () => (
     <Box
@@ -199,13 +195,13 @@ const SelectToken = (props: TransferConfirmationProps) => {
                     backgroundColor: '#1f1f1f',
                     borderRadius: '16px',
                   }}
-                  disabled={coin.contract_name == token0 || coin.contract_name == token1}
+                  disabled={coin.contract_name === token0 || coin.contract_name === token1}
                 >
                   <ListItem
                     disablePadding
                     onClick={() => setSelectToken(coin)}
                     secondaryAction={
-                      coin.contract_name == token0 || coin.contract_name == token1 ? (
+                      coin.contract_name === token0 || coin.contract_name === token1 ? (
                         <IconButton edge="end" aria-label="delete">
                           <IconCheckmark color="#41CC5D" size={24} />
                         </IconButton>
