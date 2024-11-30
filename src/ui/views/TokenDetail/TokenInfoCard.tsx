@@ -1,12 +1,12 @@
 import { Typography, Box, ButtonBase, CardMedia } from '@mui/material';
-import type { TokenInfo } from 'flow-native-token-registry';
-import React, { useEffect, useState, useRef } from 'react';
+import { type TokenInfo } from 'flow-native-token-registry';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { LLPrimaryButton } from '@/ui/FRWComponent';
+import { isValidEthereumAddress } from '@/ui/utils/address';
 import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 import { useWallet } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
 import { addDotSeparators } from 'ui/utils/number';
 
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
@@ -46,14 +46,14 @@ const TokenInfoCard = ({
     };
 
     checkPermission();
-  }, [balance]);
+  }, [balance, tokenInfo.custom, wallet]);
 
   const toSend = async () => {
     await wallet.setCurrentCoin(token);
     history.push('/dashboard/wallet/send');
   };
 
-  const getActive = async () => {
+  const getActive = useCallback(async () => {
     const evmEnabled = await wallet.getEvmEnabled();
     setEvmEnabled(evmEnabled);
     const isChild = await wallet.getActiveWallet();
@@ -74,7 +74,7 @@ const TokenInfoCard = ({
           .getWalletTokenBalance(token)
           .then((response) => {
             if (isMounted.current) {
-              setBalance(parseFloat(parseFloat(response).toFixed(3)));
+              setBalance(parseFloat(response));
             }
           })
           .catch((err) => {
@@ -87,7 +87,7 @@ const TokenInfoCard = ({
       isMounted.current = false; // Mark component as unmounted
       clearTimeout(timerId); // Clear the timer
     };
-  };
+  }, [setAccessible, token, tokenInfo, wallet]);
 
   const moveToken = () => {
     if (childType && childType !== 'evm') {
@@ -104,6 +104,8 @@ const TokenInfoCard = ({
     }
     if (isValidEthereumAddress(data.address)) {
       return `https://evm.flowscan.io/token/${data.address}`;
+    } else if (data.symbol.toLowerCase() === 'flow') {
+      return 'https://flow.com/';
     }
     return `https://flowscan.io/account/${data.address}/tokens`;
   };
@@ -115,7 +117,7 @@ const TokenInfoCard = ({
     return () => {
       isMounted.current = false;
     };
-  }, [token]);
+  }, [token, getActive]);
 
   return (
     <Box
@@ -149,10 +151,7 @@ const TokenInfoCard = ({
                 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg'
               }
             ></img>
-            <ButtonBase
-              // eslint-disable-next-line no-restricted-globals
-              onClick={() => window.open(getUrl(data), '_blank')}
-            >
+            <ButtonBase onClick={() => window.open(getUrl(data), '_blank')}>
               <Box
                 sx={{
                   display: 'flex',
@@ -221,7 +220,7 @@ const TokenInfoCard = ({
             </Typography>
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>
-            ${addDotSeparators((balance * price).toFixed(3))} {chrome.i18n.getMessage('USD')}
+            ${addDotSeparators(balance * price)} {chrome.i18n.getMessage('USD')}
           </Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
             {(!childType || childType === 'evm') && (
