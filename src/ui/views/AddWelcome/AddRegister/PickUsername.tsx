@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import {
+  CircularProgress,
+  IconButton,
+  Button,
+  Typography,
+  FormControl,
+  Input,
+  InputAdornment,
+} from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import theme from '../../../style/LLTheme';
-import { Presets } from 'react-component-transition';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
-import { CircularProgress, IconButton } from '@mui/material';
+
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../components/iconfont/IconClose';
 import EmailIcon from '../../../assets/alternate-email.svg';
 
 const useStyles = makeStyles((theme) => ({
@@ -57,19 +65,22 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
       </Typography>
     </Box>
   );
-  const usernameCorrect = (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
-      <Typography variant="body1" color="success.main">
-        {chrome.i18n.getMessage('Sounds_good')}
-      </Typography>
-    </Box>
+  const usernameCorrect = useMemo(
+    () => (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <CheckCircleIcon size={24} color="#41CC5D" style={{ margin: '8px' }} />
+        <Typography variant="body1" color="success.main">
+          {chrome.i18n.getMessage('Sounds_good')}
+        </Typography>
+      </Box>
+    ),
+    []
   );
   const usernameLoading = () => (
     <Typography
@@ -82,16 +93,17 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     </Typography>
   );
 
-  const [username, setUsername] = useState(savedUsername || '');
+  const [username, setUsername] = useState<string>(savedUsername || '');
   const [helperText, setHelperText] = useState(<div />);
 
-  const regex = /^[A-Za-z0-9]{3,15}$/;
-
-  const setErrorMessage = (message: string) => {
-    setLoading(false);
-    setUsernameValid(false);
-    setHelperText(usernameError(message));
-  };
+  const setErrorMessage = useCallback(
+    (message: string) => {
+      setLoading(false);
+      setUsernameValid(false);
+      setHelperText(usernameError(message));
+    },
+    [setLoading, setUsernameValid, setHelperText]
+  );
 
   useEffect(() => {
     setUsernameValid(false);
@@ -107,6 +119,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         setErrorMessage(chrome.i18n.getMessage('Too__long'));
         return;
       }
+      const regex = /^[A-Za-z0-9]{3,15}$/;
 
       if (!regex.test(username)) {
         setErrorMessage(
@@ -118,7 +131,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         .checkUsername(username.toLowerCase())
         .then((response) => {
           setLoading(false);
-          if (response.data.username != username.toLowerCase()) {
+          if (response.data.username !== username.toLowerCase()) {
             setLoading(false);
             return;
           }
@@ -126,7 +139,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             setUsernameValid(true);
             setHelperText(usernameCorrect);
           } else {
-            if (response.message == 'Username is reserved') {
+            if (response.message === 'Username is reserved') {
               setErrorMessage(
                 chrome.i18n.getMessage('This__username__is__reserved__Please__contact')
               );
@@ -141,7 +154,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [username]);
+  }, [setErrorMessage, username, usernameCorrect, wallet.openapi]);
 
   const msgBgColor = () => {
     if (isLoading) {
@@ -151,8 +164,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Pick__Your')}
@@ -196,20 +208,18 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>
-              {username && (
-                <Box
-                  sx={{
-                    width: '95%',
-                    backgroundColor: msgBgColor(),
-                    mx: 'auto',
-                    borderRadius: '0 0 12px 12px',
-                  }}
-                >
-                  <Box sx={{ p: '4px' }}>{helperText}</Box>
-                </Box>
-              )}
-            </Presets.TransitionSlideUp>
+            <SlideRelative direction="down" show={!!username}>
+              <Box
+                sx={{
+                  width: '95%',
+                  backgroundColor: msgBgColor(),
+                  mx: 'auto',
+                  borderRadius: '0 0 12px 12px',
+                }}
+              >
+                <Box sx={{ p: '4px' }}>{helperText}</Box>
+              </Box>
+            </SlideRelative>
           </FormControl>
         </Box>
 
@@ -233,7 +243,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
           </Typography>
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 
