@@ -50,7 +50,7 @@ import { openInternalPageInTab } from 'ui/utils/webapi';
 
 import { pk2PubKey, seed2PubKey, formPubKey } from '../../ui/utils/modules/passkey';
 import { fclTestnetConfig, fclMainnetConfig } from '../fclConfig';
-import type { CoinItem } from '../service/coinList';
+import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import type { NFTData, NFTModel, StorageInfo, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
@@ -4016,10 +4016,12 @@ export class WalletController extends BaseController {
   // Check the storage status
   checkStorageStatus = async ({
     transferAmount,
+    coin,
     movingBetweenEVMAndFlow,
   }: {
-    transferAmount?: number;
-    movingBetweenEVMAndFlow?: boolean;
+    transferAmount?: number; // amount in coins
+    coin?: string; // coin name
+    movingBetweenEVMAndFlow?: boolean; // are we moving between EVM and Flow?
   } = {}): Promise<{
     isStorageSufficient: boolean;
     isStorageSufficientAfterAction: boolean;
@@ -4030,6 +4032,7 @@ export class WalletController extends BaseController {
       await this.storageEvaluator.evaluateStorage(
         address!,
         transferAmount,
+        coin,
         movingBetweenEVMAndFlow
       );
     return {
