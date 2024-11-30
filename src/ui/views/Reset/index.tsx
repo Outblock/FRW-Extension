@@ -1,19 +1,21 @@
+import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
+import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
-import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import theme from '../../style/LLTheme';
-import RegisterHeader from '../Register/RegisterHeader';
-import ResetRecoveryPhrase from './ResetRecoveryPhrase';
-import AllSet from '../Register/AllSet';
-import RecoverPassword from './RecoverPassword';
-import Particles from 'react-tsparticles';
+
+import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLSpinner } from 'ui/FRWComponent';
-import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
 import { useWallet } from 'ui/utils';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import options from '../Import/options';
+
+import BackButtonIcon from '../../../components/iconfont/IconBackButton';
+import IconGoogleDrive from '../../../components/iconfont/IconGoogleDrive';
+import AllSet from '../Register/AllSet';
+import RegisterHeader from '../Register/RegisterHeader';
+
+import RecoverPassword from './RecoverPassword';
+import ResetRecoveryPhrase from './ResetRecoveryPhrase';
 
 enum Direction {
   Right,
@@ -92,7 +94,7 @@ const Reset = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -104,12 +106,8 @@ const Reset = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 2 && (
-          <Particles
-            // @ts-expect-error customized options
-            options={options}
-          />
-        )}
+        {activeIndex === 2 && <Confetti />}
+
         <RegisterHeader />
         <Box sx={{ flexGrow: 1 }} />
         <Box
@@ -154,25 +152,9 @@ const Reset = () => {
             </Typography>
           </Box>
 
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-          >
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
             {page(activeIndex)}
-          </ComponentTransition>
+          </SlideLeftRight>
         </Box>
 
         {activeIndex === 0 && (
@@ -212,7 +194,7 @@ const Reset = () => {
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

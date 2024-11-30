@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -8,26 +7,27 @@ import {
   Alert,
   Snackbar,
   Link,
-  CssBaseline,
   Input,
   InputAdornment,
   FormGroup,
   LinearProgress,
 } from '@mui/material';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { Presets } from 'react-component-transition';
-import zxcvbn from 'zxcvbn';
-import theme from '../../style/LLTheme';
-import { useWallet, saveIndex } from 'ui/utils';
-import { AccountKey } from 'background/service/networkModel';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { makeStyles, styled } from '@mui/styles';
+import { Box } from '@mui/system';
 import HDWallet from 'ethereum-hdwallet';
-import { LLSpinner } from '@/ui/FRWComponent';
+import React, { useEffect, useState } from 'react';
+import zxcvbn from 'zxcvbn';
+
 import { storage } from '@/background/webapi';
+import { LLSpinner } from '@/ui/FRWComponent';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { type AccountKey } from 'background/service/networkModel';
+import { useWallet, saveIndex, mixpanelBrowserService } from 'ui/utils';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -215,6 +215,9 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
 
     await saveIndex(username);
     const accountKey = getAccountKey(mnemonic);
+
+    // track the time until account_created is called
+    mixpanelBrowserService.time('account_created');
     wallet.openapi
       .register(accountKey, username)
       .then((response) => {
@@ -260,8 +263,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
   }, [confirmPassword, password]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create') + ' '}
@@ -308,7 +310,9 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+            <SlideRelative direction="down" show={!!password}>
+              {helperText}
+            </SlideRelative>
             <Input
               sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
               id="pass2"
@@ -331,9 +335,9 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
-              {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp>
+            <SlideRelative direction="down" show={!!confirmPassword}>
+              {helperMatch}
+            </SlideRelative>
           </FormGroup>
         </Box>
 
@@ -401,7 +405,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -1,25 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import { IconButton, Typography, Snackbar, SnackbarContent } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography, Snackbar, SnackbarContent, Slide } from '@mui/material';
+
+import { storage } from '@/background/webapi';
+import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+
+import lilicoIcon from '../../..//..//_raw/images/icon-48.png';
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';
-import theme from '../../style/LLTheme';
+
+import AllSet from './AllSet';
 import PickUsername from './PickUsername';
 import RecoveryPhrase from './RecoveryPhrase';
-import AllSet from './AllSet';
 import SetPassword from './SetPassword';
-import Particles from 'react-tsparticles';
-import { storage } from '@/background/webapi';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
-import lilicoIcon from '../../..//..//_raw/images/icon-48.png';
+
 enum Direction {
   Right,
   Left,
 }
-import options from '../Import/options';
-
 const RecoverRegister = () => {
   const history = useHistory();
   const [activeIndex, onChange] = useState(0);
@@ -27,6 +28,7 @@ const RecoverRegister = () => {
   const [username, setUsername] = useState('');
   const [mnemonic, setMnemonic] = useState('');
 
+  const pageRef = useRef<HTMLDivElement>(null);
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
   };
@@ -61,7 +63,7 @@ const RecoverRegister = () => {
     }
   };
 
-  const page = (index) => {
+  const Page = React.forwardRef(({ index }: { index: number }, pageRef) => {
     switch (index) {
       case 0:
         return (
@@ -74,18 +76,12 @@ const RecoverRegister = () => {
       case 3:
         return <AllSet handleClick={goNext} />;
       default:
-        return <div />;
+        return <Box />;
     }
-  };
-
-  const slideTransition = (props) => {
-    return <Slide {...props} direction="left" />;
-  };
-
-  const height = [480, 520, 580, 480, 480];
+  });
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -97,20 +93,9 @@ const RecoverRegister = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 3 && (
-          <Particles
-            //@ts-expect-error customized option
-            options={options}
-          />
-        )}
-        {/* <RegisterHeader /> */}
+        {activeIndex === 3 && <Confetti />}
 
-        <Snackbar
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          TransitionComponent={slideTransition}
-          open={activeIndex == 3}
-          // onClose={handleClose}
-        >
+        <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={activeIndex === 3}>
           <SnackbarContent
             style={{ background: 'rgba(252, 129, 74, 0.8)' }}
             sx={{ borderRadius: '12px', opacity: '1', backdropFilter: 'blur(5px)' }}
@@ -207,30 +192,14 @@ const RecoverRegister = () => {
             </Typography>
           </Box>
 
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            {page(activeIndex)}
-          </ComponentTransition>
+          <SlideLeftRight show={true} direction={direction === Direction.Left ? 'left' : 'right'}>
+            <Page index={activeIndex} />
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

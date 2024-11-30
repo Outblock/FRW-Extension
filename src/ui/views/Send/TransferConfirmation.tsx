@@ -2,9 +2,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
@@ -52,7 +52,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     '#41CC5D',
     '#41CC5D',
   ];
-  const startCount = () => {
+  const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
     if (props.data.contact.address) {
@@ -66,14 +66,14 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     } else if (!props.data.contact.address) {
       clearInterval(intervalId);
     }
-  };
+  }, [props.data.contact.address, setCount]);
 
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [wallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
@@ -237,7 +237,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     return () => {
       chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, []);
+  }, [getPending, startCount, transactionDoneHandler]);
 
   const renderContent = () => (
     <Box
@@ -367,28 +367,26 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      {occupied && (
-        <Presets.TransitionSlideUp>
-          <Box
-            sx={{
-              width: '95%',
-              backgroundColor: 'error.light',
-              mx: 'auto',
-              borderRadius: '12px 12px 0 0',
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              py: '8px',
-            }}
-          >
-            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-            <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
-            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
-              {chrome.i18n.getMessage('Your_address_is_currently_processing_another_transaction')}
-            </Typography>
-          </Box>
-        </Presets.TransitionSlideUp>
-      )}
+      <SlideRelative direction="down" show={occupied}>
+        <Box
+          sx={{
+            width: '95%',
+            backgroundColor: 'error.light',
+            mx: 'auto',
+            borderRadius: '12px 12px 0 0',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            py: '8px',
+          }}
+        >
+          {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
+          <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
+          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+            {chrome.i18n.getMessage('Your_address_is_currently_processing_another_transaction')}
+          </Typography>
+        </Box>
+      </SlideRelative>
       <WarningStorageLowSnackbar
         isLowStorage={isLowStorage}
         isLowStorageAfterAction={isLowStorageAfterAction}
@@ -402,6 +400,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         size="large"
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',
