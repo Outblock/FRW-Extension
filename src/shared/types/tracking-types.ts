@@ -101,3 +101,29 @@ export type TrackingEvents = {
     methods: KeyType[]; // Array of providers used in the multi-backup, GoogleDrive, iCloud, Seed
   };
 };
+
+export type TrackEventMessage<T extends keyof TrackingEvents = keyof TrackingEvents> = {
+  msg: 'track_event';
+  eventName: T;
+  properties?: TrackingEvents[T];
+};
+
+export type TrackUserMessage = {
+  msg: 'track_user';
+  userId: string;
+};
+
+export type TrackResetMessage = {
+  msg: 'track_reset';
+};
+
+export type TrackTimeMessage = {
+  msg: 'track_time';
+  eventName: keyof TrackingEvents;
+};
+
+export type TrackMessage =
+  | TrackEventMessage
+  | TrackUserMessage
+  | TrackResetMessage
+  | TrackTimeMessage;

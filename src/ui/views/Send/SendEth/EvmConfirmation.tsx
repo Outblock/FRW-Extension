@@ -38,6 +38,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const movingBetweenEVMAndFlow = true;
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount,
+    coin: props.data?.coinInfo?.coin,
     movingBetweenEVMAndFlow,
   });
 

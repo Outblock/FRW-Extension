@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import Web3 from 'web3';
 
+import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type CoinItem } from 'background/service/coinList';
@@ -11,7 +12,6 @@ import erc20ABI from 'background/utils/erc20.abi.json';
 import { EVM_ENDPOINT } from 'consts';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { withPrefix, isValidEthereumAddress } from 'ui/utils/address';
 
 import CancelIcon from '../../../../components/iconfont/IconClose';
 import TransferAmount from '../TransferAmount';

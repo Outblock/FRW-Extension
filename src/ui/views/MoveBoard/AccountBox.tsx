@@ -1,25 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
-import { useWallet, formatAddress } from 'ui/utils';
-import { ensureEvmAddressPrefix, formatString } from 'ui/utils/address';
 import { Typography, Box, CardMedia } from '@mui/material';
-import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';
+import { makeStyles } from '@mui/styles';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import { storage } from '@/background/webapi';
+import { ensureEvmAddressPrefix, formatString } from '@/shared/utils/address';
+import emoji from 'background/utils/emoji.json';
 import accountMove from 'ui/FRWAssets/svg/accountMove.svg';
+import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';
+import { useWallet, formatAddress } from 'ui/utils';
+
+const USER_CONTACT = {
+  contact_name: '',
+  avatar: '',
+};
 
 function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm = false }) {
   const usewallet = useWallet();
-  const userContact = {
-    contact_name: '',
-    avatar: '',
-  };
 
   const [first, setFirst] = useState<string>('');
   const [second, setSecond] = useState<string>('');
-  const [userInfo, setUser] = useState<any>(userContact);
+  const [userInfo, setUser] = useState<any>(USER_CONTACT);
   const [firstEmoji, setFirstEmoji] = useState<any>(null);
   const [childWallets, setChildWallets] = useState({});
 
-  const requestAddress = async () => {
+  const requestAddress = useCallback(async () => {
     const parentAddress = await usewallet.getMainAddress();
     const address = await usewallet.getCurrentAddress();
     const childResp = await usewallet.checkUserChildAccount();
@@ -46,8 +50,10 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
     const wallet = walletList[firstWalletAddress];
     setChildWallets(walletList);
 
-    userContact.avatar = wallet.thumbnail.url;
-    userContact.contact_name = wallet.name;
+    const userContact = {
+      avatar: wallet.thumbnail.url,
+      contact_name: wallet.name,
+    };
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
@@ -60,11 +66,11 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
       setFirst(address!);
     }
     setSecond(parentAddress!);
-  };
+  }, [isEvm, usewallet, setSelectedChildAccount]);
 
   useEffect(() => {
     requestAddress();
-  }, []);
+  }, [requestAddress]);
 
   return (
     <Box sx={{ padding: '0 18px' }}>

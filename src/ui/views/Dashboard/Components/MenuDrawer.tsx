@@ -17,11 +17,11 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import type { UserInfoResponse } from 'background/service/networkModel';
 import importIcon from 'ui/FRWAssets/svg/importIcon.svg';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
 import { useWallet } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
 
 import rightarrow from '../../../FRWAssets/svg/rightarrow.svg';
 import sideMore from '../../../FRWAssets/svg/sideMore.svg';

@@ -3,7 +3,7 @@ import { groupBy, isEmpty } from 'lodash';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
+import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { useWallet } from 'ui/utils';
 
 import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';

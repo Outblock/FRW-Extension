@@ -7,7 +7,7 @@ import { styled } from '@mui/system';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { storage } from '@/background/webapi';
-import { ensureEvmAddressPrefix } from '@/ui/utils/address';
+import { ensureEvmAddressPrefix } from '@/shared/utils/address';
 import { useWallet } from 'ui/utils';
 
 import GridTab from './GridTab';

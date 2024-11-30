@@ -7,8 +7,8 @@ import { useForm, type FieldValues } from 'react-hook-form';
 import type { Contact } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 
+import { withPrefix } from '../../../../shared/utils/address';
 import { LLPrimaryButton, LLSecondaryButton, LLFormHelperText } from '../../../FRWComponent';
-import { withPrefix } from '../../../utils/address';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,

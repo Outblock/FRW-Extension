@@ -3,14 +3,16 @@ import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 
+import { withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-import { withPrefix } from '@/ui/utils/address';
+// eslint-disable-next-line no-restricted-imports
 import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
+// eslint-disable-next-line no-restricted-imports
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import wallet from 'background/controller/wallet';
 import { keyringService, mixpanelTrack, openapiService } from 'background/service';
 import { createPersistStore } from 'background/utils';
-import { getStoragedAccount } from 'ui/utils';
+import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 
 import { storage } from '../webapi';
 

@@ -38,6 +38,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
     useStorageCheck({
       transferAmount,
+      coin: props.data?.coinInfo?.coin,
       movingBetweenEVMAndFlow,
     });
 

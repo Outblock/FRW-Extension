@@ -2,7 +2,7 @@ import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import eventBus from '@/eventBus';
-import { Message } from '@/utils';
+import { Message } from '@/shared/utils/messaging';
 import { EVENTS } from 'consts';
 import { getUITypeName } from 'ui/utils';
 

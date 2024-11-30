@@ -20,8 +20,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
+import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
 import type { StorageInfo } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 

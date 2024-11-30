@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { v4 as uuid } from 'uuid';
 
-import { Message } from 'utils';
+import { Message } from '@/shared/utils/messaging';
 
 const channelName = nanoid();
 

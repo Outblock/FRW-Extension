@@ -11,8 +11,8 @@ import {
 import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import { useWallet, isEmoji, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
 
 export const FWDropDownProfile = ({
   contact,

@@ -17,9 +17,9 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { formatString } from '@/shared/utils/address';
 import activity from 'ui/FRWAssets/svg/activity.svg';
 import { useWallet } from 'ui/utils';
-import { formatString } from 'ui/utils/address';
 // import IconExec from '../../../components/iconfont/IconExec';
 // import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
 dayjs.extend(relativeTime);
