@@ -94,6 +94,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
   const [minAmount, setMinAmount] = useState<any>(0.001);
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
+    coin: currentCoin,
     movingBetweenEVMAndFlow: true,
   });
 
