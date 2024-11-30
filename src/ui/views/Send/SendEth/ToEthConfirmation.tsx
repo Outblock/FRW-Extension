@@ -33,6 +33,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const [count, setCount] = useState(0);
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: 0,
+    coin: props.data?.coinInfo?.coin,
     movingBetweenEVMAndFlow: true,
   });
 
