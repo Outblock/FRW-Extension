@@ -308,6 +308,7 @@ const handlePreAuthz = async (id) => {
     network,
     proposer.address,
     proposer.keyIndex,
+    proposer.token,
     isEnabled
   );
 

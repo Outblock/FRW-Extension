@@ -58,7 +58,6 @@ export function serviceDefinition(address, keyId, type, network, opts = {}) {
     definition.data = opts;
   }
 
-  console.log('definition', definition);
   return definition;
 }
 
@@ -106,13 +105,10 @@ export async function httpProposerServiceDefinition(address, keyId, type, networ
       address: address,
       keyId: keyId,
     },
-    params:
-      opts && opts.params
-        ? opts.params
-        : {
-            idToken,
-            network,
-          },
+    params: {
+      ...opts.params,
+      network,
+    },
   };
 
   return definition;
@@ -126,17 +122,25 @@ export async function preAuthzServiceDefinition(
   network,
   proposerAddress,
   proposerKeyId,
+  jwtToken,
   isEnabled = false
 ) {
-  console.log('pre-auth', 'address:', address, '====');
   return {
     f_type: 'PreAuthzResponse',
     f_vsn: '1.0.0',
     // proposer: serviceDefinition(address, keyId, 'authz', network),
-    proposer: await httpProposerServiceDefinition(proposerAddress, proposerKeyId, 'authz', network),
+    proposer: await httpProposerServiceDefinition(
+      proposerAddress,
+      proposerKeyId,
+      'authz',
+      network,
+      { params: { jwtToken } }
+    ),
     payer: [
       isEnabled
-        ? await httpPayerServiceDefinition(payerAddress, payerKeyId, 'authz', network)
+        ? await httpPayerServiceDefinition(payerAddress, payerKeyId, 'authz', network, {
+            params: {},
+          })
         : serviceDefinition(payerAddress, payerKeyId, 'authz', network),
     ],
     authorization: [serviceDefinition(address, keyId, 'authz', network)],
