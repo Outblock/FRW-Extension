@@ -28,17 +28,20 @@ export const findAddressWithNetwork = async (pubKTuple, network) => {
   const accounts = pA.concat(pS);
 
   // console.log('accounts 222 ==>', accounts);
-  if (accounts[0].weight < 1000) {
-    return null;
-  }
   if (!accounts || accounts.length === 0) {
-    SECP256K1['weight'] = 1000;
-    SECP256K1['hashAlgo'] = 'SHA2_256';
-    SECP256K1['signAlgo'] = 'ECDSA_secp256k1';
-    SECP256K1['keyIndex'] = 0;
-    return [SECP256K1];
+    return [
+      {
+        ...SECP256K1,
+        weight: 1000,
+        hashAlgo: 'SHA2_256',
+        signAlgo: 'ECDSA_secp256k1',
+        keyIndex: 0,
+      },
+    ];
   }
-  return accounts;
+
+  const account = accounts.find((account) => account.weight >= 1000);
+  return account ? [account] : null;
 };
 
 export const findAddressWithPK = async (pk, address) => {

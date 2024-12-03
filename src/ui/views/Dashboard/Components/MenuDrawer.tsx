@@ -158,11 +158,6 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                 <img src={props.userInfo!.avatar} width="48px" />
 
                 <Box sx={{ paddingTop: '4px', px: '2px' }}>
-                  {/* {props.otherAccounts && props.otherAccounts.map((account, index) => (
-              <IconButton key={index} edge="end" aria-label="account" onClick={() => props.switchAccount(account)}>
-                <img src={account.avatar} alt={`Avatar of ${account.username}`} style={{ display: 'inline-block', width: '20px' }} />
-              </IconButton>
-            ))} */}
                   <IconButton edge="end" aria-label="close" onClick={props.togglePop}>
                     <img style={{ display: 'inline-block', width: '24px' }} src={sideMore} />
                   </IconButton>
@@ -241,9 +236,7 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         <Box sx={{ px: '16px' }}>
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
         </Box>
-        <Box sx={{ maxHeight: '50vh', overflowY: 'scroll' }}>
-          {props.walletList.length > 0 && props.walletList.map(props.createWalletList)}
-        </Box>
+        <Box>{props.walletList.length > 0 && props.walletList.map(props.createWalletList)}</Box>
         {(isValidEthereumAddress(props.evmWallet.address) || hasChildAccounts) && (
           <Typography
             sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}

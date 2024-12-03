@@ -347,7 +347,12 @@ class UserWallet {
     if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
       // Create a new result object with extension default setting
-      result = await findAddressWithPK(keys.pk, '');
+      const foundResult = await findAddressWithPK(keys.pk, '');
+      if (!foundResult) {
+        throw new Error('Unable to find a address with the provided PK. Aborting login.');
+      }
+
+      result = foundResult;
     }
     const app = getApp(process.env.NODE_ENV!);
     const auth = getAuth(app);
