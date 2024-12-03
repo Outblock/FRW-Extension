@@ -1584,7 +1584,9 @@ export class WalletController extends BaseController {
     const pubKey = await this.getPubKey();
     const address = await findAddressWithNetwork(pubKey, network);
     const emoji = await this.getEmoji();
-
+    if (!address) {
+      throw new Error("Can't find address in chain");
+    }
     let transformedArray: any[];
 
     // Check if the addresses array is empty
@@ -3351,11 +3353,7 @@ export class WalletController extends BaseController {
 
   getEvmEnabled = async (): Promise<boolean> => {
     const address = await this.getEvmAddress();
-    if (isValidEthereumAddress(address)) {
-      return true;
-    } else {
-      return false;
-    }
+    return !!address && isValidEthereumAddress(address);
   };
 
   refreshEvmWallets = () => {

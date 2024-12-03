@@ -114,7 +114,7 @@ const Deposit = () => {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const ref = useRef<HTMLDivElement>(null);
 
   const [currentWallet, setCurrentWallet] = useState<number>(0);
@@ -124,10 +124,10 @@ const Deposit = () => {
   const [active, setIsActive] = useState<boolean>(false);
 
   const fetchStuff = useCallback(async () => {
-    const isChild = await wallet.getActiveWallet();
+    const isChild = await usewallet.getActiveWallet();
     let childresp = {};
     try {
-      childresp = await wallet.checkUserChildAccount();
+      childresp = await usewallet.checkUserChildAccount();
       // Handle the response when there is no error
     } catch (error) {
       // Handle the error here
@@ -135,7 +135,7 @@ const Deposit = () => {
     }
     if (isChild === 'evm') {
       setIsActive(true);
-      const wallets = await wallet.getEvmWallet();
+      const wallets = await usewallet.getEvmWallet();
       const result = [
         {
           id: 0,
@@ -164,22 +164,22 @@ const Deposit = () => {
       );
     } else {
       setIsActive(true);
-      const wallets = await wallet.getUserWallets();
-      setUserWallets(
-        wallets.map((ele, idx) => ({
-          id: idx,
-          name: chrome.i18n.getMessage('Wallet'),
-          address: withPrefix(ele.blockchain[0].address),
-        }))
-      );
+      const cw = await usewallet.getCurrentWallet();
+      setUserWallets([
+        {
+          id: 0,
+          name: cw.name,
+          address: cw.address,
+        },
+      ]);
     }
 
-    await wallet.setDashIndex(0);
-    const network = await wallet.getNetwork();
+    await usewallet.setDashIndex(0);
+    const network = await usewallet.getNetwork();
     setNetwork(network);
-    const user = await wallet.getUserInfo(false);
+    const user = await usewallet.getUserInfo(false);
     setUserInfo(user);
-  }, [currentNetwork, wallet]);
+  }, [currentNetwork, usewallet]);
 
   useEffect(() => {
     if (userWallets && userInfo) {

@@ -110,6 +110,7 @@ const Header = ({ loading = false }) => {
   const [initialStart, setInitial] = useState(true);
 
   const [switchLoading, setSwitchLoading] = useState(false);
+  const [expandAccount, setExpandAccount] = useState(false);
 
   const [, setErrorMessage] = useState('');
   const [errorCode, setErrorCode] = useState(null);
@@ -628,6 +629,8 @@ const Header = ({ loading = false }) => {
           currentWallet={currentWallet}
           current={current}
           mainAddress={mainAddress}
+          setExpandAccount={setExpandAccount}
+          expandAccount={expandAccount}
         />
       </List>
     );

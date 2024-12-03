@@ -1,20 +1,25 @@
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { ListItem, ListItemButton, ListItemIcon, Typography, Box } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { useWallet } from 'ui/utils';
+
+import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 
 const WalletFunction = (props) => {
   const usewallet = useWallet();
   const [currentBalance, setCurrentBalance] = useState(null);
 
-  const walletFlowBalance = async (address) => {
-    const balance = await usewallet.getFlowBalance(address);
-    if (balance) {
-      return balance;
-    } else {
-      return 0;
-    }
+  const walletFlowBalance = useCallback(
+    async (address) => {
+      const balance = await usewallet.getFlowBalance(address);
+      return balance || 0;
+    },
+    [usewallet]
+  );
+
+  const toggleExpand = () => {
+    props.setExpandAccount((prev) => !prev);
   };
 
   useEffect(() => {
@@ -28,12 +33,16 @@ const WalletFunction = (props) => {
     };
 
     fetchBalance();
-  }, [props.address]);
+  }, [props.address, walletFlowBalance]);
 
-  return (
+  return props.address === props.mainAddress || props.expandAccount ? (
     <ListItem
       onClick={() => {
-        props.setWallets(props, null, props.props_id);
+        if (props.address === props.current['address']) {
+          toggleExpand(); // Toggle the list if the current address is clicked
+        } else {
+          props.setWallets(props, null, props.props_id); // Set the wallet if it's a different address
+        }
       }}
       sx={{ mb: 0, padding: '0', cursor: 'pointer' }}
     >
@@ -42,7 +51,7 @@ const WalletFunction = (props) => {
           my: 0,
           display: 'flex',
           px: '16px',
-          py: '4px',
+          py: '8px',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
@@ -79,12 +88,12 @@ const WalletFunction = (props) => {
             color={props.props_id === props.currentWallet ? 'text.title' : 'text.nonselect'}
           >
             {props.name}
-            {props.address === props.mainAddress && (
+            {props.address === props.current['address'] && (
               <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
                 <FiberManualRecordIcon
                   style={{
                     fontSize: '10px',
-                    color: props.address === props.current['address'] ? '#40C900' : '#40C90080',
+                    color: '#40C900',
                     marginLeft: '10px',
                   }}
                 />
@@ -103,9 +112,18 @@ const WalletFunction = (props) => {
           </Typography>
         </Box>
         <Box sx={{ flex: '1' }}></Box>
+        {props.address === props.current['address'] && (
+          <IconEnd
+            size={12}
+            style={{
+              transform: props.expandAccount ? 'rotate(270deg)' : 'rotate(90deg)',
+              transition: 'transform 0.3s ease',
+            }}
+          />
+        )}
       </ListItemButton>
     </ListItem>
-  );
+  ) : null;
 };
 
 export default WalletFunction;

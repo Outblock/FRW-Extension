@@ -236,184 +236,109 @@ const MenuDrawer = (props: MenuDrawerProps) => {
         <Box sx={{ px: '16px' }}>
           <Divider sx={{ my: '10px', mx: '0px' }} variant="middle" color="#4C4C4C" />
         </Box>
-        <Box>{props.walletList.length > 0 && props.walletList.map(props.createWalletList)}</Box>
-        {(isValidEthereumAddress(props.evmWallet.address) || hasChildAccounts) && (
-          <Typography
-            sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}
-          >
-            {chrome.i18n.getMessage('Linked_Account')}
-          </Typography>
-        )}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            overflowY: 'scroll',
-            paddingBottom: '16px',
-          }}
-        >
-          {isValidEthereumAddress(props.evmWallet.address) && (
-            <ListItem
-              sx={{
-                display: 'flex',
-                justifyCOntent: 'space-between',
-                padding: '16px 0 0',
-                cursor: 'pointer',
-              }}
-              onClick={() =>
-                props.setWallets(
-                  {
-                    name: 'evm',
-                    address: props.evmWallet.address,
-                    chain_id: props.currentNetwork,
-                    coins: ['flow'],
-                    id: 1,
-                  },
-                  'evm'
-                )
-              }
+        <Box sx={{ overflowY: 'scroll' }}>
+          {props.walletList.length > 0 &&
+            props.walletList
+              .slice()
+              .sort((a, b) =>
+                a.address === props.current.address
+                  ? -1
+                  : b.address === props.current.address
+                    ? 1
+                    : 0
+              )
+              .map(props.createWalletList)}
+          {(isValidEthereumAddress(props.evmWallet.address) || hasChildAccounts) && (
+            <Typography
+              sx={{ color: '#FFFFFF66', fontSize: '12px', marginTop: '10px', marginLeft: '16px' }}
             >
-              <ListItemButton
-                sx={{
-                  mb: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexDirection: 'space-between',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    height: '32px',
-                    width: '32px',
-                    borderRadius: '32px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: props.evmWallet.color,
-                    marginRight: '12px',
-                  }}
-                >
-                  <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                    {props.evmWallet.icon}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant="body1"
-                    component="span"
-                    fontWeight={'semi-bold'}
-                    display="flex"
-                    color={isEvm ? 'text.title' : 'text.nonselect'}
-                  >
-                    <Typography variant="body1" component="span" color="#FFF" fontSize={'12px'}>
-                      {props.evmWallet.name}
-                    </Typography>
-
-                    <Typography
-                      variant="body1"
-                      component="span"
-                      color="#FFF"
-                      fontSize={'9px'}
-                      sx={{
-                        backgroundColor: '#627EEA',
-                        padding: '0 8px',
-                        borderRadius: '18px',
-                        textAlign: 'center',
-                        marginLeft: '8px',
-                        lineHeight: '19px',
-                      }}
-                    >
-                      EVM
-                    </Typography>
-                    {isEvm && (
-                      <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
-                        <FiberManualRecordIcon
-                          style={{
-                            fontSize: '10px',
-                            color: '#40C900',
-                            marginLeft: '8px',
-                          }}
-                        />
-                      </ListItemIcon>
-                    )}
-                  </Typography>
-                  <EvmADDComponent myString={evmBalance} />
-                </Box>
-              </ListItemButton>
-            </ListItem>
+              {chrome.i18n.getMessage('Linked_Account')}
+            </Typography>
           )}
-
-          {props.childAccounts &&
-            Object.keys(props.childAccounts).map((key, index) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              paddingBottom: '16px',
+            }}
+          >
+            {isValidEthereumAddress(props.evmWallet.address) && (
               <ListItem
                 sx={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '8px 16px 8px',
+                  justifyCOntent: 'space-between',
+                  padding: '16px 0 0',
                   cursor: 'pointer',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.08) !important',
-                  },
                 }}
-                key={index}
                 onClick={() =>
                   props.setWallets(
                     {
-                      name: props.childAccounts[key]?.name ?? key,
-                      address: key,
+                      name: 'evm',
+                      address: props.evmWallet.address,
                       chain_id: props.currentNetwork,
                       coins: ['flow'],
                       id: 1,
                     },
-                    key
+                    'evm'
                   )
                 }
               >
                 <ListItemButton
                   sx={{
                     mb: 0,
-                    padding: '0',
                     display: 'flex',
                     alignItems: 'center',
-                    background: 'none !important',
+                    flexDirection: 'space-between',
                   }}
-                  className={props.current['address'] === key ? classes.active : ''}
                 >
-                  <CardMedia
-                    component="img"
-                    image={
-                      props.childAccounts[key]?.thumbnail?.url ??
-                      'https://lilico.app/placeholder-2.0.png'
-                    }
+                  <Box
                     sx={{
+                      display: 'flex',
                       height: '32px',
                       width: '32px',
+                      borderRadius: '32px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: props.evmWallet.color,
                       marginRight: '12px',
-                      backgroundColor: '#282828',
-                      borderRadius: '24px',
-                      objectFit: 'cover',
                     }}
-                  />
+                  >
+                    <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
+                      {props.evmWallet.icon}
+                    </Typography>
+                  </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <Typography
                       variant="body1"
                       component="span"
                       fontWeight={'semi-bold'}
                       display="flex"
-                      color={props.current['address'] === key ? 'text.title' : 'text.nonselect'}
+                      color={isEvm ? 'text.title' : 'text.nonselect'}
                     >
+                      <Typography variant="body1" component="span" color="#FFF" fontSize={'12px'}>
+                        {props.evmWallet.name}
+                      </Typography>
+
                       <Typography
                         variant="body1"
                         component="span"
-                        color="#E6E6E6"
-                        fontSize={'12px'}
+                        color="#FFF"
+                        fontSize={'9px'}
+                        sx={{
+                          backgroundColor: '#627EEA',
+                          padding: '0 8px',
+                          borderRadius: '18px',
+                          textAlign: 'center',
+                          marginLeft: '8px',
+                          lineHeight: '19px',
+                        }}
                       >
-                        {props.childAccounts[key]?.name ?? key}
+                        EVM
                       </Typography>
-                      {props.current['address'] === key && (
-                        <ListItemIcon sx={{ display: 'flex', alignItems: 'center' }}>
+                      {isEvm && (
+                        <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
                           <FiberManualRecordIcon
-                            sx={{
+                            style={{
                               fontSize: '10px',
                               color: '#40C900',
                               marginLeft: '8px',
@@ -422,19 +347,105 @@ const MenuDrawer = (props: MenuDrawerProps) => {
                         </ListItemIcon>
                       )}
                     </Typography>
-                    <Typography
-                      variant="body1"
-                      component="span"
-                      // display="inline"
-                      color={'text.nonselect'}
-                      sx={{ fontSize: '12px', textTransform: 'lowercase' }}
-                    >
-                      {key}
-                    </Typography>
+                    <EvmADDComponent myString={evmBalance} />
                   </Box>
                 </ListItemButton>
               </ListItem>
-            ))}
+            )}
+
+            {props.childAccounts &&
+              Object.keys(props.childAccounts).map((key, index) => (
+                <ListItem
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '8px 16px 8px',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.08) !important',
+                    },
+                  }}
+                  key={index}
+                  onClick={() =>
+                    props.setWallets(
+                      {
+                        name: props.childAccounts[key]?.name ?? key,
+                        address: key,
+                        chain_id: props.currentNetwork,
+                        coins: ['flow'],
+                        id: 1,
+                      },
+                      key
+                    )
+                  }
+                >
+                  <ListItemButton
+                    sx={{
+                      mb: 0,
+                      padding: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: 'none !important',
+                    }}
+                    className={props.current['address'] === key ? classes.active : ''}
+                  >
+                    <CardMedia
+                      component="img"
+                      image={
+                        props.childAccounts[key]?.thumbnail?.url ??
+                        'https://lilico.app/placeholder-2.0.png'
+                      }
+                      sx={{
+                        height: '32px',
+                        width: '32px',
+                        marginRight: '12px',
+                        backgroundColor: '#282828',
+                        borderRadius: '24px',
+                        objectFit: 'cover',
+                      }}
+                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography
+                        variant="body1"
+                        component="span"
+                        fontWeight={'semi-bold'}
+                        display="flex"
+                        color={props.current['address'] === key ? 'text.title' : 'text.nonselect'}
+                      >
+                        <Typography
+                          variant="body1"
+                          component="span"
+                          color="#E6E6E6"
+                          fontSize={'12px'}
+                        >
+                          {props.childAccounts[key]?.name ?? key}
+                        </Typography>
+                        {props.current['address'] === key && (
+                          <ListItemIcon sx={{ display: 'flex', alignItems: 'center' }}>
+                            <FiberManualRecordIcon
+                              sx={{
+                                fontSize: '10px',
+                                color: '#40C900',
+                                marginLeft: '8px',
+                              }}
+                            />
+                          </ListItemIcon>
+                        )}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        component="span"
+                        // display="inline"
+                        color={'text.nonselect'}
+                        sx={{ fontSize: '12px', textTransform: 'lowercase' }}
+                      >
+                        {key}
+                      </Typography>
+                    </Box>
+                  </ListItemButton>
+                </ListItem>
+              ))}
+          </Box>
         </Box>
         {/* <ListItem disablePadding>
           <ListItemButton onClick={() => {

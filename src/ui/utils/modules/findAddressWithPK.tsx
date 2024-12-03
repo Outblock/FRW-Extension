@@ -41,7 +41,7 @@ export const findAddressWithNetwork = async (pubKTuple, network) => {
   }
 
   const account = accounts.find((account) => account.weight >= 1000);
-  return account ? [account] : null;
+  return account ? accounts : null;
 };
 
 export const findAddressWithPK = async (pk, address) => {
