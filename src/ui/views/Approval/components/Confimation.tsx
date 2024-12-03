@@ -158,11 +158,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
     setApproval(true);
     const signedMessage = await wallet.signMessage(signable.message);
 
-    // console.log('signedMessage ->', opener, lilicoEnabled)
-    // console.log('signedMessage ->', signedMessage)
-
     if (opener) {
-      console.log(signable, 'signable');
       sendSignature(signable, signedMessage);
       const value = await sessionStorage.getItem('pendingRefBlockId');
       // console.log('pendingRefBlockId ->', value);
@@ -282,11 +278,7 @@ const Confimation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =>
         });
 
     const extMessageHandler = (msg, sender, sendResponse) => {
-      console.log(sender, 'extMessageHandler -->', msg);
-
       if (msg.type === 'FCL:VIEW:READY:RESPONSE') {
-        console.log('extMessageHandler -->', msg.type, msg);
-
         msg.host && setHost(msg.host);
         if (msg.config?.app?.title) {
           setTitle(msg.config.app.title);
