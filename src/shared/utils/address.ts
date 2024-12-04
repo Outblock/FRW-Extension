@@ -3,12 +3,12 @@ import HDWallet from 'ethereum-hdwallet';
 import { type AccountKey } from 'background/service/networkModel';
 
 export function sansPrefix(address) {
-  if (address === null) return null;
+  if (!address) return null;
   return address.replace(/^0x/, '').replace(/^Fx/, '');
 }
 
 export function withPrefix(address): string | null {
-  if (address === null) return null;
+  if (!address) return null;
   return '0x' + sansPrefix(address);
 }
 
