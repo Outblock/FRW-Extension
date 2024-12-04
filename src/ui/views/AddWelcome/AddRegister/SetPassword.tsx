@@ -67,8 +67,10 @@ const BpIcon = styled('span')(() => ({
   borderRadius: 8,
   width: 24,
   height: 24,
+  display: 'block',
   border: '1px solid #41CC5D',
-  backgroundColor: 'transparent',
+  backgroundColor: '#ffffff',
+  opacity: 1,
 }));
 
 const BpCheckedIcon = styled(BpIcon)({
@@ -295,6 +297,9 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
               icon={<BpIcon />}
               checkedIcon={<BpCheckedIcon />}
               onChange={(event) => setCheck(event.target.checked)}
+              sx={{
+                backgroundColor: '#fff',
+              }}
             />
           }
           label={
