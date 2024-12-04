@@ -73,7 +73,7 @@ export const DefaultBlock = ({
       <Divider />
 
       <Fade in={true}>
-        {auditor && (
+        {auditor ? (
           <Stack direction="column" spacing="12px" sx={{ justifyContent: 'space-between' }}>
             <Box
               sx={{
@@ -113,6 +113,8 @@ export const DefaultBlock = ({
               </Typography>
             </Box>
           </Stack>
+        ) : (
+          <Stack />
         )}
       </Fade>
 
