@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, Typography, Drawer, Grid, Button, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { Box, Typography, Drawer, Grid, Button, IconButton } from '@mui/material';
+import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { type NFTModel } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { NFTModel } from 'background/service/networkModel';
 
 interface AddNFTConfirmationProps {
   isConfirmationOpen: boolean;
@@ -18,7 +19,7 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
-  const [tid, setTid] = useState<string>('');
+  const [, setTid] = useState<string>('');
 
   const enableStorage = async () => {
     // TODO: Replace it with real data
@@ -43,14 +44,10 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
       }
       props.handleAddBtnClicked();
     } catch (err) {
-      console.log('err ->', err);
+      console.error('err ->', err);
       setSending(false);
     }
   };
-
-  useEffect(() => {
-    console.log(props, props.data);
-  }, []);
 
   const renderContent = () => (
     <Box
@@ -140,6 +137,7 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
         size="large"
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',

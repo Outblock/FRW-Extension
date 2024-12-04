@@ -12,9 +12,15 @@ class FirebaseFixPlugin {
             if (/\.(js|jsx)$/.test(name)) {
               let content = asset.source();
 
-              console.log('About to fix firebase stuff', name);
-              console.log('typeof content', typeof content);
+              // Convert Buffer to string if needed
+              if (Buffer.isBuffer(content)) {
+                content = content.toString('utf-8');
+              }
 
+              // Convert other types to string if needed
+              if (typeof content !== 'string') {
+                content = content.toString();
+              }
               // Replace the _loadJS function
               content = content.replace(
                 /function\s*\w*\s*_loadJS\([\w\s,]*\)\s*\{([\w\W]*?)\}$/gim,

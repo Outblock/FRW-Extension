@@ -1,7 +1,6 @@
 import { List, CardMedia, Typography, ButtonBase, Box } from '@mui/material';
-import { groupBy, isEmpty } from 'lodash';
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { isEmpty } from 'lodash';
+import React from 'react';
 
 import emptyAddress from 'ui/assets/emptyAddress.svg';
 import { isEmoji } from 'ui/utils';

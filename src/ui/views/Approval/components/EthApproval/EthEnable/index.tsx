@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
-// import { CHAINS_ENUM } from 'consts';
-import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, Divider, CardMedia, Card } from '@mui/material';
-import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
-import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useHistory } from 'react-router-dom';
+
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import enableBg from 'ui/FRWAssets/image/enableBg.png';
-import theme from 'ui/style/LLTheme';
+import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
 import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 'ui/FRWComponent';
+import { useApproval, useWallet, formatAddress } from 'ui/utils';
+// import { CHAINS_ENUM } from 'consts';
 
 interface ConnectProps {
   params: any;
@@ -42,7 +41,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
   // TODO: replace default logo
   const [logo, setLogo] = useState('');
   const [evmAddress, setEvmAddress] = useState('');
-  const init = async () => {
+  const init = useCallback(async () => {
     setLogo(icon);
     const site = await wallet.getSite(origin);
     const collectList: { name: string; logo_url: string }[] = [];
@@ -53,7 +52,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
     setDefaultChain(defaultChain);
 
     setIsLoading(false);
-  };
+  }, [wallet, origin, icon]);
 
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
@@ -68,7 +67,7 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
 
   useEffect(() => {
     init();
-  }, []);
+  }, [init]);
 
   const renderContent = () => (
     <Box sx={{ padingTop: '18px' }}>
@@ -132,9 +131,9 @@ const EthEnable = ({ params: { icon, name, origin } }: ConnectProps) => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box>{renderContent()}</Box>
-    </ThemeProvider>
+    </>
   );
 };
 

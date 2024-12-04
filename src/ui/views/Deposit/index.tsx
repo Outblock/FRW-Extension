@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, MenuItem, Select, Typography, Tooltip, Button } from '@mui/material';
-import QRCodeStyling from 'qr-code-styling';
-import { useWallet } from 'ui/utils';
-import { useTheme, styled } from '@mui/material/styles';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useHistory } from 'react-router-dom';
+import { MenuItem, Select, Typography, Tooltip, Button } from '@mui/material';
+import { useTheme, styled, StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { StyledEngineProvider } from '@mui/material/styles';
+import QRCodeStyling from 'qr-code-styling';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { withPrefix } from '@/shared/utils/address';
+import { LLTestnetIndicator, LLHeader } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
 import IconCopy from '../../../components/iconfont/IconCopy';
-import { LLTestnetIndicator } from 'ui/FRWComponent';
+
 import TestnetWarning from './TestnetWarning';
-import { withPrefix } from '@/ui/utils/address';
-import { LLHeader } from 'ui/FRWComponent';
 
 const useStyles = makeStyles((theme) => ({
   page: {
@@ -123,7 +123,7 @@ const Deposit = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [active, setIsActive] = useState<boolean>(false);
 
-  const fetch = async () => {
+  const fetchStuff = useCallback(async () => {
     const isChild = await wallet.getActiveWallet();
     let childresp = {};
     try {
@@ -179,7 +179,7 @@ const Deposit = () => {
     setNetwork(network);
     const user = await wallet.getUserInfo(false);
     setUserInfo(user);
-  };
+  }, [currentNetwork, wallet]);
 
   useEffect(() => {
     if (userWallets && userInfo) {
@@ -191,8 +191,8 @@ const Deposit = () => {
   }, [userWallets, currentWallet, userInfo]);
 
   useEffect(() => {
-    fetch();
-  }, []);
+    fetchStuff();
+  }, [fetchStuff]);
 
   useEffect(() => {
     if (ref.current) {

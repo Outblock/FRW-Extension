@@ -28,8 +28,6 @@ const config = {
   ],
   resolve: {
     fallback: {
-      http: require.resolve('stream-http'),
-      https: require.resolve('https-browserify'),
       buffer: require.resolve('buffer'),
       url: require.resolve('url/'),
       vm: require.resolve('vm-browserify'),

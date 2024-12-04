@@ -1,13 +1,11 @@
-import React from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button } from '@mui/material';
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import PhoneAndroidRoundedIcon from '@mui/icons-material/PhoneAndroidRounded';
-import theme from '../../style/LLTheme';
-
+import { Button } from '@mui/material';
+import { Box } from '@mui/system';
+import React from 'react';
 const RegisterHeader = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -54,7 +52,7 @@ const RegisterHeader = () => {
           {chrome.i18n.getMessage('Need__Help')}
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

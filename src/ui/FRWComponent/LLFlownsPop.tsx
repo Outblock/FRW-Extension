@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Typography, Box, Stack, CardMedia, IconButton } from '@mui/material';
-import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
-import IconSubtract from '../../components/iconfont/IconSubtract';
-import { makeStyles } from '@mui/styles';
-import { useWallet } from 'ui/utils';
-import lilicoIcon from '../../../_raw/images/icon-256.png';
 import CloseIcon from '@mui/icons-material/Close';
+import { Typography, Box, IconButton } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import { LLPrimaryButton } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import lilicoIcon from '../../../_raw/images/icon-256.png';
 
 interface DeleteBackupProps {
   deleteBackupPop: boolean;
@@ -58,14 +59,14 @@ export const LLFlownsPop = (props: DeleteBackupProps) => {
     setExpand(true);
   };
 
-  const getUsername = async () => {
+  const getUsername = useCallback(async () => {
     const userInfo = await wallet.getUserInfo(false);
     setUsername(userInfo.username);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     getUsername();
-  }, []);
+  }, [getUsername]);
 
   const renderContent = () => (
     <Box

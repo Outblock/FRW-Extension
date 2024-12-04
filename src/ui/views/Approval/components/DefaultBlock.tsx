@@ -1,4 +1,5 @@
-import React from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
 import {
   Stack,
   Box,
@@ -8,11 +9,11 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
-import { Presets } from 'react-component-transition';
-import IconFlow from '../../../../components/iconfont/IconFlow';
+import Fade from '@mui/material/Fade';
+import React from 'react';
 import Highlight from 'react-highlight';
+
+import IconFlow from '../../../../components/iconfont/IconFlow';
 
 export const DefaultBlock = ({
   title,
@@ -71,8 +72,8 @@ export const DefaultBlock = ({
       </Box>
       <Divider />
 
-      <Presets.TransitionFade>
-        {auditor && (
+      <Fade in={true}>
+        {auditor ? (
           <Stack direction="column" spacing="12px" sx={{ justifyContent: 'space-between' }}>
             <Box
               sx={{
@@ -112,8 +113,10 @@ export const DefaultBlock = ({
               </Typography>
             </Box>
           </Stack>
+        ) : (
+          <Stack />
         )}
-      </Presets.TransitionFade>
+      </Fade>
 
       <Box sx={{ borderRadius: '12px', overflow: 'hidden', width: '100%', display: 'table' }}>
         <Accordion

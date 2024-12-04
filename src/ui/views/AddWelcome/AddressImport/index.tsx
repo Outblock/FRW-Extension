@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { IconButton, Typography, Snackbar, Alert } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, ThemeProvider } from '@mui/system';
-import { IconButton, Typography, Button, Snackbar, Alert } from '@mui/material';
-import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
-import theme from '../../../style/LLTheme';
-import RegisterHeader from '../../Register/RegisterHeader';
-import AllSet from '../../Register/AllSet';
-import SeedPhrase from './importComponent/SeedPhrase';
-import PickUsername from './PickUsername';
-import SetPassword from './SetPassword';
-import GoogleBackup from './GoogleBackup';
+
+import Confetti from '@/ui/FRWComponent/Confetti';
+import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import { storage } from 'background/webapi';
-import Particles from 'react-tsparticles';
-import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
-import { ComponentTransition, AnimationTypes } from 'react-component-transition';
-import { useWallet, Options } from 'ui/utils';
+import { LLPinAlert } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
+import AllSet from '../../Register/AllSet';
+import RegisterHeader from '../../Register/RegisterHeader';
+
+import GoogleBackup from './GoogleBackup';
 import ImportPager from './ImportPager';
+import PickUsername from './PickUsername';
 import RecoverPassword from './RecoverPassword';
+import SetPassword from './SetPassword';
 
 enum Direction {
   Right,
@@ -34,10 +34,8 @@ const AddressImport = () => {
   const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
-  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState(null);
   const [accounts, setAccounts] = useState<any>([]);
-  const [isImport, setImport] = useState<any>(false);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
@@ -50,7 +48,7 @@ const AddressImport = () => {
     }
   };
 
-  const loadView = async () => {
+  const loadView = useCallback(async () => {
     // console.log(wallet);
     wallet
       .getCurrentAccount()
@@ -62,7 +60,7 @@ const AddressImport = () => {
       .catch(() => {
         return;
       });
-  };
+  }, [history, wallet]);
   const goNext = () => {
     setDirection(Direction.Right);
     if (activeIndex < 5) {
@@ -166,12 +164,11 @@ const AddressImport = () => {
   };
 
   useEffect(() => {
-    console.log('wallet');
     loadView();
-  }, []);
+  }, [loadView]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -183,15 +180,10 @@ const AddressImport = () => {
           alignItems: 'center',
         }}
       >
-        {activeIndex == 5 && (
-          <Particles
-            //@ts-expect-error customized option
-            options={Options}
-          />
-        )}
+        {activeIndex === 5 && <Confetti />}
         <RegisterHeader />
 
-        <LLPinAlert open={activeIndex == 5} />
+        <LLPinAlert open={activeIndex === 5} />
 
         <Box sx={{ flexGrow: 0.7 }} />
         {/* height why not use auto */}
@@ -237,26 +229,75 @@ const AddressImport = () => {
               {chrome.i18n.getMessage('STEP')} {activeIndex + 1}/5
             </Typography>
           </Box>
-
-          <ComponentTransition
-            enterAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideLeft.enter
-                : AnimationTypes.slideRight.enter
-            }
-            exitAnimation={
-              direction === Direction.Left
-                ? AnimationTypes.slideRight.exit
-                : AnimationTypes.slideLeft.exit
-            }
-            animateContainer={true}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
+          <SlideLeftRight
+            show={activeIndex === 0}
+            direction={direction === Direction.Left ? 'left' : 'right'}
           >
-            {page(activeIndex)}
-          </ComponentTransition>
+            <ImportPager
+              setMnemonic={setMnemonic}
+              setPk={setPk}
+              setAccounts={setAccounts}
+              accounts={accounts}
+              mnemonic={mnemonic}
+              pk={pk}
+              setUsername={setUsername}
+              goPassword={goPassword}
+              handleClick={goNext}
+              setErrorMessage={setErrorMessage}
+              setShowError={setShowError}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 1}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
+          </SlideLeftRight>
+
+          <SlideLeftRight
+            show={activeIndex === 2}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <SetPassword
+              handleClick={goGoogle}
+              tempPassword={password}
+              mnemonic={mnemonic}
+              pk={pk}
+              username={username}
+              accounts={accounts}
+              goEnd={goEnd}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 3}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <RecoverPassword
+              handleClick={goNext}
+              mnemonic={mnemonic}
+              pk={pk}
+              tempPassword={password}
+              goEnd={goEnd}
+              accountKey={accounts}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 4}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <GoogleBackup
+              handleClick={goNext}
+              mnemonic={mnemonic}
+              username={username}
+              password={password}
+            />
+          </SlideLeftRight>
+          <SlideLeftRight
+            show={activeIndex === 5}
+            direction={direction === Direction.Left ? 'left' : 'right'}
+          >
+            <AllSet handleClick={goNext} />
+          </SlideLeftRight>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
@@ -271,7 +312,7 @@ const AddressImport = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

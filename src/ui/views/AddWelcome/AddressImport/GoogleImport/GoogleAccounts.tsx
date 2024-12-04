@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { ThemeProvider } from '@mui/system';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import {
   Typography,
   Avatar,
@@ -10,10 +9,9 @@ import {
   ListItemText,
   IconButton,
   ListItem,
-  CssBaseline,
 } from '@mui/material';
-import theme from '../../../../style/LLTheme';
-import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { useWallet } from 'ui/utils';
 
 const FetchAvatar = ({ username }) => {
@@ -22,27 +20,27 @@ const FetchAvatar = ({ username }) => {
   );
   const wallet = useWallet();
 
-  const fetchUserAvatar = async (username) => {
-    const { data } = await wallet.openapi.searchUser(username);
-    const users = data.users;
-    if (users.length > 0 && users[0].avatar) {
-      setAvatar(users[0].avatar);
-    }
-  };
+  const fetchUserAvatar = useCallback(
+    async (username) => {
+      const { data } = await wallet.openapi.searchUser(username);
+      const users = data.users;
+      if (users.length > 0 && users[0].avatar) {
+        setAvatar(users[0].avatar);
+      }
+    },
+    [setAvatar, wallet.openapi]
+  );
 
   useEffect(() => {
     fetchUserAvatar(username);
-  }, []);
+  }, [fetchUserAvatar, username]);
 
   return <Avatar src={avatar}></Avatar>;
 };
 
 const GoogleAccounts = ({ handleClick, accounts, setUsername }) => {
-  const [canGoNext, setCanGoNext] = useState(true);
-
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('We__ve__found') + ' '}
@@ -104,7 +102,7 @@ const GoogleAccounts = ({ handleClick, accounts, setUsername }) => {
           </List>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

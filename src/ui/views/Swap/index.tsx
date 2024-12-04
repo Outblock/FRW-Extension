@@ -1,25 +1,64 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+
 // import { useHistory, useLocation } from 'react-router-dom';
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { CoinItem } from 'background/service/coinList';
-import theme from '../../style/LLTheme';
-import { ThemeProvider } from '@mui/material/styles';
-import TransferAmount from './TransferAmount';
-import SwapTarget from './SwapTarget';
-import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
-import IconSwitch from '../../../components/iconfont/IconSwitch';
-import TransferConfirmation from './TransferConfirmation';
-import SelectToken from './SelectToken';
-import { LLSpinner } from 'ui/FRWComponent';
-import { Contact } from 'background/service/networkModel';
-// import { Presets } from 'react-component-transition';
-// import CancelIcon from '../../../components/iconfont/IconClose';
+import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
-// import { TokenListProvider } from 'flow-native-token-registry';
+import { type CoinItem } from 'background/service/coinList';
+import { type Contact } from 'background/service/networkModel';
+import { LLSpinner } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
+import IconSwitch from '../../../components/iconfont/IconSwitch';
 import Increment from '../../FRWAssets/svg/increment.svg';
+
+import SelectToken from './SelectToken';
+import SwapTarget from './SwapTarget';
+import TransferAmount from './TransferAmount';
+import TransferConfirmation from './TransferConfirmation';
+
+//
+// import CancelIcon from '../../../components/iconfont/IconClose';
+// import { TokenListProvider } from 'flow-native-token-registry';
+const USER_CONTACT = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+} as unknown as Contact;
+
+const FLOW_TOKEN = {
+  name: 'Flow',
+  address: {
+    mainnet: '0x1654653399040a61',
+    testnet: '0x7e60df042a9c0868',
+    crescendo: '0x7e60df042a9c0868',
+  },
+  contract_name: 'FlowToken',
+  storage_path: {
+    balance: '/public/flowTokenBalance',
+    vault: '/storage/flowTokenVault',
+    receiver: '/public/flowTokenReceiver',
+  },
+  decimal: 8,
+  icon: 'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png',
+  symbol: 'flow',
+  website: 'https://www.onflow.org',
+};
+const EMPTY_COIN: CoinItem = {
+  coin: '',
+  unit: '',
+  balance: 0,
+  price: 0,
+  change24h: 0,
+  total: 0,
+  icon: '',
+};
 
 const Swap = () => {
   enum ENV {
@@ -36,44 +75,6 @@ const Swap = () => {
   //   Static = 'Static',
   //   CDN = 'CDN'
   // }
-  const userContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
-
-  const flowToken = {
-    name: 'Flow',
-    address: {
-      mainnet: '0x1654653399040a61',
-      testnet: '0x7e60df042a9c0868',
-      crescendo: '0x7e60df042a9c0868',
-    },
-    contract_name: 'FlowToken',
-    storage_path: {
-      balance: '/public/flowTokenBalance',
-      vault: '/storage/flowTokenVault',
-      receiver: '/public/flowTokenReceiver',
-    },
-    decimal: 8,
-    icon: 'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png',
-    symbol: 'flow',
-    website: 'https://www.onflow.org',
-  };
-  const empty: CoinItem = {
-    coin: '',
-    unit: '',
-    balance: 0,
-    price: 0,
-    change24h: 0,
-    total: 0,
-    icon: '',
-  };
 
   const usewallet = useWallet();
   const [userWallet, setWallet] = useState<any>(null);
@@ -85,10 +86,10 @@ const Swap = () => {
   const [amount, setAmount] = useState<string | undefined>('0');
   const [outAmount, setOutAmount] = useState<any>(0);
   // const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(userContact);
+  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
   const [selectTarget, setSelectTarget] = useState<number>(0);
   const [network, setNetwork] = useState('mainnet');
-  const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
+  const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [estimateInfo, setEstimateInfo] = useState<any>(null);
   const [token1, setToken1] = useState<any>(null);
   const [token0, setToken0] = useState<any>(null);
@@ -98,7 +99,7 @@ const Swap = () => {
   const [swapPrice, setPrice] = useState<any>(0);
   const [errorType, setErrorType] = useState<any>(null);
 
-  const setUserWallet = async () => {
+  const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
@@ -114,9 +115,12 @@ const Swap = () => {
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
-    userContact.address = withPrefix(wallet.address) || '';
-    userContact.avatar = info.avatar;
-    userContact.contact_name = info.username;
+    const userContact = {
+      ...USER_CONTACT,
+      address: withPrefix(wallet.address) || '',
+      avatar: info.avatar,
+      contact_name: info.username,
+    };
     setUser(userContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
     usewallet.openapi.getAllToken().then((res) => {
@@ -124,7 +128,7 @@ const Swap = () => {
     });
     setLoading(false);
     return;
-  };
+  }, [usewallet]);
 
   const updateCoinInfo = (token) => {
     if (selectTarget) {
@@ -165,7 +169,7 @@ const Swap = () => {
     setSwapTypes(1);
   };
 
-  const estimateOut = async () => {
+  const estimateOut = useCallback(async () => {
     setLoading(true);
     const network = await usewallet.getNetwork();
     if (token0 && token1) {
@@ -185,7 +189,7 @@ const Swap = () => {
         let price: any = result.data.tokenOutAmount / parseFloat(result.data.tokenInAmount);
         price = (Math.round(price * 1000) / 1000).toFixed(3);
         setPrice(price);
-        if (errorType == Error.Fail) {
+        if (errorType === Error.Fail) {
           setErrorType(null);
         }
         setEstimateInfo(result.data);
@@ -197,9 +201,9 @@ const Swap = () => {
     }
     setLoading(false);
     return;
-  };
+  }, [outAmount, usewallet, token0, token1, errorType, Error.Fail]);
 
-  const estimate = async () => {
+  const estimate = useCallback(async () => {
     setLoading(true);
     if (Number(amount) <= 0) {
       setLoading(false);
@@ -219,7 +223,7 @@ const Swap = () => {
         let price: any = result.data.tokenOutAmount / parseFloat(result.data.tokenInAmount);
         price = (Math.round(price * 1000) / 1000).toFixed(3);
         setPrice(price);
-        if (errorType == Error.Fail) {
+        if (errorType === Error.Fail) {
           setErrorType(null);
         }
         setEstimateInfo(result.data);
@@ -231,12 +235,12 @@ const Swap = () => {
       }
     }
     setLoading(false);
-  };
+  }, [amount, usewallet, token0, token1, errorType, Error.Fail]);
 
   useEffect(() => {
     setUserWallet();
-    setToken0(flowToken);
-  }, []);
+    setToken0(FLOW_TOKEN);
+  }, [setUserWallet]);
 
   useEffect(() => {
     if (swapTypes) {
@@ -247,21 +251,21 @@ const Swap = () => {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [amount]);
+  }, [amount, estimate, swapTypes]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       estimate();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [token1]);
+  }, [token1, estimate]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       estimate();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [token0]);
+  }, [token0, estimate]);
 
   useEffect(() => {
     if (!swapTypes) {
@@ -271,11 +275,11 @@ const Swap = () => {
       estimateOut();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [outAmount]);
+  }, [outAmount, estimateOut, swapTypes]);
 
   return (
     <div className="page">
-      <ThemeProvider theme={theme}>
+      <>
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <LLHeader title="Swap (Beta)" help={false} />
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '16px' }}>
@@ -443,7 +447,7 @@ const Swap = () => {
               </Typography>
             </Box>
             {/* <Box sx={{display: 'flex', justifyContent:'space-between'}}>
-              <Typography variant="body1"           
+              <Typography variant="body1"
                 sx={{
                   alignSelf: 'start',
                   fontSize: '12px',
@@ -451,7 +455,7 @@ const Swap = () => {
                 }}>
                 Estimated Fees
               </Typography>
-              <Typography variant="body1"           
+              <Typography variant="body1"
                 sx={{
                   alignSelf: 'end',
                   fontSize: '12px',
@@ -477,7 +481,7 @@ const Swap = () => {
                 textTransform: 'capitalize',
               }}
               disabled={
-                outAmount <= 0 || Number(amount) <= 0 || errorType || isLoading || token1 == null
+                outAmount <= 0 || Number(amount) <= 0 || errorType || isLoading || token1 === null
               }
             >
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
@@ -511,7 +515,7 @@ const Swap = () => {
             updateCoinInfo={updateCoinInfo}
           />
         </Box>
-      </ThemeProvider>
+      </>
     </div>
   );
 };

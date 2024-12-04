@@ -1,55 +1,53 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Typography, Button, Box, ButtonBase, IconButton, Tooltip } from '@mui/material';
-import { styled } from '@mui/system';
 import { TabPanel, TabsList, Tabs, Tab } from '@mui/base';
-import { buttonUnstyledClasses } from '@mui/core/ButtonUnstyled';
+import { buttonClasses } from '@mui/base/Button';
 import { tabClasses } from '@mui/base/Tab';
-import { useWallet } from 'ui/utils';
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import { Typography, Box, ButtonBase, IconButton, Tooltip } from '@mui/material';
+import { styled } from '@mui/system';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
 import { storage } from '@/background/webapi';
+import { ensureEvmAddressPrefix } from '@/shared/utils/address';
+import { useWallet } from 'ui/utils';
+
 import GridTab from './GridTab';
 import ListTab from './ListTab';
-import EditNFTAddress from './EditNFTAddress';
-import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
-import { ensureEvmAddressPrefix } from '@/ui/utils/address';
 
 const NftEvm = () => {
   const wallet = useWallet();
 
   const [address, setAddress] = useState<string | null>(null);
   const [value, setValue] = useState(0);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [childType, setChildType] = useState<string>('');
   const [nftCount, setCount] = useState<number>(0);
-  const [accessible, setAccessible] = useState<any>([]);
+  const [accessible] = useState<any>([]);
   const [isActive, setIsActive] = useState(true);
   const gridRef = useRef<any>(null);
   const listRef = useRef<any>(null);
 
-  useEffect(() => {
-    fetchPreferedTab();
-    loadNFTs();
-  }, []);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-    storage.set('PreferredNFT', newValue);
-  };
-
-  const loadNFTs = async () => {
+  const loadNFTs = useCallback(async () => {
     const mainAddress = await wallet.getMainAddress();
     const address = await wallet.queryEvmAddress(mainAddress!);
     // const flowCoins = fetchRemoteConfig.flowCoins();
     setIsActive(false);
     // setAddress(address);
     setAddress(ensureEvmAddressPrefix(address));
-  };
+  }, [wallet]);
 
-  const fetchPreferedTab = async () => {
+  const fetchPreferredTab = useCallback(async () => {
     const tab = await storage.get('PreferredNFT');
     if (tab) {
       setValue(tab);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchPreferredTab();
+    loadNFTs();
+  }, [fetchPreferredTab, loadNFTs]);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+    storage.set('PreferredNFT', newValue);
   };
 
   const refreshButtonClicked = () => {
@@ -98,7 +96,7 @@ const NftEvm = () => {
       padding: 2px 13px;
     }
 
-    &.${buttonUnstyledClasses.disabled} {
+    &.${buttonClasses.disabled} {
       opacity: 0.24;
       cursor: not-allowed;
     }

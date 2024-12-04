@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useApproval, useWallet, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
-import enableBg from 'ui/FRWAssets/image/enableBg.png';
-import { ThemeProvider } from '@mui/system';
 import { Stack, Box, Typography, Divider, CardMedia, Card } from '@mui/material';
-import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useHistory } from 'react-router-dom';
+
+import { isValidEthereumAddress } from '@/shared/utils/address';
+import enableBg from 'ui/FRWAssets/image/enableBg.png';
 import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
-import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
-import theme from 'ui/style/LLTheme';
-// import EthMove from '../EthMove';
+import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
 import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 'ui/FRWComponent';
+import { useApproval, useWallet, formatAddress } from 'ui/utils';
+
+import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
+
+// import EthMove from '../EthMove';
 
 interface ConnectProps {
   params: any;
@@ -42,7 +43,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   // TODO: replace default logo
   const [logo, setLogo] = useState('');
   const [evmAddress, setEvmAddress] = useState('');
-  const init = async () => {
+  const init = useCallback(async () => {
     const network = await usewallet.getNetwork();
     setCurrent(network);
     let currentWallet;
@@ -72,7 +73,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
     setDefaultChain(defaultChain);
 
     setIsLoading(false);
-  };
+  }, [usewallet, icon, currentNetwork]);
 
   const createCoa = async () => {
     setIsLoading(true);
@@ -95,23 +96,26 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
       });
   };
 
-  const transactionDoneHanlder = async (request) => {
-    if (request.msg === 'transactionDone') {
-      const currentWallet = await usewallet.getCurrentWallet();
-      const res = await usewallet.queryEvmAddress(currentWallet.address);
-      setEvmAddress(res!);
-      setIsEvm(isValidEthereumAddress(res));
-    }
-    return true;
-  };
+  const transactionDoneHandler = useCallback(
+    async (request) => {
+      if (request.msg === 'transactionDone') {
+        const currentWallet = await usewallet.getCurrentWallet();
+        const res = await usewallet.queryEvmAddress(currentWallet.address);
+        setEvmAddress(res!);
+        setIsEvm(isValidEthereumAddress(res));
+      }
+      return true;
+    },
+    [usewallet]
+  );
 
   useEffect(() => {
-    chrome.runtime.onMessage.addListener(transactionDoneHanlder);
+    chrome.runtime.onMessage.addListener(transactionDoneHandler);
 
     return () => {
-      chrome.runtime.onMessage.removeListener(transactionDoneHanlder);
+      chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, []);
+  }, [transactionDoneHandler]);
 
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
@@ -126,7 +130,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
 
   useEffect(() => {
     init();
-  }, []);
+  }, [init]);
 
   const renderContent = () => (
     <Box sx={{ padingTop: '18px' }}>
@@ -356,9 +360,9 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box>{renderContent()}</Box>
-    </ThemeProvider>
+    </>
   );
 };
 

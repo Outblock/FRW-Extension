@@ -1,16 +1,17 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+import { initWasm } from '@trustwallet/wallet-core';
+
+import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
+import { storage } from 'background/webapi';
+
+import { decodeArray, encodeArray } from './base64';
+import { FLOW_BIP44_PATH, HASH_ALGO, KEY_TYPE, SIGN_ALGO } from './constants';
+import { addCredential, readSettings } from './settings';
 import {
   decodeAuthenticatorData,
   decodeClientDataJSON,
   decodeAttestationObject,
 } from './WebAuthnDecoder';
-import { decodeArray, encodeArray } from './base64';
-import { initWasm } from '@trustwallet/wallet-core';
-import { addCredential, readSettings } from './settings';
-import { FLOW_BIP44_PATH, HASH_ALGO, KEY_TYPE, SIGN_ALGO } from './constants';
-import { getStringFromHashAlgo, getStringFromSignAlgo } from 'ui/utils';
-import { storage } from 'background/webapi';
 
 const jsonToKey = async (json, password) => {
   try {
@@ -127,7 +128,7 @@ const seed2PubKeyTemp = async (seed) => {
 };
 
 function getRandomBytes(length) {
-  var array = new Uint8Array(length ?? 32);
+  const array = new Uint8Array(length ?? 32);
   crypto.getRandomValues(array);
   return array;
 }
@@ -138,6 +139,7 @@ const createPasskey = async (name, displayName) => {
     publicKey: {
       challenge: getRandomBytes(20),
       rp: {
+        // eslint-disable-next-line no-restricted-globals
         name: window.location.hostname,
       },
       user: {
@@ -173,6 +175,7 @@ const getPasskey = async (id) => {
   const setup = {
     publicKey: {
       challenge: getRandomBytes(20),
+      // eslint-disable-next-line no-restricted-globals
       rpId: window.location.hostname,
     },
   };

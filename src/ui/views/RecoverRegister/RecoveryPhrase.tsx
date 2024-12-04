@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
-import theme from '../../style/LLTheme';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import { Button, Typography, IconButton } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState } from 'react';
+
 import IconCopy from '../../../components/iconfont/IconCopy';
 
 const RecoveryPhrase = ({ handleClick, mnemonic }) => {
@@ -11,8 +11,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   const [isCoverBlur, coverBlur] = useState(false);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Recovery') + ' '}
@@ -192,7 +191,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           </Typography>
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

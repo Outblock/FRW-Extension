@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Typography, Box, CardMedia, Snackbar, Alert, SnackbarContent, Slide } from '@mui/material';
+import { Box, Snackbar, Alert } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { notification } from 'background/webapi';
 // import '../../Unlock/style.css';
 import { useWallet } from 'ui/utils';
-import NoStake from './NoStake';
+
 import HaveStake from './HaveStake';
+import NoStake from './NoStake';
 
 const Staking = () => {
   const wallet = useWallet();
@@ -34,7 +35,7 @@ const Staking = () => {
     // const result = await wallet.createStake('true');
   };
 
-  const loadNetwork = async () => {
+  const loadNetwork = useCallback(async () => {
     const result = await wallet.getNetwork();
     setNetwork(result);
 
@@ -45,7 +46,7 @@ const Staking = () => {
     const storageData = await wallet.getCoinList();
     const flowObject = storageData.find((coin) => coin.unit.toLowerCase() === 'flow');
     setAmount(flowObject!.balance);
-  };
+  }, [wallet]);
 
   useEffect(() => {
     console.log('Updated amount: ', amount);
@@ -58,7 +59,7 @@ const Staking = () => {
     setLoading(false);
   };
 
-  const getNodeInfo = async () => {
+  const getNodeInfo = useCallback(async () => {
     const address = await wallet.getCurrentAddress();
     wallet
       .delegateInfo(address)
@@ -77,12 +78,12 @@ const Staking = () => {
       .catch((err) => {
         console.log(err);
       });
-  };
+  }, [wallet]);
 
   useEffect(() => {
     getNodeInfo();
     loadNetwork();
-  }, []);
+  }, [getNodeInfo, loadNetwork]);
 
   return (
     <Box>

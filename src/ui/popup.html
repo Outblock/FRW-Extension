@@ -133,6 +133,9 @@
       }
     </style>
     <title></title>
+    <% if (devMode && hasDevTools) { %>
+    <script src="react-devtools.js"></script>
+    <% } %>
   </head>
 
   <body class="h-full root-container" style="background-color: #121212">

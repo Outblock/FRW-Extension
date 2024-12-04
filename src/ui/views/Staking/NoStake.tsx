@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
 import { Typography, Box, CardMedia } from '@mui/material';
-import { LLHeader, LLPrimaryButton } from 'ui/FRWComponent';
-import StakeCard from './components/StakeCard';
-import crown from 'ui/FRWAssets/svg/crown.svg';
-import TimeClock from 'ui/FRWAssets/svg/TimeClock.svg';
-import Synchronize from 'ui/FRWAssets/svg/Synchronize.svg';
-import Dashboard from 'ui/FRWAssets/svg/Dashboard.svg';
+import React, { useEffect, useState, useCallback } from 'react';
+
+import crown from 'ui/FRWAssets/image/crown.png';
 import Certificate from 'ui/FRWAssets/svg/Certificate.svg';
-import nodeList from './nodeList.json';
+import Dashboard from 'ui/FRWAssets/svg/Dashboard.svg';
+import Synchronize from 'ui/FRWAssets/svg/Synchronize.svg';
+import TimeClock from 'ui/FRWAssets/svg/TimeClock.svg';
+import { LLHeader, LLPrimaryButton } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
+
+import StakeCard from './components/StakeCard';
+import nodeList from './nodeList.json';
 interface NoStakeProps {
   noStakeOpen: boolean;
   network: string;
@@ -21,14 +23,14 @@ interface NoStakeProps {
 const NoStake = (props: NoStakeProps) => {
   const usewallet = useWallet();
   const [apr, setApr] = useState<any>(0);
-  const getApy = async () => {
+  const getApy = useCallback(async () => {
     const result = await usewallet.getApr();
     setApr(result);
-  };
+  }, [usewallet]);
 
   useEffect(() => {
     getApy();
-  }, []);
+  }, [getApy]);
 
   return (
     <Box
@@ -77,7 +79,7 @@ const NoStake = (props: NoStakeProps) => {
               {chrome.i18n.getMessage('Recommend')}
             </Typography>
             {nodeList
-              .filter((item) => item.name == 'Lilico')
+              .filter((item) => item.name === 'Lilico')
               .map((item) => (
                 <StakeCard
                   name={item.name}
@@ -103,7 +105,7 @@ const NoStake = (props: NoStakeProps) => {
             </Typography>
 
             {nodeList
-              .filter((item) => item.name != 'Lilico')
+              .filter((item) => item.name !== 'Lilico')
               .map((item) => (
                 <StakeCard
                   name={item.name}
@@ -190,32 +192,35 @@ const NoStake = (props: NoStakeProps) => {
               <Box sx={{ width: '32px' }}>
                 <CardMedia sx={{ width: '32px', height: '32px' }} image={crown} />
               </Box>
-              <Typography
-                display="inline"
-                sx={{
-                  fontWeight: 'normal',
-                  fontSize: '20px',
-                  color: '#fff',
-                  paddingLeft: '6px',
-                  textAlign: 'center',
-                }}
-                variant="body2"
-              >
+              <Box sx={{ display: 'inline', paddingLeft: '6px' }}>
                 <Typography
-                  display="inline"
+                  component="span"
                   sx={{
                     fontWeight: 'bold',
                     fontSize: '20px',
-                    background: '-webkit-linear-gradient(320deg, #FFC062 4.01%, #0BD3FF 62.72%);',
+                    background: '-webkit-linear-gradient(320deg, #FFC062 4.01%, #0BD3FF 62.72%)',
                     backgroundClip: 'text',
                     textFillColor: 'transparent',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
                   }}
                   variant="body2"
                 >
                   Earn Rewards{' '}
-                </Typography>{' '}
-                when you stake your FLOW
-              </Typography>
+                </Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    fontWeight: 'normal',
+                    fontSize: '20px',
+                    color: '#fff',
+                    paddingLeft: '6px',
+                  }}
+                  variant="body2"
+                >
+                  when you stake your FLOW
+                </Typography>
+              </Box>
             </Box>
 
             <Box

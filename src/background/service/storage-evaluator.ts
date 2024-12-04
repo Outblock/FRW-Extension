@@ -17,6 +17,7 @@ export class StorageEvaluator {
   async evaluateStorage(
     address: string,
     sendAmount?: number,
+    coin?: string,
     movingBetweenEVMAndFlow?: boolean
   ): Promise<EvaluateStorageResult> {
     // Get storage info from openapi service
@@ -32,7 +33,7 @@ export class StorageEvaluator {
       if (sendAmount !== undefined) {
         // This is the amount of flow that will be used by the transaction
         const flowUsed =
-          sendAmount +
+          (coin === 'flow' ? sendAmount : 0) +
           (movingBetweenEVMAndFlow ? StorageEvaluator.FIXED_MOVE_FEE : 0) +
           StorageEvaluator.AVERAGE_TX_FEE;
 

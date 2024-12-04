@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
-import { useWallet, formatAddress } from 'ui/utils';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
+import { Box, Typography, Avatar, IconButton, CardMedia, Skeleton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import closex from 'ui/assets/closex.svg';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+
+import closex from 'ui/assets/closex.svg';
+import { useWallet, formatAddress } from 'ui/utils';
 
 const useStyles = makeStyles(() => ({
   ContactCardAvatar: {
@@ -73,7 +72,7 @@ export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoadi
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -154,6 +153,6 @@ export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoadi
           <div />
         )}
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

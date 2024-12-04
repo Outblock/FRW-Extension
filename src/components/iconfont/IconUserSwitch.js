@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconUserSwitch = ({ size, color, style: _style, ...rest }) => {
+const IconUserSwitch = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -22,10 +22,6 @@ const IconUserSwitch = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconUserSwitch.defaultProps = {
-  size: 18,
 };
 
 export default IconUserSwitch;
