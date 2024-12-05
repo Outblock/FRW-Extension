@@ -112,7 +112,7 @@ const WalletFunction = (props) => {
           </Typography>
         </Box>
         <Box sx={{ flex: '1' }}></Box>
-        {props.address === props.current['address'] && (
+        {props.address === props.current['address'] && props.walletList.length > 1 && (
           <IconEnd
             size={12}
             style={{

@@ -631,6 +631,7 @@ const Header = ({ loading = false }) => {
           mainAddress={mainAddress}
           setExpandAccount={setExpandAccount}
           expandAccount={expandAccount}
+          walletList={walletList}
         />
       </List>
     );
