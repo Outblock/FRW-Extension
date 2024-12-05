@@ -65,14 +65,20 @@ const useStyles = makeStyles(() => ({
 
 const BpIcon = styled('span')(() => ({
   borderRadius: 8,
-  width: 24,
-  height: 24,
-  display: 'block',
-  border: '1px solid #41CC5D',
-  backgroundColor: '#ffffff',
+  width: '21px !important',
+  height: '21px !important',
   opacity: 1,
+  visibility: 'visible',
 }));
 
+const BpUncheked = styled(BpIcon)({
+  borderRadius: 8,
+  width: 21,
+  height: 21,
+  display: 'block',
+  border: '1px solid #41CC5D',
+  opacity: 1,
+});
 const BpCheckedIcon = styled(BpIcon)({
   backgroundColor: '#41CC5D',
   backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
@@ -290,16 +296,12 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword, tempPassw
             </Box>
           </FormGroup>
         </Box>
-
         <FormControlLabel
           control={
             <Checkbox
-              icon={<BpIcon />}
+              icon={<BpUncheked />}
               checkedIcon={<BpCheckedIcon />}
               onChange={(event) => setCheck(event.target.checked)}
-              sx={{
-                backgroundColor: '#fff',
-              }}
             />
           }
           label={
