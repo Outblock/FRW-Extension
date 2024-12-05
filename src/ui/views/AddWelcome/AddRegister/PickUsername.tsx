@@ -105,7 +105,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     [setLoading, setUsernameValid, setHelperText]
   );
 
-  const checkUsername = useCallback(
+  const runCheckUsername = useCallback(
     (username) => {
       wallet.openapi
         .checkUsername(username.toLowerCase())
@@ -161,7 +161,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
         return;
       }
 
-      checkUsername(username);
+      runCheckUsername(username);
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);

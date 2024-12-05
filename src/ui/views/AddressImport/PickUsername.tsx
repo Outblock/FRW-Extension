@@ -60,7 +60,7 @@ const UsernameError = ({ errorMsg }: { errorMsg: string }) => (
   </Box>
 );
 
-const UsernameCorrect = () => (
+const usernameCorrect = () => (
   <Box
     sx={{
       display: 'flex',
@@ -74,7 +74,7 @@ const UsernameCorrect = () => (
     </Typography>
   </Box>
 );
-const UsernameLoading = () => (
+const usernameLoading = () => (
   <Typography variant="body1" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
     <CircularProgress color="primary" size={22} style={{ fontSize: '22px', margin: '8px' }} />
     {chrome.i18n.getMessage('Checking')}
@@ -99,28 +99,8 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
     [setLoading, setUsernameValid, setHelperText]
   );
 
-  useEffect(() => {
-    setUsernameValid(false);
-    setHelperText(<UsernameLoading />);
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      if (username.length < 3) {
-        setErrorMessage(chrome.i18n.getMessage('Too__short'));
-        return;
-      }
-
-      if (username.length > 15) {
-        setErrorMessage(chrome.i18n.getMessage('Too__long'));
-        return;
-      }
-      const regex = /^[A-Za-z0-9]{3,15}$/;
-
-      if (!regex.test(username)) {
-        setErrorMessage(
-          chrome.i18n.getMessage('Your__username__can__only__contain__letters__and__numbers')
-        );
-        return;
-      }
+  const runCheckUsername = useCallback(
+    (username) => {
       wallet.openapi
         .checkUsername(username.toLowerCase())
         .then((response) => {
@@ -131,7 +111,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
           }
           if (response.data.unique) {
             setUsernameValid(true);
-            setHelperText(<UsernameCorrect />);
+            setHelperText(usernameCorrect);
           } else {
             if (response.message === 'Username is reserved') {
               setErrorMessage(
@@ -142,14 +122,44 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
             }
           }
         })
-        .catch((error) => {
-          console.error(error);
+        .catch(() => {
           setErrorMessage(chrome.i18n.getMessage('Oops__unexpected__error'));
         });
+    },
+    [setErrorMessage, setUsernameValid, setHelperText, wallet.openapi]
+  );
+
+  useEffect(() => {
+    setUsernameValid(false);
+    setHelperText(usernameLoading);
+    setLoading(true);
+    const delayDebounceFn = setTimeout(() => {
+      if (username.length < 3) {
+        setErrorMessage(chrome.i18n.getMessage('Too__short'));
+        setLoading(false);
+        return;
+      }
+
+      if (username.length > 15) {
+        setErrorMessage(chrome.i18n.getMessage('Too__long'));
+        setLoading(false);
+        return;
+      }
+
+      const regex = /^[A-Za-z0-9]{3,15}$/;
+      if (!regex.test(username)) {
+        setErrorMessage(
+          chrome.i18n.getMessage('Your__username__can__only__contain__letters__and__numbers')
+        );
+        setLoading(false);
+        return;
+      }
+
+      runCheckUsername(username);
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [setErrorMessage, username, wallet.openapi]);
+  }, [username]);
 
   const msgBgColor = () => {
     if (isLoading) {
