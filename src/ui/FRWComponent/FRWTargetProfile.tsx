@@ -20,10 +20,8 @@ export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fr
 
   const getEmoji = useCallback(async () => {
     setLoad(true);
-    console.log('FRWTargetProfile ', isEvm, contact, emoji, fromEvm);
     if (isEvm) {
       const currentWallet = await usewallet.getEvmWallet();
-      console.log('getEvmWallet ', currentWallet);
       const emojiObject = {
         ...tempEmoji,
         emoji: currentWallet.icon,
@@ -44,8 +42,7 @@ export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fr
       setEmoji(emojiObject);
     }
     setLoad(false);
-    console.log('emoji ', emoji);
-  }, [isEvm, contact, emoji, fromEvm, usewallet]);
+  }, [isEvm, usewallet]);
 
   useEffect(() => {
     getEmoji();
