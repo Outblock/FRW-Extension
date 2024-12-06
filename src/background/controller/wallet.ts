@@ -1595,18 +1595,18 @@ export class WalletController extends BaseController {
       transformedArray = [
         {
           id: 0,
-          name: 'flow',
+          name: 'Koala',
           chain_id: network,
-          icon: 'placeholder',
-          color: 'placeholder',
+          icon: '🐨',
+          color: '#fff',
           blockchain: [
             {
               id: 0,
               name: 'Flow',
               chain_id: network,
-              address: '0x00000000',
+              address: '',
               coins: ['flow'],
-              icon: '',
+              icon: '🐨',
             },
           ],
         },
