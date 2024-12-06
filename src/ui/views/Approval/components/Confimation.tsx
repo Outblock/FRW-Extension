@@ -152,12 +152,10 @@ const Confirmation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =
     if (!signable) {
       return;
     }
-
+    setIsLoading(true);
     setApproval(true);
     const signedMessage = await wallet.signMessage(signable.message);
 
-    // console.log('signedMessage ->', opener, lilicoEnabled)
-    // console.log('signedMessage ->', signedMessage)
     if (opener) {
       sendSignature(signable, signedMessage);
       const value = await sessionStorage.getItem('pendingRefBlockId');
@@ -177,6 +175,8 @@ const Confirmation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =
         // // console.log('mockSignable ->', mockSignable)
         // signPayer(mockSignable)
         // sendSignature(mockSignable, payerSig)
+        // setApproval(true);
+        resolveApproval();
         // setApproval(true);
         // resolveApproval();
       } else {
@@ -287,8 +287,6 @@ const Confirmation = ({ params: { icon, origin, tabId, type } }: ConnectProps) =
     }
 
     const extMessageHandler = (msg, sender, sendResponse) => {
-      // console.log('extMessageHandler -->', msg);
-
       if (msg.type === 'FCL:VIEW:READY:RESPONSE') {
         console.log('extMessageHandler -->', msg.type, msg);
 

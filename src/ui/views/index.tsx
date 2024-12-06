@@ -9,7 +9,7 @@ import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
 import { WalletProvider, mixpanelBrowserService } from 'ui/utils';
 
-import Approval from './Approval';
+import Approval from './Approval/index';
 import InnerRoute from './InnerRoute';
 import { MainRoute } from './MainRoute';
 import RetrievePK from './RetrievePK';

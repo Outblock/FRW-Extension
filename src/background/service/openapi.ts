@@ -901,11 +901,26 @@ class OpenApiService {
   };
 
   getProposer = async () => {
-    const config = this.store.config.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest('GET', '/getProposer', {}, {}, baseURL);
     // (config.method, config.path, {}, { transaction, message: messages });
+    return data;
+  };
+
+  signAsProposer = async (message: string) => {
+    const config = this.store.config.sign_payer;
+    const baseURL = getFirbaseFunctionUrl();
+    // 'http://localhost:5001/lilico-dev/us-central1'
+    const data = await this.sendRequest('POST', '/signAsProposer', {}, { msg: message }, baseURL);
+    // (config.method, config.path, {}, { transaction, message: messages });
+    return data;
+  };
+
+  getProposerInfo = async () => {
+    const baseURL = getFirbaseFunctionUrl();
+    // 'http://localhost:5001/lilico-dev/us-central1'
+    const data = await this.sendRequest('GET', '/getProposerInfo', {}, {}, baseURL);
     return data;
   };
 

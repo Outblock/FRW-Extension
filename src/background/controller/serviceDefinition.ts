@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 // import { walletController } from './index';
+import { initializeApp } from 'firebase/app';
 
+import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
+
+const functionsUrl = getFirbaseFunctionUrl();
 export function serviceDefinition(address, keyId, type, network, opts = {}) {
   const definition = {
     f_type: 'Service',
@@ -55,12 +59,85 @@ export function serviceDefinition(address, keyId, type, network, opts = {}) {
   return definition;
 }
 
-export function preAuthzServiceDefinition(address, keyId, payerAddress, payerKeyId, network) {
+export async function httpPayerServiceDefinition(address, keyId, type, network, opts = {}) {
+  const app = initializeApp(getFirbaseConfig(), process.env.NODE_ENV);
+
+  const definition = {
+    f_type: 'Service',
+    f_vsn: '1.0.0',
+    type: type,
+    uid: `fcw#${type}`,
+    method: 'HTTP/POST',
+    network: network || 'unknown',
+    endpoint: `${functionsUrl}/payer`,
+    identity: {
+      address: address,
+      keyId: keyId,
+    },
+    params:
+      opts && opts.params
+        ? opts.params
+        : {
+            network,
+          },
+  };
+
+  return definition;
+}
+
+export async function httpProposerServiceDefinition(address, keyId, type, network, opts = {}) {
+  const app = initializeApp(getFirbaseConfig(), process.env.NODE_ENV);
+
+  const definition = {
+    f_type: 'Service',
+    f_vsn: '1.0.0',
+    type: type,
+    uid: `fcw#${type}`,
+    method: 'HTTP/POST',
+    network: network || 'unknown',
+    endpoint: `${functionsUrl}/proposer`,
+    identity: {
+      address: address,
+      keyId: keyId,
+    },
+    params: {
+      ...opts.params,
+      network,
+    },
+  };
+
+  return definition;
+}
+
+export async function preAuthzServiceDefinition(
+  address,
+  keyId,
+  payerAddress,
+  payerKeyId,
+  network,
+  proposerAddress,
+  proposerKeyId,
+  jwtToken,
+  isEnabled = false
+) {
   return {
     f_type: 'PreAuthzResponse',
     f_vsn: '1.0.0',
-    proposer: serviceDefinition(address, keyId, 'authz', network),
-    payer: [serviceDefinition(payerAddress, payerKeyId, 'authz', network)],
+    // proposer: serviceDefinition(address, keyId, 'authz', network),
+    proposer: await httpProposerServiceDefinition(
+      proposerAddress,
+      proposerKeyId,
+      'authz',
+      network,
+      { params: { jwtToken } }
+    ),
+    payer: [
+      isEnabled
+        ? await httpPayerServiceDefinition(payerAddress, payerKeyId, 'authz', network, {
+            params: {},
+          })
+        : serviceDefinition(payerAddress, payerKeyId, 'authz', network),
+    ],
     authorization: [serviceDefinition(address, keyId, 'authz', network)],
   };
 }

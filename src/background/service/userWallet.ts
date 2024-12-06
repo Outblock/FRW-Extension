@@ -399,13 +399,23 @@ class UserWallet {
     return signature;
   };
 
+  signAsProposer = async (signable: any): Promise<string> => {
+    const tx = signable.voucher;
+    const message = signable.message;
+    const { signature } = await openapiService.signAsProposer(message);
+    // todo
+    return signature;
+  };
+
   proposerAuthFunction = async (account: any = {}) => {
     // authorization function need to return an account
-    const proposer = await openapiService.getProposer();
-    const address = fcl.withPrefix(proposer.data.address);
+    const proposer = await openapiService.getProposerInfo();
+    // todo
+    console.log(proposer, 'proposer===');
+    const address = fcl.withPrefix(proposer.address);
     const ADDRESS = fcl.withPrefix(address);
     // TODO: FIX THIS
-    const KEY_ID = proposer.data.keyIndex;
+    const KEY_ID = proposer.keyIndex;
     return {
       ...account, // bunch of defaults in here, we want to overload some of them though
       tempId: `${ADDRESS}-${KEY_ID}`, // tempIds are more of an advanced topic, for 99% of the times where you know the address and keyId you will want it to be a unique string per that address and keyId
@@ -414,7 +424,7 @@ class UserWallet {
       signingFunction: async (signable) => {
         // Singing functions are passed a signable and need to return a composite signature
         // signable.message is a hex string of what needs to be signed.
-        const signature = await this.signProposer(signable);
+        const signature = await this.signAsProposer(signable);
         return {
           addr: fcl.withPrefix(ADDRESS), // needs to be the same as the account.addr but this time with a prefix, eventually they will both be with a prefix
           keyId: Number(KEY_ID), // needs to be the same as account.keyId, once again make sure its a number and not a string
