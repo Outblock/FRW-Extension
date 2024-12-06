@@ -99,7 +99,6 @@ async function fetchContracts() {
 
 // Configure FCL for Mainnet
 export const fclMainnetConfig = async () => {
-  console.log('fclMainnetConfig');
   const contracts = await fetchContracts();
   const mainnetContracts = contracts.mainnet || fallbackContracts.mainnet;
   const config = fcl
@@ -119,7 +118,6 @@ export const fclMainnetConfig = async () => {
 
 // Configure FCL for Testnet
 export const fclTestnetConfig = async () => {
-  console.log('fclTestnetConfig');
   const contracts = await fetchContracts();
   const testnetContracts = contracts.testnet || fallbackContracts.testnet;
 
