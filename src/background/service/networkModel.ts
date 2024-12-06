@@ -171,6 +171,7 @@ export interface BlockchainResponse {
   coins: Array<string>;
   id: number;
   icon: string;
+  color: string;
 }
 
 interface Thumbnail {

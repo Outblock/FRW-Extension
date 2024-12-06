@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { List, ListSubheader, CardMedia, Typography, ButtonBase, Box } from '@mui/material';
+import { List, ListSubheader, ButtonBase, Box } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
+
+import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { useWallet } from 'ui/utils';
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import EmptyAddress from 'ui/assets/EmptyAddress.svg';
+
+import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
 
 type ChildAccount = {
   [key: string]: {
@@ -20,56 +21,44 @@ type ChildAccount = {
 const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
   const usewallet = useWallet();
 
-  const [grouped, setGrouped] = useState<any>([]);
+  const [, setGrouped] = useState<any>([]);
   const [childAccounts, setChildAccount] = useState<any[]>([]);
 
   const [walletList, setWalletList] = useState<any[]>([]);
   const [evmAddress, setEvmAddress] = useState<any[]>([]);
 
-  const getWallet = async () => {
+  const getWallet = useCallback(async () => {
     const wallet = await usewallet.getUserWallets();
     const fData = wallet.filter((item) => item.blockchain !== null);
     const currentNetwork = await usewallet.getNetwork();
-    const emojiList = await usewallet.getEmoji();
     let sortData = fData;
     if (!Array.isArray(sortData)) {
       sortData = [];
     }
-    const filteredData = (sortData || []).filter((wallet, index) => {
-      return wallet.chain_id == currentNetwork;
-    });
-    const walletData = (filteredData || []).map((wallet, index) => {
-      return {
-        id: index,
-        contact_name: '',
-        address: withPrefix(wallet.blockchain[0].address),
-        key: index,
-      };
-    });
-    const wdArray = await convertArrayToContactArray(walletData, emojiList);
+    const wdArray = await convertArrayToContactArray(fData);
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     if (childresp) {
       const cAccountArray = convertObjectToContactArray(childresp);
       setChildAccount(cAccountArray);
     }
-    console.log('childresp ', wdArray);
 
-    // putDeviceInfo(fData);
+    const mainAddress = await usewallet.getMainAddress();
     await setWalletList(wdArray);
-    if (walletData[0].address) {
-      const evmAddress = await usewallet.queryEvmAddress(walletData[0].address!);
+    if (mainAddress) {
+      const evmAddress = await usewallet.queryEvmAddress(mainAddress);
+      const evmWallet = await usewallet.getEvmWallet();
+      console.log(' evm ', evmAddress, evmWallet);
 
-      if (isValidEthereumAddress(evmAddress)) {
-        const evmWallet = evmAddress;
-        const evmData = walletData[0];
-        evmData.address = evmWallet;
-        evmData['avatar'] = emojiList[1].emoji;
-        evmData['contact_name'] = emojiList[1].name;
-        evmData['bgcolor'] = emojiList[1].bgcolor;
+      if (isValidEthereumAddress(evmAddress) && evmWallet) {
+        const evmData = evmWallet;
+        evmData['address'] = evmAddress!;
+        evmData['avatar'] = evmWallet.icon;
+        evmData['contact_name'] = evmWallet.name;
+        evmData['bgcolor'] = evmWallet.color;
         setEvmAddress([evmData]);
       }
     }
-  };
+  }, [usewallet]);
 
   function convertObjectToContactArray(data) {
     return Object.keys(data).map((address, index) => ({
@@ -86,20 +75,18 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     }));
   }
 
-  async function convertArrayToContactArray(array, emojiList) {
-    // Fetch emoji list
-
-    return array.map((item, index) => {
+  async function convertArrayToContactArray(array) {
+    return array.map((item) => {
       return {
         id: item.id,
-        contact_name: emojiList[0].name, // Use the corresponding emoji name
-        username: emojiList[0].name, // Set username from emoji list
-        avatar: emojiList[0].emoji, // Set avatar from emoji list
-        address: item.address, // Use the address from the original array
-        contact_type: 1, // Keep the contact_type constant
-        bgColor: emojiList[0].bgcolor, // Set background color
+        contact_name: item.name,
+        username: item.name,
+        avatar: item.icon,
+        address: withPrefix(item.blockchain[0].address),
+        contact_type: 1,
+        bgColor: item.color, // Set background color
         domain: {
-          domain_type: 0, // Keep domain_type constant
+          domain_type: 0,
           value: '',
         },
       };
@@ -119,7 +106,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     const group = groupBy(filteredContacts, (contact) => contact.contact_name[0]);
     setGrouped(group);
     getWallet();
-  }, [filteredContacts]);
+  }, [filteredContacts, getWallet]);
 
   const history = useHistory();
 

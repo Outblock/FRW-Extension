@@ -1,13 +1,15 @@
 // this script is injected into webpage's context
 import { EventEmitter } from 'events';
+
 import { ethErrors, serializeError } from 'eth-rpc-errors';
-import BroadcastChannelMessage from './utils/message/broadcastChannelMessage';
-import PushEventHandlers from './pageProvider/pushEventHandlers';
-import { domReadyCall, $ } from './pageProvider/utils';
-import ReadyPromise from './pageProvider/readyPromise';
+
 import DedupePromise from './pageProvider/dedupePromise';
 import { switchChainNotice } from './pageProvider/interceptors/switchChain';
 import { switchWalletNotice } from './pageProvider/interceptors/switchWallet';
+import PushEventHandlers from './pageProvider/pushEventHandlers';
+import ReadyPromise from './pageProvider/readyPromise';
+import { domReadyCall, $ } from './pageProvider/utils';
+import BroadcastChannelMessage from './utils/message/broadcastChannelMessage';
 import { getProviderMode, patchProvider } from './utils/metamask';
 
 declare const __frw__channelName;

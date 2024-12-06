@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconAGroup762 = ({ size, color, style: _style, ...rest }) => {
+const IconAGroup762 = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -22,10 +22,6 @@ const IconAGroup762 = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconAGroup762.defaultProps = {
-  size: 18,
 };
 
 export default IconAGroup762;

@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Typography, Avatar, Skeleton } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import { useWallet, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
 
 const tempEmoji = {
   emoji: '🥥',
@@ -27,21 +26,32 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
     }
   };
 
-  const getEmoji = async () => {
-    const emojiList = await usewallet.getEmoji();
+  const getEmoji = useCallback(async () => {
     if (isValidEthereumAddress(contact.address)) {
-      setEmoji(emojiList[1]);
+      const currentWallet = await usewallet.getEvmWallet();
+      const emojiObject = tempEmoji;
+      emojiObject.emoji = currentWallet.icon;
+      emojiObject.name = currentWallet.name;
+      emojiObject.bgcolor = currentWallet.color;
+      emojiObject['type'] = 'evm';
+      setEmoji(emojiObject);
     } else {
-      setEmoji(emojiList[0]);
+      const currentWallet = await usewallet.getCurrentWallet();
+      const emojiObject = tempEmoji;
+      emojiObject.emoji = currentWallet.icon;
+      emojiObject.name = currentWallet.name;
+      emojiObject.bgcolor = currentWallet.color;
+      emojiObject['type'] = 'parent';
+      setEmoji(emojiObject);
     }
-  };
+  }, [contact, usewallet]);
 
   useEffect(() => {
     getEmoji();
-  }, [contact]);
+  }, [contact, getEmoji]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -111,6 +121,6 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
         </Box>
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

@@ -1,11 +1,15 @@
-import cloneDeep from 'lodash/cloneDeep';
-import eventBus from '@/eventBus';
 import compareVersions from 'compare-versions';
-import { createPersistStore } from 'background/utils';
-import { keyringService, sessionService, i18n } from './index';
-import { EVENTS } from 'consts';
-import { FlowNetwork } from './networkModel';
+import cloneDeep from 'lodash/cloneDeep';
+
 import { storage } from '@/background/webapi';
+import eventBus from '@/eventBus';
+import { createPersistStore } from 'background/utils';
+import { EVENTS } from 'consts';
+
+import { FlowNetwork } from './networkModel';
+
+import { keyringService, sessionService, i18n } from './index';
+
 const version = process.env.release || '0';
 export interface Account {
   type: string;

@@ -2,9 +2,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
@@ -108,7 +108,9 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           txID,
           true,
           `Move complete`,
-          `You have moved ${[props.data.nft.id].length} ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`
+          `You have moved ${[props.data.nft.id].length} ${
+            props.data.nft.collectionContractName
+          } from evm to your flow address. \nClick to view this transaction.`
         );
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
@@ -150,13 +152,13 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const getChildResp = useCallback(async () => {
     const childresp = await usewallet.checkUserChildAccount();
     const parentAddress = await usewallet.getMainAddress();
-    const emojires = await usewallet.getEmoji();
+    const currentWallet = await usewallet.getCurrentWallet();
     const newWallet = {
       [parentAddress!]: {
-        name: emojires[0].name,
-        description: emojires[0].name,
+        name: currentWallet.name,
+        description: currentWallet.name,
         thumbnail: {
-          url: emojires[0].emoji,
+          url: currentWallet.icon,
         },
       },
     };
@@ -309,32 +311,26 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
-        {occupied && (
-          <Presets.TransitionSlideUp>
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '12px 12px 0 0',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                py: '8px',
-              }}
-            >
-              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon
-                fontSize="medium"
-                color="primary"
-                style={{ margin: '0px 12px auto 12px' }}
-              />
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
-                {chrome.i18n.getMessage('Your__address__is__currently__processing')}
-              </Typography>
-            </Box>
-          </Presets.TransitionSlideUp>
-        )}
+        <SlideRelative direction="down" show={occupied}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '12px 12px 0 0',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              py: '8px',
+            }}
+          >
+            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
+            <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+              {chrome.i18n.getMessage('Your__address__is__currently__processing')}
+            </Typography>
+          </Box>
+        </SlideRelative>
         <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
 
         <Button
@@ -345,6 +341,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           size="large"
           sx={{
             height: '50px',
+            width: '100%',
             borderRadius: '12px',
             textTransform: 'capitalize',
             display: 'flex',

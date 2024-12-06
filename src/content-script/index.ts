@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
-import { Message } from 'utils';
 import { v4 as uuid } from 'uuid';
+
+import { Message } from '@/shared/utils/messaging';
 
 const channelName = nanoid();
 
@@ -9,8 +10,6 @@ const injectProviderScript = async (isDefaultWallet) => {
   await localStorage.setItem('frw:channelName', channelName);
   await localStorage.setItem('frw:isDefaultWallet', isDefaultWallet);
   await localStorage.setItem('frw:uuid', uuid());
-
-  console.log(localStorage.getItem('frw:channelName'));
 
   const container = document.head || document.documentElement;
   const scriptElement = document.createElement('script');
@@ -79,37 +78,41 @@ window.addEventListener('message', function (event) {
 //   chrome.runtime.sendMessage({type: 'FLOW::TX', ...event.detail})
 // })
 
-const extMessageHandler = (msg, sender) => {
+const extMessageHandler = (msg, _sender) => {
   if (msg.type === 'FCL:VIEW:READY') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    if (window) {
+      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    }
   }
 
   if (msg.f_type && msg.f_type === 'PollingResponse') {
-    window &&
-      window.postMessage(
-        JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' } || {})),
-        '*'
-      );
+    if (window) {
+      window.postMessage(JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' })), '*');
+    }
   }
 
   if (msg.data?.f_type && msg.data?.f_type === 'PreAuthzResponse') {
-    window &&
-      window.postMessage(
-        JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' } || {})),
-        '*'
-      );
+    if (window) {
+      window.postMessage(JSON.parse(JSON.stringify({ ...msg, type: 'FCL:VIEW:RESPONSE' })), '*');
+    }
   }
 
   if (msg.type === 'FCL:VIEW:CLOSE') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    if (window) {
+      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    }
   }
 
   if (msg.type === 'FLOW::TX') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    if (window) {
+      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    }
   }
 
   if (msg.type === 'LILICO:NETWORK') {
-    window && window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    if (window) {
+      window.postMessage(JSON.parse(JSON.stringify(msg || {})), '*');
+    }
   }
 
   return true;

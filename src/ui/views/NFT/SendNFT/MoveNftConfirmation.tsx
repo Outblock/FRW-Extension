@@ -2,16 +2,16 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { ensureEvmAddressPrefix, isValidEthereumAddress } from 'ui/utils/address';
 
 import IconFlow from '../../../../components/iconfont/IconFlow';
 
@@ -176,8 +176,8 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const getChildResp = useCallback(async () => {
     const childresp = await usewallet.checkUserChildAccount();
     const parentAddress = await usewallet.getMainAddress();
-    const emojires = await usewallet.getEmoji();
     const eWallet = await usewallet.getEvmWallet();
+    const currentWallet = await usewallet.getCurrentWallet();
     let evmAddress;
     if (eWallet.address) {
       evmAddress = ensureEvmAddressPrefix(eWallet.address);
@@ -185,10 +185,10 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
     const newWallet = {
       [parentAddress!]: {
-        name: emojires[0].name,
-        description: emojires[0].name,
+        name: currentWallet.name,
+        description: currentWallet.name,
         thumbnail: {
-          url: emojires[0].emoji,
+          url: currentWallet.icon,
         },
       },
     };
@@ -197,17 +197,18 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     if (evmAddress) {
       evmWallet = {
         [evmAddress!]: {
-          name: emojires[1].name,
-          description: emojires[1].name,
+          name: eWallet.name,
+          description: eWallet.name,
           thumbnail: {
-            url: emojires[1].emoji,
+            url: eWallet.icon,
           },
         },
       };
     }
-
+    console.log('eWallet ', evmWallet);
     // Merge usewallet lists
     const walletList = { ...newWallet, ...childresp, ...evmWallet };
+    console.log('eWallet walletList', walletList);
     setChildWallets(walletList);
     const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {
@@ -370,32 +371,26 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
         <Box sx={{ flexGrow: 1 }} />
 
-        {occupied && (
-          <Presets.TransitionSlideUp>
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '12px 12px 0 0',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                py: '8px',
-              }}
-            >
-              {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-              <InfoIcon
-                fontSize="medium"
-                color="primary"
-                style={{ margin: '0px 12px auto 12px' }}
-              />
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
-                {chrome.i18n.getMessage('Your__address__is__currently__processing')}
-              </Typography>
-            </Box>
-          </Presets.TransitionSlideUp>
-        )}
+        <SlideRelative direction="down" show={occupied}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '12px 12px 0 0',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              py: '8px',
+            }}
+          >
+            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
+            <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+              {chrome.i18n.getMessage('Your__address__is__currently__processing')}
+            </Typography>
+          </Box>
+        </SlideRelative>
         <WarningStorageLowSnackbar isLowStorage={isLowStorage} />
         <Button
           onClick={sendNFT}
@@ -404,6 +399,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           color="primary"
           size="large"
           sx={{
+            width: '100%',
             height: '50px',
             borderRadius: '12px',
             textTransform: 'capitalize',

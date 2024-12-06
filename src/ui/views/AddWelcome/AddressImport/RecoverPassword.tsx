@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -11,13 +10,13 @@ import {
   LinearProgress,
   Alert,
   Snackbar,
-  CssBaseline,
 } from '@mui/material';
-import { LLSpinner } from 'ui/FRWComponent';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { makeStyles, styled } from '@mui/styles';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
-import theme from '../../../style/LLTheme';
+
+import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
 
 import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
@@ -138,7 +137,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
 
   const [password, setPassword] = useState(tempPassword);
   const [newKey, setKeyNew] = useState(true);
-  const [isImport, setImport] = useState<any>(false);
 
   const [isLoading, setLoading] = useState(false);
 
@@ -172,7 +170,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
     } catch (error) {
       setLoading(false);
       if (error.message === 'NoUserFound') {
-        setImport(false);
+        setLoading(false);
       } else {
         setKeyNew(false);
       }
@@ -190,7 +188,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
       console.log(error);
       setLoading(false);
       if (error.message === 'NoUserFound') {
-        setImport(false);
+        setLoading(false);
       } else {
         setKeyNew(false);
       }
@@ -223,8 +221,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Welcome__Back__import')}
@@ -315,7 +312,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
           isGoback={true}
         />
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

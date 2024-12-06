@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
-import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import { Typography, Box, FormControl } from '@mui/material';
-import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
-import { Input } from '@mui/material';
-import { Presets } from 'react-component-transition';
-import CancelIcon from '../../../components/iconfont/IconClose';
+import { Input, Typography, Box, FormControl } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { openInternalPageInTab } from 'ui/utils/webapi';
+import React, { useEffect, useRef, useState } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import lilo from 'ui/FRWAssets/image/lilo.png';
+import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
+import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
+import { openInternalPageInTab } from 'ui/utils/webapi';
+
+import CancelIcon from '../../../components/iconfont/IconClose';
 import './style.css';
 
 const useStyles = makeStyles(() => ({
@@ -32,6 +33,15 @@ const useStyles = makeStyles(() => ({
     },
   },
 }));
+
+const UsernameError: React.FC = () => (
+  <Box display="flex" flexDirection="row" alignItems="center">
+    <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+    <Typography variant="body1" color="text.secondary">
+      {chrome.i18n.getMessage('Incorrect__Password')}
+    </Typography>
+  </Box>
+);
 
 const Unlock = () => {
   const wallet = useWallet();
@@ -69,21 +79,6 @@ const Unlock = () => {
     }
   };
 
-  const usernameError = () => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="text.secondary">
-        {chrome.i18n.getMessage('Incorrect__Password')}
-      </Typography>
-    </Box>
-  );
-
   return (
     <Box
       sx={{
@@ -117,7 +112,15 @@ const Unlock = () => {
         </Typography>
       </Box>
 
-      <FormControl sx={{ flexGrow: 1, width: '90%', display: 'flex', flexDirection: 'column' }}>
+      <FormControl
+        sx={{
+          flexGrow: 1,
+          width: '90%',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+        }}
+      >
         <Input
           id="textfield"
           type="password"
@@ -134,22 +137,20 @@ const Unlock = () => {
           onKeyDown={handleKeyDown}
         />
 
-        <Presets.TransitionSlideUp>
-          {showError && (
-            <Box
-              sx={{
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '0 0 12px 12px',
-              }}
-            >
-              <Box sx={{ p: '4px' }}>{usernameError()}</Box>
+        <SlideRelative direction="down" show={showError}>
+          <Box
+            sx={{
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '0 0 12px 12px',
+            }}
+          >
+            <Box display="flex" flexDirection="row" sx={{ p: '4px' }}>
+              <UsernameError />
             </Box>
-          )}
-        </Presets.TransitionSlideUp>
-
-        {/* <Box sx={{flexGrow: 1}}/> */}
+          </Box>
+        </SlideRelative>
       </FormControl>
 
       <Box sx={{ width: '90%', marginBottom: '32px' }}>

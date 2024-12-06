@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, MenuItem, Select, Typography, Tooltip, Button } from '@mui/material';
-import QRCodeStyling from 'qr-code-styling';
-import { useWallet } from 'ui/utils';
-import { useTheme, styled } from '@mui/material/styles';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useHistory } from 'react-router-dom';
+import { MenuItem, Select, Typography, Tooltip, Button } from '@mui/material';
+import { useTheme, styled, StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { StyledEngineProvider } from '@mui/material/styles';
+import QRCodeStyling from 'qr-code-styling';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { withPrefix } from '@/shared/utils/address';
+import { LLTestnetIndicator, LLHeader } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
 import IconCopy from '../../../components/iconfont/IconCopy';
-import { LLTestnetIndicator } from 'ui/FRWComponent';
+
 import TestnetWarning from './TestnetWarning';
-import { withPrefix } from '@/ui/utils/address';
-import { LLHeader } from 'ui/FRWComponent';
 
 const useStyles = makeStyles((theme) => ({
   page: {
@@ -114,7 +114,7 @@ const Deposit = () => {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const ref = useRef<HTMLDivElement>(null);
 
   const [currentWallet, setCurrentWallet] = useState<number>(0);
@@ -123,11 +123,11 @@ const Deposit = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [active, setIsActive] = useState<boolean>(false);
 
-  const fetch = async () => {
-    const isChild = await wallet.getActiveWallet();
+  const fetchStuff = useCallback(async () => {
+    const isChild = await usewallet.getActiveWallet();
     let childresp = {};
     try {
-      childresp = await wallet.checkUserChildAccount();
+      childresp = await usewallet.checkUserChildAccount();
       // Handle the response when there is no error
     } catch (error) {
       // Handle the error here
@@ -135,7 +135,7 @@ const Deposit = () => {
     }
     if (isChild === 'evm') {
       setIsActive(true);
-      const wallets = await wallet.getEvmWallet();
+      const wallets = await usewallet.getEvmWallet();
       const result = [
         {
           id: 0,
@@ -164,22 +164,22 @@ const Deposit = () => {
       );
     } else {
       setIsActive(true);
-      const wallets = await wallet.getUserWallets();
-      setUserWallets(
-        wallets.map((ele, idx) => ({
-          id: idx,
-          name: chrome.i18n.getMessage('Wallet'),
-          address: withPrefix(ele.blockchain[0].address),
-        }))
-      );
+      const cw = await usewallet.getCurrentWallet();
+      setUserWallets([
+        {
+          id: 0,
+          name: cw.name,
+          address: cw.address,
+        },
+      ]);
     }
 
-    await wallet.setDashIndex(0);
-    const network = await wallet.getNetwork();
+    await usewallet.setDashIndex(0);
+    const network = await usewallet.getNetwork();
     setNetwork(network);
-    const user = await wallet.getUserInfo(false);
+    const user = await usewallet.getUserInfo(false);
     setUserInfo(user);
-  };
+  }, [currentNetwork, usewallet]);
 
   useEffect(() => {
     if (userWallets && userInfo) {
@@ -191,8 +191,8 @@ const Deposit = () => {
   }, [userWallets, currentWallet, userInfo]);
 
   useEffect(() => {
-    fetch();
-  }, []);
+    fetchStuff();
+  }, [fetchStuff]);
 
   useEffect(() => {
     if (ref.current) {

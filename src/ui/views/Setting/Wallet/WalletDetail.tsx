@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@mui/styles';
-import { useHistory } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Switch, switchClasses } from '@mui/base/Switch';
 import {
   Typography,
   Box,
@@ -16,16 +13,21 @@ import {
   Snackbar,
   CardMedia,
 } from '@mui/material';
-import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
-import { useWallet } from 'ui/utils';
-import { StorageInfo, UserInfoResponse } from 'background/service/networkModel';
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import { LLHeader } from '@/ui/FRWComponent';
+import LinearProgress from '@mui/material/LinearProgress';
+import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/system';
-import SwitchUnstyled, { switchUnstyledClasses } from '@mui/core/SwitchUnstyled';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+
 import { storage } from '@/background/webapi';
-import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
+import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { LLHeader } from '@/ui/FRWComponent';
+import type { StorageInfo } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
+
+import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 import editEmoji from '../../../FRWAssets/svg/editEmoji.svg';
+
 import EditProfile from './EditProfile';
 
 const useStyles = makeStyles(() => ({
@@ -147,13 +149,13 @@ const Root = styled('span')(
     // margin: 0;
     margin-left: auto;
     cursor: pointer;
-  
-    &.${switchUnstyledClasses.disabled} {
+
+    &.${switchClasses.disabled} {
       opacity: 0.4;
       cursor: not-allowed;
     }
-  
-    & .${switchUnstyledClasses.track} {
+
+    & .${switchClasses.track} {
       background: ${theme.palette.mode === 'dark' ? grey[600] : grey[400]};
       border-radius: 10px;
       display: block;
@@ -161,8 +163,8 @@ const Root = styled('span')(
       width: 100%;
       position: absolute;
     }
-  
-    & .${switchUnstyledClasses.thumb} {
+
+    & .${switchClasses.thumb} {
       display: block;
       width: 14px;
       height: 14px;
@@ -173,25 +175,25 @@ const Root = styled('span')(
       position: relative;
       transition: all 200ms ease;
     }
-  
-    &.${switchUnstyledClasses.focusVisible} .${switchUnstyledClasses.thumb} {
+
+    &.${switchClasses.focusVisible} .${switchClasses.thumb} {
       background-color: ${grey[500]};
       box-shadow: 0 0 1px 8px rgba(0, 0, 0, 0.25);
     }
-  
-    &.${switchUnstyledClasses.checked} {
-      .${switchUnstyledClasses.thumb} {
+
+    &.${switchClasses.checked} {
+      .${switchClasses.thumb} {
         left: 17px;
         top: 3px;
         background-color: #fff;
       }
-  
-      .${switchUnstyledClasses.track} {
+
+      .${switchClasses.track} {
         background: ${orange[500]};
       }
     }
-  
-    & .${switchUnstyledClasses.input} {
+
+    & .${switchClasses.input} {
       cursor: inherit;
       position: absolute;
       width: 100%;
@@ -211,20 +213,31 @@ const tempEmoji = {
   bgcolor: '#FFE4C4',
 };
 
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1000;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['', 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function formatStorageInfo(used: number | undefined, capacity: number | undefined) {
+  return `${formatBytes((used || 0) * 10)} / ${formatBytes((capacity || 0) * 10)}`;
+}
+
 const WalletDetail = () => {
   const classes = useStyles();
-  const history = useHistory();
   const usewallet = useWallet();
 
-  const [isLoading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [userWallet, setWallet] = useState<any>(null);
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
-  const [walletName, setWalletName] = useState('');
+  const [, setWalletName] = useState('');
   const [showProfile, setShowProfile] = useState(false);
   const [gasKillSwitch, setGasKillSwitch] = useState(false);
   const [modeGas, setGasMode] = useState(false);
   const [showError, setShowError] = useState(false);
-  const [walletList, setWalletList] = useState([]);
+  const [, setWalletList] = useState([]);
   const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
   const [isKeyphrase, setIsKeyphrase] = useState(false);
   const [emoji, setEmoji] = useState<any>(tempEmoji);
@@ -236,20 +249,20 @@ const WalletDetail = () => {
     setShowError(false);
   };
 
-  const loadGasMode = async () => {
+  const loadGasMode = useCallback(async () => {
     const isFreeGasFeeEnabled = await storage.get('lilicoPayer');
     if (isFreeGasFeeEnabled) {
       setGasMode(isFreeGasFeeEnabled);
     }
-  };
+  }, []);
 
-  const loadGasKillSwitch = async () => {
-    const config = await usewallet.getPayerAddressAndKeyId();
+  const loadGasKillSwitch = useCallback(async () => {
+    await usewallet.getPayerAddressAndKeyId();
     const isFreeGasFeeEnabled = await storage.get('freeGas');
     if (isFreeGasFeeEnabled) {
       setGasKillSwitch(isFreeGasFeeEnabled);
     }
-  };
+  }, [usewallet]);
 
   const switchGasMode = async () => {
     setGasMode(!modeGas);
@@ -276,23 +289,26 @@ const WalletDetail = () => {
     });
   };
 
-  const setUserWallet = async () => {
+  const setUserWallet = useCallback(async () => {
     await usewallet.setDashIndex(3);
     const savedWallet = await storage.get('walletDetail');
     const walletDetail = JSON.parse(savedWallet);
     if (walletDetail) {
+      console.log('walletDetail ', walletDetail);
       setWallet([walletDetail.wallet]);
-      setEmoji(walletDetail.selectedEmoji);
+      const selectingEmoji = {};
+      selectingEmoji['name'] = walletDetail.wallet.name;
+      selectingEmoji['emoji'] = walletDetail.wallet.icon;
+      selectingEmoji['bgcolor'] = walletDetail.wallet.color;
+      setEmoji(selectingEmoji);
     }
-  };
+  }, [usewallet]);
 
-  const loadStorageInfo = async () => {
+  const loadStorageInfo = useCallback(async () => {
     const address = await usewallet.getCurrentAddress();
-    console.log('loadStorageInfo ->', address);
     const info = await usewallet.openapi.getStorageInfo(address!);
     setStorageInfo(info);
-    console.log('loadStorageInfo ->', info);
-  };
+  }, [usewallet]);
 
   function storageCapacity(storage): number {
     const used = storage?.used ?? 1;
@@ -300,19 +316,10 @@ const WalletDetail = () => {
     return (used / capacity) * 100;
   }
 
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1000;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['', 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  }
-
-  const checkKeyphrase = async () => {
+  const checkKeyphrase = useCallback(async () => {
     const keyrings = await usewallet.checkMnemonics();
     await setIsKeyphrase(keyrings);
-  };
+  }, [usewallet]);
 
   useEffect(() => {
     setUserWallet();
@@ -320,7 +327,7 @@ const WalletDetail = () => {
     loadGasMode();
     loadStorageInfo();
     checkKeyphrase();
-  }, []);
+  }, [checkKeyphrase, loadGasKillSwitch, loadGasMode, loadStorageInfo, setUserWallet]);
 
   useEffect(() => {
     const list = wallets(userWallet);
@@ -463,17 +470,18 @@ const WalletDetail = () => {
                       : chrome.i18n.getMessage('This__feature__has__been__disabled__temporarily')}
                   </Typography>
                 </Box>
-                <SwitchUnstyled
+                <Switch
                   disabled={!gasKillSwitch}
                   checked={modeGas}
-                  component={Root}
+                  slots={{
+                    root: Root,
+                  }}
                   onChange={() => {
                     switchGasMode();
                   }}
                 />
               </Box>
-
-              {storageInfo && (
+              {!!storageInfo /* TODO: remove this after the storage usage card is implemented */ && (
                 <Box className={classes.gasBox}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <Typography
@@ -503,7 +511,7 @@ const WalletDetail = () => {
                         color={gasKillSwitch ? 'text.secondary' : 'error.main'}
                         sx={{ weight: 400, fontSize: '12px' }}
                       >
-                        {`${formatBytes(storageInfo.used * 10)} / ${formatBytes(storageInfo.capacity * 10)}`}
+                        {`${formatStorageInfo(storageInfo?.used, storageInfo?.capacity)}`}
                       </Typography>
                     </Box>
                     <LinearProgress

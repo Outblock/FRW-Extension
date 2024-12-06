@@ -1,7 +1,7 @@
+import { findAddressWithKey, findAddressOnlyKey } from './findAddressWithPubKey';
 import { pk2PubKey, seed2PubKey, seed2PubKeyTemp } from './passkey';
-import { findAddressWithKey } from './findAddressWithPubKey';
 
-const findAddress = async (pubKTuple, address) => {
+export const findAddress = async (pubKTuple, address) => {
   const { P256, SECP256K1 } = pubKTuple;
   const p256Accounts = (await findAddressWithKey(P256.pubK, address)) || [];
   const sepc256k1Accounts = (await findAddressWithKey(SECP256K1.pubK, address)) || [];
@@ -9,10 +9,6 @@ const findAddress = async (pubKTuple, address) => {
   const pS = sepc256k1Accounts.map((s) => ({ ...s, pk: SECP256K1.pk }));
   const accounts = pA.concat(pS);
 
-  // console.log('accounts 222 ==>', accounts);
-  if (accounts[0].weight < 1000) {
-    return null;
-  }
   if (!accounts || accounts.length === 0) {
     SECP256K1['weight'] = 1000;
     SECP256K1['hashAlgo'] = 'SHA2_256';
@@ -21,6 +17,31 @@ const findAddress = async (pubKTuple, address) => {
     return [SECP256K1];
   }
   return accounts;
+};
+
+export const findAddressWithNetwork = async (pubKTuple, network) => {
+  const { P256, SECP256K1 } = pubKTuple;
+  const p256Accounts = (await findAddressOnlyKey(P256.pubK, network)) || [];
+  const sepc256k1Accounts = (await findAddressOnlyKey(SECP256K1.pubK, network)) || [];
+  const pA = p256Accounts.map((s) => ({ ...s, pk: P256.pk }));
+  const pS = sepc256k1Accounts.map((s) => ({ ...s, pk: SECP256K1.pk }));
+  const accounts = pA.concat(pS);
+
+  // console.log('accounts 222 ==>', accounts);
+  if (!accounts || accounts.length === 0) {
+    return [
+      {
+        ...SECP256K1,
+        weight: 1000,
+        hashAlgo: 'SHA2_256',
+        signAlgo: 'ECDSA_secp256k1',
+        keyIndex: 0,
+      },
+    ];
+  }
+
+  const account = accounts.find((account) => account.weight >= 1000);
+  return account ? accounts : null;
 };
 
 export const findAddressWithPK = async (pk, address) => {

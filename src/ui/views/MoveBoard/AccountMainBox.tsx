@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
-import { useWallet, formatAddress } from 'ui/utils';
-import { ensureEvmAddressPrefix } from 'ui/utils/address';
 import { Typography, Box, CardMedia } from '@mui/material';
-import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';
-import accountMove from 'ui/FRWAssets/svg/accountMove.svg';
-import emoji from 'background/utils/emoji.json';
+import { makeStyles } from '@mui/styles';
+import React, { useCallback, useEffect, useState } from 'react';
+
 import { storage } from '@/background/webapi';
+import { ensureEvmAddressPrefix } from '@/shared/utils/address';
+import emoji from 'background/utils/emoji.json';
+import accountMove from 'ui/FRWAssets/svg/accountMove.svg';
+import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';
+import { useWallet, formatAddress } from 'ui/utils';
+
+const USER_CONTACT = {
+  contact_name: '',
+  avatar: '',
+};
 
 function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm = false }) {
   const usewallet = useWallet();
-  const userContact = {
-    contact_name: '',
-    avatar: '',
-  };
 
   const [first, setFirst] = useState<string>('');
-  const [userInfo, setUser] = useState<any>(userContact);
+  const [userInfo, setUser] = useState<any>(USER_CONTACT);
   const [firstEmoji, setFirstEmoji] = useState<any>(null);
   const [childWallets, setChildWallets] = useState({});
 
-  const requestAddress = async () => {
+  const requestAddress = useCallback(async () => {
     const parentAddress = await usewallet.getMainAddress();
     const address = await usewallet.getCurrentAddress();
     const childResp = await usewallet.checkUserChildAccount();
-    const emojires = await usewallet.getEmoji();
     const eWallet = await usewallet.getEvmWallet();
+    const currentWallet = await usewallet.getCurrentWallet();
     let evmAddress;
     if (eWallet.address) {
       evmAddress = ensureEvmAddressPrefix(eWallet.address);
@@ -34,10 +36,10 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
     if (isChild) {
       const newWallet = {
         [parentAddress!]: {
-          name: emojires[0].name,
-          description: emojires[0].name,
+          name: currentWallet.name,
+          description: currentWallet.name,
           thumbnail: {
-            url: emojires[0].emoji,
+            url: currentWallet.icon,
           },
         },
       };
@@ -46,10 +48,10 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
       if (evmAddress) {
         evmWallet = {
           [evmAddress!]: {
-            name: emojires[1].name,
-            description: emojires[1].name,
+            name: eWallet.name,
+            description: eWallet.name,
             thumbnail: {
-              url: emojires[1].emoji,
+              url: eWallet.icon,
             },
           },
         };
@@ -62,8 +64,10 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
       const wallet = childResp[address!];
       setChildWallets(walletList);
 
-      userContact.avatar = wallet.thumbnail.url;
-      userContact.contact_name = wallet.name;
+      const userContact = {
+        avatar: wallet.thumbnail.url,
+        contact_name: wallet.name,
+      };
       if (firstWalletAddress) {
         setSelectedChildAccount(walletList[firstWalletAddress]);
       }
@@ -74,10 +78,10 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
       if (evmAddress) {
         evmWallet = {
           [evmAddress!]: {
-            name: emojires[1].name,
-            description: emojires[1].name,
+            name: eWallet.name,
+            description: eWallet.name,
             thumbnail: {
-              url: emojires[1].emoji,
+              url: eWallet.icon,
             },
           },
         };
@@ -89,13 +93,13 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
         setSelectedChildAccount(walletList[firstWalletAddress]);
       }
       setFirst(parentAddress!);
-      setFirstEmoji(emojires[0]);
+      setFirstEmoji(currentWallet);
     }
-  };
+  }, [usewallet, isChild, setSelectedChildAccount]);
 
   useEffect(() => {
     requestAddress();
-  }, []);
+  }, [requestAddress]);
 
   return (
     <Box sx={{ padding: '0 18px' }}>
@@ -125,8 +129,8 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
               }}
             >
               {firstEmoji ? (
-                <Typography sx={{ fontSize: '12px', fontWeight: '400' }}>
-                  {firstEmoji.emoji}
+                <Typography sx={{ fontSize: '32px', fontWeight: '400' }}>
+                  {firstEmoji.icon}
                 </Typography>
               ) : (
                 <CardMedia

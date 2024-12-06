@@ -2,14 +2,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
-import { Presets } from 'react-component-transition';
 import { useHistory } from 'react-router-dom';
 
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
 
 interface TransferConfirmationProps {
@@ -38,6 +38,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
     useStorageCheck({
       transferAmount,
+      coin: props.data?.coinInfo?.coin,
       movingBetweenEVMAndFlow,
     });
 
@@ -52,7 +53,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     '#41CC5D',
     '#41CC5D',
   ];
-  const startCount = () => {
+  const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
     if (props.data.contact.address) {
@@ -66,14 +67,14 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     } else if (!props.data.contact.address) {
       clearInterval(intervalId);
     }
-  };
+  }, [props.data.contact.address, setCount]);
 
-  const getPending = async () => {
+  const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  };
+  }, [wallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
@@ -90,7 +91,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     }
     setSending(true);
     const amount = parseFloat(props.data.amount).toFixed(8);
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet
       .transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount)
       .then(async (txID) => {
@@ -117,7 +117,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
   const sendFromChild = async () => {
     const amount = parseFloat(props.data.amount).toFixed(8);
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet
       .sendFTfromChild(
         props.data.userContact.address,
@@ -185,7 +184,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   };
 
   const transferFt = async () => {
-    const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
+    const tokenResult = await wallet.openapi.getEvmTokenInfo(props.data.tokenSymbol);
     console.log('tokenResult ', tokenResult, props.data.amount);
 
     wallet
@@ -239,7 +238,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     return () => {
       chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
-  }, []);
+  }, [getPending, startCount, transactionDoneHandler]);
 
   const renderContent = () => (
     <Box
@@ -292,11 +291,16 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
         {props.data.childType === 'evm' ? (
-          <FRWProfile contact={props.data.userContact} isLoading={false} isEvm={true} />
+          <FRWProfile
+            contact={props.data.userContact}
+            isLoading={false}
+            isEvm={true}
+            fromEvm={'yes'}
+          />
         ) : props.data.childType ? (
           <LLProfile contact={props.data.userContact} />
         ) : (
-          <FRWProfile contact={props.data.userContact} />
+          <FRWProfile contact={props.data.userContact} fromEvm={'no'} />
         )}
         <Box
           sx={{
@@ -322,7 +326,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           ))}
         </Box>
         {isEmoji(props.data.contact.avatar) ? (
-          <FRWProfile contact={props.data.contact} />
+          <FRWTargetProfile contact={props.data.contact} fromEvm={'to'} />
         ) : (
           <LLProfile contact={props.data.contact} />
         )}
@@ -364,28 +368,26 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-      {occupied && (
-        <Presets.TransitionSlideUp>
-          <Box
-            sx={{
-              width: '95%',
-              backgroundColor: 'error.light',
-              mx: 'auto',
-              borderRadius: '12px 12px 0 0',
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              py: '8px',
-            }}
-          >
-            {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
-            <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
-            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
-              {chrome.i18n.getMessage('Your_address_is_currently_processing_another_transaction')}
-            </Typography>
-          </Box>
-        </Presets.TransitionSlideUp>
-      )}
+      <SlideRelative direction="down" show={occupied}>
+        <Box
+          sx={{
+            width: '95%',
+            backgroundColor: 'error.light',
+            mx: 'auto',
+            borderRadius: '12px 12px 0 0',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            py: '8px',
+          }}
+        >
+          {/* <CardMedia style={{ color:'#E54040', width:'24px',height:'24px', margin: '0 12px 0' }} image={empty} />   */}
+          <InfoIcon fontSize="medium" color="primary" style={{ margin: '0px 12px auto 12px' }} />
+          <Typography variant="body1" color="text.secondary" sx={{ fontSize: '12px' }}>
+            {chrome.i18n.getMessage('Your_address_is_currently_processing_another_transaction')}
+          </Typography>
+        </Box>
+      </SlideRelative>
       <WarningStorageLowSnackbar
         isLowStorage={isLowStorage}
         isLowStorageAfterAction={isLowStorageAfterAction}
@@ -399,6 +401,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         size="large"
         sx={{
           height: '50px',
+          width: '100%',
           borderRadius: '12px',
           textTransform: 'capitalize',
           display: 'flex',

@@ -1,29 +1,29 @@
+import { TypedDataUtils, SignTypedDataVersion, normalize } from '@metamask/eth-sig-util';
+import * as fcl from '@onflow/fcl';
+import BigNumber from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
+import { isHexString, intToHex } from 'ethereumjs-util';
+import { ethers } from 'ethers';
+import RLP from 'rlp';
+import Web3 from 'web3';
+import { stringToHex } from 'web3-utils';
 
-// import RpcCache from 'background/utils/rpcCache';
+import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import {
   permissionService,
-  preferenceService,
   sessionService,
   signTextHistoryService,
   keyringService,
   notificationService,
 } from 'background/service';
-import Wallet from '../wallet';
-import BaseController from '../base';
 import { EVM_ENDPOINT } from 'consts';
-import { stringToHex } from 'web3-utils';
-import { normalize as normalizeAddress } from 'eth-sig-util';
-import { ethers } from 'ethers';
-import { isHexString, intToHex } from 'ethereumjs-util';
-import BigNumber from 'bignumber.js';
-import RLP from 'rlp';
-import Web3 from 'web3';
-import { signWithKey } from '@/ui/utils/modules/passkey.js';
-import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/ui/utils/address';
+
 import { storage } from '../../webapi';
-import { TypedDataUtils, SignTypedDataVersion } from '@metamask/eth-sig-util';
-import * as fcl from '@onflow/fcl';
+import BaseController from '../base';
+import Wallet from '../wallet';
+
+// eslint-disable-next-line import/order,no-restricted-imports
+import { signWithKey } from '@/ui/utils/modules/passkey.js';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission
@@ -39,26 +39,6 @@ interface COAOwnershipProof {
   capabilityPath: string;
   signatures: Uint8Array[];
 }
-
-const v1SignTypedDataVlidation = ({
-  data: {
-    params: [_, from],
-  },
-}) => {
-  const currentAddress = preferenceService.getCurrentAccount()?.address.toLowerCase();
-  if (from.toLowerCase() !== currentAddress)
-    throw ethErrors.rpc.invalidParams('from should be same as current address');
-};
-
-const signTypedDataVlidation = ({
-  data: {
-    params: [from, _],
-  },
-}) => {
-  const currentAddress = preferenceService.getCurrentAccount()?.address.toLowerCase();
-  if (from.toLowerCase() !== currentAddress)
-    throw ethErrors.rpc.invalidParams('from should be same as current address');
-};
 
 function removeHexPrefix(hexString: string): string {
   return hexString.startsWith('0x') ? hexString.substring(2) : hexString;
@@ -91,6 +71,7 @@ function createAndEncodeCOAOwnershipProof(
   return encodedData; // Convert the encoded data to a hexadecimal string for easy display or transmission
 }
 
+// Should not be in controller
 async function signMessage(msgParams, opts = {}) {
   const web3 = new Web3();
   const textData = msgParams.data;
@@ -115,7 +96,6 @@ async function signMessage(msgParams, opts = {}) {
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');
-  console.log('keyindex ', [BigInt(keyindex)], account);
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(signableData, signAlgo, hashAlgo, privateKey);
 
@@ -409,6 +389,7 @@ class ProviderController extends BaseController {
     }
   };
 
+  // Should not be in controller
   personalSign = async ({ data, approvalRes, session }) => {
     if (!data.params) return;
     const [string, from] = data.params;
@@ -424,8 +405,7 @@ class ProviderController extends BaseController {
   };
 
   private _checkAddress = async (address) => {
-    // eslint-disable-next-line prefer-const
-    return normalizeAddress(address).toLowerCase();
+    return normalize(address).toLowerCase();
   };
 
   ethChainId = async ({ session }) => {

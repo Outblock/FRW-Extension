@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Tab,
@@ -11,25 +11,26 @@ import {
   ListItemAvatar,
   ListItemText,
 } from '@mui/material';
-import { useWallet } from 'ui/utils';
-import { useTheme, styled } from '@mui/material/styles';
-import SwipeableViews from 'react-swipeable-views';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SearchIcon from '@mui/icons-material/Search';
-import { useHistory, useLocation } from 'react-router-dom';
-import AddressBookList from '../../Send/AddressBookList';
-import SearchList from '../../Send/SearchList';
-import RecentList from '../../Send/RecentList';
-import { Contact } from 'background/service/networkModel';
-import { isEmpty } from 'lodash';
+import { useTheme, styled, StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { StyledEngineProvider } from '@mui/material/styles';
-import { withPrefix, isValidEthereumAddress } from '@/ui/utils/address';
-import SendNFTConfirmation from './SendNFTConfirmation';
-import { MatchMedia } from '@/ui/utils/url';
-import IconAbout from '../../../../components/iconfont/IconAbout';
+import { isEmpty } from 'lodash';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import SwipeableViews from 'react-swipeable-views';
+
+import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
+import { type MatchMedia } from '@/ui/utils/url';
+import { type Contact } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
+
+import IconAbout from '../../../../components/iconfont/IconAbout';
 import AccountsList from '../../Send/AccountsList';
+import AddressBookList from '../../Send/AddressBookList';
+import RecentList from '../../Send/RecentList';
+import SearchList from '../../Send/SearchList';
+
+import SendNFTConfirmation from './SendNFTConfirmation';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
@@ -37,7 +38,7 @@ export enum SendPageTabOptions {
   Accounts = 'Accounts',
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((_theme) => ({
   page: {
     display: 'flex',
     flexDirection: 'column',
@@ -121,6 +122,16 @@ interface NFTDetailState {
   media: MatchMedia;
   index: number;
 }
+const USER_CONTACT = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+} as unknown as Contact;
 
 const SendToAddress = () => {
   const classes = useStyles();
@@ -128,17 +139,6 @@ const SendToAddress = () => {
   const history = useHistory();
   const wallet = useWallet();
   const location = useLocation();
-
-  const userContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -151,12 +151,12 @@ const SendToAddress = () => {
   const [searched, setSearched] = useState<boolean>(false);
   const [hasNoFilteredContacts, setHasNoFilteredContacts] = useState<boolean>(false);
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-  const [userInfo, setUser] = useState<Contact>(userContact);
+  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
   const [contractInfo, setContractInfo] = useState<any>(null);
   const [nftDetail, setDetail] = useState<any>(null);
   const [media, setMedia] = useState<MatchMedia | null>(null);
 
-  const fetchAddressBook = async () => {
+  const fetchAddressBook = useCallback(async () => {
     await wallet.setDashIndex(0);
     try {
       const response = await wallet.getAddressBook();
@@ -185,7 +185,6 @@ const SendToAddress = () => {
         );
       }
 
-
       setRecentContacts(recent);
       setSortedContacts(sortedContacts);
       setFilteredContacts(sortedContacts);
@@ -193,17 +192,18 @@ const SendToAddress = () => {
     } catch (err) {
       console.log('err: ', err);
     }
-  };
+  }, [wallet]);
 
   useEffect(() => {
     fetchAddressBook();
-  }, []);
+  }, [fetchAddressBook]);
 
-  const setUserInfo = async () => {
+  const setUserInfo = useCallback(async () => {
     await wallet.setDashIndex(1);
     const info = await wallet.getUserInfo(false);
     const currentWallet = await wallet.getCurrentWallet();
     const activeChild = await wallet.getActiveWallet();
+    const userContact = { ...USER_CONTACT };
     if (activeChild === 'evm') {
       const data = await wallet.getEvmAddress();
       userContact.address = data;
@@ -213,9 +213,9 @@ const SendToAddress = () => {
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
     setUser(userContact);
-  };
+  }, [wallet]);
 
-  const fetchNFTInfo = async () => {
+  const fetchNFTInfo = useCallback(async () => {
     const state = location.state as NFTDetailState;
 
     const NFT = state.nft;
@@ -232,16 +232,16 @@ const SendToAddress = () => {
     if (filteredCollections.length > 0) {
       setContractInfo(filteredCollections[0]);
     }
-  };
+  }, [wallet, location.state]);
 
   const returnFilteredCollections = (contractList, NFT) => {
-    return contractList.filter((collection) => collection.name == NFT.collectionName);
+    return contractList.filter((collection) => collection.name === NFT.collectionName);
   };
 
   useEffect(() => {
     fetchNFTInfo();
     setUserInfo();
-  }, []);
+  }, [fetchNFTInfo, setUserInfo]);
 
   const checkContain = (searchResult: Contact) => {
     if (sortedContacts.some((e) => e.contact_name === searchResult.username)) {

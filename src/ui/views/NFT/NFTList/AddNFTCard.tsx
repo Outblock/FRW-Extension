@@ -1,4 +1,6 @@
-import React from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import DoneIcon from '@mui/icons-material/Done';
 import {
   Typography,
   Box,
@@ -8,11 +10,11 @@ import {
   IconButton,
   CircularProgress,
 } from '@mui/material';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AddIcon from '@mui/icons-material/Add';
-import DoneIcon from '@mui/icons-material/Done';
+import React from 'react';
+
 import IconFlow from '../../../../components/iconfont/IconFlow';
-import { CollectionItem } from './AddList';
+
+import { type CollectionItem } from './AddList';
 
 const CollectionCard = ({
   item,

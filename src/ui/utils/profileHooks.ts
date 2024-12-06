@@ -17,7 +17,7 @@ const tempEmoji = [
 
 export const profileHooks = () => {
   const usewallet = useWallet();
-  const [emojis, setEmojis] = useState(tempEmoji);
+  const [emojis, setEmojis] = useState<any>(tempEmoji);
   const fetchEmojis = useCallback(async () => {
     try {
       console.log('fetchEmojis');

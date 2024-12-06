@@ -1,14 +1,13 @@
+import { CssBaseline } from '@mui/material';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { ThemeProvider } from '@mui/material/styles';
-import { createMemoryHistory } from 'history';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 
+import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
-import { WalletProvider } from 'ui/utils';
-
-import theme from '../style/LLTheme';
+import { WalletProvider, mixpanelBrowserService } from 'ui/utils';
 
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
@@ -18,11 +17,17 @@ import SortHat from './SortHat';
 import SwitchUnlock from './SwitchUnlock';
 import Unlock from './Unlock';
 
+const theme = createTheme(themeOptions);
+
 function Main() {
-  const history = createMemoryHistory();
+  React.useEffect(() => {
+    // Initialize mixpanel in the popup
+    // Note: Mixpanel is initialized in the constructor, just calling init here to make sure it is initialized
+    mixpanelBrowserService.init();
+  }, []);
+
   return (
-    //@ts-ignore
-    <Router history={history}>
+    <Router>
       <Route exact path="/">
         <SortHat />
       </Route>
@@ -44,6 +49,7 @@ function Main() {
 const App = ({ wallet }: { wallet: any }) => {
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <WalletProvider wallet={wallet}>
         <NewsProvider>
           <GlobalStyles

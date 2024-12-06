@@ -1,4 +1,4 @@
-import { WalletController } from './index';
+import { type WalletController } from './index';
 
 export const getCurrentTab = async () => {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });

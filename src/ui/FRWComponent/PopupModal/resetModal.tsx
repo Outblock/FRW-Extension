@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Button,
   Dialog,
@@ -10,7 +9,9 @@ import {
   Select,
   Typography,
 } from '@mui/material';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
+
 import { CustomDialog } from './importAddressModal';
 
 const ResetModal = ({

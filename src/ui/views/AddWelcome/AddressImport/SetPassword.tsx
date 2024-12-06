@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles, styled } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Button,
   Typography,
@@ -12,21 +11,24 @@ import {
   InputAdornment,
   FormGroup,
   LinearProgress,
-  CssBaseline,
 } from '@mui/material';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { Presets } from 'react-component-transition';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { makeStyles, styled } from '@mui/styles';
+import { Box } from '@mui/system';
+import React, { useCallback, useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
-import theme from '../../../style/LLTheme';
-import { useWallet, getHashAlgo, getSignAlgo, saveIndex } from 'ui/utils';
+
+import { storage } from '@/background/webapi';
+import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
-import { storage } from '@/background/webapi';
+import { useWallet, saveIndex } from 'ui/utils';
+
+import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../components/iconfont/IconClose';
+import { BpUncheked, BpCheckedIcon } from '../../../FRWAssets/icons/CustomCheckboxIcons';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -61,32 +63,6 @@ const useStyles = makeStyles(() => ({
     },
   },
 }));
-
-const BpIcon = styled('span')(() => ({
-  borderRadius: 8,
-  width: 24,
-  height: 24,
-  border: '1px solid #41CC5D',
-  backgroundColor: 'transparent',
-}));
-
-const BpCheckedIcon = styled(BpIcon)({
-  backgroundColor: '#41CC5D',
-  backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
-  '&:before': {
-    display: 'block',
-    width: 21,
-    height: 21,
-    backgroundImage:
-      "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath" +
-      " fill-rule='evenodd' clip-rule='evenodd' d='M12 5c-.28 0-.53.11-.71.29L7 9.59l-2.29-2.3a1.003 " +
-      "1.003 0 00-1.42 1.42l3 3c.18.18.43.29.71.29s.53-.11.71-.29l5-5A1.003 1.003 0 0012 5z' fill='%23fff'/%3E%3C/svg%3E\")",
-    content: '""',
-  },
-  'input:hover ~ &': {
-    backgroundColor: '#41CC5D',
-  },
-});
 
 const PasswordIndicator = (props) => {
   const score = zxcvbn(props.value).score;
@@ -151,13 +127,13 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
     setShowError(false);
   };
 
-  const loadTempPassword = async () => {
+  const loadTempPassword = useCallback(async () => {
     setPassword(tempPassword);
-  };
+  }, [tempPassword]);
 
   useEffect(() => {
     loadTempPassword();
-  }, []);
+  }, [loadTempPassword]);
 
   const successInfo = (message) => {
     return (
@@ -205,68 +181,64 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
 
   const handleImport = async () => {
     setLoading(true);
-    if (accounts.length > 1) {
-      setLoading(true);
-    } else {
-      const accountKeyStruct = {
-        public_key: accounts[0].pubK,
-        sign_algo: getSignAlgo(accounts[0].signAlgo),
-        hash_algo: getHashAlgo(accounts[0].hashAlgo),
-        weight: 1000,
-      };
-      const result = await wallet.openapi.getLocation();
-      const installationId = await wallet.openapi.getInstallationId();
-      const userlocation = result.data;
-      const device_info = {
-        city: userlocation.city,
-        continent: userlocation.country,
-        continentCode: userlocation.countryCode,
-        country: userlocation.country,
-        countryCode: userlocation.countryCode,
-        currency: userlocation.countryCode,
-        device_id: installationId,
-        district: '',
-        ip: userlocation.query,
-        isp: userlocation.as,
-        lat: userlocation.lat,
-        lon: userlocation.lon,
-        name: 'FRW Chrome Extension',
-        org: userlocation.org,
-        regionName: userlocation.regionName,
-        type: '2',
-        user_agent: 'Chrome',
-        zip: userlocation.zip,
-      };
-      const address = accounts[0].address.replace(/^0x/, '');
-      wallet.openapi
-        .importKey(accountKeyStruct, device_info, username, {}, address)
-        .then((response) => {
-          return wallet.boot(password);
-        })
-        .then(async (response) => {
-          storage.remove('premnemonic');
+    const accountKeyStruct = {
+      public_key: accounts[0].pubK,
+      sign_algo: getSignAlgo(accounts[0].signAlgo),
+      hash_algo: getHashAlgo(accounts[0].hashAlgo),
+      weight: 1000,
+    };
+    const result = await wallet.openapi.getLocation();
+    const installationId = await wallet.openapi.getInstallationId();
+    const userlocation = result.data;
+    const device_info = {
+      city: userlocation.city,
+      continent: userlocation.country,
+      continentCode: userlocation.countryCode,
+      country: userlocation.country,
+      countryCode: userlocation.countryCode,
+      currency: userlocation.countryCode,
+      device_id: installationId,
+      district: '',
+      ip: userlocation.query,
+      isp: userlocation.as,
+      lat: userlocation.lat,
+      lon: userlocation.lon,
+      name: 'FRW Chrome Extension',
+      org: userlocation.org,
+      regionName: userlocation.regionName,
+      type: '2',
+      user_agent: 'Chrome',
+      zip: userlocation.zip,
+    };
+    const address = accounts[0].address.replace(/^0x/, '');
+    wallet.openapi
+      .importKey(accountKeyStruct, device_info, username, {}, address)
+      .then((response) => {
+        return wallet.boot(password);
+      })
+      .then(async (response) => {
+        storage.remove('premnemonic');
 
-          await saveIndex(username);
-          if (pk) {
-            return wallet.importPrivateKey(pk);
-          } else {
-            return wallet.createKeyringWithMnemonics(mnemonic);
-          }
-        })
-        .then((address) => {
-          setLoading(false);
-          if (pk) {
-            goEnd();
-          } else {
-            handleClick();
-          }
-        })
-        .catch((error) => {
-          console.log('error', error);
-          setShowError(true);
-          setLoading(false);
-        });
-    }
+        await saveIndex(username);
+        if (pk) {
+          return wallet.importPrivateKey(pk);
+        } else {
+          return wallet.createKeyringWithMnemonics(mnemonic);
+        }
+      })
+      .then((address) => {
+        setLoading(false);
+        if (pk) {
+          goEnd();
+        } else {
+          handleClick();
+        }
+      })
+      .catch((error) => {
+        console.log('error', error);
+        setShowError(true);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -280,8 +252,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
   }, [password]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Create')}
@@ -327,16 +298,16 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ marginBottom: '24px' }}>
-              {password && helperText}
-            </Presets.TransitionSlideUp>
+            <SlideRelative show={!!password} direction="down">
+              <Box style={{ marginBottom: '24px' }}>{helperText}</Box>
+            </SlideRelative>
           </FormGroup>
         </Box>
 
         <FormControlLabel
           control={
             <Checkbox
-              icon={<BpIcon />}
+              icon={<BpUncheked />}
               checkedIcon={<BpCheckedIcon />}
               onChange={(event) => setCheck(event.target.checked)}
             />
@@ -392,7 +363,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, tempPassword, accoun
           {errMessage}
         </Alert>
       </Snackbar>
-    </ThemeProvider>
+    </>
   );
 };
 

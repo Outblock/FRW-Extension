@@ -1,20 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import { Typography, Button } from '@mui/material';
-import { useHistory } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Input, InputAdornment } from '@mui/material';
-import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
-import { makeStyles } from '@mui/styles';
-import { IconButton } from '@mui/material';
-import { FormGroup, LinearProgress } from '@mui/material';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Presets } from 'react-component-transition';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import {
+  FormGroup,
+  LinearProgress,
+  IconButton,
+  Input,
+  InputAdornment,
+  Typography,
+  Button,
+} from '@mui/material';
+import Box from '@mui/material/Box';
+import { makeStyles } from '@mui/styles';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -122,14 +128,14 @@ const Resetpassword = () => {
   const [isSame, setSame] = useState(false);
   const history = useHistory();
 
-  const verify = async () => {
+  const verify = useCallback(async () => {
     await wallet.getCurrentPassword(confirmcurrentPassword);
     setSame(true);
-  };
+  }, [confirmcurrentPassword, wallet]);
 
   useEffect(() => {
     verify();
-  }, [confirmcurrentPassword]);
+  }, [confirmcurrentPassword, verify]);
 
   const successInfo = (message) => {
     return (
@@ -322,7 +328,9 @@ const Resetpassword = () => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+            <SlideRelative direction="down" show={!!password}>
+              {helperText}
+            </SlideRelative>
             <Input
               sx={{
                 pb: '15px',
@@ -355,9 +363,9 @@ const Resetpassword = () => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp style={{ height: '40px', display: 'flex' }}>
-              {confirmPassword && helperMatch}
-            </Presets.TransitionSlideUp>
+            <SlideRelative direction="down" show={!!confirmPassword}>
+              {helperMatch}
+            </SlideRelative>
           </FormGroup>
         </Box>
         <Box

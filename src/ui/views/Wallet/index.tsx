@@ -5,10 +5,10 @@ import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
-import ReactTextTransition from 'react-text-transition';
 
 import eventBus from '@/eventBus';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
+import { NumberTransition } from '@/ui/FRWComponent/NumberTransition';
 import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
 import iconMove from 'ui/FRWAssets/svg/homeMove.svg';
 import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
@@ -17,8 +17,8 @@ import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
 import { useWallet } from 'ui/utils';
 import { formatLargeNumber } from 'ui/utils/number';
 
+import { withPrefix } from '../../../shared/utils/address';
 import theme from '../../style/LLTheme';
-import { withPrefix } from '../../utils/address';
 import MoveBoard from '../MoveBoard';
 
 import CoinList from './Coinlist';
@@ -105,7 +105,7 @@ const WalletTab = ({ network }) => {
       const currentTime = Date.now();
       if (currentTime - lastManualAddressCallTime > 60000) {
         try {
-          await wallet.openapi.getManualAddress();
+          // await wallet.openapi.getManualAddress();
           setlastManualAddressCallTime(currentTime);
         } catch (error) {
           console.error('Error getting manual address:', error);
@@ -401,15 +401,7 @@ const WalletTab = ({ network }) => {
             /> */}
 
             {`$${formatLargeNumber(balance)}`.split('').map((n, i) => (
-              <ReactTextTransition
-                key={i}
-                text={n}
-                className="big"
-                delay={i * 20}
-                direction="down"
-                noOverflow
-                inline
-              />
+              <NumberTransition key={`${n}-${i}`} number={n} delay={i * 20} />
             ))}
           </Typography>
         )}
@@ -477,7 +469,6 @@ const WalletTab = ({ network }) => {
                 onMouseEnter={() => setSwapHover(true)}
                 onMouseLeave={() => setSwapHover(false)}
                 onClick={() => {
-                  // eslint-disable-next-line no-restricted-globals
                   window.open(incLink, '_blank', 'noopener,noreferrer');
                 }}
               >

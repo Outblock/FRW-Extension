@@ -1,4 +1,5 @@
 import i18n from 'i18next';
+
 import messages from '../../messages.json';
 
 export const fetchLocale = async (locale) => {

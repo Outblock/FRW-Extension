@@ -34,7 +34,7 @@ export { default as IconAbout } from './IconAbout';
 export { default as IconCreate } from './IconCreate';
 export { default as IconLock } from './IconLock';
 export { default as IconUserSwitch } from './IconUserSwitch';
-export { default as IconAddressBook } from './IconAddressBook';
+export { default as IconAddressbook } from './IconAddressbook';
 export { default as IconAVector11Stroke } from './IconAVector11Stroke';
 export { default as IconMax } from './IconMax';
 export { default as IconVector2 } from './IconVector2';

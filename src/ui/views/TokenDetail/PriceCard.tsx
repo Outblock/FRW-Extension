@@ -1,6 +1,24 @@
-import React, { useEffect, useState, useRef } from 'react';
+import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
+import ArrowDropUpRoundedIcon from '@mui/icons-material/ArrowDropUpRounded';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import {
+  ToggleButtonGroup,
+  ToggleButton,
+  Menu,
+  MenuItem,
+  Typography,
+  Box,
+  ButtonBase,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import dayjs from 'dayjs';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { AreaChart, Area, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
+import { Period, type PriceProvider } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
-import { Typography, Box, ButtonBase } from '@mui/material';
+
 import {
   IconKraken,
   IconBinance,
@@ -8,16 +26,6 @@ import {
   IconKucoin,
   IconHuobi,
 } from '../../../components/iconfont';
-import { ToggleButtonGroup, ToggleButton, Menu, MenuItem } from '@mui/material';
-import { AreaChart, Area, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import ArrowDropUpRoundedIcon from '@mui/icons-material/ArrowDropUpRounded';
-import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import { styled } from '@mui/material/styles';
-import { getPeriodFrequency } from 'utils';
-
-import dayjs from 'dayjs';
-import { Period, PriceProvider } from 'background/service/networkModel';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
@@ -139,50 +147,57 @@ const PriceCard = ({ token, price, setPrice, providers }) => {
     setAnchorEl(null);
   };
 
-  const fetchPrice = async (provider: PriceProvider) => {
-    const response = await wallet.openapi.getTokenPrice(token, provider);
-    if (mountedRef.current) {
-      setPrice(response['price']['last']);
-      const percentage = response['price']['change']['percentage'] * 100;
-      setChange(percentage);
-    }
-  };
+  const fetchPrice = useCallback(
+    async (provider: PriceProvider) => {
+      const response = await wallet.openapi.getTokenPrice(token, provider);
+      if (mountedRef.current) {
+        setPrice(response['price']['last']);
+        const percentage = response['price']['change']['percentage'] * 100;
+        setChange(percentage);
+      }
+    },
+    [token, wallet.openapi, setPrice]
+  );
 
-  const fetchPriceHistory = async (period: Period, provider: PriceProvider) => {
-    wallet.openapi.getTokenPriceHistory(token, period, provider).then((response) => {
-      const frequency = getPeriodFrequency(period);
-      const data = response[frequency].map((item) => ({
-        closeTime: item[0],
-        openPrice: item[1],
-        highPrice: item[2],
-        lowPrice: item[3],
-        price: item[4],
-        volume: item[5],
-        quoteVolume: item[6],
-      }));
-      setData(data);
-    });
-  };
+  const fetchPriceHistory = useCallback(
+    async (period: Period, provider: PriceProvider) => {
+      wallet.openapi.getTokenPriceHistory(token, period, provider).then((response) => {
+        const frequency = getPeriodFrequency(period);
+        const data = response[frequency].map((item) => ({
+          closeTime: item[0],
+          openPrice: item[1],
+          highPrice: item[2],
+          lowPrice: item[3],
+          price: item[4],
+          volume: item[5],
+          quoteVolume: item[6],
+        }));
+        setData(data);
+      });
+    },
+    [token, wallet.openapi]
+  );
+  const currentProvider = useCallback((): PriceProvider => {
+    return priceProviders[selectedIndex] as PriceProvider;
+  }, [selectedIndex, priceProviders]);
 
   useEffect(() => {
     // FIX ME: Memory leak
     const timerId = setTimeout(() => {
-      fetchPrice(currentProvider()), fetchPriceHistory(period, currentProvider());
+      fetchPrice(currentProvider());
+      fetchPriceHistory(period, currentProvider());
     }, 400);
 
     return () => clearTimeout(timerId);
-  }, []);
+  }, [fetchPrice, fetchPriceHistory, period, currentProvider]);
 
   useEffect(() => {
-    fetchPrice(currentProvider()), fetchPriceHistory(period, currentProvider());
-  }, [selectedIndex]);
+    fetchPrice(currentProvider());
+    fetchPriceHistory(period, currentProvider());
+  }, [selectedIndex, period, fetchPrice, fetchPriceHistory, currentProvider]);
 
   const isUp = (): boolean => {
     return change >= 0;
-  };
-
-  const currentProvider = (): PriceProvider => {
-    return priceProviders[selectedIndex] as PriceProvider;
   };
 
   const handlePeriod = (event: React.MouseEvent<HTMLElement>, newPeriod: string) => {
@@ -382,7 +397,6 @@ const PriceCard = ({ token, price, setPrice, providers }) => {
 
           <Tooltip
             content={
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               //@ts-ignore
               <CustomTooltip />
             }

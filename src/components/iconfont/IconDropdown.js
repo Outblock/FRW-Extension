@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconDropdown = ({ size, color, style: _style, ...rest }) => {
+const IconDropdown = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -15,10 +15,6 @@ const IconDropdown = ({ size, color, style: _style, ...rest }) => {
       <path d="M1024 1024L137.216 0h1773.568L1024 1024z" fill={getIconColor(color, 0, '#E6E6E6')} />
     </svg>
   );
-};
-
-IconDropdown.defaultProps = {
-  size: 18,
 };
 
 export default IconDropdown;

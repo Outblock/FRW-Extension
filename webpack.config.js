@@ -1,7 +1,7 @@
-const webpackMerge = require('webpack-merge');
-const commonConfig = require('./build/webpack.common.config');
 const webpack = require('webpack');
-const path = require('path');
+const webpackMerge = require('webpack-merge');
+
+const commonConfig = require('./build/webpack.common.config');
 
 const configs = {
   dev: require('./build/webpack.dev.config'),
@@ -27,9 +27,8 @@ const configs = {
       }),
     ],
     resolve: {
+      extensions: ['.js', '.jsx', '.ts', '.tsx'],
       fallback: {
-        http: require.resolve('stream-http'),
-        https: require.resolve('https-browserify'),
         buffer: require.resolve('buffer'),
         url: require.resolve('url/'),
       },
@@ -37,12 +36,12 @@ const configs = {
   },
 };
 
-const config = (env) => {
+const config = (env, argv) => {
   if (env.config) {
-    return webpackMerge.merge(commonConfig, configs[env.config]);
+    return webpackMerge.merge(commonConfig(env), configs[env.config]);
   }
 
-  return commonConfig;
+  return commonConfig(env);
 };
 
 module.exports = config;

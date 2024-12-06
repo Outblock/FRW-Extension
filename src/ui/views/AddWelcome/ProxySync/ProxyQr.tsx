@@ -1,17 +1,17 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import { Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, FormControl, Input, InputAdornment, CssBaseline } from '@mui/material';
-import theme from '../../../style/LLTheme';
-import { useWallet } from 'ui/utils';
+import { Box } from '@mui/system';
 import { Core } from '@walletconnect/core';
-import { FCLWalletConnectMethod } from '@/ui/utils/type';
 import SignClient from '@walletconnect/sign-client';
-import { PairingTypes, SessionTypes } from '@walletconnect/types';
+import { type SessionTypes } from '@walletconnect/types';
 import * as bip39 from 'bip39';
-import { storage } from 'background/webapi';
+import React, { useEffect, useCallback, useState } from 'react';
 import { QRCode } from 'react-qrcode-logo';
+
+import { FCLWalletConnectMethod } from '@/ui/utils/type';
+import { storage } from 'background/webapi';
 import lilo from 'ui/FRWAssets/image/lilo.png';
+import { useWallet } from 'ui/utils';
 
 interface DeviceInfoRequest {
   deviceId: string;
@@ -37,7 +37,7 @@ interface DeviceInfoRequest {
   device_id?: string;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((_theme) => ({
   customInputLabel: {
     '& legend': {
       visibility: 'visible',
@@ -74,24 +74,117 @@ const ProxyQr = ({
   const [loading, setShowLoading] = useState<boolean>(false);
   const [session, setSession] = useState<SessionTypes.Struct>();
   const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
-  const [currentNetwork, setNetwork] = useState(
-    process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet'
-  );
+  const [currentNetwork, setNetwork] = useState('mainnet');
 
-  const loadNetwork = async () => {
+  const loadNetwork = useCallback(async () => {
     const currentNetwork = await usewallet.getNetwork();
     setNetwork(currentNetwork);
-  };
+  }, [usewallet]);
 
   useEffect(() => {
     loadNetwork();
+  }, [loadNetwork]);
+
+  const onSessionConnected = useCallback(async (_session: SessionTypes.Struct) => {
+    console.log('_session ', _session);
+    setShowLoading(true);
+    setSession(_session);
   }, []);
+
+  const _subscribeToEvents = useCallback(
+    async (_client: SignClient) => {
+      if (typeof _client === 'undefined') {
+        throw new Error('WalletConnect is not initialized');
+      }
+
+      _client.on('session_update', ({ topic, params }) => {
+        console.log('EVENT', 'session_update', { topic, params });
+        const { namespaces } = params;
+        const _session = _client.session.get(topic);
+        const updatedSession = { ..._session, namespaces };
+        onSessionConnected(updatedSession);
+      });
+      console.log('EVENT _client ', _client);
+    },
+    [onSessionConnected]
+  );
+
+  const getDeviceInfo = useCallback(async (): Promise<DeviceInfoRequest> => {
+    const result = await usewallet.openapi.getLocation();
+    const installationId = await usewallet.openapi.getInstallationId();
+    // console.log('location ', userlocation);
+    const userlocation = result.data;
+    const deviceInfo: DeviceInfoRequest = {
+      city: userlocation.city,
+      continent: userlocation.country,
+      continentCode: userlocation.countryCode,
+      country: userlocation.country,
+      countryCode: userlocation.countryCode,
+      currency: userlocation.countryCode,
+      deviceId: installationId,
+      device_id: installationId,
+      district: '',
+      ip: userlocation.query,
+      isp: userlocation.as,
+      lat: userlocation.lat,
+      lon: userlocation.lon,
+      name: 'FRW Chrome Extension',
+      org: userlocation.org,
+      regionName: userlocation.regionName,
+      type: '2',
+      userAgent: 'Chrome',
+      zip: userlocation.zip,
+    };
+    return deviceInfo;
+  }, [usewallet]);
+
+  const sendRequest = useCallback(
+    async (wallet: SignClient, topic: string) => {
+      console.log(wallet);
+      const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
+      const jwtToken = await usewallet.requestProxyToken();
+      wallet
+        .request({
+          topic: topic,
+          chainId: `flow:${currentNetwork}`,
+          request: {
+            method: FCLWalletConnectMethod.proxyaccount,
+            params: {
+              method: FCLWalletConnectMethod.proxyaccount,
+              data: {
+                deviceInfo: deviceInfo,
+                jwt: jwtToken,
+              },
+            },
+          },
+        })
+        .then(async (result: any) => {
+          console.log(result);
+          const jsonObject = JSON.parse(result);
+          const accountKey = {
+            public_key: jsonObject.data.publicKey,
+            hash_algo: Number(jsonObject.data.hashAlgo),
+            sign_algo: Number(jsonObject.data.signAlgo),
+            weight: Number(jsonObject.data.weight),
+          };
+          usewallet.openapi.loginV3(accountKey, deviceInfo, jsonObject.data.signature);
+          storage.set(`${jsonObject.data.userId}Topic`, topic);
+          confirmMnemonic(mnemonic);
+          confirmPk(jsonObject.data.publicKey);
+          console.log('jsonObject ', jsonObject);
+          handleClick();
+        })
+        .catch((error) => {
+          console.error('Error in first wallet request:', error);
+        });
+    },
+    [usewallet, currentNetwork, confirmMnemonic, confirmPk, mnemonic, handleClick, getDeviceInfo]
+  );
 
   useEffect(() => {
     const createWeb3Wallet = async () => {
       try {
         const wallet = await SignClient.init({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore: Unreachable code error
           core: new Core({
             projectId: process.env.WC_PROJECTID,
@@ -143,104 +236,10 @@ const ProxyQr = ({
       }
     };
     createWeb3Wallet();
-  }, []);
-
-  const onSessionConnected = useCallback(async (_session: SessionTypes.Struct) => {
-    console.log('_session ', _session);
-    setShowLoading(true);
-    setSession(_session);
-  }, []);
-
-  const _subscribeToEvents = useCallback(
-    async (_client: SignClient) => {
-      if (typeof _client === 'undefined') {
-        throw new Error('WalletConnect is not initialized');
-      }
-
-      _client.on('session_update', ({ topic, params }) => {
-        console.log('EVENT', 'session_update', { topic, params });
-        const { namespaces } = params;
-        const _session = _client.session.get(topic);
-        const updatedSession = { ..._session, namespaces };
-        onSessionConnected(updatedSession);
-      });
-      console.log('EVENT _client ', _client);
-    },
-    [onSessionConnected]
-  );
-
-  async function sendRequest(wallet: SignClient, topic: string) {
-    console.log(wallet);
-    const deviceInfo: DeviceInfoRequest = await getDeviceInfo();
-    const jwtToken = await usewallet.requestProxyToken();
-    wallet
-      .request({
-        topic: topic,
-        chainId: `flow:${currentNetwork}`,
-        request: {
-          method: FCLWalletConnectMethod.proxyaccount,
-          params: {
-            method: FCLWalletConnectMethod.proxyaccount,
-            data: {
-              deviceInfo: deviceInfo,
-              jwt: jwtToken,
-            },
-          },
-        },
-      })
-      .then(async (result: any) => {
-        console.log(result);
-        const jsonObject = JSON.parse(result);
-        const accountKey = {
-          public_key: jsonObject.data.publicKey,
-          hash_algo: Number(jsonObject.data.hashAlgo),
-          sign_algo: Number(jsonObject.data.signAlgo),
-          weight: Number(jsonObject.data.weight),
-        };
-        usewallet.openapi.loginV3(accountKey, deviceInfo, jsonObject.data.signature);
-        storage.set(`${jsonObject.data.userId}Topic`, topic);
-        confirmMnemonic(mnemonic);
-        confirmPk(jsonObject.data.publicKey);
-        console.log('jsonObject ', jsonObject);
-        handleClick();
-      })
-      .catch((error) => {
-        console.error('Error in first wallet request:', error);
-      });
-  }
-
-  const getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
-    const result = await usewallet.openapi.getLocation();
-    const installationId = await usewallet.openapi.getInstallationId();
-    // console.log('location ', userlocation);
-    const userlocation = result.data;
-    const deviceInfo: DeviceInfoRequest = {
-      city: userlocation.city,
-      continent: userlocation.country,
-      continentCode: userlocation.countryCode,
-      country: userlocation.country,
-      countryCode: userlocation.countryCode,
-      currency: userlocation.countryCode,
-      deviceId: installationId,
-      device_id: installationId,
-      district: '',
-      ip: userlocation.query,
-      isp: userlocation.as,
-      lat: userlocation.lat,
-      lon: userlocation.lon,
-      name: 'FRW Chrome Extension',
-      org: userlocation.org,
-      regionName: userlocation.regionName,
-      type: '2',
-      userAgent: 'Chrome',
-      zip: userlocation.zip,
-    };
-    return deviceInfo;
-  };
+  }, [_subscribeToEvents, currentNetwork, onSessionConnected, sendRequest]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -414,7 +413,7 @@ const ProxyQr = ({
       </Box>
 
       {/* <Box sx={{ flexGrow: 1 }} /> */}
-    </ThemeProvider>
+    </>
   );
 };
 

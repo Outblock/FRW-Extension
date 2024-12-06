@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -9,17 +8,11 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
 import { makeStyles } from '@mui/styles';
-import { useWallet, isEmoji, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
+import React, { useState, useEffect, useCallback } from 'react';
 
-const tempEmoji = {
-  emoji: '🥥',
-  name: 'Coconut',
-  bgcolor: '#FFE4C4',
-};
+import { isValidEthereumAddress } from '@/shared/utils/address';
+import { useWallet, isEmoji, formatAddress } from 'ui/utils';
 
 export const FWMoveDropdown = ({
   contact,
@@ -28,7 +21,6 @@ export const FWMoveDropdown = ({
   isLoading = false,
 }) => {
   const usewallet = useWallet();
-  const [emoji, setEmoji] = useState(tempEmoji);
 
   const contactKeys = Object.keys(contacts);
   const [selectedChild, setSelectedChild] = React.useState(
@@ -51,22 +43,8 @@ export const FWMoveDropdown = ({
     setSelectedChildAccount(select);
   };
 
-  const getEmoji = async () => {
-    const emojiList = await usewallet.getEmoji();
-    if (isValidEthereumAddress(contact.address)) {
-      setEmoji(emojiList[1]);
-    } else {
-      setEmoji(emojiList[0]);
-    }
-  };
-
-  useEffect(() => {
-    console.log('contact ', contacts);
-    getEmoji();
-  }, [contact, contacts]);
-
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <FormControl sx={{ flexGrow: 1, border: 'none', padding: 0 }}>
         <Select
           labelId="child-wallet-select-label"
@@ -136,6 +114,6 @@ export const FWMoveDropdown = ({
           ))}
         </Select>
       </FormControl>
-    </ThemeProvider>
+    </>
   );
 };

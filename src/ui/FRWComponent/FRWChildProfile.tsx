@@ -1,29 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Avatar,
-  Skeleton,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
-import { makeStyles } from '@mui/styles';
-import { useWallet, formatAddress } from 'ui/utils';
-import { isValidEthereumAddress } from 'ui/utils/address';
+import { Box, Typography, Avatar } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
 
-const tempEmoji = {
-  emoji: '🥥',
-  name: 'Coconut',
-  bgcolor: '#FFE4C4',
-};
+import { isValidEthereumAddress } from '@/shared/utils/address';
+import { useWallet } from 'ui/utils';
 
 export const FRWChildProfile = ({ contact, address, isLoading = false }) => {
   const usewallet = useWallet();
-  const [emoji, setEmoji] = useState(tempEmoji);
 
   const getName = (name: string) => {
     if (!name) {
@@ -36,21 +18,8 @@ export const FRWChildProfile = ({ contact, address, isLoading = false }) => {
     }
   };
 
-  const getEmoji = async () => {
-    const emojiList = await usewallet.getEmoji();
-    if (isValidEthereumAddress(contact.address)) {
-      setEmoji(emojiList[1]);
-    } else {
-      setEmoji(emojiList[0]);
-    }
-  };
-
-  useEffect(() => {
-    getEmoji();
-  }, [contact]);
-
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Box
         sx={{
           display: 'flex',
@@ -79,6 +48,6 @@ export const FRWChildProfile = ({ contact, address, isLoading = false }) => {
           </Box>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

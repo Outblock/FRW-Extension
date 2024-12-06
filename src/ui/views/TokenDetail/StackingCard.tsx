@@ -1,7 +1,8 @@
-import React from 'react';
 import { Typography, Box, ButtonBase } from '@mui/material';
-import flowGrey from 'ui/FRWAssets/svg/flow-grey.svg';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
+
+import flowGrey from 'ui/FRWAssets/svg/flow-grey.svg';
 import { useWallet } from 'ui/utils';
 
 const StackingCard = ({ network }) => {

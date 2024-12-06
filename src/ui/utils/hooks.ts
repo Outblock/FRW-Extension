@@ -1,53 +1,66 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+
 import { useWallet } from './WalletContext';
+
 import { getUiType } from './index';
 
 export const useApproval = () => {
   // console.log('useApproval 1')
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
 
   // console.log('useApproval 2')
 
-  const getApproval = wallet.getApproval;
+  const getApproval = useCallback(() => usewallet.getApproval(), [usewallet]);
+  const stableUsewallet = useMemo(() => usewallet, [usewallet]);
+  const stableHistory = useMemo(() => history, [history]);
 
-  const linkningConfirm = async (data?: any, stay = false, forceReject = false) => {
-    const approval = await getApproval();
+  const linkingConfirm = useCallback(
+    async (data?: any, stay = false, forceReject = false) => {
+      const approval = await getApproval();
 
-    if (approval) {
-      await wallet.resolveApproval(data, forceReject);
-      return;
-    }
-    if (stay) {
-      return;
-    }
-    // setTimeout(() => {
-    //   history.replace('/');
-    // });
-  };
+      if (approval) {
+        await stableUsewallet.resolveApproval(data, forceReject);
+        return;
+      }
+      if (stay) {
+        return;
+      }
+      // setTimeout(() => {
+      //   stableHistory.replace('/');
+      // });
+    },
+    [getApproval, stableUsewallet]
+  );
 
-  const resolveApproval = async (data?: any, stay = false, forceReject = false) => {
-    const approval = await getApproval();
+  const resolveApproval = useCallback(
+    async (data?: any, stay = false, forceReject = false) => {
+      const approval = await getApproval();
 
-    if (approval) {
-      wallet.resolveApproval(data, forceReject);
-    }
-    if (stay) {
-      return;
-    }
-    setTimeout(() => {
-      history.replace('/');
-    });
-  };
+      if (approval) {
+        stableUsewallet.resolveApproval(data, forceReject);
+      }
+      if (stay) {
+        return;
+      }
+      setTimeout(() => {
+        stableHistory.replace('/');
+      });
+    },
+    [getApproval, stableUsewallet, stableHistory]
+  );
 
-  const rejectApproval = async (err?) => {
-    const approval = await getApproval();
-    if (approval) {
-      await wallet.rejectApproval(err);
-    }
-    history.push('/');
-  };
+  const rejectApproval = useCallback(
+    async (err?) => {
+      const approval = await getApproval();
+      if (approval) {
+        await stableUsewallet.rejectApproval(err);
+      }
+      stableHistory.push('/');
+    },
+    [getApproval, stableUsewallet, stableHistory]
+  );
 
   useEffect(() => {
     console.log('useApproval', getUiType(), getUiType().isNotification);
@@ -58,9 +71,9 @@ export const useApproval = () => {
     window.addEventListener('beforeunload', rejectApproval);
 
     return () => window.removeEventListener('beforeunload', rejectApproval);
-  }, []);
+  }, [rejectApproval]);
 
-  return [getApproval, resolveApproval, rejectApproval, linkningConfirm] as const;
+  return [getApproval, resolveApproval, rejectApproval, linkingConfirm] as const;
 };
 
 export const useSelectOption = <T>({
@@ -75,7 +88,7 @@ export const useSelectOption = <T>({
   value?: T[];
 }) => {
   const isControlled = useRef(typeof value !== 'undefined').current;
-  const [idxs, setChoosedIdxs] = useState(
+  const [chosenIndexes, setChosenIndexes] = useState(
     (isControlled ? value! : defaultValue).map((x) => options.indexOf(x))
   );
 
@@ -85,50 +98,64 @@ export const useSelectOption = <T>({
     }
 
     // shallow compare
-    if (value && idxs.some((x, i) => options[x] != value[i])) {
-      setChoosedIdxs(value.map((x) => options.indexOf(x)));
+    if (value) {
+      setChosenIndexes(value.map((x) => options.indexOf(x)));
     }
-  }, [value]);
+  }, [value, options, isControlled]);
 
-  const changeValue = (idxs: number[]) => {
-    setChoosedIdxs([...idxs]);
-    onChange && onChange(idxs.map((o) => options[o]));
-  };
+  const changeValue = useCallback(
+    (indexes: number[]) => {
+      setChosenIndexes([...indexes]);
+      if (onChange) {
+        onChange(indexes.map((o) => options[o]));
+      }
+    },
+    [options, onChange]
+  );
 
-  const handleRemove = (i: number) => {
-    idxs.splice(i, 1);
-    changeValue(idxs);
-  };
+  const handleRemove = useCallback(
+    (i: number) => {
+      chosenIndexes.splice(i, 1);
+      changeValue(chosenIndexes);
+    },
+    [chosenIndexes, changeValue]
+  );
 
-  const handleChoose = (i: number) => {
-    if (idxs.includes(i)) {
-      return;
-    }
+  const handleChoose = useCallback(
+    (i: number) => {
+      if (chosenIndexes.includes(i)) {
+        return;
+      }
 
-    idxs.push(i);
-    changeValue(idxs);
-  };
+      chosenIndexes.push(i);
+      changeValue(chosenIndexes);
+    },
+    [chosenIndexes, changeValue]
+  );
 
-  const handleToggle = (i: number) => {
-    const inIdxs = idxs.indexOf(i);
-    if (inIdxs !== -1) {
-      handleRemove(inIdxs);
-    } else {
-      handleChoose(i);
-    }
-  };
+  const handleToggle = useCallback(
+    (i: number) => {
+      const inIdxs = chosenIndexes.indexOf(i);
+      if (inIdxs !== -1) {
+        handleRemove(inIdxs);
+      } else {
+        handleChoose(i);
+      }
+    },
+    [chosenIndexes, handleRemove, handleChoose]
+  );
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     changeValue([]);
-  };
+  }, [changeValue]);
 
   return [
-    idxs.map((o) => options[o]),
+    chosenIndexes.map((o) => options[o]),
     handleRemove,
     handleChoose,
     handleToggle,
     handleClear,
-    idxs,
+    chosenIndexes,
   ] as const;
 };
 
@@ -154,27 +181,34 @@ export const useWalletRequest = (
   const [res, setRes] = useState<any>();
   const [err, setErr] = useState<any>();
 
-  const run = async (...args) => {
-    setLoading(true);
-    try {
-      const _res = await Promise.resolve(requestFn(...args));
-      if (!mounted.current) {
-        return;
+  const run = useCallback(
+    async (...args) => {
+      setLoading(true);
+      try {
+        const _res = await Promise.resolve(requestFn(...args));
+        if (!mounted.current) {
+          return;
+        }
+        setRes(_res);
+        if (onSuccess) {
+          onSuccess(_res);
+        }
+      } catch (err) {
+        if (!mounted.current) {
+          return;
+        }
+        setErr(err);
+        if (onError) {
+          onError(err);
+        }
+      } finally {
+        if (mounted.current) {
+          setLoading(false);
+        }
       }
-      setRes(_res);
-      onSuccess && onSuccess(_res);
-    } catch (err) {
-      if (!mounted.current) {
-        return;
-      }
-      setErr(err);
-      onError && onError(err);
-    } finally {
-      if (mounted.current) {
-        setLoading(false);
-      }
-    }
-  };
+    },
+    [requestFn, mounted, onSuccess, onError]
+  );
 
   return [run, loading, res, err] as const;
 };
@@ -190,19 +224,24 @@ export const useHover = ({ mouseEnterDelayMS = 0, mouseLeaveDelayMS = 0 }: UseHo
   HoverProps,
 ] => {
   const [isHovering, setIsHovering] = useState(false);
-  let mouseEnterTimer: number | undefined;
-  let mouseOutTimer: number | undefined;
+  const mouseEnterTimer = useRef<number | undefined>();
+  const mouseOutTimer = useRef<number | undefined>();
+
+  const onMouseEnter = useCallback(() => {
+    clearTimeout(mouseOutTimer.current);
+    mouseEnterTimer.current = window.setTimeout(() => setIsHovering(true), mouseEnterDelayMS);
+  }, [mouseEnterDelayMS, mouseOutTimer]);
+
+  const onMouseLeave = useCallback(() => {
+    clearTimeout(mouseEnterTimer.current);
+    mouseOutTimer.current = window.setTimeout(() => setIsHovering(false), mouseLeaveDelayMS);
+  }, [mouseLeaveDelayMS, mouseEnterTimer]);
+
   return [
     isHovering,
     {
-      onMouseEnter: () => {
-        clearTimeout(mouseOutTimer);
-        mouseEnterTimer = window.setTimeout(() => setIsHovering(true), mouseEnterDelayMS);
-      },
-      onMouseLeave: () => {
-        clearTimeout(mouseEnterTimer);
-        mouseOutTimer = window.setTimeout(() => setIsHovering(false), mouseLeaveDelayMS);
-      },
+      onMouseEnter,
+      onMouseLeave,
     },
   ];
 };

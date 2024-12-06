@@ -1,15 +1,18 @@
-import { getAuth, signInAnonymously } from '@firebase/auth';
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
-import { withPrefix } from '@/ui/utils/address';
+import { withPrefix } from '@/shared/utils/address';
+import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+// eslint-disable-next-line no-restricted-imports
 import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
+// eslint-disable-next-line no-restricted-imports
 import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import wallet from 'background/controller/wallet';
-import { keyringService, openapiService } from 'background/service';
+import { keyringService, mixpanelTrack, openapiService } from 'background/service';
 import { createPersistStore } from 'background/utils';
-import { getHashAlgo, getSignAlgo, getStoragedAccount } from 'ui/utils';
+import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 
 import { storage } from '../webapi';
 
@@ -48,22 +51,24 @@ class UserWallet {
           name: '',
           icon: '',
           address: '',
-          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: 'mainnet',
           id: 1,
           coins: ['flow'],
+          color: '',
         },
         evmWallet: {
           name: '',
           icon: '',
           address: '',
-          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: 'mainnet',
           id: 1,
           coins: ['flow'],
+          color: '',
         },
         activeChild: null,
         evmEnabled: false,
         monitor: 'flowscan',
-        network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        network: 'mainnet',
       },
     });
   };
@@ -80,33 +85,37 @@ class UserWallet {
         name: '',
         address: '',
         icon: '',
-        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        chain_id: 'mainnet',
         id: 1,
         coins: ['flow'],
+        color: '',
       },
       evmWallet: {
         name: '',
         address: '',
         icon: '',
-        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        chain_id: 'mainnet',
         id: 1,
         coins: ['flow'],
+        color: '',
       },
       activeChild: null,
       evmEnabled: false,
       monitor: 'flowscan',
-      network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      network: 'mainnet',
     };
   };
 
   setUserWallets = async (filteredData, network) => {
-    for (const wallet of filteredData) {
-      const chainId = wallet.chain_id;
-      this.store.wallets[chainId] = [wallet];
-    }
-
+    console.log('filteredData ', filteredData);
+    this.store.wallets[network] = filteredData;
+    let walletIndex = (await storage.get('currentWalletIndex')) || 0;
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
-      const current = this.store.wallets[network][0].blockchain[0];
+      if (walletIndex >= filteredData.length) {
+        walletIndex = 0; // Reset walletIndex to 0 if it exceeds the array length
+        await storage.set('currentWalletIndex', 0);
+      }
+      const current = this.store.wallets[network][walletIndex].blockchain[0];
       this.store.currentWallet = current;
     } else {
       console.error(`No wallet found for network: ${network}`);
@@ -125,11 +134,15 @@ class UserWallet {
     return this.store.activeChild;
   };
 
-  setCurrentWallet = (wallet: any, key: any, network: string) => {
+  setCurrentWallet = async (wallet: any, key: any, network: string, index = null) => {
     if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
     } else if (key === 'evm') {
       this.store.evmWallet.address = wallet.address;
+    } else if (index !== null) {
+      await storage.set('currentWalletIndex', index);
+      const current = this.store.wallets[network][index].blockchain[0];
+      this.store.currentWallet = current;
     } else {
       const current = this.store.wallets[network][0].blockchain[0];
       this.store.currentWallet = current;
@@ -150,7 +163,7 @@ class UserWallet {
     }
     if (this.store.network !== network) {
       this.store.activeChild = null;
-      this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
+      // this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
     }
     this.store.network = network;
   };
@@ -172,9 +185,10 @@ class UserWallet {
       name: '',
       address: '',
       icon: '',
-      chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      chain_id: 'mainnet',
       id: 1,
       coins: ['flow'],
+      color: '',
     };
     this.store.evmEnabled = false;
   };
@@ -216,21 +230,42 @@ class UserWallet {
     return this.store.evmWallet;
   };
 
-  setEvmAddress = (address: string) => {
+  setEvmAddress = (address: string, emoji) => {
+    console.log('emoji setEvmAddress ', emoji);
     if (address.length > 20) {
       this.store.evmWallet.address = address;
+      this.store.evmWallet.name = emoji[9].name;
+      this.store.evmWallet.icon = emoji[9].emoji;
+      this.store.evmWallet.color = emoji[9].bgcolor;
     } else {
       this.store.evmWallet.address = '';
     }
   };
 
-  getMainWallet = (network: string) => {
-    const wallet = this.store.wallets[network][0].blockchain[0];
+  setEvmEmoji = (emoji) => {
+    this.store.evmWallet.name = emoji.name;
+    this.store.evmWallet.icon = emoji.emoji;
+    this.store.evmWallet.color = emoji.bgcolor;
+  };
+
+  setWalletEmoji = (emoji, network, id) => {
+    this.store.wallets[network][id].name = emoji.name;
+    this.store.wallets[network][id].icon = emoji.emoji;
+    this.store.wallets[network][id].color = emoji.bgcolor;
+    this.store.wallets[network][id].blockchain[0].name = emoji.name;
+    this.store.wallets[network][id].blockchain[0].icon = emoji.emoji;
+    this.store.wallets[network][id].blockchain[0].color = emoji.bgcolor;
+  };
+
+  getMainWallet = async (network: string) => {
+    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return withPrefix(wallet.address) || '';
   };
 
-  returnMainWallet = (network: string) => {
-    const wallet = this.store.wallets[network][0].blockchain[0];
+  returnMainWallet = async (network: string) => {
+    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return wallet;
   };
 
@@ -238,18 +273,39 @@ class UserWallet {
     return withPrefix(this.store.currentWallet.address) || '';
   };
 
+  private extractScriptName = (cadence: string): string => {
+    const scriptLines = cadence.split('\n');
+    for (const line of scriptLines) {
+      if (line.includes('// Flow Wallet')) {
+        // '    // Flow Wallet - testnet Script  sendNFT - v2.31'
+        const nameMatch = line.match(/\/\/ Flow Wallet -\s*(testnet|mainnet)\s*Script\s+(\w+)/);
+        return nameMatch ? nameMatch[2] : 'unknown_script';
+      }
+    }
+    return 'unknown_script';
+  };
   sendTransaction = async (cadence: string, args: any[]): Promise<string> => {
+    const scriptName = this.extractScriptName(cadence);
     //add proxy
-    const allowed = await wallet.allowLilicoPay();
-    const txID = await fcl.mutate({
-      cadence: cadence,
-      args: (arg, t) => args,
-      proposer: this.authorizationFunction,
-      authorizations: [this.authorizationFunction],
-      payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
-      limit: 9999,
-    });
-    return txID;
+    try {
+      const allowed = await wallet.allowLilicoPay();
+      const txID = await fcl.mutate({
+        cadence: cadence,
+        args: (arg, t) => args,
+        proposer: this.authorizationFunction,
+        authorizations: [this.authorizationFunction],
+        payer: allowed ? this.payerAuthFunction : this.authorizationFunction,
+        limit: 9999,
+      });
+
+      return txID;
+    } catch (error) {
+      mixpanelTrack.track('script_error', {
+        script_id: scriptName,
+        error: error,
+      });
+      throw error;
+    }
   };
 
   sign = async (signableMessage: string): Promise<string> => {
@@ -290,7 +346,12 @@ class UserWallet {
     if (!result[0].pubK) {
       console.log('No result found, creating a new result object');
       // Create a new result object with extension default setting
-      result = await findAddressWithPK(keys.pk, '');
+      const foundResult = await findAddressWithPK(keys.pk, '');
+      if (!foundResult) {
+        throw new Error('Unable to find a address with the provided PK. Aborting login.');
+      }
+
+      result = foundResult;
     }
     const app = getApp(process.env.NODE_ENV!);
     const auth = getAuth(app);

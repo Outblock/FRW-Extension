@@ -1,6 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
@@ -53,7 +53,7 @@ const MoveEvm = (props: MoveBoardProps) => {
     setShowError(false);
   };
 
-  const updateCurrentCollection = async () => {
+  const updateCurrentCollection = useCallback(async () => {
     if (collectionList && cadenceNft) {
       const collection = collectionList.find((collection) => collection.id === selectedCollection);
 
@@ -61,9 +61,9 @@ const MoveEvm = (props: MoveBoardProps) => {
       setCollectionDetail(collection);
       setCollectionInfo(cadenceResult);
     }
-  };
+  }, [collectionList, cadenceNft, selectedCollection, usewallet]);
 
-  const requestCadenceNft = async () => {
+  const requestCadenceNft = useCallback(async () => {
     const cadenceResult = await usewallet.reqeustEvmNft();
     const tokensWithNfts = cadenceResult.filter((token) => token.ids && token.ids.length > 0);
     const filteredData = tokensWithNfts.filter((item) => item.collection.flowIdentifier);
@@ -86,7 +86,7 @@ const MoveEvm = (props: MoveBoardProps) => {
       setCollectionInfo({ nfts: [] });
     }
     setLoading(false);
-  };
+  }, [usewallet]);
 
   const toggleSelectNft = async (nftId) => {
     const tempIdArray = [...nftIdArray];
@@ -175,11 +175,11 @@ const MoveEvm = (props: MoveBoardProps) => {
 
   useEffect(() => {
     requestCadenceNft();
-  }, []);
+  }, [requestCadenceNft]);
 
   useEffect(() => {
     updateCurrentCollection();
-  }, [collectionList, cadenceNft, selectedCollection]);
+  }, [collectionList, cadenceNft, selectedCollection, updateCurrentCollection]);
 
   return (
     <Drawer
@@ -449,45 +449,50 @@ const MoveEvm = (props: MoveBoardProps) => {
         isLowStorage={isLowStorage}
         isLowStorageAfterAction={isLowStorageAfterAction}
       />
-      <Button
-        onClick={moveNFT}
-        // disabled={sending || occupied}
-        variant="contained"
-        color="success"
-        size="large"
-        disabled={!collectionDetail || collectionDetail.NftCount === 0}
-        sx={{
-          height: '50px',
-          borderRadius: '12px',
-          textTransform: 'capitalize',
-          display: 'flex',
-          gap: '12px',
-          marginBottom: '33px',
-          mx: '16px',
-        }}
-      >
-        {sending ? (
-          <>
-            <LLSpinner size={28} />
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-              {chrome.i18n.getMessage('Sending')}
-            </Typography>
-          </>
-        ) : (
-          <>
-            {failed ? (
+
+      <Box sx={{ px: '16px' }}>
+        <Button
+          onClick={moveNFT}
+          // disabled={sending || occupied}
+          variant="contained"
+          color="success"
+          size="large"
+          disabled={
+            !collectionDetail || (collectionDetail.nfts && collectionDetail.nfts.length === 0)
+          }
+          sx={{
+            height: '50px',
+            width: '100%',
+            borderRadius: '12px',
+            textTransform: 'capitalize',
+            display: 'flex',
+            gap: '12px',
+            marginBottom: '33px',
+          }}
+        >
+          {sending ? (
+            <>
+              <LLSpinner size={28} />
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                {chrome.i18n.getMessage('Transaction__failed')}
+                {chrome.i18n.getMessage('Sending')}
               </Typography>
-            ) : (
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                {chrome.i18n.getMessage('Move')} {nftIdArray.length > 0 && nftIdArray.length} NFT
-                {nftIdArray.length > 1 && 's'}
-              </Typography>
-            )}
-          </>
-        )}
-      </Button>
+            </>
+          ) : (
+            <>
+              {failed ? (
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
+                  {chrome.i18n.getMessage('Transaction__failed')}
+                </Typography>
+              ) : (
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
+                  {chrome.i18n.getMessage('Move')} {nftIdArray.length > 0 && nftIdArray.length} NFT
+                  {nftIdArray.length > 1 && 's'}
+                </Typography>
+              )}
+            </>
+          )}
+        </Button>
+      </Box>
       {selectCollection && (
         <MoveCollectionSelect
           showMoveBoard={selectCollection}

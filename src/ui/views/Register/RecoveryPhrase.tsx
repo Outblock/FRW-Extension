@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { Box, ThemeProvider } from '@mui/system';
-import { Button, Typography, IconButton, CssBaseline } from '@mui/material';
-import theme from '../../style/LLTheme';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
-import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
-import IconCopy from '../../../components/iconfont/IconCopy';
-import { Presets } from 'react-component-transition';
 import InfoIcon from '@mui/icons-material/Info';
+import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import { Button, Typography, IconButton } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+
+import IconCopy from '../../../components/iconfont/IconCopy';
 
 const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   const [canGoNext, setCanGoNext] = useState(false);
   const [isCoverBlur, coverBlur] = useState(true);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4" sx={{ fontWeight: 700 }} color="neutral.contrastText">
           {chrome.i18n.getMessage('Recovery')}
@@ -189,7 +189,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
             justifyContent: 'flex-end',
           }}
         >
-          <Presets.TransitionSlideUp>
+          <SlideRelative show={true} direction="up">
             <Box
               sx={{
                 width: '95%',
@@ -213,7 +213,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
                 )}
               </Typography>
             </Box>
-          </Presets.TransitionSlideUp>
+          </SlideRelative>
           <Button
             disabled={!canGoNext}
             onClick={handleClick}
@@ -232,7 +232,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
           </Button>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

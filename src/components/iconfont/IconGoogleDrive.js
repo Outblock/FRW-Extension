@@ -7,7 +7,7 @@ const DEFAULT_STYLE = {
   display: 'block',
 };
 
-const IconGoogleDrive = ({ size, color, style: _style, ...rest }) => {
+const IconGoogleDrive = ({ size = 18, color, style: _style, ...rest }) => {
   const style = _style ? { ...DEFAULT_STYLE, ..._style } : DEFAULT_STYLE;
 
   return (
@@ -26,10 +26,6 @@ const IconGoogleDrive = ({ size, color, style: _style, ...rest }) => {
       />
     </svg>
   );
-};
-
-IconGoogleDrive.defaultProps = {
-  size: 18,
 };
 
 export default IconGoogleDrive;

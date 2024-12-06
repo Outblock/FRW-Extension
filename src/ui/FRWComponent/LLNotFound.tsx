@@ -1,16 +1,14 @@
+import { Box, Button, Typography, CardMedia, Stack } from '@mui/material';
 import React from 'react';
-import { Box, Button, Typography, CardMedia, Stack, CssBaseline } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../style/LLTheme';
-import NotFoundIcon from 'ui/FRWAssets/svg/notfound.svg';
 import { useHistory } from 'react-router-dom';
+
+import NotFoundIcon from 'ui/FRWAssets/svg/notfound.svg';
 
 export const LLNotFound = ({ setShowDialog }) => {
   const history = useHistory();
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox ">
         <CardMedia
           sx={{ margin: '0 auto', width: '172px', height: '120px', display: 'block' }}
@@ -69,6 +67,6 @@ export const LLNotFound = ({ setShowDialog }) => {
           </Button>
         </Stack>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };

@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@mui/styles';
-import { useHistory } from 'react-router-dom';
-import { openInternalPageInTab } from 'ui/utils/webapi';
-import { Typography, Box, IconButton, Skeleton, Button } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import reset from '../../../FRWAssets/svg/reset.svg';
-import { useWallet } from 'ui/utils';
-import { UserInfoResponse } from 'background/service/networkModel';
-import { withPrefix } from '@/ui/utils/address';
+import { Typography, Box, IconButton, Skeleton, Button } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { withPrefix } from '@/shared/utils/address';
 import { LLSecondaryButton } from '@/ui/FRWComponent';
+import { type UserInfoResponse } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
+import { openInternalPageInTab } from 'ui/utils/webapi';
+
+import reset from '../../../FRWAssets/svg/reset.svg';
 
 const useStyles = makeStyles(() => ({
   arrowback: {
@@ -111,16 +113,16 @@ const RemoveWallet = ({ hideBackButton = false }) => {
 
   const [walletList, setWalletList] = useState([]);
 
-  const setUserWallet = async () => {
+  const setUserWallet = useCallback(async () => {
     const userInfo = await usewallet.getUserInfo(true);
     const wallet = await usewallet.getUserWallets();
     await setWallet(wallet);
     await setUserInfo(userInfo);
-  };
+  }, [usewallet]);
 
   useEffect(() => {
     setUserWallet();
-  }, []);
+  }, [setUserWallet]);
 
   useEffect(() => {
     const list = wallets(userWallet);

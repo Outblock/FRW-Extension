@@ -1,6 +1,6 @@
-import React from 'react';
-import { IconButton, Alert, Collapse } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { IconButton, Alert, Collapse } from '@mui/material';
+import React from 'react';
 
 interface ComingSoonProps {
   alertOpen: boolean;

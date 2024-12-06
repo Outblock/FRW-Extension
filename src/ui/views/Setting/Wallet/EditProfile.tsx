@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
@@ -12,13 +12,14 @@ import {
   Avatar,
   CardMedia,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { isValidEthereumAddress } from 'ui/utils/address';
+
+import { isValidEthereumAddress } from '@/shared/utils/address';
+import emojis from 'background/utils/emoji.json';
 import homeMoveFt from 'ui/FRWAssets/svg/homeMoveFt.svg';
 import moveSvg from 'ui/FRWAssets/svg/moveSvg.svg';
-import emojis from 'background/utils/emoji.json';
+import { useWallet } from 'ui/utils';
 import { profileHooks } from 'ui/utils/profileHooks';
 
 interface MoveBoardProps {
@@ -41,9 +42,9 @@ const EditProfile = (props: MoveBoardProps) => {
 
   // console.log('props.loggedInAccounts', props.current)
 
-  const requestChildType = async () => {
+  const requestChildType = useCallback(async () => {
     setSelectEmoji(props.emoji);
-  };
+  }, [props.emoji]);
 
   const changeProfile = async () => {
     const address = props.userWallet[0].blockchain[0].address;
@@ -51,7 +52,7 @@ const EditProfile = (props: MoveBoardProps) => {
     if (isValidEthereumAddress(address)) {
       childType = 'evm';
     }
-    await usewallet.setEmoji(selectedEmoji, childType);
+    await usewallet.setEmoji(selectedEmoji, childType, props.userWallet[0].blockchain[0].id);
     setSelectEmoji(selectedEmoji);
     updateEmojis();
     props.updateProfileEmoji(selectedEmoji);
@@ -64,7 +65,7 @@ const EditProfile = (props: MoveBoardProps) => {
 
   useEffect(() => {
     requestChildType();
-  }, [props.emoji]);
+  }, [props.emoji, requestChildType]);
 
   return (
     <Drawer

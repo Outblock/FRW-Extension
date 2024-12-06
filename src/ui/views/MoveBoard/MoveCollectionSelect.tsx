@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Button,
@@ -12,13 +13,13 @@ import {
   Avatar,
   CardMedia,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import popLock from 'ui/FRWAssets/svg/popLock.svg';
+
 import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
-import SearchIcon from '@mui/icons-material/Search';
+import popLock from 'ui/FRWAssets/svg/popLock.svg';
 import selected from 'ui/FRWAssets/svg/selected.svg';
+import { useWallet } from 'ui/utils';
 
 const MoveCollectionSelect = ({
   showMoveBoard,

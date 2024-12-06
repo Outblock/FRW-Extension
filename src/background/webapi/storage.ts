@@ -5,7 +5,6 @@ const get = async (prop?) => {
 };
 
 const getSession = async (prop?) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
 
   const result = await chrome.storage.session?.get(prop);
@@ -27,7 +26,6 @@ const set = async (prop, value): Promise<void> => {
 };
 
 const setSession = async (prop, value): Promise<void> => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   await chrome.storage.session?.set({ [prop]: value });
 };
@@ -79,7 +77,6 @@ const remove = async (prop) => {
 };
 
 const removeSession = async (prop) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   await chrome.storage.session?.remove(prop);
 };
@@ -89,7 +86,6 @@ const clear = async () => {
 };
 
 const clearSession = async () => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   await chrome.storage.session?.clear();
 };

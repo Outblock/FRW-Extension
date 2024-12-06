@@ -6,7 +6,6 @@ export const splitNumberByStep = (
   symbol = ',',
   forceInt = false
 ) => {
-  // eslint-disable-next-line prefer-const
   let [int, float] = (num + '').split('.');
   const reg = new RegExp(`(\\d)(?=(\\d{${step}})+(?!\\d))`, 'g');
 
@@ -50,14 +49,12 @@ export const formatLargeNumber = (num) => {
 export const addDotSeparators = (num) => {
   // replace with http://numeraljs.com/ if more requirements
   const [integerPart, decimalPart] = parseFloat(num).toFixed(8).split('.');
+
+  // Format the integer part with comma separators
   const newIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  let result = `${newIntegerPart}.${decimalPart}`;
+  const trimmedDecimal = decimalPart.replace(/0+$/, '');
+  const formattedDecimal = trimmedDecimal.length > 0 ? trimmedDecimal : decimalPart.slice(-3);
 
-  // Check if the total length of the result exceeds 13 characters
-  if (result.length > 13) {
-    result = result.slice(0, 13) + '...';
-  }
-
-  return result;
+  return `${newIntegerPart}.${formattedDecimal}`;
 };

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Typography } from '@mui/material';
+import React from 'react';
 
 const TestnetWarning: React.FC = () => {
   return (

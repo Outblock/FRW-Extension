@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const Dotenv = require('dotenv-webpack');
+const CopyPlugin = require('copy-webpack-plugin');
 
 // for extension local test, can build each time
 const config = {
@@ -19,6 +20,14 @@ const config = {
     }),
     new Dotenv({
       path: '.env.dev',
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: '_raw/react-devtools.js',
+          to: 'react-devtools.js',
+        },
+      ],
     }),
   ],
   resolve: {

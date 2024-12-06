@@ -1,7 +1,7 @@
-import { useEffect, useState, useContext } from 'react';
-import React from 'react';
 import { Typography, FormControl, Input, Box } from '@mui/material';
-import { Presets } from 'react-component-transition';
+import React from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 
 const SeedPhrase = ({ helperText, msgBgColor, mnemonic, setmnemonic }) => {
   return (
@@ -42,20 +42,18 @@ const SeedPhrase = ({ helperText, msgBgColor, mnemonic, setmnemonic }) => {
               },
             }}
           />
-          <Presets.TransitionSlideUp>
-            {mnemonic && (
-              <Box
-                sx={{
-                  width: '95%',
-                  backgroundColor: msgBgColor(),
-                  mx: 'auto',
-                  borderRadius: '0 0 12px 12px',
-                }}
-              >
-                <Box sx={{ p: '4px' }}>{helperText}</Box>
-              </Box>
-            )}
-          </Presets.TransitionSlideUp>
+          <SlideRelative direction="down" show={!!mnemonic}>
+            <Box
+              sx={{
+                width: '95%',
+                backgroundColor: msgBgColor(),
+                mx: 'auto',
+                borderRadius: '0 0 12px 12px',
+              }}
+            >
+              <Box sx={{ p: '4px' }}>{helperText}</Box>
+            </Box>
+          </SlideRelative>
         </FormControl>
       </Box>
     </Box>

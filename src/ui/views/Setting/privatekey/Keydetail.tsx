@@ -1,45 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Box, Grid, IconButton, Typography } from '@mui/material';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation, useRouteMatch } from 'react-router-dom';
 
-import { Box, Grid, IconButton } from '@mui/material';
-import { Typography } from '@mui/material';
-import { useRouteMatch } from 'react-router-dom';
-import IconCopy from '../../../../components/iconfont/IconCopy';
-import { useWallet } from 'ui/utils';
-import { LLHeader } from '@/ui/FRWComponent';
-import { pk2PubKey } from '../../../utils/modules/passkey';
 import { storage } from '@/background/webapi';
+import { LLHeader } from '@/ui/FRWComponent';
+import { getStoragedAccount } from 'background/utils/getStoragedAccount';
+import { useWallet } from 'ui/utils';
+
+import IconCopy from '../../../../components/iconfont/IconCopy';
 interface State {
   password: string;
 }
 
 const Keydetail = () => {
   const location = useLocation<State>();
-  const match = useRouteMatch();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [privatekey, setKey] = useState('');
   const [publickey, setPublicKey] = useState('');
+  const [hashAlgorithm, setHash] = useState('');
+  const [signAlgorithm, setSign] = useState('');
 
-  const verify = async () => {
-    const pwd = location.state.password;
-    const result = await wallet.getKey(pwd);
-    // const privateKey = hdwallet
-    //   .derive("m/44'/539'/0'/0/0")
-    //   .getPrivateKey()
-    //   .toString('hex');
-    setKey(result);
-    const pubKey = await storage.get('pubKey');
-    setPublicKey(pubKey);
-  };
+  const verify = useCallback(async () => {
+    try {
+      const pwd = location.state.password;
+      const result = await usewallet.getKey(pwd);
+      setKey(result);
 
-  const setTab = async () => {
-    await wallet.setDashIndex(3);
-  };
+      const pubKey = await storage.get('pubKey');
+      const account = await getStoragedAccount();
+      const { hashAlgo, signAlgo } = account;
+
+      setPublicKey(pubKey);
+      setHash(hashAlgo);
+      setSign(signAlgo);
+    } catch (error) {
+      console.error('Error during verification:', error);
+    }
+  }, [location.state.password, usewallet, setKey, setPublicKey, setHash, setSign]);
+
+  const setTab = useCallback(async () => {
+    try {
+      await usewallet.setDashIndex(3); // Set the dashboard index in the wallet
+    } catch (error) {
+      console.error('Error setting tab:', error);
+    }
+  }, [usewallet]);
 
   useEffect(() => {
     setTab();
     verify();
-  }, []);
+  }, [verify, setTab]);
 
   const CredentialBox = ({ data }) => {
     return (
@@ -95,7 +105,7 @@ const Keydetail = () => {
   };
 
   return (
-    <div className="page">
+    <Box className="page">
       <LLHeader title={chrome.i18n.getMessage('Private__Key')} help={false} />
       <Typography variant="body1" align="left" py="14px" px="20px" fontSize="17px">
         {chrome.i18n.getMessage('Private__Key')}
@@ -114,7 +124,7 @@ const Keydetail = () => {
           px: '20px',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: '30px',
+          paddingY: '30px',
         }}
       >
         <Box
@@ -126,7 +136,7 @@ const Keydetail = () => {
         >
           <Typography variant="body1" color="text.secondary" align="left" fontSize="14px">
             {chrome.i18n.getMessage('Hash__Algorithm')} <br />
-            SHA2_256
+            {hashAlgorithm}
           </Typography>
         </Box>
         <Box
@@ -138,11 +148,11 @@ const Keydetail = () => {
         >
           <Typography variant="body1" color="text.secondary" align="left" fontSize="14px">
             {chrome.i18n.getMessage('Sign__Algorithm')} <br />
-            ECDSA_secp256k1
+            {signAlgorithm}
           </Typography>
         </Box>
       </Box>
-    </div>
+    </Box>
   );
 };
 

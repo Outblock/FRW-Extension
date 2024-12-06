@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import {
   Box,
   Typography,
@@ -13,14 +13,16 @@ import {
   Chip,
   Tooltip,
 } from '@mui/material';
+import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
+import BN from 'bignumber.js';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+
+import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
 import IconSwitch from '../../../components/iconfont/IconSwitch';
-import CancelIcon from '../../../components/iconfont/IconClose';
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
-import { StyledEngineProvider } from '@mui/material/styles';
-import BN from 'bignumber.js';
-import { Presets } from 'react-component-transition';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -141,13 +143,13 @@ const TransferAmount = ({
     setCoinType(!coinType);
   };
 
-  const currentCoinType = () => {
+  const currentCoinType = useCallback(() => {
     setCoin(coinInfo.unit);
-  };
+  }, [coinInfo.unit]);
 
   useEffect(() => {
     currentCoinType();
-  }, []);
+  }, [currentCoinType]);
 
   useEffect(() => {
     if (coinType) {
@@ -164,7 +166,7 @@ const TransferAmount = ({
         setAmount(parseFloat(value.toFixed(3)));
       }
     }
-  }, [secondAmount]);
+  }, [coinInfo.balance, coinInfo.price, coinType, secondAmount, setAmount, setExceed]);
 
   useEffect(() => {
     if (!coinType) {
@@ -183,7 +185,7 @@ const TransferAmount = ({
         setSecondAmount(value);
       }
     }
-  }, [amount, coin]);
+  }, [amount, coin, coinInfo, coinType, setExceed, setSecondAmount]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -335,33 +337,31 @@ const TransferAmount = ({
             </IconButton>
           </Box>
         </Box>
-        <Presets.TransitionSlideUp>
-          {exceed && (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                width: '95%',
-                backgroundColor: 'error.light',
-                mx: 'auto',
-                borderRadius: '0 0 12px 12px',
-              }}
+        <SlideRelative direction="down" show={exceed}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '95%',
+              backgroundColor: 'error.light',
+              mx: 'auto',
+              borderRadius: '0 0 12px 12px',
+            }}
+          >
+            <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}
             >
-              <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}
-              >
-                {chrome.i18n.getMessage('Insufficient_balance') +
-                  (coin === 'flow'
-                    ? chrome.i18n.getMessage('on_Flow_the_balance_cant_less_than_0001_FLOW')
-                    : '')}
-              </Typography>
-            </Box>
-          )}
-        </Presets.TransitionSlideUp>
+              {chrome.i18n.getMessage('Insufficient_balance') +
+                (coin === 'flow'
+                  ? chrome.i18n.getMessage('on_Flow_the_balance_cant_less_than_0001_FLOW')
+                  : '')}
+            </Typography>
+          </Box>
+        </SlideRelative>
       </Box>
     </StyledEngineProvider>
   );

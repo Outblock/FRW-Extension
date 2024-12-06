@@ -129,7 +129,7 @@ const TokenDetail = () => {
     }
     setProviders(result);
     if (result.length === 0) {
-      const data = await usewallet.openapi.getTokenPrices();
+      const data = await usewallet.openapi.getTokenPrices('pricesMap');
       const price = await usewallet.openapi.getPricesByAddress(tokenResult!.address, data);
       if (price) {
         setPrice(price);
@@ -240,8 +240,7 @@ const TokenDetail = () => {
             />
           )}
           {token === 'flow' && <StackingCard network={network} />}
-          {/* {network === 'testnet' || network === 'crescendo' && token === 'flow' && <ClaimTokenCard token={token} />} */}
-          <ClaimTokenCard token={token} />
+          {network === 'testnet' && token === 'flow' && <ClaimTokenCard token={token} />}
           {providers?.length > 0 && (
             <PriceCard token={token} price={price} setPrice={setPrice} providers={providers} />
           )}

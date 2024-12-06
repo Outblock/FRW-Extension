@@ -1,17 +1,16 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import wallet from '@/background/controller/wallet';
+import { withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import type { Contact } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
-import { withPrefix } from 'ui/utils/address';
 
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
 import theme from '../../../style/LLTheme';
@@ -27,40 +26,39 @@ interface TransferConfirmationProps {
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
 }
+const USER_CONTACT = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+} as unknown as Contact;
+
+const EVM_CONTACT = {
+  address: '',
+  id: 0,
+  contact_name: '',
+  avatar: '',
+  domain: {
+    domain_type: 999,
+    value: '',
+  },
+} as unknown as Contact;
+
+const EMPTY_COIN: CoinItem = {
+  coin: '',
+  unit: '',
+  balance: 0,
+  price: 0,
+  change24h: 0,
+  total: 0,
+  icon: '',
+};
 
 const MoveFromEvm = (props: TransferConfirmationProps) => {
-  const userContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
-
-  const evmContact = {
-    address: '',
-    id: 0,
-    contact_name: '',
-    avatar: '',
-    domain: {
-      domain_type: 999,
-      value: '',
-    },
-  } as unknown as Contact;
-
-  const empty: CoinItem = {
-    coin: '',
-    unit: '',
-    balance: 0,
-    price: 0,
-    change24h: 0,
-    total: 0,
-    icon: '',
-  };
-
   const usewallet = useWallet();
   const history = useHistory();
   const [userWallet, setWallet] = useState<any>(null);
@@ -69,11 +67,11 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
   // const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>('');
   // const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(userContact);
-  const [evmUserInfo, setEvmUser] = useState<Contact>(evmContact);
+  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
+  const [evmUserInfo, setEvmUser] = useState<Contact>(EVM_CONTACT);
   const [network, setNetwork] = useState('mainnet');
   const [evmAddress, setEvmAddress] = useState('');
-  const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
+  const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
   const [exceed, setExceed] = useState(false);
@@ -81,13 +79,14 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
+    coin: currentCoin,
     movingBetweenEVMAndFlow: true,
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
   const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
-  const setUserWallet = async () => {
+  const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const wallet = await usewallet.getMainWallet();
@@ -101,30 +100,30 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     setEvmAddress(evmWallet.address);
     const coinList = await usewallet.getCoinList();
     setCoinList(coinList);
-    const tokenResult = await usewallet.openapi.getTokenInfo(token, network);
+    const tokenResult = await usewallet.openapi.getEvmTokenInfo(token, network);
     const coinInfo = coinList.find(
       (coin) => coin && coin.unit.toLowerCase() === tokenResult!.symbol.toLowerCase()
     );
     setCoinInfo(coinInfo!);
 
     const info = await usewallet.getUserInfo(false);
-    userContact.address = withPrefix(wallet) || '';
-    userContact.avatar = info.avatar;
-    userContact.contact_name = info.username;
+
+    const userContact = {
+      ...USER_CONTACT,
+      address: withPrefix(wallet) || '',
+      avatar: info.avatar,
+      contact_name: info.username,
+    };
     setUser(userContact);
 
-    evmContact.address = withPrefix(evmWallet.address) || '';
-    evmContact.avatar = evmWallet.icon;
-    evmContact.contact_name = evmWallet.name;
+    const evmContact = {
+      ...EVM_CONTACT,
+      address: withPrefix(evmWallet.address) || '',
+      avatar: evmWallet.icon,
+      contact_name: evmWallet.name,
+    };
     setEvmUser(evmContact);
-    setUserMinAmount();
 
-    // const result = await usewallet.openapi.fetchTokenList(network);
-    setLoading(false);
-    return;
-  };
-
-  const setUserMinAmount = async () => {
     try {
       // Try fetching the min amount from the API
       const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
@@ -134,7 +133,10 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
       console.error('Error fetching min amount:', error);
       setMinAmount(0.001);
     }
-  };
+    // const result = await usewallet.openapi.fetchTokenList(network);
+    setLoading(false);
+    return;
+  }, [usewallet]);
 
   const moveToken = async () => {
     setLoading(true);
@@ -160,7 +162,7 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
   const bridgeToken = async () => {
     setLoading(true);
-    const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
+    const tokenResult = await wallet.openapi.getEvmTokenInfo(currentCoin, network);
 
     let flowId = tokenResult!['flowIdentifier'];
 
@@ -192,14 +194,14 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
       });
   };
 
-  const handleCoinInfo = async () => {
+  const handleCoinInfo = useCallback(async () => {
     if (coinList.length > 0) {
       const coinInfo = coinList.find(
         (coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase()
       );
       setCoinInfo(coinInfo!);
     }
-  };
+  }, [coinList, currentCoin]);
 
   const handleMove = async () => {
     if (currentCoin.toLowerCase() === 'flow') {
@@ -211,11 +213,11 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
   useEffect(() => {
     setUserWallet();
-  }, []);
+  }, [setUserWallet]);
 
   useEffect(() => {
     handleCoinInfo();
-  }, [currentCoin]);
+  }, [currentCoin, handleCoinInfo]);
 
   return (
     <Drawer

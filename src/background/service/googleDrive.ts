@@ -44,7 +44,7 @@ class GoogleDriveService {
   hasGooglePremission = async (): Promise<boolean> => {
     try {
       const token = await this.getAuthTokenWrapper(false);
-      return token != undefined || token != null;
+      return token !== undefined && token !== null;
     } catch (err) {
       return false;
     }

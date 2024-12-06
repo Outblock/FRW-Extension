@@ -1,11 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Core } from '@walletconnect/core';
-import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet';
-import { formatJsonRpcResult } from '@walletconnect/jsonrpc-utils';
-import { getSdkError } from '@walletconnect/utils';
-import { DeviceInfo, DeviceInfoRequest, AccountKey } from 'background/service/networkModel';
-import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
-
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Typography,
   Box,
@@ -18,16 +11,29 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import { styled } from '@mui/material/styles';
-import { FCLWalletConnectMethod } from '@/ui/utils/type';
-import { useWallet } from 'ui/utils';
+import { Core } from '@walletconnect/core';
+import { formatJsonRpcResult } from '@walletconnect/jsonrpc-utils';
+import { getSdkError } from '@walletconnect/utils';
+import { Web3Wallet, type Web3WalletTypes } from '@walletconnect/web3wallet';
+import React, { useState, useEffect } from 'react';
 import { useForm, FieldValues } from 'react-hook-form';
-import micone from '../../../FRWAssets/image/micone.png';
-import licon from '../../../FRWAssets/image/licon.png';
-import dicon from '../../../FRWAssets/image/dicon.png';
-import closeCircle from '../../../FRWAssets/image/closeCircle.png';
 import { useHistory } from 'react-router-dom';
+
+import { FCLWalletConnectMethod } from '@/ui/utils/type';
+import {
+  type DeviceInfo,
+  type DeviceInfoRequest,
+  type AccountKey,
+} from 'background/service/networkModel';
+import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import closeCircle from '../../../FRWAssets/image/closeCircle.png';
+import dicon from '../../../FRWAssets/image/dicon.png';
+import licon from '../../../FRWAssets/image/licon.png';
+import micone from '../../../FRWAssets/image/micone.png';
+
 import QrScannerComponent from './QrScannerComponent';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
@@ -79,7 +85,6 @@ const WalletConnect = (props: RevokePageProps) => {
     const createWeb3Wallet = async () => {
       try {
         const wallet = await Web3Wallet.init({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore: Unreachable code error
           core: new Core({
             projectId: process.env.WC_PROJECTID,

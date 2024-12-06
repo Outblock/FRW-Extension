@@ -1,5 +1,5 @@
-import React from 'react';
 import { Typography, Box, Stack } from '@mui/material';
+import React from 'react';
 
 const CustomEvmForm = ({ coinInfo }) => {
   const renderContent = () => (

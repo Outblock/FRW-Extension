@@ -1,21 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
-import { Box, ThemeProvider } from '@mui/system';
-import {
-  Button,
-  Typography,
-  IconButton,
-  Input,
-  InputAdornment,
-  FormGroup,
-  CssBaseline,
-} from '@mui/material';
-import CancelIcon from '../../../../../components/iconfont/IconClose';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Presets } from 'react-component-transition';
-import theme from '../../../../style/LLTheme';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { Button, Typography, IconButton, Input, InputAdornment, FormGroup } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
+
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
+
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -123,8 +116,7 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
   }, [password]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box className="registerBox">
         <Typography variant="h4">
           {chrome.i18n.getMessage('Welcome__Back')}
@@ -168,7 +160,9 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
                 </InputAdornment>
               }
             />
-            <Presets.TransitionSlideUp>{password && helperText}</Presets.TransitionSlideUp>
+            <SlideRelative direction="down" show={!!password}>
+              {helperText}
+            </SlideRelative>
           </FormGroup>
         </Box>
 
@@ -192,7 +186,7 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
           </Typography>
         </Button>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 
