@@ -22,6 +22,7 @@ export const WarningStorageLowSnackbar = ({
     return null;
   }
   return (
-    <WarningSnackbar open={true} onClose={() => {}} alertIcon={warningIcon} message={message} />
+    // <WarningSnackbar open={true} onClose={() => {}} alertIcon={warningIcon} message={message} />
+    <></>
   );
 };
