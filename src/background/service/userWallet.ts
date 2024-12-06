@@ -141,7 +141,6 @@ class UserWallet {
       this.store.evmWallet.address = wallet.address;
     } else if (index !== null) {
       await storage.set('currentWalletIndex', index);
-      console.log('setCurernt wallet ', index);
       const current = this.store.wallets[network][index].blockchain[0];
       this.store.currentWallet = current;
     } else {
