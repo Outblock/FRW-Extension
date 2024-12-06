@@ -1,13 +1,9 @@
 import InfoIcon from '@mui/icons-material/Info';
-import LockOpenRoundedIcon from '@mui/icons-material/LockOpenRounded';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import { Button, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-
-import IconCopy from '../../../components/iconfont/IconCopy';
 
 const randomElement = (list: any[]) => {
   return list[Math.floor(Math.random() * list.length)];
@@ -27,16 +23,21 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
   const [selectedPhrase, setSelect] = useState<any[]>([]);
   const [repeatArray, setRepeat] = useState<string[][]>([[], [], []]);
 
-  const mnemonicArray = mnemonic.split(' ');
-  const fullIndex = [...Array(mnemonicArray.length).keys()];
-  const positionList: number[][] = chunkArray(fullIndex, Math.floor(mnemonicArray.length / 3));
+  const mnemonicArray = useMemo(() => mnemonic.split(' '), [mnemonic]);
+  const fullIndex = useMemo(() => [...Array(mnemonicArray.length).keys()], [mnemonicArray]);
+  const positionList = useMemo(
+    () => chunkArray(fullIndex, Math.floor(mnemonicArray.length / 3)),
+    [fullIndex, mnemonicArray]
+  );
 
-  const setSelected = (i, v) => {
-    const tempArray = selectedPhrase;
-    tempArray[i] = v;
-    setSelect([...tempArray]);
-    console.log(selectedPhrase);
-  };
+  const setSelected = useCallback(
+    (i, v) => {
+      const tempArray = selectedPhrase;
+      tempArray[i] = v;
+      setSelect([...tempArray]);
+    },
+    [selectedPhrase]
+  );
 
   const checkMatch = () => {
     const correctMatch = chosenIndex.map((index) => mnemonicArray[index]);
@@ -81,7 +82,6 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
     setChosen(arr);
     setRepeat(repeatMap);
   }, [mnemonicArray, positionList]);
-
   useEffect(() => {
     handleRandom();
   }, [handleRandom]);
