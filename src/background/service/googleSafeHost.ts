@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { createPersistStore } from 'background/utils';
 
 interface GoogleHostModel {

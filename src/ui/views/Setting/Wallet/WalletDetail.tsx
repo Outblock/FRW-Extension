@@ -294,8 +294,13 @@ const WalletDetail = () => {
     const savedWallet = await storage.get('walletDetail');
     const walletDetail = JSON.parse(savedWallet);
     if (walletDetail) {
+      console.log('walletDetail ', walletDetail);
       setWallet([walletDetail.wallet]);
-      setEmoji(walletDetail.selectedEmoji);
+      const selectingEmoji = {};
+      selectingEmoji['name'] = walletDetail.wallet.name;
+      selectingEmoji['emoji'] = walletDetail.wallet.icon;
+      selectingEmoji['bgcolor'] = walletDetail.wallet.color;
+      setEmoji(selectingEmoji);
     }
   }, [usewallet]);
 

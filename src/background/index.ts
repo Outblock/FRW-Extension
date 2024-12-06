@@ -280,7 +280,7 @@ const findPath = (service) => {
     case 'authn':
       return 'Connect';
     case 'authz':
-      return 'Confimation';
+      return 'Confirmation';
     case 'user-signature':
       return 'SignMessage';
     default:

@@ -4,15 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import { useWallet } from 'ui/utils';
 
-const tempEmoji = {
-  emoji: '🥥',
-  name: 'Coconut',
-  bgcolor: '#FFE4C4',
-};
-
 export const FRWChildProfile = ({ contact, address, isLoading = false }) => {
   const usewallet = useWallet();
-  const [emoji, setEmoji] = useState(tempEmoji);
 
   const getName = (name: string) => {
     if (!name) {
@@ -24,19 +17,6 @@ export const FRWChildProfile = ({ contact, address, isLoading = false }) => {
       return name[0].toUpperCase();
     }
   };
-
-  const getEmoji = useCallback(async () => {
-    const emojiList = await usewallet.getEmoji();
-    if (isValidEthereumAddress(contact.address)) {
-      setEmoji(emojiList[1]);
-    } else {
-      setEmoji(emojiList[0]);
-    }
-  }, [contact, usewallet]);
-
-  useEffect(() => {
-    getEmoji();
-  }, [contact, getEmoji]);
 
   return (
     <>

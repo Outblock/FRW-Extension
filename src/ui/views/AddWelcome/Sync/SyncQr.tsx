@@ -80,9 +80,7 @@ const SyncQr = ({
   const [loading, setShowLoading] = useState<boolean>(false);
   const [session, setSession] = useState<SessionTypes.Struct>();
   const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
-  const [currentNetwork, setNetwork] = useState(
-    process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet'
-  );
+  const [currentNetwork, setNetwork] = useState('mainnet');
 
   const loadNetwork = useCallback(async () => {
     const currentNetwork = await usewallet.getNetwork();

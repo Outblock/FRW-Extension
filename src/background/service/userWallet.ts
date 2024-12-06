@@ -51,22 +51,24 @@ class UserWallet {
           name: '',
           icon: '',
           address: '',
-          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: 'mainnet',
           id: 1,
           coins: ['flow'],
+          color: '',
         },
         evmWallet: {
           name: '',
           icon: '',
           address: '',
-          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: 'mainnet',
           id: 1,
           coins: ['flow'],
+          color: '',
         },
         activeChild: null,
         evmEnabled: false,
         monitor: 'flowscan',
-        network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        network: 'mainnet',
       },
     });
   };
@@ -83,33 +85,37 @@ class UserWallet {
         name: '',
         address: '',
         icon: '',
-        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        chain_id: 'mainnet',
         id: 1,
         coins: ['flow'],
+        color: '',
       },
       evmWallet: {
         name: '',
         address: '',
         icon: '',
-        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        chain_id: 'mainnet',
         id: 1,
         coins: ['flow'],
+        color: '',
       },
       activeChild: null,
       evmEnabled: false,
       monitor: 'flowscan',
-      network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      network: 'mainnet',
     };
   };
 
   setUserWallets = async (filteredData, network) => {
-    for (const wallet of filteredData) {
-      const chainId = wallet.chain_id;
-      this.store.wallets[chainId] = [wallet];
-    }
-
+    console.log('filteredData ', filteredData);
+    this.store.wallets[network] = filteredData;
+    let walletIndex = (await storage.get('currentWalletIndex')) || 0;
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
-      const current = this.store.wallets[network][0].blockchain[0];
+      if (walletIndex >= filteredData.length) {
+        walletIndex = 0; // Reset walletIndex to 0 if it exceeds the array length
+        await storage.set('currentWalletIndex', 0);
+      }
+      const current = this.store.wallets[network][walletIndex].blockchain[0];
       this.store.currentWallet = current;
     } else {
       console.error(`No wallet found for network: ${network}`);
@@ -128,11 +134,15 @@ class UserWallet {
     return this.store.activeChild;
   };
 
-  setCurrentWallet = (wallet: any, key: any, network: string) => {
+  setCurrentWallet = async (wallet: any, key: any, network: string, index = null) => {
     if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
     } else if (key === 'evm') {
       this.store.evmWallet.address = wallet.address;
+    } else if (index !== null) {
+      await storage.set('currentWalletIndex', index);
+      const current = this.store.wallets[network][index].blockchain[0];
+      this.store.currentWallet = current;
     } else {
       const current = this.store.wallets[network][0].blockchain[0];
       this.store.currentWallet = current;
@@ -153,7 +163,7 @@ class UserWallet {
     }
     if (this.store.network !== network) {
       this.store.activeChild = null;
-      this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
+      // this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
     }
     this.store.network = network;
   };
@@ -175,9 +185,10 @@ class UserWallet {
       name: '',
       address: '',
       icon: '',
-      chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      chain_id: 'mainnet',
       id: 1,
       coins: ['flow'],
+      color: '',
     };
     this.store.evmEnabled = false;
   };
@@ -219,21 +230,42 @@ class UserWallet {
     return this.store.evmWallet;
   };
 
-  setEvmAddress = (address: string) => {
+  setEvmAddress = (address: string, emoji) => {
+    console.log('emoji setEvmAddress ', emoji);
     if (address.length > 20) {
       this.store.evmWallet.address = address;
+      this.store.evmWallet.name = emoji[9].name;
+      this.store.evmWallet.icon = emoji[9].emoji;
+      this.store.evmWallet.color = emoji[9].bgcolor;
     } else {
       this.store.evmWallet.address = '';
     }
   };
 
-  getMainWallet = (network: string) => {
-    const wallet = this.store.wallets[network][0].blockchain[0];
+  setEvmEmoji = (emoji) => {
+    this.store.evmWallet.name = emoji.name;
+    this.store.evmWallet.icon = emoji.emoji;
+    this.store.evmWallet.color = emoji.bgcolor;
+  };
+
+  setWalletEmoji = (emoji, network, id) => {
+    this.store.wallets[network][id].name = emoji.name;
+    this.store.wallets[network][id].icon = emoji.emoji;
+    this.store.wallets[network][id].color = emoji.bgcolor;
+    this.store.wallets[network][id].blockchain[0].name = emoji.name;
+    this.store.wallets[network][id].blockchain[0].icon = emoji.emoji;
+    this.store.wallets[network][id].blockchain[0].color = emoji.bgcolor;
+  };
+
+  getMainWallet = async (network: string) => {
+    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return withPrefix(wallet.address) || '';
   };
 
-  returnMainWallet = (network: string) => {
-    const wallet = this.store.wallets[network][0].blockchain[0];
+  returnMainWallet = async (network: string) => {
+    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return wallet;
   };
 

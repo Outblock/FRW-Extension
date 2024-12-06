@@ -21,15 +21,14 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
   const [second, setSecond] = useState<string>('');
   const [userInfo, setUser] = useState<any>(USER_CONTACT);
   const [firstEmoji, setFirstEmoji] = useState<any>(null);
-  const [secondEmoji, setSecondEmoji] = useState<any>(null);
   const [childWallets, setChildWallets] = useState({});
 
   const requestAddress = useCallback(async () => {
     const parentAddress = await usewallet.getMainAddress();
     const address = await usewallet.getCurrentAddress();
     const childResp = await usewallet.checkUserChildAccount();
-    const emojires = await usewallet.getEmoji();
     const eWallet = await usewallet.getEvmWallet();
+    const currentWallet = await usewallet.getCurrentWallet();
     let evmAddress;
     if (eWallet.address) {
       evmAddress = ensureEvmAddressPrefix(eWallet.address);
@@ -37,10 +36,10 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
 
     const newWallet = {
       [parentAddress!]: {
-        name: emojires[0].name,
-        description: emojires[0].name,
+        name: currentWallet.name,
+        description: currentWallet.name,
         thumbnail: {
-          url: emojires[0].emoji,
+          url: currentWallet.icon,
         },
       },
     };
@@ -58,15 +57,15 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
+    console.log('wallet is here ', eWallet);
     setUser(userContact);
     if (isEvm) {
       setFirst(evmAddress!);
-      setFirstEmoji(emojires[1]);
+      setFirstEmoji(eWallet);
     } else {
       setFirst(address!);
     }
     setSecond(parentAddress!);
-    setSecondEmoji(emojires[0]);
   }, [isEvm, usewallet, setSelectedChildAccount]);
 
   useEffect(() => {
@@ -96,13 +95,13 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
                 borderRadius: '32px',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: firstEmoji ? firstEmoji['bgcolor'] : 'none',
+                backgroundColor: firstEmoji ? firstEmoji['color'] : 'none',
                 marginRight: '4px',
               }}
             >
               {firstEmoji ? (
                 <Typography sx={{ fontSize: '12px', fontWeight: '400' }}>
-                  {firstEmoji.emoji}
+                  {firstEmoji.icon}
                 </Typography>
               ) : (
                 <CardMedia

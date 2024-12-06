@@ -16,7 +16,7 @@ import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
-import { isValidEthereumAddress } from '@/shared/utils/address';
+import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
 import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
@@ -52,7 +52,6 @@ import {
   googleSafeHostService,
   mixpanelTrack,
 } from './index';
-
 // import { userInfo } from 'os';
 // import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
@@ -1148,12 +1147,13 @@ class OpenApiService {
 
   getAccountMinFlow = async (address: string) => {
     const script = await getScripts('basic', 'getAccountMinFlow');
-
-    const minFlow = await fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(address, t.Address)],
-    });
-    return minFlow;
+    if (isValidFlowAddress(address)) {
+      const minFlow = await fcl.query({
+        cadence: script,
+        args: (arg, t) => [arg(address, t.Address)],
+      });
+      return minFlow;
+    }
   };
 
   getFlownsDomainsByAddress = async (address: string) => {

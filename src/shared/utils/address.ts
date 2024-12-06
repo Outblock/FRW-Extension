@@ -3,12 +3,12 @@ import HDWallet from 'ethereum-hdwallet';
 import { type AccountKey } from 'background/service/networkModel';
 
 export function sansPrefix(address) {
-  if (address === null) return null;
+  if (!address) return null;
   return address.replace(/^0x/, '').replace(/^Fx/, '');
 }
 
 export function withPrefix(address): string | null {
-  if (address === null) return null;
+  if (!address) return null;
   return '0x' + sansPrefix(address);
 }
 
@@ -30,6 +30,11 @@ export const getAccountKey = (mnemonic) => {
 
 export const isValidEthereumAddress = (address) => {
   const regex = /^(0x)?[0-9a-fA-F]{40}$/;
+  return regex.test(address);
+};
+
+export const isValidFlowAddress = (address) => {
+  const regex = /^(0x)?[0-9a-fA-F]{16}$/;
   return regex.test(address);
 };
 

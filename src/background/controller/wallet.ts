@@ -13,6 +13,8 @@ import web3, { TransactionError } from 'web3';
 import eventBus from '@/eventBus';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+// eslint-disable-next-line import/order,no-restricted-imports
+import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
   preferenceService,
@@ -280,7 +282,7 @@ export class WalletController extends BaseController {
 
   // lockadd here
   lockAdd = async () => {
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = 'mainnet';
 
     const password = keyringService.getPassword();
     await storage.set('tempPassword', password);
@@ -294,7 +296,7 @@ export class WalletController extends BaseController {
 
   // lockadd here
   resetPwd = async () => {
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = 'mainnet';
     await storage.clear();
 
     await keyringService.resetKeyRing();
@@ -308,7 +310,7 @@ export class WalletController extends BaseController {
 
   // lockadd here
   restoreWallet = async () => {
-    const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+    const switchingTo = 'mainnet';
 
     const password = keyringService.getPassword();
     await storage.set('tempPassword', password);
@@ -898,16 +900,16 @@ export class WalletController extends BaseController {
   };
 
   checkUserChildAccount = async () => {
-    const cacheKey = 'checkUserChildAccount';
+    const network = await this.getNetwork();
+    const address = await userWalletService.getMainWallet(network);
+    const cacheKey = `checkUserChildAccount${address}`;
     const ttl = 5 * 60 * 1000; // 5 minutes in milliseconds
 
     // Try to get the cached result
     let meta = await storage.getExpiry(cacheKey);
     if (!meta) {
       try {
-        const network = await this.getNetwork();
         let result = {};
-        const address = await userWalletService.getMainWallet(network);
         result = await openapiService.checkChildAccountMeta(address);
 
         if (result) {
@@ -1578,21 +1580,75 @@ export class WalletController extends BaseController {
   //user wallets
   refreshUserWallets = async () => {
     const network = await this.getNetwork();
-    const active = await userWalletService.getActiveWallet();
-    const v2data = await openapiService.userWalletV2();
-    const filteredData = v2data.data.wallets.filter((item) => item.blockchain !== null);
 
-    if (!active) {
-      userInfoService.addUserId(v2data.data.id);
-      userWalletService.setUserWallets(filteredData, network);
+    const pubKey = await this.getPubKey();
+    const address = await findAddressWithNetwork(pubKey, network);
+    const emoji = await this.getEmoji();
+    if (!address) {
+      throw new Error("Can't find address in chain");
+    }
+    let transformedArray: any[];
+
+    // Check if the addresses array is empty
+    if (address.length === 0) {
+      // Add a placeholder blockchain item
+      transformedArray = [
+        {
+          id: 0,
+          name: 'flow',
+          chain_id: network,
+          icon: 'placeholder',
+          color: 'placeholder',
+          blockchain: [
+            {
+              id: 0,
+              name: 'Flow',
+              chain_id: network,
+              address: '0x00000000',
+              coins: ['flow'],
+              icon: '',
+            },
+          ],
+        },
+      ];
+    } else {
+      // Transform the address array into blockchain objects
+      transformedArray = address.map((item, index) => {
+        return {
+          id: 0,
+          name: emoji[index].name,
+          chain_id: network,
+          icon: emoji[index].emoji,
+          color: emoji[index].bgcolor,
+          blockchain: [
+            {
+              id: index,
+              name: emoji[index].name,
+              chain_id: network,
+              address: item.address,
+              coins: ['flow'],
+              icon: emoji[index].emoji,
+              color: emoji[index].bgcolor,
+            },
+          ],
+        };
+      });
     }
 
-    return filteredData;
+    console.log('v2data ', transformedArray, address);
+    const active = await userWalletService.getActiveWallet();
+    if (!active) {
+      // userInfoService.addUserId(v2data.data.id);
+      userWalletService.setUserWallets(transformedArray, network);
+    }
+
+    return transformedArray;
   };
 
   getUserWallets = async (): Promise<WalletResponse[]> => {
     const network = await this.getNetwork();
     const wallets = await userWalletService.getUserWallets(network);
+    console.log('getUserWallets ', wallets);
     if (!wallets[0]) {
       await this.refreshUserWallets();
       const data = await userWalletService.getUserWallets(network);
@@ -1619,11 +1675,11 @@ export class WalletController extends BaseController {
     return activeWallet;
   };
 
-  setActiveWallet = async (wallet: any, key: any) => {
+  setActiveWallet = async (wallet: any, key: any, index = null) => {
     await userWalletService.setActiveWallet(key);
 
     const network = await this.getNetwork();
-    await userWalletService.setCurrentWallet(wallet, key, network);
+    await userWalletService.setCurrentWallet(wallet, key, network, index);
   };
 
   hasCurrentWallet = async () => {
@@ -1633,6 +1689,7 @@ export class WalletController extends BaseController {
 
   getCurrentWallet = async () => {
     const wallet = await userWalletService.getCurrentWallet();
+    console.log('getCurrentWallet ', wallet);
     if (!wallet.address) {
       const network = await this.getNetwork();
       await this.refreshUserWallets();
@@ -1648,7 +1705,8 @@ export class WalletController extends BaseController {
   };
 
   setEvmAddress = async (address) => {
-    await userWalletService.setEvmAddress(address);
+    const emoji = await this.getEmoji();
+    await userWalletService.setEvmAddress(address, emoji);
   };
 
   getEvmAddress = async () => {
@@ -1660,10 +1718,10 @@ export class WalletController extends BaseController {
   getCurrentAddress = async () => {
     const address = await userWalletService.getCurrentAddress();
     if (!address) {
-      const data = this.refreshUserWallets();
+      const data = await this.refreshUserWallets();
       return withPrefix(data[0].blockchain[0].address);
     } else if (address.length < 3) {
-      const data = this.refreshUserWallets();
+      const data = await this.refreshUserWallets();
       return withPrefix(data[0].blockchain[0].address);
     }
     return withPrefix(address);
@@ -1673,10 +1731,10 @@ export class WalletController extends BaseController {
     const network = await this.getNetwork();
     const address = await userWalletService.getMainWallet(network);
     if (!address) {
-      const data = this.refreshUserWallets();
+      const data = await this.refreshUserWallets();
       return withPrefix(data[0].blockchain[0].address);
     } else if (address.length < 3) {
-      const data = this.refreshUserWallets();
+      const data = await this.refreshUserWallets();
       return withPrefix(data[0].blockchain[0].address);
     }
     return withPrefix(address);
@@ -2192,8 +2250,24 @@ export class WalletController extends BaseController {
   };
 
   getFlowBalance = async (address) => {
-    const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
-    return account.balance;
+    const cacheKey = `checkFlowBalance${address}`;
+    let balance = await storage.getExpiry(cacheKey);
+    const ttl = 1 * 60 * 1000;
+    if (!balance) {
+      try {
+        const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
+        balance = account.balance;
+        if (balance) {
+          // Store the result in the cache with an expiry
+          await storage.setExpiry(cacheKey, balance, ttl);
+        }
+      } catch (error) {
+        console.error('Error occurred:', error);
+        return {}; // Return an empty object in case of an error
+      }
+    }
+
+    return balance;
   };
 
   getNonce = async (hexEncodedAddress: string): Promise<string> => {
@@ -3257,7 +3331,6 @@ export class WalletController extends BaseController {
   refreshAll = async () => {
     await this.refreshUserWallets();
     this.clearNFT();
-    this.clearChildAccount();
     this.refreshAddressBook();
     this.refreshEvmWallets();
     await this.getCadenceScripts();
@@ -3280,11 +3353,7 @@ export class WalletController extends BaseController {
 
   getEvmEnabled = async (): Promise<boolean> => {
     const address = await this.getEvmAddress();
-    if (isValidEthereumAddress(address)) {
-      return true;
-    } else {
-      return false;
-    }
+    return !!address && isValidEthereumAddress(address);
   };
 
   refreshEvmWallets = () => {
@@ -3946,44 +4015,32 @@ export class WalletController extends BaseController {
 
   getEmoji = async () => {
     const currentId = await storage.get('currentId');
-    let emojires = await storage.get(`${currentId}emoji`);
-    if (!emojires) {
-      const index1 = Math.floor(Math.random() * emoji.emojis.length);
-      let index2;
+    // let emojires = await storage.get(`${currentId}emoji`)
+    // if (!emojires) {
+    //   const index1 = Math.floor(Math.random() * emoji.emojis.length);
+    //   let index2;
 
-      do {
-        index2 = Math.floor(Math.random() * emoji.emojis.length);
-      } while (index1 === index2);
+    //   do {
+    //     index2 = Math.floor(Math.random() * emoji.emojis.length);
+    //   } while (index1 === index2);
 
-      emojires = [emoji.emojis[index1], emoji.emojis[index2]];
-      storage.set(`${currentId}emoji`, emojires);
-    }
+    //   emojires = [emoji.emojis[index1], emoji.emojis[index2]];
+    //   storage.set(`${currentId}emoji`, emojires)
+    // }
 
-    return emojires;
+    return emoji.emojis;
   };
 
-  setEmoji = async (emoji, type) => {
-    const currentId = await storage.get('currentId');
-    let emojires = await storage.get(`${currentId}emoji`);
-    if (!emojires) {
-      const index1 = Math.floor(Math.random() * emoji.emojis.length);
-      let index2;
+  setEmoji = async (emoji, type, index) => {
+    const network = await this.getNetwork();
 
-      do {
-        index2 = Math.floor(Math.random() * emoji.emojis.length);
-      } while (index1 === index2);
-
-      emojires = [emoji.emojis[index1], emoji.emojis[index2]];
-    }
     if (type === 'evm') {
-      emojires[1] = emoji;
+      await userWalletService.setEvmEmoji(emoji);
     } else {
-      emojires[0] = emoji;
+      await userWalletService.setWalletEmoji(emoji, network, index);
     }
 
-    await storage.set(`${currentId}emoji`, emojires);
-
-    return emojires;
+    return emoji;
   };
 
   // Get the news from the server

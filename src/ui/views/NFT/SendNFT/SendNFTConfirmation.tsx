@@ -13,7 +13,7 @@ import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import erc721 from 'background/utils/erc721.abi.json';
 import { EVM_ENDPOINT } from 'consts';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
 
 import IconFlow from '../../../../components/iconfont/IconFlow';
@@ -390,7 +390,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             ))}
           </Box>
           {isEmoji(props.data.contact.avatar) ? (
-            <FRWProfile contact={props.data.contact} />
+            <FRWTargetProfile contact={props.data.contact} />
           ) : (
             <LLProfile contact={props.data.contact} />
           )}

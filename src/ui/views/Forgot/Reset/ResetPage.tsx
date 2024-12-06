@@ -1,8 +1,10 @@
+import { Typography, Box, Drawer, Stack } from '@mui/material';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Typography, Box, Drawer, Stack } from '@mui/material';
+
 import { LLPrimaryButton, LLSecondaryButton, LLWarningButton } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
+
 import ResetModal from '../../../FRWComponent/PopupModal/resetModal';
 import StepBox from '../stepBox';
 

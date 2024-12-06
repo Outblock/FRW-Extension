@@ -137,7 +137,6 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
 
   const [password, setPassword] = useState(tempPassword);
   const [newKey, setKeyNew] = useState(true);
-  const [isImport, setImport] = useState<any>(false);
 
   const [isLoading, setLoading] = useState(false);
 
@@ -171,7 +170,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
     } catch (error) {
       setLoading(false);
       if (error.message === 'NoUserFound') {
-        setImport(false);
+        setLoading(false);
       } else {
         setKeyNew(false);
       }
@@ -189,7 +188,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
       console.log(error);
       setLoading(false);
       if (error.message === 'NoUserFound') {
-        setImport(false);
+        setLoading(false);
       } else {
         setKeyNew(false);
       }

@@ -224,7 +224,12 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       <Box
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
-        <FRWProfile contact={props.data.userContact} isLoading={false} isEvm={true} />
+        <FRWProfile
+          contact={props.data.userContact}
+          isLoading={false}
+          isEvm={true}
+          fromEvm={'evmConfirm'}
+        />
         <Box
           sx={{
             marginLeft: '-15px',

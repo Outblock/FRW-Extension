@@ -1,4 +1,5 @@
 import { createSessionStore } from 'background/utils';
+
 import googleDriveService from './googleDrive';
 
 interface PasswordStore {

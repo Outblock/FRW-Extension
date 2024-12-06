@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { WalletUtils } from '@onflow/fcl';
 // import { nanoid } from 'nanoid';

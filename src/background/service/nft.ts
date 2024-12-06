@@ -1,6 +1,7 @@
 import { createPersistStore } from 'background/utils';
 import { storage } from 'background/webapi';
-import { NFTData, NFTCollectionData, NFTCollectionList } from './networkModel';
+
+import { type NFTData, type NFTCollectionData, type NFTCollectionList } from './networkModel';
 interface NftStore {
   nft: NFTNetwork;
   collection: NFTCollectionNetwork;

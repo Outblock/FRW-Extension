@@ -1,25 +1,28 @@
 /// fork from https://github.com/MetaMask/KeyringController/blob/master/index.js
 
 import { EventEmitter } from 'events';
-import log from 'loglevel';
+
+import { ObservableStore } from '@metamask/obs-store';
+import HdKeyring from '@rabby-wallet/eth-hd-keyring';
+import SimpleKeyring from '@rabby-wallet/eth-simple-keyring';
+import * as bip39 from 'bip39';
 import encryptor from 'browser-passworder';
 import * as ethUtil from 'ethereumjs-util';
-import * as bip39 from 'bip39';
-import { ObservableStore } from '@metamask/obs-store';
+import log from 'loglevel';
+
+import eventBus from '@/eventBus';
 import {
   normalizeAddress,
   setPageStateCacheWhenPopupClose,
   hasWalletConnectPageStateCache,
 } from 'background/utils';
-import SimpleKeyring from '@rabby-wallet/eth-simple-keyring';
-import HdKeyring from '@rabby-wallet/eth-hd-keyring';
-
-import preference from '../preference';
-import i18n from '../i18n';
 import { KEYRING_TYPE } from 'consts';
-import DisplayKeyring from './display';
-import eventBus from '@/eventBus';
+
 import { storage } from '../../webapi';
+import i18n from '../i18n';
+import preference from '../preference';
+
+import type DisplayKeyring from './display';
 
 export const KEYRING_SDK_TYPES = {
   SimpleKeyring,
@@ -1090,7 +1093,7 @@ class KeyringService extends EventEmitter {
    * Deallocates all currently managed keyrings and accounts.
    * Used before initializing a new vault.
    */
-  /* eslint-disable require-await */
+
   async clearKeyrings(): Promise<void> {
     // clear keyrings from memory
     this.keyrings = [];

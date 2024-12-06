@@ -1,8 +1,11 @@
 import { Box, Typography, Avatar, Skeleton } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
+
+import theme from '../style/LLTheme';
 
 const tempEmoji = {
   emoji: '🥥',
@@ -10,7 +13,7 @@ const tempEmoji = {
   bgcolor: '',
 };
 
-export const FRWProfile = ({ contact, isLoading = false, isEvm = false, fromEvm = '1' }) => {
+export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fromEvm = '1' }) => {
   const usewallet = useWallet();
   const [emoji, setEmoji] = useState(tempEmoji);
   const [isload, setLoad] = useState(true);
@@ -19,32 +22,34 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false, fromEvm 
     setLoad(true);
     if (isEvm) {
       const currentWallet = await usewallet.getEvmWallet();
-      console.log('getEvmWallet ', currentWallet);
-      const emojiObject = tempEmoji;
-      emojiObject.emoji = currentWallet.icon;
-      emojiObject.name = currentWallet.name;
-      emojiObject.bgcolor = currentWallet.color;
-      emojiObject['type'] = 'evm';
+      const emojiObject = {
+        ...tempEmoji,
+        emoji: currentWallet.icon,
+        name: currentWallet.name,
+        bgcolor: currentWallet.color,
+        type: 'evm',
+      };
       setEmoji(emojiObject);
-      setLoad(false);
     } else {
       const currentWallet = await usewallet.getCurrentWallet();
-      const emojiObject = tempEmoji;
-      emojiObject.emoji = currentWallet.icon;
-      emojiObject.name = currentWallet.name;
-      emojiObject.bgcolor = currentWallet.color;
-      emojiObject['type'] = 'parent';
+      const emojiObject = {
+        ...tempEmoji,
+        emoji: currentWallet.icon,
+        name: currentWallet.name,
+        bgcolor: currentWallet.color,
+        type: 'parent',
+      };
       setEmoji(emojiObject);
-      setLoad(false);
     }
+    setLoad(false);
   }, [isEvm, usewallet]);
 
   useEffect(() => {
     getEmoji();
-  }, [contact, getEmoji]);
+  }, [getEmoji]);
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <Box
         sx={{
           display: 'flex',
@@ -93,6 +98,6 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false, fromEvm 
         )}
         <Box sx={{ flexGrow: 1 }} />
       </Box>
-    </>
+    </ThemeProvider>
   );
 };

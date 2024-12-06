@@ -2,10 +2,11 @@ import { TypedDataUtils, SignTypedDataVersion, normalize } from '@metamask/eth-s
 import * as fcl from '@onflow/fcl';
 import BigNumber from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
-import { intToHex } from 'ethereumjs-util';
+import { isHexString, intToHex } from 'ethereumjs-util';
 import { ethers } from 'ethers';
 import RLP from 'rlp';
 import Web3 from 'web3';
+import { stringToHex } from 'web3-utils';
 
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import {
@@ -95,7 +96,6 @@ async function signMessage(msgParams, opts = {}) {
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');
-  console.log('keyindex ', [BigInt(keyindex)], account);
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(signableData, signAlgo, hashAlgo, privateKey);
 
@@ -388,7 +388,7 @@ class ProviderController extends BaseController {
         });
     }
   };
-  /*
+
   // Should not be in controller
   personalSign = async ({ data, approvalRes, session }) => {
     if (!data.params) return;
@@ -403,7 +403,7 @@ class ProviderController extends BaseController {
     });
     return result;
   };
- */
+
   private _checkAddress = async (address) => {
     return normalize(address).toLowerCase();
   };

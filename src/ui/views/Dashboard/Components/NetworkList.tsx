@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
 import { Box, ListItemButton, Typography, ListItem, ListItemIcon, CardMedia } from '@mui/material';
-import { useWallet } from 'ui/utils';
-import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
-import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
-import networkLink from '../../../FRWAssets/svg/networkLink.svg';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
+
+import { useWallet } from 'ui/utils';
+
+import mainnetIndicator from '../../../FRWAssets/svg/mainnetArrow.svg';
+import networkLink from '../../../FRWAssets/svg/networkLink.svg';
+import testnetIndicator from '../../../FRWAssets/svg/testnetArrow.svg';
 
 const NetworkList = ({ networkColor, currentNetwork }) => {
   const usewallet = useWallet();

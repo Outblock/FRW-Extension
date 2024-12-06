@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { useWallet } from './WalletContext';
@@ -7,29 +7,31 @@ import { getUiType } from './index';
 
 export const useApproval = () => {
   // console.log('useApproval 1')
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
 
   // console.log('useApproval 2')
 
-  const getApproval = useCallback(() => wallet.getApproval(), [wallet]);
+  const getApproval = useCallback(() => usewallet.getApproval(), [usewallet]);
+  const stableUsewallet = useMemo(() => usewallet, [usewallet]);
+  const stableHistory = useMemo(() => history, [history]);
 
   const linkingConfirm = useCallback(
     async (data?: any, stay = false, forceReject = false) => {
       const approval = await getApproval();
 
       if (approval) {
-        await wallet.resolveApproval(data, forceReject);
+        await stableUsewallet.resolveApproval(data, forceReject);
         return;
       }
       if (stay) {
         return;
       }
       // setTimeout(() => {
-      //   history.replace('/');
+      //   stableHistory.replace('/');
       // });
     },
-    [getApproval, wallet]
+    [getApproval, stableUsewallet]
   );
 
   const resolveApproval = useCallback(
@@ -37,27 +39,27 @@ export const useApproval = () => {
       const approval = await getApproval();
 
       if (approval) {
-        wallet.resolveApproval(data, forceReject);
+        stableUsewallet.resolveApproval(data, forceReject);
       }
       if (stay) {
         return;
       }
       setTimeout(() => {
-        history.replace('/');
+        stableHistory.replace('/');
       });
     },
-    [getApproval, wallet, history]
+    [getApproval, stableUsewallet, stableHistory]
   );
 
   const rejectApproval = useCallback(
     async (err?) => {
       const approval = await getApproval();
       if (approval) {
-        await wallet.rejectApproval(err);
+        await stableUsewallet.rejectApproval(err);
       }
-      history.push('/');
+      stableHistory.push('/');
     },
-    [getApproval, wallet, history]
+    [getApproval, stableUsewallet, stableHistory]
   );
 
   useEffect(() => {

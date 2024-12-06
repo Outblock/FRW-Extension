@@ -30,7 +30,6 @@ type UiTypeCheck = {
 };
 
 export const getUiType = (): UiTypeCheck => {
-  // eslint-disable-next-line no-restricted-globals
   const { pathname } = window.location;
   return Object.entries(UI_TYPE).reduce((m, [key, value]) => {
     m[`is${key}`] = pathname === `/${value}.html`;
@@ -121,7 +120,6 @@ export const isMetaMaskActive = async () => {
   if (!url) return false;
 
   try {
-    // eslint-disable-next-line no-restricted-globals
     const res = await window.fetch(url);
     await res.text();
 

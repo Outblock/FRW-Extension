@@ -108,7 +108,9 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
           txID,
           true,
           `Move complete`,
-          `You have moved ${[props.data.nft.id].length} ${props.data.nft.collectionContractName} from evm to your flow address. \nClick to view this transaction.`
+          `You have moved ${[props.data.nft.id].length} ${
+            props.data.nft.collectionContractName
+          } from evm to your flow address. \nClick to view this transaction.`
         );
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
@@ -150,13 +152,13 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const getChildResp = useCallback(async () => {
     const childresp = await usewallet.checkUserChildAccount();
     const parentAddress = await usewallet.getMainAddress();
-    const emojires = await usewallet.getEmoji();
+    const currentWallet = await usewallet.getCurrentWallet();
     const newWallet = {
       [parentAddress!]: {
-        name: emojires[0].name,
-        description: emojires[0].name,
+        name: currentWallet.name,
+        description: currentWallet.name,
         thumbnail: {
-          url: emojires[0].emoji,
+          url: currentWallet.icon,
         },
       },
     };

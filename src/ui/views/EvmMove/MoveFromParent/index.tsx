@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -7,7 +8,7 @@ import wallet from '@/background/controller/wallet';
 import { withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
-import type { CoinItem } from 'background/service/coinList';
+import { type CoinItem } from 'background/service/coinList';
 import type { Contact } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';

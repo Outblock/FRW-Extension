@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+
 import { initWasm } from '@trustwallet/wallet-core';
 
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
@@ -74,10 +76,7 @@ const seed2PubKey = async (seed) => {
     (await storage.get(pathKeyId)) ?? (await storage.get(pathKeyIndex)) ?? FLOW_BIP44_PATH;
 
   const passphrase = (await storage.get(phraseKeyId)) ?? (await storage.get(phraseKeyIndex)) ?? '';
-  // console.log('pathpathpath ', path)
-  // console.log('pathKey ', pathKey)
-  // console.log('phraseKey ', phraseKey)
-  // console.log('passphrase ', passphrase)
+
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
   const p256PK = wallet.getKeyByCurve(Curve.nist256p1, path);
   const p256PubK = Buffer.from(p256PK.getPublicKeyNist256p1().uncompressed().data())
@@ -139,7 +138,6 @@ const createPasskey = async (name, displayName) => {
     publicKey: {
       challenge: getRandomBytes(20),
       rp: {
-        // eslint-disable-next-line no-restricted-globals
         name: window.location.hostname,
       },
       user: {
@@ -175,7 +173,6 @@ const getPasskey = async (id) => {
   const setup = {
     publicKey: {
       challenge: getRandomBytes(20),
-      // eslint-disable-next-line no-restricted-globals
       rpId: window.location.hostname,
     },
   };
