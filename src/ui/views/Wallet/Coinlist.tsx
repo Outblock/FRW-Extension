@@ -115,20 +115,21 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                     {props.change === null ? '-' : '$'}
                     {props.price}
                   </Typography>
-
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      fontSize: 12,
-                      fontWeight: '500',
-                      textAlign: 'start',
-                      color: props.change >= 0 ? 'text.increase' : 'text.decrease',
-                    }}
-                  >
-                    {props.change === null ? '' : props.change >= 0 ? '+' : ''}
-                    {props.change}
-                    {props.change !== null ? '%' : ''}
-                  </Typography>
+                  {props.change !== 0 && (
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontSize: 12,
+                        fontWeight: '500',
+                        textAlign: 'start',
+                        color: props.change >= 0 ? 'text.increase' : 'text.decrease',
+                      }}
+                    >
+                      {props.change === null ? '' : props.change >= 0 ? '+' : ''}
+                      {props.change}
+                      {props.change !== null ? '%' : ''}
+                    </Typography>
+                  )}
                 </Box>
               ) : (
                 <Box
