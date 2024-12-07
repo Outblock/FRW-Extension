@@ -1614,21 +1614,27 @@ export class WalletController extends BaseController {
     } else {
       // Transform the address array into blockchain objects
       transformedArray = address.map((item, index) => {
+        const defaultEmoji = emoji[index] || {
+          name: 'Default',
+          emoji: '🐾',
+          bgcolor: '#ffffff',
+        };
+
         return {
           id: 0,
-          name: emoji[index].name,
+          name: defaultEmoji.name,
           chain_id: network,
-          icon: emoji[index].emoji,
-          color: emoji[index].bgcolor,
+          icon: defaultEmoji.emoji,
+          color: defaultEmoji.bgcolor,
           blockchain: [
             {
               id: index,
-              name: emoji[index].name,
+              name: defaultEmoji.name,
               chain_id: network,
               address: item.address,
               coins: ['flow'],
-              icon: emoji[index].emoji,
-              color: emoji[index].bgcolor,
+              icon: defaultEmoji.emoji,
+              color: defaultEmoji.bgcolor,
             },
           ],
         };
@@ -4014,20 +4020,6 @@ export class WalletController extends BaseController {
   };
 
   getEmoji = async () => {
-    const currentId = await storage.get('currentId');
-    // let emojires = await storage.get(`${currentId}emoji`)
-    // if (!emojires) {
-    //   const index1 = Math.floor(Math.random() * emoji.emojis.length);
-    //   let index2;
-
-    //   do {
-    //     index2 = Math.floor(Math.random() * emoji.emojis.length);
-    //   } while (index1 === index2);
-
-    //   emojires = [emoji.emojis[index1], emoji.emojis[index2]];
-    //   storage.set(`${currentId}emoji`, emojires)
-    // }
-
     return emoji.emojis;
   };
 
