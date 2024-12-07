@@ -618,7 +618,7 @@ const Header = ({ loading = false }) => {
 
   const createWalletList = (props) => {
     return (
-      <List component="nav" key={props.id} sx={{ pb: '0', mb: '0' }}>
+      <List component="nav" key={props.id} sx={{ mb: '0', padding: 0 }}>
         <WalletFunction
           props_id={props.id}
           name={props.name}

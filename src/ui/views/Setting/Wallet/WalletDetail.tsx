@@ -294,7 +294,6 @@ const WalletDetail = () => {
     const savedWallet = await storage.get('walletDetail');
     const walletDetail = JSON.parse(savedWallet);
     if (walletDetail) {
-      console.log('walletDetail ', walletDetail);
       setWallet([walletDetail.wallet]);
       const selectingEmoji = {};
       selectingEmoji['name'] = walletDetail.wallet.name;
