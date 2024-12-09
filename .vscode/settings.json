@@ -19,5 +19,6 @@
   },
   "javascript.updateImportsOnFileMove.enabled": "always",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "eslint.useFlatConfig": true
+  "eslint.useFlatConfig": true,
+  "githubPullRequests.overrideDefaultBranch": "dev"
 }
