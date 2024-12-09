@@ -34,7 +34,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
   const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
   // TODO: check if this is correct
-  const movingBetweenEVMAndFlow = true;
+  const movingBetweenEVMAndFlow = false;
   const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
     useStorageCheck({
       transferAmount,
