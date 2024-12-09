@@ -5,6 +5,10 @@ export default class PromiseFlow {
   _context: any = {};
   requestedApproval = false;
 
+  get tasks() {
+    return this._tasks;
+  }
+
   use(fn): PromiseFlow {
     if (typeof fn !== 'function') {
       throw new Error('promise need function to handle');
