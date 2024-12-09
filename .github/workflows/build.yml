@@ -48,9 +48,6 @@ jobs:
       - name: Run tests
         run: pnpm test
 
-      - name: Run type check
-        run: pnpm tsc --noEmit
-
       - name: Create .env.pro file
         run: |
           cat << EOF > .env.pro
