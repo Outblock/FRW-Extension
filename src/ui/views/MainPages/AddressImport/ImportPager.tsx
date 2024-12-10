@@ -2,15 +2,16 @@ import { Box, Tabs, Tab, Typography } from '@mui/material';
 import React, { useEffect, useState, useContext } from 'react';
 
 import { storage } from '@/background/webapi';
+import {
+  Googledrive,
+  KeyImport,
+  SeedPhraseImport,
+  JsonImport,
+} from '@/ui/FRWComponent/MainPages/ImportComponents';
 import { useWallet } from 'ui/utils';
 
 import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
 import ImportAddressModel from '../../../FRWComponent/PopupModal/importAddressModal';
-
-import Googledrive from './importComponent/Googledrive';
-import JsonImport from './importComponent/JsonImport';
-import KeyImport from './importComponent/KeyImport';
-import SeedPhraseImport from './importComponent/SeedPhrase';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

@@ -9,23 +9,22 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState } from 'react';
 
-import { LLSpinner } from 'ui/FRWComponent';
+import { LLSpinner } from '@/ui/FRWComponent';
+import ErrorModel from '@/ui/FRWComponent/PopupModal/errorModel';
+import { KEY_TYPE } from '@/ui/utils/modules/constants';
+import { findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
+import { jsonToKey } from '@/ui/utils/modules/passkey';
 
-import ErrorModel from '../../../../FRWComponent/PopupModal/errorModel';
-import { KEY_TYPE } from '../../../../utils/modules/constants';
-import { findAddressWithPK } from '../../../../utils/modules/findAddressWithPK';
-import { jsonToKey } from '../../../../utils/modules/passkey';
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   form: {
-    width: '100%', // Fix full width
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
   },
   textarea: {
-    width: '100%', // Fix full width
+    width: '100%',
     borderRadius: '16px',
     backgroundColor: '#2C2C2C',
     padding: '20px',
@@ -37,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 400,
   },
   inputChild: {
-    width: '100%', // Fix full width
+    width: '100%',
     borderRadius: '16px',
     backgroundColor: '#2C2C2C',
     padding: '20px 0',
@@ -55,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   button: {
-    width: '100%', // Fix full width
+    width: '100%',
     fontWeight: 'bold',
   },
 }));
@@ -99,7 +98,6 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       }
       const pkHex = Buffer.from(pk!.data()).toString('hex');
       const result = await findAddressWithPK(pkHex, address);
-      console.log(result);
       setPk(pkHex);
       if (!result) {
         onOpen();
