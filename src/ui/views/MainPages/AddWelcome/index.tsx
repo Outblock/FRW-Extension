@@ -8,7 +8,7 @@ import create from '@/ui/FRWAssets/svg/create.svg';
 import importPng from '@/ui/FRWAssets/svg/import.svg';
 import outside from '@/ui/FRWAssets/svg/importoutside.svg';
 import qr from '@/ui/FRWAssets/svg/scanIcon.svg';
-import RegisterHeader from '../Register/RegisterHeader';
+import { RegisterHeader } from '@/ui/FRWComponent/MainPages';
 
 const AddWelcome = () => {
   return (

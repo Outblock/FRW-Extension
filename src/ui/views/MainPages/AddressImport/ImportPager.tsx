@@ -1,15 +1,16 @@
-import { useEffect, useState, useContext } from 'react';
-import React from 'react';
 import { Box, Tabs, Tab, Typography } from '@mui/material';
-import SeedPhraseImport from './importComponent/SeedPhrase';
-import KeyImport from './importComponent/KeyImport';
-import JsonImport from './importComponent/JsonImport';
-import Googledrive from './importComponent/Googledrive';
-import ImportAddressModel from '../../../FRWComponent/PopupModal/importAddressModal';
+import React, { useEffect, useState, useContext } from 'react';
+
+import { storage } from '@/background/webapi';
+import { useWallet } from 'ui/utils';
 
 import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
-import { useWallet } from 'ui/utils';
-import { storage } from '@/background/webapi';
+import ImportAddressModel from '../../../FRWComponent/PopupModal/importAddressModal';
+
+import Googledrive from './importComponent/Googledrive';
+import JsonImport from './importComponent/JsonImport';
+import KeyImport from './importComponent/KeyImport';
+import SeedPhraseImport from './importComponent/SeedPhrase';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

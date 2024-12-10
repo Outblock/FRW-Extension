@@ -193,7 +193,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
     await saveIndex(username);
     const accountKey = getAccountKey(mnemonic);
     // track the time until account_created is called
-    mixpanelBrowserService.time('account_created');
+    // mixpanelBrowserService.time('account_created');
     wallet.openapi
       .register(accountKey, username)
       .then((response) => {

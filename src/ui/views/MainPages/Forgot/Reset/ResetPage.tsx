@@ -2,10 +2,10 @@ import { Typography, Box, Drawer, Stack } from '@mui/material';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import ResetModal from '@/ui/FRWComponent/PopupModal/resetModal';
 import { LLPrimaryButton, LLSecondaryButton, LLWarningButton } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import ResetModal from '@/ui/FRWComponent/PopupModal/resetModal';
 import StepBox from '../stepBox';
 
 interface AddOrEditAddressProps {

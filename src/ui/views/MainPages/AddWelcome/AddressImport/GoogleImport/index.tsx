@@ -5,13 +5,12 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { LLPinAlert } from '@/ui/FRWComponent';
 import Confetti from '@/ui/FRWComponent/Confetti';
+import { AllSet, RegisterHeader } from '@/ui/FRWComponent/MainPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { storage } from 'background/webapi';
 
 import BackButtonIcon from '../../../../../../components/iconfont/IconBackButton';
-import AllSet from '../../../Register/AllSet';
-import RegisterHeader from '../../../Register/RegisterHeader';
 
 import DecryptWallet from './DecryptWallet';
 import GoogleAccounts from './GoogleAccounts';

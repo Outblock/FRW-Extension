@@ -7,14 +7,12 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import Confetti from '@/ui/FRWComponent/Confetti';
+import { PickUsername, AllSet } from '@/ui/FRWComponent/MainPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 
 import lilicoIcon from '../../../../../_raw/images/icon-48.png';
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 
-import PickUsername from '../Register/PickUsername';
-
-import AllSet from './AllSet';
 import RecoveryPhrase from './RecoveryPhrase';
 import SetPassword from './SetPassword';
 
@@ -75,7 +73,7 @@ const RecoverRegister = () => {
       case 2:
         return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
       case 3:
-        return <AllSet handleClick={goNext} />;
+        return <AllSet handleClick={goNext} variant="recover" />;
       default:
         return <Box />;
     }

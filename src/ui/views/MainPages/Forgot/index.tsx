@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 import recover from '@/ui/FRWAssets/svg/recover.svg';
 import reset from '@/ui/FRWAssets/svg/resetarrow.svg';
-import RegisterHeader from '../Register/RegisterHeader';
+import { RegisterHeader } from '@/ui/FRWComponent/MainPages';
 
 const Forgot = () => {
   return (

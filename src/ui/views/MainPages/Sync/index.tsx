@@ -4,14 +4,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
+import { AllSet, RegisterHeader } from '@/ui/FRWComponent/MainPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
-import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import AllSet from '../Register/AllSet';
-import RegisterHeader from '../Register/RegisterHeader';
 
 import SetPassword from './SetPassword';
 import SyncQr from './SyncQr';
@@ -77,7 +75,7 @@ const Sync = () => {
       case 1:
         return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
       case 2:
-        return <AllSet handleClick={goNext} />;
+        return <AllSet handleClick={goNext} variant="sync" />;
       default:
         return <div />;
     }

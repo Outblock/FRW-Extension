@@ -13,7 +13,7 @@ import Forgot from './MainPages/Forgot';
 import Recover from './MainPages/Forgot/Recover';
 import Reset from './MainPages/Forgot/Reset';
 import RecoverRegister from './MainPages/RecoverRegister';
-import RegisterPager from './MainPages/Register/RegisterPager';
+import Register from './MainPages/Register';
 import Synce from './MainPages/Sync';
 import WelcomePage from './MainPages/WelcomePage';
 
@@ -29,7 +29,7 @@ export const MainRoute: React.FC = () => {
       <Route path="/" component={LogPageView} />
       <Switch>
         <Route exact path="/welcome" component={WelcomePage} />
-        <Route exact path="/register" component={RegisterPager} />
+        <Route exact path="/register" component={Register} />
         <Route exact path="/sync" component={Synce} />
         <Route exact path="/addressimport" component={AddressImport} />
         <Route exact path="/recover" component={RecoverRegister} />

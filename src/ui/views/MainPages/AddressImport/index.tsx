@@ -4,16 +4,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
+import { AllSet, PickUsername, RegisterHeader } from '@/ui/FRWComponent/MainPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import AllSet from '../Register/AllSet';
-import RegisterHeader from '../Register/RegisterHeader';
 
 import ImportPager from './ImportPager';
-import PickUsername from '../Register/PickUsername';
 import RecoverPassword from './RecoverPassword';
 import SetPassword from './SetPassword';
 
