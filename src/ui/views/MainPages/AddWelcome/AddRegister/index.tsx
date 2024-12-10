@@ -6,18 +6,15 @@ import { useHistory } from 'react-router-dom';
 
 import { LLPinAlert } from '@/ui/FRWComponent';
 import Confetti from '@/ui/FRWComponent/Confetti';
+import { PickUsername, RepeatPhrase, AllSet, RegisterHeader } from '@/ui/FRWComponent/MainPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
 
-import AllSet from './AllSet';
 import GoogleBackup from './GoogleBackup';
-import PickUsername from '../../Register/PickUsername';
 import RecoveryPhrase from './RecoveryPhrase';
-import RegisterHeader from './RegisterHeader';
-import RepeatPhrase from './RepeatPhrase';
 import SetPassword from './SetPassword';
 
 enum Direction {
@@ -107,7 +104,7 @@ const AddRegister = () => {
           />
         );
       case 5:
-        return <AllSet handleClick={goNext} />;
+        return <AllSet handleClick={goNext} variant="add" />;
       default:
         return <div />;
     }

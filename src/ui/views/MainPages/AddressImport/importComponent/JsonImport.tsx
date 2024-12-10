@@ -1,7 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
-import { findAddressWithPK } from '../../../../utils/modules/findAddressWithPK';
-import { KEY_TYPE } from '../../../../utils/modules/constants';
-import React from 'react';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -11,11 +8,15 @@ import {
   TextareaAutosize,
   InputAdornment,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
+import React, { useEffect, useState, useContext } from 'react';
+
 import { LLSpinner } from 'ui/FRWComponent';
-import { jsonToKey } from '../../../../utils/modules/passkey';
+
 import ErrorModel from '../../../../FRWComponent/PopupModal/errorModel';
+import { KEY_TYPE } from '../../../../utils/modules/constants';
+import { findAddressWithPK } from '../../../../utils/modules/findAddressWithPK';
+import { jsonToKey } from '../../../../utils/modules/passkey';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -92,7 +93,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       const password = e.target[2].value;
       const address = e.target[5].value;
       const pk = await jsonToKey(keystore, password);
-      if (pk == null) {
+      if (pk === null) {
         setErrorMessage('Password incorrect');
         return;
       }
@@ -179,7 +180,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           </Typography>
         </Button>
       </form>
-      {errorMesssage != '' && (
+      {errorMesssage !== '' && (
         <ErrorModel
           isOpen={errorMesssage !== ''}
           onOpenChange={() => {

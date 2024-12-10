@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
+import { AllSet, RegisterHeader } from '@/ui/FRWComponent/MainPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
@@ -11,8 +12,6 @@ import { useWallet } from 'ui/utils';
 
 import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
-import AllSet from '../Register/AllSet';
-import RegisterHeader from '../Register/RegisterHeader';
 
 import ImportRecoveryPhrase from './ImportRecoveryPhrase';
 import RecoverPassword from './RecoverPassword';
@@ -100,7 +99,7 @@ const ImportPager = () => {
           <RecoverPassword handleClick={goNext} pk={pk} mnemonic={mnemonic} username={username} />
         );
       case 2:
-        return <AllSet handleClick={goNext} />;
+        return <AllSet handleClick={goNext} variant="register" />;
       default:
         return <div />;
     }

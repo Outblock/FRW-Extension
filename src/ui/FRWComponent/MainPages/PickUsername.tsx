@@ -15,8 +15,8 @@ import EmailIcon from '@/ui/assets/alternate-email.svg';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles((_theme) => ({
   customInputLabel: {
