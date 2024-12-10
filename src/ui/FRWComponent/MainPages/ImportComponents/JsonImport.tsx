@@ -15,7 +15,8 @@ import { LLSpinner } from '@/ui/FRWComponent';
 import ErrorModel from '@/ui/FRWComponent/PopupModal/errorModel';
 import { KEY_TYPE } from '@/ui/utils/modules/constants';
 import { findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
-import { jsonToKey } from '@/ui/utils/modules/passkey';
+
+import { jsonToKey } from '../../../utils/modules/passkey';
 
 const useStyles = makeStyles(() => ({
   form: {
