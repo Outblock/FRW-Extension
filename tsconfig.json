@@ -21,8 +21,7 @@
       "consts/*": ["./src/constant/*"],
       "assets": ["./src/ui/assets"],
       "changeLogs": ["./changeLogs"],
-      "react": ["./node_modules/@types/react"],
-      "tests": ["./tests/*"]
+      "react": ["./node_modules/@types/react"]
     },
     "lib": ["ES2021.String", "DOM", "DOM.Iterable"],
     "types": ["chrome", "node", "react", "react-dom", "jest"],
