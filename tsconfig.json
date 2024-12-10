@@ -21,7 +21,8 @@
       "consts/*": ["./src/constant/*"],
       "assets": ["./src/ui/assets"],
       "changeLogs": ["./changeLogs"],
-      "react": ["./node_modules/@types/react"]
+      "react": ["./node_modules/@types/react"],
+      "tests": ["./tests/*"]
     },
     "lib": ["ES2021.String", "DOM", "DOM.Iterable"],
     "types": ["chrome", "node", "react", "react-dom", "jest"],
@@ -37,5 +38,5 @@
     "outDir": "./dist"
   },
   "exclude": ["./node_modules", "src/ui/utils/modules"],
-  "include": ["src", "__tests__"]
+  "include": ["src", "__tests__", "tests"]
 }
