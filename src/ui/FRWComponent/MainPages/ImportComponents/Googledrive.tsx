@@ -1,21 +1,21 @@
-import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
+import { LLSpinner } from '@/ui/FRWComponent';
+import { useWallet } from '@/ui/utils';
 
-import IconGoogleDrive from '../../../../../../components/iconfont/IconGoogleDrive';
+import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   form: {
-    width: '100%', // Fix full width
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
   },
   textarea: {
-    width: '100%', // Fix full width
+    width: '100%',
     borderRadius: '16px',
     backgroundColor: '#2C2C2C',
     padding: '20px',
@@ -26,12 +26,12 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'Inter',
   },
   button: {
-    width: '100%', // Fix full width
+    width: '100%',
     fontWeight: 'bold',
   },
 }));
+
 const Googledrive = ({ setErrorMessage, setShowError }) => {
-  // const classes = useStyles();
   const classes = useStyles();
   const wallets = useWallet();
   const history = useHistory();
@@ -57,11 +57,11 @@ const Googledrive = ({ setErrorMessage, setShowError }) => {
         setShowError(true);
         setErrorMessage(chrome.i18n.getMessage('No__backup__found'));
       }
-      setLoading(false);
     } catch (e) {
       console.log(e);
       setShowError(true);
       setErrorMessage(chrome.i18n.getMessage('Something__is__wrong'));
+    } finally {
       setLoading(false);
     }
   };
