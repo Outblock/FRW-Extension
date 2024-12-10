@@ -1,21 +1,21 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 
-import AddressImport from './AddressImport';
-import GoogleImport from './AddressImport/GoogleImport';
-import AddWelcome from './AddWelcome';
-import AddRegister from './AddWelcome/AddRegister';
-import AddImport from './AddWelcome/AddressImport';
-import AddGoogle from './AddWelcome/AddressImport/GoogleImport';
-import AddSync from './AddWelcome/Sync';
+import AddressImport from './MainPages//AddressImport';
+import GoogleImport from './MainPages/AddressImport/GoogleImport';
+import AddWelcome from './MainPages/AddWelcome';
+import AddRegister from './MainPages/AddWelcome/AddRegister';
+import AddImport from './MainPages/AddWelcome/AddressImport';
+import AddGoogle from './MainPages/AddWelcome/AddressImport/GoogleImport';
+import AddSync from './MainPages/AddWelcome/Sync';
 // import ProxySync from './AddWelcome/ProxySync';
-import Forgot from './Forgot';
-import Recover from './Forgot/Recover';
-import Reset from './Forgot/Reset';
-import RecoverRegister from './RecoverRegister';
-import RegisterPager from './Register/RegisterPager';
-import Synce from './Sync';
-import WelcomePage from './WelcomePage';
+import Forgot from './MainPages/Forgot';
+import Recover from './MainPages/Forgot/Recover';
+import Reset from './MainPages/Forgot/Reset';
+import RecoverRegister from './MainPages/RecoverRegister';
+import RegisterPager from './MainPages/Register/RegisterPager';
+import Synce from './MainPages/Sync';
+import WelcomePage from './MainPages/WelcomePage';
 
 import './MainRoute.css';
 
