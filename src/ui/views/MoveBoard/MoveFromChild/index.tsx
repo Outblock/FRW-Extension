@@ -1,16 +1,13 @@
-import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, Skeleton, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
+import { Box } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
+import { NFTDrawer } from '@/ui/FRWComponent/GeneralPages';
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
-import moveSelectDrop from 'ui/FRWAssets/svg/moveSelectDrop.svg';
-import selected from 'ui/FRWAssets/svg/selected.svg';
-import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import AccountMainBox from '../AccountMainBox';
@@ -314,307 +311,31 @@ const MoveFromChild = (props: MoveBoardProps) => {
   };
 
   return (
-    <Drawer
-      anchor="bottom"
-      sx={{ zIndex: '1100 !important' }}
-      transitionDuration={300}
-      open={props.showMoveBoard}
-      PaperProps={{
-        sx: { width: '100%', height: 'calc(100% - 56px)', background: '#222' },
-      }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '20px' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            width: '100%',
-            height: '24px',
-            margin: '20px 0',
-            alignItems: 'center',
-          }}
-        >
-          <Box sx={{ width: '40px' }}></Box>
-          <Typography
-            variant="body1"
-            component="div"
-            display="inline"
-            color="text"
-            sx={{
-              fontSize: '20px',
-              textAlign: 'center',
-              fontFamily: 'e-Ukraine',
-              lineHeight: '24px',
-              fontWeight: '700',
-            }}
-          >
-            {chrome.i18n.getMessage('select')} NFTs
-          </Typography>
-          <Box>
-            <IconButton onClick={props.handleCancelBtnClicked}>
-              <CloseIcon fontSize="medium" sx={{ color: 'icon.navi', cursor: 'pointer' }} />
-            </IconButton>
-          </Box>
-        </Box>
-      </Box>
-      <AccountMainBox
-        isChild={true}
-        setSelectedChildAccount={setSelectedChildAccount}
-        selectedAccount={selectedAccount}
-        isEvm={true}
+    <Box>
+      <NFTDrawer
+        showMoveBoard={props.showMoveBoard}
+        handleCancelBtnClicked={props.handleCancelBtnClicked}
+        isLoading={isLoading}
+        currentCollection={currentCollection}
+        collectionDetail={collectionDetail || {}}
+        nftIdArray={nftIdArray}
+        onCollectionSelect={() => setSelectCollection(true)}
+        onNFTSelect={toggleSelectNft}
+        sending={sending}
+        failed={failed}
+        onMove={moveNFT}
+        moveType="fromChild"
+        AccountComponent={
+          <AccountMainBox
+            isChild={true}
+            setSelectedChildAccount={setSelectedChildAccount}
+            selectedAccount={selectedAccount || null}
+          />
+        }
+        nfts={collectionDetail?.nfts || []}
+        replaceIPFS={replaceIPFS}
       />
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          mb: '0',
-          mt: '10px',
-          padding: '0 18px',
-        }}
-      >
-        <Box sx={{ height: '24px', padding: '6px 0' }}>
-          <Typography
-            variant="body1"
-            component="div"
-            display="inline"
-            color="text"
-            sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
-          >
-            {chrome.i18n.getMessage('collection')}
-          </Typography>
-        </Box>
-        {currentCollection && collectionDetail && (
-          <Button onClick={() => setSelectCollection(true)}>
-            {currentCollection.logo && (
-              <CardMedia
-                component="img"
-                sx={{
-                  width: '24px',
-                  height: '24px',
-                  display: 'inline',
-                  borderRadius: '8px',
-                  marginRight: '8px',
-                  objectFit: 'cover',
-                  objectPosition: 'left !important',
-                }}
-                image={currentCollection.logo}
-              />
-            )}
-            <Typography
-              variant="body1"
-              component="div"
-              display="inline"
-              color="text"
-              sx={{ fontSize: '14px', textAlign: 'center', lineHeight: '24px', fontWeight: '600' }}
-            >
-              {currentCollection.CollectionName}
-            </Typography>
 
-            <CardMedia
-              component="img"
-              sx={{ width: '12px', height: '12px', marginLeft: '4px' }}
-              image={'https://raw.githubusercontent.com/Outblock/Assets/main/ft/flow/logo.png'}
-            />
-            <CardMedia
-              component="img"
-              sx={{ width: '16px', height: '16px', marginLeft: '4px' }}
-              image={moveSelectDrop}
-            />
-          </Button>
-        )}
-      </Box>
-      {!isLoading ? (
-        <Box
-          sx={{
-            display: 'flex',
-            mb: '18px',
-            padding: '16px',
-            gap: '4px',
-            flexWrap: 'wrap',
-            justifyContent: 'flex-start',
-            height: '150px',
-            overflowY: 'scroll',
-          }}
-        >
-          {collectionDetail && collectionDetail.nfts.length > 0 ? (
-            collectionDetail.nfts.map((nft) => (
-              <Box
-                key={nft.id}
-                sx={{
-                  display: 'flex',
-                  position: 'relative',
-                  width: '84px',
-                  height: '84px',
-                  borderRadius: '16px',
-                  marginBottom: '3px',
-                  border: nftIdArray.includes(nft.id) && '1px solid #41CC5D',
-                }}
-              >
-                <Button
-                  onClick={() => toggleSelectNft(nft.id)}
-                  sx={{ padding: 0, borderRadius: '16px', backgroundColor: '#333' }}
-                >
-                  {nftIdArray.includes(nft.id) && (
-                    <Box
-                      sx={{
-                        backgroundColor: '#00000099',
-                        borderRadius: '16px',
-                        position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    >
-                      <CardMedia
-                        component="img"
-                        sx={{
-                          width: '16px',
-                          borderRadius: '16px',
-                          height: '16px',
-                          top: '8px',
-                          right: '8px',
-                          zIndex: '2000',
-                          position: 'absolute',
-                        }}
-                        image={selected}
-                      />
-                    </Box>
-                  )}
-                  <CardMedia
-                    component="img"
-                    alt={nft.name}
-                    height="84px"
-                    width="84px"
-                    sx={{ borderRadius: '16px' }}
-                    image={replaceIPFS(nft.thumbnail)}
-                    title={nft.name}
-                  />
-                </Button>
-              </Box>
-            ))
-          ) : (
-            <Box sx={{ width: '100%', textAlign: 'center' }}>
-              <Typography sx={{ color: '#FFFFFF66', fontSize: '14px', fontWeight: '700' }}>
-                0 NFTs
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      ) : (
-        <Box sx={{ display: 'flex', mb: '18px', padding: '18px', gap: '4px' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              width: '84px',
-              height: '84px',
-              borderRadius: '16px',
-              backgroundColor: '#333',
-            }}
-          >
-            <Skeleton
-              variant="rectangular"
-              width={84}
-              height={84}
-              sx={{ margin: '0 auto', borderRadius: '16px' }}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              width: '84px',
-              height: '84px',
-              borderRadius: '16px',
-              backgroundColor: '#333',
-            }}
-          >
-            <Skeleton
-              variant="rectangular"
-              width={84}
-              height={84}
-              sx={{ margin: '0 auto', borderRadius: '16px' }}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              width: '84px',
-              height: '84px',
-              borderRadius: '16px',
-              backgroundColor: '#333',
-            }}
-          >
-            <Skeleton
-              variant="rectangular"
-              width={84}
-              height={84}
-              sx={{ margin: '0 auto', borderRadius: '16px' }}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              width: '84px',
-              height: '84px',
-              borderRadius: '16px',
-              backgroundColor: '#333',
-            }}
-          >
-            <Skeleton
-              variant="rectangular"
-              width={84}
-              height={84}
-              sx={{ margin: '0 auto', borderRadius: '16px' }}
-            />
-          </Box>
-        </Box>
-      )}
-      <Box sx={{ flex: '1' }}></Box>
-      <WarningStorageLowSnackbar
-        isLowStorage={isLowStorage}
-        isLowStorageAfterAction={isLowStorageAfterAction}
-      />
-      <Box sx={{ px: '16px' }}>
-        <Button
-          onClick={moveNFT}
-          // disabled={sending || occupied}
-          variant="contained"
-          color="success"
-          size="large"
-          disabled={
-            !collectionDetail || (collectionDetail.nfts && collectionDetail.nfts.length === 0)
-          }
-          sx={{
-            height: '50px',
-            width: '100%',
-            borderRadius: '12px',
-            textTransform: 'capitalize',
-            display: 'flex',
-            gap: '12px',
-            marginBottom: '33px',
-          }}
-        >
-          {sending ? (
-            <>
-              <LLSpinner size={28} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                {chrome.i18n.getMessage('Sending')}
-              </Typography>
-            </>
-          ) : (
-            <>
-              {failed ? (
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                  {chrome.i18n.getMessage('Transaction__failed')}
-                </Typography>
-              ) : (
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
-                  {chrome.i18n.getMessage('Move')} {nftIdArray.length > 0 && nftIdArray.length} NFT
-                  {nftIdArray.length > 1 && 's'}
-                </Typography>
-              )}
-            </>
-          )}
-        </Button>
-      </Box>
       {selectCollection && (
         <MoveCollectionSelect
           showMoveBoard={selectCollection}
@@ -626,13 +347,19 @@ const MoveFromChild = (props: MoveBoardProps) => {
           collectionList={collectionList}
         />
       )}
+
+      <WarningStorageLowSnackbar
+        isLowStorage={isLowStorage}
+        isLowStorageAfterAction={isLowStorageAfterAction}
+      />
+
       <WarningSnackbar
         open={errorOpen}
         onClose={handleErrorClose}
         alertIcon={alertMark}
         message={chrome.i18n.getMessage('Cannot_move_more')}
       />
-    </Drawer>
+    </Box>
   );
 };
 
