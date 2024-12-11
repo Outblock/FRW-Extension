@@ -18,12 +18,20 @@ import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
+import { BpUncheked, BpCheckedIcon } from '@/ui/FRWAssets/icons/CustomCheckboxIcons';
 import { LLSpinner, LLNotFound } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet, saveIndex } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
+
+// const helperTextStyles = makeStyles(() => ({
+//   root: {
+//     size: '16px',
+//     color: '#BABABA',
+//   },
+// }));
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -58,32 +66,6 @@ const useStyles = makeStyles(() => ({
     },
   },
 }));
-
-const BpIcon = styled('span')(() => ({
-  borderRadius: 8,
-  width: 24,
-  height: 24,
-  border: '1px solid #41CC5D',
-  backgroundColor: 'transparent',
-}));
-
-const BpCheckedIcon = styled(BpIcon)({
-  backgroundColor: '#41CC5D',
-  backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
-  '&:before': {
-    display: 'block',
-    width: 21,
-    height: 21,
-    backgroundImage:
-      "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath" +
-      " fill-rule='evenodd' clip-rule='evenodd' d='M12 5c-.28 0-.53.11-.71.29L7 9.59l-2.29-2.3a1.003 " +
-      "1.003 0 00-1.42 1.42l3 3c.18.18.43.29.71.29s.53-.11.71-.29l5-5A1.003 1.003 0 0012 5z' fill='%23fff'/%3E%3C/svg%3E\")",
-    content: '""',
-  },
-  'input:hover ~ &': {
-    backgroundColor: '#41CC5D',
-  },
-});
 
 const PasswordIndicator = (props) => {
   const score = zxcvbn(props.value).score;
@@ -295,7 +277,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                   </InputAdornment>
                 }
               />
-              <SlideRelative show={!!password} direction="down">
+              <SlideRelative direction="down" show={!!password}>
                 {helperText}
               </SlideRelative>
               <Input
@@ -322,7 +304,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
                   </InputAdornment>
                 }
               />
-              <SlideRelative show={!!confirmPassword} direction="down">
+              <SlideRelative direction="down" show={!!confirmPassword}>
                 {helperMatch}
               </SlideRelative>
             </FormGroup>
@@ -332,7 +314,7 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
             control={
               <Checkbox
                 checked={isCheck}
-                icon={<BpIcon />}
+                icon={<BpUncheked />}
                 checkedIcon={<BpCheckedIcon />}
                 onChange={(event) => setCheck(event.target.checked)}
               />

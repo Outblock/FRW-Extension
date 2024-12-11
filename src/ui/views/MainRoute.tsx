@@ -13,7 +13,7 @@ import Reset from './LandingPages/Forgot/Reset';
 import RecoverRegister from './LandingPages/RecoverRegister';
 import WelcomePage from './LandingPages/WelcomePage';
 import AddressImport from './LandingPages/WelcomePage/AddressImport';
-import GoogleImport from './LandingPages/WelcomePage/AddressImport/GoogleImport';
+import GoogleImport from './LandingPages/WelcomePage/GoogleImport';
 import Register from './LandingPages/WelcomePage/Register';
 import Synce from './LandingPages/WelcomePage/Sync';
 
