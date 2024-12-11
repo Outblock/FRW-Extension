@@ -127,7 +127,7 @@ const WalletTab = ({ network }) => {
     const pollTimer = setInterval(async () => {
       const nowTime = new Date().getTime();
       const data = await func();
-      if (data.length > 2 || nowTime - startTime >= endTime) {
+      if ((data && data.length > 2) || nowTime - startTime >= endTime) {
         if (pollTimer) {
           clearInterval(pollTimer);
         }

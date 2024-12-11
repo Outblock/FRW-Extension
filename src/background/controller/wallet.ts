@@ -13,7 +13,7 @@ import web3, { TransactionError } from 'web3';
 import eventBus from '@/eventBus';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line import/order,no-restricted-imports
+// eslint-disable-next-line no-restricted-imports
 import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
@@ -4078,12 +4078,14 @@ export class WalletController extends BaseController {
     storageInfo: StorageInfo;
   }> => {
     const address = await this.getCurrentAddress();
+    const isFreeGasFeeEnabled = await this.allowLilicoPay();
     const { isStorageSufficient, isStorageSufficientAfterAction, storageInfo } =
       await this.storageEvaluator.evaluateStorage(
         address!,
         transferAmount,
         coin,
-        movingBetweenEVMAndFlow
+        movingBetweenEVMAndFlow,
+        isFreeGasFeeEnabled
       );
     return {
       isStorageSufficient,

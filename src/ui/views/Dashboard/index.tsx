@@ -49,45 +49,53 @@ const Dashboard = ({ value, setValue }) => {
     setValue(index);
   };
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    //todo fix cadence loading
-    await wallet.getCadenceScripts();
-    const [network, userDomain] = await Promise.all([
-      wallet.getNetwork(),
-      wallet.fetchUserDomain(),
-    ]);
-    const isChild = await wallet.getActiveWallet();
-
-    if (isChild === 'evm') {
-      setIsEvm(true);
-    }
-    const env: string = process.env.NODE_ENV!;
-    const firebaseConfig = getFirbaseConfig();
-    console.log(process.env.NODE_ENV);
-    // const firebaseProductionConfig = prodConig;
-
-    const app = initializeApp(firebaseConfig, env);
-    const remoteConfig = getRemoteConfig(app);
-    console.log('remoteConfig ', app);
-    fetchAndActivate(remoteConfig)
-      .then((res) => {
-        console.log('res ', remoteConfig);
-
-        console.log('Remote Config values fetched and activated');
-      })
-      .catch((error) => {
-        console.error('Error fetching remote config:', error);
-      });
-
-    setNetwork(network);
-    setDomain(userDomain);
-    setLoading(false);
-  }, [wallet]);
-
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll, wallet]);
+    console.log('useEffect - fetchAll');
+    let isMounted = true;
+
+    const fetchAll = async () => {
+      //todo fix cadence loading
+      await wallet.getCadenceScripts();
+      const [network, userDomain] = await Promise.all([
+        wallet.getNetwork(),
+        wallet.fetchUserDomain(),
+      ]);
+      const isChild = await wallet.getActiveWallet();
+
+      if (isChild === 'evm') {
+        setIsEvm(true);
+      }
+      const env: string = process.env.NODE_ENV!;
+      const firebaseConfig = getFirbaseConfig();
+
+      const app = initializeApp(firebaseConfig, env);
+      const remoteConfig = getRemoteConfig(app);
+      console.log('remoteConfig ', app);
+      fetchAndActivate(remoteConfig)
+        .then((res) => {
+          console.log('res ', remoteConfig);
+
+          console.log('Remote Config values fetched and activated');
+        })
+        .catch((error) => {
+          console.error('Error fetching remote config:', error);
+        });
+
+      return { network, userDomain };
+    };
+
+    fetchAll().then(({ network, userDomain }) => {
+      if (isMounted) {
+        setNetwork(network);
+        setDomain(userDomain);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [wallet]);
 
   return (
     <div className="page">
