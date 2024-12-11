@@ -4,7 +4,7 @@ import { Switch, Route } from 'react-router-dom';
 import AddWelcome from './LandingPages/AddAccountPage';
 import AddRegister from './LandingPages/AddAccountPage/AddRegister';
 import AddImport from './LandingPages/AddAccountPage/AddressImport';
-import AddGoogle from './LandingPages/AddAccountPage/AddressImport/GoogleImport';
+import AddGoogle from './LandingPages/AddAccountPage/GoogleImport';
 import AddSync from './LandingPages/AddAccountPage/Sync';
 // import ProxySync from './AddWelcome/ProxySync';
 import Forgot from './LandingPages/Forgot';
