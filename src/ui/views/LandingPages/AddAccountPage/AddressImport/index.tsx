@@ -100,67 +100,6 @@ const AddressImport = () => {
     setShowError(false);
   };
 
-  const page = (index) => {
-    switch (index) {
-      case 0:
-        return (
-          <ImportPager
-            setMnemonic={setMnemonic}
-            setPk={setPk}
-            setAccounts={setAccounts}
-            accounts={accounts}
-            mnemonic={mnemonic}
-            pk={pk}
-            setUsername={setUsername}
-            goPassword={goPassword}
-            handleClick={goNext}
-            setErrorMessage={setErrorMessage}
-            setShowError={setShowError}
-          />
-        );
-      case 1:
-        return (
-          <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
-        );
-      case 2:
-        return (
-          <SetPassword
-            handleClick={goGoogle}
-            tempPassword={password}
-            mnemonic={mnemonic}
-            pk={pk}
-            username={username}
-            accounts={accounts}
-            goEnd={goEnd}
-          />
-        );
-      case 3:
-        return (
-          <RecoverPassword
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            pk={pk}
-            tempPassword={password}
-            goEnd={goEnd}
-            accountKey={accounts}
-          />
-        );
-      case 4:
-        return (
-          <GoogleBackup
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            username={username}
-            password={password}
-          />
-        );
-      case 5:
-        return <AllSet handleClick={goNext} />;
-      default:
-        return <div />;
-    }
-  };
-
   useEffect(() => {
     loadView();
   }, [loadView]);

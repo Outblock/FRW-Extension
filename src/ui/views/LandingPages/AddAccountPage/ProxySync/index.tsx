@@ -19,6 +19,7 @@ enum Direction {
   Left,
 }
 
+// TODO: not applied to the new landing page yet
 const ProxySync = () => {
   const history = useHistory();
   const wallet = useWallet();
