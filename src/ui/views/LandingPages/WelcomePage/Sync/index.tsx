@@ -6,10 +6,11 @@ import { useHistory } from 'react-router-dom';
 import Confetti from '@/ui/FRWComponent/Confetti';
 import { AllSet, RegisterHeader } from '@/ui/FRWComponent/LandingPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import { type PageConfig, renderPage } from '@/ui/utils/landingPage';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
+import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
 
 import SetPassword from './SetPassword';
 import SyncQr from './SyncQr';
@@ -31,6 +32,35 @@ const Sync = () => {
     setUsername(username.toLowerCase());
   };
 
+  const goNext = () => {
+    setDirection(Direction.Right);
+    if (activeIndex < 2) {
+      onChange(activeIndex + 1);
+    } else {
+      window.close();
+    }
+  };
+
+  const pages: Record<number, PageConfig> = {
+    0: {
+      component: SyncQr,
+      props: {
+        handleClick: goNext,
+        savedUsername: username,
+        confirmMnemonic: setMnemonic,
+        setUsername: getUsername,
+      },
+    },
+    1: {
+      component: SetPassword,
+      props: { handleClick: goNext, mnemonic, username },
+    },
+    2: {
+      component: AllSet,
+      props: { handleClick: goNext, variant: 'sync' },
+    },
+  };
+
   const loadView = useCallback(async () => {
     wallet
       .getCurrentAccount()
@@ -43,14 +73,6 @@ const Sync = () => {
         return;
       });
   }, [wallet, history]);
-  const goNext = () => {
-    setDirection(Direction.Right);
-    if (activeIndex < 2) {
-      onChange(activeIndex + 1);
-    } else {
-      window.close();
-    }
-  };
 
   const goBack = () => {
     setDirection(Direction.Left);
@@ -61,25 +83,7 @@ const Sync = () => {
     }
   };
 
-  const page = (index) => {
-    switch (index) {
-      case 0:
-        return (
-          <SyncQr
-            handleClick={goNext}
-            savedUsername={username}
-            confirmMnemonic={setMnemonic}
-            setUsername={getUsername}
-          />
-        );
-      case 1:
-        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
-      case 2:
-        return <AllSet handleClick={goNext} variant="sync" />;
-      default:
-        return <div />;
-    }
-  };
+  const page = (index: number) => renderPage(pages, index);
 
   useEffect(() => {
     loadView();
@@ -104,7 +108,6 @@ const Sync = () => {
         <LLPinAlert open={activeIndex === 2} />
 
         <Box sx={{ flexGrow: 0.7 }} />
-        {/* height why not use auto */}
         <Box
           sx={{
             height: '460px',

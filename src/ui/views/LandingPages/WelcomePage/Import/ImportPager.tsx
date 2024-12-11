@@ -10,8 +10,8 @@ import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLPinAlert, LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
-import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
+import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
+import IconGoogleDrive from '../../../../../components/iconfont/IconGoogleDrive';
 
 import ImportRecoveryPhrase from './ImportRecoveryPhrase';
 import RecoverPassword from './RecoverPassword';

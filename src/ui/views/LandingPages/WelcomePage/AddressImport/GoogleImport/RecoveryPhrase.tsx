@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 
-import IconCopy from '../../../../../components/iconfont/IconCopy';
+import IconCopy from '../../../../../../components/iconfont/IconCopy';
 
 const RecoveryPhrase = ({ handleClick, mnemonic }) => {
   const [canGoNext, setCanGoNext] = useState(true);
@@ -191,7 +191,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
             marginBottom: '8px',
           }}
         >
-          <SlideRelative show={true} direction="up">
+          <SlideRelative direction="down" show={true}>
             <Box
               sx={{
                 width: '95%',

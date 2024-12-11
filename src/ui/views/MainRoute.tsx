@@ -1,21 +1,21 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 
-import AddressImport from './LandingPages//AddressImport';
-import GoogleImport from './LandingPages/AddressImport/GoogleImport';
-import AddWelcome from './LandingPages/AddWelcome';
-import AddRegister from './LandingPages/AddWelcome/AddRegister';
-import AddImport from './LandingPages/AddWelcome/AddressImport';
-import AddGoogle from './LandingPages/AddWelcome/AddressImport/GoogleImport';
-import AddSync from './LandingPages/AddWelcome/Sync';
+import AddWelcome from './LandingPages/AddAccountPage';
+import AddRegister from './LandingPages/AddAccountPage/AddRegister';
+import AddImport from './LandingPages/AddAccountPage/AddressImport';
+import AddGoogle from './LandingPages/AddAccountPage/AddressImport/GoogleImport';
+import AddSync from './LandingPages/AddAccountPage/Sync';
 // import ProxySync from './AddWelcome/ProxySync';
 import Forgot from './LandingPages/Forgot';
 import Recover from './LandingPages/Forgot/Recover';
 import Reset from './LandingPages/Forgot/Reset';
 import RecoverRegister from './LandingPages/RecoverRegister';
-import Register from './LandingPages/Register';
-import Synce from './LandingPages/Sync';
 import WelcomePage from './LandingPages/WelcomePage';
+import AddressImport from './LandingPages/WelcomePage/AddressImport';
+import GoogleImport from './LandingPages/WelcomePage/AddressImport/GoogleImport';
+import Register from './LandingPages/WelcomePage/Register';
+import Synce from './LandingPages/WelcomePage/Sync';
 
 import './MainRoute.css';
 
@@ -34,7 +34,6 @@ export const MainRoute: React.FC = () => {
         <Route exact path="/addressimport" component={AddressImport} />
         <Route exact path="/recover" component={RecoverRegister} />
         <Route exact path="/addregister" component={AddRegister} />
-        {/* <Route exact path="/proxysync" component={ProxySync} /> */}
         <Route exact path="/addimport" component={AddImport} />
         <Route exact path="/addsync" component={AddSync} />
         <Route exact path="/addwelcome" component={AddWelcome} />

@@ -16,12 +16,13 @@ import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
+import { storage } from '@/background/webapi';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet } from 'ui/utils';
+import { useWallet, saveIndex } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -130,7 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username }) => {
+const SetPassword = ({ handleClick, mnemonic, username }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -201,14 +202,12 @@ const SetPassword = ({ handleClick, mnemonic, pk, username }) => {
 
   const register = async () => {
     setLoading(true);
+
+    await saveIndex(username);
     try {
       await wallet.boot(password);
-      if (pk) {
-        await wallet.importPrivateKey(pk);
-      } else {
-        const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-        await wallet.createKeyringWithMnemonics(formatted);
-      }
+      const formatted = mnemonic.trim().split(/\s+/g).join(' ');
+      await wallet.createKeyringWithMnemonics(formatted);
       setLoading(false);
       handleClick();
     } catch (e) {
@@ -240,84 +239,103 @@ const SetPassword = ({ handleClick, mnemonic, pk, username }) => {
 
   return (
     <>
-      <Box className="registerBox">
-        <Typography variant="h4">
-          {chrome.i18n.getMessage('Welcome__Back')}
-          <Box display="inline" color="primary.main">
-            {username}
-          </Box>{' '}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {chrome.i18n.getMessage(
-            'Lilico__uses__this__password__to__protect__your__recovery__phrase'
-          )}
-        </Typography>
-
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          height: 'auto',
+          width: 'auto',
+          position: 'relative',
+          borderRadius: '24px',
+        }}
+      >
         <Box
           sx={{
-            flexGrow: 1,
-            width: 640,
-            maxWidth: '100%',
-            my: '32px',
             display: 'flex',
+            flexDirection: 'column',
+            height: 'auto',
           }}
         >
-          <FormGroup sx={{ width: '100%' }}>
-            <Input
-              id="pass"
-              type={isPasswordVisible ? 'text' : 'password'}
-              name="password"
-              placeholder={chrome.i18n.getMessage('Create__a__password')}
-              value={password}
-              className={classes.inputBox}
-              fullWidth
-              autoFocus
-              disableUnderline
-              autoComplete="new-password"
-              onChange={(event) => {
-                setPassword(event.target.value);
-              }}
-              endAdornment={
-                <InputAdornment position="end">
-                  {password && <PasswordIndicator value={password} />}
-                  <IconButton onClick={() => setPasswordVisible(!isPasswordVisible)}>
-                    {isPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <SlideRelative direction="down" show={!!password}>
-              {helperText}
-            </SlideRelative>
-            <Input
-              sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
-              id="pass2"
-              type={isConfirmPasswordVisible ? 'text' : 'password'}
-              name="password2"
-              placeholder={chrome.i18n.getMessage('Confirm__your__password')}
-              value={confirmPassword}
-              className={classes.inputBox2}
-              autoComplete="new-password"
-              fullWidth
-              disableUnderline
-              onChange={(event) => {
-                setConfirmPassword(event.target.value);
-              }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}>
-                    {isConfirmPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <SlideRelative direction="down" show={!!confirmPassword}>
-              {helperMatch}
-            </SlideRelative>
-          </FormGroup>
-        </Box>
+          <Typography variant="h4">
+            {chrome.i18n.getMessage('Welcome__Back')}
+            <Box display="inline" color="primary.main">
+              {username}
+            </Box>{' '}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {chrome.i18n.getMessage(
+              'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+            )}
+          </Typography>
 
-        {/* <FormControlLabel
+          <Box
+            sx={{
+              flexGrow: 1,
+              width: 640,
+              maxWidth: '100%',
+              my: '32px',
+              display: 'flex',
+            }}
+          >
+            <FormGroup sx={{ width: '100%' }}>
+              <Input
+                id="pass"
+                type={isPasswordVisible ? 'text' : 'password'}
+                name="password"
+                placeholder={chrome.i18n.getMessage('Create__a__password')}
+                value={password}
+                className={classes.inputBox}
+                fullWidth
+                autoFocus
+                disableUnderline
+                autoComplete="new-password"
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    {password && <PasswordIndicator value={password} />}
+                    <IconButton onClick={() => setPasswordVisible(!isPasswordVisible)}>
+                      {isPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+              <SlideRelative direction="down" show={!!password}>
+                {helperText}
+              </SlideRelative>
+              <Input
+                sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}
+                id="pass2"
+                type={isConfirmPasswordVisible ? 'text' : 'password'}
+                name="password2"
+                placeholder={chrome.i18n.getMessage('Confirm__your__password')}
+                value={confirmPassword}
+                className={classes.inputBox2}
+                autoComplete="new-password"
+                fullWidth
+                disableUnderline
+                onChange={(event) => {
+                  setConfirmPassword(event.target.value);
+                }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                    >
+                      {isConfirmPasswordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+              <SlideRelative show={!!confirmPassword} direction="down">
+                {helperMatch}
+              </SlideRelative>
+            </FormGroup>
+          </Box>
+
+          {/* <FormControlLabel
           control={
             <Checkbox
               icon={<BpIcon />}
@@ -342,40 +360,41 @@ const SetPassword = ({ handleClick, mnemonic, pk, username }) => {
             </Typography>
           }
         /> */}
-        <Box>
-          <Button
-            className="registerButton"
-            onClick={() => register()}
-            disabled={!(isMatch && isCharacters)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              height: '56px',
-              borderRadius: '12px',
-              width: '640px',
-              textTransform: 'capitalize',
-              display: 'flex',
-              gap: '12px',
-            }}
-          >
-            {isLoading && <LLSpinner color="secondary" size={28} />}
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
-              {chrome.i18n.getMessage('Login')}
-            </Typography>
-          </Button>
+          <Box>
+            <Button
+              className="registerButton"
+              onClick={() => register()}
+              disabled={!(isMatch && isCharacters)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                height: '56px',
+                borderRadius: '12px',
+                width: '640px',
+                textTransform: 'capitalize',
+                display: 'flex',
+                gap: '12px',
+              }}
+            >
+              {isLoading && <LLSpinner color="secondary" size={28} />}
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
+                {chrome.i18n.getMessage('Login')}
+              </Typography>
+            </Button>
+          </Box>
         </Box>
+        <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
+          <Alert
+            onClose={handleErrorClose}
+            variant="filled"
+            severity="success"
+            sx={{ width: '100%' }}
+          >
+            {errorMessage}
+          </Alert>
+        </Snackbar>
       </Box>
-      <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert
-          onClose={handleErrorClose}
-          variant="filled"
-          severity="success"
-          sx={{ width: '100%' }}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

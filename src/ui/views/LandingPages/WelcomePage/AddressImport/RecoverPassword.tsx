@@ -21,8 +21,8 @@ import { storage } from 'background/webapi';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {

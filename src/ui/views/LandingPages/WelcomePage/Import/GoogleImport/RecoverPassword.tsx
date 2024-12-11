@@ -11,25 +11,19 @@ import {
   Alert,
   Snackbar,
 } from '@mui/material';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
-import { storage } from '@/background/webapi';
+import { LLSpinner, LLNotFound } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-
-// const helperTextStyles = makeStyles(() => ({
-//   root: {
-//     size: '16px',
-//     color: '#BABABA',
-//   },
-// }));
+import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -131,19 +125,18 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username }) => {
+const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState(lastPassword);
+  const [confirmPassword, setConfirmPassword] = useState(lastPassword);
   const [isCharacters, setCharacters] = useState(false);
   const [isMatch, setMatch] = useState(false);
   const [isLoading, setLoading] = useState(false);
-
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('Somthing went wrong');
 
@@ -151,7 +144,6 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
     if (reason === 'clickaway') {
       return;
     }
-
     setShowError(false);
   };
 
@@ -160,7 +152,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
       <Box
         sx={{
           width: '95%',
-          backgroundColor: '#38B00014',
+          backgroundColor: 'success.light',
           mx: 'auto',
           borderRadius: '0 0 12px 12px',
           display: 'flex',
@@ -169,7 +161,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
         }}
       >
         <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="success.main">
           {message}
         </Typography>
       </Box>
@@ -190,7 +182,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
         }}
       >
         <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="error.main">
           {message}
         </Typography>
       </Box>
@@ -199,12 +191,15 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
 
   const [helperText, setHelperText] = useState(<div />);
   const [helperMatch, setHelperMatch] = useState(<div />);
+  const [showDialog, setShowDialog] = useState(false);
+  const [isCheck, setCheck] = useState(true);
 
-  const register = async () => {
+  const login = async () => {
     setLoading(true);
 
     await saveIndex(username);
     try {
+      await wallet.signInWithMnemonic(mnemonic);
       await wallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
       await wallet.createKeyringWithMnemonics(formatted);
@@ -213,7 +208,11 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
     } catch (e) {
       setLoading(false);
       setErrorMessage(e.message);
-      setShowError(true);
+      if (e.message === 'NoUserFound') {
+        setShowDialog(true);
+      } else {
+        setShowError(true);
+      }
     }
   };
 
@@ -237,26 +236,20 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
     }
   }, [confirmPassword, password]);
 
+  useEffect(() => {
+    if (isCheck) {
+      setPassword(lastPassword);
+      setConfirmPassword(lastPassword);
+    } else {
+      setPassword('');
+      setConfirmPassword('');
+    }
+  }, [isCheck, lastPassword]);
+
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          height: 'auto',
-          width: 'auto',
-          position: 'relative',
-          borderRadius: '24px',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: 'auto',
-          }}
-        >
+      {!showDialog ? (
+        <Box className="registerBox">
           <Typography variant="h4">
             {chrome.i18n.getMessage('Welcome__Back')}
             <Box display="inline" color="primary.main">
@@ -302,7 +295,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
                   </InputAdornment>
                 }
               />
-              <SlideRelative direction="down" show={!!password}>
+              <SlideRelative show={!!password} direction="down">
                 {helperText}
               </SlideRelative>
               <Input
@@ -335,36 +328,26 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
             </FormGroup>
           </Box>
 
-          {/* <FormControlLabel
-          control={
-            <Checkbox
-              icon={<BpIcon />}
-              checkedIcon={<BpCheckedIcon />}
-              onChange={(event) => setCheck(event.target.checked)}
-            />
-          }
-          label={
-            <Typography variant="body1" color="text.secondary">
-              I agree to the{' '}
-              <a href="https://lilico.app/privacy-policy.html" target="_blank">
-                Privacy Policy
-              </a>{' '}
-              and{' '}
-              <a
-                href="https://lilico.app/terms-of-conditions.html"
-                target="_blank"
-              >
-                Terms of Service
-              </a>{' '}
-              of Lilico Wallet.
-            </Typography>
-          }
-        /> */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isCheck}
+                icon={<BpIcon />}
+                checkedIcon={<BpCheckedIcon />}
+                onChange={(event) => setCheck(event.target.checked)}
+              />
+            }
+            label={
+              <Typography variant="body1" color="text.secondary">
+                {chrome.i18n.getMessage('Use__the__same__Google__Drive__password')}
+              </Typography>
+            }
+          />
           <Box>
             <Button
               className="registerButton"
-              onClick={() => register()}
-              disabled={!(isMatch && isCharacters)}
+              onClick={login}
+              disabled={isLoading ? true : !(isMatch && isCharacters)}
               variant="contained"
               color="secondary"
               size="large"
@@ -384,17 +367,14 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
             </Button>
           </Box>
         </Box>
-        <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-          <Alert
-            onClose={handleErrorClose}
-            variant="filled"
-            severity="success"
-            sx={{ width: '100%' }}
-          >
-            {errorMessage}
-          </Alert>
-        </Snackbar>
-      </Box>
+      ) : (
+        <LLNotFound setShowDialog={setShowDialog} />
+      )}
+      <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
+        <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

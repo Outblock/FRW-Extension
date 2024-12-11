@@ -1,16 +1,17 @@
 import { IconButton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import * as bip39 from 'bip39';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, Dispatch, SetStateAction } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { LLPinAlert } from '@/ui/FRWComponent';
 import Confetti from '@/ui/FRWComponent/Confetti';
 import { PickUsername, RepeatPhrase, AllSet, RegisterHeader } from '@/ui/FRWComponent/LandingPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
+import { type PageConfig, renderPage } from '@/ui/utils/landingPage';
 import { useWallet } from 'ui/utils';
 
-import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
+import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
 
 import GoogleBackup from './GoogleBackup';
 import RecoveryPhrase from './RecoveryPhrase';
@@ -27,7 +28,7 @@ const Register = () => {
   const [activeIndex, onChange] = useState(0);
   const [direction, setDirection] = useState(Direction.Right);
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState(null);
+  const [password, setPassword] = useState<string | null>(null);
   const [mnemonic] = useState(bip39.generateMnemonic());
 
   const getUsername = (username: string) => {
@@ -66,40 +67,34 @@ const Register = () => {
     }
   };
 
-  const page = (index) => {
-    switch (index) {
-      case 0:
-        return (
-          <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
-        );
-      case 1:
-        return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
-      case 2:
-        return <RepeatPhrase handleClick={goNext} mnemonic={mnemonic} />;
-      case 3:
-        return (
-          <SetPassword
-            handleClick={goNext}
-            setExPassword={setPassword}
-            mnemonic={mnemonic}
-            username={username}
-          />
-        );
-      case 4:
-        return (
-          <GoogleBackup
-            handleClick={goNext}
-            mnemonic={mnemonic}
-            username={username}
-            password={password}
-          />
-        );
-      case 5:
-        return <AllSet handleClick={goNext} variant="register" />;
-      default:
-        return <div />;
-    }
+  const pages: Record<number, PageConfig> = {
+    0: {
+      component: PickUsername,
+      props: { handleClick: goNext, savedUsername: username, getUsername },
+    },
+    1: {
+      component: RecoveryPhrase,
+      props: { handleClick: goNext, mnemonic },
+    },
+    2: {
+      component: RepeatPhrase,
+      props: { handleClick: goNext, mnemonic },
+    },
+    3: {
+      component: SetPassword,
+      props: { handleClick: goNext, setExPassword: setPassword, mnemonic, username },
+    },
+    4: {
+      component: GoogleBackup,
+      props: { handleClick: goNext, mnemonic, username, password },
+    },
+    5: {
+      component: AllSet,
+      props: { handleClick: goNext, variant: 'register' },
+    },
   };
+
+  const page = (index: number) => renderPage(pages, index);
 
   useEffect(() => {
     loadView();
@@ -124,7 +119,6 @@ const Register = () => {
         <LLPinAlert open={activeIndex === 5} />
 
         <Box sx={{ flexGrow: 0.7 }} />
-        {/* height why not use auto */}
         <Box
           sx={{
             display: 'flex',

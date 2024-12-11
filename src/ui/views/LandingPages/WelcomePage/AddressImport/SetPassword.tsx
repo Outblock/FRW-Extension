@@ -16,19 +16,19 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
-import HDWallet from 'ethereum-hdwallet';
 import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { storage } from '@/background/webapi';
+import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+import { BpUncheked, BpCheckedIcon } from '@/ui/FRWAssets/icons/CustomCheckboxIcons';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { type AccountKey } from 'background/service/networkModel';
+import { AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-import { BpUncheked, BpCheckedIcon } from '../../../FRWAssets/icons/CustomCheckboxIcons';
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -104,7 +104,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
+const SetPassword = ({ handleClick, mnemonic, pk, username, setExPassword, accounts, goEnd }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -128,18 +128,6 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
       return;
     }
     setShowError(false);
-  };
-
-  const getAccountKey = (mnemonic) => {
-    const hdwallet = HDWallet.fromMnemonic(mnemonic);
-    const publicKey = hdwallet.derive("m/44'/539'/0'/0/0").getPublicKey().toString('hex');
-    const key: AccountKey = {
-      hash_algo: 1,
-      sign_algo: 2,
-      weight: 1000,
-      public_key: publicKey,
-    };
-    return key;
   };
 
   const successInfo = (message) => {
@@ -187,33 +175,57 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
   const [helperText, setHelperText] = useState(<div />);
   const [helperMatch, setHelperMatch] = useState(<div />);
 
-  const register = async () => {
+  const handleImport = async () => {
+    console.log('account key ', accounts);
     setLoading(true);
+    if (accounts.length > 1) {
+      setLoading(true);
+    } else {
+      const accountKeyStruct = {
+        public_key: accounts[0].pubK,
+        sign_algo: getSignAlgo(accounts[0].signAlgo),
+        hash_algo: getHashAlgo(accounts[0].hashAlgo),
+        weight: 1000,
+      };
+      const installationId = await wallet.openapi.getInstallationId();
+      // console.log('location ', userlocation);
+      const device_info = {
+        device_id: installationId,
+        name: 'FRW Chrome Extension',
+        type: '2',
+        user_agent: 'Chrome',
+      };
+      const address = accounts[0].address.replace(/^0x/, '');
+      wallet.openapi
+        .importKey(accountKeyStruct, device_info, username, {}, address)
+        .then((response) => {
+          return wallet.boot(password);
+        })
+        .then(async (response) => {
+          setExPassword(password);
+          storage.remove('premnemonic');
 
-    await saveIndex(username);
-    const accountKey = getAccountKey(mnemonic);
-    wallet.openapi
-      .register(accountKey, username)
-      .then((response) => {
-        return wallet.boot(password);
-      })
-      .then((response) => {
-        setExPassword(password);
-        storage.remove('premnemonic');
-        return wallet.createKeyringWithMnemonics(mnemonic);
-      })
-      .then((accounts) => {
-        handleClick();
-        return wallet.openapi.createFlowAddress();
-      })
-      .then((address) => {
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log('error', error);
-        setShowError(true);
-        setLoading(false);
-      });
+          await saveIndex(username);
+          if (pk) {
+            return wallet.importPrivateKey(pk);
+          } else {
+            return wallet.createKeyringWithMnemonics(mnemonic);
+          }
+        })
+        .then((address) => {
+          setLoading(false);
+          if (pk) {
+            goEnd();
+          } else {
+            handleClick();
+          }
+        })
+        .catch((error) => {
+          console.log('error', error);
+          setShowError(true);
+          setLoading(false);
+        });
+    }
   };
 
   useEffect(() => {
@@ -284,7 +296,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
                 </InputAdornment>
               }
             />
-            <SlideRelative show={!!password} direction="down">
+            <SlideRelative direction="down" show={!!password}>
               {helperText}
             </SlideRelative>
             <Input
@@ -309,7 +321,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
                 </InputAdornment>
               }
             />
-            <SlideRelative direction="down" show={!!confirmPassword}>
+            <SlideRelative show={!!confirmPassword} direction="down">
               {helperMatch}
             </SlideRelative>
           </FormGroup>
@@ -351,7 +363,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
           className="registerButton"
           variant="contained"
           color="secondary"
-          onClick={register}
+          onClick={handleImport}
           size="large"
           sx={{
             height: '56px',
