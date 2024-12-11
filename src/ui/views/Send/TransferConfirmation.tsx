@@ -33,8 +33,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const [count, setCount] = useState(0);
 
   const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
-  // TODO: check if this is correct
+
+  // This component is only used for sending Flow on the Flow network
   const movingBetweenEVMAndFlow = false;
+
   const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
     useStorageCheck({
       transferAmount,

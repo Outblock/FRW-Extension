@@ -162,6 +162,7 @@ const TokenDetail = () => {
         />
       );
     } else if (childType) {
+      // We are moving from a FLOW child account
       return (
         <MoveFromChild
           isConfirmationOpen={moveOpen}
