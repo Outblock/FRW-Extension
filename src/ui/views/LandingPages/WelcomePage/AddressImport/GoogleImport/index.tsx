@@ -8,7 +8,7 @@ import Confetti from '@/ui/FRWComponent/Confetti';
 import { AllSet, RegisterHeader } from '@/ui/FRWComponent/LandingPages';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 
-import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
+import BackButtonIcon from '../../../../../../components/iconfont/IconBackButton';
 
 import DecryptWallet from './DecryptWallet';
 import GoogleAccounts from './GoogleAccounts';

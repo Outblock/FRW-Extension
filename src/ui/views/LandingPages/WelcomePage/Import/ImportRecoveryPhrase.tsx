@@ -8,8 +8,8 @@ import { storage } from '@/background/webapi';
 import { LLNotFound, LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 
 import PrivateKey from './ImportComponent/PrivateKey';
 import SeedPhrase from './ImportComponent/SeedPhrase';

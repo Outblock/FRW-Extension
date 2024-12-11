@@ -7,7 +7,7 @@ import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
+import IconGoogleDrive from '../../../../../components/iconfont/IconGoogleDrive';
 
 const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
   const wallets = useWallet();

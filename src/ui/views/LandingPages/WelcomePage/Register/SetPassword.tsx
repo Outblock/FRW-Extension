@@ -4,32 +4,31 @@ import {
   Button,
   Typography,
   IconButton,
+  Alert,
+  Snackbar,
+  Link,
   Input,
   InputAdornment,
   FormGroup,
   LinearProgress,
-  Alert,
-  Snackbar,
 } from '@mui/material';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { makeStyles, styled } from '@mui/styles';
 import { Box } from '@mui/system';
+import HDWallet from 'ethereum-hdwallet';
 import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
+import { storage } from '@/background/webapi';
+import { BpUncheked, BpCheckedIcon } from '@/ui/FRWAssets/icons/CustomCheckboxIcons';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { storage } from 'background/webapi';
+import { type AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet, saveIndex } from 'ui/utils';
+import { useWallet, saveIndex, mixpanelBrowserService } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../components/iconfont/IconClose';
-
-// const helperTextStyles = makeStyles(() => ({
-//   root: {
-//     size: '16px',
-//     color: '#BABABA',
-//   },
-// }));
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -105,7 +104,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
+const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -116,17 +115,31 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isCharacters, setCharacters] = useState(false);
   const [isMatch, setMatch] = useState(false);
+  const [isCheck, setCheck] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  // TODO: FIX ME
+  const [notBot, setNotBot] = useState(true);
 
+  const [errMessage, setErrorMessage] = useState('Something wrong, please try again');
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Somthing went wrong');
 
   const handleErrorClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
-
     setShowError(false);
+  };
+
+  const getAccountKey = (mnemonic) => {
+    const hdwallet = HDWallet.fromMnemonic(mnemonic);
+    const publicKey = hdwallet.derive("m/44'/539'/0'/0/0").getPublicKey().toString('hex');
+    const key: AccountKey = {
+      hash_algo: 1,
+      sign_algo: 2,
+      weight: 1000,
+      public_key: publicKey,
+    };
+    return key;
   };
 
   const successInfo = (message) => {
@@ -134,7 +147,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
       <Box
         sx={{
           width: '95%',
-          backgroundColor: '#38B00014',
+          backgroundColor: 'success.light',
           mx: 'auto',
           borderRadius: '0 0 12px 12px',
           display: 'flex',
@@ -143,7 +156,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
         }}
       >
         <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="success.main">
           {message}
         </Typography>
       </Box>
@@ -164,7 +177,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
         }}
       >
         <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="error.main">
           {message}
         </Typography>
       </Box>
@@ -176,22 +189,33 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
 
   const register = async () => {
     setLoading(true);
-    try {
-      await wallet.boot(password);
-      await saveIndex(username);
-      if (pk) {
-        await wallet.importPrivateKey(pk);
-      } else {
-        const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-        await wallet.createKeyringWithMnemonics(formatted);
-      }
-      setLoading(false);
-      handleClick();
-    } catch (e) {
-      setLoading(false);
-      setErrorMessage(e.message);
-      setShowError(true);
-    }
+
+    await saveIndex(username);
+    const accountKey = getAccountKey(mnemonic);
+    // track the time until account_created is called
+    // mixpanelBrowserService.time('account_created');
+    wallet.openapi
+      .register(accountKey, username)
+      .then((response) => {
+        return wallet.boot(password);
+      })
+      .then((response) => {
+        setExPassword(password);
+        storage.remove('premnemonic');
+        return wallet.createKeyringWithMnemonics(mnemonic);
+      })
+      .then((accounts) => {
+        handleClick();
+        return wallet.openapi.createFlowAddress();
+      })
+      .then((address) => {
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log('error', error);
+        setShowError(true);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -218,9 +242,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
     <>
       <Box className="registerBox">
         <Typography variant="h4">
-          {chrome.i18n.getMessage('Welcome__Back')}
+          {chrome.i18n.getMessage('Create')}
           <Box display="inline" color="primary.main">
-            {username}
+            {chrome.i18n.getMessage('Password')}
           </Box>{' '}
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -262,7 +286,7 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
                 </InputAdornment>
               }
             />
-            <SlideRelative direction="down" show={!!password}>
+            <SlideRelative show={!!password} direction="down">
               {helperText}
             </SlideRelative>
             <Input
@@ -293,63 +317,63 @@ const SetPassword = ({ handleClick, mnemonic, pk, username, goEnd }) => {
           </FormGroup>
         </Box>
 
-        {/* <FormControlLabel
+        <FormControlLabel
           control={
             <Checkbox
-              icon={<BpIcon />}
+              icon={<BpUncheked />}
               checkedIcon={<BpCheckedIcon />}
               onChange={(event) => setCheck(event.target.checked)}
             />
           }
           label={
             <Typography variant="body1" color="text.secondary">
-              I agree to the{' '}
-              <a href="https://lilico.app/privacy-policy.html" target="_blank">
-                Privacy Policy
-              </a>{' '}
-              and{' '}
-              <a
-                href="https://lilico.app/terms-of-conditions.html"
+              {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
+              <Link
+                underline="none"
+                href="https://lilico.app/about/privacy-policy"
                 target="_blank"
+                color="success.main"
               >
-                Terms of Service
-              </a>{' '}
-              of Lilico Wallet.
+                {chrome.i18n.getMessage('Privacy__Policy')}
+              </Link>{' '}
+              {chrome.i18n.getMessage('and') + ' '}
+              <Link
+                href="https://lilico.app/about/terms"
+                target="_blank"
+                color="success.main"
+                underline="none"
+              >
+                {chrome.i18n.getMessage('Terms__of__Service')}
+              </Link>{' '}
+              .
             </Typography>
           }
-        /> */}
-        <Box>
-          <Button
-            className="registerButton"
-            onClick={() => register()}
-            disabled={!(isMatch && isCharacters)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              height: '56px',
-              borderRadius: '12px',
-              width: '640px',
-              textTransform: 'capitalize',
-              display: 'flex',
-              gap: '12px',
-            }}
-          >
-            {isLoading && <LLSpinner color="secondary" size={28} />}
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
-              {chrome.i18n.getMessage('Login')}
-            </Typography>
-          </Button>
-        </Box>
+        />
+        <Button
+          className="registerButton"
+          variant="contained"
+          color="secondary"
+          onClick={register}
+          size="large"
+          sx={{
+            height: '56px',
+            width: '640px',
+            borderRadius: '12px',
+            textTransform: 'capitalize',
+            gap: '12px',
+            display: 'flex',
+          }}
+          disabled={isLoading ? true : !(isMatch && isCharacters && isCheck && notBot)}
+        >
+          {isLoading && <LLSpinner size={28} />}
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
+            {chrome.i18n.getMessage('Register')}
+          </Typography>
+        </Button>
       </Box>
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleErrorClose}>
-        <Alert
-          onClose={handleErrorClose}
-          variant="filled"
-          severity="success"
-          sx={{ width: '100%' }}
-        >
-          {errorMessage}
+        <Alert onClose={handleErrorClose} variant="filled" severity="error" sx={{ width: '100%' }}>
+          {errMessage}
         </Alert>
       </Snackbar>
     </>

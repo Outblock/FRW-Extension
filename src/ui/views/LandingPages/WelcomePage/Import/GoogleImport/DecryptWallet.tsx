@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
 
-import CancelIcon from '../../../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {

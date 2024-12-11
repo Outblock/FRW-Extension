@@ -9,7 +9,7 @@ import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
+import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
 
 import ImportPager from './ImportPager';
 import RecoverPassword from './RecoverPassword';
