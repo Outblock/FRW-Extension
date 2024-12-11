@@ -86,7 +86,7 @@ export default [
 
   // Test files specific config
   {
-    files: ['**/*.test.{js,jsx,ts,tsx}', '**/*.spec.{js,jsx,ts,tsx}', 'playwright.config.ts'],
+    files: ['e2e/**/*', 'playwright.config.ts'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.test.json',
