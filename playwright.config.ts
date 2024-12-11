@@ -41,9 +41,6 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         // Chrome extension testing configuration
-        contextOptions: {
-          extensionPath: './dist',
-        },
       },
     },
 

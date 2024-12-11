@@ -37,5 +37,5 @@
     "outDir": "./dist"
   },
   "exclude": ["./node_modules", "src/ui/utils/modules"],
-  "include": ["src", "__tests__", "tests"]
+  "include": ["src", "__tests__"]
 }
