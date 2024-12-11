@@ -19,6 +19,9 @@
     "format": "prettier .",
     "icon": "npx iconfont-h5",
     "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:unit": "vitest",
     "pub": "node build/release.js",
     "prepare": "husky",
     "preinstall": "npx only-allow pnpm",
@@ -142,6 +145,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@playwright/test": "^1.49.0",
     "@svgr/webpack": "^5.5.0",
     "@types/chrome": "^0.0.281",
     "@types/events": "^3.0.3",

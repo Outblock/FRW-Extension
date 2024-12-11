@@ -86,7 +86,12 @@ export default [
 
   // Test files specific config
   {
-    files: ['**/*.test.{js,jsx,ts,tsx}', '**/*.spec.{js,jsx,ts,tsx}'],
+    files: ['e2e/**/*', 'playwright.config.ts', 'vitest.config.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.test.json',
+      },
+    },
     rules: {
       'no-restricted-globals': 'off',
       '@typescript-eslint/no-explicit-any': 'off',

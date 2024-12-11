@@ -94,11 +94,16 @@ const WelcomePage = () => {
                   margin: '24px 0 44px',
                 }}
               >
-                {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
                 {chrome.i18n.getMessage('A_crypto_wallet_on_Flow')}
-                <Typography sx={{ color: 'primary.light', display: 'inline' }}>
+                <Box
+                  component="span"
+                  sx={{
+                    color: 'primary.light',
+                    display: 'inline',
+                  }}
+                >
                   <span> {chrome.i18n.getMessage('Explorers_Collectors_and_Gamers')}</span>
-                </Typography>
+                </Box>
               </Typography>
 
               <Button
