@@ -1,21 +1,21 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 
-import AddressImport from './MainPages//AddressImport';
-import GoogleImport from './MainPages/AddressImport/GoogleImport';
-import AddWelcome from './MainPages/AddWelcome';
-import AddRegister from './MainPages/AddWelcome/AddRegister';
-import AddImport from './MainPages/AddWelcome/AddressImport';
-import AddGoogle from './MainPages/AddWelcome/AddressImport/GoogleImport';
-import AddSync from './MainPages/AddWelcome/Sync';
+import AddressImport from './LandingPages//AddressImport';
+import GoogleImport from './LandingPages/AddressImport/GoogleImport';
+import AddWelcome from './LandingPages/AddWelcome';
+import AddRegister from './LandingPages/AddWelcome/AddRegister';
+import AddImport from './LandingPages/AddWelcome/AddressImport';
+import AddGoogle from './LandingPages/AddWelcome/AddressImport/GoogleImport';
+import AddSync from './LandingPages/AddWelcome/Sync';
 // import ProxySync from './AddWelcome/ProxySync';
-import Forgot from './MainPages/Forgot';
-import Recover from './MainPages/Forgot/Recover';
-import Reset from './MainPages/Forgot/Reset';
-import RecoverRegister from './MainPages/RecoverRegister';
-import Register from './MainPages/Register';
-import Synce from './MainPages/Sync';
-import WelcomePage from './MainPages/WelcomePage';
+import Forgot from './LandingPages/Forgot';
+import Recover from './LandingPages/Forgot/Recover';
+import Reset from './LandingPages/Forgot/Reset';
+import RecoverRegister from './LandingPages/RecoverRegister';
+import Register from './LandingPages/Register';
+import Synce from './LandingPages/Sync';
+import WelcomePage from './LandingPages/WelcomePage';
 
 import './MainRoute.css';
 
