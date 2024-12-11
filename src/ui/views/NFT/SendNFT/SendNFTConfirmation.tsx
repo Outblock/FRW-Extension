@@ -258,7 +258,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const checkChild = useCallback(async () => {
     const isChild = await wallet.getActiveWallet();
-    setIsChild(isChild);
+    setIsChild(isChild !== null);
   }, [wallet]);
 
   const initializeContract = useCallback(async () => {

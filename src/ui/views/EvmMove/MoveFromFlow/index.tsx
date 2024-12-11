@@ -96,7 +96,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
     coin: currentCoin,
-    movingBetweenEVMAndFlow: true,
+    movingBetweenEVMAndFlow: currentCoin.toLowerCase() !== 'flow',
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed

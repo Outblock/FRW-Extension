@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import Web3 from 'web3';
 
+import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
@@ -56,7 +57,7 @@ const SendEth = () => {
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [childType, setChildType] = useState<string>('');
+  const [childType, setChildType] = useState<ActiveChildType>(null);
   const [minAmount, setMinAmount] = useState<any>(0);
   const [erc20Contract, setErc20Contract] = useState<any>(null);
   const [web3, setWeb3] = useState<any>(null);
