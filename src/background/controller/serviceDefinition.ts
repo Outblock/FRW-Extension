@@ -133,9 +133,7 @@ export async function preAuthzServiceDefinition(
     ),
     payer: [
       isEnabled
-        ? await httpPayerServiceDefinition(payerAddress, payerKeyId, 'authz', network, {
-            params: {},
-          })
+        ? await httpPayerServiceDefinition(payerAddress, payerKeyId, 'authz', network)
         : serviceDefinition(payerAddress, payerKeyId, 'authz', network),
     ],
     authorization: [serviceDefinition(address, keyId, 'authz', network)],
