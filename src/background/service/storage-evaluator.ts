@@ -25,7 +25,6 @@ export class StorageEvaluator {
   ): Promise<EvaluateStorageResult> {
     // Get storage info from openapi service
     const storageInfo = await openapiService.getStorageInfo(address);
-    console.log('storageInfo', storageInfo);
     const remainingStorage = storageInfo.capacity - storageInfo.used;
     const isStorageSufficient = remainingStorage >= StorageEvaluator.MINIMUM_STORAGE_BUFFER;
 
