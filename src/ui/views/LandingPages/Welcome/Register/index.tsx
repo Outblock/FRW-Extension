@@ -8,7 +8,7 @@ import {
   AllSet,
   LandingComponents,
 } from '@/ui/FRWComponent/LandingPages';
-import { type PageConfig, renderPage, useNavigation } from '@/ui/utils/landingPage';
+import { PageSlider, useNavigation } from '@/ui/utils/landingPage';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
@@ -16,12 +16,12 @@ import GoogleBackup from './GoogleBackup';
 import RecoveryPhrase from './RecoveryPhrase';
 import SetPassword from './SetPassword';
 
-const AddRegister = () => {
+const Register = () => {
   const history = useHistory();
   const wallet = useWallet();
   const { activeIndex, direction, goNext, goBack } = useNavigation(5);
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState(null);
+  const [password, setPassword] = useState('');
   const [mnemonic] = useState(bip39.generateMnemonic());
 
   const getUsername = (username: string) => {
@@ -48,39 +48,6 @@ const AddRegister = () => {
     }
   }, []);
 
-  const pages: Record<number, PageConfig> = {
-    0: {
-      component: PickUsername,
-      props: { handleClick: goNext, savedUsername: username, getUsername },
-    },
-    1: {
-      component: RecoveryPhrase,
-      props: { handleClick: goNext, mnemonic },
-    },
-    2: {
-      component: RepeatPhrase,
-      props: { handleClick: goNext, mnemonic },
-    },
-    3: {
-      component: SetPassword,
-      props: {
-        handleClick: goNext,
-        setExPassword: setPassword,
-        tempPassword: password,
-        mnemonic,
-        username,
-      },
-    },
-    4: {
-      component: GoogleBackup,
-      props: { handleClick: goNext, mnemonic, username, password },
-    },
-    5: {
-      component: AllSet,
-      props: { handleClick: goNext, variant: 'add' },
-    },
-  };
-
   useEffect(() => {
     loadView();
     loadTempPassword();
@@ -95,9 +62,27 @@ const AddRegister = () => {
       showConfetti={activeIndex === 5}
       showRegisterHeader={true}
     >
-      {renderPage(pages, activeIndex)}
+      <PageSlider activeIndex={activeIndex}>
+        <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
+        <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />
+        <RepeatPhrase handleClick={goNext} mnemonic={mnemonic} />
+        <SetPassword
+          handleClick={goNext}
+          setExPassword={setPassword}
+          tempPassword={password}
+          mnemonic={mnemonic}
+          username={username}
+        />
+        <GoogleBackup
+          handleClick={goNext}
+          mnemonic={mnemonic}
+          username={username}
+          password={password}
+        />
+        <AllSet handleClick={goNext} variant="add" />
+      </PageSlider>
     </LandingComponents>
   );
 };
 
-export default AddRegister;
+export default Register;

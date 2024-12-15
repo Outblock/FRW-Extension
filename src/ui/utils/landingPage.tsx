@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import React, { useState } from 'react';
+import React, { type FC, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 export interface PageConfig {
@@ -12,14 +12,14 @@ export enum Direction {
   Left,
 }
 
-export const getPageConfig = (pages: Record<number, PageConfig>, index: number): PageConfig => {
-  return pages[index] || { component: () => React.createElement(Box), props: {} };
-};
+interface PageStepperProps {
+  activeIndex: number;
+  children: React.ReactNode;
+}
 
-export const renderPage = (pages: Record<number, PageConfig>, index: number): JSX.Element => {
-  const pageConfig = getPageConfig(pages, index);
-  const Comp = pageConfig.component;
-  return React.createElement(Comp, pageConfig.props);
+export const PageSlider: FC<PageStepperProps> = ({ activeIndex, children }) => {
+  const pages = React.Children.toArray(children);
+  return <Box>{pages[activeIndex]}</Box>;
 };
 
 export const getDirectionType = (direction: Direction) => {
