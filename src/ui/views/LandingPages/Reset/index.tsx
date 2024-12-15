@@ -54,7 +54,7 @@ const Reset = () => {
     const accounts = await wallets.loadBackupAccounts();
     if (accounts.length > 0) {
       history.push({
-        pathname: '/import/google',
+        pathname: '/add/google',
         state: {
           accounts: accounts,
         },

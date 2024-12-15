@@ -31,7 +31,6 @@ function Main() {
       <Route exact path="/">
         <SortHat />
       </Route>
-      {/* <Route exact path="/reset" component={Reset} /> */}
       <Route exact path="/unlock" component={Unlock} />
       <Route exact path="/switchunlock" component={SwitchUnlock} />
       <Route exact path="/retrieve" component={RetrievePK} />

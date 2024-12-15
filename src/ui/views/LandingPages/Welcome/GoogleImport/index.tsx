@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { AllSet, LandingComponents } from '@/ui/FRWComponent/LandingPages';
-import { type PageConfig, renderPage, useNavigation } from '@/ui/utils/landingPage';
+import { useNavigation, PageSlider } from '@/ui/utils/landingPage';
 import { storage } from 'background/webapi';
 
 import DecryptWallet from './DecryptWallet';
@@ -40,29 +40,6 @@ const GoogleImport = () => {
     loadTempPassword();
   }, [getGoogleAccounts, loadTempPassword]);
 
-  const pages: Record<number, PageConfig> = {
-    0: {
-      component: GoogleAccounts,
-      props: { handleClick: goNext, accounts, setUsername },
-    },
-    1: {
-      component: DecryptWallet,
-      props: { handleClick: goNext, setMnemonic, username },
-    },
-    2: {
-      component: RecoveryPhrase,
-      props: { handleClick: goNext, mnemonic },
-    },
-    3: {
-      component: RecoveryPassword,
-      props: { handleClick: goNext, mnemonic, username, lastPassword: password },
-    },
-    4: {
-      component: AllSet,
-      props: { handleClick: goNext },
-    },
-  };
-
   return (
     <LandingComponents
       activeIndex={activeIndex}
@@ -72,7 +49,18 @@ const GoogleImport = () => {
       showConfetti={activeIndex === 4}
       showRegisterHeader={true}
     >
-      {renderPage(pages, activeIndex)}
+      <PageSlider activeIndex={activeIndex}>
+        <GoogleAccounts handleClick={goNext} accounts={accounts} setUsername={setUsername} />
+        <DecryptWallet handleClick={goNext} setMnemonic={setMnemonic} username={username} />
+        <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />
+        <RecoveryPassword
+          handleClick={goNext}
+          mnemonic={mnemonic}
+          username={username}
+          lastPassword={password}
+        />
+        <AllSet handleClick={goNext} />
+      </PageSlider>
     </LandingComponents>
   );
 };

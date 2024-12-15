@@ -47,9 +47,8 @@ const Googledrive = ({ setErrorMessage, setShowError }) => {
       localStorage.setItem('backupAccounts', JSON.stringify(accounts));
 
       if (accounts.length > 0) {
-        const prevPath = history.location.pathname;
         history.push({
-          pathname: prevPath === '/addressimport' ? '/import/google' : '/add/google',
+          pathname: '/add/google',
           state: {
             accounts: accounts,
           },
