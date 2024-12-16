@@ -3494,19 +3494,18 @@ export class WalletController extends BaseController {
       }
     } catch (err: unknown) {
       // An error has occurred while listening to the transaction
-      console.log(typeof err);
-      console.log({ err });
-      console.error('listenTransaction error ', err);
       let errorMessage = 'unknown error';
       let errorCode: number | undefined = undefined;
 
       if (err instanceof TransactionError) {
         errorCode = err.code;
         errorMessage = err.message;
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'string') {
-        errorMessage = err;
+      } else {
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (typeof err === 'string') {
+          errorMessage = err;
+        }
         // From fcl-core transaction-error.ts
         const ERROR_CODE_REGEX = /\[Error Code: (\d+)\]/;
         const match = errorMessage.match(ERROR_CODE_REGEX);
