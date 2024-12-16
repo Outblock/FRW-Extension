@@ -64,12 +64,13 @@ class MixpanelService {
   async #getExtraProps() {
     const extensionVersion = chrome.runtime.getManifest().version;
     const browserInfo = getBrowserInfo();
+    //const geoLocation = await this.getGeoLocation();
+
     const extraProps = {
       $app_version_string: extensionVersion,
       $browser: browserInfo.browser,
       $browser_version: browserInfo.version,
-      //   $insert_id: "", // for deduplication!
-      time: timestamp() / 1000, // epoch time in seconds
+      time: timestamp() / 1000,
       $os: (await chrome.runtime.getPlatformInfo()).os,
     };
     return extraProps;
@@ -121,7 +122,6 @@ class MixpanelService {
     const body = {
       ...data,
     };
-    console.log('body', body);
     try {
       const response = await fetch(`${this.API_URL}${endpoint}`, {
         method: 'POST',
@@ -136,9 +136,7 @@ class MixpanelService {
         throw new Error(`Mixpanel API error: ${response.statusText}`);
       }
 
-      console.log('response', response);
       const responseText = await response.text();
-      console.log('responseText', responseText);
 
       if (responseText !== '1') {
         throw new Error(`Mixpanel API returned unexpected response: ${responseText}`);
@@ -193,7 +191,8 @@ class MixpanelService {
       event.properties.$duration = Date.now() - startTimeStamp;
     }
 
-    await this.sendRequest('/track', event);
+    //Set determine geo location from ip as ip=1
+    await this.sendRequest('/track?ip=1', event);
   }
   async trackPageView(pathname: string) {
     await this.init();
@@ -202,7 +201,7 @@ class MixpanelService {
       current_page_title: 'Flow Wallet',
       current_domain: 'flow-extension',
       current_url_path: pathname,
-      current_url_protocol: 'chrome-extension',
+      current_url_protocol: 'chrome-extension:',
     });
   }
   async identify(userId: string, name?: string) {
