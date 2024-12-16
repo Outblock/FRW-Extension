@@ -15,8 +15,6 @@ export * from './number';
 
 export * from './saveStorage';
 
-export * from './mixpanelBrowserService';
-
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',
