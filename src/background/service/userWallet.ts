@@ -3,6 +3,7 @@ import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 
+import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
 // eslint-disable-next-line no-restricted-imports
@@ -30,7 +31,7 @@ interface UserWalletStore {
   childAccount: ChildAccount;
   network: string;
   monitor: string;
-  activeChild: any;
+  activeChild: ActiveChildType;
   evmEnabled: boolean;
 }
 
@@ -126,11 +127,11 @@ class UserWallet {
     this.store.childAccount = wallet;
   };
 
-  setActiveWallet = (key: any) => {
+  setActiveWallet = (key: ActiveChildType) => {
     this.store.activeChild = key;
   };
 
-  getActiveWallet = () => {
+  getActiveWallet = (): ActiveChildType => {
     return this.store.activeChild;
   };
 

@@ -96,6 +96,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
     coin: currentCoin,
+    // We are moving from a Flow account to an EVM account
     movingBetweenEVMAndFlow: true,
   });
 

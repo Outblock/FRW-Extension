@@ -7,6 +7,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
 import eventBus from '@/eventBus';
+import { type ActiveChildType } from '@/shared/types/wallet-types';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { NumberTransition } from '@/ui/FRWComponent/NumberTransition';
 import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
@@ -58,7 +59,7 @@ const WalletTab = ({ network }) => {
   const [coinData, setCoinData] = useState<any>([]);
   const [accessible, setAccessible] = useState<any>([]);
   const [balance, setBalance] = useState<string>('$0.00');
-  const [childType, setChildType] = useState<string>('');
+  const [childType, setChildType] = useState<ActiveChildType>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [, setChildAccount] = useState<any>({});
   const [txCount, setTxCount] = useState('');
@@ -127,7 +128,7 @@ const WalletTab = ({ network }) => {
     const pollTimer = setInterval(async () => {
       const nowTime = new Date().getTime();
       const data = await func();
-      if (data.length > 2 || nowTime - startTime >= endTime) {
+      if ((data && data.length > 2) || nowTime - startTime >= endTime) {
         if (pollTimer) {
           clearInterval(pollTimer);
         }
@@ -236,15 +237,13 @@ const WalletTab = ({ network }) => {
 
   const fetchWallet = useCallback(async () => {
     // If childType is 'evm', handle it first
-    const isChild = await wallet.getActiveWallet();
-    if (isChild === 'evm') {
+    const activeChild = await wallet.getActiveWallet();
+    if (activeChild === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
       sortWallet(storageData);
       return;
-    }
-
-    // If not 'evm', check if it's active or not
-    if (!isActive && isChild !== 'evm') {
+      // If not 'evm', check if it's not active
+    } else if (!isActive) {
       const ftResult = await wallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
@@ -414,7 +413,7 @@ const WalletTab = ({ network }) => {
           }}
         >
           <Box sx={{ display: 'flex', gap: '2px', width: '100%' }}>
-            {(!childType || childType === '' || childType === 'evm') && (
+            {(!childType || childType === null || childType === 'evm') && (
               <Button
                 color="info3"
                 variant="contained"
@@ -497,9 +496,9 @@ const WalletTab = ({ network }) => {
                 px: '12px !important',
                 minWidth: '56px',
                 borderTopLeftRadius:
-                  !childType || childType === '' || childType === 'evm' ? '0px' : '24px',
+                  !childType || childType === null || childType === 'evm' ? '0px' : '24px',
                 borderBottomLeftRadius:
-                  !childType || childType === '' || childType === 'evm' ? '0px' : '24px',
+                  !childType || childType === null || childType === 'evm' ? '0px' : '24px',
                 borderTopRightRadius: isActive ? '0px' : '24px',
                 borderBottomRightRadius: isActive ? '0px' : '24px',
                 width: receiveHover ? '100%' : '56px',

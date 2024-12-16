@@ -34,7 +34,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: 0,
     coin: props.data?.coinInfo?.coin,
-    movingBetweenEVMAndFlow: true,
+    // the transfer is within the EVM network, the flag should be false
+    movingBetweenEVMAndFlow: false,
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed

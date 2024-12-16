@@ -61,8 +61,9 @@ const MoveFromChild = (props: MoveBoardProps) => {
   // console.log('props.loggedInAccounts', props.current)
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: 0,
+    // Check if the selected account is an EVM address
     movingBetweenEVMAndFlow: selectedAccount
-      ? isValidEthereumAddress(selectedAccount!['address'])
+      ? isValidEthereumAddress(selectedAccount['address'])
       : false,
   });
 

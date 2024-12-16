@@ -17,6 +17,7 @@ import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
+import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
@@ -1339,16 +1340,23 @@ class OpenApiService {
     return tokenList.find((item) => item.id === contract_name);
   };
 
+  getFeatureFlags = async (): Promise<FeatureFlags> => {
+    try {
+      const config = await remoteFetch.remoteConfig();
+      return config.features;
+    } catch (err) {
+      console.error(err);
+    }
+    // By default, all feature flags are disabled
+    return {};
+  };
+  getFeatureFlag = async (featureFlag: FeatureFlagKey): Promise<boolean> => {
+    const flags = await this.getFeatureFlags();
+    return !!flags[featureFlag];
+  };
+
   getSwapInfo = async (): Promise<boolean> => {
-    remoteFetch
-      .remoteConfig()
-      .then((res) => {
-        return res.features.swap;
-      })
-      .catch((err) => {
-        console.log('getNFTCollectionInfo -->', err);
-      });
-    return false;
+    return (await this.getFeatureFlags()).swap;
   };
 
   // @ts-ignore
