@@ -1,24 +1,11 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
-import {
-  Stack,
-  Box,
-  Typography,
-  Divider,
-  CardMedia,
-  AccordionSummary,
-  AccordionDetails,
-} from '@mui/material';
-import React, { useState, useEffect } from 'react';
-import Highlight from 'react-highlight';
-import { useHistory } from 'react-router-dom';
+import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
+import React from 'react';
 
-import { getScripts } from 'background/utils';
 import circlecheck from 'ui/FRWAssets/image/circlecheck.png';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
 import transactionFeeIcon from 'ui/FRWAssets/svg/transactionFeeIcon.svg';
 import { CopyButton } from 'ui/FRWComponent';
-import { useWallet, formatAddress, isEmoji } from 'ui/utils';
+import { formatAddress } from 'ui/utils';
 
 import IconFlow from '../../../../../../components/iconfont/IconFlow';
 
