@@ -10,7 +10,7 @@ import {
   signInAnonymously,
   onAuthStateChanged,
   type Unsubscribe,
-} from 'firebase/auth';
+} from 'firebase/auth/web-extension';
 import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
