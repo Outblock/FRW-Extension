@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import wallet from '@/background/controller/wallet';
-import { withPrefix } from '@/shared/utils/address';
+import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { type CoinItem } from 'background/service/coinList';
@@ -96,7 +96,9 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
     coin: currentCoin,
-    movingBetweenEVMAndFlow: true,
+    // Determine if the transfer is between EVM and Flow
+    movingBetweenEVMAndFlow:
+      isValidEthereumAddress(userInfo.address) !== isValidEthereumAddress(childUserInfo.address),
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed

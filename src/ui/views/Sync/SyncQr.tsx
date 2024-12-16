@@ -69,7 +69,6 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
   const usewallet = useWallet();
   const classes = useStyles();
   const [Uri, setUri] = useState('');
-  const [web3wallet, setWeb3Wallet] = useState<any>(null);
   const [loading, setShowLoading] = useState<boolean>(false);
   const [session, setSession] = useState<SessionTypes.Struct>();
   const [mnemonic, setMnemonic] = useState(bip39.generateMnemonic());
@@ -249,31 +248,25 @@ const SyncQr = ({ handleClick, savedUsername, confirmMnemonic, setUsername }) =>
             },
           });
 
-          // Open QRCode modal if a URI was returned (i.e. we're not connecting an existing pairing).
           if (uri) {
             console.log('uri ', uri);
             await setUri(uri);
-            // Await session approval from the wallet.
             const session = await approval();
             await onSessionConnected(session);
 
             console.log('session ', session);
             sendRequest(wallet, session.topic);
-
-            // onSessionConnect(session)
-            // Close the QRCode modal in case it was open.
           }
         } catch (e) {
           console.error(e);
         }
-        await setWeb3Wallet(wallet);
-        console.log('web3wallet', web3wallet);
       } catch (e) {
         console.error(e);
       }
     };
     createWeb3Wallet();
-  }, [_subscribeToEvents, currentNetwork, onSessionConnected, sendRequest, web3wallet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

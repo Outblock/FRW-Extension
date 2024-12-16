@@ -1,7 +1,8 @@
+import type { NewsConditionType } from '@/shared/types/news-types';
+
 import { userWalletService } from '../service';
 import { StorageEvaluator } from '../service/storage-evaluator';
 
-import type { NewsConditionType } from './networkModel';
 import openapi from './openapi';
 
 const CURRENT_VERSION = chrome.runtime.getManifest().version;
@@ -24,6 +25,11 @@ class ConditionsEvaluator {
         const currentAddress = userWalletService.getCurrentAddress();
         if (!currentAddress) return false;
         return this.evaluateStorageCondition(currentAddress);
+      }
+      case 'insufficientBalance': {
+        const currentAddress = userWalletService.getCurrentAddress();
+        if (!currentAddress) return false;
+        return this.evaluateBalanceCondition(currentAddress);
       }
 
       case 'unknown':
@@ -65,6 +71,12 @@ class ConditionsEvaluator {
     const storageEvaluator = new StorageEvaluator();
     const { isStorageSufficient } = await storageEvaluator.evaluateStorage(address);
     return !isStorageSufficient;
+  }
+
+  async evaluateBalanceCondition(address: string): Promise<boolean> {
+    const storageEvaluator = new StorageEvaluator();
+    const { isBalanceSufficient } = await storageEvaluator.evaluateStorage(address);
+    return !isBalanceSufficient;
   }
 }
 
