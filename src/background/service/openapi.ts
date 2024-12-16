@@ -2188,6 +2188,15 @@ class OpenApiService {
     return data;
   };
 
+  decodeEvmCall = async (data: string, address = '') => {
+    const bodyData = {
+      to: address, // address -- optional
+      data: data, // calldata -- required
+    };
+    const res = await this.sendRequest('POST', `/api/evm/decodeData`, {}, bodyData, WEB_NEXT_URL);
+    return res;
+  };
+
   EvmNFTcollectionList = async (
     address: string,
     collectionIdentifier: string,
