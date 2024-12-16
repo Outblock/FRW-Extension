@@ -120,7 +120,7 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
           <Box display="flex" justifyContent="space-between" sx={{ padding: '0' }}>
             <Typography
               sx={{
-                fontWeight: '400',
+                fontWeight: '600',
                 color: 'FFFFFFCC',
                 fontSize: '14px',
               }}
@@ -136,7 +136,7 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
           <Box display="flex" justifyContent="space-between" sx={{ padding: '0' }}>
             <Typography
               sx={{
-                fontWeight: '400',
+                fontWeight: '600',
                 color: 'FFFFFFCC',
                 fontSize: '14px',
               }}
@@ -153,7 +153,7 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
           <Box display="flex" justifyContent="space-between" sx={{ padding: '0' }}>
             <Typography
               sx={{
-                fontWeight: '400',
+                fontWeight: '600',
                 color: 'FFFFFFCC',
                 fontSize: '14px',
               }}
@@ -178,12 +178,18 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
             // Original rendering for when we have named parameters
             <>
               <Box display="flex" justifyContent="space-between" sx={{ padding: '0' }}>
-                <Typography sx={{ fontWeight: '400', color: 'FFFFFFCC', fontSize: '14px' }}>
+                <Typography sx={{ fontWeight: '600', color: 'FFFFFFCC', fontSize: '14px' }}>
                   Function
                 </Typography>
                 <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
                   {decodedCall.decodedData.name}
                 </Typography>
+              </Box>
+              <Box display="flex" justifyContent="space-between" sx={{ padding: '0' }}>
+                <Typography sx={{ fontWeight: '600', color: 'FFFFFFCC', fontSize: '14px' }}>
+                  Parameters
+                </Typography>
+                <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}></Typography>
               </Box>
               {decodedCall.decodedData.params && (
                 <Box
@@ -267,7 +273,7 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
             <Box display="flex" justifyContent="space-between" sx={{ padding: '0' }}>
               <Typography
                 sx={{
-                  fontWeight: '400',
+                  fontWeight: '600',
                   color: 'FFFFFFCC',
                   fontSize: '14px',
                 }}
