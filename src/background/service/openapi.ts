@@ -10,6 +10,7 @@ import {
   signInAnonymously,
   onAuthStateChanged,
   type Unsubscribe,
+  type User,
 } from 'firebase/auth';
 import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
@@ -89,7 +90,7 @@ const waitForAuthInit = async () => {
   (await unsubscribe!)();
 };
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user: User | null) => {
   if (user) {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/firebase.User
@@ -97,6 +98,9 @@ onAuthStateChanged(auth, (user) => {
     console.log('User is signed in');
     if (user.isAnonymous) {
       console.log('User is anonymous');
+    } else {
+      mixpanelTrack.identify(user.uid, user.displayName ?? user.uid);
+      console.log('User is signed in');
     }
   } else {
     // User is signed out
@@ -661,6 +665,9 @@ class OpenApiService {
   };
 
   register = async (account_key: AccountKey, username: string) => {
+    // Track the time until account_created is called
+    mixpanelTrack.time('account_created');
+
     const config = this.store.config.register;
     const data = await this.sendRequest(
       config.method,

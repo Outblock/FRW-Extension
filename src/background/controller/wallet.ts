@@ -11,9 +11,10 @@ import { getAuth } from 'firebase/auth';
 import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
+import { type TrackingEvents } from '@/shared/types/tracking-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line import/order,no-restricted-imports
+// eslint-disable-next-line no-restricted-imports
 import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
@@ -4098,6 +4099,23 @@ export class WalletController extends BaseController {
     mixpanelTrack.track('on_ramp_clicked', {
       source: source,
     });
+  };
+
+  // This is called from the front end, we should find a better way to track this event
+  trackAccountRecovered = async () => {
+    mixpanelTrack.track('account_recovered', {
+      address: (await this.getCurrentAddress()) || '',
+      mechanism: 'multi-backup',
+      methods: [],
+    });
+  };
+
+  trackPageView = async (pathname: string) => {
+    mixpanelTrack.trackPageView(pathname);
+  };
+
+  trackTime = async (eventName: keyof TrackingEvents) => {
+    mixpanelTrack.time(eventName);
   };
 }
 

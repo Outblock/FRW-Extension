@@ -14,6 +14,18 @@ type RecoveryMechanismType =
 type AddressType = 'flow' | 'evm' | 'child' | 'coa';
 
 export type TrackingEvents = {
+  // Mixpanel Events
+  $identify: {
+    distinct_id: string; // The distinct id of the user
+    $anon_distinct_id: string; // The anonymous distinct id of the user
+    $name?: string; // The name of the user
+  };
+  $mp_web_page_view: {
+    current_page_title: string; // The title of the current page
+    current_domain: string; // The domain of the current page
+    current_url_path: string; // The path of the current page
+    current_url_protocol: string;
+  };
   // General Events
   script_error: {
     error: string; // Error message of the script, e.g., Rate limit exceeded
