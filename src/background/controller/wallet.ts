@@ -11,9 +11,10 @@ import { getAuth } from 'firebase/auth';
 import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
+import { type FeatureFlags } from '@/shared/types/feature-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line import/order,no-restricted-imports
+// eslint-disable-next-line no-restricted-imports
 import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
@@ -54,7 +55,7 @@ import DisplayKeyring from '../service/keyring/display';
 import type { NFTData, NFTModel, StorageInfo, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
-import { StorageEvaluator } from '../service/storage-evaluator';
+import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
 import { getStoragedAccount } from '../utils/getStoragedAccount';
@@ -3875,6 +3876,10 @@ export class WalletController extends BaseController {
     }
   };
 
+  getFeatureFlags = async (): Promise<FeatureFlags> => {
+    return openapiService.getFeatureFlags();
+  };
+
   allowLilicoPay = async (): Promise<boolean> => {
     const isFreeGasFeeKillSwitch = await storage.get('freeGas');
     const isFreeGasFeeEnabled = await storage.get('lilicoPayer');
@@ -4072,24 +4077,17 @@ export class WalletController extends BaseController {
     transferAmount?: number; // amount in coins
     coin?: string; // coin name
     movingBetweenEVMAndFlow?: boolean; // are we moving between EVM and Flow?
-  } = {}): Promise<{
-    isStorageSufficient: boolean;
-    isStorageSufficientAfterAction: boolean;
-    storageInfo: StorageInfo;
-  }> => {
+  } = {}): Promise<EvaluateStorageResult> => {
     const address = await this.getCurrentAddress();
-    const { isStorageSufficient, isStorageSufficientAfterAction, storageInfo } =
-      await this.storageEvaluator.evaluateStorage(
-        address!,
-        transferAmount,
-        coin,
-        movingBetweenEVMAndFlow
-      );
-    return {
-      isStorageSufficient,
-      isStorageSufficientAfterAction,
-      storageInfo,
-    };
+    const isFreeGasFeeEnabled = await this.allowLilicoPay();
+    const result = await this.storageEvaluator.evaluateStorage(
+      address!,
+      transferAmount,
+      coin,
+      movingBetweenEVMAndFlow,
+      isFreeGasFeeEnabled
+    );
+    return result;
   };
 
   // Tracking stuff

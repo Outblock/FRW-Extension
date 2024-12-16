@@ -1,33 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  ListItemButton,
-  Typography,
-  Drawer,
-  IconButton,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Avatar,
-  CardMedia,
-} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useWallet } from 'ui/utils';
+import { Box, Button, Typography, Drawer, IconButton, CardMedia } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import ErrorModel from '../../FRWComponent/PopupModal/errorModel';
-import moveftbg from 'ui/FRWAssets/svg/moveftbg.svg';
-import movenftbg from 'ui/FRWAssets/svg/movenftbg.svg';
+
+import { type ActiveChildType } from '@/shared/types/wallet-types';
+import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import moveft from 'ui/FRWAssets/image/moveft.png';
 import movenft from 'ui/FRWAssets/image/movenft.png';
-import MoveEvm from './MoveEvm';
-import MoveToChild from './MoveToChild';
-import MoveFromChild from './MoveFromChild';
-import MoveFromFlow from '../EvmMove/MoveFromFlow';
+import moveftbg from 'ui/FRWAssets/svg/moveftbg.svg';
+import movenftbg from 'ui/FRWAssets/svg/movenftbg.svg';
+import { useWallet } from 'ui/utils';
+
 import MoveFromEvm from '../EvmMove/MoveFromEvm';
-import MoveFromChildFT from '../EvmMove/MoveFromChild';
-import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
-import { add } from 'lodash';
+import MoveFromFlow from '../EvmMove/MoveFromFlow';
+
+import MoveEvm from './MoveEvm';
+import MoveFromChild from './MoveFromChild';
+import MoveToChild from './MoveToChild';
 
 interface MoveBoardProps {
   showMoveBoard: boolean;
@@ -38,21 +27,20 @@ interface MoveBoardProps {
 
 const MoveBoard = (props: MoveBoardProps) => {
   const usewallet = useWallet();
-  const history = useHistory();
   const [showSelectNft, setSelectBoard] = useState<boolean>(false);
   const [moveFtOpen, setMoveFt] = useState<boolean>(false);
-  const [childType, setChildType] = useState<string>('');
+  const [childType, setChildType] = useState<ActiveChildType>(null);
   const [network, setNetwork] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
 
   // console.log('props.loggedInAccounts', props.current)
 
-  const requestChildType = async () => {
+  const requestChildType = useCallback(async () => {
     const result = await usewallet.getActiveWallet();
     const currentNetwork = await usewallet.getNetwork();
     setNetwork(currentNetwork);
     setChildType(result);
-  };
+  }, [usewallet]);
 
   const closeFullPage = () => {
     setMoveFt(false);
@@ -61,10 +49,11 @@ const MoveBoard = (props: MoveBoardProps) => {
 
   useEffect(() => {
     requestChildType();
-  }, []);
+  }, [requestChildType]);
 
   const renderMoveComponent = () => {
     if (childType === 'evm') {
+      // EVM child address
       return (
         <MoveEvm
           showMoveBoard={showSelectNft}
@@ -76,7 +65,8 @@ const MoveBoard = (props: MoveBoardProps) => {
       );
     }
 
-    if (childType && childType !== 'evm') {
+    if (childType !== null) {
+      // We are moving FROM a flow child address
       return (
         <MoveFromChild
           showMoveBoard={showSelectNft}
@@ -88,6 +78,7 @@ const MoveBoard = (props: MoveBoardProps) => {
       );
     }
 
+    // There is no child active, so we are moving TO a flow child address
     return (
       <MoveToChild
         showMoveBoard={showSelectNft}

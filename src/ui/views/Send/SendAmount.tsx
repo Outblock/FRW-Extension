@@ -3,6 +3,7 @@ import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
@@ -56,7 +57,7 @@ const SendAmount = () => {
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [childType, setChildType] = useState<string>('');
+  const [childType, setChildType] = useState<ActiveChildType>(null);
   const [minAmount, setMinAmount] = useState<any>(0);
 
   const setUserMinAmount = useCallback(
