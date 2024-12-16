@@ -2,12 +2,12 @@ import { CssBaseline } from '@mui/material';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
-import { HashRouter as Router, Route } from 'react-router-dom';
+import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
 
 import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
-import { WalletProvider, mixpanelBrowserService } from 'ui/utils';
+import { WalletProvider, useWallet } from 'ui/utils';
 
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
@@ -19,15 +19,16 @@ import Unlock from './Unlock';
 
 const theme = createTheme(themeOptions);
 
-function Main() {
+const Routes = () => {
+  const location = useLocation();
+  const wallet = useWallet();
+
   React.useEffect(() => {
-    // Initialize mixpanel in the popup
-    // Note: Mixpanel is initialized in the constructor, just calling init here to make sure it is initialized
-    mixpanelBrowserService.init();
-  }, []);
+    wallet.trackPageView(location.pathname);
+  }, [location, wallet]);
 
   return (
-    <Router>
+    <>
       <Route exact path="/">
         <SortHat />
       </Route>
@@ -41,6 +42,14 @@ function Main() {
       <PrivateRoute path="/approval">
         <Approval />
       </PrivateRoute>
+    </>
+  );
+};
+
+function Main() {
+  return (
+    <Router>
+      <Routes />
     </Router>
   );
 }

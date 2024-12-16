@@ -4,7 +4,7 @@ import React, { useCallback, useEffect } from 'react';
 
 import { storage } from 'background/webapi';
 import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
-import { useWallet, mixpanelBrowserService } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 interface AllSetProps {
   handleClick: () => void;
@@ -12,23 +12,13 @@ interface AllSetProps {
 }
 
 const AllSet = ({ handleClick, variant = 'register' }: AllSetProps) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const loadScript = useCallback(async () => {
     if (variant === 'register') {
-      await wallet.getCadenceScripts();
+      await usewallet.getCadenceScripts();
     }
-  }, [wallet, variant]);
-
-  const trackAccountRecovered = useCallback(async () => {
-    if (variant === 'register') {
-      mixpanelBrowserService.track('account_recovered', {
-        address: (await wallet.getMainAddress()) || '',
-        mechanism: 'multi-backup',
-        methods: [],
-      });
-    }
-  }, [wallet, variant]);
+  }, [usewallet, variant]);
 
   useEffect(() => {
     const removeTempPass = () => {
@@ -39,12 +29,12 @@ const AllSet = ({ handleClick, variant = 'register' }: AllSetProps) => {
 
     if (variant === 'register') {
       loadScript().then(() => {
-        trackAccountRecovered();
+        usewallet.trackAccountRecovered();
       });
     } else if (variant === 'add') {
       removeTempPass();
     }
-  }, [variant, loadScript, trackAccountRecovered]);
+  }, [variant, loadScript, usewallet]);
 
   const getMessage = () => {
     if (variant === 'recover') {
