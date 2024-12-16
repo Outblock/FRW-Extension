@@ -24,7 +24,7 @@ import { storage } from '@/background/webapi';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type AccountKey } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet, saveIndex, mixpanelBrowserService } from 'ui/utils';
+import { useWallet, saveIndex } from 'ui/utils';
 
 import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
 import CancelIcon from '../../../components/iconfont/IconClose';
@@ -192,8 +192,7 @@ const SetPassword = ({ handleClick, mnemonic, username, setExPassword }) => {
 
     await saveIndex(username);
     const accountKey = getAccountKey(mnemonic);
-    // track the time until account_created is called
-    mixpanelBrowserService.time('account_created');
+
     wallet.openapi
       .register(accountKey, username)
       .then((response) => {
