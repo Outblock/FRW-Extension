@@ -38,12 +38,11 @@ const OnRampList = ({ close }) => {
     const response = await wallet.openapi.getMoonpayURL(url);
 
     if (response?.data?.url) {
+      wallet.trackOnRampClicked('moonpay');
       await chrome.tabs.create({
         url: response?.data?.url,
       });
     }
-
-    wallet.trackOnRampClicked('moonpay');
   };
 
   const loadCoinbasePay = async () => {
@@ -57,11 +56,13 @@ const OnRampList = ({ close }) => {
     });
 
     if (onRampURL) {
+      // Track before opening the tab
+      wallet.trackOnRampClicked('coinbase');
+
       await chrome.tabs.create({
         url: onRampURL,
       });
     }
-    wallet.trackOnRampClicked('coinbase');
   };
 
   return (
