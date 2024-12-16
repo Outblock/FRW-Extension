@@ -98,6 +98,15 @@ export default [
     },
   },
 
+  // Build files specific config
+  {
+    files: ['vite.config.ts', 'manifest.config.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.build.json',
+      },
+    },
+  },
   // Background-specific config for chrome extension
   {
     files: ['**/src/background/**/*.{js,jsx,ts,tsx}'],

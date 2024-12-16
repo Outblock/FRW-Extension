@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 
-import { initWasm } from '@trustwallet/wallet-core';
+import { initWasm as initWallet } from '@trustwallet/wallet-core';
 
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { storage } from 'background/webapi';
@@ -15,9 +14,15 @@ import {
   decodeAttestationObject,
 } from './WebAuthnDecoder';
 
+// Instead of a direct import, use dynamic import
+// const initWallet = async () => {
+//   const walletCore = await import('@trustwallet/wallet-core');
+//   return await walletCore.initWasm();
+//   // rest of your wallet initialization
+// };
 const jsonToKey = async (json, password) => {
   try {
-    const { StoredKey, PrivateKey } = await initWasm();
+    const { StoredKey, PrivateKey } = await initWallet();
     const keystore = StoredKey.importJSON(json);
     const privateKeyData = await keystore.decryptPrivateKey(password);
     const privateKey = PrivateKey.createWithData(privateKeyData);
@@ -29,7 +34,7 @@ const jsonToKey = async (json, password) => {
 };
 
 const pk2PubKey = async (pk) => {
-  const { PrivateKey } = await initWasm();
+  const { PrivateKey } = await initWallet();
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
 
   const p256PubK = Buffer.from(privateKey.getPublicKeyNist256p1().uncompressed().data())
@@ -62,7 +67,7 @@ const formPubKey = async (pubKey) => {
 };
 
 const seed2PubKey = async (seed) => {
-  const { HDWallet, Curve } = await initWasm();
+  const { HDWallet, Curve } = await initWallet();
 
   const currentId = (await storage.get('currentId')) ?? 0;
   const accountIndex = (await storage.get('currentAccountIndex')) ?? 0;
@@ -99,7 +104,7 @@ const seed2PubKey = async (seed) => {
 };
 
 const seed2PubKeyTemp = async (seed) => {
-  const { HDWallet, Curve } = await initWasm();
+  const { HDWallet, Curve } = await initWallet();
 
   const path = (await storage.get('temp_path')) || FLOW_BIP44_PATH;
   const passphrase = (await storage.get('temp_phrase')) || '';
@@ -197,7 +202,7 @@ const getPasskey = async (id) => {
 };
 
 const getPKfromLogin = async (result) => {
-  const { HDWallet, Curve } = await initWasm();
+  const { HDWallet, Curve } = await initWallet();
   const wallet = HDWallet.createWithEntropy(result.response.userHandle, '');
   const pk = wallet.getKeyByCurve(Curve.nist256p1, FLOW_BIP44_PATH);
   const pubk = pk.getPublicKeyNist256p1().uncompressed().data();
@@ -222,7 +227,7 @@ const getPKfromRegister = async ({ userId, result }) => {
   if (!userId) {
     return null;
   }
-  const { HDWallet, Curve } = await initWasm();
+  const { HDWallet, Curve } = await initWallet();
   const wallet = HDWallet.createWithEntropy(userId, '');
   const pk = wallet.getKeyByCurve(Curve.nist256p1, FLOW_BIP44_PATH);
   const pubk = pk.getPublicKeyNist256p1().uncompressed().data();
@@ -244,7 +249,7 @@ const uint8Array2Hex = (input) => {
 
 const signMessageHash = async (hashAlgo, messageData) => {
   // Other key
-  const { Hash } = await initWasm();
+  const { Hash } = await initWallet();
   const messageHash =
     hashAlgo === HASH_ALGO.SHA3_256 ? Hash.sha3_256(messageData) : Hash.sha256(messageData);
   return messageHash;
@@ -260,7 +265,7 @@ const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
   }
   console.log(' signAlgo ', signAlgo);
   console.log(' hashAlgo ', hashAlgo);
-  const { HDWallet, Curve, Hash, PrivateKey } = await initWasm();
+  const { HDWallet, Curve, Hash, PrivateKey } = await initWallet();
   const messageData = Buffer.from(message, 'hex');
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
   const curve = signAlgo === SIGN_ALGO.P256 ? Curve.nist256p1 : Curve.secp256k1;

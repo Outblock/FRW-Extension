@@ -41,28 +41,12 @@ import { getFirbaseConfig } from './utils/firebaseConfig';
 import { storage } from './webapi';
 const { PortMessage } = Message;
 
-const chromeWindow = await chrome.windows.getCurrent();
-
 let appStoreLoaded = false;
 
-function initAppMeta() {
-  // Initialize Firebase
-  // console.log('<- initAppMeta ->')
-  // const document = chromeWindow.document;
-  // const head = document.querySelector('head');
-  // const icon = document.createElement('link');
-  // icon.href = 'https://raw.githubusercontent.com/Outblock/Lilico-Web/main/asset/icon-128.png';
-  // icon.rel = 'icon';
-  // head?.appendChild(icon);
-  // const name = document.createElement('meta');
-  // name.name = 'name';
-  // name.content = 'Lilico';
-  // head?.appendChild(name);
-  // const description = document.createElement('meta');
-  // description.name = 'description';
-  // description.content = i18n.t('appDescription');
-  // head?.appendChild(description);
+// src/background/index.ts
+console.log('Service worker starting...');
 
+function initAppMeta() {
   firebaseSetup();
   fclSetup();
 }
@@ -70,8 +54,6 @@ function initAppMeta() {
 async function firebaseSetup() {
   const env: string = process.env.NODE_ENV!;
   const firebaseConfig = getFirbaseConfig();
-  console.log(process.env.NODE_ENV);
-  // const firebaseProductionConfig = prodConig;
 
   const app = initializeApp(firebaseConfig, env);
 
@@ -266,13 +248,15 @@ declare global {
 }
 
 // for popup operate
-chromeWindow['wallet'] = new Proxy(walletController, {
-  get(target, propKey, receiver) {
-    if (!appStoreLoaded) {
-      throw ethErrors.provider.disconnected();
-    }
-    return Reflect.get(target, propKey, receiver);
-  },
+chrome.windows.getCurrent().then((chromeWindow) => {
+  chromeWindow['wallet'] = new Proxy(walletController, {
+    get(target, propKey, receiver) {
+      if (!appStoreLoaded) {
+        throw ethErrors.provider.disconnected();
+      }
+      return Reflect.get(target, propKey, receiver);
+    },
+  });
 });
 
 const findPath = (service) => {
@@ -417,3 +401,10 @@ function onMessage(msg, port) {
 }
 
 console.log('Is fetch native?', fetch.toString().includes('[native code]'));
+
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('Extension installed');
+});
+
+// Export to make it a valid module
+export {};

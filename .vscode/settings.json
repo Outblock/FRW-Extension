@@ -21,5 +21,11 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "eslint.useFlatConfig": true,
   "githubPullRequests.overrideDefaultBranch": "dev",
-  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}"
+  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}",
+  "json.schemas": [
+    {
+      "fileMatch": ["manifest.json"],
+      "url": "https://json.schemastore.org/chrome-manifest.json"
+    }
+  ]
 }
