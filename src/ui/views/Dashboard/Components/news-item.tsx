@@ -3,7 +3,7 @@ import { Card, CardContent, CardMedia, IconButton, Typography, Box, Tooltip } fr
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useNews } from '@/ui/utils/NewsContext';
-import { openInternalPageInTab } from '@/ui/utils/webapi';
+import { openInTab } from '@/ui/utils/webapi';
 import type { NewsItem } from 'background/service/networkModel';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
@@ -149,7 +149,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
                   textOverflow: 'ellipsis',
                   cursor: item.url ? 'pointer' : 'default',
                 }}
-                onClick={item.url ? () => item.url && openInternalPageInTab(item.url) : undefined}
+                onClick={item.url ? () => item.url && openInTab(item.url) : undefined}
               >
                 {item.body}
               </Typography>
@@ -167,7 +167,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
             >
               <Box
                 component="span"
-                onClick={() => item.url && openInternalPageInTab(item.url)}
+                onClick={() => item.url && openInTab(item.url)}
                 sx={{
                   cursor: 'pointer',
                   display: 'flex',
