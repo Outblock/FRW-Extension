@@ -74,6 +74,9 @@ jobs:
           FB_APP_ID="${{ secrets.FB_APP_ID }}"
           FB_MEASUREMENT_ID="${{ secrets.FB_MEASUREMENT_ID }}"
           FB_FUNCTIONS="${{ secrets.FB_FUNCTIONS }}"
+          API_NEWS_PATH="${{ vars.API_NEWS_PATH }}"
+          API_CONFIG_PATH="${{ vars.API_CONFIG_PATH }}"
+          API_BASE_URL="${{ vars.API_BASE_URL }}"
           # manifest
           OAUTH2_CLIENT_ID="${{ secrets.OAUTH2_CLIENT_ID }}"
           OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"

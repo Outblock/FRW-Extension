@@ -7,7 +7,7 @@ import * as bip39 from 'bip39';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth } from 'firebase/auth/web-extension';
 import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
@@ -3475,19 +3475,18 @@ export class WalletController extends BaseController {
       }
     } catch (err: unknown) {
       // An error has occurred while listening to the transaction
-      console.log(typeof err);
-      console.log({ err });
-      console.error('listenTransaction error ', err);
       let errorMessage = 'unknown error';
       let errorCode: number | undefined = undefined;
 
       if (err instanceof TransactionError) {
         errorCode = err.code;
         errorMessage = err.message;
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'string') {
-        errorMessage = err;
+      } else {
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (typeof err === 'string') {
+          errorMessage = err;
+        }
         // From fcl-core transaction-error.ts
         const ERROR_CODE_REGEX = /\[Error Code: (\d+)\]/;
         const match = errorMessage.match(ERROR_CODE_REGEX);
