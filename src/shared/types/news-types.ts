@@ -30,5 +30,5 @@ export interface NewsItem {
   url?: string;
   expiryTime: Date;
   displayType: NewsDisplayType;
-  conditions?: NewsConditionType[];
+  conditions?: { type: NewsConditionType }[];
 }

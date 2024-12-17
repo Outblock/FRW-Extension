@@ -35,18 +35,22 @@ class NewsService {
     if (!this.store) await this.init();
 
     const news = await openapi.getNews();
-
     // Remove dismissed news and evaluate conditions
-    const filteredNews = await Promise.all(
-      news
-        .filter((n) => !this.isDismissed(n.id))
-        .map(async (newsItem) => {
-          const shouldShow = await conditionsEvaluator.evaluateConditions(newsItem.conditions);
-          return shouldShow ? newsItem : null;
-        })
-    );
 
-    return filteredNews.filter((item): item is NewsItem => item !== null);
+    const filteredNewsPromises = news
+      .filter((n) => !this.isDismissed(n.id))
+      .map(async (newsItem) => {
+        const shouldShow = await conditionsEvaluator.evaluateConditions(newsItem.conditions);
+        return shouldShow ? newsItem : null;
+      });
+    const filteredNews = await Promise.all(filteredNewsPromises)
+      .catch((error) => {
+        console.error('Error evaluating conditions', error);
+        return [];
+      })
+      .then((news) => news.filter((item) => item !== null));
+
+    return filteredNews as NewsItem[];
   };
 
   isRead = (id: string): boolean => {
