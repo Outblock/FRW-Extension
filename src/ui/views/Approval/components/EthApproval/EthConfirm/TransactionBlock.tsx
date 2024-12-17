@@ -1,4 +1,4 @@
-import { Stack, Box, Typography, Divider, CardMedia } from '@mui/material';
+import { Stack, Box, Typography, Divider, CardMedia, Tooltip } from '@mui/material';
 import React from 'react';
 
 import circlecheck from 'ui/FRWAssets/image/circlecheck.png';
@@ -127,9 +127,17 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
             >
               To Address
             </Typography>
-            <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
-              {formatAddress(data[0].to)}
-            </Typography>
+            {data[0].to?.length >= 30 ? (
+              <Tooltip title={data[0].to} placement="top">
+                <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px', textAlign: 'right' }}>
+                  {formatAddress(data[0].to)}
+                </Typography>
+              </Tooltip>
+            ) : (
+              <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
+                {formatAddress(data[0].to)}
+              </Typography>
+            )}
           </Box>
         )}
         {data && data.length > 0 && data[0].value && (
@@ -215,9 +223,21 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
                       <Typography sx={{ color: '#FFFFFF66', fontSize: '14px' }}>
                         {param.name || `param${index + 1}`}
                       </Typography>
-                      <Typography sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}>
-                        {formatAddress(param.value)}
-                      </Typography>
+                      {param.value?.length >= 30 ? (
+                        <Tooltip title={param.value} placement="top">
+                          <Typography
+                            sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}
+                          >
+                            {formatAddress(param.value)}
+                          </Typography>
+                        </Tooltip>
+                      ) : (
+                        <Typography
+                          sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}
+                        >
+                          {formatAddress(param.value)}
+                        </Typography>
+                      )}
                     </Box>
                   ))}
                 </Box>
@@ -255,9 +275,22 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
                       sx={{ padding: '0', width: '100%', alignItems: 'center' }}
                     >
                       <Typography sx={{ color: '#FFFFFF66', fontSize: '14px' }}>{''}</Typography>
-                      <Typography sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}>
-                        {formatAddress(param)}
-                      </Typography>
+
+                      {param?.length >= 30 ? (
+                        <Tooltip title={param} placement="top">
+                          <Typography
+                            sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}
+                          >
+                            {formatAddress(param)}
+                          </Typography>
+                        </Tooltip>
+                      ) : (
+                        <Typography
+                          sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}
+                        >
+                          {formatAddress(param)}
+                        </Typography>
+                      )}
                     </Box>
                   ))}
                 </Box>
