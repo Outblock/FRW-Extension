@@ -1,1 +1,1 @@
-export { jsonToKey } from '@/background/utils/modules/passkey';
+export { jsonToKey } from '@/background/utils/modules/publicPrivateKey';

@@ -23,7 +23,7 @@ import BaseController from '../base';
 import Wallet from '../wallet';
 
 // eslint-disable-next-line import/order
-import { signWithKey } from '@/background/utils/modules/passkey';
+import { signWithKey } from '@/background/utils/modules/publicPrivateKey';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission

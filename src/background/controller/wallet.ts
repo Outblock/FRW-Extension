@@ -59,7 +59,7 @@ import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
 import { getStoragedAccount } from '../utils/getStoragedAccount';
-import { pk2PubKey, seed2PubKey, formPubKey } from '../utils/modules/passkey';
+import { pk2PubKey, seed2PubKey, formPubKey } from '../utils/modules/publicPrivateKey';
 
 import BaseController from './base';
 import provider from './provider';

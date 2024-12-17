@@ -3,7 +3,7 @@ import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 
-import { signWithKey, seed2PubKey } from '@/background/utils/modules/passkey';
+import { signWithKey, seed2PubKey } from '@/background/utils/modules/publicPrivateKey';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
