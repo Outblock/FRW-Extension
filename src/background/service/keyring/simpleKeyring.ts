@@ -1,4 +1,4 @@
-import { Wallet, HDNodeWallet } from 'ethers';
+import { Wallet } from 'ethers';
 
 import { normalizeAddress } from 'background/utils';
 

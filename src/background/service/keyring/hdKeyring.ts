@@ -1,6 +1,4 @@
-import { ethers, Wallet, HDNodeWallet } from 'ethers';
-
-import { normalizeAddress } from 'background/utils';
+import { ethers, HDNodeWallet } from 'ethers';
 
 export class HDKeyring {
   static type = 'HD Key Tree';
@@ -9,7 +7,6 @@ export class HDKeyring {
   private hdWallet: HDNodeWallet | null = null;
   private mnemonic: string | null = null;
   private activeIndexes: number[] = [];
-  private basePath = "m/44'/539'/0'/0";
 
   constructor(opts?: { mnemonic?: string; activeIndexes?: number[] }) {
     if (opts?.mnemonic) {
@@ -49,7 +46,6 @@ export class HDKeyring {
   }
 
   async removeAccount(address: string) {
-    // No need to handle multiple accounts if we only care about mnemonic
     throw new Error('Operation not supported');
   }
 
