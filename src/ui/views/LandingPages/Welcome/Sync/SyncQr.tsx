@@ -276,7 +276,8 @@ const SyncQr = ({
     };
 
     createWeb3Wallet();
-  }, [_subscribeToEvents, currentNetwork, onSessionConnected, sendRequest]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
