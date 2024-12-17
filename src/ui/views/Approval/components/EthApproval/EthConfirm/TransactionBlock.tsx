@@ -216,14 +216,46 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
                   {decodedCall.decodedData.params.map((param, index) => (
                     <Box
                       key={index}
-                      display="flex"
-                      justifyContent="space-between"
-                      sx={{ padding: '0', width: '100%', alignItems: 'center' }}
+                      sx={{
+                        padding: '0',
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
                     >
-                      <Typography sx={{ color: '#FFFFFF66', fontSize: '14px' }}>
+                      <Typography
+                        sx={{
+                          color: '#FFFFFF66',
+                          fontSize: '14px',
+                        }}
+                      >
                         {param.name || `param${index + 1}`}
                       </Typography>
-                      {param.value?.length >= 30 ? (
+                      {Array.isArray(param.value) ? (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-end',
+                            width: '100%',
+                          }}
+                        >
+                          {param.value.map((item, i) => (
+                            <Typography
+                              key={i}
+                              sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}
+                            >
+                              {item?.length >= 30 ? (
+                                <Tooltip title={item} placement="top">
+                                  {formatAddress(item)}
+                                </Tooltip>
+                              ) : (
+                                formatAddress(item)
+                              )}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ) : param.value?.length >= 30 ? (
                         <Tooltip title={param.value} placement="top">
                           <Typography
                             sx={{ color: '#FFFFFFCC', fontSize: '12px', textAlign: 'right' }}
