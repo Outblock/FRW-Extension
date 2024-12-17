@@ -1,7 +1,7 @@
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously } from 'firebase/auth/web-extension';
 
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';

@@ -7,7 +7,7 @@ import * as bip39 from 'bip39';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth } from 'firebase/auth/web-extension';
 import web3, { TransactionError } from 'web3';
 
 import eventBus from '@/eventBus';
