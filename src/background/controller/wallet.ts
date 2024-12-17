@@ -10,13 +10,12 @@ import { getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import web3, { TransactionError } from 'web3';
 
+import { findAddressWithNetwork } from '@/background/utils/modules/findAddressWithPK';
 import eventBus from '@/eventBus';
 import { type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line no-restricted-imports
-import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
   preferenceService,
@@ -60,12 +59,10 @@ import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
 import { getStoragedAccount } from '../utils/getStoragedAccount';
+import { pk2PubKey, seed2PubKey, formPubKey } from '../utils/modules/passkey';
 
 import BaseController from './base';
 import provider from './provider';
-
-// eslint-disable-next-line import/order,no-restricted-imports
-import { pk2PubKey, seed2PubKey, formPubKey } from '@/ui/utils/modules/passkey.js';
 
 interface Keyring {
   type: string;
@@ -3840,12 +3837,12 @@ export class WalletController extends BaseController {
       await googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
       mixpanelTrack.track('multi_backup_created', {
         address: (await this.getCurrentAddress()) || '',
-        providers: ['google_drive'],
+        providers: ['GoogleDrive'],
       });
     } catch {
       mixpanelTrack.track('multi_backup_creation_failed', {
         address: (await this.getCurrentAddress()) || '',
-        providers: ['google_drive'],
+        providers: ['GoogleDrive'],
       });
     }
   };
@@ -4103,7 +4100,7 @@ export class WalletController extends BaseController {
   trackAccountRecovered = async () => {
     mixpanelTrack.track('account_recovered', {
       address: (await this.getCurrentAddress()) || '',
-      mechanism: 'multi-backup',
+      mechanism: 'Multi-Backup',
       methods: [],
     });
   };

@@ -1,7 +1,7 @@
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
 
-import { signMessageHash } from '@/ui/utils/modules/passkey.js';
+import { signMessageHash } from '@/background/utils/modules/passkey';
 import wallet from 'background/controller/wallet';
 import { keyringService, openapiService } from 'background/service';
 import { createPersistStore } from 'background/utils';

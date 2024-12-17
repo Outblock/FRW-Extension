@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { CborSimpleDecoder, BinaryReader } from './CborSimpleDecoder.js';
-import * as WebAuthn from './WebAuthnTypes.js';
-import { coseToJwk } from './Crypto.js';
+import { CborSimpleDecoder, BinaryReader } from './CborSimpleDecoder';
+import { coseToJwk } from './Crypto';
+import { AttestedCredentialData, AuthenticatorData } from './WebAuthnTypes';
 
 /**
  * Convert to Uint8Array
@@ -24,7 +22,7 @@ export function toUint8Array(data) {
  * @param {Uint8Array|ArrayBuffer} data
  * @returns {ArrayBuffer}
  */
-export function toArrayBuffer(data) {
+export function toArrayBuffer(data: Uint8Array | ArrayBuffer): ArrayBuffer {
   if (data instanceof Uint8Array) {
     return data.buffer;
   }
@@ -39,7 +37,7 @@ export function toArrayBuffer(data) {
  * @param {Uint8Array|ArrayBuffer|DataView} data
  * @returns {DataView}
  */
-export function toDataView(data) {
+export function toDataView(data: DataView | ArrayBuffer | Uint8Array): DataView {
   if (data instanceof DataView) {
     return data;
   }
@@ -47,7 +45,7 @@ export function toDataView(data) {
     return new DataView(data);
   }
   if (data instanceof Uint8Array) {
-    return new DataView(data);
+    return new DataView(data.buffer);
   }
   throw new Error('invalid argument');
 }
@@ -58,10 +56,36 @@ export function toDataView(data) {
  * @param {Uint8Array|ArrayBuffer} data
  * @returns {object}
  */
-export function decodeClientDataJSON(data) {
-  data = toUint8Array(data);
-  return JSON.parse(Array.from(data, (t) => String.fromCharCode(t)).join(''));
+export function decodeClientDataJSON(data: ArrayBuffer): object {
+  const uint8Array = toUint8Array(data);
+  return JSON.parse(Array.from(uint8Array, (t: number) => String.fromCharCode(t)).join(''));
 }
+
+export type AttestationFormat =
+  | 'fido-u2f'
+  | 'packed'
+  | 'android-safetynet'
+  | 'android-key'
+  | 'tpm'
+  | 'apple'
+  | 'none';
+
+export type AttestationStatement = {
+  get(key: 'sig'): Uint8Array | undefined;
+  get(key: 'x5c'): Uint8Array[] | undefined;
+  get(key: 'response'): Uint8Array | undefined;
+  get(key: 'alg'): number | undefined;
+  get(key: 'ver'): string | undefined;
+  get(key: 'certInfo'): Uint8Array | undefined;
+  get(key: 'pubArea'): Uint8Array | undefined;
+  // `Map` properties
+  readonly size: number;
+};
+export type AttestationObject = {
+  fmt: AttestationFormat;
+  attStmt: AttestationStatement;
+  authData: Uint8Array;
+};
 
 /**
  * Invokes CborSimpleDecoder.readObject to decode attestationObject
@@ -69,9 +93,10 @@ export function decodeClientDataJSON(data) {
  * @param {Uint8Array|ArrayBuffer} data
  * @returns {object}
  */
-export function decodeAttestationObject(data) {
-  data = toArrayBuffer(data);
-  return CborSimpleDecoder.readObject(new BinaryReader(data));
+
+export function decodeAttestationObject(data: ArrayBuffer): AttestationObject {
+  const arrayBuffer = toArrayBuffer(data);
+  return CborSimpleDecoder.readObject(new BinaryReader(arrayBuffer));
 }
 
 /**
@@ -80,9 +105,9 @@ export function decodeAttestationObject(data) {
  * @param {Uint8Array|ArrayBuffer} data
  * @returns {WebAuthn.AuthenticatorData}
  */
-export function decodeAuthenticatorData(data) {
-  data = toArrayBuffer(data);
-  const reader = new BinaryReader(data);
+export function decodeAuthenticatorData(data: ArrayBuffer) {
+  const arrayBuffer = toArrayBuffer(data);
+  const reader = new BinaryReader(arrayBuffer);
 
   /**
    * https://w3c.github.io/webauthn/#sec-authenticator-data
@@ -97,7 +122,7 @@ export function decodeAuthenticatorData(data) {
    * attestedCredentialData variable
    * extensions variable
    */
-  const authenticatorData = new WebAuthn.AuthenticatorData();
+  const authenticatorData = new AuthenticatorData();
   // rpIdHash
   authenticatorData.rpIdHash = reader.readBytes(32);
   // flags
@@ -115,7 +140,7 @@ export function decodeAuthenticatorData(data) {
      * credentialId L
      * credentialPublicKey variable
      */
-    authenticatorData.attestedCredentialData = new WebAuthn.AttestedCredentialData();
+    authenticatorData.attestedCredentialData = new AttestedCredentialData();
     // aaguid
     authenticatorData.attestedCredentialData.aaguid = reader.readBytes(16);
     // credentialIdLength
@@ -139,4 +164,4 @@ export function decodeAuthenticatorData(data) {
 
 export { coseToJwk, CborSimpleDecoder, BinaryReader };
 
-export { verifyAssertionSignature } from './Signature.js';
+export { verifyAssertionSignature } from './Signature';

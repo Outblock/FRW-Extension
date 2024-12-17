@@ -22,8 +22,8 @@ import { storage } from '../../webapi';
 import BaseController from '../base';
 import Wallet from '../wallet';
 
-// eslint-disable-next-line import/order,no-restricted-imports
-import { signWithKey } from '@/ui/utils/modules/passkey.js';
+// eslint-disable-next-line import/order
+import { signWithKey } from '@/background/utils/modules/passkey';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission

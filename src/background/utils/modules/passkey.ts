@@ -1,13 +1,16 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-
 import { initWasm } from '@trustwallet/wallet-core';
 
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
-import { storage } from 'background/webapi';
 
-import { decodeArray, encodeArray } from './base64';
-import { FLOW_BIP44_PATH, HASH_ALGO, KEY_TYPE, SIGN_ALGO } from './constants';
+import {
+  FLOW_BIP44_PATH,
+  HASH_ALGO,
+  KEY_TYPE,
+  SIGN_ALGO,
+} from '../../../shared/utils/algo-constants';
+import storage from '../../webapi/storage';
+
+import { decodeArray } from './base64';
 import { addCredential, readSettings } from './settings';
 import {
   decodeAuthenticatorData,
@@ -23,7 +26,7 @@ const jsonToKey = async (json, password) => {
     const privateKey = PrivateKey.createWithData(privateKeyData);
     return privateKey;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return null;
   }
 };
@@ -132,13 +135,13 @@ function getRandomBytes(length) {
   return array;
 }
 
-const createPasskey = async (name, displayName) => {
+const createPasskey = async (name, displayName, rpName) => {
   const userId = getRandomBytes(16);
-  const setup = {
+  const setup: CredentialCreationOptions = {
     publicKey: {
       challenge: getRandomBytes(20),
       rp: {
-        name: window.location.hostname,
+        name: rpName,
       },
       user: {
         id: userId,
@@ -153,15 +156,24 @@ const createPasskey = async (name, displayName) => {
       ],
     },
   };
+
   const result = await navigator.credentials.create(setup);
   console.log('result ==>', result);
-  const attestationObject = decodeAttestationObject(result.response.attestationObject);
+  if (
+    !result ||
+    !(result instanceof PublicKeyCredential) ||
+    !(result.response instanceof AuthenticatorAttestationResponse)
+  ) {
+    return null;
+  }
+  const authenticatorResponse: AuthenticatorAttestationResponse = result.response;
+  const attestationObject = decodeAttestationObject(authenticatorResponse.attestationObject);
   console.log('attestationObject ==>', attestationObject);
   const authData = decodeAuthenticatorData(attestationObject.authData);
   console.log('authData ==>', authData);
   addCredential(
-    readSettings(),
-    setup.publicKey.user,
+    await readSettings(),
+    setup.publicKey!.user,
     result.id,
     authData.attestedCredentialData.credentialPublicKey,
     result.response
@@ -169,16 +181,16 @@ const createPasskey = async (name, displayName) => {
   return { userId, result, userName: name };
 };
 
-const getPasskey = async (id) => {
-  const setup = {
+const getPasskey = async (id, rpName) => {
+  const setup: CredentialRequestOptions = {
     publicKey: {
       challenge: getRandomBytes(20),
-      rpId: window.location.hostname,
+      rpId: rpName,
     },
   };
 
   if (id && id.length > 0) {
-    setup.publicKey.allowCredentials = [
+    setup.publicKey!.allowCredentials = [
       {
         type: 'public-key',
         id: decodeArray(id),
@@ -188,10 +200,18 @@ const getPasskey = async (id) => {
 
   console.log('getPasskey setup ==>', setup);
   const result = await navigator.credentials.get(setup);
+  if (
+    !result ||
+    !(result instanceof PublicKeyCredential) ||
+    !(result.response instanceof AuthenticatorAssertionResponse)
+  ) {
+    return null;
+  }
   console.log('getPasskey result ==>', result);
   const json = decodeClientDataJSON(result.response.clientDataJSON);
   console.log('clientDataJSON =>', json);
-  const test = decodeAuthenticatorData(result.response.authenticatorData);
+  const authenticatorResponse: AuthenticatorAssertionResponse = result.response;
+  const test = decodeAuthenticatorData(authenticatorResponse.authenticatorData);
   console.log('authenticatorData =>', test);
   return result;
 };
@@ -238,7 +258,7 @@ const getPKfromRegister = async ({ userId, result }) => {
 };
 
 const uint8Array2Hex = (input) => {
-  const buffer = new Buffer.from(input);
+  const buffer = Buffer.from(input);
   return buffer.toString('hex');
 };
 

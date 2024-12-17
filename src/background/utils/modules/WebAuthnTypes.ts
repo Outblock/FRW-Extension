@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 export class PublicKeyCredentialEntity {
   name; // string
   constructor(obj) {
@@ -9,7 +7,7 @@ export class PublicKeyCredentialEntity {
 
 export class PublicKeyCredentialRpEntity extends PublicKeyCredentialEntity {
   id; // string
-  constructor(obj) {
+  constructor(obj?: { name: string; id: string }) {
     super(obj);
     this.id = obj?.id;
   }
@@ -29,7 +27,7 @@ export class PublicKeyCredentialRpEntity extends PublicKeyCredentialEntity {
 export class PublicKeyCredentialUserEntity extends PublicKeyCredentialEntity {
   id; // BufferSource
   displayName; // string
-  constructor(obj) {
+  constructor(obj?: { name: string; id: string; displayName: string }) {
     super(obj);
     this.displayName = obj?.displayName;
   }
@@ -50,7 +48,7 @@ export class PublicKeyCredentialUserEntity extends PublicKeyCredentialEntity {
 export class PublicKeyCredentialParameters {
   type; // string
   alg; // long
-  constructor(obj) {
+  constructor(obj?) {
     this.type = obj?.type;
     this.alg = obj?.alg;
   }
@@ -72,7 +70,7 @@ export class PublicKeyCredentialDescriptor {
   type; // string
   id; // BufferSource
   transports; // string[]
-  constructor(obj) {
+  constructor(obj?) {
     this.type = obj?.type;
     this.id = obj?.id;
     this.transports = obj?.transports;
@@ -97,7 +95,11 @@ export class AuthenticatorSelectionCriteria {
   residentKey; // string
   // requireResidentKey // bool
   userVerification; // string
-  constructor(obj) {
+  constructor(obj?: {
+    authenticatorAttachment: string;
+    residentKey: string;
+    userVerification: string;
+  }) {
     this.authenticatorAttachment = obj?.authenticatorAttachment;
     this.residentKey = obj?.residentKey;
     this.userVerification = obj?.userVerification;
@@ -129,7 +131,7 @@ export class PublicKeyCredentialCreationOptions {
   authenticatorSelection = new AuthenticatorSelectionCriteria(); // AuthenticatorSelectionCriteria
   attestation; // string
   extensions;
-  constructor(obj) {
+  constructor(obj?) {
     this.rp = new PublicKeyCredentialRpEntity(obj?.rp);
     this.user = new PublicKeyCredentialUserEntity(obj?.user);
     this.challenge = obj?.challenge;
@@ -160,7 +162,7 @@ export class PublicKeyCredentialCreationOptions {
 export class CredentialCreationOptions {
   signal; // AbortSignal
   publicKey = new PublicKeyCredentialCreationOptions();
-  constructor(obj) {
+  constructor(obj?) {
     this.publicKey = new PublicKeyCredentialCreationOptions(obj?.publicKey);
   }
   toJSON() {
@@ -178,7 +180,7 @@ export class PublicKeyCredentialRequestOptions {
   allowCredentials; // PublicKeyCredentialDescriptor[]
   userVerification; // string
   extensions;
-  constructor(obj) {
+  constructor(obj?) {
     this.challenge = obj?.challenge;
     this.timeout = obj?.timeout;
     this.rpId = obj?.rpId;
@@ -202,7 +204,7 @@ export class CredentialRequestOptions {
   mediation; // CredentialMediationRequirement
   signal; // AbortSignal
   publicKey = new PublicKeyCredentialRequestOptions();
-  constructor(obj) {
+  constructor(obj?) {
     this.publicKey = new PublicKeyCredentialRequestOptions(obj?.publicKey);
   }
   toJSON() {
@@ -217,7 +219,7 @@ export class CredentialRequestOptions {
 export class Credential {
   id; // string
   type; // string
-  constructor(obj) {
+  constructor(obj?) {
     this.id = obj?.id;
     this.type = obj?.type;
   }
@@ -226,7 +228,7 @@ export class Credential {
 export class PublicKeyCredential extends Credential {
   rawId; // ArrayBuffer
   response; // AuthenticatorResponse (AuthenticatorAttestationResponse or AuthenticatorAssertionResponse)
-  constructor(obj) {
+  constructor(obj?) {
     super(obj);
     this.rawId = obj?.rawId;
     if ('attestationObject' in (obj?.response ?? {}))
@@ -246,14 +248,14 @@ export class PublicKeyCredential extends Credential {
 
 export class AuthenticatorResponse {
   clientDataJSON; // ArrayBuffer
-  constructor(obj) {
+  constructor(obj?) {
     this.clientDataJSON = obj?.clientDataJSON;
   }
 }
 
 export class AuthenticatorAttestationResponse extends AuthenticatorResponse {
   attestationObject; // ArrayBuffer
-  constructor(obj) {
+  constructor(obj?) {
     super(obj);
     this.attestationObject = obj?.attestationObject;
   }
@@ -269,7 +271,7 @@ export class AuthenticatorAssertionResponse extends AuthenticatorResponse {
   authenticatorData; // ArrayBuffer
   signature; // ArrayBuffer
   userHandle; // ArrayBuffer
-  constructor(obj) {
+  constructor(obj?) {
     super(obj);
     this.authenticatorData = obj?.authenticatorData;
     this.signature = obj?.signature;
@@ -289,27 +291,27 @@ export class AuthenticatorData {
   rpIdHash; // ArrayBuffer
   flags; // int
   get up() {
-    return (this.flags & 0x01) != 0;
+    return (this.flags & 0x01) !== 0;
   }
   get uv() {
-    return (this.flags & 0x04) != 0;
+    return (this.flags & 0x04) !== 0;
   }
   get be() {
-    return (this.flags & 0x08) != 0;
+    return (this.flags & 0x08) !== 0;
   }
   get bs() {
-    return (this.flags & 0x10) != 0;
+    return (this.flags & 0x10) !== 0;
   }
   get at() {
-    return (this.flags & 0x40) != 0;
+    return (this.flags & 0x40) !== 0;
   }
   get ed() {
-    return (this.flags & 0x80) != 0;
+    return (this.flags & 0x80) !== 0;
   }
   signCount; // int
   attestedCredentialData; // AttestedCredentialData
   extensions; // ArrayBuffer
-  constructor(obj) {
+  constructor(obj?) {
     this.rpIdHash = obj?.rpIdHash;
     this.flags = obj?.flags;
     this.signCount = obj?.signCount;
@@ -339,7 +341,7 @@ export class AttestedCredentialData {
   aaguid; // ArrayBuffer
   credentialId; // ArrayBuffer
   credentialPublicKey; // Jwk
-  constructor(obj) {
+  constructor(obj?) {
     this.aaguid = obj?.aaguid;
     this.credentialId = obj?.credentialId;
     this.credentialPublicKey = obj?.credentialPublicKey;

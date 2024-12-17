@@ -1,15 +1,6 @@
-import type { HashAlgoType, SignAlgoType } from './algo-types';
+import type { HashAlgoType, SignAlgoType, KeyType, RecoveryMechanismType } from './algo-types';
 
 type OnRampSourceType = 'moonpay' | 'coinbase';
-
-type KeyType = 'passkey' | 'google_drive' | 'seed_phrase' | 'keystore' | 'private_key';
-
-type RecoveryMechanismType =
-  | 'multi-backup'
-  | 'seed-phrase'
-  | 'private_key'
-  | 'KeyStore'
-  | 'device_backup';
 
 type AddressType = 'flow' | 'evm' | 'child' | 'coa';
 
