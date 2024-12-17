@@ -109,7 +109,13 @@ class fetchRemoteConfig {
     const exp = 1000 * 60 * 60 * 1 + now.getTime();
     if (expire < now.getTime()) {
       try {
-        const result = await openapi.sendRequest('GET', '/config', {}, {}, BASE_FUNCTIONS_URL);
+        const result = await openapi.sendRequest(
+          'GET',
+          process.env.API_CONFIG_PATH,
+          {},
+          {},
+          process.env.API_BASE_URL
+        );
         // fetch(`${baseURL}/config`);
         // const result = await config.json();
         this.configState.result = result;

@@ -2333,7 +2333,6 @@ class OpenApiService {
 
   getNews = async (): Promise<NewsItem[]> => {
     // Get news from firebase function
-    const baseURL = getFirbaseFunctionUrl();
 
     const cachedNews = await storage.getExpiry('news');
 
@@ -2341,7 +2340,13 @@ class OpenApiService {
       return cachedNews;
     }
 
-    const data = await this.sendRequest('GET', '/news', {}, {}, baseURL);
+    const data = await this.sendRequest(
+      'GET',
+      process.env.API_NEWS_PATH,
+      {},
+      {},
+      process.env.API_BASE_URL
+    );
 
     const timeNow = new Date(Date.now());
 
