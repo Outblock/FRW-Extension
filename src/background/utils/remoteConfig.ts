@@ -109,15 +109,23 @@ class fetchRemoteConfig {
     const exp = 1000 * 60 * 60 * 1 + now.getTime();
     if (expire < now.getTime()) {
       try {
-        const result = await openapi.sendRequest('GET', '/config', {}, {}, BASE_FUNCTIONS_URL);
+        const result = await openapi.sendRequest(
+          'GET',
+          process.env.API_CONFIG_PATH,
+          {},
+          {},
+          process.env.API_BASE_URL
+        );
         // fetch(`${baseURL}/config`);
         // const result = await config.json();
-        this.configState.result = result;
+        const config = result.config;
+
+        this.configState.result = config;
         this.configState.expireTime = exp;
-        await storage.set('freeGas', result.features.free_gas);
-        await storage.set('alchemyAPI', result.features.alchemy_api);
+        await storage.set('freeGas', config.features.free_gas);
+        await storage.set('alchemyAPI', config.features.alchemy_api);
         // console.log('remoteConfig ->', result, result.features.free_gas)
-        return result;
+        return config;
       } catch (err) {
         console.error(err);
         await storage.set('freeGas', defaultConfig.features.free_gas);

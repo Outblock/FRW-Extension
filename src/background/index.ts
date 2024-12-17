@@ -7,7 +7,7 @@ import {
   indexedDBLocalPersistence,
   setPersistence,
   onAuthStateChanged,
-} from 'firebase/auth';
+} from 'firebase/auth/web-extension';
 
 import eventBus from '@/eventBus';
 import { Message } from '@/shared/utils/messaging';
