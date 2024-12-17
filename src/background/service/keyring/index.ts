@@ -2,7 +2,6 @@
 
 import { EventEmitter } from 'events';
 
-import { ObservableStore } from '@metamask/obs-store';
 import * as bip39 from 'bip39';
 import encryptor from 'browser-passworder';
 import * as ethUtil from 'ethereumjs-util';
@@ -53,13 +52,42 @@ export interface DisplayedKeryring {
   keyring: any;
 }
 
+class SimpleStore<T> {
+  private state: T;
+  private listeners: ((state: T) => void)[] = [];
+
+  constructor(initialState: T) {
+    this.state = initialState;
+  }
+
+  getState(): T {
+    return this.state;
+  }
+
+  updateState(partialState: Partial<T>) {
+    this.state = { ...this.state, ...partialState };
+    this.notifyListeners();
+  }
+
+  subscribe(listener: (state: T) => void) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== listener);
+    };
+  }
+
+  private notifyListeners() {
+    this.listeners.forEach((listener) => listener(this.state));
+  }
+}
+
 class KeyringService extends EventEmitter {
   //
   // PUBLIC METHODS
   //
   keyringTypes: any[];
-  store!: ObservableStore<any>;
-  memStore: ObservableStore<MemStoreState>;
+  store!: SimpleStore<any>;
+  memStore: SimpleStore<MemStoreState>;
   keyrings: any[];
   encryptor: typeof encryptor = encryptor;
   password: string | null = null;
@@ -67,18 +95,14 @@ class KeyringService extends EventEmitter {
   constructor() {
     super();
     this.keyringTypes = Object.values(KEYRING_SDK_TYPES);
-    this.memStore = new ObservableStore({
+    this.store = new SimpleStore({ booted: false });
+    this.memStore = new SimpleStore<MemStoreState>({
       isUnlocked: false,
       keyringTypes: this.keyringTypes.map((krt) => krt.type),
       keyrings: [],
       preMnemonics: '',
     });
-
     this.keyrings = [];
-  }
-
-  loadStore(initState) {
-    this.store = new ObservableStore(initState);
   }
 
   loadMemStore() {
@@ -1168,6 +1192,11 @@ class KeyringService extends EventEmitter {
   setUnlocked(): void {
     this.memStore.updateState({ isUnlocked: true });
     this.emit('unlock');
+  }
+
+  loadStore(initState) {
+    this.store = new SimpleStore(initState || { booted: false });
+    return this.store.subscribe((value) => storage.set('keyringState', value));
   }
 }
 
