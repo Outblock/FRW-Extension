@@ -186,7 +186,6 @@ class KeyringService extends EventEmitter {
         });
       })
       .then((firstKeyring) => {
-        console.log('firstKeyring ', firstKeyring);
         keyring = firstKeyring;
         return firstKeyring.getAccounts();
       })
@@ -250,21 +249,18 @@ class KeyringService extends EventEmitter {
    * @returns {Promise<Object>} A Promise that resolves to the state.
    */
   async createKeyringWithMnemonics(seed: string): Promise<any> {
-    console.log('createKeyringWithMnemonics  ================== ', seed);
     if (!bip39.validateMnemonic(seed)) {
       return Promise.reject(new Error(i18n.t('mnemonic phrase is invalid')));
     }
     let keyring;
     return this.persistAllKeyrings()
       .then(() => {
-        console.log('seed ', seed);
         return this.addNewKeyring('HD Key Tree', {
           mnemonic: seed,
           activeIndexes: [0],
         });
       })
       .then((firstKeyring) => {
-        console.log('firstKeyring  ================== ', firstKeyring);
         keyring = firstKeyring;
         return firstKeyring.getAccounts();
       })
@@ -281,7 +277,6 @@ class KeyringService extends EventEmitter {
   }
 
   async addKeyring(keyring) {
-    console.log('addKeyring  ================== ', keyring);
     return keyring
       .getAccounts()
       .then((accounts) => {
@@ -336,10 +331,8 @@ class KeyringService extends EventEmitter {
   async submitPassword(password: string): Promise<MemStoreState> {
     await this.verifyPassword(password);
     this.password = password;
-    console.log('this.verifyPassword  ================== ', password);
     try {
       this.keyrings = await this.unlockKeyrings(password);
-      console.log('this.keyrings  ================== ', this.keyrings);
     } catch {
       //
     } finally {
@@ -380,7 +373,6 @@ class KeyringService extends EventEmitter {
    */
   addNewKeyring(type: string, opts?: unknown): Promise<any> {
     const Keyring = this.getKeyringClassForType(type);
-    console.log('Keyring  ================== ', Keyring);
     const keyring = new Keyring(opts);
     return this.addKeyring(keyring);
   }
@@ -846,7 +838,6 @@ class KeyringService extends EventEmitter {
     );
 
     await this._updateMemStoreKeyrings();
-    console.log('Final keyrings state:', this.keyrings);
     return this.keyrings;
   }
 
