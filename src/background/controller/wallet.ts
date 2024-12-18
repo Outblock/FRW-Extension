@@ -528,14 +528,15 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyring);
   };
 
-  jsonToPrivateKey = (json: string, password: string) => {
-    return jsonToKey(json, password);
+  jsonToPrivateKeyHex = async (json: string, password: string): Promise<string | null> => {
+    const pk = await jsonToKey(json, password);
+    return pk ? Buffer.from(pk.data()).toString('hex') : null;
   };
-  findAddressWithPrivateKey = (pk: string, address: string) => {
-    return findAddressWithPK(pk, address);
+  findAddressWithPrivateKey = async (pk: string, address: string) => {
+    return await findAddressWithPK(pk, address);
   };
-  findAddressWithSeedPhrase = (seed: string, address: string, isTemp: boolean = false) => {
-    return findAddressWithSeed(seed, address, isTemp);
+  findAddressWithSeedPhrase = async (seed: string, address: string, isTemp: boolean = false) => {
+    return await findAddressWithSeed(seed, address, isTemp);
   };
   getPreMnemonics = () => keyringService.getPreMnemonics();
   generatePreMnemonic = () => keyringService.generatePreMnemonic();

@@ -92,12 +92,11 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       }
       const password = e.target[2].value;
       const address = e.target[5].value;
-      const pk = await wallet.jsonToPrivateKey(keystore, password);
-      if (pk === null) {
+      const pkHex = await wallet.jsonToPrivateKeyHex(keystore, password);
+      if (pkHex === null) {
         setErrorMessage('Password incorrect');
         return;
       }
-      const pkHex = Buffer.from(pk!.data()).toString('hex');
       const result = await wallet.findAddressWithPrivateKey(pkHex, address);
       setPk(pkHex);
       if (!result) {
