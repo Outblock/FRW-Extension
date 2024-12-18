@@ -10,7 +10,17 @@ import { getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import web3, { TransactionError } from 'web3';
 
-import { findAddressWithNetwork } from '@/background/utils/modules/findAddressWithPK';
+import {
+  findAddressWithNetwork,
+  findAddressWithSeed,
+  findAddressWithPK,
+} from '@/background/utils/modules/findAddressWithPK';
+import {
+  pk2PubKey,
+  seed2PubKey,
+  formPubKey,
+  jsonToKey,
+} from '@/background/utils/modules/publicPrivateKey';
 import eventBus from '@/eventBus';
 import { type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
@@ -59,7 +69,6 @@ import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
 import { getStoragedAccount } from '../utils/getStoragedAccount';
-import { pk2PubKey, seed2PubKey, formPubKey } from '../utils/modules/publicPrivateKey';
 
 import BaseController from './base';
 import provider from './provider';
@@ -509,6 +518,15 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyring);
   };
 
+  jsonToPrivateKey = (json: string, password: string) => {
+    return jsonToKey(json, password);
+  };
+  findAddressWithPrivateKey = (pk: string, address: string) => {
+    return findAddressWithPK(pk, address);
+  };
+  findAddressWithSeedPhrase = (seed: string, address: string) => {
+    return findAddressWithSeed(seed, address);
+  };
   getPreMnemonics = () => keyringService.getPreMnemonics();
   generatePreMnemonic = () => keyringService.generatePreMnemonic();
   removePreMnemonics = () => keyringService.removePreMnemonics();

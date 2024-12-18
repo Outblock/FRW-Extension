@@ -22,5 +22,5 @@
   "eslint.useFlatConfig": true,
   "githubPullRequests.overrideDefaultBranch": "dev",
   "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}",
-  "cSpell.words": ["Cbor"]
+  "cSpell.words": ["Cbor", "secp"]
 }

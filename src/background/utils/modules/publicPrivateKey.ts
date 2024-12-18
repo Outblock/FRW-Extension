@@ -2,27 +2,16 @@ import { initWasm } from '@trustwallet/wallet-core';
 
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 
-import {
-  FLOW_BIP44_PATH,
-  HASH_ALGO,
-  KEY_TYPE,
-  SIGN_ALGO,
-} from '../../../shared/utils/algo-constants';
+import { FLOW_BIP44_PATH, HASH_ALGO, SIGN_ALGO } from '../../../shared/utils/algo-constants';
 import storage from '../../webapi/storage';
 
-import { decodeArray } from './base64';
-import { addCredential, readSettings } from './settings';
-import {
-  decodeAuthenticatorData,
-  decodeClientDataJSON,
-  decodeAttestationObject,
-} from './WebAuthnDecoder';
-
-const jsonToKey = async (json, password) => {
+const jsonToKey = async (json: string, password: string) => {
   try {
     const { StoredKey, PrivateKey } = await initWasm();
-    const keystore = StoredKey.importJSON(json);
-    const privateKeyData = await keystore.decryptPrivateKey(password);
+    // It appears StoredKey.importJSON expects a Buffer, not a string
+    const jsonBuffer = Buffer.from(json);
+    const keystore = StoredKey.importJSON(jsonBuffer);
+    const privateKeyData = keystore.decryptPrivateKey(Buffer.from(password));
     const privateKey = PrivateKey.createWithData(privateKeyData);
     return privateKey;
   } catch (error) {
@@ -31,7 +20,7 @@ const jsonToKey = async (json, password) => {
   }
 };
 
-const pk2PubKey = async (pk) => {
+const pk2PubKey = async (pk: string) => {
   const { PrivateKey } = await initWasm();
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
 
@@ -64,7 +53,7 @@ const formPubKey = async (pubKey) => {
   };
 };
 
-const seed2PubKey = async (seed) => {
+const seed2PubKey = async (seed: string) => {
   const { HDWallet, Curve } = await initWasm();
 
   const currentId = (await storage.get('currentId')) ?? 0;
@@ -101,13 +90,11 @@ const seed2PubKey = async (seed) => {
   };
 };
 
-const seed2PubKeyTemp = async (seed) => {
+const seed2PubKeyTemp = async (seed: string) => {
   const { HDWallet, Curve } = await initWasm();
 
   const path = (await storage.get('temp_path')) || FLOW_BIP44_PATH;
   const passphrase = (await storage.get('temp_phrase')) || '';
-  console.log('pathpathpath ', path);
-  console.log('passphrase ', passphrase);
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
   const p256PK = wallet.getKeyByCurve(Curve.nist256p1, path);
   const p256PubK = Buffer.from(p256PK.getPublicKeyNist256p1().uncompressed().data())
@@ -129,139 +116,6 @@ const seed2PubKeyTemp = async (seed) => {
   };
 };
 
-function getRandomBytes(length) {
-  const array = new Uint8Array(length ?? 32);
-  crypto.getRandomValues(array);
-  return array;
-}
-
-const createPasskey = async (name, displayName, rpName) => {
-  const userId = getRandomBytes(16);
-  const setup: CredentialCreationOptions = {
-    publicKey: {
-      challenge: getRandomBytes(20),
-      rp: {
-        name: rpName,
-      },
-      user: {
-        id: userId,
-        name: name,
-        displayName: displayName,
-      },
-      pubKeyCredParams: [
-        {
-          type: 'public-key',
-          alg: -7,
-        },
-      ],
-    },
-  };
-
-  const result = await navigator.credentials.create(setup);
-  console.log('result ==>', result);
-  if (
-    !result ||
-    !(result instanceof PublicKeyCredential) ||
-    !(result.response instanceof AuthenticatorAttestationResponse)
-  ) {
-    return null;
-  }
-  const authenticatorResponse: AuthenticatorAttestationResponse = result.response;
-  const attestationObject = decodeAttestationObject(authenticatorResponse.attestationObject);
-  console.log('attestationObject ==>', attestationObject);
-  const authData = decodeAuthenticatorData(attestationObject.authData);
-  console.log('authData ==>', authData);
-  addCredential(
-    await readSettings(),
-    setup.publicKey!.user,
-    result.id,
-    authData.attestedCredentialData.credentialPublicKey,
-    result.response
-  );
-  return { userId, result, userName: name };
-};
-
-const getPasskey = async (id, rpName) => {
-  const setup: CredentialRequestOptions = {
-    publicKey: {
-      challenge: getRandomBytes(20),
-      rpId: rpName,
-    },
-  };
-
-  if (id && id.length > 0) {
-    setup.publicKey!.allowCredentials = [
-      {
-        type: 'public-key',
-        id: decodeArray(id),
-      },
-    ];
-  }
-
-  console.log('getPasskey setup ==>', setup);
-  const result = await navigator.credentials.get(setup);
-  if (
-    !result ||
-    !(result instanceof PublicKeyCredential) ||
-    !(result.response instanceof AuthenticatorAssertionResponse)
-  ) {
-    return null;
-  }
-  console.log('getPasskey result ==>', result);
-  const json = decodeClientDataJSON(result.response.clientDataJSON);
-  console.log('clientDataJSON =>', json);
-  const authenticatorResponse: AuthenticatorAssertionResponse = result.response;
-  const test = decodeAuthenticatorData(authenticatorResponse.authenticatorData);
-  console.log('authenticatorData =>', test);
-  return result;
-};
-
-const getPKfromLogin = async (result) => {
-  const { HDWallet, Curve } = await initWasm();
-  const wallet = HDWallet.createWithEntropy(result.response.userHandle, '');
-  const pk = wallet.getKeyByCurve(Curve.nist256p1, FLOW_BIP44_PATH);
-  const pubk = pk.getPublicKeyNist256p1().uncompressed().data();
-  const json = decodeClientDataJSON(result.response.clientDataJSON);
-
-  return {
-    mnemonic: wallet.mnemonic(),
-    type: KEY_TYPE.PASSKEY,
-    pk: uint8Array2Hex(pk.data()),
-    pubK: uint8Array2Hex(pubk).replace(/^04/, ''),
-    keyIndex: 0,
-    signAlgo: SIGN_ALGO.P256,
-    hashAlgo: HASH_ALGO.SHA256,
-    addtional: {
-      clientDataJSON: json,
-    },
-  };
-};
-
-const getPKfromRegister = async ({ userId, result }) => {
-  console.log(userId, result);
-  if (!userId) {
-    return null;
-  }
-  const { HDWallet, Curve } = await initWasm();
-  const wallet = HDWallet.createWithEntropy(userId, '');
-  const pk = wallet.getKeyByCurve(Curve.nist256p1, FLOW_BIP44_PATH);
-  const pubk = pk.getPublicKeyNist256p1().uncompressed().data();
-  return {
-    type: KEY_TYPE.PASSKEY,
-    mnemonic: wallet.mnemonic(),
-    pk: uint8Array2Hex(pk.data()),
-    pubK: uint8Array2Hex(pubk).replace(/^04/, ''),
-    keyIndex: 0,
-    signAlgo: SIGN_ALGO.P256,
-    hashAlgo: HASH_ALGO.SHA256,
-  };
-};
-
-const uint8Array2Hex = (input) => {
-  const buffer = Buffer.from(input);
-  return buffer.toString('hex');
-};
-
 const signMessageHash = async (hashAlgo, messageData) => {
   // Other key
   const { Hash } = await initWasm();
@@ -278,9 +132,7 @@ const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
   if (typeof hashAlgo === 'number') {
     hashAlgo = getStringFromHashAlgo(hashAlgo);
   }
-  console.log(' signAlgo ', signAlgo);
-  console.log(' hashAlgo ', hashAlgo);
-  const { HDWallet, Curve, Hash, PrivateKey } = await initWasm();
+  const { Curve, Hash, PrivateKey } = await initWasm();
   const messageData = Buffer.from(message, 'hex');
   const privateKey = PrivateKey.createWithData(Buffer.from(pk, 'hex'));
   const curve = signAlgo === SIGN_ALGO.P256 ? Curve.nist256p1 : Curve.secp256k1;
@@ -291,10 +143,6 @@ const signWithKey = async (message, signAlgo, hashAlgo, pk) => {
 };
 
 export {
-  createPasskey,
-  getPasskey,
-  getPKfromLogin,
-  getPKfromRegister,
   jsonToKey,
   pk2PubKey,
   seed2PubKey,
