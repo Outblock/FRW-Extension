@@ -26,7 +26,6 @@ export const MainRoute: React.FC = () => {
         <Route exact path="/welcome/register" component={Register} />
         <Route exact path="/welcome/addressimport" component={AddressImport} />
         <Route exact path="/welcome/sync" component={Sync} />
-        <Route exact path="/addwelcome" component={Welcome} />
         <Route exact path="/forgot" component={Forgot} />
         <Route exact path="/recoverpage" component={Recover} />
         <Route exact path="/resetpage" component={Reset} />

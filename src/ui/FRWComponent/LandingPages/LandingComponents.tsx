@@ -3,7 +3,7 @@ import React from 'react';
 
 import { LLPinAlert } from '@/ui/FRWComponent';
 import Confetti from '@/ui/FRWComponent/Confetti';
-import { RegisterHeader } from '@/ui/FRWComponent/LandingPages';
+import RegisterHeader from '@/ui/FRWComponent/LandingPages/RegisterHeader';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 
 import BackButtonIcon from '../../../components/iconfont/IconBackButton';

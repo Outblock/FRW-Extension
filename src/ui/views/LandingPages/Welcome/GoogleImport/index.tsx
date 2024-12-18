@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { AllSet, LandingComponents } from '@/ui/FRWComponent/LandingPages';
+import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
+import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
 import { useNavigation, PageSlider } from '@/ui/utils/landingPage';
 import { storage } from 'background/webapi';
 

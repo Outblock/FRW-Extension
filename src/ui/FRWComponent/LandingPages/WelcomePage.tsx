@@ -7,7 +7,7 @@ import appicon from '@/ui/FRWAssets/image/appicon.png';
 import create from '@/ui/FRWAssets/svg/create.svg';
 import importPng from '@/ui/FRWAssets/svg/import.svg';
 import qr from '@/ui/FRWAssets/svg/scanIcon.svg';
-import { RegisterHeader } from '@/ui/FRWComponent/LandingPages';
+import RegisterHeader from '@/ui/FRWComponent/LandingPages/RegisterHeader';
 
 interface WelcomeLayoutProps {
   registerPath: string;

@@ -3,7 +3,7 @@ import { Box } from '@mui/system';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { RegisterHeader } from '@/ui/FRWComponent/LandingPages';
+import RegisterHeader from '@/ui/FRWComponent/LandingPages/RegisterHeader';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { storage } from 'background/webapi';

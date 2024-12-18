@@ -1,25 +1,17 @@
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import {
-  Box,
-  LinearProgress,
-  Typography,
-  Input,
-  InputAdornment,
-  IconButton,
-  FormControlLabel,
-  Checkbox,
-  Link,
-  Button,
-  Snackbar,
-  Alert,
-} from '@mui/material';
+import { Box, Typography, FormGroup } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React from 'react';
-import zxcvbn from 'zxcvbn';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { BpUncheked, BpCheckedIcon } from '@/ui/FRWAssets/icons/CustomCheckboxIcons';
-import { LLSpinner } from '@/ui/FRWComponent';
+import {
+  PasswordInput,
+  TermsCheckbox,
+  ErrorSnackbar,
+  SubmitButton,
+} from '@/ui/FRWComponent/LandingPages/PasswordComponents';
+import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+
+import CheckCircleIcon from '../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   inputBox: {
@@ -37,186 +29,195 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-// Password Indicator Component
-interface PasswordIndicatorProps {
-  value: string;
+interface SetPasswordProps {
+  handleClick: () => void;
+  onSubmit: (password: string) => Promise<void>;
+  username?: string;
+  tempPassword?: string;
+  showTerms?: boolean;
+  title?: string | React.ReactNode;
+  subtitle?: string;
+  isLogin?: boolean;
+  autoFocus?: boolean;
 }
 
-export const PasswordIndicator = ({ value }: PasswordIndicatorProps) => {
-  const score = zxcvbn(value).score;
-  const percentage = ((score + 1) / 5) * 100;
+const SetPassword: React.FC<SetPasswordProps> = ({
+  handleClick,
+  onSubmit,
+  username,
+  tempPassword = '',
+  showTerms = false,
+  title,
+  subtitle,
+  isLogin = false,
+  autoFocus = false,
+}) => {
+  const classes = useStyles();
 
-  const level = (score: number) => {
-    switch (score) {
-      case 0:
-      case 1:
-        return { text: chrome.i18n.getMessage('Weak'), color: 'error' };
-      case 2:
-        return { text: chrome.i18n.getMessage('Good'), color: 'testnet' };
-      case 3:
-        return { text: chrome.i18n.getMessage('Great'), color: 'success' };
-      case 4:
-        return { text: chrome.i18n.getMessage('Strong'), color: 'success' };
-      default:
-        return { text: chrome.i18n.getMessage('Unknown'), color: 'error' };
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [password, setPassword] = useState(tempPassword);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isCharacters, setCharacters] = useState(false);
+  const [isMatch, setMatch] = useState(false);
+  const [isCheck, setCheck] = useState(!showTerms);
+  const [isLoading, setLoading] = useState(false);
+  const [errMessage, setErrorMessage] = useState('Something wrong, please try again');
+  const [showError, setShowError] = useState(false);
+  const [helperText, setHelperText] = useState(<div />);
+  const [helperMatch, setHelperMatch] = useState(<div />);
+
+  const loadTempPassword = useCallback(async () => {
+    if (tempPassword) {
+      setPassword(tempPassword);
+    }
+  }, [tempPassword]);
+
+  useEffect(() => {
+    loadTempPassword();
+  }, [loadTempPassword]);
+
+  const successInfo = (message: string) => (
+    <Box
+      sx={{
+        width: '95%',
+        backgroundColor: 'success.light',
+        mx: 'auto',
+        borderRadius: '0 0 12px 12px',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+    >
+      <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
+      <Typography variant="body1" color="success.main">
+        {message}
+      </Typography>
+    </Box>
+  );
+
+  const errorInfo = (message: string) => (
+    <Box
+      sx={{
+        width: '95%',
+        backgroundColor: 'error.light',
+        mx: 'auto',
+        borderRadius: '0 0 12px 12px',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+    >
+      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+      <Typography variant="body1" color="error.main">
+        {message}
+      </Typography>
+    </Box>
+  );
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await onSubmit(password);
+      setLoading(false);
+    } catch (error) {
+      console.log('error', error);
+      setErrorMessage(error.message || errMessage);
+      setShowError(true);
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (password.length > 7) {
+      setHelperText(successInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setCharacters(true);
+    } else {
+      setHelperText(errorInfo(chrome.i18n.getMessage('At__least__8__characters')));
+      setCharacters(false);
+    }
+  }, [password]);
+
+  useEffect(() => {
+    if (!tempPassword) {
+      if (confirmPassword === password) {
+        setHelperMatch(successInfo(chrome.i18n.getMessage('Passwords__match')));
+        setMatch(true);
+      } else {
+        setMatch(false);
+        setHelperMatch(errorInfo(chrome.i18n.getMessage('Your__passwords__do__not__match')));
+      }
+    } else {
+      setMatch(true); // Auto-match when using tempPassword
+    }
+  }, [confirmPassword, password, tempPassword]);
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '72px', mr: 1 }}>
-        <LinearProgress
-          variant="determinate"
-          // @ts-expect-error level function returned expected value
-          color={level(score).color}
-          sx={{ height: '12px', width: '72px', borderRadius: '12px' }}
-          value={percentage}
+    <>
+      <Box className="registerBox">
+        <Typography variant="h4">
+          {title || (
+            <>
+              {chrome.i18n.getMessage('Create')}
+              <Box display="inline" color="primary.main">
+                {chrome.i18n.getMessage('Password')}
+              </Box>
+            </>
+          )}
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          {subtitle ||
+            chrome.i18n.getMessage(
+              'Lilico__uses__this__password__to__protect__your__recovery__phrase'
+            )}
+        </Typography>
+
+        <Box sx={{ flexGrow: 1, width: 640, maxWidth: '100%', my: '32px', display: 'flex' }}>
+          <FormGroup sx={{ width: '100%' }}>
+            <PasswordInput
+              value={password}
+              onChange={setPassword}
+              isVisible={isPasswordVisible}
+              setVisible={setPasswordVisible}
+              readOnly={tempPassword ? !(password.length < 8) : false}
+              className={classes.inputBox}
+              autoFocus={autoFocus}
+            />
+            <SlideRelative show={!!password} direction="down">
+              <Box style={{ marginBottom: '24px' }}>{helperText}</Box>
+            </SlideRelative>
+
+            {!tempPassword && (
+              <Box sx={{ pb: '30px', marginTop: password ? '0px' : '24px' }}>
+                <PasswordInput
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  isVisible={isConfirmPasswordVisible}
+                  setVisible={setConfirmPasswordVisible}
+                  placeholder={chrome.i18n.getMessage('Confirm__your__password')}
+                  className={classes.inputBox}
+                />
+                <SlideRelative show={!!confirmPassword} direction="down">
+                  {helperMatch}
+                </SlideRelative>
+              </Box>
+            )}
+          </FormGroup>
+        </Box>
+
+        {showTerms && <TermsCheckbox onChange={setCheck} />}
+
+        <SubmitButton
+          onClick={handleSubmit}
+          isLoading={isLoading}
+          disabled={!(isMatch && isCharacters && isCheck)}
+          isLogin={isLogin}
         />
       </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">
-          {level(score).text}
-        </Typography>
-      </Box>
-    </Box>
+
+      <ErrorSnackbar open={showError} message={errMessage} onClose={() => setShowError(false)} />
+    </>
   );
 };
 
-// Password Input Component
-interface PasswordInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  isVisible: boolean;
-  setVisible: (visible: boolean) => void;
-  readOnly?: boolean;
-  placeholder?: string;
-  autoFocus?: boolean;
-  className?: string;
-}
-
-export const PasswordInput = ({
-  value,
-  onChange,
-  isVisible,
-  setVisible,
-  readOnly = false,
-  placeholder = chrome.i18n.getMessage('Create__a__password'),
-  autoFocus = false,
-  className,
-}: PasswordInputProps) => {
-  const classes = useStyles();
-
-  return (
-    <Input
-      type={isVisible ? 'text' : 'password'}
-      value={value}
-      className={className || classes.inputBox}
-      readOnly={readOnly}
-      autoFocus={autoFocus}
-      placeholder={placeholder}
-      fullWidth
-      disableUnderline
-      onChange={(e) => onChange(e.target.value)}
-      endAdornment={
-        <InputAdornment position="end">
-          {value && <PasswordIndicator value={value} />}
-          <IconButton onClick={() => setVisible(!isVisible)}>
-            {isVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
-          </IconButton>
-        </InputAdornment>
-      }
-    />
-  );
-};
-
-// Terms Checkbox Component
-interface TermsCheckboxProps {
-  onChange: (checked: boolean) => void;
-}
-
-export const TermsCheckbox = ({ onChange }: TermsCheckboxProps) => (
-  <FormControlLabel
-    control={
-      <Checkbox
-        icon={<BpUncheked />}
-        checkedIcon={<BpCheckedIcon />}
-        onChange={(event) => onChange(event.target.checked)}
-      />
-    }
-    label={
-      <Typography variant="body1" color="text.secondary">
-        {chrome.i18n.getMessage('I__agree__to__Lilico') + ' '}
-        <Link
-          underline="none"
-          href="https://lilico.app/about/privacy-policy"
-          target="_blank"
-          color="success.main"
-        >
-          {chrome.i18n.getMessage('Privacy__Policy')}
-        </Link>{' '}
-        {chrome.i18n.getMessage('and') + ' '}
-        <Link
-          href="https://lilico.app/about/terms"
-          target="_blank"
-          color="success.main"
-          underline="none"
-        >
-          {chrome.i18n.getMessage('Terms__of__Service')}
-        </Link>{' '}
-        .
-      </Typography>
-    }
-  />
-);
-
-// Error Snackbar Component
-interface ErrorSnackbarProps {
-  open: boolean;
-  message: string;
-  onClose: () => void;
-}
-
-export const ErrorSnackbar = ({ open, message, onClose }: ErrorSnackbarProps) => (
-  <Snackbar open={open} autoHideDuration={6000} onClose={onClose}>
-    <Alert onClose={onClose} variant="filled" severity="error" sx={{ width: '100%' }}>
-      {message}
-    </Alert>
-  </Snackbar>
-);
-
-// Submit Button Component
-interface SubmitButtonProps {
-  onClick: () => void;
-  isLoading: boolean;
-  disabled: boolean;
-  isLogin?: boolean;
-}
-
-export const SubmitButton = ({
-  onClick,
-  isLoading,
-  disabled,
-  isLogin = false,
-}: SubmitButtonProps) => (
-  <Button
-    className="registerButton"
-    variant="contained"
-    color="secondary"
-    onClick={onClick}
-    size="large"
-    sx={{
-      height: '56px',
-      width: '640px',
-      borderRadius: '12px',
-      textTransform: 'capitalize',
-      gap: '12px',
-      display: 'flex',
-    }}
-    disabled={isLoading || disabled}
-  >
-    {isLoading && <LLSpinner size={28} />}
-    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="background.paper">
-      {isLogin ? chrome.i18n.getMessage('Login') : chrome.i18n.getMessage('Register')}
-    </Typography>
-  </Button>
-);
+export default SetPassword;

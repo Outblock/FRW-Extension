@@ -1,18 +1,26 @@
+import { Box } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { AllSet, LandingComponents } from '@/ui/FRWComponent/LandingPages';
-import { PageSlider, useNavigation } from '@/ui/utils/landingPage';
-import { useWallet } from 'ui/utils';
+import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
+import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
+import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
+import { useWallet, saveIndex } from 'ui/utils';
 
-import SetPassword from './SetPassword';
 import SyncQr from './SyncQr';
+
+const STEPS = {
+  QR: 'qr',
+  PASSWORD: 'password',
+  ALL_SET: 'all_set',
+} as const;
+
+type StepType = (typeof STEPS)[keyof typeof STEPS];
 
 const Sync = () => {
   const history = useHistory();
   const wallet = useWallet();
-
-  const { activeIndex, direction, goNext, goBack } = useNavigation(2);
+  const [activeTab, setActiveTab] = useState<StepType>(STEPS.QR);
   const [username, setUsername] = useState('');
   const [mnemonic, setMnemonic] = useState('');
   const [accountKey, setAccountKey] = useState<any>(null);
@@ -39,34 +47,76 @@ const Sync = () => {
     loadView();
   }, [loadView]);
 
+  const submitPassword = useCallback(
+    async (password: string) => {
+      await wallet.signInV3(mnemonic, accountKey, deviceInfo);
+      const userInfo = await wallet.getUserInfo(true);
+      setUsername(userInfo.username);
+      await saveIndex(userInfo.username);
+      await wallet.boot(password);
+      const formatted = mnemonic.trim().split(/\s+/g).join(' ');
+      await wallet.createKeyringWithMnemonics(formatted);
+      setActiveTab(STEPS.ALL_SET);
+    },
+    [wallet, mnemonic, accountKey, deviceInfo, setUsername]
+  );
+
+  const goBack = () => {
+    switch (activeTab) {
+      case STEPS.PASSWORD:
+        setActiveTab(STEPS.QR);
+        break;
+      case STEPS.ALL_SET:
+        setActiveTab(STEPS.PASSWORD);
+        break;
+      default:
+        history.goBack();
+    }
+  };
+
   return (
     <LandingComponents
-      activeIndex={activeIndex}
-      direction={direction}
-      showBackButton={activeIndex !== 2}
+      activeIndex={0}
+      direction="right"
+      showBackButton={activeTab !== STEPS.ALL_SET}
       onBack={goBack}
-      showConfetti={activeIndex === 2}
+      showConfetti={activeTab === STEPS.ALL_SET}
       showRegisterHeader={true}
     >
-      <PageSlider activeIndex={activeIndex}>
-        <SyncQr
-          handleClick={goNext}
-          savedUsername={username}
-          confirmMnemonic={setMnemonic}
-          setUsername={getUsername}
-          setAccountKey={setAccountKey}
-          setDeviceInfo={setDeviceInfo}
-        />
-        <SetPassword
-          handleClick={goNext}
-          mnemonic={mnemonic}
-          username={username}
-          setUsername={getUsername}
-          accountKey={accountKey}
-          deviceInfo={deviceInfo}
-        />
-        <AllSet handleClick={goNext} variant="sync" />
-      </PageSlider>
+      <Box>
+        {activeTab === STEPS.QR && (
+          <SyncQr
+            handleClick={() => setActiveTab(STEPS.PASSWORD)}
+            savedUsername={username}
+            confirmMnemonic={setMnemonic}
+            setUsername={getUsername}
+            setAccountKey={setAccountKey}
+            setDeviceInfo={setDeviceInfo}
+          />
+        )}
+
+        {activeTab === STEPS.PASSWORD && (
+          <SetPassword
+            handleClick={() => setActiveTab(STEPS.ALL_SET)}
+            onSubmit={submitPassword}
+            username={username}
+            title={
+              <>
+                {chrome.i18n.getMessage('Welcome__Back')}
+                <Box display="inline" color="primary.main">
+                  {username}
+                </Box>
+              </>
+            }
+            isLogin={true}
+            autoFocus={true}
+          />
+        )}
+
+        {activeTab === STEPS.ALL_SET && (
+          <AllSet handleClick={() => window.close()} variant="sync" />
+        )}
+      </Box>
     </LandingComponents>
   );
 };

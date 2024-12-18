@@ -7,7 +7,8 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import Confetti from '@/ui/FRWComponent/Confetti';
-import { PickUsername, AllSet } from '@/ui/FRWComponent/LandingPages';
+import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
+import PickUsername from '@/ui/FRWComponent/LandingPages/PickUsername';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 
 import lilicoIcon from '../../../../../_raw/images/icon-48.png';

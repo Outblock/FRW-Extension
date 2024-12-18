@@ -2,10 +2,10 @@ import * as bip39 from 'bip39';
 import React, { useState } from 'react';
 
 import { storage } from '@/background/webapi';
-import BaseImportPager from '@/ui/FRWComponent/LandingPages/ImportComponents/ImportPager';
+import ImportTabsComponent from '@/ui/FRWComponent/LandingPages/ImportComponents/ImportTabsComponent';
 import { useWallet } from '@/ui/utils';
 
-const ImportPager = ({
+const ImportTabs = ({
   setMnemonic,
   setPk,
   setAccounts,
@@ -55,7 +55,7 @@ const ImportPager = ({
   };
 
   return (
-    <BaseImportPager
+    <ImportTabsComponent
       selectedTab={selectedTab}
       handleTabChange={handleTabChange}
       handleNotFoundPopup={handleNotFoundPopup}
@@ -73,4 +73,4 @@ const ImportPager = ({
   );
 };
 
-export default ImportPager;
+export default ImportTabs;

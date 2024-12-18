@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Confetti from '@/ui/FRWComponent/Confetti';
-import { AllSet, RegisterHeader } from '@/ui/FRWComponent/LandingPages';
+import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
+import RegisterHeader from '@/ui/FRWComponent/LandingPages/RegisterHeader';
 import SlideLeftRight from '@/ui/FRWComponent/SlideLeftRight';
 import { LLPinAlert } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';

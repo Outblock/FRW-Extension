@@ -1,13 +1,12 @@
 import { Box, Tabs, Tab, Typography } from '@mui/material';
 import React from 'react';
 
-import {
-  Googledrive,
-  KeyImport,
-  SeedPhraseImport,
-  JsonImport,
-} from '@/ui/FRWComponent/LandingPages/ImportComponents';
 import ErrorModel from '@/ui/FRWComponent/PopupModal/errorModel';
+
+import Googledrive from './Googledrive';
+import JsonImport from './JsonImport';
+import KeyImport from './KeyImport';
+import SeedPhraseImport from './SeedPhraseImport';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -25,7 +24,7 @@ function TabPanel(props) {
   );
 }
 
-const BaseImportPager = ({
+const ImportTabsComponent = ({
   selectedTab,
   handleTabChange,
   handleNotFoundPopup,
@@ -118,4 +117,4 @@ const BaseImportPager = ({
   );
 };
 
-export default BaseImportPager;
+export default ImportTabsComponent;
