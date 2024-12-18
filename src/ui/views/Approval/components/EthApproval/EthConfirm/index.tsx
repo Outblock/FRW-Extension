@@ -1,29 +1,19 @@
 import { Stack, Box } from '@mui/material';
 import * as fcl from '@onflow/fcl';
-import dedent from 'dedent';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
-import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
-import { type UserInfoResponse } from 'background/service/networkModel';
 import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import { useApproval, useWallet } from 'ui/utils';
 
 import { DefaultBlock } from './DefaultBlock';
-
+import { TransactionBlock } from './TransactionBlock';
 interface ConnectProps {
   params: any;
 }
 
 const EthConfirm = ({ params }: ConnectProps) => {
-  const [, resolveApproval, rejectApproval, linkningConfirm] = useApproval();
-  const { t } = useTranslation();
+  const [, resolveApproval, rejectApproval] = useApproval();
   const usewallet = useWallet();
-  const [signable, setSignable] = useState<Signable | null>(null);
-  // const [payerSignable, setPayerSignable] = useState<Signable | null>(null);
-  const [opener, setOpener] = useState<number | undefined>(undefined);
-  const [host, setHost] = useState(null);
-  const [cadenceArguments, setCadenceArguments] = useState<any[]>([]);
   const [requestParams, setParams] = useState<any>({
     method: '',
     data: [],
@@ -31,58 +21,58 @@ const EthConfirm = ({ params }: ConnectProps) => {
     name: '',
     icon: '',
   });
-  const [approval, setApproval] = useState(false);
-  const [windowId, setWindowId] = useState<number | undefined>(undefined);
-  const [expanded, setExpanded] = useState(false);
-  const [linkingDone, setLinkingDone] = useState(false);
-  const [accountLinking, setAccountLinking] = useState(false);
-  const [accountArgs, setAccountArgs] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+
   const [lilicoEnabled, setLilicoEnabled] = useState(true);
-  const [auditor, setAuditor] = useState<any>(null);
-  const [image, setImage] = useState<string>('');
-  const [accountTitle, setAccountTitle] = useState<string>('');
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [decodedCall, setDecodedCall] = useState<DecodedCall | null>(null);
 
-  // TODO: replace default logo
-  const [logo, setLogo] = useState('');
-  interface Roles {
-    authorizer: boolean;
-    payer: boolean;
-    proposer: boolean;
-  }
-  interface Signable {
-    cadence: string;
-    message: string;
-    addr: string;
-    keyId: number;
-    roles: Roles;
-    voucher: Voucher;
-    f_type: string;
-  }
-  interface Voucher {
-    refBlock: string;
-    payloadSigs: Signature;
-  }
-  interface Signature {
-    address: string;
-    keyId: number;
-    sig: string | null;
+  interface DecodedParam {
+    name?: string;
+    value: string;
   }
 
-  const extractData = (obj) => {
-    console.log('obj ', obj);
-    try {
-      const { method = '', data = [], session: { origin = '', name = '', icon = '' } = {} } = obj;
+  interface DecodedFunction {
+    function: string;
+    params: string[];
+  }
 
-      const params = { origin, name, icon, method, data };
-      setParams(params);
-    } catch (error) {
-      console.error('Error extracting data:', error);
-      setParams({ origin: '', name: '', icon: '', method: '', data: [] });
-    }
-  };
+  interface DecodedData {
+    name?: string;
+    params?: DecodedParam[];
+    allPossibilities?: DecodedFunction[];
+  }
+
+  interface DecodedCall {
+    abi: any[];
+    name: string;
+    is_verified: boolean;
+    decodedData: DecodedData;
+    status?: number;
+  }
+
+  const extractData = useCallback(
+    async (obj) => {
+      if (!obj) return;
+
+      try {
+        const { method = '', data = [], session: { origin = '', name = '', icon = '' } = {} } = obj;
+        const params = { origin, name, icon, method, data };
+        setParams(params);
+
+        if (!data[0]?.data) return;
+
+        const res = await usewallet.decodeEvmCall(data[0].data, data[0].to);
+        if (res.status === 200) {
+          const { abi, status, ...decodedData } = res;
+          setDecodedCall(decodedData);
+        }
+      } catch (error) {
+        console.error('Error extracting data:', error);
+        setParams({ origin: '', name: '', icon: '', method: '', data: [] });
+      }
+    },
+    [usewallet]
+  );
 
   const handleCancel = () => {
     rejectApproval('User rejected the request.');
@@ -103,19 +93,19 @@ const EthConfirm = ({ params }: ConnectProps) => {
 
   const checkCoa = async () => {
     setLoading(true);
-    const isEnabled = await usewallet.checkCoaLink();
-    if (!isEnabled) {
+    try {
+      const isEnabled = await usewallet.checkCoaLink();
+      if (isEnabled) return;
+
       const result = await usewallet.coaLink();
       const res = await fcl.tx(result).onceSealed();
       const transactionExecutedEvent = res.events.find((event) =>
         event.type.includes('TransactionExecuted')
       );
-      if (transactionExecutedEvent) {
-        setLoading(false);
-        return;
-      }
+      if (transactionExecutedEvent) return;
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -123,84 +113,70 @@ const EthConfirm = ({ params }: ConnectProps) => {
       loadPayer();
       extractData(params);
     }
-  }, [loadPayer, params]);
+  }, [loadPayer, extractData, params]);
 
   return (
-    <>
-      {isLoading ? (
-        <Box>
-          {accountLinking ? (
-            <LLLinkingLoading
-              linkingDone={linkingDone}
-              image={image}
-              accountTitle={accountTitle}
-              userInfo={userInfo}
-            />
-          ) : (
-            <LLConnectLoading logo={logo} />
-          )}
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            margin: '18px 18px 0px 18px',
-            display: 'flex',
-            flexDirection: 'column',
-            borderRadius: '12px',
-            height: '100%',
-            background: accountLinking
-              ? 'linear-gradient(0deg, #121212, #32484C)'
-              : 'linear-gradient(0deg, #121212, #11271D)',
-            overflowY: 'auto', // Enable scrolling
-            scrollbarWidth: 'none', // Hide scrollbar for Firefox
-            '&::-webkit-scrollbar': { display: 'none' }, // Hide scrollbar for Chrome, Safari, and Edge
-          }}
-        >
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Box
+        sx={{
+          margin: '18px 18px',
+          padding: '18px',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: '12px',
+          background:
+            'linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(40, 40, 40, 0.00) 88.24%)',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
+      >
+        {requestParams.method === 'personal_sign' ? (
           <DefaultBlock
             title={requestParams.name || ''}
             host={requestParams.origin || ''}
-            auditor={auditor}
-            expanded={expanded}
             data={requestParams.data || []}
-            method={requestParams.method || ''}
             logo={requestParams.icon || ''}
-            setExpanded={setExpanded}
-            dedent={dedent}
-            lilicoEnabled={lilicoEnabled}
           />
+        ) : (
+          <TransactionBlock
+            title={requestParams.name || ''}
+            data={requestParams.data || []}
+            logo={requestParams.icon || ''}
+            lilicoEnabled={lilicoEnabled}
+            decodedCall={decodedCall}
+          />
+        )}
 
-          {/* Push the button stack to the bottom */}
-          <Box sx={{ flexGrow: 1 }} />
-
-          {/* Sticky button group at the bottom */}
-          <Box
-            sx={{
-              position: 'sticky',
-              bottom: 0,
-              padding: '16px 0 0',
-            }}
-          >
-            <Stack direction="row" spacing={1} sx={{ paddingBottom: '32px' }}>
-              <LLSecondaryButton
-                label={chrome.i18n.getMessage('Cancel')}
-                fullWidth
-                onClick={handleCancel}
-              />
-              {!loading ? (
-                <LLPrimaryButton
-                  label={chrome.i18n.getMessage('Approve')}
-                  fullWidth
-                  type="submit"
-                  onClick={handleAllow}
-                />
-              ) : (
-                <LLSecondaryButton label={chrome.i18n.getMessage('Loading')} fullWidth />
-              )}
-            </Stack>
-          </Box>
-        </Box>
-      )}
-    </>
+        <Box sx={{ flexGrow: 1 }} />
+      </Box>
+      <Box
+        sx={{
+          position: 'sticky',
+          bottom: 0,
+          padding: '18px',
+        }}
+      >
+        <Stack direction="row" spacing={1}>
+          <LLSecondaryButton
+            label={chrome.i18n.getMessage('Cancel')}
+            fullWidth
+            onClick={handleCancel}
+          />
+          {!loading ? (
+            <LLPrimaryButton
+              label={chrome.i18n.getMessage('Approve')}
+              fullWidth
+              type="submit"
+              onClick={handleAllow}
+            />
+          ) : (
+            <LLSecondaryButton label={chrome.i18n.getMessage('Loading')} fullWidth />
+          )}
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 

@@ -1075,17 +1075,6 @@ export class WalletController extends BaseController {
     return result;
   }
 
-  private async getFixedTokenPrice(symbol: string): Promise<any> {
-    if (symbol === 'usdc') {
-      return await openapiService.getUSDCPrice();
-    } else if (symbol === 'fusd') {
-      return Promise.resolve({
-        price: { last: '1.0', change: { percentage: '0.0' } },
-      });
-    }
-    return null;
-  }
-
   private async calculateTokenPrice(token: string, price: string | null): Promise<any> {
     if (price) {
       return { price: { last: price, change: { percentage: '0.0' } } };
@@ -1109,9 +1098,6 @@ export class WalletController extends BaseController {
       return this.getFlowTokenPrice(flowPrice);
     }
 
-    const fixedTokenPrice = await this.getFixedTokenPrice(token);
-    if (fixedTokenPrice) return fixedTokenPrice;
-
     return this.calculateTokenPrice(token, price);
   }
 
@@ -1123,9 +1109,6 @@ export class WalletController extends BaseController {
       const flowPrice = price || data['FLOW'];
       return this.getFlowTokenPrice(flowPrice);
     }
-
-    const fixedTokenPrice = await this.getFixedTokenPrice(token);
-    if (fixedTokenPrice) return fixedTokenPrice;
 
     return this.calculateTokenPrice(token, price);
   }
@@ -1963,10 +1946,8 @@ export class WalletController extends BaseController {
     return await userWalletService.sendTransaction(script, [fcl.arg(formattedAmount, t.UFix64)]);
   };
 
-  coaLink = async (amount = '1.0'): Promise<string> => {
+  coaLink = async (): Promise<string> => {
     await this.getNetwork();
-    // TODO: This doesn't seem to be used anywhere
-    const formattedAmount = parseFloat(amount).toFixed(8);
 
     const script = await getScripts('evm', 'coaLink');
 
@@ -4113,6 +4094,10 @@ export class WalletController extends BaseController {
 
   trackTime = async (eventName: keyof TrackingEvents) => {
     mixpanelTrack.time(eventName);
+  };
+
+  decodeEvmCall = async (callData: string, address = '') => {
+    return await openapiService.decodeEvmCall(callData, address);
   };
 }
 
