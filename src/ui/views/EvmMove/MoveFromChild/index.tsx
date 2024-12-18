@@ -3,7 +3,6 @@ import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import wallet from '@/background/controller/wallet';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
@@ -159,7 +158,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
 
   const moveToken = useCallback(async () => {
     setLoading(true);
-    const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
+    const tokenResult = await usewallet.openapi.getTokenInfo(currentCoin, network);
     usewallet
       .moveFTfromChild(childUserInfo!.address, 'flowTokenProvider', amount!, tokenResult!.name)
       .then(async (createRes) => {

@@ -386,6 +386,16 @@ export class WalletController extends BaseController {
     const { origin } = sessionService.getSession(tabId) || {};
     return permissionService.getWithoutUpdate(origin);
   };
+  addConnectedSite = (
+    origin: string,
+    name: string,
+    icon: string,
+    defaultChain = 747,
+    isSigned = false
+  ) => {
+    permissionService.addConnectedSite(origin, name, icon, defaultChain, isSigned);
+  };
+
   updateConnectSite = (origin: string, data: ConnectedSite) => {
     permissionService.updateConnectSite(origin, data);
     // sessionService.broadcastEvent(
