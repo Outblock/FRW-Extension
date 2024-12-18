@@ -1,13 +1,18 @@
 import { Stack, Box, Typography, Divider, CardMedia, Tooltip } from '@mui/material';
+import { isHexString } from 'ethers';
 import React from 'react';
 
 import circlecheck from 'ui/FRWAssets/image/circlecheck.png';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
 import transactionFeeIcon from 'ui/FRWAssets/svg/transactionFeeIcon.svg';
 import { CopyButton } from 'ui/FRWComponent';
-import { formatAddress } from 'ui/utils';
+import { formatAddress, HexToDecimalConverter } from 'ui/utils';
 
 import IconFlow from '../../../../../../components/iconfont/IconFlow';
+
+const convertToFlow = (value) => {
+  return Number(HexToDecimalConverter(value)) / 1_000_000_000_000_000_000;
+};
 
 export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall }) => {
   return (
@@ -151,7 +156,9 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
             >
               Amount
             </Typography>
-            <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>{data[0].value}</Typography>
+            <Typography sx={{ color: '#FFFFFFCC', fontSize: '14px' }}>
+              {isHexString(data[0].value) ? convertToFlow(data[0].value) : data[0].value}
+            </Typography>
           </Box>
         )}
       </Box>
