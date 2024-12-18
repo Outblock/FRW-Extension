@@ -1,6 +1,6 @@
+import { Box } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Box } from '@mui/material';
 
 import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
