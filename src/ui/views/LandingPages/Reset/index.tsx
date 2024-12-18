@@ -55,7 +55,7 @@ const Reset = () => {
     const accounts = await wallets.loadBackupAccounts();
     if (accounts.length > 0) {
       history.push({
-        pathname: '/add/google',
+        pathname: '/welcome/addressimport/google',
         state: {
           accounts: accounts,
         },
@@ -79,15 +79,15 @@ const Reset = () => {
       case 0:
         return (
           <ResetRecoveryPhrase
-            handleClick={goNext}
+            handleSwitchTab={goNext}
             confirmMnemonic={setMnemonic}
             setUsername={setUsername}
           />
         );
       case 1:
-        return <RecoverPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
+        return <RecoverPassword handleSwitchTab={goNext} mnemonic={mnemonic} username={username} />;
       case 2:
-        return <AllSet handleClick={goNext} variant="register" />;
+        return <AllSet handleSwitchTab={goNext} variant="register" />;
       default:
         return <div />;
     }

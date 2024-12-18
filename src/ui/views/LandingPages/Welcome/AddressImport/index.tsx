@@ -28,7 +28,7 @@ type StepType = (typeof STEPS)[keyof typeof STEPS];
 
 const AddressImport = () => {
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const navigation = useNavigation(5);
 
@@ -58,7 +58,7 @@ const AddressImport = () => {
   }, [loadTempPassword]);
 
   const loadView = useCallback(async () => {
-    wallet
+    usewallet
       .getCurrentAccount()
       .then((res) => {
         if (res) {
@@ -68,7 +68,7 @@ const AddressImport = () => {
       .catch(() => {
         return;
       });
-  }, [wallet, history]);
+  }, [usewallet, history]);
 
   useEffect(() => {
     loadView();
@@ -90,7 +90,7 @@ const AddressImport = () => {
       weight: 1000,
     };
 
-    const installationId = await wallet.openapi.getInstallationId();
+    const installationId = await usewallet.openapi.getInstallationId();
 
     const device_info = {
       device_id: installationId,
@@ -101,16 +101,16 @@ const AddressImport = () => {
     };
 
     const address = accounts[0].address.replace(/^0x/, '');
-    await wallet.openapi.importKey(accountKeyStruct, device_info, username, {}, address);
-    await wallet.boot(newPassword);
+    await usewallet.openapi.importKey(accountKeyStruct, device_info, username, {}, address);
+    await usewallet.boot(newPassword);
     storage.remove('premnemonic');
     await saveIndex(username);
 
     if (pk) {
-      await wallet.importPrivateKey(pk);
+      await usewallet.importPrivateKey(pk);
       navigation.goCustom(5);
     } else {
-      await wallet.createKeyringWithMnemonics(mnemonic);
+      await usewallet.createKeyringWithMnemonics(mnemonic);
       navigation.goCustom(4);
     }
   };
@@ -154,7 +154,7 @@ const AddressImport = () => {
             pk={pk}
             setUsername={setUsername}
             goPassword={() => setActiveTab(STEPS.RECOVER_PASSWORD)}
-            handleClick={() => setActiveTab(STEPS.PICK_USERNAME)}
+            handleSwitchTab={() => setActiveTab(STEPS.PICK_USERNAME)}
             setErrorMessage={setErrorMessage}
             setShowError={setShowError}
           />
@@ -162,7 +162,7 @@ const AddressImport = () => {
 
         {activeTab === STEPS.PICK_USERNAME && (
           <PickUsername
-            handleClick={() => setActiveTab(STEPS.SET_PASSWORD)}
+            handleSwitchTab={() => setActiveTab(STEPS.SET_PASSWORD)}
             savedUsername={username}
             getUsername={getUsername}
           />
@@ -170,7 +170,7 @@ const AddressImport = () => {
 
         {activeTab === STEPS.SET_PASSWORD && (
           <SetPassword
-            handleClick={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
+            handleSwitchTab={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
             onSubmit={submitPassword}
             tempPassword={tempPassword}
             isLogin={true}
@@ -179,25 +179,25 @@ const AddressImport = () => {
 
         {activeTab === STEPS.RECOVER_PASSWORD && (
           <RecoverPassword
-            handleClick={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
+            handleSwitchTab={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
             mnemonic={mnemonic}
             pk={pk}
             tempPassword={tempPassword}
-            goEnd={() => setActiveTab(STEPS.ALL_SET)}
+            goLast={() => setActiveTab(STEPS.ALL_SET)}
             accountKey={accounts}
           />
         )}
 
         {activeTab === STEPS.GOOGLE_BACKUP && (
           <GoogleBackup
-            handleClick={() => setActiveTab(STEPS.ALL_SET)}
+            handleSwitchTab={() => setActiveTab(STEPS.ALL_SET)}
             mnemonic={mnemonic}
             username={username}
             password={password}
           />
         )}
 
-        {activeTab === STEPS.ALL_SET && <AllSet handleClick={() => window.close()} />}
+        {activeTab === STEPS.ALL_SET && <AllSet handleSwitchTab={() => window.close()} />}
       </Box>
 
       <Snackbar open={showError} autoHideDuration={3000} onClose={handleErrorClose}>

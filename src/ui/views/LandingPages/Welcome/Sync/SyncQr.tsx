@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SyncQr = ({
-  handleClick,
+  handleSwitchTab,
   savedUsername,
   confirmMnemonic,
   setUsername,
@@ -200,12 +200,12 @@ const SyncQr = ({
                 },
               })
               .then(async (sent) => {
-                handleClick();
+                handleSwitchTab();
                 // usewallet.signInV3(mnemonic, ak, deviceInfo).then(async (result) => {
 
                 //   const userInfo = await usewallet.getUserInfo(true);
                 //   setUsername(userInfo.username);
-                //   handleClick();
+                //   handleSwitchTab();
                 // }).catch((error) => {
                 //   console.error('Error in sign in wallet request:', error);
                 // });
@@ -224,7 +224,7 @@ const SyncQr = ({
       currentNetwork,
       getAccountKey,
       getDeviceInfo,
-      handleClick,
+      handleSwitchTab,
       mnemonic,
       setAccountKey,
       setDeviceInfo,

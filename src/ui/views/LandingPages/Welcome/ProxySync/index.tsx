@@ -23,7 +23,7 @@ enum Direction {
 // TODO: not applied to the new landing page yet
 const ProxySync = () => {
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [activeIndex, onChange] = useState(0);
   const [publickey, setPubkey] = useState('');
   const [mnemonic, setMnemonic] = useState('');
@@ -37,7 +37,7 @@ const ProxySync = () => {
   };
 
   const loadView = useCallback(async () => {
-    wallet
+    usewallet
       .getCurrentAccount()
       .then((res) => {
         if (res) {
@@ -47,7 +47,7 @@ const ProxySync = () => {
       .catch(() => {
         return;
       });
-  }, [history, wallet]);
+  }, [history, usewallet]);
   const goNext = () => {
     setDirection(Direction.Right);
     if (activeIndex < 2) {
@@ -71,7 +71,7 @@ const ProxySync = () => {
       case 0:
         return (
           <ProxyQr
-            handleClick={goNext}
+            handleSwitchTab={goNext}
             savedUsername={username}
             confirmMnemonic={setMnemonic}
             confirmPk={setPubkey}
@@ -83,7 +83,7 @@ const ProxySync = () => {
       case 1:
         return (
           <SetPassword
-            handleClick={goNext}
+            handleSwitchTab={goNext}
             mnemonic={mnemonic}
             publickey={publickey}
             username={username}
@@ -93,7 +93,7 @@ const ProxySync = () => {
           />
         );
       case 2:
-        return <AllSet handleClick={goNext} variant="add" />;
+        return <AllSet handleSwitchTab={goNext} variant="add" />;
       default:
         return <div />;
     }

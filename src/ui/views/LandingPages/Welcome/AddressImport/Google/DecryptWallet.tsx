@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useWallet } from 'ui/utils';
 
-import CancelIcon from '../../../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -51,9 +51,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
+const DecryptWallet = ({ handleSwitchTab, setMnemonic, username }) => {
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [password, setPassword] = useState('');
@@ -90,11 +90,11 @@ const DecryptWallet = ({ handleClick, setMnemonic, username }) => {
     // const formatted = mnemonic.trim().split(/\s+/g).join(' ');
     // await wallet.createKeyringWithMnemonics(formatted);
     try {
-      const mnemonic = await wallet.restoreAccount(username, password);
+      const mnemonic = await usewallet.restoreAccount(username, password);
       // console.log('mnemonic ->', mnemonic);
       setLoading(false);
       setMnemonic(mnemonic);
-      handleClick();
+      handleSwitchTab();
     } catch (e) {
       setLoading(false);
       setHelperText(

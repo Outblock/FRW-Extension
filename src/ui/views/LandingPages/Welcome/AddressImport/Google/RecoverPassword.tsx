@@ -21,8 +21,8 @@ import zxcvbn from 'zxcvbn';
 import { LLSpinner, LLNotFound } from '@/ui/FRWComponent';
 import { useWallet, saveIndex } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {
@@ -131,9 +131,9 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
+const SetPassword = ({ handleSwitchTab, mnemonic, username, lastPassword }) => {
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -203,12 +203,12 @@ const SetPassword = ({ handleClick, mnemonic, username, lastPassword }) => {
 
     await saveIndex(username);
     try {
-      await wallet.signInWithMnemonic(mnemonic);
-      await wallet.boot(password);
+      await usewallet.signInWithMnemonic(mnemonic);
+      await usewallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.createKeyringWithMnemonics(formatted);
+      await usewallet.createKeyringWithMnemonics(formatted);
       setLoading(false);
-      handleClick();
+      handleSwitchTab();
     } catch (e) {
       setLoading(false);
       setErrorMessage(e.message);

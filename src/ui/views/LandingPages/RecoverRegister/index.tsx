@@ -67,14 +67,18 @@ const RecoverRegister = () => {
     switch (index) {
       case 0:
         return (
-          <PickUsername handleClick={goNext} savedUsername={username} getUsername={getUsername} />
+          <PickUsername
+            handleSwitchTab={goNext}
+            savedUsername={username}
+            getUsername={getUsername}
+          />
         );
       case 1:
-        return <RecoveryPhrase handleClick={goNext} mnemonic={mnemonic} />;
+        return <RecoveryPhrase handleSwitchTab={goNext} mnemonic={mnemonic} />;
       case 2:
-        return <SetPassword handleClick={goNext} mnemonic={mnemonic} username={username} />;
+        return <SetPassword handleSwitchTab={goNext} mnemonic={mnemonic} username={username} />;
       case 3:
-        return <AllSet handleClick={goNext} variant="recover" />;
+        return <AllSet handleSwitchTab={goNext} variant="recover" />;
       default:
         return <Box />;
     }

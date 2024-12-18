@@ -80,7 +80,7 @@ const MnemonicLoading = () => (
   </Typography>
 );
 
-const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
+const ResetRecoveryPhrase = ({ handleSwitchTab, confirmMnemonic, setUsername }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -103,7 +103,7 @@ const ResetRecoveryPhrase = ({ handleClick, confirmMnemonic, setUsername }) => {
       confirmMnemonic(mnemonic);
       const userInfo = await wallet.getUserInfo(false);
       setUsername(userInfo.username);
-      handleClick();
+      handleSwitchTab();
     } catch (error) {
       setSignLoading(false);
       if (error.message === 'NoUserFound') {

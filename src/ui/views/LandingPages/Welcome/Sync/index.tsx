@@ -19,7 +19,7 @@ type StepType = (typeof STEPS)[keyof typeof STEPS];
 
 const Sync = () => {
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [activeTab, setActiveTab] = useState<StepType>(STEPS.QR);
   const [username, setUsername] = useState('');
   const [mnemonic, setMnemonic] = useState('');
@@ -31,7 +31,7 @@ const Sync = () => {
   };
 
   const loadView = useCallback(async () => {
-    wallet
+    usewallet
       .getCurrentAccount()
       .then((res) => {
         if (res) {
@@ -41,7 +41,7 @@ const Sync = () => {
       .catch(() => {
         return;
       });
-  }, [wallet, history]);
+  }, [usewallet, history]);
 
   useEffect(() => {
     loadView();
@@ -49,16 +49,16 @@ const Sync = () => {
 
   const submitPassword = useCallback(
     async (password: string) => {
-      await wallet.signInV3(mnemonic, accountKey, deviceInfo);
-      const userInfo = await wallet.getUserInfo(true);
+      await usewallet.signInV3(mnemonic, accountKey, deviceInfo);
+      const userInfo = await usewallet.getUserInfo(true);
       setUsername(userInfo.username);
       await saveIndex(userInfo.username);
-      await wallet.boot(password);
+      await usewallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.createKeyringWithMnemonics(formatted);
+      await usewallet.createKeyringWithMnemonics(formatted);
       setActiveTab(STEPS.ALL_SET);
     },
-    [wallet, mnemonic, accountKey, deviceInfo, setUsername]
+    [usewallet, mnemonic, accountKey, deviceInfo, setUsername]
   );
 
   const goBack = () => {
@@ -86,7 +86,7 @@ const Sync = () => {
       <Box>
         {activeTab === STEPS.QR && (
           <SyncQr
-            handleClick={() => setActiveTab(STEPS.PASSWORD)}
+            handleSwitchTab={() => setActiveTab(STEPS.PASSWORD)}
             savedUsername={username}
             confirmMnemonic={setMnemonic}
             setUsername={getUsername}
@@ -97,7 +97,7 @@ const Sync = () => {
 
         {activeTab === STEPS.PASSWORD && (
           <SetPassword
-            handleClick={() => setActiveTab(STEPS.ALL_SET)}
+            handleSwitchTab={() => setActiveTab(STEPS.ALL_SET)}
             onSubmit={submitPassword}
             username={username}
             title={
@@ -114,7 +114,7 @@ const Sync = () => {
         )}
 
         {activeTab === STEPS.ALL_SET && (
-          <AllSet handleClick={() => window.close()} variant="sync" />
+          <AllSet handleSwitchTab={() => window.close()} variant="sync" />
         )}
       </Box>
     </LandingComponents>

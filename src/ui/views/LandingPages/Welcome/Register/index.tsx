@@ -28,7 +28,7 @@ type StepType = (typeof STEPS)[keyof typeof STEPS];
 
 const Register = () => {
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [activeTab, setActiveTab] = useState<StepType>(STEPS.USERNAME);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +40,7 @@ const Register = () => {
   };
 
   const loadView = useCallback(async () => {
-    wallet
+    usewallet
       .getCurrentAccount()
       .then((res) => {
         if (res) {
@@ -50,7 +50,7 @@ const Register = () => {
       .catch(() => {
         return;
       });
-  }, [wallet, history]);
+  }, [usewallet, history]);
 
   const loadTempPassword = useCallback(async () => {
     const temp = await storage.get('tempPassword');
@@ -64,14 +64,14 @@ const Register = () => {
       setPassword(newPassword);
       await saveIndex(username);
       const accountKey = getAccountKey(mnemonic);
-      await wallet.openapi.register(accountKey, username);
-      await wallet.boot(newPassword);
+      await usewallet.openapi.register(accountKey, username);
+      await usewallet.boot(newPassword);
       storage.remove('premnemonic');
-      await wallet.createKeyringWithMnemonics(mnemonic);
-      await wallet.openapi.createFlowAddress();
+      await usewallet.createKeyringWithMnemonics(mnemonic);
+      await usewallet.openapi.createFlowAddress();
       setActiveTab(STEPS.BACKUP);
     },
-    [username, mnemonic, wallet]
+    [username, mnemonic, usewallet]
   );
 
   const goBack = () => {
@@ -110,23 +110,23 @@ const Register = () => {
       <Box>
         {activeTab === STEPS.USERNAME && (
           <PickUsername
-            handleClick={() => setActiveTab(STEPS.RECOVERY)}
+            handleSwitchTab={() => setActiveTab(STEPS.RECOVERY)}
             savedUsername={username}
             getUsername={getUsername}
           />
         )}
 
         {activeTab === STEPS.RECOVERY && (
-          <RecoveryPhrase handleClick={() => setActiveTab(STEPS.REPEAT)} mnemonic={mnemonic} />
+          <RecoveryPhrase handleSwitchTab={() => setActiveTab(STEPS.REPEAT)} mnemonic={mnemonic} />
         )}
 
         {activeTab === STEPS.REPEAT && (
-          <RepeatPhrase handleClick={() => setActiveTab(STEPS.PASSWORD)} mnemonic={mnemonic} />
+          <RepeatPhrase handleSwitchTab={() => setActiveTab(STEPS.PASSWORD)} mnemonic={mnemonic} />
         )}
 
         {activeTab === STEPS.PASSWORD && (
           <SetPassword
-            handleClick={() => setActiveTab(STEPS.BACKUP)}
+            handleSwitchTab={() => setActiveTab(STEPS.BACKUP)}
             onSubmit={submitPassword}
             username={username}
             tempPassword={tempPassword}
@@ -137,14 +137,16 @@ const Register = () => {
 
         {activeTab === STEPS.BACKUP && (
           <GoogleBackup
-            handleClick={() => setActiveTab(STEPS.ALL_SET)}
+            handleSwitchTab={() => setActiveTab(STEPS.ALL_SET)}
             mnemonic={mnemonic}
             username={username}
             password={password}
           />
         )}
 
-        {activeTab === STEPS.ALL_SET && <AllSet handleClick={() => window.close()} variant="add" />}
+        {activeTab === STEPS.ALL_SET && (
+          <AllSet handleSwitchTab={() => window.close()} variant="add" />
+        )}
       </Box>
     </LandingComponents>
   );

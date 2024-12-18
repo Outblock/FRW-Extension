@@ -18,17 +18,17 @@ const FetchAvatar = ({ username }) => {
   const [avatar, setAvatar] = useState(
     `https://lilico.app/api/avatar/beam/120/${username}?colors=FFDD32,FC814A,7678ED,B3DEE2,BCF0DA`
   );
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const fetchUserAvatar = useCallback(
     async (username) => {
-      const { data } = await wallet.openapi.searchUser(username);
+      const { data } = await usewallet.openapi.searchUser(username);
       const users = data.users;
       if (users.length > 0 && users[0].avatar) {
         setAvatar(users[0].avatar);
       }
     },
-    [setAvatar, wallet.openapi]
+    [setAvatar, usewallet.openapi]
   );
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const FetchAvatar = ({ username }) => {
   return <Avatar src={avatar}></Avatar>;
 };
 
-const GoogleAccounts = ({ handleClick, accounts, setUsername }) => {
+const GoogleAccounts = ({ handleSwitchTab, accounts, setUsername }) => {
   return (
     <>
       <Box className="registerBox">
@@ -72,7 +72,7 @@ const GoogleAccounts = ({ handleClick, accounts, setUsername }) => {
                     <ListItemButton
                       onClick={() => {
                         setUsername(account);
-                        handleClick();
+                        handleSwitchTab();
                       }}
                       sx={{
                         display: 'flex',

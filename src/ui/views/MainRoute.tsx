@@ -7,7 +7,7 @@ import Reset from './LandingPages/Forgot/Reset';
 import RecoverRegister from './LandingPages/RecoverRegister';
 import Welcome from './LandingPages/Welcome';
 import AddressImport from './LandingPages/Welcome/AddressImport';
-import AddGoogle from './LandingPages/Welcome/GoogleImport';
+import Google from './LandingPages/Welcome/AddressImport/Google';
 import Register from './LandingPages/Welcome/Register';
 import Sync from './LandingPages/Welcome/Sync';
 
@@ -29,7 +29,7 @@ export const MainRoute: React.FC = () => {
         <Route exact path="/forgot" component={Forgot} />
         <Route exact path="/recoverpage" component={Recover} />
         <Route exact path="/resetpage" component={Reset} />
-        <Route exact path="/add/google" component={AddGoogle} />
+        <Route exact path="/welcome/addressimport/google" component={Google} />
         <Route exact path="/recover" component={RecoverRegister} />
       </Switch>
     </div>

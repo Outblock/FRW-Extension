@@ -39,7 +39,7 @@ const useStyles = makeStyles((_theme) => ({
   },
 }));
 
-const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
+const PickUsername = ({ handleSwitchTab, savedUsername, getUsername }) => {
   const classes = useStyles();
   const wallet = useWallet();
   const [isLoading, setLoading] = useState(false);
@@ -239,7 +239,7 @@ const PickUsername = ({ handleClick, savedUsername, getUsername }) => {
 
         <Button
           onClick={() => {
-            handleClick();
+            handleSwitchTab();
             getUsername(username);
           }}
           disabled={!usernameValid}

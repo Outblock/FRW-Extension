@@ -61,7 +61,7 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
     }
   };
 
-  const handleClick = () => {
+  const handleSwitchTab = () => {
     setLoading(true);
     run(password);
   };
@@ -177,7 +177,7 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
           // className="w-full block"\
           color="success"
           type="submit"
-          onClick={handleClick}
+          onClick={handleSwitchTab}
           fullWidth
           label={
             isLoading ? (

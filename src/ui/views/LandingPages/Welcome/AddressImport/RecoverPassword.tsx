@@ -128,9 +128,9 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKey }) => {
+const SetPassword = ({ handleSwitchTab, mnemonic, pk, tempPassword, goLast, accountKey }) => {
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [username, setUsername] = useState('');
@@ -162,9 +162,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
 
   const signMnemonic = async (accountKey) => {
     try {
-      const result = await wallet.signInWithMnemonic(accountKey[0].mnemonic);
+      const result = await usewallet.signInWithMnemonic(accountKey[0].mnemonic);
       setLoading(false);
-      const userInfo = await wallet.getUserInfo(true);
+      const userInfo = await usewallet.getUserInfo(true);
       setUsername(userInfo.username);
       login();
     } catch (error) {
@@ -179,9 +179,9 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
 
   const signPk = async (accountKey) => {
     try {
-      const result = await wallet.signInWithPrivatekey(accountKey[0].pk);
+      const result = await usewallet.signInWithPrivatekey(accountKey[0].pk);
       setLoading(false);
-      const userInfo = await wallet.getUserInfo(true);
+      const userInfo = await usewallet.getUserInfo(true);
       setUsername(userInfo.username);
       login();
     } catch (error) {
@@ -200,18 +200,18 @@ const SetPassword = ({ handleClick, mnemonic, pk, tempPassword, goEnd, accountKe
 
     await saveIndex(username);
     try {
-      await wallet.boot(password);
+      await usewallet.boot(password);
       if (pk) {
-        await wallet.importPrivateKey(pk);
+        await usewallet.importPrivateKey(pk);
       } else {
         const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-        await wallet.createKeyringWithMnemonics(formatted);
+        await usewallet.createKeyringWithMnemonics(formatted);
       }
       setLoading(false);
       if (pk) {
-        goEnd();
+        goLast();
       } else {
-        handleClick();
+        handleSwitchTab();
       }
     } catch (e) {
       setLoading(false);

@@ -9,7 +9,7 @@ import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 
 import IconCopy from '../../../../../components/iconfont/IconCopy';
 
-const RecoveryPhrase = ({ handleClick, mnemonic }) => {
+const RecoveryPhrase = ({ handleSwitchTab, mnemonic }) => {
   const [canGoNext, setCanGoNext] = useState(false);
   const [isCoverBlur, coverBlur] = useState(true);
 
@@ -213,7 +213,7 @@ const RecoveryPhrase = ({ handleClick, mnemonic }) => {
         </SlideRelative>
         <Button
           disabled={!canGoNext}
-          onClick={handleClick}
+          onClick={handleSwitchTab}
           variant="contained"
           color="secondary"
           size="large"

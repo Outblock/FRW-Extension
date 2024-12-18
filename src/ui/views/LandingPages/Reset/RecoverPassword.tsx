@@ -133,7 +133,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username }) => {
+const SetPassword = ({ handleSwitchTab, mnemonic, username }) => {
   const classes = useStyles();
   const wallet = useWallet();
   const [isPasswordVisible, setPasswordVisible] = useState(false);
@@ -200,7 +200,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
       await wallet.createKeyringWithMnemonics(formatted);
       setLoading(false);
-      handleClick();
+      handleSwitchTab();
     } catch (e) {
       setLoading(false);
       setShowError(true);

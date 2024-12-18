@@ -9,7 +9,7 @@ import { useWallet } from 'ui/utils';
 
 import IconGoogleDrive from '../../../../../components/iconfont/IconGoogleDrive';
 
-const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
+const GoogleBackup = ({ handleSwitchTab, mnemonic, username, password }) => {
   const wallets = useWallet();
   const [loading, setLoading] = useState(false);
   const [backupErr, setBackupErr] = useState(false);
@@ -22,7 +22,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
         .uploadMnemonicToGoogleDrive(mnemonic, username, password)
         .then(() => {
           setLoading(false);
-          handleClick();
+          handleSwitchTab();
         })
         .catch(() => {
           setLoading(false);
@@ -147,7 +147,7 @@ const GoogleBackup = ({ handleClick, mnemonic, username, password }) => {
 
         <Button
           onClick={() => {
-            handleClick();
+            handleSwitchTab();
           }}
           sx={{
             cursor: 'pointer',

@@ -48,7 +48,7 @@ const Googledrive = ({ setErrorMessage, setShowError }) => {
 
       if (accounts.length > 0) {
         history.push({
-          pathname: '/add/google',
+          pathname: '/welcome/addressimport/google',
           state: {
             accounts: accounts,
           },

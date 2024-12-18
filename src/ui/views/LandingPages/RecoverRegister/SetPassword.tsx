@@ -104,7 +104,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleClick, mnemonic, username }) => {
+const SetPassword = ({ handleSwitchTab, mnemonic, username }) => {
   const classes = useStyles();
   const wallet = useWallet();
 
@@ -203,7 +203,7 @@ const SetPassword = ({ handleClick, mnemonic, username }) => {
         return wallet.createKeyringWithMnemonics(formatted);
       })
       .then((accounts) => {
-        handleClick();
+        handleSwitchTab();
         return wallet.openapi.createFlowAddress();
       })
       .then((address) => {

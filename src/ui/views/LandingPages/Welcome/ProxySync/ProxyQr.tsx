@@ -59,7 +59,7 @@ const useStyles = makeStyles((_theme) => ({
 }));
 
 const ProxyQr = ({
-  handleClick,
+  handleSwitchTab,
   savedUsername,
   confirmMnemonic,
   confirmPk,
@@ -172,13 +172,21 @@ const ProxyQr = ({
           confirmMnemonic(mnemonic);
           confirmPk(jsonObject.data.publicKey);
           console.log('jsonObject ', jsonObject);
-          handleClick();
+          handleSwitchTab();
         })
         .catch((error) => {
           console.error('Error in first wallet request:', error);
         });
     },
-    [usewallet, currentNetwork, confirmMnemonic, confirmPk, mnemonic, handleClick, getDeviceInfo]
+    [
+      usewallet,
+      currentNetwork,
+      confirmMnemonic,
+      confirmPk,
+      mnemonic,
+      handleSwitchTab,
+      getDeviceInfo,
+    ]
   );
 
   useEffect(() => {

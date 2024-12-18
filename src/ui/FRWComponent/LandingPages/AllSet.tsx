@@ -7,11 +7,11 @@ import AllSetIcon from 'ui/FRWAssets/svg/allset.svg';
 import { useWallet } from 'ui/utils';
 
 interface AllSetProps {
-  handleClick: () => void;
+  handleSwitchTab: () => void;
   variant?: 'register' | 'recover' | 'sync' | 'add';
 }
 
-const AllSet = ({ handleClick, variant = 'register' }: AllSetProps) => {
+const AllSet = ({ handleSwitchTab, variant = 'register' }: AllSetProps) => {
   const usewallet = useWallet();
 
   const loadScript = useCallback(async () => {
@@ -68,7 +68,7 @@ const AllSet = ({ handleClick, variant = 'register' }: AllSetProps) => {
 
         <Box sx={{ flexGrow: 1 }} />
         <Button
-          onClick={handleClick}
+          onClick={handleSwitchTab}
           variant="contained"
           color="secondary"
           size="large"

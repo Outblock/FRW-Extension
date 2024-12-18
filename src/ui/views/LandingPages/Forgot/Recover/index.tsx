@@ -83,7 +83,7 @@ const Recover = () => {
       case 0:
         return <RecoverPage setArray={setArray} dataArray={dataArray} goNext={goNext} />;
       case 1:
-        return <ShowKey handleClick={goNext} mnemonic={dataArray} />;
+        return <ShowKey handleSwitchTab={goNext} mnemonic={dataArray} />;
       default:
         return <div />;
     }

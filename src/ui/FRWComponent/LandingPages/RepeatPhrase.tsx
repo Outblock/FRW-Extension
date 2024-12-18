@@ -17,7 +17,7 @@ const chunkArray = (myArray: any[], chunk_size: number) => {
   return results;
 };
 
-const RepeatPhrase = ({ handleClick, mnemonic }) => {
+const RepeatPhrase = ({ handleSwitchTab, mnemonic }) => {
   const [incorrect, setIncorrect] = useState(false);
   const [chosenIndex, setChosen] = useState<number[]>([]);
   const [selectedPhrase, setSelect] = useState<any[]>([]);
@@ -46,7 +46,7 @@ const RepeatPhrase = ({ handleClick, mnemonic }) => {
       selectedPhrase[1] === correctMatch[1] &&
       selectedPhrase[2] === correctMatch[2]
     ) {
-      handleClick();
+      handleSwitchTab();
       return;
     }
     handleRandom();

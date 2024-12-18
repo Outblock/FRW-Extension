@@ -9,7 +9,7 @@ import { useWallet } from 'ui/utils';
 
 import IconCopy from '../../../../../components/iconfont/IconCopy';
 
-const ShowKey = ({ handleClick, mnemonic }) => {
+const ShowKey = ({ handleSwitchTab, mnemonic }) => {
   const usewallet = useWallet();
   const [canGoNext, setCanGoNext] = useState(false);
   const [isCoverBlur, coverBlur] = useState(true);
