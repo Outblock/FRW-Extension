@@ -1,8 +1,8 @@
-import { type SignAlgoType, type HashAlgoType } from '../types/algo-types';
+import { type SignAlgoType, type HashAlgoType, type ImportKeyType } from '../types/algo-types';
 
 const FLOW_BIP44_PATH = "m/44'/539'/0'/0/0";
 
-const KEY_TYPE = {
+const KEY_TYPE: { [key: string]: ImportKeyType } = {
   PASSKEY: 'Passkey',
   GOOGLE_DRIVE: 'GoogleDrive',
   SEED_PHRASE: 'SeedPhrase',

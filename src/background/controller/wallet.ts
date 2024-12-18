@@ -524,8 +524,8 @@ export class WalletController extends BaseController {
   findAddressWithPrivateKey = (pk: string, address: string) => {
     return findAddressWithPK(pk, address);
   };
-  findAddressWithSeedPhrase = (seed: string, address: string) => {
-    return findAddressWithSeed(seed, address);
+  findAddressWithSeedPhrase = (seed: string, address: string, isTemp: boolean = false) => {
+    return findAddressWithSeed(seed, address, isTemp);
   };
   getPreMnemonics = () => keyringService.getPreMnemonics();
   generatePreMnemonic = () => keyringService.generatePreMnemonic();

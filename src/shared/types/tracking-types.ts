@@ -1,4 +1,9 @@
-import type { HashAlgoType, SignAlgoType, KeyType, RecoveryMechanismType } from './algo-types';
+import type {
+  HashAlgoType,
+  SignAlgoType,
+  ImportKeyType,
+  RecoveryMechanismType,
+} from './algo-types';
 
 type OnRampSourceType = 'moonpay' | 'coinbase';
 
@@ -42,11 +47,11 @@ export type TrackingEvents = {
   // Backup Events
   multi_backup_created: {
     address: string; // Address of the account that set up multi-backup
-    providers: KeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
+    providers: ImportKeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
   };
   multi_backup_creation_failed: {
     address: string; // Address of the account that set up multi-backup
-    providers: KeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
+    providers: ImportKeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
   };
 
   // Transaction Events
@@ -90,7 +95,7 @@ export type TrackingEvents = {
   // Account Events
   account_created: {
     public_key: string; // The public key used for creating the new account
-    key_type?: KeyType; // The key type of the account (if available)
+    key_type?: ImportKeyType; // The key type of the account (if available)
     sign_algo: SignAlgoType; // Signature algorithm of the key
     hash_algo: HashAlgoType; // Hash algo Hash algorithm of the key
   };
@@ -101,7 +106,7 @@ export type TrackingEvents = {
   account_recovered: {
     address: string; // Address that was recovered
     mechanism: RecoveryMechanismType; // The way the account was recovered
-    methods: KeyType[]; // Array of providers used in the multi-backup, GoogleDrive, iCloud, Seed
+    methods: ImportKeyType[]; // Array of providers used in the multi-backup, GoogleDrive, iCloud, Seed
   };
 };
 
