@@ -2,10 +2,11 @@ import { Box, Button, Typography, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useState } from 'react';
 
-import { LLSpinner } from '@/ui/FRWComponent';
-import KeyPathInput from '@/ui/FRWComponent/KeyPathInputs';
-import { KEY_TYPE } from '@/ui/utils/modules/constants';
-import { findAddressWithSeed } from '@/ui/utils/modules/findAddressWithPK';
+import { useWallet } from '@/ui/utils/WalletContext';
+import { LLSpinner } from 'ui/FRWComponent';
+
+import KeyPathInput from '../../../FRWComponent/KeyPathInputs';
+import { KEY_TYPE } from '../../../utils/modules/constants';
 
 const useStyles = makeStyles(() => ({
   form: {
@@ -32,6 +33,7 @@ const useStyles = makeStyles(() => ({
 
 const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
   const classes = useStyles();
+  const usewallet = useWallet();
   const [isLoading, setLoading] = useState(false);
 
   const handleImport = async (e) => {
@@ -43,7 +45,8 @@ const SeedPhraseImport = ({ onOpen, onImport, setmnemonic, isSignLoading }) => {
       const flowAddressRegex = /^(0x)?[0-9a-fA-F]{16}$/;
       const inputValue = e.target[2].value;
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
-      const result = await findAddressWithSeed(seed, address, true);
+
+      const result = await usewallet.findAddressWithSeedPhrase(seed, address, true);
       if (!result) {
         onOpen();
         return;

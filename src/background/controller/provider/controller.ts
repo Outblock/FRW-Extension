@@ -8,6 +8,7 @@ import RLP from 'rlp';
 import Web3 from 'web3';
 import { stringToHex } from 'web3-utils';
 
+import { signWithKey } from '@/background/utils/modules/publicPrivateKey';
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import {
   permissionService,
@@ -21,9 +22,6 @@ import { EVM_ENDPOINT } from 'consts';
 import { storage } from '../../webapi';
 import BaseController from '../base';
 import Wallet from '../wallet';
-
-// eslint-disable-next-line import/order,no-restricted-imports
-import { signWithKey } from '@/ui/utils/modules/passkey.js';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission

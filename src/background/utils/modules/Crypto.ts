@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { encodeArray } from './base64.js';
+import { encodeArray } from './base64';
 
 /**
  * Convert Cose key to JWK
@@ -65,7 +63,7 @@ export function coseToJwk(data) {
  * @returns {object} - WebCrypto algorithm
  */
 export function getAlgorithm(jwk, alg) {
-  var algorithm;
+  let algorithm;
   switch (jwk.kty) {
     case 'EC':
       algorithm = {
@@ -81,7 +79,7 @@ export function getAlgorithm(jwk, alg) {
     default:
       throw new Error('invalid argument: kty=' + jwk.kty);
   }
-  var a = alg ?? jwk.alg ?? 'S256';
+  const a = alg ?? jwk.alg ?? 'S256';
   switch (a) {
     case 'RS512':
     case 'ES512':
@@ -118,7 +116,7 @@ export function getAlgorithm(jwk, alg) {
  * @returns {Promise<CryptoKey} - WebCrypto key
  */
 export async function importJWK(jwk, alg) {
-  var key;
+  let key;
   switch (jwk.kty) {
     case 'EC':
       key = {
@@ -138,7 +136,7 @@ export async function importJWK(jwk, alg) {
     default:
       throw new Error('invalid argument: kty=' + jwk.kty);
   }
-  var algorithm = getAlgorithm(jwk, alg);
+  const algorithm = getAlgorithm(jwk, alg);
   //console.log("importKey key: "+ encodeJson(key));
   //console.log("importKey algorithm: "+ encodeJson(algorithm));
   return await crypto.subtle.importKey('jwk', key, algorithm, false, ['verify']);
@@ -161,7 +159,7 @@ export async function sha256(data) {
  * @returns {Uint8Array}
  */
 export function getRandomBytes(length) {
-  var array = new Uint8Array(length ?? 32);
+  const array = new Uint8Array(length ?? 32);
   crypto.getRandomValues(array);
   return array;
 }

@@ -10,13 +10,22 @@ import { getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth/web-extension';
 import web3, { TransactionError } from 'web3';
 
+import {
+  findAddressWithNetwork,
+  findAddressWithSeed,
+  findAddressWithPK,
+} from '@/background/utils/modules/findAddressWithPK';
+import {
+  pk2PubKey,
+  seed2PubKey,
+  formPubKey,
+  jsonToKey,
+} from '@/background/utils/modules/publicPrivateKey';
 import eventBus from '@/eventBus';
 import { type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line no-restricted-imports
-import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
   preferenceService,
@@ -63,9 +72,6 @@ import { getStoragedAccount } from '../utils/getStoragedAccount';
 
 import BaseController from './base';
 import provider from './provider';
-
-// eslint-disable-next-line import/order,no-restricted-imports
-import { pk2PubKey, seed2PubKey, formPubKey } from '@/ui/utils/modules/passkey.js';
 
 interface Keyring {
   type: string;
@@ -380,6 +386,16 @@ export class WalletController extends BaseController {
     const { origin } = sessionService.getSession(tabId) || {};
     return permissionService.getWithoutUpdate(origin);
   };
+  addConnectedSite = (
+    origin: string,
+    name: string,
+    icon: string,
+    defaultChain = 747,
+    isSigned = false
+  ) => {
+    permissionService.addConnectedSite(origin, name, icon, defaultChain, isSigned);
+  };
+
   updateConnectSite = (origin: string, data: ConnectedSite) => {
     permissionService.updateConnectSite(origin, data);
     // sessionService.broadcastEvent(
@@ -512,6 +528,16 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyring);
   };
 
+  jsonToPrivateKeyHex = async (json: string, password: string): Promise<string | null> => {
+    const pk = await jsonToKey(json, password);
+    return pk ? Buffer.from(pk.data()).toString('hex') : null;
+  };
+  findAddressWithPrivateKey = async (pk: string, address: string) => {
+    return await findAddressWithPK(pk, address);
+  };
+  findAddressWithSeedPhrase = async (seed: string, address: string, isTemp: boolean = false) => {
+    return await findAddressWithSeed(seed, address, isTemp);
+  };
   getPreMnemonics = () => keyringService.getPreMnemonics();
   generatePreMnemonic = () => keyringService.generatePreMnemonic();
   removePreMnemonics = () => keyringService.removePreMnemonics();
@@ -3820,12 +3846,12 @@ export class WalletController extends BaseController {
       await googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
       mixpanelTrack.track('multi_backup_created', {
         address: (await this.getCurrentAddress()) || '',
-        providers: ['google_drive'],
+        providers: ['GoogleDrive'],
       });
     } catch {
       mixpanelTrack.track('multi_backup_creation_failed', {
         address: (await this.getCurrentAddress()) || '',
-        providers: ['google_drive'],
+        providers: ['GoogleDrive'],
       });
     }
   };
@@ -4083,7 +4109,7 @@ export class WalletController extends BaseController {
   trackAccountRecovered = async () => {
     mixpanelTrack.track('account_recovered', {
       address: (await this.getCurrentAddress()) || '',
-      mechanism: 'multi-backup',
+      mechanism: 'Multi-Backup',
       methods: [],
     });
   };

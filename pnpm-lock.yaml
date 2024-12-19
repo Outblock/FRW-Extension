@@ -96,7 +96,7 @@ importers:
         specifier: ^6.19.7
         version: 6.19.7
       '@trustwallet/wallet-core':
-        specifier: ^4.1.19
+        specifier: ^4.1.21
         version: 4.1.21
       '@tsparticles/engine':
         specifier: ^3.6.0

@@ -11,13 +11,11 @@ import {
 import { makeStyles } from '@mui/styles';
 import React, { useState } from 'react';
 
-import { LLSpinner } from '@/ui/FRWComponent';
-import ErrorModel from '@/ui/FRWComponent/PopupModal/errorModel';
-import { KEY_TYPE } from '@/ui/utils/modules/constants';
-import { findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
+import { useWallet } from '@/ui/utils/WalletContext';
+import { LLSpinner } from 'ui/FRWComponent';
 
-//todo: update import of this js
-import { jsonToKey } from '../../../utils/modules/passkey';
+import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
+import { KEY_TYPE } from '../../../utils/modules/constants';
 
 const useStyles = makeStyles(() => ({
   form: {
@@ -63,6 +61,7 @@ const useStyles = makeStyles(() => ({
 
 const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
   const classes = useStyles();
+  const usewallet = useWallet();
   const [isLoading, setLoading] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
   const [json, setJson] = useState('');
@@ -93,13 +92,12 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       }
       const password = e.target[2].value;
       const address = e.target[5].value;
-      const pk = await jsonToKey(keystore, password);
-      if (pk === null) {
+      const pkHex = await usewallet.jsonToPrivateKeyHex(keystore, password);
+      if (pkHex === null) {
         setErrorMessage('Password incorrect');
         return;
       }
-      const pkHex = Buffer.from(pk!.data()).toString('hex');
-      const result = await findAddressWithPK(pkHex, address);
+      const result = await usewallet.findAddressWithPrivateKey(pkHex, address);
       setPk(pkHex);
       if (!result) {
         onOpen();

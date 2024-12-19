@@ -1,5 +1,5 @@
 import { findAddressWithKey, findAddressOnlyKey } from './findAddressWithPubKey';
-import { pk2PubKey, seed2PubKey, seed2PubKeyTemp } from './passkey';
+import { pk2PubKey, seed2PubKey, seed2PubKeyTemp } from './publicPrivateKey';
 
 export const findAddress = async (pubKTuple, address) => {
   const { P256, SECP256K1 } = pubKTuple;

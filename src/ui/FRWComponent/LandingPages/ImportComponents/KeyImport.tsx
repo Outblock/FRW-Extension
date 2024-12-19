@@ -1,12 +1,13 @@
-import { Box, Button, Typography, TextareaAutosize } from '@mui/material';
+import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useState } from 'react';
 
-import { LLSpinner } from '@/ui/FRWComponent';
-import { KEY_TYPE } from '@/ui/utils/modules/constants';
-import { findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
+import { useWallet } from '@/ui/utils/WalletContext';
+import { LLSpinner } from 'ui/FRWComponent';
 
-const useStyles = makeStyles(() => ({
+import { KEY_TYPE } from '../../../utils/modules/constants';
+
+const useStyles = makeStyles((theme) => ({
   form: {
     width: '100%',
     display: 'flex',
@@ -28,9 +29,9 @@ const useStyles = makeStyles(() => ({
     fontWeight: 'bold',
   },
 }));
-
 const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
   const classes = useStyles();
+  const usewallet = useWallet();
   const [isLoading, setLoading] = useState(false);
 
   const handleImport = async (e) => {
@@ -42,7 +43,7 @@ const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       const inputValue = e.target[2].value;
       setPk(pk);
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
-      const result = await findAddressWithPK(pk, address);
+      const result = await usewallet.findAddressWithPrivateKey(pk, address);
       if (!result) {
         onOpen();
         return;
