@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
 import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
-import { useWallet, saveIndex } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 import SyncQr from './SyncQr';
 
@@ -52,7 +52,7 @@ const Sync = () => {
       await usewallet.signInV3(mnemonic, accountKey, deviceInfo);
       const userInfo = await usewallet.getUserInfo(true);
       setUsername(userInfo.username);
-      await saveIndex(userInfo.username);
+      await usewallet.saveIndex(userInfo.username);
       await usewallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
       await usewallet.createKeyringWithMnemonics(formatted);

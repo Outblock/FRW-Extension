@@ -17,7 +17,7 @@ import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet, saveIndex } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 import ErrorModel from '../../../../FRWComponent/PopupModal/errorModel';
 
@@ -198,7 +198,7 @@ const SetPassword = ({ handleSwitchTab, mnemonic, pk, tempPassword, goLast, acco
   const login = async () => {
     setLoading(true);
 
-    await saveIndex(username);
+    await usewallet.saveIndex(username);
     try {
       await usewallet.boot(password);
       if (pk) {

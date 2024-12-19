@@ -10,7 +10,7 @@ import PickUsername from '@/ui/FRWComponent/LandingPages/PickUsername';
 import RepeatPhrase from '@/ui/FRWComponent/LandingPages/RepeatPhrase';
 import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
 import { storage } from 'background/webapi';
-import { saveIndex, useWallet } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 import GoogleBackup from './GoogleBackup';
 import RecoveryPhrase from './RecoveryPhrase';
@@ -62,7 +62,7 @@ const Register = () => {
   const submitPassword = useCallback(
     async (newPassword: string) => {
       setPassword(newPassword);
-      await saveIndex(username);
+      await usewallet.saveIndex(username);
       const accountKey = getAccountKey(mnemonic);
       await usewallet.openapi.register(accountKey, username);
       await usewallet.boot(newPassword);

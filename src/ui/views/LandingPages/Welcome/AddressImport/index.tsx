@@ -7,9 +7,9 @@ import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
 import PickUsername from '@/ui/FRWComponent/LandingPages/PickUsername';
 import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
-import { PageSlider, useNavigation } from '@/ui/utils/landingPage';
+import { useNavigation } from '@/ui/utils/landingPage';
 import { storage } from 'background/webapi';
-import { useWallet, saveIndex } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 import GoogleBackup from './GoogleBackup';
 import ImportTabs from './ImportTabs';
@@ -104,7 +104,7 @@ const AddressImport = () => {
     await usewallet.openapi.importKey(accountKeyStruct, device_info, username, {}, address);
     await usewallet.boot(newPassword);
     storage.remove('premnemonic');
-    await saveIndex(username);
+    await usewallet.saveIndex(username);
 
     if (pk) {
       await usewallet.importPrivateKey(pk);

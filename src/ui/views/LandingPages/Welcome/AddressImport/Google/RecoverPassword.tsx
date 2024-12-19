@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 import { LLSpinner, LLNotFound } from '@/ui/FRWComponent';
-import { useWallet, saveIndex } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
 import CancelIcon from '../../../../../../components/iconfont/IconClose';
@@ -201,7 +201,7 @@ const SetPassword = ({ handleSwitchTab, mnemonic, username, lastPassword }) => {
   const login = async () => {
     setLoading(true);
 
-    await saveIndex(username);
+    await usewallet.saveIndex(username);
     try {
       await usewallet.signInWithMnemonic(mnemonic);
       await usewallet.boot(password);
