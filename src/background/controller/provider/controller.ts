@@ -568,7 +568,6 @@ class ProviderController extends BaseController {
 
     const hash = TypedDataUtils.eip712Hash(message, SignTypedDataVersion.V4);
 
-    console.log('SignTypedDataVersion.V4 ', hash);
     const result = await signTypeData(hash);
     signTextHistoryService.createHistory({
       address: address,
