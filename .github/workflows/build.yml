@@ -16,34 +16,22 @@ jobs:
         node-version: [22.x]
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
-          run_install: false
+        uses: pnpm/action-setup@v4
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Run tests
+        run: pnpm test
 
       - name: Create .env.pro file
         run: |
@@ -71,6 +59,9 @@ jobs:
           FB_APP_ID="${{ secrets.FB_APP_ID }}"
           FB_MEASUREMENT_ID="${{ secrets.FB_MEASUREMENT_ID }}"
           FB_FUNCTIONS="${{ secrets.FB_FUNCTIONS }}"
+          API_NEWS_PATH="${{ vars.API_NEWS_PATH }}"
+          API_CONFIG_PATH="${{ vars.API_CONFIG_PATH }}"
+          API_BASE_URL="${{ vars.API_BASE_URL }}"
           # manifest
           OAUTH2_CLIENT_ID="${{ secrets.OAUTH2_CLIENT_ID }}"
           OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"

@@ -60,15 +60,18 @@ class UserInfo {
     this.store.avatar = data['avatar'];
 
     // identify the user
-    mixpanelTrack.identify(this.store.user_id);
+    if (this.store.user_id) {
+      mixpanelTrack.identify(this.store.user_id, this.store.username);
+    }
 
     // TODO: track the user info if not in private mode
   };
 
   addUserId = (userId: string) => {
     this.store.user_id = userId;
-    // identify the user
-    mixpanelTrack.identify(this.store.user_id);
+    if (this.store.user_id) {
+      mixpanelTrack.identify(this.store.user_id);
+    }
   };
 
   removeUserInfo = () => {

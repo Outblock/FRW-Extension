@@ -276,7 +276,7 @@ const SyncQr = ({
     };
 
     createWeb3Wallet();
-  }, []);
+  }, [_subscribeToEvents, currentNetwork, onSessionConnected, sendRequest]);
 
   return (
     <>

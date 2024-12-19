@@ -1289,7 +1289,7 @@
     "message": "Import Profile"
   },
   "Insufficient_Storage": {
-    "message": "Insufficient Storage"
+    "message": "Almost run out of account storage."
   },
   "Transaction_failed_storage_exceeded": {
     "message": "Your transaction failed because it caused your account to fall below the minimum balance of FLOW for your account's storage usage."

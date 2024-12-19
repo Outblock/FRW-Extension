@@ -43,6 +43,15 @@ const UsernameError: React.FC = () => (
   </Box>
 );
 
+if (process.env.NODE_ENV !== 'development') {
+  if (!!process.env.DEV_PASSWORD) {
+    throw new Error('DEV_PASSWORD should only be set in development environment');
+  }
+}
+
+const DEFAULT_PASSWORD =
+  process.env.NODE_ENV === 'development' ? process.env.DEV_PASSWORD || '' : '';
+
 const Unlock = () => {
   const wallet = useWallet();
   const classes = useStyles();
@@ -50,7 +59,7 @@ const Unlock = () => {
   const inputEl = useRef<any>(null);
   // const { t } = useTranslation();
   const [showError, setShowError] = useState(false);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [resetPop, setResetPop] = useState<boolean>(false);
 
   useEffect(() => {

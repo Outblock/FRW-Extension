@@ -1316,7 +1316,7 @@
     "message": "导入账户"
   },
   "Insufficient_Storage": {
-    "message": "存储不足"
+    "message": "帐户存储空间几乎耗尽"
   },
   "Transaction_failed_storage_exceeded": {
     "message": "您的交易失败，因为它导致您的账户余额低于账户存储使用的最低FLOW余额。"

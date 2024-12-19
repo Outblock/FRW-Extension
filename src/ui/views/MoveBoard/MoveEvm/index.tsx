@@ -40,7 +40,8 @@ const MoveEvm = (props: MoveBoardProps) => {
   const [selectedAccount, setSelectedChildAccount] = useState(null);
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: 0,
-    movingBetweenEVMAndFlow: true,
+    // We are moving within the EVM network, the flag should be false
+    movingBetweenEVMAndFlow: false,
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed

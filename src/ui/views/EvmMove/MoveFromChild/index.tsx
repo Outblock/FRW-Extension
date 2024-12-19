@@ -3,8 +3,7 @@ import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import wallet from '@/background/controller/wallet';
-import { withPrefix } from '@/shared/utils/address';
+import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
@@ -92,10 +91,13 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
   const [minAmount, setMinAmount] = useState<any>(0.001);
+
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
     coin: currentCoin,
-    movingBetweenEVMAndFlow: true,
+    // Rendering this component means we are moving from a FLOW child account
+    // We are moving to userInfo.address. Check if it's an EVM address
+    movingBetweenEVMAndFlow: isValidEthereumAddress(userInfo.address),
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
@@ -105,6 +107,8 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
+
+    // This is the main wallet address
     const wallet = await usewallet.getMainWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
@@ -154,7 +158,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
 
   const moveToken = useCallback(async () => {
     setLoading(true);
-    const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
+    const tokenResult = await usewallet.openapi.getTokenInfo(currentCoin, network);
     usewallet
       .moveFTfromChild(childUserInfo!.address, 'flowTokenProvider', amount!, tokenResult!.name)
       .then(async (createRes) => {

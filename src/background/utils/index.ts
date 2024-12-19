@@ -4,7 +4,7 @@ import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
 
 const { version } = packageJson;
-import { mixpanelTrack } from '../service';
+import { mixpanelTrack } from '../service/mixpanel';
 import pageStateCache from '../service/pageStateCache';
 
 export { default as createPersistStore } from './persisitStore';

@@ -3,8 +3,7 @@ import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import wallet from '@/background/controller/wallet';
-import { withPrefix } from '@/shared/utils/address';
+import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
@@ -80,7 +79,9 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
     coin: currentCoin,
-    movingBetweenEVMAndFlow: true,
+    // Rendering this component means we are moving from an EVM account
+    // If we are not moving to an EVM account, we are moving to a FLOW account
+    movingBetweenEVMAndFlow: !isValidEthereumAddress(userInfo.address),
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
@@ -162,7 +163,7 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
   const bridgeToken = async () => {
     setLoading(true);
-    const tokenResult = await wallet.openapi.getEvmTokenInfo(currentCoin, network);
+    const tokenResult = await usewallet.openapi.getEvmTokenInfo(currentCoin, network);
 
     let flowId = tokenResult!['flowIdentifier'];
 

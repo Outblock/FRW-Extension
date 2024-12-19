@@ -35,6 +35,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const DEFAULT_PASSWORD =
+  process.env.NODE_ENV === 'development' ? process.env.DEV_PASSWORD || '' : '';
+
 const SwitchUnlock = () => {
   const wallet = useWallet();
   const classes = useStyles();
@@ -43,7 +46,7 @@ const SwitchUnlock = () => {
   // const { t } = useTranslation();
   const [showError, setShowError] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [resetPop, setResetPop] = useState<boolean>(false);
 
   useEffect(() => {

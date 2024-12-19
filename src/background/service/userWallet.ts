@@ -1,19 +1,18 @@
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously } from 'firebase/auth/web-extension';
 
+import { signWithKey, seed2PubKey } from '@/background/utils/modules/publicPrivateKey';
+import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line no-restricted-imports
-import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
-// eslint-disable-next-line no-restricted-imports
-import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import wallet from 'background/controller/wallet';
 import { keyringService, mixpanelTrack, openapiService } from 'background/service';
 import { createPersistStore } from 'background/utils';
 import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 
+import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
 import { storage } from '../webapi';
 
 import type {
@@ -30,7 +29,7 @@ interface UserWalletStore {
   childAccount: ChildAccount;
   network: string;
   monitor: string;
-  activeChild: any;
+  activeChild: ActiveChildType;
   evmEnabled: boolean;
 }
 
@@ -126,11 +125,11 @@ class UserWallet {
     this.store.childAccount = wallet;
   };
 
-  setActiveWallet = (key: any) => {
+  setActiveWallet = (key: ActiveChildType) => {
     this.store.activeChild = key;
   };
 
-  getActiveWallet = () => {
+  getActiveWallet = (): ActiveChildType => {
     return this.store.activeChild;
   };
 

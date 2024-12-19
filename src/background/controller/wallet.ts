@@ -7,14 +7,25 @@ import * as bip39 from 'bip39';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth } from 'firebase/auth/web-extension';
 import web3, { TransactionError } from 'web3';
 
+import {
+  findAddressWithNetwork,
+  findAddressWithSeed,
+  findAddressWithPK,
+} from '@/background/utils/modules/findAddressWithPK';
+import {
+  pk2PubKey,
+  seed2PubKey,
+  formPubKey,
+  jsonToKey,
+} from '@/background/utils/modules/publicPrivateKey';
 import eventBus from '@/eventBus';
+import { type FeatureFlags } from '@/shared/types/feature-types';
+import { type TrackingEvents } from '@/shared/types/tracking-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line import/order,no-restricted-imports
-import { findAddressWithNetwork } from '@/ui/utils/modules/findAddressWithPK';
 import {
   keyringService,
   preferenceService,
@@ -54,16 +65,13 @@ import DisplayKeyring from '../service/keyring/display';
 import type { NFTData, NFTModel, StorageInfo, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
-import { StorageEvaluator } from '../service/storage-evaluator';
+import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
 import { getStoragedAccount } from '../utils/getStoragedAccount';
 
 import BaseController from './base';
 import provider from './provider';
-
-// eslint-disable-next-line import/order,no-restricted-imports
-import { pk2PubKey, seed2PubKey, formPubKey } from '@/ui/utils/modules/passkey.js';
 
 interface Keyring {
   type: string;
@@ -378,6 +386,16 @@ export class WalletController extends BaseController {
     const { origin } = sessionService.getSession(tabId) || {};
     return permissionService.getWithoutUpdate(origin);
   };
+  addConnectedSite = (
+    origin: string,
+    name: string,
+    icon: string,
+    defaultChain = 747,
+    isSigned = false
+  ) => {
+    permissionService.addConnectedSite(origin, name, icon, defaultChain, isSigned);
+  };
+
   updateConnectSite = (origin: string, data: ConnectedSite) => {
     permissionService.updateConnectSite(origin, data);
     // sessionService.broadcastEvent(
@@ -510,6 +528,16 @@ export class WalletController extends BaseController {
     return this._setCurrentAccountFromKeyring(keyring);
   };
 
+  jsonToPrivateKeyHex = async (json: string, password: string): Promise<string | null> => {
+    const pk = await jsonToKey(json, password);
+    return pk ? Buffer.from(pk.data()).toString('hex') : null;
+  };
+  findAddressWithPrivateKey = async (pk: string, address: string) => {
+    return await findAddressWithPK(pk, address);
+  };
+  findAddressWithSeedPhrase = async (seed: string, address: string, isTemp: boolean = false) => {
+    return await findAddressWithSeed(seed, address, isTemp);
+  };
   getPreMnemonics = () => keyringService.getPreMnemonics();
   generatePreMnemonic = () => keyringService.generatePreMnemonic();
   removePreMnemonics = () => keyringService.removePreMnemonics();
@@ -1073,17 +1101,6 @@ export class WalletController extends BaseController {
     return result;
   }
 
-  private async getFixedTokenPrice(symbol: string): Promise<any> {
-    if (symbol === 'usdc') {
-      return await openapiService.getUSDCPrice();
-    } else if (symbol === 'fusd') {
-      return Promise.resolve({
-        price: { last: '1.0', change: { percentage: '0.0' } },
-      });
-    }
-    return null;
-  }
-
   private async calculateTokenPrice(token: string, price: string | null): Promise<any> {
     if (price) {
       return { price: { last: price, change: { percentage: '0.0' } } };
@@ -1107,9 +1124,6 @@ export class WalletController extends BaseController {
       return this.getFlowTokenPrice(flowPrice);
     }
 
-    const fixedTokenPrice = await this.getFixedTokenPrice(token);
-    if (fixedTokenPrice) return fixedTokenPrice;
-
     return this.calculateTokenPrice(token, price);
   }
 
@@ -1121,9 +1135,6 @@ export class WalletController extends BaseController {
       const flowPrice = price || data['FLOW'];
       return this.getFlowTokenPrice(flowPrice);
     }
-
-    const fixedTokenPrice = await this.getFixedTokenPrice(token);
-    if (fixedTokenPrice) return fixedTokenPrice;
 
     return this.calculateTokenPrice(token, price);
   }
@@ -1961,10 +1972,8 @@ export class WalletController extends BaseController {
     return await userWalletService.sendTransaction(script, [fcl.arg(formattedAmount, t.UFix64)]);
   };
 
-  coaLink = async (amount = '1.0'): Promise<string> => {
+  coaLink = async (): Promise<string> => {
     await this.getNetwork();
-    // TODO: This doesn't seem to be used anywhere
-    const formattedAmount = parseFloat(amount).toFixed(8);
 
     const script = await getScripts('evm', 'coaLink');
 
@@ -3492,19 +3501,18 @@ export class WalletController extends BaseController {
       }
     } catch (err: unknown) {
       // An error has occurred while listening to the transaction
-      console.log(typeof err);
-      console.log({ err });
-      console.error('listenTransaction error ', err);
       let errorMessage = 'unknown error';
       let errorCode: number | undefined = undefined;
 
       if (err instanceof TransactionError) {
         errorCode = err.code;
         errorMessage = err.message;
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
-      } else if (typeof err === 'string') {
-        errorMessage = err;
+      } else {
+        if (err instanceof Error) {
+          errorMessage = err.message;
+        } else if (typeof err === 'string') {
+          errorMessage = err;
+        }
         // From fcl-core transaction-error.ts
         const ERROR_CODE_REGEX = /\[Error Code: (\d+)\]/;
         const match = errorMessage.match(ERROR_CODE_REGEX);
@@ -3838,12 +3846,12 @@ export class WalletController extends BaseController {
       await googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
       mixpanelTrack.track('multi_backup_created', {
         address: (await this.getCurrentAddress()) || '',
-        providers: ['google_drive'],
+        providers: ['GoogleDrive'],
       });
     } catch {
       mixpanelTrack.track('multi_backup_creation_failed', {
         address: (await this.getCurrentAddress()) || '',
-        providers: ['google_drive'],
+        providers: ['GoogleDrive'],
       });
     }
   };
@@ -3873,6 +3881,10 @@ export class WalletController extends BaseController {
       const network = await this.getNetwork();
       return defaultConfig.payer[network];
     }
+  };
+
+  getFeatureFlags = async (): Promise<FeatureFlags> => {
+    return openapiService.getFeatureFlags();
   };
 
   allowLilicoPay = async (): Promise<boolean> => {
@@ -4072,24 +4084,17 @@ export class WalletController extends BaseController {
     transferAmount?: number; // amount in coins
     coin?: string; // coin name
     movingBetweenEVMAndFlow?: boolean; // are we moving between EVM and Flow?
-  } = {}): Promise<{
-    isStorageSufficient: boolean;
-    isStorageSufficientAfterAction: boolean;
-    storageInfo: StorageInfo;
-  }> => {
+  } = {}): Promise<EvaluateStorageResult> => {
     const address = await this.getCurrentAddress();
-    const { isStorageSufficient, isStorageSufficientAfterAction, storageInfo } =
-      await this.storageEvaluator.evaluateStorage(
-        address!,
-        transferAmount,
-        coin,
-        movingBetweenEVMAndFlow
-      );
-    return {
-      isStorageSufficient,
-      isStorageSufficientAfterAction,
-      storageInfo,
-    };
+    const isFreeGasFeeEnabled = await this.allowLilicoPay();
+    const result = await this.storageEvaluator.evaluateStorage(
+      address!,
+      transferAmount,
+      coin,
+      movingBetweenEVMAndFlow,
+      isFreeGasFeeEnabled
+    );
+    return result;
   };
 
   // Tracking stuff
@@ -4098,6 +4103,27 @@ export class WalletController extends BaseController {
     mixpanelTrack.track('on_ramp_clicked', {
       source: source,
     });
+  };
+
+  // This is called from the front end, we should find a better way to track this event
+  trackAccountRecovered = async () => {
+    mixpanelTrack.track('account_recovered', {
+      address: (await this.getCurrentAddress()) || '',
+      mechanism: 'Multi-Backup',
+      methods: [],
+    });
+  };
+
+  trackPageView = async (pathname: string) => {
+    mixpanelTrack.trackPageView(pathname);
+  };
+
+  trackTime = async (eventName: keyof TrackingEvents) => {
+    mixpanelTrack.time(eventName);
+  };
+
+  decodeEvmCall = async (callData: string, address = '') => {
+    return await openapiService.decodeEvmCall(callData, address);
   };
 }
 

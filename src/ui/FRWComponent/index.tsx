@@ -26,3 +26,4 @@ export * from './FWDropDownProfile';
 export * from './FWMoveDropdown';
 export * from './LLContactEth';
 export * from './FRWTargetProfile';
+export * from './CopyButton';
