@@ -1,19 +1,3 @@
-import { describe, it, expect, vi } from 'vitest';
-
-// Mock the function
-vi.mock('../../utils', () => ({
-  HexToDecimalConverter: (hexValue: string) => {
-    const convertHexToDecimal = (hex) => {
-      if (!hex.startsWith('0x')) {
-        hex = '0x' + hex;
-      }
-      return BigInt(hex).toString();
-    };
-    const decimalValue = convertHexToDecimal(hexValue);
-    return decimalValue;
-  },
-}));
-
 // Import from the mocked module
 import { HexToDecimalConverter } from '../../utils';
 
