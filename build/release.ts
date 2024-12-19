@@ -1,21 +1,24 @@
-const path = require('path');
-const { prompt: enquirerPrompt } = require('enquirer');
-const fs = require('fs-extra');
-const shell = require('shelljs');
-const zipdir = require('zip-dir');
+import fs from 'fs';
+import path from 'path';
+
+import { prompt } from 'enquirer';
+import shell from 'shelljs';
+import zipdir from 'zip-dir';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
+type Version = `${number}.${number}.${number}`;
 
-async function release() {
-  const input = await enquirerPrompt({
+async function release(): Promise<Version> {
+  const input: { version: Version } = await prompt({
     type: 'input',
     name: 'version',
     message: '[Flow Wallet] Please input the release version:',
   });
   const manifestPath = path.resolve(PROJECT_ROOT, '_raw', 'manifest.json');
-  const manifest = fs.readJSONSync(manifestPath);
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+
   manifest.version = input.version;
-  fs.writeJSONSync(manifestPath, manifest, { spaces: 2 });
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
   shell.exec(`npm version ${input.version} --force`);
   shell.exec('git add -A');
   shell.exec(`git commit -m "[release] ${input.version}"`);
@@ -25,7 +28,7 @@ async function release() {
   return input.version;
 }
 
-function bundle(version) {
+function bundle(version: Version) {
   shell.exec('pnpm build:pro');
   const distPath = path.resolve(PROJECT_ROOT, 'dist');
   zipdir(distPath, { saveTo: `FlowCore_${version}.zip` });
