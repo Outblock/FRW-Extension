@@ -174,7 +174,7 @@ const Welcome = () => {
               variant="contained"
               color="secondary"
               component={Link}
-              to="/welcome/addressimport"
+              to="/welcome/accountimport"
               size="large"
               sx={{
                 display: 'flex',

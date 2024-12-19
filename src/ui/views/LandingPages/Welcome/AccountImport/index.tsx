@@ -26,7 +26,7 @@ const STEPS = {
 
 type StepType = (typeof STEPS)[keyof typeof STEPS];
 
-const AddressImport = () => {
+const AccountImport = () => {
   const history = useHistory();
   const usewallet = useWallet();
 
@@ -209,4 +209,4 @@ const AddressImport = () => {
   );
 };
 
-export default AddressImport;
+export default AccountImport;

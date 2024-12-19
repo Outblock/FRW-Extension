@@ -1,13 +1,12 @@
 import { Box, Tabs, Tab, Typography } from '@mui/material';
-import * as bip39 from 'bip39';
 import React, { useState } from 'react';
 
 import { storage } from '@/background/webapi';
-import ErrorModel from '@/ui/FRWComponent/PopupModal/errorModel';
 import Googledrive from '@/ui/FRWComponent/LandingPages/ImportComponents/Googledrive';
 import JsonImport from '@/ui/FRWComponent/LandingPages/ImportComponents/JsonImport';
 import KeyImport from '@/ui/FRWComponent/LandingPages/ImportComponents/KeyImport';
 import SeedPhraseImport from '@/ui/FRWComponent/LandingPages/ImportComponents/SeedPhraseImport';
+import ErrorModel from '@/ui/FRWComponent/PopupModal/errorModel';
 import { useWallet } from '@/ui/utils';
 
 function TabPanel(props) {
