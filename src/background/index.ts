@@ -147,7 +147,7 @@ async function restoreAppState() {
 
 restoreAppState();
 
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+chrome.runtime.onInstalled.addListener(({ reason }: chrome.runtime.InstalledDetails) => {
   // chrome.runtime.OnInstalledReason.Install
   if (reason === 'install') {
     chrome.tabs.create({
@@ -179,7 +179,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 // for page provider
-chrome.runtime.onConnect.addListener((port) => {
+chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
   // openapiService.getConfig();
 
   // @ts-ignore

@@ -1,10 +1,10 @@
-const get = async (prop?) => {
+const get = async (prop: string) => {
   const result = await chrome.storage.local.get(prop);
 
   return prop ? result[prop] : result;
 };
 
-const getSession = async (prop?) => {
+const getSession = async (prop: string) => {
   // @ts-ignore
 
   const result = await chrome.storage.session?.get(prop);
@@ -12,7 +12,7 @@ const getSession = async (prop?) => {
   return prop ? result[prop] : result;
 };
 
-const getExpiry = async (prop?) => {
+const getExpiry = async (prop: string) => {
   const result = await chrome.storage.local.get(prop);
 
   const data = result[prop];
@@ -21,16 +21,15 @@ const getExpiry = async (prop?) => {
   return storageData;
 };
 
-const set = async (prop, value): Promise<void> => {
-  await chrome.storage.local.set({ [prop]: value });
+const set = (prop: string, value: any): Promise<void> => {
+  return chrome.storage.local.set({ [prop]: value });
 };
 
-const setSession = async (prop, value): Promise<void> => {
-  // @ts-ignore
-  await chrome.storage.session?.set({ [prop]: value });
+const setSession = (prop: string, value: any): Promise<void> => {
+  return chrome.storage.session?.set({ [prop]: value });
 };
 
-const setExpiry = async (prop, value, ttl): Promise<void> => {
+const setExpiry = async (prop: string, value: any, ttl: number): Promise<void> => {
   const now = new Date();
 
   // `item` is an object which contains the original value
@@ -41,10 +40,10 @@ const setExpiry = async (prop, value, ttl): Promise<void> => {
   };
   const newValue = JSON.stringify(item);
 
-  await chrome.storage.local.set({ [prop]: newValue });
+  return await chrome.storage.local.set({ [prop]: newValue });
 };
 
-const checkExpiry = async (value, prop) => {
+const checkExpiry = async (value: string, prop: string) => {
   if (!value) {
     return null;
   }
@@ -57,14 +56,14 @@ const checkExpiry = async (value, prop) => {
     if (now.getTime() > item.expiry) {
       // If the item is expired, delete the item from storage
       // and return null
-      chrome.storage.local.remove(prop);
+      await remove(prop);
       return null;
     }
     return item.value;
   } catch (error) {
     console.error('Error parsing storage data', error);
     try {
-      chrome.storage.local.remove(prop);
+      await remove(prop);
     } catch (error) {
       console.error('Error removing expired storage data', error);
     }
@@ -72,11 +71,11 @@ const checkExpiry = async (value, prop) => {
   }
 };
 
-const remove = async (prop) => {
+const remove = async (prop: string) => {
   await chrome.storage.local.remove(prop);
 };
 
-const removeSession = async (prop) => {
+const removeSession = async (prop: string) => {
   // @ts-ignore
   await chrome.storage.session?.remove(prop);
 };

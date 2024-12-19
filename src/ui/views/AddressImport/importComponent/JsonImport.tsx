@@ -1,7 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
-import { findAddressWithPK } from '../../../utils/modules/findAddressWithPK';
-import { KEY_TYPE } from '../../../utils/modules/constants';
-import React from 'react';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -11,11 +8,14 @@ import {
   TextareaAutosize,
   InputAdornment,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
+import React, { useState } from 'react';
+
+import { useWallet } from '@/ui/utils/WalletContext';
 import { LLSpinner } from 'ui/FRWComponent';
-import { jsonToKey } from '../../../utils/modules/passkey';
+
 import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
+import { KEY_TYPE } from '../../../utils/modules/constants';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -61,6 +61,7 @@ const useStyles = makeStyles((theme) => ({
 
 const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
   const classes = useStyles();
+  const wallet = useWallet();
   const [isLoading, setLoading] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
   const [json, setJson] = useState('');
@@ -91,14 +92,12 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       }
       const password = e.target[2].value;
       const address = e.target[5].value;
-      const pk = await jsonToKey(keystore, password);
-      if (pk == null) {
+      const pkHex = await wallet.jsonToPrivateKeyHex(keystore, password);
+      if (pkHex === null) {
         setErrorMessage('Password incorrect');
         return;
       }
-      const pkHex = Buffer.from(pk!.data()).toString('hex');
-      const result = await findAddressWithPK(pkHex, address);
-      console.log(result);
+      const result = await wallet.findAddressWithPrivateKey(pkHex, address);
       setPk(pkHex);
       if (!result) {
         onOpen();
@@ -179,7 +178,7 @@ const JsonImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
           </Typography>
         </Button>
       </form>
-      {errorMesssage != '' && (
+      {errorMesssage !== '' && (
         <ErrorModel
           isOpen={errorMesssage !== ''}
           onOpenChange={() => {
