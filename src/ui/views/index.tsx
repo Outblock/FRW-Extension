@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
 import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
 
+import { useCoinData } from '@/ui/hooks/useCoinData';
 import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
@@ -48,6 +49,8 @@ const Routes = () => {
 };
 
 function Main() {
+  //todo: update when address changed
+  useCoinData();
   return (
     <Router>
       <Routes />

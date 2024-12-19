@@ -8,15 +8,16 @@ import SwipeableViews from 'react-swipeable-views';
 
 import eventBus from '@/eventBus';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
+import buyIcon from '@/ui/FRWAssets/svg/buyIcon.svg';
+import iconMove from '@/ui/FRWAssets/svg/homeMove.svg';
+import receiveIcon from '@/ui/FRWAssets/svg/receiveIcon.svg';
+import sendIcon from '@/ui/FRWAssets/svg/sendIcon.svg';
+import swapIcon from '@/ui/FRWAssets/svg/swapIcon.svg';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { NumberTransition } from '@/ui/FRWComponent/NumberTransition';
-import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
-import iconMove from 'ui/FRWAssets/svg/homeMove.svg';
-import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
-import sendIcon from 'ui/FRWAssets/svg/sendIcon.svg';
-import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
-import { useWallet } from 'ui/utils';
-import { formatLargeNumber } from 'ui/utils/number';
+import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useWallet } from '@/ui/utils';
+import { formatLargeNumber } from '@/ui/utils/number';
 
 import { withPrefix } from '../../../shared/utils/address';
 import theme from '../../style/LLTheme';
@@ -53,12 +54,11 @@ const WalletTab = ({ network }) => {
   const wallet = useWallet();
   const history = useHistory();
   const location = useLocation();
+  const { coins, balance } = useCoinStore();
   const [value, setValue] = React.useState(0);
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [address, setAddress] = useState<string>('');
-  const [coinData, setCoinData] = useState<any>([]);
   const [accessible, setAccessible] = useState<any>([]);
-  const [balance, setBalance] = useState<string>('$0.00');
   const [childType, setChildType] = useState<ActiveChildType>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [, setChildAccount] = useState<any>({});
@@ -138,109 +138,11 @@ const WalletTab = ({ network }) => {
     return pollTimer;
   };
 
-  const handleStorageData = useCallback(
-    async (storageData) => {
-      if (storageData) {
-        const uniqueTokens = storageData.filter(
-          (token, index, self) =>
-            index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
-        );
-        await setCoinData(uniqueTokens);
-        let sum = 0;
-        storageData
-          .filter((item) => item.total !== null)
-          .forEach((coin) => {
-            sum = sum + parseFloat(coin.total);
-          });
-        setBalance('$ ' + sum.toFixed(2));
-      }
-    },
-    [setCoinData, setBalance]
-  );
-
-  const sortWallet = useCallback(
-    (data) => {
-      const sorted = data.sort((a, b) => {
-        if (b.total === a.total) {
-          return b.balance - a.balance;
-        } else {
-          return b.total - a.total;
-        }
-      });
-      handleStorageData(sorted);
-    },
-    [handleStorageData]
-  );
-
-  const refreshWithRetry = useCallback(
-    async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
-      if (childStateLoading) {
-        console.log('childStateLoading.');
-        return;
-      }
-      try {
-        const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-        console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
-
-        if (
-          Array.isArray(refreshedCoinlist) &&
-          refreshedCoinlist.length === 0 &&
-          retryCount < maxRetries
-        ) {
-          console.log(
-            `No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
-          );
-          setTimeout(() => {
-            refreshWithRetry(expiry_time, retryCount + 1);
-          }, delay);
-        } else {
-          console.log(`refreshedCoinlist found, refreshedCoinlist`, refreshedCoinlist);
-          sortWallet(refreshedCoinlist);
-        }
-      } catch (error) {
-        console.error(`Error fetching price for token:`, error);
-        if (retryCount < maxRetries) {
-          console.log(
-            `Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${
-              retryCount + 1
-            } of ${maxRetries})`
-          );
-          setTimeout(() => {
-            refreshWithRetry(expiry_time, retryCount + 1);
-          }, delay);
-        } else {
-          wallet
-            .refreshCoinList(expiry_time)
-            .then((res) => {
-              if (Array.isArray(res) && res.length === 0 && retryCount < maxRetries) {
-                console.log(
-                  `No data found in storage, retrying in 5 seconds... (Attempt ${
-                    retryCount + 1
-                  } of ${maxRetries})`
-                );
-                setTimeout(() => {
-                  refreshWithRetry(expiry_time, retryCount + 1);
-                }, delay);
-              } else {
-                console.log(`res found, refreshedCoinlist`, res);
-                sortWallet(res);
-              }
-            })
-            .catch((err) => {
-              console.error(`Error getting CoinList price for token:`, err);
-            });
-        }
-      }
-    },
-    [childStateLoading, sortWallet, wallet]
-  );
-
   const fetchWallet = useCallback(async () => {
     // If childType is 'evm', handle it first
     const activeChild = await wallet.getActiveWallet();
     if (activeChild === 'evm') {
       const storageData = await wallet.refreshEvmList(expiry_time);
-      sortWallet(storageData);
       return;
       // If not 'evm', check if it's not active
     } else if (!isActive) {
@@ -251,25 +153,13 @@ const WalletTab = ({ network }) => {
     }
 
     // Handle all non-evm and non-active cases here
-    try {
-      console.log('refreshing ');
-      const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-      if (Array.isArray(refreshedCoinlist) && refreshedCoinlist.length === 0) {
-        refreshWithRetry(expiry_time);
-      } else {
-        sortWallet(refreshedCoinlist);
-      }
-    } catch {
-      refreshWithRetry(expiry_time);
-    }
-  }, [address, isActive, refreshWithRetry, sortWallet, wallet]);
+  }, [address, isActive, wallet]);
 
   const loadCache = useCallback(async () => {
     const storageSwap = await wallet.getSwapConfig();
     setSwapConfig(storageSwap);
     const storageData = await wallet.getCoinList(expiry_time);
-    sortWallet(storageData);
-  }, [expiry_time, sortWallet, wallet]);
+  }, [expiry_time, wallet]);
 
   const fetchChildState = useCallback(async () => {
     setChildStateLoading(true);
@@ -303,13 +193,8 @@ const WalletTab = ({ network }) => {
     setMoveBoard(true);
   };
 
-  const filteredCoinData = coinData.filter((coin) => {
-    if (
-      childType === 'evm' &&
-      coin.unit !== 'flow' &&
-      parseFloat(coin.balance) === 0 &&
-      !coin.custom
-    ) {
+  const filteredCoinData = coins.filter((coin) => {
+    if (childType === 'evm' && coin.unit !== 'flow' && Number(coin.balance) === 0 && !coin.custom) {
       return false;
     }
     return true;
@@ -616,7 +501,7 @@ const WalletTab = ({ network }) => {
                   fontWeight: 'semi-bold',
                 }}
               >
-                {childType === 'evm' ? filteredCoinData?.length || '' : coinData?.length || ''}{' '}
+                {childType === 'evm' ? filteredCoinData?.length || '' : coins?.length || ''}{' '}
                 {chrome.i18n.getMessage('coins')}
               </Typography>
             }
@@ -653,7 +538,7 @@ const WalletTab = ({ network }) => {
       >
         <TabPanel value={value} index={0}>
           <CoinList
-            data={coinData}
+            data={coins}
             ableFt={accessible}
             isActive={isActive}
             childType={childType}
