@@ -3,7 +3,6 @@ import path from 'path';
 
 import CopyPlugin from 'copy-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
 
 import packageJson from '../package.json';
@@ -176,10 +175,13 @@ const config = (env: { config: 'dev' | 'pro' | 'none' }): webpack.Configuration 
     resolve: {
       alias: {
         moment: require.resolve('dayjs'),
-        // Forces all cross-fetch imports to use the same instance
         'cross-fetch': require.resolve('cross-fetch'),
+        '@': paths.rootResolve('src'),
+        ui: paths.rootResolve('src/ui'),
+        background: paths.rootResolve('src/background'),
+        consts: paths.rootResolve('src/constant/index'),
       },
-      plugins: [new TsconfigPathsPlugin()],
+      plugins: [],
       fallback: {
         // Removes polyfills that were interfering with native fetch
         http: false,

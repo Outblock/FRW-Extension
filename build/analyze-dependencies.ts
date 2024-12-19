@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { parse } from '@babel/parser';
 import traverseDefault from '@babel/traverse';
@@ -7,6 +8,9 @@ import glob from 'glob';
 import webpack from 'webpack';
 
 import webpackConfig from '../webpack.config.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 type Dependencies = {
   background: Set<string>;
