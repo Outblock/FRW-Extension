@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
 import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
+import GoogleBackup from '@/ui/FRWComponent/LandingPages/GoogleBackup';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
 import PickUsername from '@/ui/FRWComponent/LandingPages/PickUsername';
 import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
@@ -11,7 +12,6 @@ import { useNavigation } from '@/ui/utils/landingPage';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
-import GoogleBackup from './GoogleBackup';
 import ImportTabs from './ImportTabs';
 import RecoverPassword from './RecoverPassword';
 

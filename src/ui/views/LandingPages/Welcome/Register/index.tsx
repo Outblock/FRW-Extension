@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 
 import { getAccountKey } from '@/shared/utils/address';
 import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
+import GoogleBackup from '@/ui/FRWComponent/LandingPages/GoogleBackup';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
 import PickUsername from '@/ui/FRWComponent/LandingPages/PickUsername';
 import RepeatPhrase from '@/ui/FRWComponent/LandingPages/RepeatPhrase';
@@ -12,7 +13,6 @@ import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
-import GoogleBackup from './GoogleBackup';
 import RecoveryPhrase from './RecoveryPhrase';
 
 const STEPS = {

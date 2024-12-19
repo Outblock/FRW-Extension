@@ -36,19 +36,6 @@ const AllSet = ({ handleSwitchTab, variant = 'register' }: AllSetProps) => {
     }
   }, [variant, loadScript, usewallet]);
 
-  const getMessage = () => {
-    if (variant === 'recover') {
-      return {
-        title: chrome.i18n.getMessage('You__are') + ' ' + chrome.i18n.getMessage('all__set'),
-        subtitle: chrome.i18n.getMessage('Start__exploring__with__Lilico__now'),
-      };
-    }
-    return {
-      title: chrome.i18n.getMessage('You__are') + chrome.i18n.getMessage('Allset'),
-      subtitle: chrome.i18n.getMessage('You_can_start_experiencing_Lilico_now'),
-    };
-  };
-
   return (
     <>
       <Box className="registerBox">
@@ -57,13 +44,13 @@ const AllSet = ({ handleSwitchTab, variant = 'register' }: AllSetProps) => {
           image={AllSetIcon}
         />
         <Typography variant="h4">
-          {getMessage().title.split(' ')[0]}
+          {chrome.i18n.getMessage('You__are')}
           <Box display="inline" color="primary.main">
-            {getMessage().title.split(' ')[1]}
+            {' ' + chrome.i18n.getMessage('all__set')}
           </Box>
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {getMessage().subtitle}
+          {chrome.i18n.getMessage('You_can_start_experiencing_Lilico_now')}
         </Typography>
 
         <Box sx={{ flexGrow: 1 }} />
