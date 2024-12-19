@@ -86,7 +86,7 @@ export default [
 
   // Test files specific config
   {
-    files: ['e2e/**/*', 'playwright.config.ts', 'vitest.config.ts'],
+    files: ['e2e/**/*', 'playwright.config.ts', 'vitest.config.ts', 'vitest.init.ts'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.test.json',
