@@ -1,14 +1,14 @@
-const webpack = require('webpack');
-const Dotenv = require('dotenv-webpack');
-const CopyPlugin = require('copy-webpack-plugin');
+import CopyPlugin from 'copy-webpack-plugin';
+import Dotenv from 'dotenv-webpack';
+import webpack from 'webpack';
 
 // for extension local test, can build each time
-const config = {
+const config: webpack.Configuration = {
   mode: 'development',
   devtool: 'inline-cheap-module-source-map',
   watch: true,
   cache: {
-    type: 'filesystem',
+    type: 'filesystem' as const,
   },
   watchOptions: {
     ignored: ['**/public', '**/node_modules'],
@@ -38,4 +38,4 @@ const config = {
   },
 };
 
-module.exports = config;
+export default config;

@@ -1,11 +1,13 @@
-const webpack = require('webpack');
-const webpackMerge = require('webpack-merge');
+import webpack from 'webpack';
+import { merge } from 'webpack-merge';
 
-const commonConfig = require('./build/webpack.common.config');
+import commonConfig from './build/webpack.common.config';
+import dev from './build/webpack.dev.config';
+import pro from './build/webpack.pro.config';
 
-const configs = {
-  dev: require('./build/webpack.dev.config'),
-  pro: require('./build/webpack.pro.config'),
+const configs: Record<'dev' | 'pro' | 'none', webpack.Configuration> = {
+  dev,
+  pro,
   none: {
     mode: 'development',
     devtool: false,
@@ -36,12 +38,15 @@ const configs = {
   },
 };
 
-const config = (env, argv) => {
+const config = (
+  env: { config: 'dev' | 'pro' | 'none' },
+  _argv: unknown = {}
+): webpack.Configuration => {
   if (env.config) {
-    return webpackMerge.merge(commonConfig(env), configs[env.config]);
+    return merge(commonConfig(env), configs[env.config]);
   }
 
   return commonConfig(env);
 };
 
-module.exports = config;
+export default config;

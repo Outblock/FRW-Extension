@@ -1,11 +1,11 @@
-const path = require('path');
-const fs = require('fs');
+import fs from 'fs';
+import path from 'path';
 
 const appRoot = fs.realpathSync(process.cwd());
 
 const rootResolve = path.resolve.bind(path, appRoot);
 
-module.exports = {
+const paths = {
   root: appRoot,
   src: rootResolve('src'),
   popupHtml: rootResolve('src/ui/popup.html'),
@@ -16,3 +16,5 @@ module.exports = {
 
   rootResolve,
 };
+
+export default paths;
