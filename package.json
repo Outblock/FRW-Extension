@@ -1,6 +1,6 @@
 {
   "name": "flow-reference-wallet",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "description": "Digital wallet created for everyone.",
   "scripts": {
     "prepare:dev": "pnpx tsx ./build/prepareManifest.ts dev",
