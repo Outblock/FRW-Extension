@@ -24,7 +24,7 @@ import { storage } from '@/background/webapi';
 import { LLSpinner } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type AccountKey } from 'background/service/networkModel';
-import { useWallet, saveIndex } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import CancelIcon from '../../../../components/iconfont/IconClose';
@@ -106,7 +106,7 @@ const PasswordIndicator = (props) => {
 
 const SetPassword = ({ handleSwitchTab, mnemonic, username }) => {
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
 
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -188,23 +188,23 @@ const SetPassword = ({ handleSwitchTab, mnemonic, username }) => {
   const register = async () => {
     setLoading(true);
 
-    await saveIndex(username);
+    await usewallet.saveIndex(username);
     const accountKey = getAccountKey(mnemonic);
 
-    wallet.openapi
+    usewallet.openapi
       .register(accountKey, username)
       .then((response) => {
         setLoading(false);
-        return wallet.boot(password);
+        return usewallet.boot(password);
       })
       .then((response) => {
         const formatted = mnemonic.trim().split(/\s+/g).join(' ');
         storage.remove('premnemonic');
-        return wallet.createKeyringWithMnemonics(formatted);
+        return usewallet.createKeyringWithMnemonics(formatted);
       })
       .then((accounts) => {
         handleSwitchTab();
-        return wallet.openapi.createFlowAddress();
+        return usewallet.openapi.createFlowAddress();
       })
       .then((address) => {
         // console.log('address -->', address);

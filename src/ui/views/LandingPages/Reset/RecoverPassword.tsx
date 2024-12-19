@@ -22,7 +22,7 @@ import zxcvbn from 'zxcvbn';
 import { storage } from '@/background/webapi';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { LLSpinner } from 'ui/FRWComponent';
-import { useWallet, saveIndex } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
 import CancelIcon from '../../../../components/iconfont/IconClose';
@@ -135,7 +135,7 @@ const PasswordIndicator = (props) => {
 
 const SetPassword = ({ handleSwitchTab, mnemonic, username }) => {
   const classes = useStyles();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -194,11 +194,11 @@ const SetPassword = ({ handleSwitchTab, mnemonic, username }) => {
   const signIn = async () => {
     setLoading(true);
 
-    await saveIndex(username);
+    await usewallet.saveIndex(username);
     try {
-      await wallet.boot(password);
+      await usewallet.boot(password);
       const formatted = mnemonic.trim().split(/\s+/g).join(' ');
-      await wallet.createKeyringWithMnemonics(formatted);
+      await usewallet.createKeyringWithMnemonics(formatted);
       setLoading(false);
       handleSwitchTab();
     } catch (e) {
