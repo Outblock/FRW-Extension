@@ -9,7 +9,7 @@ import importPlugin from 'eslint-plugin-import';
 export default [
   // Base config for all files
   {
-    ignores: ['**/dist/**', '**/build/**', '**/node_modules/**', '**/.git/**', '**/coverage/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/.git/**', '**/coverage/**'],
   },
 
   // JavaScript and TypeScript files
