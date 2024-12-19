@@ -1316,7 +1316,7 @@
     "message": "Import Profile"
   },
   "Insufficient_Storage": {
-    "message": "Insufficient storage."
+    "message": "Almost run out of account storage."
   },
   "Insufficient_storage_after_action": {
     "message": "Insufficient storage after this action."
