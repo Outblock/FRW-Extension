@@ -32,5 +32,5 @@
     "outDir": "./dist"
   },
   "exclude": ["./node_modules"],
-  "include": ["src", "__tests__", "build", "webpack.config.ts", "postcss.config.ts"]
+  "include": ["src", "__tests__", "build", "webpack.config.ts", "postcss.config.mjs"]
 }
