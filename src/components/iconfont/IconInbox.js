@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import React from 'react';
-import { getIconColor } from './helper';
+import { getIconColor } from './helper.js';
 
 const DEFAULT_STYLE = {
   display: 'block',
