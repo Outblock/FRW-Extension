@@ -9,7 +9,7 @@ import { storage } from 'background/webapi';
 
 import DecryptWallet from './DecryptWallet';
 import GoogleAccounts from './GoogleAccounts';
-import RecoveryPassword from './GoogleRecoverPassword';
+import GoogleRecoverPassword from './GoogleRecoverPassword';
 
 const STEPS = {
   ACCOUNTS: 'accounts',
@@ -104,7 +104,7 @@ const Google = () => {
         )}
 
         {activeTab === STEPS.PASSWORD && (
-          <RecoveryPassword
+          <GoogleRecoverPassword
             handleSwitchTab={() => setActiveTab(STEPS.ALL_SET)}
             mnemonic={mnemonic}
             username={username}

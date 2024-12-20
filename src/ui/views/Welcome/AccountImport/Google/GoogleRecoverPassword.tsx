@@ -131,7 +131,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleSwitchTab, mnemonic, username, lastPassword }) => {
+const GoogleRecoverPassword = ({ handleSwitchTab, mnemonic, username, lastPassword }) => {
   const classes = useStyles();
   const usewallet = useWallet();
 
@@ -332,4 +332,4 @@ const SetPassword = ({ handleSwitchTab, mnemonic, username, lastPassword }) => {
   );
 };
 
-export default SetPassword;
+export default GoogleRecoverPassword;
