@@ -1316,6 +1316,9 @@
     "message": "导入账户"
   },
   "Insufficient_Storage": {
+    "message": "存储不足"
+  },
+  "Almost_run_out_of_account_storage": {
     "message": "帐户存储空间几乎耗尽"
   },
   "Transaction_failed_storage_exceeded": {
