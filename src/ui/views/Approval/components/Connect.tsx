@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { storage } from '@/background/webapi';
 import { authnServiceDefinition, serviceDefinition } from 'background/controller/serviceDefinition';
-import { permissionService } from 'background/service';
 import flowgrey from 'ui/FRWAssets/svg/flow-grey.svg';
 import Link from 'ui/FRWAssets/svg/link.svg';
 import linkGlobe from 'ui/FRWAssets/svg/linkGlobe.svg';
@@ -97,7 +96,7 @@ const Connect = ({ params: { /*icon, origin,*/ tabId } }: ConnectProps) => {
       chainId = 747;
     }
     console.log('permission add ', host, title, logo, chainId);
-    permissionService.addConnectedSite(host, title, logo, chainId);
+    wallet.addConnectedSite(host, title, logo, chainId);
 
     if (appIdentifier && nonce) {
       const message = WalletUtils.encodeAccountProof({

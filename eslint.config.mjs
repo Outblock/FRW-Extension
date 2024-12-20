@@ -9,7 +9,7 @@ import importPlugin from 'eslint-plugin-import';
 export default [
   // Base config for all files
   {
-    ignores: ['**/dist/**', '**/build/**', '**/node_modules/**', '**/.git/**', '**/coverage/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/.git/**', '**/coverage/**'],
   },
 
   // JavaScript and TypeScript files
@@ -86,7 +86,7 @@ export default [
 
   // Test files specific config
   {
-    files: ['e2e/**/*', 'playwright.config.ts', 'vitest.config.ts'],
+    files: ['e2e/**/*', 'playwright.config.ts', 'vitest.config.ts', 'vitest.init.ts'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.test.json',

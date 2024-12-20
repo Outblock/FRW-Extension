@@ -1,9 +1,9 @@
-import { useEffect, useState, useContext } from 'react';
-import { findAddressWithPK } from '../../../../utils/modules/findAddressWithPK';
-import { KEY_TYPE } from '../../../../utils/modules/constants';
-import React from 'react';
 import { Box, Button, Typography, TextField, TextareaAutosize } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import React, { useState } from 'react';
+
+import { KEY_TYPE } from '@/shared/utils/algo-constants';
+import { useWallet } from '@/ui/utils/WalletContext';
 import { LLSpinner } from 'ui/FRWComponent';
 
 const useStyles = makeStyles((theme) => ({
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
 const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
   // const classes = useStyles();
   const classes = useStyles();
-
+  const wallet = useWallet();
   const [isLoading, setLoading] = useState(false);
 
   const handleImport = async (e) => {
@@ -43,7 +43,7 @@ const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       const inputValue = e.target[2].value;
       setPk(pk);
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
-      const result = await findAddressWithPK(pk, address);
+      const result = await wallet.findAddressWithPrivateKey(pk, address);
       if (!result) {
         onOpen();
         return;

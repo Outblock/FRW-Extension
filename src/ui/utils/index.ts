@@ -144,3 +144,15 @@ export const formatAddress = (address) => {
   }
   return address;
 };
+
+// Function to convert hex to decimal
+export const HexToDecimalConverter = (hexValue) => {
+  const convertHexToDecimal = (hex) => {
+    if (!hex.startsWith('0x')) {
+      hex = '0x' + hex;
+    }
+    return BigInt(hex).toString();
+  };
+  const decimalValue = convertHexToDecimal(hexValue);
+  return decimalValue;
+};

@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { toArrayBuffer, BinaryReader } from './WebAuthnDecoder.js';
-import { importJWK, sha256, getAlgorithm } from './Crypto.js';
+import { importJWK, sha256, getAlgorithm } from './Crypto';
+import { toArrayBuffer, BinaryReader } from './WebAuthnDecoder';
 
 /**
  * Decode assertion signature to WebCrypto format
@@ -18,18 +16,18 @@ export function decodeSignature(publicKey, signature) {
             0x30|b1|0x02|b2|r|0x02|b3|s
             b1 = Length of remaining data
             b2 = Length of r
-            b3 = Length of s 
+            b3 = Length of s
          */
-    if (reader.readUInt8() != 0x30) throw new Error('invalid argument');
+    if (reader.readUInt8() !== 0x30) throw new Error('invalid argument');
     const b1 = reader.readUInt8();
-    if (reader.readUInt8() != 0x02) throw new Error('invalid argument');
+    if (reader.readUInt8() !== 0x02) throw new Error('invalid argument');
     let b2 = reader.readUInt8();
     if (b2 > 32) {
       b2--;
       reader.readUInt8();
     }
     const r = reader.readBytes(b2);
-    if (reader.readUInt8() != 0x02) throw new Error('invalid argument');
+    if (reader.readUInt8() !== 0x02) throw new Error('invalid argument');
     let b3 = reader.readUInt8();
     if (b3 > 32) {
       b3--;

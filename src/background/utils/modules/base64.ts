@@ -1,12 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
+import { toUint8Array } from './WebAuthnDecoder';
 
-import { toUint8Array } from './WebAuthnDecoder.js';
-
-function atobUrlSafe(text) {
-  if (text == null) {
-    return null;
-  }
+function atobUrlSafe(text: string): string {
   text = text
     .replace(/\s+/g, '') // removes whitespace such as linefeeds from input encoded string
     .replace(/-/g, '+') // replace '-' with '+'
@@ -29,10 +23,7 @@ function atobUrlSafe(text) {
  * https://tools.ietf.org/html/rfc7515#appendix-C
  * https://tools.ietf.org/html/rfc4648#section-5
  */
-function btoaUrlSafe(text) {
-  if (text == null) {
-    return null;
-  }
+function btoaUrlSafe(text: string): string {
   text = btoa(text)
     .replace(/\+/g, '-') // replace '+' with '-'
     .replace(/\//g, '_') // replace '/' with '_'
@@ -45,9 +36,9 @@ function btoaUrlSafe(text) {
  * @param {ArrayBuffer|Uint8Array} array - array of bytes
  * @returns {string} - base64url encoded string
  */
-function encodeArray(array) {
-  array = toUint8Array(array);
-  return btoaUrlSafe(Array.from(array, (t) => String.fromCharCode(t)).join(''));
+function encodeArray(array: ArrayBuffer | Uint8Array): string {
+  const arrayUint8 = toUint8Array(array);
+  return btoaUrlSafe(Array.from(arrayUint8, (t) => String.fromCharCode(t)).join(''));
 }
 
 /**
@@ -55,7 +46,7 @@ function encodeArray(array) {
  * @param {string} value - base64url encoded string
  * @returns {Uint8Array} - array of bytes
  */
-function decodeArray(value) {
+function decodeArray(value: string): Uint8Array {
   if (typeof value !== 'string') {
     throw new Error('invalid argument');
   }

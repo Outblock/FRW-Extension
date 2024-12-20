@@ -1,15 +1,17 @@
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const { version } = require('../_raw/manifest.json');
-const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const fs = require('fs');
+import fs from 'fs';
+import path from 'path';
 
-const paths = require('./paths');
+import CopyPlugin from 'copy-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import webpack from 'webpack';
 
-const config = (env) => {
-  console.log('env', env);
+import packageJson from '../package.json';
+
+import paths from './paths';
+const { version } = packageJson;
+
+const config = (env: { config: 'dev' | 'pro' | 'none' }): webpack.Configuration => {
   const isDevelopment = env.config === 'dev';
   const devToolsExists =
     isDevelopment && fs.existsSync(path.resolve(__dirname, '../_raw/react-devtools.js'));
@@ -195,4 +197,4 @@ const config = (env) => {
   };
 };
 
-module.exports = config;
+export default config;

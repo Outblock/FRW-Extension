@@ -21,5 +21,6 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "eslint.useFlatConfig": true,
   "githubPullRequests.overrideDefaultBranch": "dev",
-  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}"
+  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}",
+  "cSpell.words": ["Cbor", "secp"]
 }
