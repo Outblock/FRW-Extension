@@ -40,8 +40,14 @@ class NewsService {
     const filteredNewsPromises = news
       .filter((n) => !this.isDismissed(n.id))
       .map(async (newsItem) => {
-        const shouldShow = await conditionsEvaluator.evaluateConditions(newsItem.conditions);
-        return shouldShow ? newsItem : null;
+        try {
+          const shouldShow = await conditionsEvaluator.evaluateConditions(newsItem.conditions);
+          return shouldShow ? newsItem : null;
+        } catch (error) {
+          // Catch error here otherwise the whole news list will be empty
+          console.error('Error evaluating conditions', error);
+          return null;
+        }
       });
     const filteredNews = await Promise.all(filteredNewsPromises)
       .catch((error) => {

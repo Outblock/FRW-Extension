@@ -1316,6 +1316,9 @@
     "message": "プロファイルをインポート"
   },
   "Insufficient_Storage": {
+    "message": "ストレージが不足しています"
+  },
+  "Almost_run_out_of_account_storage": {
     "message": "アカウントのストレージが不足しています"
   },
   "Transaction_failed_storage_exceeded": {
