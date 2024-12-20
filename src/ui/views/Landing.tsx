@@ -1,14 +1,14 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 
-import Forgot from './LandingPages/Forgot';
-import Recover from './LandingPages/Forgot/Recover';
-import Reset from './LandingPages/Forgot/Reset';
-import Welcome from './LandingPages/Welcome';
-import AccountImport from './LandingPages/Welcome/AccountImport';
-import Google from './LandingPages/Welcome/AccountImport/Google';
-import Register from './LandingPages/Welcome/Register';
-import Sync from './LandingPages/Welcome/Sync';
+import Forgot from './Forgot';
+import Recover from './Forgot/Recover';
+import Reset from './Forgot/Reset';
+import Welcome from './Welcome';
+import AccountImport from './Welcome/AccountImport';
+import Google from './Welcome/AccountImport/Google';
+import Register from './Welcome/Register';
+import Sync from './Welcome/Sync';
 
 import './Landing.css';
 

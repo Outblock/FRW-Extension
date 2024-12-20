@@ -19,7 +19,7 @@ import zxcvbn from 'zxcvbn';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import ErrorModel from '../../../../FRWComponent/PopupModal/errorModel';
+import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {

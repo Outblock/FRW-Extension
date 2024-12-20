@@ -21,8 +21,8 @@ import zxcvbn from 'zxcvbn';
 import { LLSpinner, LLNotFound } from '@/ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
-import CancelIcon from '../../../../../../components/iconfont/IconClose';
+import CheckCircleIcon from '../../../../../components/iconfont/IconCheckmark';
+import CancelIcon from '../../../../../components/iconfont/IconClose';
 
 // const helperTextStyles = makeStyles(() => ({
 //   root: {

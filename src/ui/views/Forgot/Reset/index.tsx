@@ -9,17 +9,16 @@ import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
-import BackButtonIcon from '../../../../../components/iconfont/IconBackButton';
+import BackButtonIcon from '../../../../components/iconfont/IconBackButton';
 
-import RecoverPage from './RecoverPage';
-import ShowKey from './ShowKey';
+import ResetPage from './ResetPage';
 
 enum Direction {
   Right,
   Left,
 }
 
-const Recover = () => {
+const Reset = () => {
   const history = useHistory();
   const wallet = useWallet();
   const [activeIndex, onChange] = useState(0);
@@ -27,7 +26,6 @@ const Recover = () => {
   const [showError, setShowError] = useState(false);
   const [direction, setDirection] = useState(Direction.Right);
   const [, setPassword] = useState(null);
-  const [dataArray, setArray] = useState<any[]>([]);
 
   const loadTempPassword = async () => {
     const temp = await storage.get('tempPassword');
@@ -81,9 +79,16 @@ const Recover = () => {
   const page = (index) => {
     switch (index) {
       case 0:
-        return <RecoverPage setArray={setArray} dataArray={dataArray} goNext={goNext} />;
-      case 1:
-        return <ShowKey handleSwitchTab={goNext} mnemonic={dataArray} />;
+        return (
+          <ResetPage
+            resetPop={false}
+            handleCloseIconClicked={() => goNext()}
+            handleCancelBtnClicked={() => goNext()}
+            handleAddBtnClicked={() => {
+              goNext();
+            }}
+          />
+        );
       default:
         return <div />;
     }
@@ -160,4 +165,4 @@ const Recover = () => {
   );
 };
 
-export default Recover;
+export default Reset;

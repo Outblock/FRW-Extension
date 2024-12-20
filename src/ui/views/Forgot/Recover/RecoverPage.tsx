@@ -4,10 +4,10 @@ import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { LLPrimaryButton, CredentialBox, LLSecondaryButton } from 'ui/FRWComponent';
-import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
+import { LLPrimaryButton } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
-import CancelIcon from '../../../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../components/iconfont/IconClose';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {

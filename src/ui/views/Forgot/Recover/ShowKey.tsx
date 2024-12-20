@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import ResetModal from '@/ui/FRWComponent/PopupModal/resetModal';
 import { useWallet } from 'ui/utils';
 
-import IconCopy from '../../../../../components/iconfont/IconCopy';
+import IconCopy from '../../../../components/iconfont/IconCopy';
 
 const ShowKey = ({ handleSwitchTab, mnemonic }) => {
   const usewallet = useWallet();
