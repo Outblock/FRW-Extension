@@ -13,7 +13,7 @@ import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
 import ImportTabs from './ImportTabs';
-import RecoverPassword from './RecoverPassword';
+import RecoveryPassword from './RecoveryPassword';
 
 const STEPS = {
   IMPORT: 'import',
@@ -178,7 +178,7 @@ const AccountImport = () => {
         )}
 
         {activeTab === STEPS.RECOVER_PASSWORD && (
-          <RecoverPassword
+          <RecoveryPassword
             handleSwitchTab={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
             mnemonic={mnemonic}
             pk={pk}

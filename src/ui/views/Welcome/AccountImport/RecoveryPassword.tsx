@@ -128,7 +128,7 @@ const PasswordIndicator = (props) => {
   );
 };
 
-const SetPassword = ({ handleSwitchTab, mnemonic, pk, tempPassword, goLast, accountKey }) => {
+const RecoveryPassword = ({ handleSwitchTab, mnemonic, pk, tempPassword, goLast, accountKey }) => {
   const classes = useStyles();
   const usewallet = useWallet();
 
@@ -316,4 +316,4 @@ const SetPassword = ({ handleSwitchTab, mnemonic, pk, tempPassword, goLast, acco
   );
 };
 
-export default SetPassword;
+export default RecoveryPassword;
