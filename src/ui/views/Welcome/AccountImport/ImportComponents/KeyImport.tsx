@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { useWallet } from '@/ui/utils/WalletContext';
 import { LLSpinner } from 'ui/FRWComponent';
 
-import { KEY_TYPE } from '../../../utils/modules/constants';
+import { KEY_TYPE } from '../../../../utils/modules/constants';
 
 const useStyles = makeStyles((theme) => ({
   form: {

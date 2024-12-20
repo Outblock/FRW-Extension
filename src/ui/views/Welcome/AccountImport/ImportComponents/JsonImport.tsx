@@ -14,8 +14,8 @@ import React, { useState } from 'react';
 import { useWallet } from '@/ui/utils/WalletContext';
 import { LLSpinner } from 'ui/FRWComponent';
 
-import ErrorModel from '../../../FRWComponent/PopupModal/errorModel';
-import { KEY_TYPE } from '../../../utils/modules/constants';
+import ErrorModel from '../../../../FRWComponent/PopupModal/errorModel';
+import { KEY_TYPE } from '../../../../utils/modules/constants';
 
 const useStyles = makeStyles(() => ({
   form: {

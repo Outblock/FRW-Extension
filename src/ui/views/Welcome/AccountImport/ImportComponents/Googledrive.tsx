@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { LLSpinner } from '@/ui/FRWComponent';
 import { useWallet } from '@/ui/utils';
 
-import IconGoogleDrive from '../../../../components/iconfont/IconGoogleDrive';
+import IconGoogleDrive from '../../../../../components/iconfont/IconGoogleDrive';
 
 const useStyles = makeStyles(() => ({
   form: {
@@ -31,7 +31,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Googledrive = ({ setErrorMessage, setShowError }) => {
+const Googledrive = ({ setErrorMessage, setShowError, handleGoogleAccountsFound }) => {
   const classes = useStyles();
   const wallets = useWallet();
   const history = useHistory();
@@ -47,12 +47,7 @@ const Googledrive = ({ setErrorMessage, setShowError }) => {
       localStorage.setItem('backupAccounts', JSON.stringify(accounts));
 
       if (accounts.length > 0) {
-        history.push({
-          pathname: '/welcome/accountimport/google',
-          state: {
-            accounts: accounts,
-          },
-        });
+        handleGoogleAccountsFound(accounts);
       } else {
         setShowError(true);
         setErrorMessage(chrome.i18n.getMessage('No__backup__found'));

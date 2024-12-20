@@ -6,7 +6,6 @@ import Recover from './Forgot/Recover';
 import Reset from './Forgot/Reset';
 import Welcome from './Welcome';
 import AccountImport from './Welcome/AccountImport';
-import Google from './Welcome/AccountImport/Google';
 import Register from './Welcome/Register';
 import Sync from './Welcome/Sync';
 
@@ -28,7 +27,6 @@ export const Landing: React.FC = () => {
         <Route exact path="/forgot" component={Forgot} />
         <Route exact path="/forgot/recover" component={Recover} />
         <Route exact path="/forgot/reset" component={Reset} />
-        <Route exact path="/welcome/accountimport/google" component={Google} />
       </Switch>
     </div>
   );

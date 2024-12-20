@@ -2,12 +2,12 @@ import { Box, Tabs, Tab, Typography } from '@mui/material';
 import React, { useState } from 'react';
 
 import { storage } from '@/background/webapi';
-import Googledrive from '@/ui/FRWComponent/LandingPages/ImportComponents/Googledrive';
-import JsonImport from '@/ui/FRWComponent/LandingPages/ImportComponents/JsonImport';
-import KeyImport from '@/ui/FRWComponent/LandingPages/ImportComponents/KeyImport';
-import SeedPhraseImport from '@/ui/FRWComponent/LandingPages/ImportComponents/SeedPhraseImport';
 import ErrorModel from '@/ui/FRWComponent/PopupModal/errorModel';
 import { useWallet } from '@/ui/utils';
+import Googledrive from '@/ui/views/Welcome/AccountImport/ImportComponents/Googledrive';
+import JsonImport from '@/ui/views/Welcome/AccountImport/ImportComponents/JsonImport';
+import KeyImport from '@/ui/views/Welcome/AccountImport/ImportComponents/KeyImport';
+import SeedPhraseImport from '@/ui/views/Welcome/AccountImport/ImportComponents/SeedPhraseImport';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -37,6 +37,7 @@ const ImportTabs = ({
   handleSwitchTab,
   setErrorMessage,
   setShowError,
+  handleGoogleAccountsFound,
 }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [mnemonicValid, setMnemonicValid] = useState(true);
@@ -105,7 +106,11 @@ const ImportTabs = ({
         <Tab sx={sxStyles} label={chrome.i18n.getMessage('Private_Key')} />
       </Tabs>
       <TabPanel value={selectedTab} index={0}>
-        <Googledrive setErrorMessage={setErrorMessage} setShowError={setShowError} />
+        <Googledrive
+          setErrorMessage={setErrorMessage}
+          setShowError={setShowError}
+          handleGoogleAccountsFound={handleGoogleAccountsFound}
+        />
       </TabPanel>
       <TabPanel value={selectedTab} index={1}>
         <JsonImport

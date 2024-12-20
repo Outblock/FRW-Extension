@@ -12,6 +12,7 @@ import { useNavigation } from '@/ui/utils/landingPage';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
+import Google from './Google';
 import ImportTabs from './ImportTabs';
 import RecoveryPassword from './RecoveryPassword';
 
@@ -41,6 +42,8 @@ const AccountImport = () => {
   const [errMessage, setErrorMessage] = useState(chrome.i18n.getMessage('No__backup__found'));
   const [showError, setShowError] = useState(false);
   const [activeTab, setActiveTab] = useState<StepType>(STEPS.IMPORT);
+  const [showGoogleImport, setShowGoogleImport] = useState(false);
+  const [googleAccounts, setGoogleAccounts] = useState<string[]>([]);
 
   const getUsername = (username: string) => {
     setUsername(username.toLowerCase());
@@ -134,78 +137,92 @@ const AccountImport = () => {
     }
   };
 
+  const handleGoogleAccountsFound = (accounts: string[]) => {
+    setGoogleAccounts(accounts);
+    setShowGoogleImport(true);
+  };
+
   return (
-    <LandingComponents
-      activeIndex={Object.values(STEPS).indexOf(activeTab)}
-      direction="right"
-      showBackButton={activeTab !== STEPS.ALL_SET}
-      onBack={goBack}
-      showConfetti={activeTab === STEPS.ALL_SET}
-      showRegisterHeader={true}
-    >
-      <Box>
-        {activeTab === STEPS.IMPORT && (
-          <ImportTabs
-            setMnemonic={setMnemonic}
-            setPk={setPk}
-            setAccounts={setAccounts}
-            accounts={accounts}
-            mnemonic={mnemonic}
-            pk={pk}
-            setUsername={setUsername}
-            goPassword={() => setActiveTab(STEPS.RECOVER_PASSWORD)}
-            handleSwitchTab={() => setActiveTab(STEPS.PICK_USERNAME)}
-            setErrorMessage={setErrorMessage}
-            setShowError={setShowError}
-          />
-        )}
+    <Box>
+      {!showGoogleImport ? (
+        <LandingComponents
+          activeIndex={Object.values(STEPS).indexOf(activeTab)}
+          direction="right"
+          showBackButton={activeTab !== STEPS.ALL_SET}
+          onBack={goBack}
+          showConfetti={activeTab === STEPS.ALL_SET}
+          showRegisterHeader={true}
+        >
+          <Box>
+            <>
+              {activeTab === STEPS.IMPORT && (
+                <ImportTabs
+                  setMnemonic={setMnemonic}
+                  setPk={setPk}
+                  setAccounts={setAccounts}
+                  accounts={accounts}
+                  mnemonic={mnemonic}
+                  pk={pk}
+                  setUsername={setUsername}
+                  goPassword={() => setActiveTab(STEPS.RECOVER_PASSWORD)}
+                  handleSwitchTab={() => setActiveTab(STEPS.PICK_USERNAME)}
+                  setErrorMessage={setErrorMessage}
+                  setShowError={setShowError}
+                  handleGoogleAccountsFound={handleGoogleAccountsFound}
+                />
+              )}
 
-        {activeTab === STEPS.PICK_USERNAME && (
-          <PickUsername
-            handleSwitchTab={() => setActiveTab(STEPS.SET_PASSWORD)}
-            savedUsername={username}
-            getUsername={getUsername}
-          />
-        )}
+              {activeTab === STEPS.PICK_USERNAME && (
+                <PickUsername
+                  handleSwitchTab={() => setActiveTab(STEPS.SET_PASSWORD)}
+                  savedUsername={username}
+                  getUsername={getUsername}
+                />
+              )}
 
-        {activeTab === STEPS.SET_PASSWORD && (
-          <SetPassword
-            handleSwitchTab={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
-            onSubmit={submitPassword}
-            tempPassword={tempPassword}
-            isLogin={true}
-          />
-        )}
+              {activeTab === STEPS.SET_PASSWORD && (
+                <SetPassword
+                  handleSwitchTab={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
+                  onSubmit={submitPassword}
+                  tempPassword={tempPassword}
+                  isLogin={true}
+                />
+              )}
 
-        {activeTab === STEPS.RECOVER_PASSWORD && (
-          <RecoveryPassword
-            handleSwitchTab={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
-            mnemonic={mnemonic}
-            pk={pk}
-            tempPassword={tempPassword}
-            goLast={() => setActiveTab(STEPS.ALL_SET)}
-            accountKey={accounts}
-          />
-        )}
+              {activeTab === STEPS.RECOVER_PASSWORD && (
+                <RecoveryPassword
+                  handleSwitchTab={() => setActiveTab(STEPS.GOOGLE_BACKUP)}
+                  mnemonic={mnemonic}
+                  pk={pk}
+                  tempPassword={tempPassword}
+                  goLast={() => setActiveTab(STEPS.ALL_SET)}
+                  accountKey={accounts}
+                />
+              )}
 
-        {activeTab === STEPS.GOOGLE_BACKUP && (
-          <GoogleBackup
-            handleSwitchTab={() => setActiveTab(STEPS.ALL_SET)}
-            mnemonic={mnemonic}
-            username={username}
-            password={password}
-          />
-        )}
+              {activeTab === STEPS.GOOGLE_BACKUP && (
+                <GoogleBackup
+                  handleSwitchTab={() => setActiveTab(STEPS.ALL_SET)}
+                  mnemonic={mnemonic}
+                  username={username}
+                  password={password}
+                />
+              )}
 
-        {activeTab === STEPS.ALL_SET && <AllSet handleSwitchTab={() => window.close()} />}
-      </Box>
+              {activeTab === STEPS.ALL_SET && <AllSet handleSwitchTab={() => window.close()} />}
+            </>
+          </Box>
 
-      <Snackbar open={showError} autoHideDuration={3000} onClose={handleErrorClose}>
-        <Alert onClose={handleErrorClose} severity="error" sx={{ width: '100%' }}>
-          {errMessage}
-        </Alert>
-      </Snackbar>
-    </LandingComponents>
+          <Snackbar open={showError} autoHideDuration={3000} onClose={handleErrorClose}>
+            <Alert onClose={handleErrorClose} severity="error" sx={{ width: '100%' }}>
+              {errMessage}
+            </Alert>
+          </Snackbar>
+        </LandingComponents>
+      ) : (
+        <Google accounts={googleAccounts} onBack={() => setShowGoogleImport(false)} />
+      )}
+    </Box>
   );
 };
 

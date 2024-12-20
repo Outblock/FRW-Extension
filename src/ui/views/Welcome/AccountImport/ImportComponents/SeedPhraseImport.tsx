@@ -5,8 +5,8 @@ import React, { useState } from 'react';
 import { useWallet } from '@/ui/utils/WalletContext';
 import { LLSpinner } from 'ui/FRWComponent';
 
-import KeyPathInput from '../../../FRWComponent/KeyPathInputs';
-import { KEY_TYPE } from '../../../utils/modules/constants';
+import KeyPathInput from '../../../../FRWComponent/KeyPathInputs';
+import { KEY_TYPE } from '../../../../utils/modules/constants';
 
 const useStyles = makeStyles(() => ({
   form: {

@@ -25,12 +25,14 @@ interface AccountsState {
   accounts: string[];
 }
 
-const Google = () => {
-  const location = useLocation<AccountsState>();
-  const history = useHistory();
+interface GoogleProps {
+  accounts: string[];
+  onBack: () => void;
+}
+
+const Google: React.FC<GoogleProps> = ({ accounts, onBack }) => {
   const [activeTab, setActiveTab] = useState<StepType>(STEPS.ACCOUNTS);
   const [mnemonic, setMnemonic] = useState('');
-  const [accounts, setAccounts] = useState<string[]>([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -41,15 +43,9 @@ const Google = () => {
     }
   }, []);
 
-  const getGoogleAccounts = useCallback(async () => {
-    const users = location?.state?.accounts;
-    setAccounts(users);
-  }, [location?.state?.accounts]);
-
   useEffect(() => {
-    getGoogleAccounts();
     loadTempPassword();
-  }, [getGoogleAccounts, loadTempPassword]);
+  }, [loadTempPassword]);
 
   const goBack = () => {
     switch (activeTab) {
@@ -66,7 +62,7 @@ const Google = () => {
         setActiveTab(STEPS.PASSWORD);
         break;
       default:
-        history.goBack();
+        onBack();
     }
   };
 
