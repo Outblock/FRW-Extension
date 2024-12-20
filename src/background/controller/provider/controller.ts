@@ -1,4 +1,3 @@
-import { TypedDataUtils, SignTypedDataVersion, normalize } from '@metamask/eth-sig-util';
 import * as fcl from '@onflow/fcl';
 import BigNumber from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
@@ -143,6 +142,41 @@ async function signTypeData(msgParams, opts = {}) {
 
   return '0x' + toHexString(encodedProof);
 }
+
+const SignTypedDataVersion = {
+  V1: 'V1',
+  V3: 'V3',
+  V4: 'V4',
+} as const;
+
+function normalize(input: string): string {
+  return input.toLowerCase();
+}
+
+const TypedDataUtils = {
+  eip712Hash(message: any, version: string): Buffer {
+    const types = { ...message.types };
+    delete types.EIP712Domain;
+
+    const primaryType = message.primaryType || 'OrderComponents';
+
+    const encoder = new ethers.TypedDataEncoder({
+      [primaryType]: types[primaryType],
+      ...types,
+    });
+
+    const domainSeparator = ethers.TypedDataEncoder.hashDomain(message.domain);
+    const hashStruct = encoder.hash(message.message);
+
+    const encodedData = ethers.concat([
+      Buffer.from('1901', 'hex'),
+      Buffer.from(domainSeparator.slice(2), 'hex'),
+      Buffer.from(hashStruct.slice(2), 'hex'),
+    ]);
+
+    return Buffer.from(ethers.keccak256(encodedData).slice(2), 'hex');
+  },
+};
 
 class ProviderController extends BaseController {
   ethRpc = async (data): Promise<any> => {
