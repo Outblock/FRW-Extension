@@ -4,12 +4,12 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
+import RecoveryPhrase from '@/ui/FRWComponent/LandingPages/RecoveryPhrase';
 import { storage } from 'background/webapi';
 
 import DecryptWallet from './DecryptWallet';
 import GoogleAccounts from './GoogleAccounts';
-import RecoveryPassword from './RecoverPassword';
-import RecoveryPhrase from './RecoveryPhrase';
+import RecoveryPassword from './GoogleRecoverPassword';
 
 const STEPS = {
   ACCOUNTS: 'accounts',

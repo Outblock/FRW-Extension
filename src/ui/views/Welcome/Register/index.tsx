@@ -8,12 +8,11 @@ import AllSet from '@/ui/FRWComponent/LandingPages/AllSet';
 import GoogleBackup from '@/ui/FRWComponent/LandingPages/GoogleBackup';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
 import PickUsername from '@/ui/FRWComponent/LandingPages/PickUsername';
+import RecoveryPhrase from '@/ui/FRWComponent/LandingPages/RecoveryPhrase';
 import RepeatPhrase from '@/ui/FRWComponent/LandingPages/RepeatPhrase';
 import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
-
-import RecoveryPhrase from './RecoveryPhrase';
 
 const STEPS = {
   USERNAME: 'username',
