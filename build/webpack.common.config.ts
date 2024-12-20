@@ -1,19 +1,16 @@
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const ESLintWebpackPlugin = require('eslint-webpack-plugin');
-// const tsImportPluginFactory = require('ts-import-plugin');
-const AssetReplacePlugin = require('./plugins/AssetReplacePlugin');
-const FirebaseFixPlugin = require('./plugins/FirebaseFixPlugin');
-const { version } = require('../_raw/manifest.json');
-const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const fs = require('fs');
+import fs from 'fs';
+import path from 'path';
 
-const paths = require('./paths');
+import CopyPlugin from 'copy-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import webpack from 'webpack';
 
-const config = (env) => {
-  console.log('env', env);
+import packageJson from '../package.json';
+
+import paths from './paths';
+const { version } = packageJson;
+
+const config = (env: { config: 'dev' | 'pro' | 'none' }): webpack.Configuration => {
   const isDevelopment = env.config === 'dev';
   const devToolsExists =
     isDevelopment && fs.existsSync(path.resolve(__dirname, '../_raw/react-devtools.js'));
@@ -105,19 +102,6 @@ const config = (env) => {
             name: '[name].[ext]',
           },
         },
-        // {
-        //   test: /\.wasm$/,
-        //   include: path.resolve(__dirname, 'node_modules/@trustwallet/wallet-core/dist/lib'),
-        //   use: [{
-        //     loader: 'file-loader',
-        //     options: {
-        //       name: '[name].[ext]',
-        //       outputPath: '/',
-        //     },
-        //   }],
-        //   type: 'javascript/auto',
-
-        // },
         {
           test: /\.wasm$/,
           type: 'webassembly/async',
@@ -142,10 +126,6 @@ const config = (env) => {
       ],
     },
     plugins: [
-      new FirebaseFixPlugin(),
-      // new ESLintWebpackPlugin({
-      //   files: '**/*.{ts,tsx,js,jsx}',
-      // }),
       new CopyPlugin({
         patterns: [
           {
@@ -187,9 +167,6 @@ const config = (env) => {
         process: 'process',
         dayjs: 'dayjs',
       }),
-      // new AssetReplacePlugin({
-      //   '#PAGEPROVIDER#': 'pageProvider',
-      // }),
       new webpack.DefinePlugin({
         'process.env.version': JSON.stringify(`version: ${version}`),
         'process.env.release': JSON.stringify(version),
@@ -198,10 +175,13 @@ const config = (env) => {
     resolve: {
       alias: {
         moment: require.resolve('dayjs'),
-        // Forces all cross-fetch imports to use the same instance
         'cross-fetch': require.resolve('cross-fetch'),
+        '@': paths.rootResolve('src'),
+        ui: paths.rootResolve('src/ui'),
+        background: paths.rootResolve('src/background'),
+        consts: paths.rootResolve('src/constant/index'),
       },
-      plugins: [new TsconfigPathsPlugin()],
+      plugins: [],
       fallback: {
         // Removes polyfills that were interfering with native fetch
         http: false,
@@ -219,4 +199,4 @@ const config = (env) => {
   };
 };
 
-module.exports = config;
+export default config;

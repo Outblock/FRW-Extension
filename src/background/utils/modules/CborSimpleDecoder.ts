@@ -1,5 +1,3 @@
-/* eslint-disable no-case-declarations */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 const PositiveInteger = 0;
 const NegativeInteger = 1;
@@ -64,26 +62,26 @@ class Header {
 }
 
 export class CborSimpleDecoder {
-  static readHeader(reader) {
+  static readHeader(reader: BinaryReader): Header {
     if (!(reader instanceof BinaryReader)) throw new TypeError();
     const h = reader.readUInt8();
     const header = new Header(h);
     if (header.information >= 0 && header.information <= 23) {
       header.length = header.information;
-    } else if (header.information == 24) {
+    } else if (header.information === 24) {
       header.length = reader.readUInt8();
-    } else if (header.information == 25) {
+    } else if (header.information === 25) {
       header.length = reader.readUInt16();
-    } else if (header.information == 26) {
+    } else if (header.information === 26) {
       header.length = reader.readUInt32();
-    } else if (header.information == 27) {
+    } else if (header.information === 27) {
       header.length = reader.readUInt64();
     } else {
       throw new Error(`not implemented: major=${header.major} information=${header.information}`);
     }
     return header;
   }
-  static readObject(reader) {
+  static readObject(reader: BinaryReader) {
     if (!(reader instanceof BinaryReader)) throw new TypeError();
     const header = CborSimpleDecoder.readHeader(reader);
     switch (header.major) {

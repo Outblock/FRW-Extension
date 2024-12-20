@@ -1318,6 +1318,9 @@
   "Insufficient_Storage": {
     "message": "ストレージが不足しています"
   },
+  "Almost_run_out_of_account_storage": {
+    "message": "アカウントのストレージが不足しています"
+  },
   "Transaction_failed_storage_exceeded": {
     "message": "取引が失敗しました。アカウントのストレージ使用量により、アカウントの最低FLOW残高を下回ったためです。"
   },

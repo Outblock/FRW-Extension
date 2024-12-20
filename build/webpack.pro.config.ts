@@ -1,13 +1,11 @@
-const webpack = require('webpack');
-const path = require('path');
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const Dotenv = require('dotenv-webpack');
+import Dotenv from 'dotenv-webpack';
+import webpack from 'webpack';
 
-const config = {
+const config: webpack.Configuration = {
   mode: 'production',
   devtool: false,
   cache: {
-    type: 'filesystem',
+    type: 'filesystem' as const,
   },
   performance: {
     maxEntrypointSize: 2500000,
@@ -35,4 +33,4 @@ const config = {
   },
 };
 
-module.exports = config;
+export default config;

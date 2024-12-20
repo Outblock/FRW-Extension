@@ -1318,6 +1318,9 @@
   "Insufficient_Storage": {
     "message": "Недостаточно памяти"
   },
+  "Almost_run_out_of_account_storage": {
+    "message": "В вашем аккаунте недостаточно места для хранения данных"
+  },
   "Transaction_failed_storage_exceeded": {
     "message": "Ваша транзакция не выполнена, так как ваш баланс упал ниже минимального значения FLOW для использования памяти вашего аккаунта."
   },
