@@ -51,7 +51,7 @@ export const LLNotFound = ({ setShowDialog }) => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => history.push('/recover')}
+            onClick={() => history.push('/welcome')}
             disableElevation
             fullWidth
             sx={{

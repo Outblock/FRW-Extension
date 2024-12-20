@@ -13,7 +13,7 @@ export const WarningStorageLowSnackbar = ({
   isLowStorageAfterAction,
 }: WarningStorageLowSnackbarProps = {}) => {
   const message = isLowStorage
-    ? chrome.i18n.getMessage('Insufficient_storage')
+    ? chrome.i18n.getMessage('Almost_run_out_of_account_storage')
     : isLowStorageAfterAction
       ? chrome.i18n.getMessage('Insufficient_storage_after_action')
       : undefined;

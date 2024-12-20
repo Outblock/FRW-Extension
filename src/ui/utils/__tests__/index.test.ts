@@ -1,4 +1,3 @@
-// Import from the mocked module
 import { HexToDecimalConverter } from '../../utils';
 
 describe('HexToDecimalConverter', () => {

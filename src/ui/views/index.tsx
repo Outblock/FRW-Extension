@@ -12,7 +12,7 @@ import { WalletProvider, useWallet } from 'ui/utils';
 
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
-import { MainRoute } from './MainRoute';
+import { Landing } from './Landing';
 import RetrievePK from './RetrievePK';
 import SortHat from './SortHat';
 import SwitchUnlock from './SwitchUnlock';
@@ -33,11 +33,10 @@ const Routes = () => {
       <Route exact path="/">
         <SortHat />
       </Route>
-      {/* <Route exact path="/reset" component={Reset} /> */}
       <Route exact path="/unlock" component={Unlock} />
       <Route exact path="/switchunlock" component={SwitchUnlock} />
       <Route exact path="/retrieve" component={RetrievePK} />
-      <MainRoute />
+      <Landing />
       <Route path="/dashboard">
         <InnerRoute />
       </Route>
