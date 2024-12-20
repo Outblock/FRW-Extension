@@ -63,7 +63,7 @@ const Forgot = () => {
             <Button
               variant="contained"
               component={Link}
-              to="/resetpage"
+              to="/forgot/reset"
               size="large"
               sx={{
                 display: 'flex',
@@ -118,7 +118,7 @@ const Forgot = () => {
             <Button
               variant="contained"
               component={Link}
-              to="/recoverpage"
+              to="/forgot/recover"
               size="large"
               sx={{
                 display: 'flex',
