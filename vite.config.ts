@@ -1,87 +1,189 @@
+import fs from 'fs';
 import path from 'path';
 
-import { crx } from '@crxjs/vite-plugin';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { mergeConfig, defineConfig, type ConfigEnv, type UserConfig } from 'vite';
+import { createHtmlPlugin } from 'vite-plugin-html';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
+import svgr from 'vite-plugin-svgr';
 
-// import manifest from './_raw/manifest.json';
-const manifest = {
-  manifest_version: 3,
-  name: 'FlowWallet-dev',
-  short_name: '__MSG_appName__',
-  version: '2.6.3',
-  default_locale: 'en',
-  description: '__MSG_appDescription__',
-  icons: {
-    '16': 'images/icon-16.png',
-    '19': 'images/icon-19.png',
-    '32': 'images/icon-32.png',
-    '38': 'images/icon-38.png',
-    '48': 'images/icon-48.png',
-    '64': 'images/icon-64.png',
-    '128': 'images/icon-128.png',
-    '512': 'images/icon-512.png',
-  },
-  action: {
-    default_icon: {
-      '16': 'images/icon-16.png',
-      '19': 'images/icon-19.png',
-      '32': 'images/icon-32.png',
-      '48': 'images/icon-48.png',
-      '128': 'images/icon-128.png',
+import packageJson from './package.json';
+
+const { version } = packageJson;
+
+const __dirname = process.cwd();
+
+// Base configuration that's shared between all modes
+const baseConfig = (env: ConfigEnv): UserConfig => {
+  const isDevelopment = env.mode === 'development';
+  const devToolsExists =
+    isDevelopment && fs.existsSync(path.resolve(process.cwd(), '_raw/react-devtools.js'));
+
+  const templateData = {
+    devMode: isDevelopment,
+    hasDevTools: devToolsExists,
+  };
+
+  return {
+    plugins: [
+      react(),
+      svgr(),
+      createHtmlPlugin({
+        minify: !isDevelopment,
+        pages: [
+          {
+            filename: 'popup.html',
+            template: 'src/ui/popup.html',
+            entry: '/src/ui/index.tsx',
+            injectOptions: {
+              data: templateData,
+            },
+          },
+          {
+            filename: 'notification.html',
+            template: 'src/ui/notification.html',
+            entry: '/src/ui/index.tsx',
+            injectOptions: {
+              data: templateData,
+            },
+          },
+          {
+            filename: 'index.html',
+            template: 'src/ui/index.html',
+            entry: '/src/ui/index.tsx',
+            injectOptions: {
+              data: templateData,
+            },
+          },
+        ],
+      }),
+      viteStaticCopy({
+        targets: [
+          {
+            src: 'node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm',
+            dest: '.',
+          },
+          {
+            src: '_raw/manifest.json',
+            dest: '.',
+          },
+          {
+            src: 'src/ui/assets',
+            dest: '.',
+          },
+        ],
+      }),
+    ],
+    build: {
+      emptyOutDir: true,
+      target: 'modules',
+      modulePreload: false,
+      reportCompressedSize: false,
+      rollupOptions: {
+        input: {
+          background: path.resolve(__dirname, 'src/background/index.ts'),
+          'content-script': path.resolve(__dirname, 'src/content-script/index.ts'),
+          ui: path.resolve(__dirname, 'src/ui/index.tsx'),
+          script: path.resolve(__dirname, 'src/content-script/script.js'),
+        },
+        output: {
+          dir: 'dist',
+          entryFileNames: (chunk) => {
+            return chunk.name === 'background' ? 'background.js' : '[name].js';
+          },
+          chunkFileNames: '[name].js',
+          assetFileNames: 'assets/[name].[ext]',
+          inlineDynamicImports: false,
+          generatedCode: {
+            constBindings: true,
+          },
+        },
+      },
+      minify: 'terser',
+      terserOptions: {
+        format: {
+          comments: false,
+        },
+        compress: {
+          drop_console: !isDevelopment,
+          passes: 2,
+        },
+        mangle: {
+          keep_fnames: true,
+          keep_classnames: true,
+        },
+      },
     },
-    default_popup: 'src/ui/index.html',
-    default_title: 'Flow Wallet',
-  },
-  author: 'https://core.flow.com/',
-  background: {
-    service_worker: 'src/background',
-  },
-  content_scripts: [
-    {
-      js: ['src/content-script/index.ts', 'src/content-script/script.js'],
-      matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+        utils: path.resolve(__dirname, './src/utils'),
+        ui: path.resolve(__dirname, './src/ui'),
+        background: path.resolve(__dirname, './src/background'),
+        consts: path.resolve(__dirname, './src/constant'),
+        assets: path.resolve(__dirname, './src/ui/assets'),
+        moment: 'dayjs',
+        'cross-fetch': 'cross-fetch',
+      },
+      extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json'],
     },
+    define: {
+      'process.env.version': JSON.stringify(`version: ${version}`),
+      'process.env.release': JSON.stringify(version),
+      'process.env': {},
+    },
+  };
+};
+
+// Development-specific configuration
+const devConfig: UserConfig = {
+  mode: 'development',
+  envDir: '.',
+  envPrefix: 'VITE_',
+  build: {
+    sourcemap: 'inline',
+    watch: {
+      include: ['src/**'],
+      exclude: ['**/public/**', '**/node_modules/**'],
+    },
+  },
+  define: {
+    'process.env.BUILD_ENV': JSON.stringify('DEV'),
+  },
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: '_raw/react-devtools.js',
+          dest: '.',
+        },
+      ],
+    }),
   ],
-  content_security_policy: {
-    extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self' 'wasm-unsafe-eval';",
+};
+
+// Production-specific configuration
+const prodConfig: UserConfig = {
+  mode: 'production',
+  envDir: '.',
+  envPrefix: 'VITE_',
+  build: {
+    sourcemap: false,
+
+    chunkSizeWarningLimit: 2500,
   },
-  permissions: ['storage', 'activeTab', 'tabs', 'notifications', 'identity', 'camera'],
-  web_accessible_resources: [
-    {
-      resources: ['node_modules/@trustwallet/wallet-core/dist/lib/wallet-core.wasm'],
-      matches: ['<all_urls>'],
-    },
-    {
-      resources: ['src/content-script/script.js'],
-      matches: ['<all_urls>'],
-    },
-    {
-      resources: ['src/ui/index.html'],
-      matches: ['<all_urls>'],
-    },
-  ],
-  key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2jsG1AXKEZGJuZecVwBsajHj6MqNGvcM+X/zQCuvec85xmgTJun+MGLHNAOaulMx5tMDR7+t3wkV3FiNMYQUBeGMHNpIoWHt5hBwX1FSL5uTPQFjqueuagICOKK6CCPIe0hr9eCXKmbMPQvJbawdn/q7qsPMJiBwqnyTO0jOtSpQfKVRYs5Bf1xpleHeWLWCdxuBNBwthmLw2kcx7GibsqPXA233ZXcfyivHT7PvT9KrNEq7m55pu3ZZ1kihNxDXJQzoKkXgmiAUJivxNf9cGQ3242vZ52AQvVzeCIWBrBv974FTgrQMZ+gDscsXgWuV10nPAcuuYmPKWjuB0IBsGwIDAQAB',
-  oauth2: {
-    client_id: '246247206636-7gr0kikuns0bgo6kpkrievloqom1sfp1.apps.googleusercontent.com',
-    scopes: ['https://www.googleapis.com/auth/drive.appdata'],
+  define: {
+    'process.env.BUILD_ENV': JSON.stringify('PRO'),
+    'process.browser': true,
+    Buffer: ['buffer', 'Buffer'],
   },
 };
-export default defineConfig({
-  plugins: [react(), crx({ manifest })],
-  build: {
-    target: 'esnext',
-    modulePreload: false,
-  },
 
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      utils: path.resolve(__dirname, './src/utils'),
-      ui: path.resolve(__dirname, './src/ui'),
-      background: path.resolve(__dirname, './src/background'),
-      consts: path.resolve(__dirname, './src/constant'),
-      assets: path.resolve(__dirname, './src/ui/assets'),
-    },
-  },
+// Export the final configuration based on mode
+export default defineConfig((env: ConfigEnv) => {
+  const base = baseConfig(env);
+  if (env.mode === 'development') {
+    return mergeConfig(base, devConfig);
+  }
+  return mergeConfig(base, prodConfig);
 });

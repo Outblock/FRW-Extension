@@ -28,7 +28,8 @@
   },
   "author": "https://wallet.flow.com/",
   "background": {
-    "service_worker": "sw.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
