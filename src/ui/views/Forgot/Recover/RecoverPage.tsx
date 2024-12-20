@@ -4,8 +4,8 @@ import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { LLPrimaryButton, CredentialBox, LLSecondaryButton } from 'ui/FRWComponent';
-import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
+import { LLPrimaryButton } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
 import CancelIcon from '../../../../components/iconfont/IconClose';
 
@@ -61,7 +61,7 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
     }
   };
 
-  const handleClick = () => {
+  const handleSwitchTab = () => {
     setLoading(true);
     run(password);
   };
@@ -177,7 +177,7 @@ const RecoverPage = ({ dataArray, setArray, goNext }) => {
           // className="w-full block"\
           color="success"
           type="submit"
-          onClick={handleClick}
+          onClick={handleSwitchTab}
           fullWidth
           label={
             isLoading ? (

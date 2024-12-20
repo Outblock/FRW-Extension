@@ -42,7 +42,7 @@ import Resetpwd from './Setting/Resetpwd';
 import Security from './Setting/Security';
 import Settingone from './Setting/Settingone';
 import Switchaccount from './Setting/Switchaccount';
-import './MainRoute.css';
+import './Landing.css';
 import WalletList from './Setting/Wallet';
 import RemoveWallet from './Setting/Wallet/RemoveWallet';
 import WalletDetail from './Setting/Wallet/WalletDetail';

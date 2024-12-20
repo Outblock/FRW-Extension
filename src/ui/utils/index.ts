@@ -13,8 +13,6 @@ export * from './time';
 
 export * from './number';
 
-export * from './saveStorage';
-
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',
