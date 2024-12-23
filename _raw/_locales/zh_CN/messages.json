@@ -190,6 +190,9 @@
   "Testnet": {
     "message": "测试网"
   },
+  "Emulator": {
+    "message": "沙盒网"
+  },
   "Crescendo": {
     "message": "沙盒网"
   },

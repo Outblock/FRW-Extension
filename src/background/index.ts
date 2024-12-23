@@ -16,7 +16,7 @@ import { EVENTS } from 'consts';
 
 import { providerController, walletController } from './controller';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
-import { fclTestnetConfig, fclMainnetConfig } from './fclConfig';
+import { fclTestnetConfig, fclMainnetConfig, fclEmulatorConfig } from './fclConfig';
 import {
   permissionService,
   preferenceService,
@@ -98,6 +98,9 @@ async function fclSetup() {
       break;
     case 'testnet':
       await fclTestnetConfig();
+      break;
+    case 'emulator':
+      await fclEmulatorConfig();
       break;
   }
 }

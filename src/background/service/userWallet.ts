@@ -106,7 +106,7 @@ class UserWallet {
   };
 
   setUserWallets = async (filteredData, network) => {
-    console.log('filteredData ', filteredData);
+    console.log('userWalletService - setUserWallets - filteredData ', filteredData, network);
     this.store.wallets[network] = filteredData;
     let walletIndex = (await storage.get('currentWalletIndex')) || 0;
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {

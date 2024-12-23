@@ -119,11 +119,11 @@ const Header = ({ loading = false }) => {
   const { unreadCount } = useNews();
 
   const toggleDrawer = () => {
-    setDrawer(!drawer);
+    setDrawer((prevDrawer) => !prevDrawer);
   };
 
   const togglePop = () => {
-    setPop(!ispop);
+    setPop((prevPop) => !prevPop);
   };
 
   // News Drawer
@@ -351,6 +351,8 @@ const Header = ({ loading = false }) => {
         return '#FF8A00';
       case 'crescendo':
         return '#CCAF21';
+      case 'emulator':
+        return '#4A90E2';
     }
   };
 

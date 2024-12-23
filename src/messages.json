@@ -187,6 +187,9 @@
   "Testnet": {
     "message": "Testnet"
   },
+  "Emulator": {
+    "message": "Emulator"
+  },
   "Crescendo": {
     "message": "Crescendo"
   },

@@ -134,3 +134,17 @@ export const fclTestnetConfig = async () => {
     }
   }
 };
+
+// Configure FCL for Emulator
+export const fclEmulatorConfig = async () => {
+  const config = fcl
+    .config()
+    .put('accessNode.api', 'http://localhost:8888')
+    .put('sdk.transport', httpSend)
+    .put('flow.network', 'emulator')
+    // Default emulator account with contracts deployed
+    .put('0xFungibleToken', '0xee82856bf20e2aa6')
+    .put('0xFlowToken', '0x0ae53cb6e3f42a79')
+    .put('0xNonFungibleToken', '0xf8d6e0586b0a20c7')
+    .put('0xMetadataViews', '0xf8d6e0586b0a20c7');
+};

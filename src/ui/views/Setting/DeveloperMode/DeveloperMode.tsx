@@ -321,6 +321,40 @@ const DeveloperMode = () => {
                 )}
               </Box>
             </CardActionArea>
+
+            <Divider sx={{ width: '90%', margin: '0 auto' }} />
+
+            <CardActionArea
+              className={classes.modeSelection}
+              onClick={() => switchNetwork('emulator')}
+            >
+              <Box className={classes.checkboxRow}>
+                <FormControlLabel
+                  label={chrome.i18n.getMessage('Emulator')}
+                  control={
+                    <Checkbox
+                      size="small"
+                      icon={<CircleOutlinedIcon />}
+                      checkedIcon={<CheckCircleIcon sx={{ color: '#FF8A00' }} />}
+                      value="emulator"
+                      checked={currentNetwork === 'emulator'}
+                      onChange={() => switchNetwork('emulator')}
+                    />
+                  }
+                />
+
+                {currentNetwork === 'emulator' && (
+                  <Typography
+                    component="div"
+                    variant="body1"
+                    color="text.nonselect"
+                    sx={{ margin: 'auto 0' }}
+                  >
+                    {chrome.i18n.getMessage('Selected')}
+                  </Typography>
+                )}
+              </Box>
+            </CardActionArea>
           </Box>
 
           <Typography

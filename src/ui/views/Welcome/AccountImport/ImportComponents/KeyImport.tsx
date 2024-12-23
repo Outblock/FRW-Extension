@@ -43,7 +43,9 @@ const KeyImport = ({ onOpen, onImport, setPk, isSignLoading }) => {
       const inputValue = e.target[2].value;
       setPk(pk);
       const address = flowAddressRegex.test(inputValue) ? inputValue : null;
+      console.log('KeyImport - handleImport - address', address);
       const result = await usewallet.findAddressWithPrivateKey(pk, address);
+      console.log('KeyImport - handleImport - result', result);
       if (!result) {
         onOpen();
         return;

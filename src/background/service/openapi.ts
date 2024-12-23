@@ -1441,6 +1441,7 @@ class OpenApiService {
     const isProduction = process.env.NODE_ENV === 'production';
     let url;
 
+    const isEmulator = network === 'emulator';
     if (isProduction) {
       url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
     } else if (
@@ -1449,6 +1450,10 @@ class OpenApiService {
       (network === 'testnet' || network === 'mainnet')
     ) {
       url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`;
+    } else if (isEmulator) {
+      // TODO: remove this after emulator is ready
+      const emulatorNetwork = 'testnet';
+      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${emulatorNetwork}/${chainType}/emulator.json`;
     } else {
       url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
     }

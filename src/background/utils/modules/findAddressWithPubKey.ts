@@ -1,6 +1,6 @@
 import * as fcl from '@onflow/fcl';
 
-import { fclMainnetConfig, fclTestnetConfig } from 'background/fclConfig';
+import { fclEmulatorConfig, fclMainnetConfig, fclTestnetConfig } from 'background/fclConfig';
 import { userWalletService } from 'background/service';
 
 export const findAddressWithKey = async (pubKeyHex, address) => {
@@ -27,6 +27,8 @@ export const findAddressOnlyKey = async (pubKeyHex, network) => {
   let data;
   if (network === 'testnet') {
     data = await getAddressTestnet(pubKeyHex);
+  } else if (network === 'emulator') {
+    data = await getAddressEmulator(pubKeyHex);
   } else {
     data = await getAddressByIndexer(pubKeyHex);
   }
@@ -59,10 +61,19 @@ export async function getAddressTestnet(publicKey) {
   return json;
 }
 
+export async function getAddressEmulator(publicKey) {
+  const url = `http://localhost:8080/key/${publicKey}`;
+  const result = await fetch(url);
+  const json = await result.json();
+  return json;
+}
+
 const findAddres = async (address, pubKeyHex) => {
   const network = await userWalletService.getNetwork();
   if (network === 'testnet') {
     await fclTestnetConfig();
+  } else if (network === 'emulator') {
+    await fclEmulatorConfig();
   } else {
     await fclMainnetConfig();
   }

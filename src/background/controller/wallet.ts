@@ -51,14 +51,19 @@ import {
 import i18n from 'background/service/i18n';
 import { type DisplayedKeryring, KEYRING_CLASS } from 'background/service/keyring';
 import type { CacheState } from 'background/service/pageStateCache';
-import { getScripts } from 'background/utils';
+import {
+  getScripts,
+  checkEmulatorStatus,
+  checkEmulatorAccount,
+  createEmulatorAccount,
+} from 'background/utils';
 import emoji from 'background/utils/emoji.json';
 import fetchConfig from 'background/utils/remoteConfig';
 import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
-import { fclTestnetConfig, fclMainnetConfig } from '../fclConfig';
+import { fclTestnetConfig, fclMainnetConfig, fclEmulatorConfig } from '../fclConfig';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
@@ -3306,12 +3311,24 @@ export class WalletController extends BaseController {
   }
 
   switchNetwork = async (network: string) => {
+    if (network === 'emulator') {
+      const isEmulatorRunning = await checkEmulatorStatus();
+      console.log('isEmulatorRunning ', isEmulatorRunning);
+      if (!isEmulatorRunning) {
+        throw new Error(
+          'Flow emulator is not running. Please start it with `flow emulator start` and try again.'
+        );
+      }
+    }
+
     await userWalletService.setNetwork(network);
     eventBus.emit('switchNetwork', network);
     if (network === 'testnet') {
       await fclTestnetConfig();
     } else if (network === 'mainnet') {
       await fclMainnetConfig();
+    } else if (network === 'emulator') {
+      await fclEmulatorConfig();
     }
     this.refreshAll();
 
@@ -3406,6 +3423,9 @@ export class WalletController extends BaseController {
         case 'crescendo':
           baseURL = 'https://flow-view-source.vercel.app/crescendo';
           break;
+        case 'emulator':
+          baseURL = 'http://localhost:8888/flow/events'; // Flow emulator explorer endpoint
+          break;
       }
     }
 
@@ -3461,98 +3481,7 @@ export class WalletController extends BaseController {
     title = chrome.i18n.getMessage('Transaction__Sealed'),
     body = '',
     icon = chrome.runtime.getURL('./images/icon-64.png')
-  ) => {
-    if (!txId || !txId.match(/^0?x?[0-9a-fA-F]{64}/)) {
-      return;
-    }
-    const address = (await this.getCurrentAddress()) || '0x';
-    const network = await this.getNetwork();
-
-    try {
-      chrome.storage.session.set({
-        transactionPending: { txId, network, date: new Date() },
-      });
-      eventBus.emit('transactionPending');
-      chrome.runtime.sendMessage({
-        msg: 'transactionPending',
-        network: network,
-      });
-      transactionService.setPending(txId, address, network, icon, title);
-
-      // Listen to the transaction until it's sealed.
-      // This will throw an error if there is an error with the transaction
-      await fcl.tx(txId).onceSealed();
-
-      // Track the transaction result
-      mixpanelTrack.track('transaction_result', {
-        tx_id: txId,
-        is_successful: true,
-      });
-
-      try {
-        // Send a notification to the user only on success
-        if (sendNotification) {
-          const baseURL = this.getFlowscanUrl();
-          notification.create(`${baseURL}/transaction/${txId}`, title, body, icon);
-        }
-      } catch (err: unknown) {
-        // We don't want to throw an error if the notification fails
-        console.error('listenTransaction notification error ', err);
-      }
-    } catch (err: unknown) {
-      // An error has occurred while listening to the transaction
-      let errorMessage = 'unknown error';
-      let errorCode: number | undefined = undefined;
-
-      if (err instanceof TransactionError) {
-        errorCode = err.code;
-        errorMessage = err.message;
-      } else {
-        if (err instanceof Error) {
-          errorMessage = err.message;
-        } else if (typeof err === 'string') {
-          errorMessage = err;
-        }
-        // From fcl-core transaction-error.ts
-        const ERROR_CODE_REGEX = /\[Error Code: (\d+)\]/;
-        const match = errorMessage.match(ERROR_CODE_REGEX);
-        errorCode = match ? parseInt(match[1], 10) : undefined;
-      }
-
-      console.warn({
-        msg: 'transactionError',
-        errorMessage,
-        errorCode,
-      });
-
-      // Track the transaction error
-      mixpanelTrack.track('transaction_result', {
-        tx_id: txId,
-        is_successful: false,
-        error_message: errorMessage,
-      });
-
-      // Tell the UI that there was an error
-      chrome.runtime.sendMessage({
-        msg: 'transactionError',
-        errorMessage,
-        errorCode,
-      });
-    } finally {
-      // Remove the pending transaction from the UI
-      await chrome.storage.session.remove('transactionPending');
-      transactionService.removePending(txId, address, network);
-
-      // Refresh the transaction list
-      this.refreshTransaction(address, 15, 0);
-
-      // Tell the UI that the transaction is done
-      eventBus.emit('transactionDone');
-      chrome.runtime.sendMessage({
-        msg: 'transactionDone',
-      });
-    }
-  };
+  ) => {};
 
   getNFTListCahce = async (): Promise<NFTData> => {
     const network = await this.getNetwork();
@@ -3728,6 +3657,7 @@ export class WalletController extends BaseController {
   };
 
   getCadenceScripts = async () => {
+    console.log('getCadenceScripts');
     try {
       const cadenceScrpts = await storage.get('cadenceScripts');
       const now = new Date();
@@ -3739,6 +3669,7 @@ export class WalletController extends BaseController {
         now.getTime() <= cadenceScrpts['expiry'] &&
         cadenceScrpts.network === network
       ) {
+        console.log('returning cached scripts', cadenceScrpts['data']);
         return cadenceScrpts['data'];
       }
 
@@ -3746,9 +3677,10 @@ export class WalletController extends BaseController {
       // const cadencev1 = (await openapiService.cadenceScripts(network)) ?? {};
 
       const cadenceScriptsV2 = (await openapiService.cadenceScriptsV2()) ?? {};
+      console.log('cadenceScriptsV2', cadenceScriptsV2);
       // const { scripts, version } = cadenceScriptsV2;
       // const cadenceVersion = cadenceScriptsV2.version;
-      const cadence = cadenceScriptsV2.scripts[network];
+      const cadence = cadenceScriptsV2.scripts[network === 'emulator' ? 'testnet' : network];
 
       // for (const item of cadence) {
       //   console.log(cadenceVersion, 'cadenceVersion');

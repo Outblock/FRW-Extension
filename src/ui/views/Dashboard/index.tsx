@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { LLEmulatorIndicator } from '@/ui/FRWComponent/LLEmulatorIndicator';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 import { LLTestnetIndicator } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -108,6 +109,8 @@ const Dashboard = ({ value, setValue }) => {
         }}
       >
         {currentNetwork === 'testnet' && value === 0 && <LLTestnetIndicator />}
+        {currentNetwork === 'emulator' && value === 0 && <LLEmulatorIndicator />}
+
         {/* <Header loading={loading} /> */}
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}

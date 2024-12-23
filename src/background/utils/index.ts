@@ -4,6 +4,7 @@ import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
 
 const { version } = packageJson;
+import { userWalletService } from '../service';
 import { mixpanelTrack } from '../service/mixpanel';
 import pageStateCache from '../service/pageStateCache';
 
@@ -97,9 +98,74 @@ export const isSameAddress = (a: string, b: string) => {
   return a.toLowerCase() === b.toLowerCase();
 };
 
+export const checkEmulatorStatus = async (): Promise<boolean> => {
+  try {
+    const response = await fetch('http://localhost:8888/v1/blocks?height=1');
+    console.log('checkEmulatorStatus - response ', response);
+    const data = await response.json();
+    console.log('checkEmulatorStatus - data ', data);
+    return !!data[0].block_status;
+  } catch (error) {
+    console.error('checkEmulatorAccount - error ', error);
+
+    return false;
+  }
+};
+
+export const checkEmulatorAccount = async (address: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`http://localhost:8888/v1/accounts/${address}`);
+    const data = await response.json();
+    return !!data.address;
+  } catch (error) {
+    console.error('checkEmulatorAccount - error ', error);
+    return false;
+  }
+};
+
+export const createEmulatorAccount = async (publicKey: string): Promise<string> => {
+  try {
+    const response = await fetch('http://localhost:8888/v1/accounts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        signer: '0xf8d6e0586b0a20c7', // Service account
+        keys: [
+          {
+            publicKey: publicKey,
+            signAlgo: 2, // ECDSA_P256
+            hashAlgo: 3, // SHA3_256
+            weight: 1000,
+          },
+        ],
+        contracts: {},
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.address) {
+      throw new Error('Failed to create emulator account');
+    }
+    return data.address;
+  } catch (error) {
+    console.error('Error creating emulator account:', error);
+    throw error;
+  }
+};
+
 export const getScripts = async (folder: string, scriptName: string) => {
   try {
     const { data } = await storage.get('cadenceScripts');
+    let network = await userWalletService.getNetwork();
+
+    // If emulator network, return default scripts
+    if (network === 'emulator') {
+      network = 'testnet';
+      // return getDefaultEmulatorScript(folder, scriptName);
+    }
+
     const files = data[folder];
     const script = files[scriptName];
     const scriptString = Buffer.from(script, 'base64').toString('utf-8');
@@ -114,6 +180,36 @@ export const getScripts = async (folder: string, scriptName: string) => {
     }
     throw error;
   }
+};
+
+const getDefaultEmulatorScript = (type: string, name: string) => {
+  const defaultScripts = {
+    basic: {
+      revokeKey: `
+        transaction(keyIndex: Int) {
+          prepare(signer: AuthAccount) {
+            signer.keys.revoke(keyIndex: keyIndex)
+          }
+        }
+      `,
+    },
+    storage: {
+      getStorageInfo: `
+        pub fun main(address: Address): {String: UFix64} {
+          let account = getAccount(address)
+          let used = account.storageUsed
+          let capacity = account.storageCapacity
+          return {
+            "used": used,
+            "capacity": capacity,
+            "available": capacity - used
+          }
+        }
+      `,
+    },
+  };
+
+  return defaultScripts[type]?.[name] || '';
 };
 
 export const findKeyAndInfo = (keys, publicKey) => {
