@@ -223,30 +223,6 @@ const NetworkList = ({ networkColor, currentNetwork }) => {
                 Testnet
               </Typography>
             </ListItemButton>
-
-            <ListItemButton
-              onClick={() => switchNetwork('emulator')}
-              sx={{
-                padding: '4px 8px',
-                width: '100%',
-                '&:hover': {
-                  color: networkColor('emulator'),
-                },
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: '12px',
-                  lineHeight: '16px',
-                  fontWeight: '400',
-                  '&:hover': {
-                    color: networkColor('emulator'),
-                  },
-                }}
-              >
-                Emulator
-              </Typography>
-            </ListItemButton>
           </ListItem>
         )}
       </ListItemButton>

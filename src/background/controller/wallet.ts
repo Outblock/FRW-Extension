@@ -51,23 +51,17 @@ import {
 import i18n from 'background/service/i18n';
 import { type DisplayedKeryring, KEYRING_CLASS } from 'background/service/keyring';
 import type { CacheState } from 'background/service/pageStateCache';
-import {
-  getScripts,
-  checkEmulatorStatus,
-  checkEmulatorAccount,
-  createEmulatorAccount,
-} from 'background/utils';
+import { getScripts } from 'background/utils';
 import emoji from 'background/utils/emoji.json';
 import fetchConfig from 'background/utils/remoteConfig';
-import { notification, storage } from 'background/webapi';
+import { storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
-import { fclTestnetConfig, fclMainnetConfig, fclEmulatorConfig } from '../fclConfig';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
-import type { NFTData, NFTModel, StorageInfo, WalletResponse } from '../service/networkModel';
+import type { NFTData, NFTModel, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
@@ -3311,25 +3305,11 @@ export class WalletController extends BaseController {
   }
 
   switchNetwork = async (network: string) => {
-    if (network === 'emulator') {
-      const isEmulatorRunning = await checkEmulatorStatus();
-      console.log('isEmulatorRunning ', isEmulatorRunning);
-      if (!isEmulatorRunning) {
-        throw new Error(
-          'Flow emulator is not running. Please start it with `flow emulator start` and try again.'
-        );
-      }
-    }
-
     await userWalletService.setNetwork(network);
     eventBus.emit('switchNetwork', network);
-    if (network === 'testnet') {
-      await fclTestnetConfig();
-    } else if (network === 'mainnet') {
-      await fclMainnetConfig();
-    } else if (network === 'emulator') {
-      await fclEmulatorConfig();
-    }
+
+    // setup fcl for the new network
+    await userWalletService.setupFcl();
     this.refreshAll();
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -3410,9 +3390,6 @@ export class WalletController extends BaseController {
         case 'mainnet':
           baseURL = 'https://evm.flowscan.io';
           break;
-        case 'emulator':
-          // TODO: add emulator for EVM flowscan url
-          break;
       }
     } else {
       // Set baseURL based on the network
@@ -3447,9 +3424,6 @@ export class WalletController extends BaseController {
         break;
       case 'crescendo':
         baseURL = 'https://f.dnz.dev';
-        break;
-      case 'emulator':
-        baseURL = 'http://localhost:8888';
         break;
     }
     return baseURL;

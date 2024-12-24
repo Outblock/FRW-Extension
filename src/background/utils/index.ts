@@ -4,8 +4,10 @@ import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
 
 const { version } = packageJson;
+import { EMULATOR_HOST_TESTNET } from '../fclConfig';
 import { userWalletService } from '../service';
 import { mixpanelTrack } from '../service/mixpanel';
+import { type FlowNetwork } from '../service/networkModel';
 import pageStateCache from '../service/pageStateCache';
 
 export { default as createPersistStore } from './persisitStore';
@@ -97,10 +99,14 @@ export const hasWalletConnectPageStateCache = () => {
 export const isSameAddress = (a: string, b: string) => {
   return a.toLowerCase() === b.toLowerCase();
 };
+export const getEmulatorBaseURL = (network: FlowNetwork) => {
+  return network === 'testnet' ? EMULATOR_HOST_TESTNET : EMULATOR_HOST_MAINNET;
+};
 
-export const checkEmulatorStatus = async (): Promise<boolean> => {
+export const checkEmulatorStatus = async (network: FlowNetwork): Promise<boolean> => {
   try {
-    const response = await fetch('http://localhost:8888/v1/blocks?height=1');
+    const baseURL = getEmulatorBaseURL(network);
+    const response = await fetch(`${baseURL}/v1/blocks?height=sealed`);
     console.log('checkEmulatorStatus - response ', response);
     const data = await response.json();
     console.log('checkEmulatorStatus - data ', data);
@@ -112,9 +118,13 @@ export const checkEmulatorStatus = async (): Promise<boolean> => {
   }
 };
 
-export const checkEmulatorAccount = async (address: string): Promise<boolean> => {
+export const checkEmulatorAccount = async (
+  network: FlowNetwork,
+  address: string
+): Promise<boolean> => {
   try {
-    const response = await fetch(`http://localhost:8888/v1/accounts/${address}`);
+    const baseURL = getEmulatorBaseURL(network);
+    const response = await fetch(`${baseURL}/v1/accounts/${address}`);
     const data = await response.json();
     return !!data.address;
   } catch (error) {
@@ -123,9 +133,13 @@ export const checkEmulatorAccount = async (address: string): Promise<boolean> =>
   }
 };
 
-export const createEmulatorAccount = async (publicKey: string): Promise<string> => {
+export const createEmulatorAccount = async (
+  network: FlowNetwork,
+  publicKey: string
+): Promise<string> => {
   try {
-    const response = await fetch('http://localhost:8888/v1/accounts', {
+    const baseURL = getEmulatorBaseURL(network);
+    const response = await fetch(`${baseURL}/v1/accounts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -158,14 +172,6 @@ export const createEmulatorAccount = async (publicKey: string): Promise<string> 
 export const getScripts = async (folder: string, scriptName: string) => {
   try {
     const { data } = await storage.get('cadenceScripts');
-    let network = await userWalletService.getNetwork();
-
-    // If emulator network, return default scripts
-    if (network === 'emulator') {
-      network = 'testnet';
-      // return getDefaultEmulatorScript(folder, scriptName);
-    }
-
     const files = data[folder];
     const script = files[scriptName];
     const scriptString = Buffer.from(script, 'base64').toString('utf-8');

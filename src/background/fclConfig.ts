@@ -1,6 +1,7 @@
 import * as fcl from '@onflow/fcl';
 import { send as httpSend } from '@onflow/transport-http';
 
+import { type FlowNetwork } from './service/networkModel';
 import { storage } from './webapi';
 
 const CONTRACTS_URL =
@@ -68,6 +69,12 @@ const fallbackContracts = {
   },
 };
 
+const HOST_TESTNET = 'https://rest-testnet.onflow.org';
+const HOST_MAINNET = 'https://rest-mainnet.onflow.org';
+
+export const EMULATOR_HOST_TESTNET = 'http://localhost:8888';
+export const EMULATOR_HOST_MAINNET = 'http://localhost:8889';
+
 // Fetch contracts from API and cache them
 async function fetchContracts() {
   const ttl = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -98,12 +105,14 @@ async function fetchContracts() {
 }
 
 // Configure FCL for Mainnet
-export const fclMainnetConfig = async () => {
+export const fclMainnetConfig = async (emulatorMode?: boolean) => {
   const contracts = await fetchContracts();
   const mainnetContracts = contracts.mainnet || fallbackContracts.mainnet;
+
+  const host = !!emulatorMode ? EMULATOR_HOST_MAINNET : HOST_MAINNET;
   const config = fcl
     .config()
-    .put('accessNode.api', 'https://rest-mainnet.onflow.org')
+    .put('accessNode.api', host)
     // note this is the default transport. We don't really need to set this
     .put('sdk.transport', httpSend)
     .put('flow.network', 'mainnet');
@@ -117,13 +126,14 @@ export const fclMainnetConfig = async () => {
 };
 
 // Configure FCL for Testnet
-export const fclTestnetConfig = async () => {
+export const fclTestnetConfig = async (emulatorMode?: boolean) => {
   const contracts = await fetchContracts();
   const testnetContracts = contracts.testnet || fallbackContracts.testnet;
 
+  const host = !!emulatorMode ? EMULATOR_HOST_TESTNET : HOST_TESTNET;
   const config = fcl
     .config()
-    .put('accessNode.api', 'https://rest-testnet.onflow.org')
+    .put('accessNode.api', host)
     // note this is the default transport. We don't really need to set this
     .put('sdk.transport', httpSend)
     .put('flow.network', 'testnet');
@@ -136,15 +146,36 @@ export const fclTestnetConfig = async () => {
 };
 
 // Configure FCL for Emulator
-export const fclEmulatorConfig = async () => {
+export const fclEmulatorConfig = async (network: FlowNetwork) => {
+  const contracts = await fetchContracts();
+
+  const emulatorContracts =
+    network === 'testnet'
+      ? contracts.testnet || fallbackContracts.testnet
+      : network === 'mainnet'
+        ? contracts.mainnet || fallbackContracts.mainnet
+        : fallbackContracts.mainnet;
+
+  const emulatorHost = network === 'testnet' ? EMULATOR_HOST_TESTNET : EMULATOR_HOST_MAINNET;
+
   const config = fcl
     .config()
-    .put('accessNode.api', 'http://localhost:8888')
+    .put('accessNode.api', emulatorHost)
     .put('sdk.transport', httpSend)
-    .put('flow.network', 'emulator')
-    // Default emulator account with contracts deployed
-    .put('0xFungibleToken', '0xee82856bf20e2aa6')
-    .put('0xFlowToken', '0x0ae53cb6e3f42a79')
-    .put('0xNonFungibleToken', '0xf8d6e0586b0a20c7')
-    .put('0xMetadataViews', '0xf8d6e0586b0a20c7');
+    .put('flow.network', network);
+
+  for (const key in emulatorContracts) {
+    if (Object.prototype.hasOwnProperty.call(emulatorContracts, key)) {
+      config.put(key, emulatorContracts[key]);
+    }
+  }
+};
+
+export const fclConfig = async (network: FlowNetwork, emulatorMode?: boolean) => {
+  if (network === 'testnet') {
+    await fclTestnetConfig(emulatorMode);
+  } else {
+    // Default to mainnet
+    await fclMainnetConfig(emulatorMode);
+  }
 };

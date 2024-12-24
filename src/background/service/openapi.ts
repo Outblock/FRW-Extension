@@ -26,8 +26,6 @@ import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/fireba
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 
-import { fclEmulatorConfig, fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
-
 import {
   type AccountKey,
   type CheckResponse,
@@ -42,6 +40,7 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
+  type FlowNetwork,
 } from './networkModel';
 
 import {
@@ -107,24 +106,9 @@ onAuthStateChanged(auth, (user: User | null) => {
     // User is signed out
     console.log('User is signed out');
   }
-
-  fclSetup();
+  // note fcl setup is async
+  userWalletService.setupFcl();
 });
-
-const fclSetup = async () => {
-  const network = await userWalletService.getNetwork();
-  switch (network) {
-    case 'mainnet':
-      await fclMainnetConfig();
-      break;
-    case 'testnet':
-      await fclTestnetConfig();
-      break;
-    case 'emulator':
-      await fclEmulatorConfig();
-      break;
-  }
-};
 
 const dataConfig: Record<string, OpenApiConfigValue> = {
   check_username: {
@@ -403,7 +387,7 @@ class OpenApiService {
       fromStorage: false, // Debug only
     });
 
-    await fclSetup();
+    await userWalletService.setupFcl();
   };
 
   checkAuthStatus = async () => {
@@ -1396,7 +1380,6 @@ class OpenApiService {
     const isProduction = process.env.NODE_ENV === 'production';
     let url;
 
-    const isEmulator = network === 'emulator';
     if (isProduction) {
       url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
     } else if (
@@ -1405,10 +1388,6 @@ class OpenApiService {
       (network === 'testnet' || network === 'mainnet')
     ) {
       url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`;
-    } else if (isEmulator) {
-      // TODO: remove this after emulator is ready
-      const emulatorNetwork = 'testnet';
-      url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${emulatorNetwork}/${chainType}/emulator.json`;
     } else {
       url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;
     }

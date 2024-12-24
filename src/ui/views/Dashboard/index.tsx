@@ -2,10 +2,11 @@ import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { getApp, initializeApp } from 'firebase/app';
 import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { storage } from '@/background/webapi';
 import { LLEmulatorIndicator } from '@/ui/FRWComponent/LLEmulatorIndicator';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 import { LLTestnetIndicator } from 'ui/FRWComponent';
@@ -45,6 +46,10 @@ const Dashboard = ({ value, setValue }) => {
   const [domain, setDomain] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [isEvm, setIsEvm] = useState<boolean>(false);
+
+  const isEmulatorMode = useMemo(async () => {
+    return (await storage.get('emulatorMode')) === 'true';
+  }, []);
 
   const handleChangeIndex = (index) => {
     setValue(index);
@@ -109,7 +114,6 @@ const Dashboard = ({ value, setValue }) => {
         }}
       >
         {currentNetwork === 'testnet' && value === 0 && <LLTestnetIndicator />}
-        {currentNetwork === 'emulator' && value === 0 && <LLEmulatorIndicator />}
 
         {/* <Header loading={loading} /> */}
         <SwipeableViews

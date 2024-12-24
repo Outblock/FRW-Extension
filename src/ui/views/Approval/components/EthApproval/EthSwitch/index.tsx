@@ -90,8 +90,6 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
         return '#FF8A00';
       case 'crescendo':
         return '#CCAF21';
-      case 'emulator':
-        return '#4A90E2';
     }
   };
 

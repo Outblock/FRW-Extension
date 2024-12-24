@@ -12,6 +12,7 @@ import { keyringService, mixpanelTrack, openapiService } from 'background/servic
 import { createPersistStore } from 'background/utils';
 import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 
+import { fclConfig } from '../fclConfig';
 import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
 import { storage } from '../webapi';
 
@@ -20,6 +21,7 @@ import type {
   BlockchainResponse,
   ChildAccount,
   DeviceInfoRequest,
+  FlowNetwork,
 } from './networkModel';
 
 interface UserWalletStore {
@@ -31,6 +33,7 @@ interface UserWalletStore {
   monitor: string;
   activeChild: ActiveChildType;
   evmEnabled: boolean;
+  emulatorMode: boolean;
 }
 
 class UserWallet {
@@ -68,6 +71,7 @@ class UserWallet {
         evmEnabled: false,
         monitor: 'flowscan',
         network: 'mainnet',
+        emulatorMode: false,
       },
     });
   };
@@ -102,6 +106,7 @@ class UserWallet {
       evmEnabled: false,
       monitor: 'flowscan',
       network: 'mainnet',
+      emulatorMode: false,
     };
   };
 
@@ -197,6 +202,23 @@ class UserWallet {
       await this.init();
     }
     return this.store.network;
+  };
+
+  getEmulatorMode = async (): Promise<boolean> => {
+    if (!this.store) {
+      await this.init();
+    }
+    return this.store.emulatorMode;
+  };
+
+  setEmulatorMode = async (emulatorMode: boolean) => {
+    this.store.emulatorMode = emulatorMode;
+  };
+
+  setupFcl = async () => {
+    const isEmulatorMode = await this.getEmulatorMode();
+    const network = (await this.getNetwork()) as FlowNetwork;
+    await fclConfig(network, isEmulatorMode);
   };
 
   getMonitor = (): string => {
