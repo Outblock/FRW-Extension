@@ -6,6 +6,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
+import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
 import { LLTestnetIndicator, LLHeader } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -122,6 +123,7 @@ const Deposit = () => {
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [userInfo, setUserInfo] = useState<any>(null);
   const [active, setIsActive] = useState<boolean>(false);
+  const [emulatorMode, setEmulatorMode] = useState<boolean>(false);
 
   const fetchStuff = useCallback(async () => {
     const isChild = await usewallet.getActiveWallet();
@@ -177,6 +179,8 @@ const Deposit = () => {
     await usewallet.setDashIndex(0);
     const network = await usewallet.getNetwork();
     setNetwork(network);
+    const emulatorMode = await usewallet.getEmulatorMode();
+    setEmulatorMode(emulatorMode);
     const user = await usewallet.getUserInfo(false);
     setUserInfo(user);
   }, [currentNetwork, usewallet]);
@@ -203,7 +207,7 @@ const Deposit = () => {
   return (
     <StyledEngineProvider injectFirst>
       <div className={`${classes.page} page`}>
-        {currentNetwork === 'testnet' && <LLTestnetIndicator />}
+        <NetworkIndicator network={currentNetwork} emulatorMode={emulatorMode} />
         <LLHeader title={chrome.i18n.getMessage('')} help={false} />
         <div className={classes.container}>
           {userWallets && (

@@ -193,6 +193,12 @@
   "Emulator": {
     "message": "Emulator"
   },
+  "Emulate_Testnet": {
+    "message": "テストネットをエミュレートする"
+  },
+  "Emulate_Mainnet": {
+    "message": "メインネットをエミュレートする"
+  },
   "Crescendo": {
     "message": "Crescendo"
   },

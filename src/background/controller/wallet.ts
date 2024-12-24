@@ -3358,6 +3358,13 @@ export class WalletController extends BaseController {
   getNetwork = async (): Promise<string> => {
     return await userWalletService.getNetwork();
   };
+  getEmulatorMode = async (): Promise<boolean> => {
+    return await userWalletService.getEmulatorMode();
+  };
+
+  setEmulatorMode = async (mode: boolean) => {
+    return await userWalletService.setEmulatorMode(mode);
+  };
 
   clearChildAccount = () => {
     storage.remove('checkUserChildAccount');
