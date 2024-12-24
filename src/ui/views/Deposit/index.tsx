@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
 import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
-import { LLTestnetIndicator, LLHeader } from 'ui/FRWComponent';
+import { LLHeader } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
