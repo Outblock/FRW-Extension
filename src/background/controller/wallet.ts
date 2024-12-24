@@ -3410,6 +3410,9 @@ export class WalletController extends BaseController {
         case 'mainnet':
           baseURL = 'https://evm.flowscan.io';
           break;
+        case 'emulator':
+          // TODO: add emulator for EVM flowscan url
+          break;
       }
     } else {
       // Set baseURL based on the network
@@ -3444,6 +3447,9 @@ export class WalletController extends BaseController {
         break;
       case 'crescendo':
         baseURL = 'https://f.dnz.dev';
+        break;
+      case 'emulator':
+        baseURL = 'http://localhost:8888';
         break;
     }
     return baseURL;

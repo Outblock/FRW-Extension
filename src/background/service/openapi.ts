@@ -26,7 +26,7 @@ import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/fireba
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 
-import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
+import { fclEmulatorConfig, fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
 
 import {
   type AccountKey,
@@ -119,6 +119,9 @@ const fclSetup = async () => {
       break;
     case 'testnet':
       await fclTestnetConfig();
+      break;
+    case 'emulator':
+      await fclEmulatorConfig();
       break;
   }
 };
@@ -689,54 +692,6 @@ class OpenApiService {
       hash_algo: getStringFromHashAlgo(account_key.hash_algo),
     });
     return data;
-  };
-
-  login = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = this.store.config.login;
-    // const result = await this.request[config.method](config.path, {
-    //   public_key,
-    //   signature,
-    // });
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
-  };
-
-  loginV2 = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = this.store.config.loginv2;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
   };
 
   loginV3 = async (
