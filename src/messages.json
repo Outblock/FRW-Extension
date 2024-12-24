@@ -73,6 +73,9 @@
   "Developer__Mode": {
     "message": "Developer Mode"
   },
+  "Emulator_Mode": {
+    "message": "Emulator Mode"
+  },
   "About": {
     "message": "About"
   },
@@ -189,6 +192,12 @@
   },
   "Emulator": {
     "message": "Emulator"
+  },
+  "Emulate_Testnet": {
+    "message": "Emulate Testnet"
+  },
+  "Emulate_Mainnet": {
+    "message": "Emulate Mainnet"
   },
   "Crescendo": {
     "message": "Crescendo"

@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "开发者模式"
   },
+  "Emulator_Mode": {
+    "message": "模擬器模式"
+  },
   "About": {
     "message": "关于"
   },

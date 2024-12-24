@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "デベロッパーモード"
   },
+  "Emulator_Mode": {
+    "message": "エミュレータモード"
+  },
   "About": {
     "message": "開発について"
   },

@@ -213,6 +213,7 @@ class UserWallet {
 
   setEmulatorMode = async (emulatorMode: boolean) => {
     this.store.emulatorMode = emulatorMode;
+    await this.setupFcl();
   };
 
   setupFcl = async () => {

@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/system';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import { storage } from '@/background/webapi';
 import { LLHeader } from '@/ui/FRWComponent';
@@ -169,37 +169,35 @@ const Root = styled('span')(
 const DeveloperMode = () => {
   const usewallet = useWallet();
   const classes = useStyles();
-  const [modeOn, setModeOn] = useState(false);
+  const [developerModeOn, setDeveloperModeOn] = useState(false);
+  const [emulatorModeOn, setEmulatorModeOn] = useState(false);
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
 
-  const loadNetwork = useCallback(async () => {
+  const loadStuff = useCallback(async () => {
     const network = await usewallet.getNetwork();
-    // const crescendo = await usewallet.checkCrescendo();
-    // if (crescendo.length > 0) {
-    //   setSandboxEnabled(true);
-    // }
-
-    setNetwork(network);
-  }, [usewallet]);
-
-  const loadMonitor = useCallback(async () => {
-    const monitor = await usewallet.getMonitor();
-    setMonitor(monitor);
-  }, [usewallet]);
-
-  const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
-    if (developerMode) {
-      setModeOn(developerMode);
-    }
-  };
+    const emulatorMode = await usewallet.getEmulatorMode();
+    const monitor = await usewallet.getMonitor();
+
+    return { network, developerMode, emulatorMode, monitor };
+  }, [usewallet]);
 
   useEffect(() => {
-    loadDeveloperMode();
-    loadNetwork();
-    loadMonitor();
-  }, [loadMonitor, loadNetwork]);
+    let mounted = true;
+
+    loadStuff().then(({ network, developerMode, emulatorMode, monitor }) => {
+      if (!mounted) return;
+      setNetwork(network);
+      setDeveloperModeOn(developerMode);
+      setEmulatorModeOn(emulatorMode);
+      setMonitor(monitor);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [loadStuff]);
 
   const switchNetwork = async (network: string) => {
     // if (network === 'crescendo' && !isSandboxEnabled) {
@@ -221,8 +219,19 @@ const DeveloperMode = () => {
   };
 
   const switchDeveloperMode = async () => {
-    setModeOn(!modeOn);
-    storage.set('developerMode', !modeOn);
+    setDeveloperModeOn((prev) => {
+      const newMode = !prev;
+      storage.set('developerMode', newMode);
+      return newMode;
+    });
+  };
+
+  const switchEmulatorMode = async () => {
+    setEmulatorModeOn((prev) => {
+      const newMode = !prev;
+      usewallet.setEmulatorMode(newMode);
+      return newMode;
+    });
   };
 
   return (
@@ -234,7 +243,7 @@ const DeveloperMode = () => {
           {chrome.i18n.getMessage('Developer__Mode')}
         </Typography>
         <Switch
-          checked={modeOn}
+          checked={developerModeOn}
           slots={{
             root: Root,
           }}
@@ -243,8 +252,22 @@ const DeveloperMode = () => {
           }}
         />
       </Box>
-      <Fade in={modeOn}>
+      <Fade in={developerModeOn}>
         <Box sx={{ pb: '20px' }}>
+          <Box className={classes.developerBox}>
+            <Typography variant="body1" color="neutral.contrastText" style={{ weight: 600 }}>
+              {chrome.i18n.getMessage('Emulator_Mode')}
+            </Typography>
+            <Switch
+              checked={emulatorModeOn}
+              slots={{
+                root: Root,
+              }}
+              onChange={() => {
+                switchEmulatorMode();
+              }}
+            />
+          </Box>
           <Typography
             variant="h6"
             color="neutral.contrastText"
@@ -310,40 +333,6 @@ const DeveloperMode = () => {
                 />
 
                 {currentNetwork === 'testnet' && (
-                  <Typography
-                    component="div"
-                    variant="body1"
-                    color="text.nonselect"
-                    sx={{ margin: 'auto 0' }}
-                  >
-                    {chrome.i18n.getMessage('Selected')}
-                  </Typography>
-                )}
-              </Box>
-            </CardActionArea>
-
-            <Divider sx={{ width: '90%', margin: '0 auto' }} />
-
-            <CardActionArea
-              className={classes.modeSelection}
-              onClick={() => switchNetwork('emulator')}
-            >
-              <Box className={classes.checkboxRow}>
-                <FormControlLabel
-                  label={chrome.i18n.getMessage('Emulator')}
-                  control={
-                    <Checkbox
-                      size="small"
-                      icon={<CircleOutlinedIcon />}
-                      checkedIcon={<CheckCircleIcon sx={{ color: '#FF8A00' }} />}
-                      value="emulator"
-                      checked={currentNetwork === 'emulator'}
-                      onChange={() => switchNetwork('emulator')}
-                    />
-                  }
-                />
-
-                {currentNetwork === 'emulator' && (
                   <Typography
                     component="div"
                     variant="body1"

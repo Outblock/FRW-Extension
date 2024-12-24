@@ -4,7 +4,7 @@ import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
 
 const { version } = packageJson;
-import { EMULATOR_HOST_TESTNET } from '../fclConfig';
+import { EMULATOR_HOST_TESTNET, EMULATOR_HOST_MAINNET } from '../fclConfig';
 import { userWalletService } from '../service';
 import { mixpanelTrack } from '../service/mixpanel';
 import { type FlowNetwork } from '../service/networkModel';

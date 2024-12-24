@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "Режим разработчика"
   },
+  "Emulator_Mode": {
+    "message": "Pежим эмулятора"
+  },
   "About": {
     "message": "О программе"
   },
