@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { useCoinStore } from '@/ui/stores/useCoinStore';
 import { useWallet } from 'ui/utils';
 
-export const useCoinData = () => {
+export const useCoinHook = () => {
   const usewallet = useWallet();
   const { setCoinData, setBalance } = useCoinStore();
 

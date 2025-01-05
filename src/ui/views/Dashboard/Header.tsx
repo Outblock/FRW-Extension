@@ -27,6 +27,7 @@ import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
 import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useNews } from '@/ui/utils/NewsContext';
 import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
 import { useWallet, formatAddress } from 'ui/utils';
@@ -67,6 +68,7 @@ const Header = ({ loading = false }) => {
   const classes = useStyles();
   const history = useHistory();
 
+  const { mainAddress, evmAddress } = useProfileStore();
   const [isLoading, setLoading] = useState(loading);
 
   const [mainAddressLoading, setMainLoading] = useState(true);
@@ -98,8 +100,6 @@ const Header = ({ loading = false }) => {
   const [domain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
-  const [evmAddress, setEvmAddress] = useState('');
-  const [mainAddress, setMainAddress] = useState('');
 
   const [modeAnonymous, setModeAnonymous] = useState(false);
 
@@ -203,11 +203,8 @@ const Header = ({ loading = false }) => {
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     if (mainAddress) {
-      setMainAddress(mainAddress);
       try {
-        const res = await usewallet.queryEvmAddress(mainAddress);
         const evmWallet = await usewallet.getEvmWallet();
-        setEvmAddress(res!);
         setEvmWallet(evmWallet);
       } catch (err) {
         console.error('queryEvmAddress err', err);
