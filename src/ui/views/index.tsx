@@ -1,7 +1,7 @@
 import { CssBaseline } from '@mui/material';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
 
 import { useCoinHook } from '@/ui/hooks/useCoinHook';
@@ -49,9 +49,20 @@ const Routes = () => {
 };
 
 function Main() {
-  //todo: update when address changed
-  useCoinHook();
-  useProfileHook();
+  const { fetchProfileData, freshUserWallet } = useProfileHook();
+  const { refreshCoinData } = useCoinHook();
+
+  useEffect(() => {
+    // Fetch initial data
+    const initData = async () => {
+      await fetchProfileData();
+      await freshUserWallet();
+      await refreshCoinData();
+    };
+
+    initData();
+  }, [fetchProfileData, freshUserWallet, refreshCoinData]);
+
   return (
     <Router>
       <Routes />

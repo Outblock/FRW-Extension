@@ -68,25 +68,23 @@ const Header = ({ loading = false }) => {
   const classes = useStyles();
   const history = useHistory();
 
-  const { mainAddress, evmAddress } = useProfileStore();
+  const {
+    mainAddress,
+    userWallet,
+    currentWallet,
+    evmWallet,
+    current,
+    setEvmWallet,
+    setCurrent,
+    walletList,
+    setWalletList,
+  } = useProfileStore();
   const [isLoading, setLoading] = useState(loading);
 
   const [mainAddressLoading, setMainLoading] = useState(true);
 
   const [evmLoading, setEvmLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
-  const [userWallet, setWallet] = useState<any>(null);
-  const [currentWallet, setCurrentWallet] = useState(0);
-  const [evmWallet, setEvmWallet] = useState<any>({
-    name: '',
-    icon: '',
-    address: '',
-    chain_id: 'evm',
-    id: 1,
-    coins: ['flow'],
-    color: '',
-  });
-  const [current, setCurrent] = useState({});
   const [currentNetwork, setNetwork] = useState('mainnet');
 
   const [isSandbox, setIsSandbox] = useState(false);
@@ -106,8 +104,6 @@ const Header = ({ loading = false }) => {
   const [isPending, setIsPending] = useState(false);
 
   const [ispop, setPop] = useState(false);
-
-  const [initialStart, setInitial] = useState(true);
 
   const [switchLoading, setSwitchLoading] = useState(false);
   const [expandAccount, setExpandAccount] = useState(false);
@@ -165,20 +161,6 @@ const Header = ({ loading = false }) => {
     [currentNetwork, domain]
   );
 
-  const [walletList, setWalletList] = useState([]);
-
-  const freshUserWallet = useCallback(async () => {
-    const wallet: WalletResponse[] = await usewallet.getUserWallets();
-    const fData: WalletResponse[] = wallet.filter((item) => item.blockchain !== null);
-
-    // putDeviceInfo(fData);
-    setWallet(fData);
-    if (initialStart) {
-      await usewallet.openapi.putDeviceInfo(fData);
-      setInitial(false);
-    }
-  }, [initialStart, usewallet]);
-
   const freshUserInfo = useCallback(async () => {
     const currentWallet = await usewallet.getCurrentWallet();
     const isChild = await usewallet.getActiveWallet();
@@ -226,15 +208,14 @@ const Header = ({ loading = false }) => {
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
-  }, [usewallet]);
+  }, [usewallet, setEvmWallet, setCurrent]);
 
   const fetchUserWallet = useCallback(async () => {
-    freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
-  }, [freshUserInfo, freshUserWallet, usewallet]);
+  }, [freshUserInfo, usewallet]);
 
   const switchAccount = useCallback(
     async (account) => {
@@ -387,9 +368,8 @@ const Header = ({ loading = false }) => {
   useEffect(() => {
     const list = wallets(userWallet);
     setWalletList(list);
-    setCurrentWallet(0);
     setLoading(userWallet === null);
-  }, [userWallet, currentNetwork, wallets]);
+  }, [userWallet, currentNetwork, setWalletList, wallets]);
 
   const checkNetwork = useCallback(async () => {
     const mainnetAvailable = await usewallet.openapi.pingNetwork('mainnet');

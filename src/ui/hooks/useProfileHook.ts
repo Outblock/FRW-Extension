@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 
 import { ensureEvmAddressPrefix } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore, type WalletResponse } from '@/ui/stores/useProfileStore';
 import { useWallet } from '@/ui/utils';
 
 export const useProfileHook = () => {
   const usewallet = useWallet();
-  const { setMainAddress, setEvmAddress } = useProfileStore();
+  const { setMainAddress, setEvmAddress, setUserWallet, setInitial, initialStart } =
+    useProfileStore();
 
   const fetchProfileData = useCallback(async () => {
     try {
@@ -25,7 +26,19 @@ export const useProfileHook = () => {
     }
   }, [usewallet, setMainAddress, setEvmAddress]);
 
+  const freshUserWallet = useCallback(async () => {
+    const wallet: WalletResponse[] = await usewallet.getUserWallets();
+    const fData: WalletResponse[] = wallet.filter((item) => item.blockchain !== null);
+
+    setUserWallet(fData);
+    if (initialStart) {
+      await usewallet.openapi.putDeviceInfo(fData);
+      setInitial(false);
+    }
+  }, [usewallet, initialStart, setUserWallet, setInitial]);
+
   return {
     fetchProfileData,
+    freshUserWallet,
   };
 };
