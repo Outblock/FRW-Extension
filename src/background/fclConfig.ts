@@ -72,8 +72,9 @@ const fallbackContracts = {
 const HOST_TESTNET = 'https://rest-testnet.onflow.org';
 const HOST_MAINNET = 'https://rest-mainnet.onflow.org';
 
+// NOTE: These are the currently the same hosts. TODO: figure out how to run both networks simultaneously.
 export const EMULATOR_HOST_TESTNET = 'http://localhost:8888';
-export const EMULATOR_HOST_MAINNET = 'http://localhost:8889';
+export const EMULATOR_HOST_MAINNET = 'http://localhost:8888';
 
 // Fetch contracts from API and cache them
 async function fetchContracts() {

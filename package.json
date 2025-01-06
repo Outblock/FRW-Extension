@@ -27,7 +27,9 @@
     "prepare": "husky",
     "preinstall": "npx only-allow pnpm",
     "analyze:imports": "pnpx tsx build/analyze-imports.ts",
-    "analyze:dependencies": "pnpx tsx build/analyze-dependencies.ts"
+    "analyze:dependencies": "pnpx tsx build/analyze-dependencies.ts",
+    "emulate:testnet": "flow emulator --chain-id testnet --rpc-host access.devnet.nodes.onflow.org:9000",
+    "emulate:mainnet": "flow emulator --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000"
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.10.0",
