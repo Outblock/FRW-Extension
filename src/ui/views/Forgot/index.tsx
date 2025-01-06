@@ -3,13 +3,9 @@ import { Box } from '@mui/system';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import IconFlow from '../../../components/iconfont/IconFlow';
-import appicon from '../../FRWAssets/image/appicon.png';
-import create from '../../FRWAssets/svg/create.svg';
-import importPng from '../../FRWAssets/svg/import.svg';
-import recover from '../../FRWAssets/svg/recover.svg';
-import reset from '../../FRWAssets/svg/resetarrow.svg';
-import RegisterHeader from '../Register/RegisterHeader';
+import recover from '@/ui/FRWAssets/svg/recover.svg';
+import reset from '@/ui/FRWAssets/svg/resetarrow.svg';
+import RegisterHeader from '@/ui/FRWComponent/LandingPages/RegisterHeader';
 
 const Forgot = () => {
   return (
@@ -67,7 +63,7 @@ const Forgot = () => {
             <Button
               variant="contained"
               component={Link}
-              to="/resetpage"
+              to="/forgot/reset"
               size="large"
               sx={{
                 display: 'flex',
@@ -122,7 +118,7 @@ const Forgot = () => {
             <Button
               variant="contained"
               component={Link}
-              to="/recoverpage"
+              to="/forgot/recover"
               size="large"
               sx={{
                 display: 'flex',

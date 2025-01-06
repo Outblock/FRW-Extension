@@ -1,8 +1,15 @@
 import fs from 'fs';
 import http from 'http';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import dotenv from 'dotenv';
+
+import packageJson from '../package.json';
+const { version } = packageJson;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
@@ -47,6 +54,8 @@ async function prepare() {
     client_id: process.env.OAUTH2_CLIENT_ID,
     scopes: OAUTH2_SCOPES.split(','),
   };
+  // Update the version in the manifest
+  manifest.version = version;
 
   if (mode === 'dev') {
     manifest.key = process.env.MANIFEST_KEY;
