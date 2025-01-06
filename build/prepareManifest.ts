@@ -5,6 +5,9 @@ import { fileURLToPath } from 'url';
 
 import dotenv from 'dotenv';
 
+import packageJson from '../package.json';
+const { version } = packageJson;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -51,6 +54,8 @@ async function prepare() {
     client_id: process.env.OAUTH2_CLIENT_ID,
     scopes: OAUTH2_SCOPES.split(','),
   };
+  // Update the version in the manifest
+  manifest.version = version;
 
   if (mode === 'dev') {
     manifest.key = process.env.MANIFEST_KEY;
