@@ -14,7 +14,6 @@ const Forgot = () => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: 'info3.default',
           width: '100%',
           height: '100vh',
           justifyContent: 'center',
