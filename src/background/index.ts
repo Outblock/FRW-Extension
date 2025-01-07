@@ -428,6 +428,9 @@ const setEnvironmentBadge = () => {
   } else if (branch === 'dev') {
     chrome.action.setBadgeText({ text: 'stg' });
     chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#bf360c' });
+  } else if (branch !== undefined) {
+    chrome.action.setBadgeText({ text: '#' });
+    chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#666666' });
   } else {
     chrome.action.setBadgeText({ text: 'dev' });
     chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#666666' });
