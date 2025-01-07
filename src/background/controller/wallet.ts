@@ -1772,7 +1772,7 @@ export class WalletController extends BaseController {
 
     // try to seal it
     try {
-      const result = await fcl.tx(txID).onceSealed();
+      const result = await fcl.tx(txID).onceExecuted();
       console.log('coa creation result ', result);
       // Track with success
       await this.trackCoaCreation(txID);
@@ -1794,7 +1794,7 @@ export class WalletController extends BaseController {
 
     // try to seal it
     try {
-      const result = await fcl.tx(txID).onceSealed();
+      const result = await fcl.tx(txID).onceExecuted();
       console.log('coa creation result ', result);
       // Track with success
       await this.trackCoaCreation(txID);
@@ -3481,7 +3481,7 @@ export class WalletController extends BaseController {
 
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
-      await fcl.tx(txId).onceSealed();
+      await fcl.tx(txId).onceExecuted();
 
       // Track the transaction result
       mixpanelTrack.track('transaction_result', {
