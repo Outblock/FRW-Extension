@@ -417,3 +417,22 @@ function onMessage(msg, port) {
 }
 
 console.log('Is fetch native?', fetch.toString().includes('[native code]'));
+
+// Set environment badge based on branch
+const setEnvironmentBadge = () => {
+  const branch = process.env.BRANCH_NAME;
+
+  if (branch === 'master') {
+    // No badge for production
+    chrome.action.setBadgeText({ text: '' });
+  } else if (branch === 'dev') {
+    chrome.action.setBadgeText({ text: 'stg' });
+    chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#bf360c' });
+  } else {
+    chrome.action.setBadgeText({ text: 'dev' });
+    chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#666666' });
+  }
+};
+
+// Call it when extension starts
+setEnvironmentBadge();
