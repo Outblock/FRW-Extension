@@ -27,6 +27,7 @@ import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
 import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useNews } from '@/ui/utils/NewsContext';
 import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
@@ -68,38 +69,31 @@ const Header = ({ loading = false }) => {
   const classes = useStyles();
   const history = useHistory();
 
+  const { currentNetwork, setNetwork } = useNetworkStore();
   const {
     mainAddress,
     userWallet,
     currentWallet,
     evmWallet,
     current,
-    setEvmWallet,
-    setCurrent,
+    childAccounts,
     walletList,
+    evmLoading,
+    userInfo,
+    otherAccounts,
+    loggedInAccounts,
     setWalletList,
+    mainAddressLoading,
   } = useProfileStore();
   const [isLoading, setLoading] = useState(loading);
 
-  const [mainAddressLoading, setMainLoading] = useState(true);
-
-  const [evmLoading, setEvmLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
-  const [currentNetwork, setNetwork] = useState('mainnet');
 
-  const [isSandbox, setIsSandbox] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
-  const [otherAccounts, setOtherAccounts] = useState<any>(null);
-  const [loggedInAccounts, setLoggedIn] = useState<any>(null);
-  const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [developerModeOn, setDeveloperModeOn] = useState(false);
   // const [unread, setUnread] = useState(0);
 
-  const [domain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
-
-  const [modeAnonymous, setModeAnonymous] = useState(false);
 
   const [isPending, setIsPending] = useState(false);
 
@@ -107,9 +101,13 @@ const Header = ({ loading = false }) => {
 
   const [switchLoading, setSwitchLoading] = useState(false);
   const [expandAccount, setExpandAccount] = useState(false);
-
   const [, setErrorMessage] = useState('');
   const [errorCode, setErrorCode] = useState(null);
+
+  // News Drawer
+  const [showNewsDrawer, setShowNewsDrawer] = useState(false);
+  const [usernameDrawer, setUsernameDrawer] = useState(false);
+
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
   const { unreadCount } = useNews();
@@ -122,15 +120,10 @@ const Header = ({ loading = false }) => {
     setPop((prevPop) => !prevPop);
   };
 
-  // News Drawer
-  const [showNewsDrawer, setShowNewsDrawer] = useState(false);
-
   const toggleNewsDrawer = useCallback(() => {
     // Avoids unnecessary re-renders using a function to toggle the state
     setShowNewsDrawer((prevShowNewsDrawer) => !prevShowNewsDrawer);
   }, []);
-
-  const [usernameDrawer, setUsernameDrawer] = useState(false);
 
   const toggleUsernameDrawer = useCallback(() => {
     // Avoids unnecessary re-renders using a function to toggle the state
@@ -140,7 +133,6 @@ const Header = ({ loading = false }) => {
   const wallets = useCallback(
     (data) => {
       let sortData = data;
-      const walletName = domain ? domain : 'Wallet';
       if (!Array.isArray(sortData)) {
         sortData = [];
       }
@@ -158,64 +150,8 @@ const Header = ({ loading = false }) => {
         };
       });
     },
-    [currentNetwork, domain]
+    [currentNetwork]
   );
-
-  const freshUserInfo = useCallback(async () => {
-    const currentWallet = await usewallet.getCurrentWallet();
-    const isChild = await usewallet.getActiveWallet();
-
-    const mainAddress = await usewallet.getMainAddress();
-    if (isChild === 'evm') {
-      const res = await usewallet.queryEvmAddress(mainAddress!);
-      const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(res);
-      evmWallet.address = evmAddress;
-      await setCurrent(evmWallet);
-      setMainLoading(false);
-    } else if (isChild) {
-      const currentWallet = await usewallet.getCurrentWallet();
-      await setCurrent(currentWallet);
-      setMainLoading(false);
-    } else {
-      const mainwallet = await usewallet.returnMainWallet();
-      await setCurrent(mainwallet);
-      setMainLoading(false);
-    }
-    const keys = await usewallet.getAccount();
-    const pubKTuple = await usewallet.getPubKey();
-    if (mainAddress) {
-      try {
-        const evmWallet = await usewallet.getEvmWallet();
-        setEvmWallet(evmWallet);
-      } catch (err) {
-        console.error('queryEvmAddress err', err);
-      } finally {
-        setEvmLoading(false);
-      }
-    }
-
-    const walletData = await usewallet.getUserInfo(true);
-
-    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(
-      currentWallet,
-      keys,
-      pubKTuple,
-      walletData,
-      isChild
-    );
-
-    await setOtherAccounts(otherAccounts);
-    await setUserInfo(wallet);
-    await setLoggedIn(loggedInAccounts);
-  }, [usewallet, setEvmWallet, setCurrent]);
-
-  const fetchUserWallet = useCallback(async () => {
-    freshUserInfo();
-    const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    setChildAccount(childresp);
-    usewallet.setChildWallet(childresp);
-  }, [freshUserInfo, usewallet]);
 
   const switchAccount = useCallback(
     async (account) => {
@@ -244,14 +180,6 @@ const Header = ({ loading = false }) => {
     [usewallet, history]
   );
 
-  const loadNetwork = useCallback(async () => {
-    const network = await usewallet.getNetwork();
-    setIsSandbox(false);
-
-    setEvmLoading(true);
-    await setNetwork(network);
-  }, [usewallet]);
-
   const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
     if (developerMode) {
@@ -261,16 +189,9 @@ const Header = ({ loading = false }) => {
 
   const setWallets = async (walletInfo, key, index = null) => {
     await usewallet.setActiveWallet(walletInfo, key, index);
-    setMainLoading(false);
-
     // Clear collections
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
-
-    // Refresh wallet data
-    await fetchUserWallet();
-    await loadNetwork();
-
     // Navigate if needed
     history.push('/dashboard');
     window.location.reload();
@@ -338,32 +259,18 @@ const Header = ({ loading = false }) => {
   }, [usewallet]);
 
   useEffect(() => {
-    loadNetwork();
-    fetchUserWallet();
     loadDeveloperMode();
     checkPendingTx();
     checkAuthStatus();
-
-    const addressDone = () => {
-      fetchUserWallet();
-    };
-
-    const networkChanged = (network) => {
-      loadNetwork();
-    };
 
     chrome.runtime.onMessage.addListener(transactionHandler);
     /**
      * Fired when a message is sent from either an extension process or a content script.
      */
-    eventBus.addEventListener('addressDone', addressDone);
-    eventBus.addEventListener('switchNetwork', networkChanged);
     return () => {
-      eventBus.removeEventListener('addressDone', addressDone);
-      eventBus.removeEventListener('switchNetwork', networkChanged);
       chrome.runtime.onMessage.removeListener(transactionHandler);
     };
-  }, [checkAuthStatus, checkPendingTx, currentNetwork, fetchUserWallet, loadNetwork]);
+  }, [checkAuthStatus, checkPendingTx, currentNetwork]);
 
   useEffect(() => {
     const list = wallets(userWallet);
@@ -390,22 +297,16 @@ const Header = ({ loading = false }) => {
     async (network: string) => {
       // Update local states
       setNetwork(network);
-      setMainLoading(true);
-      setEvmLoading(true);
 
       // Switch network in wallet
       await usewallet.switchNetwork(network);
-
-      // Refresh wallet data
-      await fetchUserWallet();
-      await loadNetwork();
 
       toggleUsernameDrawer();
 
       // Navigate if needed
       history.push('/dashboard');
     },
-    [usewallet, fetchUserWallet, loadNetwork, toggleUsernameDrawer, history]
+    [usewallet, toggleUsernameDrawer, history, setNetwork]
   );
 
   const AccountFunction = (props) => {
@@ -443,11 +344,6 @@ const Header = ({ loading = false }) => {
                   {'@' + props.username}
                 </Typography>
               </Tooltip>
-              {modeAnonymous && (
-                <Tooltip title={chrome.i18n.getMessage('Anonymous__mode__on')} arrow>
-                  <img style={{ display: 'inline-block', width: '20px' }} src={EyeOff} />
-                </Tooltip>
-              )}
             </Box>
           </ListItemText>
         </ListItemButton>
@@ -755,9 +651,7 @@ const Header = ({ loading = false }) => {
                     ? ''
                     : currentNetwork !== 'mainnet'
                       ? `2px solid ${networkColor(currentNetwork)}`
-                      : isSandbox
-                        ? '2px solid #CCAF21'
-                        : '2px solid #282828',
+                      : '2px solid #282828',
                   padding: '3px',
                   marginRight: '0px',
                   position: 'relative',

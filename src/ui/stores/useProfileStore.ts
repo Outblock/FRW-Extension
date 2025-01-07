@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import create from 'zustand';
 
 interface WalletType {
@@ -9,6 +8,16 @@ interface WalletType {
   id: number;
   coins: string[];
   color: string;
+}
+
+interface Thumbnail {
+  url: string;
+}
+
+interface AccountDetails {
+  name: string;
+  description: string;
+  thumbnail: Thumbnail;
 }
 
 export interface WalletResponse {
@@ -30,6 +39,16 @@ export interface BlockchainResponse {
   color: string;
 }
 
+export interface ChildAccount {
+  [key: string]: AccountDetails;
+}
+
+export interface UserInfoResponse {
+  avatar: string;
+  nickname: string;
+  username: string;
+}
+
 interface ProfileState {
   mainAddress: string;
   evmAddress: string;
@@ -39,6 +58,12 @@ interface ProfileState {
   walletList: any[];
   initialStart: boolean;
   current: any;
+  mainAddressLoading: boolean;
+  childAccounts: ChildAccount;
+  evmLoading: boolean;
+  userInfo: UserInfoResponse | null;
+  otherAccounts: any | null;
+  loggedInAccounts: any | null;
   setMainAddress: (address: string) => void;
   setEvmAddress: (address: string) => void;
   setUserWallet: (wallet: any) => void;
@@ -47,6 +72,12 @@ interface ProfileState {
   setWalletList: (list: any[]) => void;
   setInitial: (initial: boolean) => void;
   setCurrent: (current: any) => void;
+  setMainLoading: (loading: boolean) => void;
+  setChildAccount: (childAccount: ChildAccount) => void;
+  setEvmLoading: (loading: boolean) => void;
+  setUserInfo: (info: UserInfoResponse | null) => void;
+  setOtherAccounts: (accounts: any) => void;
+  setLoggedInAccounts: (accounts: any) => void;
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
@@ -66,6 +97,12 @@ export const useProfileStore = create<ProfileState>((set) => ({
   current: {},
   walletList: [],
   initialStart: true,
+  mainAddressLoading: true,
+  evmLoading: true,
+  childAccounts: {},
+  userInfo: null,
+  otherAccounts: null,
+  loggedInAccounts: null,
   setMainAddress: (address) => set({ mainAddress: address }),
   setEvmAddress: (address) => set({ evmAddress: address }),
   setUserWallet: (wallet) => set({ userWallet: wallet }),
@@ -74,4 +111,10 @@ export const useProfileStore = create<ProfileState>((set) => ({
   setWalletList: (list) => set({ walletList: list }),
   setInitial: (initial) => set({ initialStart: initial }),
   setCurrent: (current) => set({ current: current }),
+  setMainLoading: (loading) => set({ mainAddressLoading: loading }),
+  setChildAccount: (childAccount) => set({ childAccounts: childAccount }),
+  setEvmLoading: (loading) => set({ evmLoading: loading }),
+  setUserInfo: (info) => set({ userInfo: info }),
+  setOtherAccounts: (accounts) => set({ otherAccounts: accounts }),
+  setLoggedInAccounts: (accounts) => set({ loggedInAccounts: accounts }),
 }));

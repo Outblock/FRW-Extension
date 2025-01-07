@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
 
 import { useCoinHook } from '@/ui/hooks/useCoinHook';
+import { useNetworkHook } from '@/ui/hooks/useNetworkHook';
 import { useProfileHook } from '@/ui/hooks/useProfileHook';
 import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
@@ -49,19 +50,22 @@ const Routes = () => {
 };
 
 function Main() {
-  const { fetchProfileData, freshUserWallet } = useProfileHook();
+  const { fetchProfileData, freshUserWallet, fetchUserWallet } = useProfileHook();
+  const { fetchNetwork } = useNetworkHook();
   const { refreshCoinData } = useCoinHook();
 
   useEffect(() => {
     // Fetch initial data
     const initData = async () => {
+      await fetchNetwork();
       await fetchProfileData();
       await freshUserWallet();
+      await fetchUserWallet();
       await refreshCoinData();
     };
 
     initData();
-  }, [fetchProfileData, freshUserWallet, refreshCoinData]);
+  }, [fetchProfileData, freshUserWallet, refreshCoinData, fetchNetwork, fetchUserWallet]);
 
   return (
     <Router>
