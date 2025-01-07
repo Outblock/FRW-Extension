@@ -170,6 +170,7 @@ const DeveloperMode = () => {
   const usewallet = useWallet();
   const classes = useStyles();
   const [developerModeOn, setDeveloperModeOn] = useState(false);
+  const [emulatorFeatureEnabled, setEmulatorFeatureEnabled] = useState(false);
   const [emulatorModeOn, setEmulatorModeOn] = useState(false);
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
@@ -177,19 +178,21 @@ const DeveloperMode = () => {
   const loadStuff = useCallback(async () => {
     const network = await usewallet.getNetwork();
     const developerMode = await storage.get('developerMode');
-    const emulatorMode = await usewallet.getEmulatorMode();
+    const enableEmulatorMode = await usewallet.getFeatureFlag('emulator_mode');
+    const emulatorMode = enableEmulatorMode ? await usewallet.getEmulatorMode() : false;
     const monitor = await usewallet.getMonitor();
 
-    return { network, developerMode, emulatorMode, monitor };
+    return { network, developerMode, enableEmulatorMode, emulatorMode, monitor };
   }, [usewallet]);
 
   useEffect(() => {
     let mounted = true;
 
-    loadStuff().then(({ network, developerMode, emulatorMode, monitor }) => {
+    loadStuff().then(({ network, developerMode, enableEmulatorMode, emulatorMode, monitor }) => {
       if (!mounted) return;
       setNetwork(network);
       setDeveloperModeOn(developerMode);
+      setEmulatorFeatureEnabled(enableEmulatorMode);
       setEmulatorModeOn(emulatorMode);
       setMonitor(monitor);
     });
@@ -227,6 +230,12 @@ const DeveloperMode = () => {
   };
 
   const switchEmulatorMode = async () => {
+    // Check if the feature flag is enabled
+    const enableEmulatorMode = await usewallet.getFeatureFlag('emulator_mode');
+    if (!enableEmulatorMode) {
+      return;
+    }
+
     setEmulatorModeOn((prev) => {
       const newMode = !prev;
       usewallet.setEmulatorMode(newMode);
@@ -254,20 +263,22 @@ const DeveloperMode = () => {
       </Box>
       <Fade in={developerModeOn}>
         <Box sx={{ pb: '20px' }}>
-          <Box className={classes.developerBox}>
-            <Typography variant="body1" color="neutral.contrastText" style={{ weight: 600 }}>
-              {chrome.i18n.getMessage('Emulator_Mode')}
-            </Typography>
-            <Switch
-              checked={emulatorModeOn}
-              slots={{
-                root: Root,
-              }}
-              onChange={() => {
-                switchEmulatorMode();
-              }}
-            />
-          </Box>
+          {emulatorFeatureEnabled && (
+            <Box className={classes.developerBox}>
+              <Typography variant="body1" color="neutral.contrastText" style={{ weight: 600 }}>
+                {chrome.i18n.getMessage('Emulator_Mode')}
+              </Typography>
+              <Switch
+                checked={emulatorModeOn}
+                slots={{
+                  root: Root,
+                }}
+                onChange={() => {
+                  switchEmulatorMode();
+                }}
+              />
+            </Box>
+          )}
           <Typography
             variant="h6"
             color="neutral.contrastText"

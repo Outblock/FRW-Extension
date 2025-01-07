@@ -22,7 +22,7 @@ import {
   jsonToKey,
 } from '@/background/utils/modules/publicPrivateKey';
 import eventBus from '@/eventBus';
-import { type FeatureFlags } from '@/shared/types/feature-types';
+import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
@@ -3359,6 +3359,11 @@ export class WalletController extends BaseController {
     return await userWalletService.getNetwork();
   };
   getEmulatorMode = async (): Promise<boolean> => {
+    // Check feature flag first
+    const enableEmulatorMode = await this.getFeatureFlag('emulator_mode');
+    if (!enableEmulatorMode) {
+      return false;
+    }
     return await userWalletService.getEmulatorMode();
   };
 
@@ -3804,6 +3809,10 @@ export class WalletController extends BaseController {
 
   getFeatureFlags = async (): Promise<FeatureFlags> => {
     return openapiService.getFeatureFlags();
+  };
+
+  getFeatureFlag = async (featureFlag: FeatureFlagKey): Promise<boolean> => {
+    return openapiService.getFeatureFlag(featureFlag);
   };
 
   allowLilicoPay = async (): Promise<boolean> => {

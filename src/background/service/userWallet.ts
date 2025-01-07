@@ -205,6 +205,11 @@ class UserWallet {
   };
 
   getEmulatorMode = async (): Promise<boolean> => {
+    // Check feature flag first
+    const enableEmulatorMode = await openapiService.getFeatureFlag('emulator_mode');
+    if (!enableEmulatorMode) {
+      return false;
+    }
     if (!this.store) {
       await this.init();
     }
@@ -212,7 +217,15 @@ class UserWallet {
   };
 
   setEmulatorMode = async (emulatorMode: boolean) => {
-    this.store.emulatorMode = emulatorMode;
+    let emulatorModeToSet = emulatorMode;
+    if (emulatorModeToSet) {
+      // check feature flag
+      const enableEmulatorMode = await openapiService.getFeatureFlag('emulator_mode');
+      if (!enableEmulatorMode) {
+        emulatorModeToSet = false;
+      }
+    }
+    this.store.emulatorMode = emulatorModeToSet;
     await this.setupFcl();
   };
 
