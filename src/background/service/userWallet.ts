@@ -166,6 +166,7 @@ class UserWallet {
     }
     if (this.store.network !== network) {
       this.store.activeChild = null;
+      // TODO: I think this line below should be put back in. It was removed to fix an account switching bug, but without it, it's possible for currentWallet to refer to address on another network. Either currentWallet should be cleared or the line below should be put back in.
       // this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
     }
     this.store.network = network;
