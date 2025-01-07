@@ -87,7 +87,7 @@ const About = () => {
       <Box className={classes.logoBox}>
         {/* <img src={logo} alt='logo' className={classes.logo} /> */}
 
-        <a href="https://lilico.app" target="_blank">
+        <a href="https://wallet.flow.com" target="_blank">
           <Box
             className="logoContainer"
             style={{ height: '120px', width: '120px', marginTop: '12px' }}
@@ -96,7 +96,7 @@ const About = () => {
           </Box>
         </a>
 
-        <a href="https://lilico.app" target="_blank">
+        <a href="https://wallet.flow.com" target="_blank">
           <Typography
             variant="h6"
             component="div"
@@ -138,40 +138,6 @@ const About = () => {
           </Typography>
         )}
       </Box>
-
-      {/* <List className={classes.list} sx={{margin: '8px auto 16px auto'}}>
-        <ListItem
-          button
-          component={Link}
-          to=''
-          disablePadding
-          className={classes.listItem}
-        >
-          <ListItemButton className={classes.itemButton}>
-            <ListItemText primary="Check Update" />
-            <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-              <IconEnd size={12} />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-
-        <Divider sx={{ width: '90%' }} variant="middle"/>
-
-        <ListItem
-          button
-          component={Link}
-          to=''
-          disablePadding
-          className={classes.listItem}
-        >
-          <ListItemButton className={classes.itemButton}>
-            <ListItemText primary="Contact Us" />
-            <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-              <IconEnd size={12} />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-      </List> */}
 
       <Box className={classes.mediaBox}>
         <Typography
