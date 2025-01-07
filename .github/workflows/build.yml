@@ -1,4 +1,4 @@
-name: Production Build
+name: Extension Build
 
 on:
   push:
@@ -66,7 +66,7 @@ jobs:
           MIXPANEL_TOKEN="${{ secrets.MIXPANEL_TOKEN }}"
           EOF
 
-      - name: Build production
+      - name: Build
         run: pnpm run build:ci
         env:
           CI: true
