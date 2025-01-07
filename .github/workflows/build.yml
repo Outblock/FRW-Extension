@@ -1,15 +1,12 @@
 name: Production Build
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
   push:
-    branches: [dev, master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ github.ref_name == 'master' && 'production' || github.ref_name == 'dev' && 'staging' || 'development' }}
 
     strategy:
       matrix:
