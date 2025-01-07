@@ -113,7 +113,7 @@ const Dashboard = ({ value, setValue }) => {
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
           index={value}
           onChangeIndex={handleChangeIndex}
-          style={{ height: '100%', width: '100%', backgroundColor: 'black' }}
+          style={{ height: '100%', width: '100%' }}
         >
           <TabPanel value={value} index={0}>
             <WalletTab network={currentNetwork} />

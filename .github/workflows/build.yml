@@ -38,6 +38,7 @@ jobs:
           BRANCH_NAME="${{ github.ref_name }}"
           PR_TITLE="${{ github.event.pull_request.title || '' }}"
           PR_NUMBER="${{ github.event.pull_request.number || '' }}"
+          BUILD_BACKGROUND="${{ vars.BUILD_BACKGROUND }}"
 
           # Google drive
           GD_BACKUP_NAME="${{ vars.GD_BACKUP_NAME }}"
