@@ -68,6 +68,13 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const BRANCH_NAME = process.env.BRANCH_NAME;
+
+const ENVIRONMENT =
+  BRANCH_NAME === 'master' ? 'Production' : BRANCH_NAME === 'dev' ? 'Staging' : 'Development';
+
+const COMMIT_SHA = process.env.COMMIT_SHA;
+
 const About = () => {
   const classes = useStyles();
 
@@ -106,6 +113,19 @@ const About = () => {
         >
           {chrome.i18n.getMessage('Version')} {`${version}`}
         </Typography>
+
+        {ENVIRONMENT !== 'Production' && (
+          <Typography
+            variant="body1"
+            component="div"
+            color="text.secondary"
+            sx={{ textAlign: 'center', fontWeight: 300 }}
+          >
+            {`${
+              ENVIRONMENT === 'Staging' ? 'Staging' : BRANCH_NAME ? BRANCH_NAME : 'Local'
+            } ${COMMIT_SHA ? `Commit: ${COMMIT_SHA}` : ''}`}
+          </Typography>
+        )}
 
         {process.env.NODE_ENV !== 'production' && (
           <Typography
