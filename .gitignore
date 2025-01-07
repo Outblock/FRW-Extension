@@ -25,3 +25,5 @@ dist.7z
 /playwright/.cache/
 dependency-usage.md
 extension-dependencies.md
+emulator-account.pkey
+flow.json

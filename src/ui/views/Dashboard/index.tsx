@@ -2,12 +2,13 @@ import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { getApp, initializeApp } from 'firebase/app';
 import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { storage } from '@/background/webapi';
+import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
-import { LLTestnetIndicator } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import NFTTab from '../NFT';
@@ -44,6 +45,7 @@ const Dashboard = ({ value, setValue }) => {
   const [domain, setDomain] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [isEvm, setIsEvm] = useState<boolean>(false);
+  const [emulatorModeOn, setEmulatorModeOn] = useState<boolean>(false);
 
   const handleChangeIndex = (index) => {
     setValue(index);
@@ -56,8 +58,9 @@ const Dashboard = ({ value, setValue }) => {
     const fetchAll = async () => {
       //todo fix cadence loading
       await wallet.getCadenceScripts();
-      const [network, userDomain] = await Promise.all([
+      const [network, emulatorMode, userDomain] = await Promise.all([
         wallet.getNetwork(),
+        wallet.getEmulatorMode(),
         wallet.fetchUserDomain(),
       ]);
       const isChild = await wallet.getActiveWallet();
@@ -81,12 +84,13 @@ const Dashboard = ({ value, setValue }) => {
           console.error('Error fetching remote config:', error);
         });
 
-      return { network, userDomain };
+      return { network, emulatorMode, userDomain };
     };
 
-    fetchAll().then(({ network, userDomain }) => {
+    fetchAll().then(({ network, emulatorMode, userDomain }) => {
       if (isMounted) {
         setNetwork(network);
+        setEmulatorModeOn(emulatorMode);
         setDomain(userDomain);
         setLoading(false);
       }
@@ -107,7 +111,8 @@ const Dashboard = ({ value, setValue }) => {
           flexDirection: 'column',
         }}
       >
-        {currentNetwork === 'testnet' && value === 0 && <LLTestnetIndicator />}
+        <NetworkIndicator network={currentNetwork} emulatorMode={emulatorModeOn} />
+
         {/* <Header loading={loading} /> */}
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}

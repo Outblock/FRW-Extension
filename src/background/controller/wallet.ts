@@ -22,7 +22,7 @@ import {
   jsonToKey,
 } from '@/background/utils/modules/publicPrivateKey';
 import eventBus from '@/eventBus';
-import { type FeatureFlags } from '@/shared/types/feature-types';
+import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
@@ -58,11 +58,10 @@ import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
-import { fclTestnetConfig, fclMainnetConfig } from '../fclConfig';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
-import type { NFTData, NFTModel, StorageInfo, WalletResponse } from '../service/networkModel';
+import type { NFTData, NFTModel, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
@@ -3308,11 +3307,9 @@ export class WalletController extends BaseController {
   switchNetwork = async (network: string) => {
     await userWalletService.setNetwork(network);
     eventBus.emit('switchNetwork', network);
-    if (network === 'testnet') {
-      await fclTestnetConfig();
-    } else if (network === 'mainnet') {
-      await fclMainnetConfig();
-    }
+
+    // setup fcl for the new network
+    await userWalletService.setupFcl();
     this.refreshAll();
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -3360,6 +3357,18 @@ export class WalletController extends BaseController {
 
   getNetwork = async (): Promise<string> => {
     return await userWalletService.getNetwork();
+  };
+  getEmulatorMode = async (): Promise<boolean> => {
+    // Check feature flag first
+    const enableEmulatorMode = await this.getFeatureFlag('emulator_mode');
+    if (!enableEmulatorMode) {
+      return false;
+    }
+    return await userWalletService.getEmulatorMode();
+  };
+
+  setEmulatorMode = async (mode: boolean) => {
+    return await userWalletService.setEmulatorMode(mode);
   };
 
   clearChildAccount = () => {
@@ -3885,6 +3894,10 @@ export class WalletController extends BaseController {
 
   getFeatureFlags = async (): Promise<FeatureFlags> => {
     return openapiService.getFeatureFlags();
+  };
+
+  getFeatureFlag = async (featureFlag: FeatureFlagKey): Promise<boolean> => {
+    return openapiService.getFeatureFlag(featureFlag);
   };
 
   allowLilicoPay = async (): Promise<boolean> => {

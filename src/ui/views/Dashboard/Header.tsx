@@ -92,7 +92,7 @@ const Header = ({ loading = false }) => {
   const [otherAccounts, setOtherAccounts] = useState<any>(null);
   const [loggedInAccounts, setLoggedIn] = useState<any>(null);
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
-  const [modeOn, setModeOn] = useState(false);
+  const [developerModeOn, setDeveloperModeOn] = useState(false);
   // const [unread, setUnread] = useState(0);
 
   const [domain] = useState('');
@@ -119,11 +119,11 @@ const Header = ({ loading = false }) => {
   const { unreadCount } = useNews();
 
   const toggleDrawer = () => {
-    setDrawer(!drawer);
+    setDrawer((prevDrawer) => !prevDrawer);
   };
 
   const togglePop = () => {
-    setPop(!ispop);
+    setPop((prevPop) => !prevPop);
   };
 
   // News Drawer
@@ -277,7 +277,7 @@ const Header = ({ loading = false }) => {
   const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
     if (developerMode) {
-      setModeOn(developerMode);
+      setDeveloperModeOn(developerMode);
     }
   };
 
@@ -662,7 +662,7 @@ const Header = ({ loading = false }) => {
           {chrome.i18n.getMessage('Account')}
         </Typography>
         {userInfo && createAccountList(userInfo)}
-        {modeOn && NetworkFunction()}
+        {developerModeOn && NetworkFunction()}
       </Drawer>
     );
   };
@@ -846,7 +846,7 @@ const Header = ({ loading = false }) => {
               evmWallet={evmWallet}
               networkColor={networkColor}
               evmLoading={evmLoading}
-              modeOn={modeOn}
+              modeOn={developerModeOn}
               mainAddressLoading={mainAddressLoading}
             />
           )}

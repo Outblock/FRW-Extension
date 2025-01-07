@@ -16,7 +16,6 @@ import { EVENTS } from 'consts';
 
 import { providerController, walletController } from './controller';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
-import { fclTestnetConfig, fclMainnetConfig } from './fclConfig';
 import {
   permissionService,
   preferenceService,
@@ -45,7 +44,7 @@ const chromeWindow = await chrome.windows.getCurrent();
 
 let appStoreLoaded = false;
 
-function initAppMeta() {
+async function initAppMeta() {
   // Initialize Firebase
   // console.log('<- initAppMeta ->')
   // const document = chromeWindow.document;
@@ -64,7 +63,9 @@ function initAppMeta() {
   // head?.appendChild(description);
 
   firebaseSetup();
-  fclSetup();
+
+  // note fcl setup is async
+  await userWalletService.setupFcl();
 }
 
 async function firebaseSetup() {
@@ -81,25 +82,13 @@ async function firebaseSetup() {
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
-      fclSetup();
+      // note fcl setup is async
+      userWalletService.setupFcl();
     } else {
       // User is signed out
       signInAnonymously(auth);
     }
   });
-}
-
-async function fclSetup() {
-  const network = await userWalletService.getNetwork();
-  console.log('network is ', network);
-  switch (network) {
-    case 'mainnet':
-      await fclMainnetConfig();
-      break;
-    case 'testnet':
-      await fclTestnetConfig();
-      break;
-  }
 }
 
 async function restoreAppState() {
@@ -142,7 +131,7 @@ async function restoreAppState() {
 
   appStoreLoaded = true;
 
-  initAppMeta();
+  await initAppMeta();
 }
 
 restoreAppState();
