@@ -40,7 +40,6 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
-  type FlowNetwork,
 } from './networkModel';
 
 import {
@@ -676,6 +675,54 @@ class OpenApiService {
       hash_algo: getStringFromHashAlgo(account_key.hash_algo),
     });
     return data;
+  };
+
+  login = async (
+    public_key: string,
+    signature: string,
+    replaceUser = true
+  ): Promise<SignInResponse> => {
+    const config = this.store.config.login;
+    // const result = await this.request[config.method](config.path, {
+    //   public_key,
+    //   signature,
+    // });
+    const result = await this.sendRequest(
+      config.method,
+      config.path,
+      {},
+      { public_key, signature }
+    );
+    if (!result.data) {
+      throw new Error('NoUserFound');
+    }
+    if (replaceUser) {
+      await this._signWithCustom(result.data.custom_token);
+      await storage.set('currentId', result.data.id);
+    }
+    return result;
+  };
+
+  loginV2 = async (
+    public_key: string,
+    signature: string,
+    replaceUser = true
+  ): Promise<SignInResponse> => {
+    const config = this.store.config.loginv2;
+    const result = await this.sendRequest(
+      config.method,
+      config.path,
+      {},
+      { public_key, signature }
+    );
+    if (!result.data) {
+      throw new Error('NoUserFound');
+    }
+    if (replaceUser) {
+      await this._signWithCustom(result.data.custom_token);
+      await storage.set('currentId', result.data.id);
+    }
+    return result;
   };
 
   loginV3 = async (

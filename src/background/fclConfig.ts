@@ -146,32 +146,6 @@ export const fclTestnetConfig = async (emulatorMode?: boolean) => {
   }
 };
 
-// Configure FCL for Emulator
-export const fclEmulatorConfig = async (network: FlowNetwork) => {
-  const contracts = await fetchContracts();
-
-  const emulatorContracts =
-    network === 'testnet'
-      ? contracts.testnet || fallbackContracts.testnet
-      : network === 'mainnet'
-        ? contracts.mainnet || fallbackContracts.mainnet
-        : fallbackContracts.mainnet;
-
-  const emulatorHost = network === 'testnet' ? EMULATOR_HOST_TESTNET : EMULATOR_HOST_MAINNET;
-
-  const config = fcl
-    .config()
-    .put('accessNode.api', emulatorHost)
-    .put('sdk.transport', httpSend)
-    .put('flow.network', network);
-
-  for (const key in emulatorContracts) {
-    if (Object.prototype.hasOwnProperty.call(emulatorContracts, key)) {
-      config.put(key, emulatorContracts[key]);
-    }
-  }
-};
-
 export const fclConfig = async (network: FlowNetwork, emulatorMode?: boolean) => {
   if (network === 'testnet') {
     await fclTestnetConfig(emulatorMode);

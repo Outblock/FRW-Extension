@@ -45,7 +45,7 @@ const Dashboard = ({ value, setValue }) => {
   const [domain, setDomain] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [isEvm, setIsEvm] = useState<boolean>(false);
-  const [emulatorMode, setEmulatorMode] = useState<boolean>(false);
+  const [emulatorModeOn, setEmulatorModeOn] = useState<boolean>(false);
 
   const handleChangeIndex = (index) => {
     setValue(index);
@@ -90,7 +90,7 @@ const Dashboard = ({ value, setValue }) => {
     fetchAll().then(({ network, emulatorMode, userDomain }) => {
       if (isMounted) {
         setNetwork(network);
-        setEmulatorMode(emulatorMode);
+        setEmulatorModeOn(emulatorMode);
         setDomain(userDomain);
         setLoading(false);
       }
@@ -111,7 +111,7 @@ const Dashboard = ({ value, setValue }) => {
           flexDirection: 'column',
         }}
       >
-        <NetworkIndicator network={currentNetwork} emulatorMode={emulatorMode} />
+        <NetworkIndicator network={currentNetwork} emulatorMode={emulatorModeOn} />
 
         {/* <Header loading={loading} /> */}
         <SwipeableViews

@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/system';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { storage } from '@/background/webapi';
 import { LLHeader } from '@/ui/FRWComponent';
@@ -224,6 +224,7 @@ const DeveloperMode = () => {
   const switchDeveloperMode = async () => {
     setDeveloperModeOn((prev) => {
       const newMode = !prev;
+      // This should probably be done in the background
       storage.set('developerMode', newMode);
       return newMode;
     });

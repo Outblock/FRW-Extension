@@ -93,7 +93,6 @@ const Header = ({ loading = false }) => {
   const [loggedInAccounts, setLoggedIn] = useState<any>(null);
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
   const [developerModeOn, setDeveloperModeOn] = useState(false);
-  const [emulatorModeOn, setEmulatorModeOn] = useState(false);
   // const [unread, setUnread] = useState(0);
 
   const [domain] = useState('');
@@ -279,11 +278,6 @@ const Header = ({ loading = false }) => {
     const developerMode = await storage.get('developerMode');
     if (developerMode) {
       setDeveloperModeOn(developerMode);
-    }
-
-    const emulatorMode = await storage.get('emulatorMode');
-    if (emulatorMode) {
-      setEmulatorModeOn(emulatorMode);
     }
   };
 

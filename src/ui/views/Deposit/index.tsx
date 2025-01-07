@@ -123,7 +123,7 @@ const Deposit = () => {
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [userInfo, setUserInfo] = useState<any>(null);
   const [active, setIsActive] = useState<boolean>(false);
-  const [emulatorMode, setEmulatorMode] = useState<boolean>(false);
+  const [emulatorModeOn, setEmulatorModeOn] = useState<boolean>(false);
 
   const fetchStuff = useCallback(async () => {
     const isChild = await usewallet.getActiveWallet();
@@ -180,7 +180,7 @@ const Deposit = () => {
     const network = await usewallet.getNetwork();
     setNetwork(network);
     const emulatorMode = await usewallet.getEmulatorMode();
-    setEmulatorMode(emulatorMode);
+    setEmulatorModeOn(emulatorMode);
     const user = await usewallet.getUserInfo(false);
     setUserInfo(user);
   }, [currentNetwork, usewallet]);
@@ -207,7 +207,7 @@ const Deposit = () => {
   return (
     <StyledEngineProvider injectFirst>
       <div className={`${classes.page} page`}>
-        <NetworkIndicator network={currentNetwork} emulatorMode={emulatorMode} />
+        <NetworkIndicator network={currentNetwork} emulatorMode={emulatorModeOn} />
         <LLHeader title={chrome.i18n.getMessage('')} help={false} />
         <div className={classes.container}>
           {userWallets && (

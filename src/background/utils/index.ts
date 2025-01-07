@@ -5,7 +5,6 @@ import { storage } from '@/background/webapi';
 
 const { version } = packageJson;
 import { EMULATOR_HOST_TESTNET, EMULATOR_HOST_MAINNET } from '../fclConfig';
-import { userWalletService } from '../service';
 import { mixpanelTrack } from '../service/mixpanel';
 import { type FlowNetwork } from '../service/networkModel';
 import pageStateCache from '../service/pageStateCache';
@@ -133,42 +132,6 @@ export const checkEmulatorAccount = async (
   }
 };
 
-export const createEmulatorAccount = async (
-  network: FlowNetwork,
-  publicKey: string
-): Promise<string> => {
-  try {
-    const baseURL = getEmulatorBaseURL(network);
-    const response = await fetch(`${baseURL}/v1/accounts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        signer: '0xf8d6e0586b0a20c7', // Service account
-        keys: [
-          {
-            publicKey: publicKey,
-            signAlgo: 2, // ECDSA_P256
-            hashAlgo: 3, // SHA3_256
-            weight: 1000,
-          },
-        ],
-        contracts: {},
-      }),
-    });
-
-    const data = await response.json();
-    if (!data.address) {
-      throw new Error('Failed to create emulator account');
-    }
-    return data.address;
-  } catch (error) {
-    console.error('Error creating emulator account:', error);
-    throw error;
-  }
-};
-
 export const getScripts = async (folder: string, scriptName: string) => {
   try {
     const { data } = await storage.get('cadenceScripts');
@@ -186,36 +149,6 @@ export const getScripts = async (folder: string, scriptName: string) => {
     }
     throw error;
   }
-};
-
-const getDefaultEmulatorScript = (type: string, name: string) => {
-  const defaultScripts = {
-    basic: {
-      revokeKey: `
-        transaction(keyIndex: Int) {
-          prepare(signer: AuthAccount) {
-            signer.keys.revoke(keyIndex: keyIndex)
-          }
-        }
-      `,
-    },
-    storage: {
-      getStorageInfo: `
-        pub fun main(address: Address): {String: UFix64} {
-          let account = getAccount(address)
-          let used = account.storageUsed
-          let capacity = account.storageCapacity
-          return {
-            "used": used,
-            "capacity": capacity,
-            "available": capacity - used
-          }
-        }
-      `,
-    },
-  };
-
-  return defaultScripts[type]?.[name] || '';
 };
 
 export const findKeyAndInfo = (keys, publicKey) => {
