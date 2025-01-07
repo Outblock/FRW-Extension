@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "デベロッパーモード"
   },
+  "Emulator_Mode": {
+    "message": "エミュレータモード"
+  },
   "About": {
     "message": "開発について"
   },
@@ -189,6 +192,15 @@
   },
   "Testnet": {
     "message": "Testnet"
+  },
+  "Emulator": {
+    "message": "Emulator"
+  },
+  "Emulate_Testnet": {
+    "message": "テストネットをエミュレートする"
+  },
+  "Emulate_Mainnet": {
+    "message": "メインネットをエミュレートする"
   },
   "Crescendo": {
     "message": "Crescendo"

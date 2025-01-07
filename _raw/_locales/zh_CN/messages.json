@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "开发者模式"
   },
+  "Emulator_Mode": {
+    "message": "模擬器模式"
+  },
   "About": {
     "message": "关于"
   },
@@ -189,6 +192,15 @@
   },
   "Testnet": {
     "message": "测试网"
+  },
+  "Emulator": {
+    "message": "沙盒网"
+  },
+  "Emulate_Testnet": {
+    "message": "模拟测试网"
+  },
+  "Emulate_Mainnet": {
+    "message": "模拟主网"
   },
   "Crescendo": {
     "message": "沙盒网"

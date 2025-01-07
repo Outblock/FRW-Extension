@@ -60,11 +60,6 @@ const App = ({ wallet }: { wallet: any }) => {
       <CssBaseline />
       <WalletProvider wallet={wallet}>
         <NewsProvider>
-          <GlobalStyles
-            styles={{
-              body: { backgroundColor: '#121212' },
-            }}
-          />
           <Main />
         </NewsProvider>
       </WalletProvider>
