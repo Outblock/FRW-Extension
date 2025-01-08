@@ -700,27 +700,25 @@ const Header = ({ loading = false }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          {userInfo && (
-            <MenuDrawer
-              userInfo={userInfo!}
-              drawer={drawer}
-              toggleDrawer={toggleDrawer}
-              otherAccounts={otherAccounts}
-              switchAccount={switchAccount}
-              togglePop={togglePop}
-              walletList={walletList}
-              childAccounts={childAccounts}
-              current={current}
-              createWalletList={createWalletList}
-              setWallets={setWallets}
-              currentNetwork={currentNetwork}
-              evmWallet={evmWallet}
-              networkColor={networkColor}
-              evmLoading={evmLoading}
-              modeOn={developerModeOn}
-              mainAddressLoading={mainAddressLoading}
-            />
-          )}
+          <MenuDrawer
+            userInfo={userInfo!}
+            drawer={drawer}
+            toggleDrawer={toggleDrawer}
+            otherAccounts={otherAccounts}
+            switchAccount={switchAccount}
+            togglePop={togglePop}
+            walletList={walletList}
+            childAccounts={childAccounts}
+            current={current}
+            createWalletList={createWalletList}
+            setWallets={setWallets}
+            currentNetwork={currentNetwork}
+            evmWallet={evmWallet}
+            networkColor={networkColor}
+            evmLoading={evmLoading}
+            modeOn={developerModeOn}
+            mainAddressLoading={mainAddressLoading}
+          />
           {appBarLabel(current)}
           {usernameSelect()}
           <NewsDrawer />

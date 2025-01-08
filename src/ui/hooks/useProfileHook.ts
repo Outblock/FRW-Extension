@@ -5,6 +5,7 @@ import {
   useProfileStore,
   type ChildAccount,
   type WalletResponse,
+  type WalletType,
 } from '@/ui/stores/useProfileStore';
 import { useWallet } from '@/ui/utils';
 
@@ -33,6 +34,18 @@ export const useProfileHook = () => {
         setMainAddress(mainAddress);
         try {
           const evmRes = await usewallet.queryEvmAddress(mainAddress);
+          const emoji = await usewallet.getEmoji();
+          const newEvmRes: WalletType = {
+            name: emoji[9].name,
+            icon: emoji[9].emoji,
+            address: ensureEvmAddressPrefix(evmRes!),
+            chain_id: '1',
+            id: 1,
+            coins: [],
+            color: emoji[9].bgcolor,
+          };
+          setEvmWallet(newEvmRes);
+          setEvmLoading(false);
           setEvmAddress(ensureEvmAddressPrefix(evmRes!));
         } catch (err) {
           console.error('queryEvmAddress err', err);
@@ -41,7 +54,7 @@ export const useProfileHook = () => {
     } catch (err) {
       console.error('fetchProfileData err', err);
     }
-  }, [usewallet, setMainAddress, setEvmAddress]);
+  }, [usewallet, setMainAddress, setEvmAddress, setEvmWallet, setEvmLoading]);
 
   const freshUserWallet = useCallback(async () => {
     const wallet: WalletResponse[] = await usewallet.getUserWallets();
@@ -78,17 +91,6 @@ export const useProfileHook = () => {
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     console.log('mainAddress', mainAddress);
-    if (mainAddress) {
-      try {
-        const evmWallet = await usewallet.getEvmWallet();
-        console.log('evmWallet', evmWallet);
-        setEvmWallet(evmWallet);
-      } catch (err) {
-        console.error('queryEvmAddress err', err);
-      } finally {
-        setEvmLoading(false);
-      }
-    }
 
     const walletData = await usewallet.getUserInfo(true);
 
@@ -103,16 +105,7 @@ export const useProfileHook = () => {
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedInAccounts(loggedInAccounts);
-  }, [
-    usewallet,
-    setEvmWallet,
-    setCurrent,
-    setEvmLoading,
-    setMainLoading,
-    setUserInfo,
-    setOtherAccounts,
-    setLoggedInAccounts,
-  ]);
+  }, [usewallet, setCurrent, setMainLoading, setUserInfo, setOtherAccounts, setLoggedInAccounts]);
 
   const fetchUserWallet = useCallback(async () => {
     freshUserInfo();

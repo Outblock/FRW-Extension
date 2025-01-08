@@ -1,6 +1,6 @@
 import create from 'zustand';
 
-interface WalletType {
+export interface WalletType {
   name: string;
   icon: string;
   address: string;
