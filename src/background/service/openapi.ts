@@ -1,5 +1,4 @@
 import * as fcl from '@onflow/fcl';
-import type { Method } from 'axios';
 import dayjs from 'dayjs';
 import { initializeApp, getApp } from 'firebase/app';
 import {
@@ -21,7 +20,7 @@ import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-t
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
-import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
+import { getScripts, findKeyAndInfo } from 'background/utils';
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
@@ -56,17 +55,6 @@ import {
 // import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
 
-export interface OpenApiConfigValue {
-  path: string;
-  method: Method;
-  params?: string[];
-}
-
-export interface OpenApiStore {
-  host: string;
-  config: Record<string, OpenApiConfigValue>;
-}
-
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -79,7 +67,6 @@ const auth = getAuth(app);
 // const remoteConfig = getRemoteConfig(app);
 
 const remoteFetch = fetchConfig;
-const pricesMap = {};
 
 const waitForAuthInit = async () => {
   let unsubscribe: Unsubscribe;
@@ -109,7 +96,7 @@ onAuthStateChanged(auth, (user: User | null) => {
   userWalletService.setupFcl();
 });
 
-const dataConfig: Record<string, OpenApiConfigValue> = {
+const DATA_CONFIG = {
   check_username: {
     path: '/v1/user/check',
     method: 'get',
@@ -363,29 +350,7 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
 };
 
 class OpenApiService {
-  store!: OpenApiStore;
-
-  // request = rateLimit(axios.create(), { maxRPS });
-
-  setHost = async (host: string) => {
-    this.store.host = host;
-    await this.init();
-  };
-
-  getHost = () => {
-    return this.store.host;
-  };
-
   init = async () => {
-    this.store = await createPersistStore({
-      name: 'openapi',
-      template: {
-        host: INITIAL_OPENAPI_URL,
-        config: dataConfig,
-      },
-      fromStorage: false, // Debug only
-    });
-
     await userWalletService.setupFcl();
   };
 
@@ -403,7 +368,7 @@ class OpenApiService {
     url = '',
     params = {},
     data = {},
-    host = this.store.host
+    host = INITIAL_OPENAPI_URL
   ) => {
     // Default options are marked with *
     let requestUrl = '';
@@ -480,7 +445,7 @@ class OpenApiService {
   };
 
   getUSDCPrice = async (provider = PriceProvider.binance): Promise<CheckResponse> => {
-    const config = this.store.config.crypto_map;
+    const config = DATA_CONFIG.crypto_map;
     const data = await this.sendRequest(config.method, config.path, {
       provider,
       pair: this.getUSDCPricePair(provider),
@@ -575,7 +540,7 @@ class OpenApiService {
   };
 
   getTokenPrice = async (token: string, provider = PriceProvider.binance) => {
-    const config = this.store.config.crypto_flow;
+    const config = DATA_CONFIG.crypto_flow;
     const pair = this.getTokenPair(token, provider);
     if (!pair) {
       throw new Error('no price provider found');
@@ -618,7 +583,7 @@ class OpenApiService {
         break;
     }
 
-    const config = this.store.config.crypto_history;
+    const config = DATA_CONFIG.crypto_history;
     const data = await this.sendRequest(config.method, config.path, {
       provider,
       pair: this.getTokenPair(token, provider),
@@ -644,7 +609,7 @@ class OpenApiService {
   };
 
   checkUsername = async (username: string) => {
-    const config = this.store.config.check_username;
+    const config = DATA_CONFIG.check_username;
     const data = await this.sendRequest(config.method, config.path, {
       username,
     });
@@ -655,7 +620,7 @@ class OpenApiService {
     // Track the time until account_created is called
     mixpanelTrack.time('account_created');
 
-    const config = this.store.config.register;
+    const config = DATA_CONFIG.register;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -682,7 +647,7 @@ class OpenApiService {
     signature: string,
     replaceUser = true
   ): Promise<SignInResponse> => {
-    const config = this.store.config.login;
+    const config = DATA_CONFIG.login;
     // const result = await this.request[config.method](config.path, {
     //   public_key,
     //   signature,
@@ -708,7 +673,7 @@ class OpenApiService {
     signature: string,
     replaceUser = true
   ): Promise<SignInResponse> => {
-    const config = this.store.config.loginv2;
+    const config = DATA_CONFIG.loginv2;
     const result = await this.sendRequest(
       config.method,
       config.path,
@@ -731,7 +696,7 @@ class OpenApiService {
     signature: string,
     replaceUser = true
   ): Promise<SignInResponse> => {
-    const config = this.store.config.loginv3;
+    const config = DATA_CONFIG.loginv3;
     const result = await this.sendRequest(
       config.method,
       config.path,
@@ -778,7 +743,7 @@ class OpenApiService {
     address: string,
     replaceUser = true
   ): Promise<SignInResponse> => {
-    const config = this.store.config.importKey;
+    const config = DATA_CONFIG.importKey;
     const result = await this.sendRequest(
       config.method,
       config.path,
@@ -796,43 +761,43 @@ class OpenApiService {
   };
 
   coinMap = async () => {
-    const config = this.store.config.coin_map;
+    const config = DATA_CONFIG.coin_map;
     const data = await this.sendRequest(config.method, config.path);
     return data;
   };
 
   userInfo = async (): Promise<UserInfoResponse> => {
-    const config = this.store.config.user_info;
+    const config = DATA_CONFIG.user_info;
     return await this.sendRequest(config.method, config.path);
   };
 
   userWallet = async () => {
-    const config = this.store.config.user_wallet;
+    const config = DATA_CONFIG.user_wallet;
     const data = await this.sendRequest(config.method, config.path);
     return data;
   };
 
   //todo check data
   userWalletV2 = async () => {
-    const config = this.store.config.user_wallet_v2;
+    const config = DATA_CONFIG.user_wallet_v2;
     const data = await this.sendRequest(config.method, config.path);
     return data;
   };
 
   createFlowAddress = async () => {
-    const config = this.store.config.create_flow_address;
+    const config = DATA_CONFIG.create_flow_address;
     const data = await this.sendRequest(config.method, config.path);
     return data;
   };
 
   createFlowSandboxAddress = async () => {
-    const config = this.store.config.create_flow_sandbox_address;
+    const config = DATA_CONFIG.create_flow_sandbox_address;
     const data = await this.sendRequest(config.method, config.path);
     return data;
   };
 
   createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
-    const config = this.store.config.create_flow_network_address;
+    const config = DATA_CONFIG.create_flow_network_address;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -852,7 +817,7 @@ class OpenApiService {
   };
 
   prepareTransaction = async (transaction: FlowTransaction) => {
-    const config = this.store.config.prepare_transaction;
+    const config = DATA_CONFIG.prepare_transaction;
     const data = await this.sendRequest(config.method, config.path, {}, { transaction });
     return data;
   };
@@ -861,7 +826,7 @@ class OpenApiService {
     const messages = {
       envelope_message: message,
     };
-    const config = this.store.config.sign_payer;
+    const config = DATA_CONFIG.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest(
@@ -879,7 +844,7 @@ class OpenApiService {
     const messages = {
       envelope_message: message,
     };
-    const config = this.store.config.sign_payer;
+    const config = DATA_CONFIG.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest(
@@ -894,7 +859,7 @@ class OpenApiService {
   };
 
   getProposer = async () => {
-    const config = this.store.config.sign_payer;
+    const config = DATA_CONFIG.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest('GET', '/getProposer', {}, {}, baseURL);
@@ -903,7 +868,7 @@ class OpenApiService {
   };
 
   sendTransaction = async (transaction): Promise<SendTransactionResponse> => {
-    const config = this.store.config.send_transaction;
+    const config = DATA_CONFIG.send_transaction;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -916,7 +881,7 @@ class OpenApiService {
   };
 
   getCoinList = async (address) => {
-    const config = this.store.config.coin_list;
+    const config = DATA_CONFIG.coin_list;
     const data = await this.sendRequest(config.method, config.path, {
       address,
     });
@@ -924,42 +889,10 @@ class OpenApiService {
   };
 
   getCoinRate = async (coinId) => {
-    const config = this.store.config.coin_rate;
+    const config = DATA_CONFIG.coin_rate;
     const data = await this.sendRequest(config.method, config.path, { coinId });
     return data;
   };
-
-  getNFTList = async (address: string, offset: number, limit: number) => {
-    const config = this.store.config.nft_list;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-      offset,
-      limit,
-    });
-    return data;
-  };
-
-  // getNFTListV2 = async (address: string, offset: number, limit: number) => {
-  //   const alchemyAPI = (await storage.get('alchemyAPI')) || false;
-  //   const config = alchemyAPI
-  //     ? this.store.config.nft_list_v2
-  //     : this.store.config.nft_list_lilico_v2;
-  //   const data = await this.sendRequest(config.method, config.path, {
-  //     address,
-  //     offset,
-  //     limit,
-  //   });
-  //   return data;
-  // };
-
-  // getNFTCollectionV2 = async (address: string) => {
-  //   // const alchemyAPI = await storage.get('alchemyAPI') || false
-  //   const config = this.store.config.nft_collections_lilico_v2;
-  //   const data = await this.sendRequest(config.method, config.path, {
-  //     address,
-  //   });
-  //   return data;
-  // };
 
   getNFTMetadata = async (
     address: string,
@@ -967,7 +900,7 @@ class OpenApiService {
     contractAddress: string,
     tokenId: number
   ) => {
-    const config = this.store.config.nft_meta;
+    const config = DATA_CONFIG.nft_meta;
     const data = await this.sendRequest(config.method, config.path, {
       address,
       contractName,
@@ -979,7 +912,7 @@ class OpenApiService {
   };
 
   getAddressBook = async () => {
-    const config = this.store.config.fetch_address_book;
+    const config = DATA_CONFIG.fetch_address_book;
     const data = await this.sendRequest(config.method, config.path);
     return data;
   };
@@ -991,7 +924,7 @@ class OpenApiService {
     domain = '',
     domain_type = 0
   ) => {
-    const config = this.store.config.add_address_book;
+    const config = DATA_CONFIG.add_address_book;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -1014,7 +947,7 @@ class OpenApiService {
     domain = '',
     domain_type = 0
   ) => {
-    const config = this.store.config.edit_address_book;
+    const config = DATA_CONFIG.edit_address_book;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -1031,7 +964,7 @@ class OpenApiService {
   };
 
   deleteAddressBook = async (id: number) => {
-    const config = this.store.config.delete_address_book;
+    const config = DATA_CONFIG.delete_address_book;
     const data = await this.sendRequest(config.method, config.path, { id });
     return data;
   };
@@ -1042,7 +975,7 @@ class OpenApiService {
     domain = '',
     domain_type = 0
   ) => {
-    const config = this.store.config.add_external_address_book;
+    const config = DATA_CONFIG.add_external_address_book;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -1181,7 +1114,7 @@ class OpenApiService {
   };
 
   // getTransaction = async (address: string, limit: number, offset: number) => {
-  //   const config = this.store.config.account_transaction;
+  //   const config = DATA_CONFIG.account_transaction;
   //   const data = await this.sendRequest(config.method, config.path, {
   //     address,
   //     limit,
@@ -1192,7 +1125,7 @@ class OpenApiService {
   // };
 
   getTransfers = async (address: string, after = '', limit: number) => {
-    const config = this.store.config.get_transfers;
+    const config = DATA_CONFIG.get_transfers;
     const data = await this.sendRequest(config.method, config.path, {
       address,
       after,
@@ -1214,42 +1147,42 @@ class OpenApiService {
   };
 
   getManualAddress = async () => {
-    const config = this.store.config.manual_address;
+    const config = DATA_CONFIG.manual_address;
     const data = await this.sendRequest(config.method, config.path, {});
 
     return data;
   };
 
   deviceList = async () => {
-    const config = this.store.config.device_list;
+    const config = DATA_CONFIG.device_list;
     const data = await this.sendRequest(config.method, config.path, {});
 
     return data;
   };
 
   keyList = async () => {
-    const config = this.store.config.key_list;
+    const config = DATA_CONFIG.key_list;
     const data = await this.sendRequest(config.method, config.path, {});
 
     return data;
   };
 
   getLocation = async () => {
-    const config = this.store.config.get_location;
+    const config = DATA_CONFIG.get_location;
     const data = await this.sendRequest(config.method, config.path, {});
 
     return data;
   };
 
   addDevice = async (params) => {
-    const config = this.store.config.add_device_v3;
+    const config = DATA_CONFIG.add_device_v3;
     const data = await this.sendRequest(config.method, config.path, {}, params);
 
     return data;
   };
 
   synceDevice = async (params) => {
-    const config = this.store.config.sync_device;
+    const config = DATA_CONFIG.sync_device;
     const data = await this.sendRequest(config.method, config.path, {}, params);
 
     return data;
@@ -1262,7 +1195,7 @@ class OpenApiService {
   };
 
   searchUser = async (keyword: string) => {
-    const config = this.store.config.search_user;
+    const config = DATA_CONFIG.search_user;
     const data = await this.sendRequest(config.method, config.path, {
       keyword,
     });
@@ -1271,7 +1204,7 @@ class OpenApiService {
   };
 
   checkImport = async (key: string) => {
-    const config = this.store.config.check_import;
+    const config = DATA_CONFIG.check_import;
     const data = await this.sendRequest(config.method, config.path, {
       key,
     });
@@ -1900,7 +1833,7 @@ class OpenApiService {
   };
 
   validateRecaptcha = async (token: string) => {
-    const config = this.store.config.validate_recaptcha;
+    const config = DATA_CONFIG.validate_recaptcha;
     const data = await this.sendRequest(config.method, config.path, {
       token,
     });
@@ -1909,7 +1842,7 @@ class OpenApiService {
   };
 
   flowScanQuery = async (query: string, operationName: string) => {
-    const config = this.store.config.account_query;
+    const config = DATA_CONFIG.account_query;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -1934,7 +1867,7 @@ class OpenApiService {
   };
 
   updateProfilePreference = async (privacy: number) => {
-    const config = this.store.config.profile_preference;
+    const config = DATA_CONFIG.profile_preference;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -1948,7 +1881,7 @@ class OpenApiService {
   };
 
   updateProfile = async (nickname: string, avatar: string) => {
-    const config = this.store.config.profile_update;
+    const config = DATA_CONFIG.profile_update;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -1963,7 +1896,7 @@ class OpenApiService {
   };
 
   flownsPrepare = async () => {
-    const config = this.store.config.flowns_prepare;
+    const config = DATA_CONFIG.flowns_prepare;
     const data = await this.sendRequest(config.method, config.path, {}, {});
     return data;
   };
@@ -1973,7 +1906,7 @@ class OpenApiService {
       envelope_message: envelope,
     };
     // console.log({transaction,message})
-    const config = this.store.config.flowns_signature;
+    const config = DATA_CONFIG.flowns_signature;
     const data = await this.sendRequest(
       config.method,
       config.path,
@@ -1991,7 +1924,7 @@ class OpenApiService {
     const message = {
       envelope_message: envelope,
     };
-    const config = this.store.config.flowns_signature;
+    const config = DATA_CONFIG.flowns_signature;
     const data = await this.sendRequest(
       config.method,
       config.path,
