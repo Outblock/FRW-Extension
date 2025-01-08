@@ -2,12 +2,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fcl from '@onflow/fcl';
 import * as t from '@onflow/types';
+import { initWasm } from '@trustwallet/wallet-core';
 import BN from 'bignumber.js';
 import * as bip39 from 'bip39';
 import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth/web-extension';
+import { encode } from 'rlp';
 import web3, { TransactionError } from 'web3';
 
 import {
@@ -71,7 +73,6 @@ import { getStoragedAccount } from '../utils/getStoragedAccount';
 
 import BaseController from './base';
 import provider from './provider';
-
 interface Keyring {
   type: string;
   getAccounts(): Promise<string[]>;
@@ -1651,7 +1652,6 @@ export class WalletController extends BaseController {
       });
     }
 
-    console.log('v2data ', transformedArray, address);
     const active = await userWalletService.getActiveWallet();
     if (!active) {
       // userInfoService.addUserId(v2data.data.id);
@@ -1664,7 +1664,6 @@ export class WalletController extends BaseController {
   getUserWallets = async (): Promise<WalletResponse[]> => {
     const network = await this.getNetwork();
     const wallets = await userWalletService.getUserWallets(network);
-    console.log('getUserWallets ', wallets);
     if (!wallets[0]) {
       await this.refreshUserWallets();
       const data = await userWalletService.getUserWallets(network);
@@ -1705,7 +1704,6 @@ export class WalletController extends BaseController {
 
   getCurrentWallet = async () => {
     const wallet = await userWalletService.getCurrentWallet();
-    console.log('getCurrentWallet ', wallet);
     if (!wallet.address) {
       const network = await this.getNetwork();
       await this.refreshUserWallets();
@@ -2218,24 +2216,44 @@ export class WalletController extends BaseController {
       fcl.arg(gasLimit, t.UInt64),
     ]);
 
+    let evmAddress = await this.getEvmAddress();
+
     mixpanelTrack.track('ft_transfer', {
-      from_address: await this.getEvmAddress(),
+      from_address: evmAddress,
       to_address: to,
       amount: parseFloat(amount),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
 
-    console.log('result ', result);
-    const res = await fcl.tx(result).onceSealed();
-    const transactionExecutedEvent = res.events.find((event) =>
-      event.type.includes('TransactionExecuted')
-    );
+    if (evmAddress.startsWith('0x')) {
+      evmAddress = evmAddress.substring(2);
+    }
 
-    if (transactionExecutedEvent) {
-      const hash = transactionExecutedEvent.data.hash;
-      const hashHexString = hash.map((num) => parseInt(num).toString(16).padStart(2, '0')).join('');
+    const addressNonce = await this.getNonce(evmAddress);
+    const { Hash } = await initWasm();
 
+    const keccak256 = (data: Buffer) => {
+      return Hash.keccak256(data);
+    };
+
+    // [nonce, gasPrice, gasLimit, to.addressData, value, data, v, r, s]
+    const transaction = [
+      Number(addressNonce), // nonce
+      0, // Fixed value
+      gasLimit, // Gas Limit
+      Buffer.from(to, 'hex'), // To Address
+      BigInt(amount * 10 ** 18), // Value
+      Buffer.from(dataArray), // Call Data
+      255, // Fixed value
+      BigInt('0x' + evmAddress), // From Account
+      5, // SubType
+    ];
+
+    const encodedData = encode(transaction);
+    const hash = keccak256(Buffer.from(encodedData));
+    const hashHexString = Buffer.from(hash).toString('hex');
+    if (hashHexString) {
       return hashHexString;
     } else {
       console.log('Transaction Executed event not found');
