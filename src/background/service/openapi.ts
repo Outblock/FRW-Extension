@@ -1,17 +1,5 @@
 import * as fcl from '@onflow/fcl';
 import dayjs from 'dayjs';
-import { initializeApp, getApp } from 'firebase/app';
-import {
-  getAuth,
-  signInWithCustomToken,
-  setPersistence,
-  indexedDBLocalPersistence,
-  signInAnonymously,
-  onAuthStateChanged,
-  type Unsubscribe,
-  type User,
-} from 'firebase/auth/web-extension';
-import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
@@ -21,10 +9,16 @@ import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/addre
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
 import { getScripts, findKeyAndInfo } from 'background/utils';
-import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
+import { getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 
+import {
+  getAppInstallationId,
+  getUserToken,
+  signInWithToken,
+  verifyAuthStatus,
+} from './authentication';
 import {
   type AccountKey,
   type CheckResponse,
@@ -50,51 +44,10 @@ import {
   nftService,
   googleSafeHostService,
   mixpanelTrack,
+  newsService,
 } from './index';
-// import { userInfo } from 'os';
-// import userWallet from './userWallet';
-// const axios = axiosOriginal.create({ adapter })
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
-const firebaseConfig = getFirbaseConfig();
-const app = initializeApp(firebaseConfig, process.env.NODE_ENV);
-const auth = getAuth(app);
-// const remoteConfig = getRemoteConfig(app);
 
 const remoteFetch = fetchConfig;
-
-const waitForAuthInit = async () => {
-  let unsubscribe: Unsubscribe;
-  await new Promise<void>((resolve) => {
-    unsubscribe = auth.onAuthStateChanged((_user) => resolve());
-  });
-  (await unsubscribe!)();
-};
-
-onAuthStateChanged(auth, (user: User | null) => {
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/firebase.User
-    // const uid = user.uid;
-    console.log('User is signed in');
-    if (user.isAnonymous) {
-      console.log('User is anonymous');
-    } else {
-      mixpanelTrack.identify(user.uid, user.displayName ?? user.uid);
-      console.log('User is signed in');
-    }
-  } else {
-    // User is signed out
-    console.log('User is signed out');
-  }
-  // note fcl setup is async
-  userWalletService.setupFcl();
-});
 
 const DATA_CONFIG = {
   check_username: {
@@ -355,12 +308,7 @@ class OpenApiService {
   };
 
   checkAuthStatus = async () => {
-    await waitForAuthInit();
-    const app = getApp(process.env.NODE_ENV!);
-    const user = await getAuth(app).currentUser;
-    if (user && user.isAnonymous) {
-      userWalletService.reSign();
-    }
+    return verifyAuthStatus();
   };
 
   sendRequest = async (
@@ -380,37 +328,23 @@ class OpenApiService {
     }
     const network = await userWalletService.getNetwork();
 
-    const app = getApp(process.env.NODE_ENV!);
-    const user = await getAuth(app).currentUser;
-    const init = {
+    const idToken = await getUserToken();
+    const init: RequestInit = {
       method,
-      async: true,
       headers: {
         Network: network,
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + idToken,
       },
     };
 
     if (method.toUpperCase() !== 'GET') {
-      init['body'] = JSON.stringify(data);
-    }
-
-    // Wait for firebase auth to complete
-    await waitForAuthInit();
-
-    if (user !== null) {
-      const idToken = await user.getIdToken();
-      init.headers['Authorization'] = 'Bearer ' + idToken;
-    } else {
-      // If no user, then sign in as anonymous first
-      await signInAnonymously(auth);
-      const anonymousUser = await getAuth(app).currentUser;
-      const idToken = await anonymousUser?.getIdToken();
-      init.headers['Authorization'] = 'Bearer ' + idToken;
+      init.body = JSON.stringify(data);
     }
 
     const response = await fetch(requestUrl, init);
+
     return response.json(); // parses JSON response into native JavaScript objects
   };
 
@@ -595,8 +529,7 @@ class OpenApiService {
 
   private _signWithCustom = async (token) => {
     this.clearAllStorage();
-    await setPersistence(auth, indexedDBLocalPersistence);
-    await signInWithCustomToken(auth, token);
+    await signInWithToken(token);
   };
 
   private clearAllStorage = () => {
@@ -606,6 +539,7 @@ class OpenApiService {
     addressBookService.clear();
     userWalletService.clear();
     transactionService.clear();
+    newsService.clear();
   };
 
   checkUsername = async (username: string) => {
@@ -719,20 +653,6 @@ class OpenApiService {
       await storage.set('currentId', userId);
     }
     return;
-  };
-
-  proxytoken = async () => {
-    // Default options are marked with *
-
-    const app = getApp(process.env.NODE_ENV!);
-
-    // Wait for firebase auth to complete
-    await waitForAuthInit();
-
-    await signInAnonymously(auth);
-    const anonymousUser = await getAuth(app).currentUser;
-    const idToken = await anonymousUser?.getIdToken();
-    return idToken;
   };
 
   importKey = async (
@@ -1189,9 +1109,7 @@ class OpenApiService {
   };
 
   getInstallationId = async () => {
-    const installations = await getInstallations(app);
-    const id = await getId(installations);
-    return id;
+    return await getAppInstallationId();
   };
 
   searchUser = async (keyword: string) => {
@@ -2205,28 +2123,14 @@ class OpenApiService {
 
   genTx = async (contract_name: string) => {
     const network = await userWalletService.getNetwork();
-    const app = getApp(process.env.NODE_ENV!);
-    const user = await getAuth(app).currentUser;
-
-    // Wait for firebase auth to complete
-    await waitForAuthInit();
 
     const init = {
       headers: {
         Network: network,
+        Authorization: `Bearer ${await getUserToken()}`,
       },
     };
 
-    if (user !== null) {
-      const idToken = await user.getIdToken();
-      init.headers['Authorization'] = idToken;
-    } else {
-      // If no user, then sign in as anonymous first
-      await signInAnonymously(auth);
-      const anonymousUser = await getAuth(app).currentUser;
-      const idToken = await anonymousUser?.getIdToken();
-      init.headers['Authorization'] = idToken;
-    }
     const response = await fetch(
       `${WEB_NEXT_URL}/api/nft/gentx?collectionIdentifier=${contract_name}`,
       init

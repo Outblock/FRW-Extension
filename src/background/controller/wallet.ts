@@ -311,7 +311,7 @@ export class WalletController extends BaseController {
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openIndexPage('reset');
+    openIndexPage('forgot/reset');
     await this.switchNetwork(switchingTo);
   };
 
@@ -3329,7 +3329,10 @@ export class WalletController extends BaseController {
 
   checkNetwork = async () => {
     const network = await this.getNetwork();
-    await this.switchNetwork(network);
+    const isUnlocked = await this.isUnlocked();
+    if (isUnlocked && network) {
+      await this.switchNetwork(network);
+    }
   };
 
   switchMonitor = async (monitor: string) => {

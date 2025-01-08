@@ -44,6 +44,8 @@ const chromeWindow = await chrome.windows.getCurrent();
 
 let appStoreLoaded = false;
 
+// APP STATE RESTORE
+
 async function initAppMeta() {
   // Initialize Firebase
   // console.log('<- initAppMeta ->')
@@ -62,33 +64,8 @@ async function initAppMeta() {
   // description.content = i18n.t('appDescription');
   // head?.appendChild(description);
 
-  firebaseSetup();
-
   // note fcl setup is async
   await userWalletService.setupFcl();
-}
-
-async function firebaseSetup() {
-  const env: string = process.env.NODE_ENV!;
-  const firebaseConfig = getFirbaseConfig();
-  console.log(process.env.NODE_ENV);
-  // const firebaseProductionConfig = prodConig;
-
-  const app = initializeApp(firebaseConfig, env);
-
-  const auth = getAuth(app);
-  setPersistence(auth, indexedDBLocalPersistence);
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/firebase.User
-      // note fcl setup is async
-      userWalletService.setupFcl();
-    } else {
-      // User is signed out
-      signInAnonymously(auth);
-    }
-  });
 }
 
 async function restoreAppState() {

@@ -20,7 +20,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, FieldValues } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 
-import { FCLWalletConnectMethod } from '@/ui/utils/type';
+import { FCLWalletConnectMethod } from '@/shared/types/fcl-connect-types';
 import {
   type DeviceInfo,
   type DeviceInfoRequest,
