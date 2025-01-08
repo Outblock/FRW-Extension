@@ -41,7 +41,7 @@ const genHelperText = (
       }}
     >
       <CheckCircleIcon size={24} color={'#41CC5D'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="text.success">
+      <Typography variant="body2" color="text.success">
         {successMsg || chrome.i18n.getMessage('Sounds_good')}
       </Typography>
     </Box>
@@ -54,7 +54,7 @@ const genHelperText = (
       }}
     >
       <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-      <Typography variant="body1" color="text.error">
+      <Typography variant="body2" color="text.error">
         {errorMsg}
       </Typography>
     </Box>
