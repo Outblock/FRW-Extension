@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fcl from '@onflow/fcl';
 import * as t from '@onflow/types';
-import { initWasm } from '@trustwallet/wallet-core';
 import BN from 'bignumber.js';
 import * as bip39 from 'bip39';
 import { ethErrors } from 'eth-rpc-errors';
@@ -2231,10 +2230,9 @@ export class WalletController extends BaseController {
     }
 
     const addressNonce = await this.getNonce(evmAddress);
-    const { Hash } = await initWasm();
 
     const keccak256 = (data: Buffer) => {
-      return Hash.keccak256(data);
+      return ethUtil.keccak256(data);
     };
 
     // [nonce, gasPrice, gasLimit, to.addressData, value, data, v, r, s]
