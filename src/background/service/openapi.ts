@@ -362,6 +362,40 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
   },
 };
 
+const originalFetch = globalThis.fetch;
+const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
+  console.log('fetch called', args);
+  const response = await originalFetch(...args);
+  const responseData = await response.clone().json();
+
+  // Extract URL parameters from the first argument if it's a URL with query params
+  const url = args[0].toString();
+  const urlObj = new URL(url);
+  const urlParams = Object.fromEntries(urlObj.searchParams.entries());
+
+  // Send message to UI with request/response details
+  chrome.runtime.sendMessage({
+    type: 'API_CALL_RECORDED',
+    data: {
+      method: args[1]?.method,
+      url: args[0],
+      params: urlParams, // URL parameters extracted from the URL
+      requestInit: args[1],
+      responseData, // Raw response from fetch
+      timestamp: Date.now(),
+      // Note: functionParams and functionResponse will be added by the calling function
+    },
+  });
+
+  console.log('response', response);
+  return response;
+};
+
+if (process.env.NODE_ENV === 'development') {
+  // Set fetch to fetchCallRecorder in development mode
+  globalThis.fetch = fetchCallRecorder;
+}
+
 class OpenApiService {
   store!: OpenApiStore;
 
