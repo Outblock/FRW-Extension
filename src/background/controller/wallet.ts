@@ -1931,7 +1931,7 @@ export class WalletController extends BaseController {
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
 
     console.log('integerAmountStr amount ', integerAmountStr, amount);
-    const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlowV2');
+    const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlowV3');
     const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowidentifier, t.String),
       fcl.arg(integerAmountStr, t.UInt256),
@@ -2334,7 +2334,7 @@ export class WalletController extends BaseController {
       throw new Error(`Invaild token name - ${symbol}`);
     }
     await this.getNetwork();
-    const script = await getScripts('ft', 'transferTokens');
+    const script = await getScripts('ft', 'transferTokensV3');
 
     const txID = await userWalletService.sendTransaction(
       script
@@ -2364,7 +2364,7 @@ export class WalletController extends BaseController {
     amount: string
   ): Promise<string> => {
     const token = await openapiService.getTokenInfo(symbol);
-    const script = await getScripts('ft', 'transferTokens');
+    const script = await getScripts('ft', 'transferTokensV3');
 
     if (!token) {
       throw new Error(`Invaild token name - ${symbol}`);
@@ -3028,7 +3028,7 @@ export class WalletController extends BaseController {
     ids: number,
     receiver: string
   ): Promise<string> => {
-    const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlowV2');
+    const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlowV3');
 
     const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowIdentifier, t.String),
@@ -3058,7 +3058,7 @@ export class WalletController extends BaseController {
 
   sendNFT = async (recipient: string, id: any, token: any): Promise<string> => {
     await this.getNetwork();
-    const script = await getScripts('collection', 'sendNFT');
+    const script = await getScripts('collection', 'sendNFTV3');
 
     const txID = await userWalletService.sendTransaction(
       script
@@ -3082,7 +3082,7 @@ export class WalletController extends BaseController {
 
   sendNBANFT = async (recipient: string, id: any, token: NFTModel): Promise<string> => {
     await this.getNetwork();
-    const script = await getScripts('collection', 'sendNbaNFT');
+    const script = await getScripts('collection', 'sendNbaNFTV3');
 
     const txID = await userWalletService.sendTransaction(
       script
