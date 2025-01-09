@@ -82,7 +82,9 @@ export const getUserToken = async () => {
   }
 
   const idToken = await getIdToken(user);
-
+  if (!idToken) {
+    throw new Error('No idToken found');
+  }
   return idToken;
 };
 

@@ -4,14 +4,6 @@ import type { MessageSender } from 'webextension-polyfill';
 import methods from '../openapi-methods.json';
 import { createTestGroups } from '../test-groups';
 
-interface MethodAnalysis {
-  name: string;
-  usesSendRequest: boolean;
-  usesFetchDirectly: boolean;
-  implementation: string;
-  fullBody: string;
-}
-
 describe('ApiTestPage', () => {
   let messageListeners: ((
     message: any,
@@ -44,6 +36,11 @@ describe('ApiTestPage', () => {
       network: 'test-network',
       username: 'test-user',
       token: 'test-token',
+      mnemonic: 'test-mnemonic',
+      publicKey: {
+        P256: { pubK: '', pk: '' },
+        SECP256K1: { pubK: '', pk: '' },
+      },
       deviceInfo: {
         device_id: 'test-device',
         district: '',
@@ -96,6 +93,11 @@ describe('ApiTestPage', () => {
       network: 'test-network',
       username: 'test-user',
       token: 'test-token',
+      mnemonic: 'test-mnemonic',
+      publicKey: {
+        P256: { pubK: '', pk: '' },
+        SECP256K1: { pubK: '', pk: '' },
+      },
       deviceInfo: {
         device_id: 'test-device',
         district: '',

@@ -15,34 +15,20 @@ import React, { useState, useEffect } from 'react';
 
 import { useWallet } from '@/ui/utils';
 
-import { createTestGroups } from './test-groups';
+import { type CommonParams, createTestGroups } from './test-groups';
 
 interface TestResult {
   functionName: string;
-  functionParams: any; // Parameters passed to the OpenAPI function
-  functionResponse: any; // Final response from the OpenAPI function
+  functionParams: any;
+  functionResponse: any;
   fetchDetails: {
     url: string;
-    params: any; // Parameters sent to fetch
+    params: any;
     requestInit: RequestInit;
-    responseData: any; // Raw response from fetch
+    responseData: any;
   };
   timestamp: number;
   error?: string;
-}
-
-interface CommonParams {
-  address: string;
-  network: string;
-  username: string;
-  token: string;
-  deviceInfo: {
-    device_id: string;
-    district: string;
-    name: string;
-    type: string;
-    user_agent: string;
-  };
 }
 
 const ApiTestPage: React.FC = () => {
@@ -52,6 +38,11 @@ const ApiTestPage: React.FC = () => {
     network: 'mainnet',
     username: '',
     token: '',
+    mnemonic: '',
+    publicKey: {
+      P256: { pubK: '', pk: '' },
+      SECP256K1: { pubK: '', pk: '' },
+    },
     deviceInfo: {
       device_id: 'test-device',
       district: '',
@@ -63,17 +54,24 @@ const ApiTestPage: React.FC = () => {
 
   const [results, setResults] = useState<Record<string, TestResult[]>>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [runningAllTests, setRunningAllTests] = useState<boolean>(false);
+  const [progress, setProgress] = useState<{ completed: number; total: number }>({
+    completed: 0,
+    total: 0,
+  });
 
   useEffect(() => {
     const initializeParams = async () => {
       try {
         const address = await wallet.getCurrentAddress();
         const network = await wallet.getNetwork();
+        const publicKey = await wallet.getPubKey();
         if (address) {
           setCommonParams((prev) => ({
             ...prev,
             address,
             network,
+            publicKey,
           }));
         }
       } catch (error) {
@@ -134,7 +132,6 @@ const ApiTestPage: React.FC = () => {
   };
 
   const executeTest = async (functionName: string, group: string, params: any = {}) => {
-    setLoading(true);
     try {
       const result: TestResult = {
         functionName,
@@ -162,9 +159,34 @@ const ApiTestPage: React.FC = () => {
         ...prev,
         [group]: [...(prev[group] || []), result],
       }));
+
+      if (runningAllTests) {
+        setProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
+      }
     } catch (error) {
       console.error('Test execution error:', error);
     }
+  };
+
+  const executeAllTests = async () => {
+    setRunningAllTests(true);
+    setLoading(true);
+    setResults({});
+
+    const testGroups = createTestGroups(commonParams);
+    const totalTests = Object.values(testGroups).reduce((sum, group) => sum + group.length, 0);
+    setProgress({ completed: 0, total: totalTests });
+
+    // Execute tests sequentially to avoid overwhelming the API
+    for (const [group, functions] of Object.entries(testGroups)) {
+      for (const func of functions) {
+        await executeTest(func.name, group, func.params);
+        // Add a small delay between tests to avoid rate limiting
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
+
+    setRunningAllTests(false);
     setLoading(false);
   };
 
@@ -215,14 +237,47 @@ const ApiTestPage: React.FC = () => {
               value={commonParams.token}
               onChange={(e) => handleParamChange('token', e.target.value)}
             />
+            <TextField
+              label="Mnemonic"
+              value={commonParams.mnemonic}
+              onChange={(e) => handleParamChange('mnemonic', e.target.value)}
+              multiline
+              rows={4}
+            />
           </Box>
         </Paper>
+
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Button variant="contained" onClick={executeAllTests} disabled={loading} color="primary">
+            {loading ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CircularProgress size={24} />
+                {runningAllTests && (
+                  <Typography variant="body2">
+                    {progress.completed} / {progress.total}
+                  </Typography>
+                )}
+              </Box>
+            ) : (
+              'Run All Tests'
+            )}
+          </Button>
+          <Button
+            variant="contained"
+            onClick={downloadResults}
+            disabled={Object.keys(results).length === 0}
+            color="secondary"
+          >
+            Download Results
+          </Button>
+        </Box>
 
         {Object.entries(testGroups).map(([group, functions]) => (
           <Accordion key={group}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="h6" sx={{ textTransform: 'capitalize' }}>
                 {group} Functions ({functions.length})
+                {results[group] && ` - ${results[group].length} tested`}
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -235,7 +290,10 @@ const ApiTestPage: React.FC = () => {
                     <Typography>{func.name}</Typography>
                     <Button
                       variant="contained"
-                      onClick={() => executeTest(func.name, group, func.params)}
+                      onClick={() => {
+                        setLoading(true);
+                        executeTest(func.name, group, func.params).finally(() => setLoading(false));
+                      }}
                       disabled={loading}
                     >
                       {loading ? <CircularProgress size={24} /> : 'Test'}
@@ -254,16 +312,6 @@ const ApiTestPage: React.FC = () => {
             </AccordionDetails>
           </Accordion>
         ))}
-
-        <Box sx={{ mt: 2 }}>
-          <Button
-            variant="contained"
-            onClick={downloadResults}
-            disabled={Object.keys(results).length === 0}
-          >
-            Download All Results
-          </Button>
-        </Box>
       </Box>
     </Container>
   );
