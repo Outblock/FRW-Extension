@@ -2176,6 +2176,8 @@ export class WalletController extends BaseController {
     const regularArray = Array.from(dataArray);
 
     let amount;
+
+    let number;
     // console.log('dapSendEvmTX value:', value);
 
     // If value is 0 or similar, set amount to '0.00000000'
@@ -2197,7 +2199,7 @@ export class WalletController extends BaseController {
       }
 
       // Convert the hex value to number
-      const number = web3.utils.hexToNumber(value);
+      number = web3.utils.hexToNumber(value);
 
       // Convert Wei to Ether
       amount = web3.utils.fromWei(number.toString(), 'ether');
@@ -2240,7 +2242,7 @@ export class WalletController extends BaseController {
     const contractCallSubType = 5;
     const noceNumber = Number(addressNonce);
     const gasPrice = 0;
-    const transactionValue = BigInt(amount * 10 ** 18);
+    const transactionValue = BigInt(number);
     const transaction = [
       noceNumber, // nonce
       gasPrice, // Fixed value
@@ -2252,7 +2254,7 @@ export class WalletController extends BaseController {
       BigInt('0x' + evmAddress), // From Account
       contractCallSubType, // SubType
     ];
-
+    console.log('transaction ', transaction);
     const encodedData = encode(transaction);
     const hash = keccak256(Buffer.from(encodedData));
     const hashHexString = Buffer.from(hash).toString('hex');
