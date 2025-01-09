@@ -2254,7 +2254,6 @@ export class WalletController extends BaseController {
       BigInt('0x' + evmAddress), // From Account
       contractCallSubType, // SubType
     ];
-    console.log('transaction ', transaction);
     const encodedData = encode(transaction);
     const hash = keccak256(Buffer.from(encodedData));
     const hashHexString = Buffer.from(hash).toString('hex');
