@@ -266,7 +266,6 @@ class UserWallet {
   };
 
   setEvmAddress = (address: string, emoji) => {
-    console.log('emoji setEvmAddress ', emoji);
     if (address.length > 20) {
       this.store.evmWallet.address = address;
       this.store.evmWallet.name = emoji[9].name;
