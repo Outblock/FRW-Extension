@@ -4,9 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useEffect } from 'react';
 import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
 
-import { useCoinHook } from '@/ui/hooks/useCoinHook';
-import { useNetworkHook } from '@/ui/hooks/useNetworkHook';
-import { useProfileHook } from '@/ui/hooks/useProfileHook';
+import { useInitHook } from '@/ui/hooks';
 import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
@@ -50,23 +48,11 @@ const Routes = () => {
 };
 
 function Main() {
-  const { fetchProfileData, freshUserWallet, fetchUserWallet } = useProfileHook();
-  const { fetchNetwork } = useNetworkHook();
-  const { refreshCoinData } = useCoinHook();
+  const { initializeStore } = useInitHook();
 
   useEffect(() => {
-    // Fetch initial data
-    const initData = async () => {
-      await fetchNetwork();
-      await fetchProfileData();
-      await freshUserWallet();
-      await fetchUserWallet();
-      await refreshCoinData();
-    };
-
-    initData();
-  }, [fetchProfileData, freshUserWallet, refreshCoinData, fetchNetwork, fetchUserWallet]);
-
+    initializeStore();
+  }, [initializeStore]);
   return (
     <Router>
       <Routes />

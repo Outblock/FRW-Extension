@@ -3,11 +3,12 @@ import { Input, Typography, Box, FormControl } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
+import lilo from '@/ui/FRWAssets/image/lilo.png';
+import { LLPrimaryButton, LLResetPopup } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import lilo from 'ui/FRWAssets/image/lilo.png';
-import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
-import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import { openInternalPageInTab } from 'ui/utils/webapi';
+import { useInitHook } from '@/ui/hooks';
+import { useWallet, useApproval, useWalletRequest } from '@/ui/utils';
+import { openInternalPageInTab } from '@/ui/utils/webapi';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 import './style.css';
@@ -53,9 +54,10 @@ const DEFAULT_PASSWORD =
   process.env.NODE_ENV === 'development' ? process.env.DEV_PASSWORD || '' : '';
 
 const Unlock = () => {
-  const wallet = useWallet();
+  const usewallett = useWallet();
   const classes = useStyles();
   const [, resolveApproval] = useApproval();
+  const { initializeStore } = useInitHook();
   const inputEl = useRef<any>(null);
   // const { t } = useTranslation();
   const [showError, setShowError] = useState(false);
@@ -69,13 +71,14 @@ const Unlock = () => {
 
   const restPass = async () => {
     // setResetPop(true);
-    await wallet.lockWallet();
+    await usewallett.lockWallet();
     openInternalPageInTab('forgot');
   };
 
-  const [run] = useWalletRequest(wallet.unlock, {
+  const [run] = useWalletRequest(usewallett.unlock, {
     onSuccess() {
       resolveApproval('unlocked');
+      initializeStore();
     },
     onError() {
       setShowError(true);

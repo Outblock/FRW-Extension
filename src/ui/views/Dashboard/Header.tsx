@@ -69,7 +69,7 @@ const Header = ({ loading = false }) => {
   const classes = useStyles();
   const history = useHistory();
 
-  const { currentNetwork, setNetwork } = useNetworkStore();
+  const { currentNetwork, setNetwork, developerMode } = useNetworkStore();
   const {
     mainAddress,
     userWallet,
@@ -88,9 +88,6 @@ const Header = ({ loading = false }) => {
   const [isLoading, setLoading] = useState(loading);
 
   const [drawer, setDrawer] = useState(false);
-
-  const [developerModeOn, setDeveloperModeOn] = useState(false);
-  // const [unread, setUnread] = useState(0);
 
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
@@ -157,7 +154,7 @@ const Header = ({ loading = false }) => {
     async (account) => {
       setSwitchLoading(true);
       try {
-        const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+        const switchingTo = 'mainnet';
         await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
         if (account.id) {
           await storage.set('currentId', account.id);
@@ -168,7 +165,7 @@ const Header = ({ loading = false }) => {
         await usewallet.lockWallet();
         await usewallet.clearWallet();
         await usewallet.switchNetwork(switchingTo);
-
+        setNetwork(switchingTo);
         history.push('/switchunlock');
       } catch (error) {
         console.error('Error during account switch:', error);
@@ -177,15 +174,8 @@ const Header = ({ loading = false }) => {
         setSwitchLoading(false);
       }
     },
-    [usewallet, history]
+    [usewallet, history, setNetwork]
   );
-
-  const loadDeveloperMode = async () => {
-    const developerMode = await storage.get('developerMode');
-    if (developerMode) {
-      setDeveloperModeOn(developerMode);
-    }
-  };
 
   const setWallets = async (walletInfo, key, index = null) => {
     await usewallet.setActiveWallet(walletInfo, key, index);
@@ -259,7 +249,6 @@ const Header = ({ loading = false }) => {
   }, [usewallet]);
 
   useEffect(() => {
-    loadDeveloperMode();
     checkPendingTx();
     checkAuthStatus();
 
@@ -535,7 +524,7 @@ const Header = ({ loading = false }) => {
           {chrome.i18n.getMessage('Account')}
         </Typography>
         {userInfo && createAccountList(userInfo)}
-        {developerModeOn && NetworkFunction()}
+        {developerMode && NetworkFunction()}
       </Drawer>
     );
   };
@@ -716,7 +705,7 @@ const Header = ({ loading = false }) => {
             evmWallet={evmWallet}
             networkColor={networkColor}
             evmLoading={evmLoading}
-            modeOn={developerModeOn}
+            modeOn={developerMode}
             mainAddressLoading={mainAddressLoading}
           />
           {appBarLabel(current)}
