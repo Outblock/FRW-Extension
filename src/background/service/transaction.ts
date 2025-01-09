@@ -154,7 +154,6 @@ class Transaction {
   };
 
   setTransaction = (data, network: string) => {
-    console.log('data ', data);
     const txList: TransferItem[] = [];
     if (data.transactions && data.transactions.length > 0) {
       data.transactions.forEach(async (tx) => {
