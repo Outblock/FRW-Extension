@@ -2236,16 +2236,21 @@ export class WalletController extends BaseController {
     };
 
     // [nonce, gasPrice, gasLimit, to.addressData, value, data, v, r, s]
+    const directCallTxType = 255;
+    const contractCallSubType = 5;
+    const noceNumber = Number(addressNonce);
+    const gasPrice = 0;
+    const transactionValue = BigInt(amount * 10 ** 18);
     const transaction = [
-      Number(addressNonce), // nonce
-      0, // Fixed value
+      noceNumber, // nonce
+      gasPrice, // Fixed value
       gasLimit, // Gas Limit
       Buffer.from(to, 'hex'), // To Address
-      BigInt(amount * 10 ** 18), // Value
+      transactionValue, // Value
       Buffer.from(dataArray), // Call Data
-      255, // Fixed value
+      directCallTxType, // Fixed value
       BigInt('0x' + evmAddress), // From Account
-      5, // SubType
+      contractCallSubType, // SubType
     ];
 
     const encodedData = encode(transaction);
@@ -2254,13 +2259,8 @@ export class WalletController extends BaseController {
     if (hashHexString) {
       return hashHexString;
     } else {
-      console.log('Transaction Executed event not found');
+      return null;
     }
-
-    // const transaction = await fcl.tx(result).onceSealed();
-    // console.log('transaction ', transaction);
-
-    // return result;
   };
 
   getBalance = async (hexEncodedAddress: string): Promise<string> => {
