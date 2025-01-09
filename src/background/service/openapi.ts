@@ -2503,4 +2503,48 @@ class OpenApiService {
   };
 }
 
-export default new OpenApiService();
+const openApiService = new OpenApiService();
+
+if (process.env.NODE_ENV === 'development') {
+  // Log all functions and their signatures
+  const functions = Object.entries(openApiService)
+    .filter(
+      ([name, value]) =>
+        typeof value === 'function' &&
+        name !== 'constructor' &&
+        typeof name === 'string' &&
+        name !== 'get'
+    )
+    .map(([name]) => {
+      const func = openApiService[name];
+      // Use a safer way to get function info
+      const funcStr = func.toString();
+      const isAsync = funcStr.startsWith('async');
+      const basicSignature = funcStr.split('{')[0].trim();
+
+      return {
+        name,
+        isAsync,
+        fullBody: funcStr,
+        usesSendRequest: funcStr.includes('this.sendRequest'),
+        usesFetchDirectly: funcStr.includes('fetch('),
+        basicSignature,
+        // Simple regex to extract parameter names without accessing arguments
+        params: basicSignature
+          .slice(basicSignature.indexOf('(') + 1, basicSignature.lastIndexOf(')'))
+          .split(',')
+          .map((param) => param.trim())
+          .map((param) => {
+            if (param.startsWith('PriceProvider.')) {
+              return param.replace('PriceProvider.', '');
+            }
+            return param;
+          })
+          .filter(Boolean),
+      };
+    });
+
+  console.log('OpenApiService Functions:', functions);
+}
+
+export default openApiService;
