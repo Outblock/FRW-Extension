@@ -364,37 +364,38 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
 
 const originalFetch = globalThis.fetch;
 const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
-  console.log('fetch called', args);
   const response = await originalFetch(...args);
-  const responseData = await response.clone().json();
 
-  // Extract URL parameters from the first argument if it's a URL with query params
-  const url = args[0].toString();
-  const urlObj = new URL(url);
-  const urlParams = Object.fromEntries(urlObj.searchParams.entries());
+  try {
+    const responseData = await response.clone().json();
 
-  // Send message to UI with request/response details
-  chrome.runtime.sendMessage({
-    type: 'API_CALL_RECORDED',
-    data: {
-      method: args[1]?.method,
-      url: args[0],
-      params: urlParams, // URL parameters extracted from the URL
-      requestInit: args[1],
-      responseData, // Raw response from fetch
-      timestamp: Date.now(),
-      // Note: functionParams and functionResponse will be added by the calling function
-    },
-  });
+    // Extract URL parameters from the first argument if it's a URL with query params
+    const url = args[0].toString();
+    const urlObj = new URL(url);
+    const urlParams = Object.fromEntries(urlObj.searchParams.entries());
 
-  console.log('response', response);
+    // Send message to UI with request/response details
+    chrome.runtime.sendMessage({
+      type: 'API_CALL_RECORDED',
+      data: {
+        method: args[1]?.method,
+        url: args[0],
+        params: urlParams, // URL parameters extracted from the URL
+        requestInit: args[1],
+        responseData, // Raw response from fetch
+        timestamp: Date.now(),
+        // Note: functionParams and functionResponse will be added by the calling function
+      },
+    });
+
+    console.log('response', response);
+  } catch (err) {
+    console.error('Error sending message to UI:', err);
+  }
   return response;
 };
-
-if (process.env.NODE_ENV === 'development') {
-  // Set fetch to fetchCallRecorder in development mode
-  globalThis.fetch = fetchCallRecorder;
-}
+// Override fetch in branches other than master
+const fetch = process.env.BRANCH_NAME === 'master' ? originalFetch : fetchCallRecorder;
 
 class OpenApiService {
   store!: OpenApiStore;
