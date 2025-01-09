@@ -4,26 +4,29 @@ import methods from '../openapi-methods.json';
 import { createTestGroups } from '../test-groups';
 
 describe('ApiTestPage', () => {
+  const dummyParams = {
+    address: 'test-address',
+    network: 'test-network',
+    username: 'test-user',
+    token: 'test-token',
+    password: 'test-password',
+    mnemonicExisting: 'test-mnemonic',
+    mnemonicGenerated: 'test-mnemonic-new',
+    publicKey: {
+      P256: { pubK: '', pk: '' },
+      SECP256K1: { pubK: '', pk: '' },
+    },
+    deviceInfo: {
+      device_id: 'test-device',
+      district: '',
+      name: 'Test Device',
+      type: '2',
+      user_agent: 'Test',
+    },
+  };
+
   it('includes all OpenAPI methods that call sendRequest or fetch in testGroups', () => {
     // Create test groups with dummy params
-    const dummyParams = {
-      address: 'test-address',
-      network: 'test-network',
-      username: 'test-user',
-      token: 'test-token',
-      mnemonic: 'test-mnemonic',
-      publicKey: {
-        P256: { pubK: '', pk: '' },
-        SECP256K1: { pubK: '', pk: '' },
-      },
-      deviceInfo: {
-        device_id: 'test-device',
-        district: '',
-        name: 'Test Device',
-        type: '2',
-        user_agent: 'Test',
-      },
-    };
 
     const testGroups = createTestGroups(dummyParams);
 
@@ -63,25 +66,6 @@ describe('ApiTestPage', () => {
   });
 
   it('includes all required parameters for each method', () => {
-    const dummyParams = {
-      address: 'test-address',
-      network: 'test-network',
-      username: 'test-user',
-      token: 'test-token',
-      mnemonic: 'test-mnemonic',
-      publicKey: {
-        P256: { pubK: '', pk: '' },
-        SECP256K1: { pubK: '', pk: '' },
-      },
-      deviceInfo: {
-        device_id: 'test-device',
-        district: '',
-        name: 'Test Device',
-        type: '2',
-        user_agent: 'Test',
-      },
-    };
-
     const testGroups = createTestGroups(dummyParams);
     const flatTestGroups = Object.values(testGroups).flat();
 
@@ -98,7 +82,6 @@ describe('ApiTestPage', () => {
           method.name,
           method.params
             .map((param) => param.trim())
-            .filter(Boolean)
             .map((param) => {
               // Remove type annotations and default values
               const cleanParam = param

@@ -11,13 +11,14 @@ import {
   AccordionDetails,
   CircularProgress,
 } from '@mui/material';
+import * as bip39 from 'bip39';
 import React, { useState, useEffect } from 'react';
 
 import { useWallet } from '@/ui/utils';
 
-import { type CommonParams, createTestGroups } from './test-groups';
+import { type ApiTestFunction, type CommonParams, createTestGroups } from './test-groups';
 
-interface TestResult {
+interface ApiTestResult {
   functionName: string;
   functionParams: any;
   functionResponse: any;
@@ -35,10 +36,12 @@ const ApiTestPage: React.FC = () => {
   const wallet = useWallet();
   const [commonParams, setCommonParams] = useState<CommonParams>({
     address: '',
-    network: 'mainnet',
-    username: '',
-    token: '',
-    mnemonic: '',
+    network: 'testnet',
+    username: 'coolpanda',
+    password: process.env.DEV_PASSWORD || '',
+    token: 'flow',
+    mnemonicExisting: '',
+    mnemonicGenerated: '',
     publicKey: {
       P256: { pubK: '', pk: '' },
       SECP256K1: { pubK: '', pk: '' },
@@ -52,7 +55,7 @@ const ApiTestPage: React.FC = () => {
     },
   });
 
-  const [results, setResults] = useState<Record<string, TestResult[]>>({});
+  const [results, setResults] = useState<Record<string, ApiTestResult[]>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [runningAllTests, setRunningAllTests] = useState<boolean>(false);
   const [progress, setProgress] = useState<{ completed: number; total: number }>({
@@ -96,8 +99,8 @@ const ApiTestPage: React.FC = () => {
           else if (data.url.includes('/addressbook/')) group = 'addressBook';
           else if (data.url.includes('/transaction')) group = 'transactions';
 
-          const result: TestResult = {
-            functionName: urlParts[urlParts.length - 1],
+          const result: ApiTestResult = {
+            functionName: data.url,
             functionParams: data.functionParams || {}, // Parameters passed to the OpenAPI function
             functionResponse: data.functionResponse || null, // Final response from the OpenAPI function
             fetchDetails: {
@@ -131,9 +134,14 @@ const ApiTestPage: React.FC = () => {
     }));
   };
 
-  const executeTest = async (functionName: string, group: string, params: any = {}) => {
+  const executeTest = async (
+    functionName: string,
+    group: string,
+    params: any = {},
+    callWallet: boolean = false
+  ) => {
     try {
-      const result: TestResult = {
+      const result: ApiTestResult = {
         functionName,
         functionParams: params,
         functionResponse: null,
@@ -148,8 +156,11 @@ const ApiTestPage: React.FC = () => {
 
       // Execute the API call
       try {
-        const response = await wallet.openapi[functionName](...Object.values(params));
-        result.functionResponse = response;
+        if (callWallet) {
+          result.functionResponse = await wallet[functionName](...Object.values(params));
+        } else {
+          result.functionResponse = await wallet.openapi[functionName](...Object.values(params));
+        }
       } catch (error) {
         result.error = error.message;
       }
@@ -168,6 +179,17 @@ const ApiTestPage: React.FC = () => {
     }
   };
 
+  const executeTestFunc = async (group: string, func: ApiTestFunction) => {
+    if (func.controlledBy) {
+      // Call it through the controller
+      for (const controller of func.controlledBy) {
+        await executeTest(controller.name, group, controller.params, true);
+      }
+    } else {
+      await executeTest(func.name, group, func.params, false);
+    }
+  };
+
   const executeAllTests = async () => {
     setRunningAllTests(true);
     setLoading(true);
@@ -180,7 +202,7 @@ const ApiTestPage: React.FC = () => {
     // Execute tests sequentially to avoid overwhelming the API
     for (const [group, functions] of Object.entries(testGroups)) {
       for (const func of functions) {
-        await executeTest(func.name, group, func.params);
+        await executeTestFunc(group, func);
         // Add a small delay between tests to avoid rate limiting
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
@@ -205,6 +227,14 @@ const ApiTestPage: React.FC = () => {
 
   const testGroups = createTestGroups(commonParams);
 
+  const generateNewMnemonic = () => {
+    const newMnemonic = bip39.generateMnemonic();
+    setCommonParams((prev) => ({
+      ...prev,
+      mnemonicGenerated: newMnemonic,
+    }));
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
@@ -218,6 +248,17 @@ const ApiTestPage: React.FC = () => {
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <TextField
+              label="Username"
+              value={commonParams.username}
+              onChange={(e) => handleParamChange('username', e.target.value)}
+            />
+            <TextField
+              label="Password"
+              value={commonParams.password}
+              type="password"
+              onChange={(e) => handleParamChange('password', e.target.value)}
+            />
+            <TextField
               label="Address"
               value={commonParams.address}
               onChange={(e) => handleParamChange('address', e.target.value)}
@@ -227,23 +268,29 @@ const ApiTestPage: React.FC = () => {
               value={commonParams.network}
               onChange={(e) => handleParamChange('network', e.target.value)}
             />
-            <TextField
-              label="Username"
-              value={commonParams.username}
-              onChange={(e) => handleParamChange('username', e.target.value)}
-            />
+
             <TextField
               label="Token"
               value={commonParams.token}
               onChange={(e) => handleParamChange('token', e.target.value)}
             />
             <TextField
-              label="Mnemonic"
-              value={commonParams.mnemonic}
-              onChange={(e) => handleParamChange('mnemonic', e.target.value)}
+              label="Mnemonic Existing"
+              value={commonParams.mnemonicExisting}
+              onChange={(e) => handleParamChange('mnemonicExisting', e.target.value)}
               multiline
               rows={4}
             />
+            <TextField
+              label="New Mnemonic"
+              value={commonParams.mnemonicGenerated}
+              onChange={(e) => handleParamChange('mnemonicGenerated', e.target.value)}
+              multiline
+              rows={4}
+            />
+            <Button variant="contained" onClick={generateNewMnemonic}>
+              Generate Mnemonic
+            </Button>
           </Box>
         </Paper>
 
@@ -292,7 +339,7 @@ const ApiTestPage: React.FC = () => {
                       variant="contained"
                       onClick={() => {
                         setLoading(true);
-                        executeTest(func.name, group, func.params).finally(() => setLoading(false));
+                        executeTestFunc(group, func).finally(() => setLoading(false));
                       }}
                       disabled={loading}
                     >

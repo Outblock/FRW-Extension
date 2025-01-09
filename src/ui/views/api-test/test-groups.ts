@@ -1,12 +1,14 @@
-import { getAccountKey } from '@/shared/utils/address';
+import bip39 from 'bip39';
 
-interface TestFunction {
+import { getAccountKey } from '@/shared/utils/address';
+export interface ApiTestFunction {
   name: string;
+  controlledBy?: ApiTestFunction[]; // if set we may need to go through wallet service
   params: Record<string, any>;
 }
 
-interface TestGroups {
-  [key: string]: TestFunction[];
+export interface ApiTestGroups {
+  [key: string]: ApiTestFunction[];
 }
 
 export interface CommonParams {
@@ -14,7 +16,9 @@ export interface CommonParams {
   network: string;
   username: string;
   token: string;
-  mnemonic: string;
+  password: string;
+  mnemonicExisting: string;
+  mnemonicGenerated: string;
   publicKey: {
     P256: {
       pubK: string;
@@ -34,13 +38,18 @@ export interface CommonParams {
   };
 }
 
-export const createTestGroups = (commonParams: CommonParams): TestGroups => {
-  const accountKey = getAccountKey(commonParams.mnemonic);
+export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
+  const accountKey = getAccountKey(commonParams.mnemonicExisting);
+  const generatedAccountKey = getAccountKey(commonParams.mnemonicGenerated);
+
   return {
     core: [{ name: 'sendRequest', params: { method: 'GET', url: '', params: {} } }],
     authentication: [
       { name: 'checkUsername', params: { username: commonParams.username } },
-      { name: 'register', params: { account_key: accountKey, username: commonParams.username } },
+      {
+        name: 'register',
+        params: { account_key: generatedAccountKey, username: commonParams.username },
+      },
       {
         name: 'login',
         params: { public_key: commonParams.publicKey, signature: '', replaceUser: true },
@@ -57,6 +66,12 @@ export const createTestGroups = (commonParams: CommonParams): TestGroups => {
           signature: '',
           replaceUser: true,
         },
+        controlledBy: [
+          {
+            name: 'switchUnlock',
+            params: { password: commonParams.password },
+          },
+        ],
       },
       {
         name: 'importKey',
