@@ -302,6 +302,35 @@ const DATA_CONFIG = {
   },
 };
 
+const originalFetch = globalThis.fetch;
+const fetch = async (...args: Parameters<typeof originalFetch>) => {
+  console.log('fetch called', args);
+  const response = await originalFetch(...args);
+  const responseData = await response.clone().json();
+
+  // Extract URL parameters from the first argument if it's a URL with query params
+  const url = args[0].toString();
+  const urlObj = new URL(url);
+  const urlParams = Object.fromEntries(urlObj.searchParams.entries());
+
+  // Send message to UI with request/response details
+  chrome.runtime.sendMessage({
+    type: 'API_CALL_RECORDED',
+    data: {
+      method: args[1]?.method,
+      url: args[0],
+      params: urlParams, // URL parameters extracted from the URL
+      requestInit: args[1],
+      responseData, // Raw response from fetch
+      timestamp: Date.now(),
+      // Note: functionParams and functionResponse will be added by the calling function
+    },
+  });
+
+  console.log('response', response);
+  return response;
+};
+
 class OpenApiService {
   init = async () => {
     await userWalletService.setupFcl();
@@ -344,8 +373,9 @@ class OpenApiService {
     }
 
     const response = await fetch(requestUrl, init);
+    const responseData = await response.json();
 
-    return response.json(); // parses JSON response into native JavaScript objects
+    return responseData; // parses JSON response into native JavaScript objects
   };
 
   private getUSDCPricePair = (provider: PriceProvider): string | null => {
@@ -1291,6 +1321,7 @@ class OpenApiService {
     }
 
     const response = await fetch(url);
+
     const { tokens = [] } = await response.json();
     const hasFlowToken = tokens.some((token) => token.symbol.toLowerCase() === 'flow');
     if (!hasFlowToken) {

@@ -22,15 +22,20 @@ interface CommonParams {
 }
 
 export const createTestGroups = (commonParams: CommonParams): TestGroups => ({
-  core: [{ name: 'sendRequest', params: { method: 'GET', url: '', params: {}, data: {} } }],
+  core: [{ name: 'sendRequest', params: { method: 'GET', url: '', params: {} } }],
   authentication: [
     { name: 'checkUsername', params: { username: commonParams.username } },
     { name: 'register', params: { account_key: {}, username: commonParams.username } },
-    { name: 'login', params: { public_key: '', signature: '' } },
-    { name: 'loginV2', params: { public_key: '', signature: '' } },
+    { name: 'login', params: { public_key: '', signature: '', replaceUser: true } },
+    { name: 'loginV2', params: { public_key: '', signature: '', replaceUser: true } },
     {
       name: 'loginV3',
-      params: { account_key: {}, device_info: commonParams.deviceInfo, signature: '' },
+      params: {
+        account_key: {},
+        device_info: commonParams.deviceInfo,
+        signature: '',
+        replaceUser: true,
+      },
     },
     {
       name: 'importKey',
@@ -40,13 +45,14 @@ export const createTestGroups = (commonParams: CommonParams): TestGroups => ({
         username: commonParams.username,
         backup_info: {},
         address: commonParams.address,
+        replaceUser: true,
       },
     },
   ],
   prices: [
     { name: 'getUSDCPrice', params: { provider: 'binance' } },
-    { name: 'getTokenPrices', params: { storageKey: 'test' } },
-    { name: 'getTokenPrice', params: { token: 'flow' } },
+    { name: 'getTokenPrices', params: { storageKey: 'test', isEvm: false } },
+    { name: 'getTokenPrice', params: { token: 'flow', provider: 'binance' } },
     {
       name: 'getTokenPriceHistory',
       params: { token: 'flow', period: 'oneDay', provider: 'binance' },
@@ -100,21 +106,36 @@ export const createTestGroups = (commonParams: CommonParams): TestGroups => ({
     { name: 'signProposer', params: { transaction: {}, message: '' } },
     { name: 'getProposer', params: {} },
     { name: 'sendTransaction', params: { transaction: {} } },
-    { name: 'getTransfers', params: { address: commonParams.address, limit: 10 } },
-    { name: 'getEVMTransfers', params: { address: commonParams.address, limit: 10 } },
+    { name: 'getTransfers', params: { address: commonParams.address, after: '', limit: 10 } },
+    { name: 'getEVMTransfers', params: { address: commonParams.address, after: '', limit: 10 } },
     { name: 'getTransactionTemplate', params: { cadence: '', network: commonParams.network } },
   ],
   addressBook: [
     { name: 'getAddressBook', params: {} },
-    { name: 'addAddressBook', params: { contact_name: 'Test', address: commonParams.address } },
+    {
+      name: 'addAddressBook',
+      params: {
+        contact_name: 'Test',
+        address: commonParams.address,
+        username: '',
+        domain: '',
+        domain_type: 0,
+      },
+    },
     {
       name: 'editAddressBook',
-      params: { id: 1, contact_name: 'Test Updated', address: commonParams.address },
+      params: {
+        id: 1,
+        contact_name: 'Test Updated',
+        address: commonParams.address,
+        domain: '',
+        domain_type: 0,
+      },
     },
     { name: 'deleteAddressBook', params: { id: 1 } },
     {
       name: 'addExternalAddressBook',
-      params: { contact_name: 'Test', address: commonParams.address },
+      params: { contact_name: 'Test', address: commonParams.address, domain: '', domain_type: 0 },
     },
   ],
   nft: [

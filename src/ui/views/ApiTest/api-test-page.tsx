@@ -19,10 +19,15 @@ import { createTestGroups } from './test-groups';
 
 interface TestResult {
   functionName: string;
-  inputParams: any;
-  fetchParams: any;
-  fetchResponse: any;
-  finalResponse: any;
+  functionParams: any; // Parameters passed to the OpenAPI function
+  functionResponse: any; // Final response from the OpenAPI function
+  fetchDetails: {
+    url: string;
+    params: any; // Parameters sent to fetch
+    requestInit: RequestInit;
+    responseData: any; // Raw response from fetch
+  };
+  timestamp: number;
   error?: string;
 }
 
@@ -76,6 +81,49 @@ const ApiTestPage: React.FC = () => {
       }
     };
     initializeParams();
+
+    // Set up message listener for API calls
+    const messageListener = (message: any) => {
+      if (message.type === 'API_CALL_RECORDED') {
+        const { data } = message;
+        setResults((prev) => {
+          // Try to determine the function group from the URL
+          const urlParts = data.url.split('/');
+          let group = 'misc';
+
+          // Simple mapping of URL patterns to groups
+          if (data.url.includes('/user/')) group = 'authentication';
+          else if (data.url.includes('/token/')) group = 'tokens';
+          else if (data.url.includes('/nft/')) group = 'nft';
+          else if (data.url.includes('/addressbook/')) group = 'addressBook';
+          else if (data.url.includes('/transaction')) group = 'transactions';
+
+          const result: TestResult = {
+            functionName: urlParts[urlParts.length - 1],
+            functionParams: data.functionParams || {}, // Parameters passed to the OpenAPI function
+            functionResponse: data.functionResponse || null, // Final response from the OpenAPI function
+            fetchDetails: {
+              url: data.url,
+              params: data.params || {}, // Parameters sent to fetch
+              requestInit: data.requestInit,
+              responseData: data.responseData, // Raw response from fetch
+            },
+            timestamp: data.timestamp,
+          };
+
+          return {
+            ...prev,
+            [group]: [...(prev[group] || []), result],
+          };
+        });
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(messageListener);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(messageListener);
+    };
   }, [wallet]);
 
   const handleParamChange = (param: keyof CommonParams, value: any) => {
@@ -90,46 +138,26 @@ const ApiTestPage: React.FC = () => {
     try {
       const result: TestResult = {
         functionName,
-        inputParams: params,
-        fetchParams: null,
-        fetchResponse: null,
-        finalResponse: null,
-      };
-
-      // Store the original fetch function
-      const originalFetch = window.fetch;
-      let fetchParams: any = null;
-      let fetchResponse: any = null;
-
-      // Override fetch to capture params and response
-      window.fetch = async (...args) => {
-        fetchParams = args;
-        const response = await originalFetch(...args);
-        const clone = response.clone();
-        try {
-          fetchResponse = await clone.json();
-        } catch (e) {
-          fetchResponse = { error: 'Not JSON response' };
-        }
-        return response;
+        functionParams: params,
+        functionResponse: null,
+        fetchDetails: {
+          url: '',
+          params: {},
+          requestInit: {} as RequestInit,
+          responseData: null,
+        },
+        timestamp: Date.now(),
       };
 
       // Execute the API call
       try {
         const response = await wallet.openapi[functionName](...Object.values(params));
-        result.finalResponse = response;
+        result.functionResponse = response;
       } catch (error) {
         result.error = error.message;
       }
 
-      // Restore original fetch
-      window.fetch = originalFetch;
-
-      // Store fetch details
-      result.fetchParams = fetchParams;
-      result.fetchResponse = fetchResponse;
-
-      // Update results
+      // Update results (note: actual API call details will come through the message listener)
       setResults((prev) => ({
         ...prev,
         [group]: [...(prev[group] || []), result],
