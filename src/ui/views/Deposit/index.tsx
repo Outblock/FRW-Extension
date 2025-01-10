@@ -283,8 +283,7 @@ const Deposit = () => {
                     marginTop: '2px',
                   }}
                 />
-                Please make sure you deposit is ON FLOW EVM network, if your deposit via another
-                network your assets may be lost.
+                {chrome.i18n.getMessage('Deposit_warning_content')}
               </Typography>
             </Box>
           )}

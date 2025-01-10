@@ -1344,5 +1344,8 @@
   },
   "Insufficient_storage_after_action": {
     "message": "この操作の後、ストレージが不足しています。"
+  },
+  "Deposit_warning_content": {
+    "message": "FLOW EVM ネットワークで入金していることを確認してください。他のネットワークを通じて入金した場合、資産が失われる可能性があります。"
   }
 }

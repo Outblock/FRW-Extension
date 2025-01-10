@@ -1344,5 +1344,8 @@
   },
   "Insufficient_storage_after_action": {
     "message": "此操作后存储空间不足。"
+  },
+  "Deposit_warning_content": {
+    "message": "请确保您的存款是在 FLOW EVM 网络上进行的，如果通过其他网络存款，您的资产可能会丢失。"
   }
 }
