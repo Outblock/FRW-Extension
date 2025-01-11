@@ -16,21 +16,61 @@ import React, { useState, useEffect } from 'react';
 
 import { useWallet } from '@/ui/utils';
 
+import { API_TEST_RESULTS, type FetchDetail, type ApiTestResult } from './api-test-results';
 import { type ApiTestFunction, type CommonParams, createTestGroups } from './test-groups';
 
-interface ApiTestResult {
-  functionName: string;
-  functionParams: any;
-  functionResponse: any;
-  fetchDetails: {
-    url: string;
-    params: any;
-    requestInit: RequestInit;
-    responseData: any;
+const addFunctionResult = (prev: ApiTestResult[], result: ApiTestResult) => {
+  const prevFunctionResult = prev.find((r) => r.functionName === result.functionName);
+
+  if (prevFunctionResult) {
+    // Merge the fetch details
+    const prevFetchDetails = prevFunctionResult.fetchDetails;
+    const newFetchDetails = [...prevFetchDetails, ...result.fetchDetails];
+
+    // I could use Object.assign here but I want to be explicit about what I'm doing
+    const newResult = {
+      ...prevFunctionResult,
+      ...result,
+      fetchDetails: newFetchDetails,
+    };
+    // Remove the old result and add the new result
+    return [...prev.filter((r) => r.functionName !== result.functionName), newResult];
+  }
+  // Otherwise add the new result to the end of the array
+  return [...prev, result];
+};
+
+const addGroupResult = (
+  prev: Record<string, ApiTestResult[]>,
+  group: string,
+  result: ApiTestResult
+) => {
+  const newGroupResults = addFunctionResult(prev[group] || [], result);
+
+  return {
+    ...prev,
+    [group]: newGroupResults,
   };
-  timestamp: number;
-  error?: string;
-}
+};
+
+const findTestResult = (
+  results: Record<string, ApiTestResult[]>,
+  group: string,
+  func: ApiTestFunction
+): ApiTestResult[] | undefined => {
+  if (func.controlledBy) {
+    return func.controlledBy.reduce((acc, c) => {
+      const result = findTestResult(results, group, c);
+      if (result) {
+        acc.push(...result);
+      }
+      return acc;
+    }, [] as ApiTestResult[]);
+  } else {
+    const result = results[group]?.find((f) => func.name === f.functionName);
+    return result ? [result] : undefined;
+  }
+};
 
 const ApiTestPage: React.FC = () => {
   const wallet = useWallet();
@@ -55,13 +95,16 @@ const ApiTestPage: React.FC = () => {
     },
   });
 
-  const [results, setResults] = useState<Record<string, ApiTestResult[]>>({});
+  const [results, setResults] = useState<Record<string, ApiTestResult[]>>(API_TEST_RESULTS);
   const [loading, setLoading] = useState<boolean>(false);
   const [runningAllTests, setRunningAllTests] = useState<boolean>(false);
   const [progress, setProgress] = useState<{ completed: number; total: number }>({
     completed: 0,
     total: 0,
   });
+
+  const [currentTestFunctionName, setCurrentTestFunctionName] = useState<string | null>(null);
+  const [currentTestGroup, setCurrentTestGroup] = useState<string | null>(null);
 
   useEffect(() => {
     const initializeParams = async () => {
@@ -84,39 +127,27 @@ const ApiTestPage: React.FC = () => {
     initializeParams();
 
     // Set up message listener for API calls
-    const messageListener = (message: any) => {
+    const messageListener = (message: { type: string; data: FetchDetail }) => {
       if (message.type === 'API_CALL_RECORDED') {
         const { data } = message;
-        setResults((prev) => {
-          // Try to determine the function group from the URL
-          const urlParts = data.url.split('/');
-          let group = 'misc';
+        // Try to determine the function group from the URL
+        const group = currentTestGroup || 'misc';
 
-          // Simple mapping of URL patterns to groups
-          if (data.url.includes('/user/')) group = 'authentication';
-          else if (data.url.includes('/token/')) group = 'tokens';
-          else if (data.url.includes('/nft/')) group = 'nft';
-          else if (data.url.includes('/addressbook/')) group = 'addressBook';
-          else if (data.url.includes('/transaction')) group = 'transactions';
-
-          const result: ApiTestResult = {
-            functionName: data.url,
-            functionParams: data.functionParams || {}, // Parameters passed to the OpenAPI function
-            functionResponse: data.functionResponse || null, // Final response from the OpenAPI function
-            fetchDetails: {
+        const result: ApiTestResult = {
+          functionName: currentTestFunctionName || 'unknown',
+          functionGroup: group,
+          fetchDetails: [
+            {
               url: data.url,
               params: data.params || {}, // Parameters sent to fetch
               requestInit: data.requestInit,
               responseData: data.responseData, // Raw response from fetch
+              status: data.status,
+              statusText: data.statusText,
             },
-            timestamp: data.timestamp,
-          };
-
-          return {
-            ...prev,
-            [group]: [...(prev[group] || []), result],
-          };
-        });
+          ],
+        };
+        setResults((prev) => addGroupResult(prev, group, result));
       }
     };
 
@@ -125,9 +156,9 @@ const ApiTestPage: React.FC = () => {
     return () => {
       chrome.runtime.onMessage.removeListener(messageListener);
     };
-  }, [wallet]);
+  }, [currentTestFunctionName, currentTestGroup, wallet]);
 
-  const handleParamChange = (param: keyof CommonParams, value: any) => {
+  const handleParamChange = (param: keyof CommonParams, value: unknown) => {
     setCommonParams((prev) => ({
       ...prev,
       [param]: value,
@@ -137,22 +168,23 @@ const ApiTestPage: React.FC = () => {
   const executeTest = async (
     functionName: string,
     group: string,
-    params: any = {},
+    params: Record<string, unknown> = {},
     callWallet: boolean = false
   ) => {
     try {
+      // Set the current test function name so that listener can identify the test
+      setCurrentTestFunctionName(functionName);
+      setCurrentTestGroup(group);
       const result: ApiTestResult = {
         functionName,
+        functionGroup: group,
         functionParams: params,
         functionResponse: null,
-        fetchDetails: {
-          url: '',
-          params: {},
-          requestInit: {} as RequestInit,
-          responseData: null,
-        },
+        fetchDetails: [],
         timestamp: Date.now(),
+        error: undefined,
       };
+      setResults((prev) => addGroupResult(prev, group, result));
 
       // Execute the API call
       try {
@@ -164,18 +196,18 @@ const ApiTestPage: React.FC = () => {
       } catch (error) {
         result.error = error.message;
       }
-
       // Update results (note: actual API call details will come through the message listener)
-      setResults((prev) => ({
-        ...prev,
-        [group]: [...(prev[group] || []), result],
-      }));
+      setResults((prev) => addGroupResult(prev, group, result));
 
       if (runningAllTests) {
         setProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
       }
     } catch (error) {
       console.error('Test execution error:', error);
+    } finally {
+      // Clear the current test function name
+      setCurrentTestFunctionName(null);
+      setCurrentTestGroup(null);
     }
   };
 
@@ -329,32 +361,56 @@ const ApiTestPage: React.FC = () => {
             </AccordionSummary>
             <AccordionDetails>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {functions.map((func) => (
-                  <Box
-                    key={func.name}
-                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                  >
-                    <Typography>{func.name}</Typography>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        setLoading(true);
-                        executeTestFunc(group, func).finally(() => setLoading(false));
+                {functions.map((func) => {
+                  const testResults = findTestResult(results, group, func);
+                  return (
+                    <Box
+                      key={func.name}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
                       }}
-                      disabled={loading}
                     >
-                      {loading ? <CircularProgress size={24} /> : 'Test'}
-                    </Button>
-                  </Box>
-                ))}
-                {results[group] && (
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle1">Results:</Typography>
-                    <pre style={{ maxHeight: '200px', overflow: 'auto' }}>
-                      {JSON.stringify(results[group], null, 2)}
-                    </pre>
-                  </Box>
-                )}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography>
+                          {func.name}
+                          {func.unused && ' (unused)'}
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          color={
+                            testResults && testResults.length
+                              ? testResults?.some((r) => r.error)
+                                ? 'error'
+                                : 'primary'
+                              : 'secondary'
+                          }
+                          onClick={() => {
+                            setLoading(true);
+                            executeTestFunc(group, func).finally(() => setLoading(false));
+                          }}
+                          disabled={loading}
+                        >
+                          {loading ? <CircularProgress size={24} /> : 'Test'}
+                        </Button>
+                      </Box>
+                      {testResults?.flatMap((r) => (
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant="subtitle1">Results:</Typography>
+                          <pre style={{ maxHeight: '200px', overflow: 'auto' }}>
+                            {JSON.stringify(r, null, 2)}
+                          </pre>
+                        </Box>
+                      ))}
+                    </Box>
+                  );
+                })}
               </Box>
             </AccordionDetails>
           </Accordion>

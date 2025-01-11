@@ -367,7 +367,7 @@ const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
   const response = await originalFetch(...args);
 
   try {
-    const responseData = await response.clone().json();
+    const responseData = response.ok ? await response.clone().json() : null;
 
     // Extract URL parameters from the first argument if it's a URL with query params
     const url = args[0].toString();
@@ -375,20 +375,24 @@ const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
     const urlParams = Object.fromEntries(urlObj.searchParams.entries());
 
     // Send message to UI with request/response details
+
+    const messageData = {
+      method: args[1]?.method,
+      url: args[0],
+      params: urlParams, // URL parameters extracted from the URL
+      requestInit: args[1],
+      responseData, // Raw response from fetch
+      timestamp: Date.now(),
+      status: response.status,
+      statusText: response.statusText,
+      // Note: functionParams and functionResponse will be added by the calling function
+    };
+    console.log('fetchCallRecorder - response & messageData', response, messageData);
+
     chrome.runtime.sendMessage({
       type: 'API_CALL_RECORDED',
-      data: {
-        method: args[1]?.method,
-        url: args[0],
-        params: urlParams, // URL parameters extracted from the URL
-        requestInit: args[1],
-        responseData, // Raw response from fetch
-        timestamp: Date.now(),
-        // Note: functionParams and functionResponse will be added by the calling function
-      },
+      data: messageData,
     });
-
-    console.log('response', response);
   } catch (err) {
     console.error('Error sending message to UI:', err);
   }
@@ -1898,6 +1902,7 @@ class OpenApiService {
 
     console.log('getTransactionTemplate ->', init);
     const response = await fetch('https://flix.flow.com/v1/templates/search', init);
+
     const template = await response.json();
 
     console.log('template ->', template);
