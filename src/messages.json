@@ -1314,5 +1314,8 @@
   },
   "Buy_FLOW": {
     "message": "Buy FLOW"
+  },
+  "Deposit_warning_content": {
+    "message": "Please make sure you deposit is ON FLOW EVM network, if your deposit via another network your assets may be lost."
   }
 }
