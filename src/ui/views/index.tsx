@@ -9,6 +9,7 @@ import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
 import { WalletProvider, useWallet } from 'ui/utils';
 
+import ApiTestPage from './api-test/api-test-page';
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
 import { Landing } from './Landing';
@@ -41,6 +42,9 @@ const Routes = () => {
       </Route>
       <PrivateRoute path="/approval">
         <Approval />
+      </PrivateRoute>
+      <PrivateRoute path="/api-test">
+        <ApiTestPage />
       </PrivateRoute>
     </>
   );
