@@ -24,10 +24,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
-import eventBus from '@/eventBus';
-import type { UserInfoResponse, WalletResponse } from '@/shared/types/network-types';
 import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { useCoinStore } from '@/ui/stores/useCoinStore';
 import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useNews } from '@/ui/utils/NewsContext';
@@ -69,6 +68,7 @@ const Header = ({ loading = false }) => {
   const classes = useStyles();
   const history = useHistory();
 
+  const { clearCoins } = useCoinStore();
   const { currentNetwork, setNetwork, developerMode } = useNetworkStore();
   const {
     mainAddress,
@@ -166,6 +166,7 @@ const Header = ({ loading = false }) => {
         await usewallet.clearWallet();
         await usewallet.switchNetwork(switchingTo);
         setNetwork(switchingTo);
+        clearCoins();
         history.push('/switchunlock');
       } catch (error) {
         console.error('Error during account switch:', error);
@@ -174,7 +175,7 @@ const Header = ({ loading = false }) => {
         setSwitchLoading(false);
       }
     },
-    [usewallet, history, setNetwork]
+    [usewallet, history, setNetwork, clearCoins]
   );
 
   const setWallets = async (walletInfo, key, index = null) => {
@@ -429,50 +430,6 @@ const Header = ({ loading = false }) => {
               </ListItemText>
             </ListItemButton>
           </ListItem>
-
-          {/* {isSandboxEnabled && <ListItem
-            disablePadding
-            key='crescendo'
-            secondaryAction={
-              !crescendoAvailable && (<ListItemText>
-                <Typography
-                  variant="caption"
-                  component="span"
-                  display="inline"
-                  color='error.main'
-                >
-                  {chrome.i18n.getMessage('Unavailable')}
-                </Typography>
-              </ListItemText>)
-            }
-            onClick={() => {
-              switchNetwork('crescendo');
-            }}>
-            <ListItemButton>
-              <ListItemIcon>
-                <FiberManualRecordIcon
-                  style={{
-                    color: networkColor('crescendo'),
-                    fontSize: '10px',
-                    marginLeft: '10px',
-                    marginRight: '10px',
-                    opacity: currentNetwork == 'crescendo' ? '1' : '0.1',
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText>
-                <Typography
-                  variant="body1"
-                  component="span"
-                  display="inline"
-                  color='text'
-                >
-                  {chrome.i18n.getMessage('Crescendo')}
-                </Typography>
-              </ListItemText>
-            </ListItemButton>
-          </ListItem>
-          } */}
         </List>
       </>
     );
