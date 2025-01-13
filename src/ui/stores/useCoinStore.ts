@@ -1,15 +1,7 @@
 import { create } from 'zustand';
 
-interface CoinItem {
-  coin: string;
-  unit: string;
-  balance: number;
-  price: number;
-  change24h: number | null;
-  total: number;
-  icon: string;
-  custom?: boolean;
-}
+import type { CoinItem } from '../../shared/types/wallet-types';
+
 interface CoinStore {
   coins: CoinItem[];
   balance: string;

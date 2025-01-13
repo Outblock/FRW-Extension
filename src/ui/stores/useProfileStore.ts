@@ -1,53 +1,6 @@
 import create from 'zustand';
 
-export interface WalletType {
-  name: string;
-  icon: string;
-  address: string;
-  chain_id: string;
-  id: number;
-  coins: string[];
-  color: string;
-}
-
-interface Thumbnail {
-  url: string;
-}
-
-interface AccountDetails {
-  name: string;
-  description: string;
-  thumbnail: Thumbnail;
-}
-
-export interface WalletResponse {
-  color: string;
-  icon: string;
-  name: string;
-  chain_id: string;
-  wallet_id: number;
-  blockchain: Array<BlockchainResponse>;
-}
-
-export interface BlockchainResponse {
-  name: string;
-  address: string;
-  chain_id: string;
-  coins: Array<string>;
-  id: number;
-  icon: string;
-  color: string;
-}
-
-export interface ChildAccount {
-  [key: string]: AccountDetails;
-}
-
-export interface UserInfoResponse {
-  avatar: string;
-  nickname: string;
-  username: string;
-}
+import type { ChildAccount, WalletType, UserInfoResponse } from '../../shared/types/network-types';
 
 interface ProfileState {
   mainAddress: string;

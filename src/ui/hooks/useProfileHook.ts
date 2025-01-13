@@ -1,12 +1,8 @@
 import { useCallback } from 'react';
 
+import type { ChildAccount, WalletType, WalletResponse } from '@/shared/types/network-types';
 import { ensureEvmAddressPrefix } from '@/shared/utils/address';
-import {
-  useProfileStore,
-  type ChildAccount,
-  type WalletResponse,
-  type WalletType,
-} from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from '@/ui/utils';
 
 export const useProfileHook = () => {
