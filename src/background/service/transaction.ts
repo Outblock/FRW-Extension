@@ -1,6 +1,6 @@
 import { createPersistStore, createSessionStore } from 'background/utils';
 
-import { TransactionItem } from './networkModel';
+import { TransactionItem } from '../../shared/types/network-types';
 interface TransactionStore {
   expiry: number;
   total: number;

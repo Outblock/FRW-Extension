@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   List,
   ListItemText,
@@ -10,18 +12,18 @@ import {
   Box,
   Skeleton,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
+import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import _ from 'lodash';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AddOrEditAddress from './AddOrEditAddress';
-import { useWallet } from 'ui/utils';
+
+import { type Contact } from '@/shared/types/network-types';
 import EmptyStateImage from 'ui/FRWAssets/image/search_user.png';
-import { StyledEngineProvider } from '@mui/material/styles';
-import { Contact } from 'background/service/networkModel';
+import { useWallet } from 'ui/utils';
+
+import AddOrEditAddress from './AddOrEditAddress';
 import AddressBookItem from './AddressBookItem';
 
 const useStyles = makeStyles((theme) => ({
@@ -89,7 +91,11 @@ const AddressBook = () => {
 
   const filterResult = _.groupBy(foundContacts, (contact) => contact.contact_name[0]);
 
-  const fetchAddressBook = async () => {
+  const setTab = useCallback(async () => {
+    await wallet.setDashIndex(3);
+  }, [wallet]);
+
+  const fetchAddressBook = useCallback(async () => {
     try {
       setIsLoading(true);
       const contacts = await wallet.getAddressBook();
@@ -102,10 +108,17 @@ const AddressBook = () => {
 
       setGroup(sortedContacts);
       setFoundContacts(sortedContacts);
-    } catch (err) {
+    } catch (error) {
+      // Log error or handle it appropriately
+      console.error('Error fetching address book:', error);
       setIsLoading(false);
     }
-  };
+  }, [wallet]);
+
+  useEffect(() => {
+    setTab();
+    fetchAddressBook();
+  }, [setTab, fetchAddressBook]);
 
   const renderLoading = () => {
     return [1, 2, 3].map((index) => {
@@ -148,15 +161,6 @@ const AddressBook = () => {
       </Box>
     );
   };
-
-  const setTab = async () => {
-    await wallet.setDashIndex(3);
-  };
-
-  useEffect(() => {
-    setTab();
-    fetchAddressBook();
-  }, []);
 
   const handleEditClicked = (contact: Contact) => {
     setIsEdit(true);

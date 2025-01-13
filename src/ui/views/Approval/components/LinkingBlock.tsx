@@ -10,7 +10,7 @@ import {
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 
-import { UserInfoResponse } from 'background/service/networkModel';
+import { UserInfoResponse } from '@/shared/types/network-types';
 import IconCheck from 'ui/assets/check.svg';
 import Link from 'ui/FRWAssets/svg/link.svg';
 import { useWallet } from 'ui/utils';

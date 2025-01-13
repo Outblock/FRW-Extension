@@ -25,12 +25,12 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
+import type { UserInfoResponse, WalletResponse } from '@/shared/types/network-types';
 import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useNews } from '@/ui/utils/NewsContext';
-import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
 import { useWallet, formatAddress } from 'ui/utils';
 
 import IconCopy from '../../../components/iconfont/IconCopy';

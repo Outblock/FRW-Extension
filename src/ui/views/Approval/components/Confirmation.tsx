@@ -4,13 +4,13 @@ import dedent from 'dedent';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { type UserInfoResponse } from '@/shared/types/network-types';
 import {
   LLPrimaryButton,
   LLSecondaryButton,
   LLConnectLoading,
   LLLinkingLoading,
 } from '@/ui/FRWComponent';
-import { type UserInfoResponse } from 'background/service/networkModel';
 import { useApproval, useWallet } from 'ui/utils';
 // import { CHAINS_ENUM } from 'consts';
 

@@ -15,8 +15,8 @@ import dayjs from 'dayjs';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { AreaChart, Area, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
+import { Period, type PriceProvider } from '@/shared/types/network-types';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
-import { Period, type PriceProvider } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 
 import {

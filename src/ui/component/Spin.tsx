@@ -1,5 +1,6 @@
-import React, { ReactNode } from 'react';
 import { Box, Typography } from '@mui/material';
+import React, { ReactNode } from 'react';
+
 import { LLSpinner } from '../FRWComponent/LLSpinner';
 
 export default ({ children, spinning = true }) => {

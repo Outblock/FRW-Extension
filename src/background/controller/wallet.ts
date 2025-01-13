@@ -59,10 +59,10 @@ import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
+import type { NFTData, NFTModel, WalletResponse } from '../../shared/types/network-types';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
-import type { NFTData, NFTModel, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
