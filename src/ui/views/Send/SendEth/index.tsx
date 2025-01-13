@@ -3,12 +3,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import Web3 from 'web3';
 
+import { type Contact } from '@/shared/types/network-types';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { type CoinItem } from 'background/service/coinList';
-import { type Contact } from 'background/service/networkModel';
 import erc20ABI from 'background/utils/erc20.abi.json';
 import { EVM_ENDPOINT } from 'consts';
 import { LLContactCard } from 'ui/FRWComponent';

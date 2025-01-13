@@ -3,7 +3,7 @@ import { Box, Typography, Drawer, Grid, Button, IconButton } from '@mui/material
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { type NFTModel } from 'background/service/networkModel';
+import { type NFTModel } from '@/shared/types/network-types';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 

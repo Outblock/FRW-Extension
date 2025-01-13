@@ -1,6 +1,5 @@
+import type { StorageInfo } from '../../shared/types/network-types';
 import { openapiService } from '../service';
-
-import type { StorageInfo } from './networkModel';
 
 export type EvaluateStorageResult = {
   isStorageSufficient: boolean;

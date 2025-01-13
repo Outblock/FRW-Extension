@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import React, { useState, useEffect } from 'react';
 import { useForm, type FieldValues } from 'react-hook-form';
 
-import type { Contact } from 'background/service/networkModel';
+import type { Contact } from '@/shared/types/network-types';
 import { useWallet } from 'ui/utils';
 
 import { withPrefix } from '../../../../shared/utils/address';

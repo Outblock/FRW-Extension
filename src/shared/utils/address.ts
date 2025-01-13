@@ -1,6 +1,6 @@
 import HDWallet from 'ethereum-hdwallet';
 
-import { type AccountKey } from 'background/service/networkModel';
+import { type AccountKey } from '@/shared/types/network-types';
 
 export function sansPrefix(address) {
   if (!address) return null;

@@ -1,13 +1,12 @@
 import { Core } from '@walletconnect/core';
 import SignClient from '@walletconnect/sign-client';
 
-import { FCLWalletConnectMethod } from '@/ui/utils/type';
+import { FCLWalletConnectMethod } from '@/shared/utils/type';
 import wallet from 'background/controller/wallet';
 import { keyringService, openapiService } from 'background/service';
 
+import { type DeviceInfoRequest } from '../../shared/types/network-types';
 import { storage } from '../webapi';
-
-import { type DeviceInfoRequest } from './networkModel';
 
 class Proxy {
   proxySign = async (token: string, userId: string) => {

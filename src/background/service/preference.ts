@@ -6,7 +6,7 @@ import eventBus from '@/eventBus';
 import { createPersistStore } from 'background/utils';
 import { EVENTS } from 'consts';
 
-import { FlowNetwork } from './networkModel';
+import { FlowNetwork } from '../../shared/types/network-types';
 
 import { keyringService, sessionService, i18n } from './index';
 
