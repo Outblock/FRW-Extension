@@ -94,9 +94,6 @@ const StakeAmount = ({
   coinInfo,
 }) => {
   const classes = useStyles();
-  const [coin, setCoin] = useState<string>('flow');
-  const [coinType, setCoinType] = useState<any>(0);
-  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
 
   useEffect(() => {
     if (coinInfo) {
@@ -110,14 +107,6 @@ const StakeAmount = ({
       }
     }
   }, [amount, coinInfo, removeError, setError, setLess]);
-
-  const currentCoinType = useCallback(() => {
-    setCoin(coinInfo.unit);
-  }, [coinInfo.unit]);
-
-  useEffect(() => {
-    currentCoinType();
-  }, [currentCoinType]);
 
   return (
     <StyledEngineProvider injectFirst>

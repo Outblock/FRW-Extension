@@ -1,7 +1,9 @@
 import { Box, Button, Typography } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
@@ -59,14 +61,11 @@ const StakingPage = () => {
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-  const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>('0');
-  const [outAmount, setOutAmount] = useState<any>(0);
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [nodeid, setNodeid] = useState<any>(null);
   const [delegateid, setDelegate] = useState<any>(null);
-  const [token1, setToken1] = useState<any>(null);
   const [token0, setToken0] = useState<any>(null);
   const [swapTypes, setSwapTypes] = useState<number>(0);
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -74,8 +73,19 @@ const StakingPage = () => {
   const [errorType, setErrorType] = useState<any>(null);
 
   const setInputAmount = async (value) => {
-    const inputAmount = (coinInfo.balance * value).toString();
-    setAmount(inputAmount);
+    //todo: move this to balance store in refactor.
+    const DEFAULT_MIN_AMOUNT = new BN('0.001');
+
+    const address = withPrefix(await usewallet.getMainWallet()) || '';
+
+    const minAmount = new BN(
+      (await usewallet.openapi.getAccountMinFlow(address)) || DEFAULT_MIN_AMOUNT
+    );
+    const balance = new BN(coinInfo.balance);
+
+    const inputBalance = value === 1 ? balance.minus(minAmount) : balance.multipliedBy(value);
+
+    setAmount(inputBalance.toFixed(8, BN.ROUND_DOWN));
   };
   const setUserWallet = useCallback(async () => {
     const nodeid = location['nodeid'];
