@@ -40,7 +40,7 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
-} from './networkModel';
+} from '../../shared/types/network-types';
 
 import {
   userWalletService,

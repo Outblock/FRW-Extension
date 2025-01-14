@@ -7,7 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 
-import type { NewsItem } from 'background/service/networkModel';
+import type { NewsItem } from '@/shared/types/network-types';
 import { useWallet } from 'ui/utils';
 
 interface NewsContextType {

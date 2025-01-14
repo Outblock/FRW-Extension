@@ -7,8 +7,8 @@ import type { TokenInfo } from 'flow-native-token-registry';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
-import type { PriceProvider } from '@/background/service/networkModel';
 import { storage } from '@/background/webapi';
+import type { PriceProvider } from '@/shared/types/network-types';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import StorageUsageCard from '@/ui/FRWComponent/StorageUsageCard';

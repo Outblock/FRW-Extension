@@ -2,9 +2,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Card, CardContent, CardMedia, IconButton, Typography, Box, Tooltip } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 
+import type { NewsItem } from '@/shared/types/network-types';
 import { useNews } from '@/ui/utils/NewsContext';
 import { openInTab } from '@/ui/utils/webapi';
-import type { NewsItem } from 'background/service/networkModel';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
   const { dismissNews, markAsRead } = useNews();

@@ -22,8 +22,8 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
+import { type UserInfoResponse } from '@/shared/types/network-types';
 import { LLSecondaryButton } from '@/ui/FRWComponent';
-import { type UserInfoResponse } from 'background/service/networkModel';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
 import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
 import { useWallet } from 'ui/utils';
