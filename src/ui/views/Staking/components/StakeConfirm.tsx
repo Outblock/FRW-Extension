@@ -45,8 +45,6 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
 
   const createStake = useCallback(() => {
     const MIN_STAKE_AMOUNT = new BN(50);
-
-    // In your component:
     if (new BN(props.data.amount).isLessThan(MIN_STAKE_AMOUNT)) {
       notification.create('/', 'Not enough Flow', 'A minimum of 50 Flow is required for staking');
       return;

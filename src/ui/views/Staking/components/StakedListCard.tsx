@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useWallet } from 'ui/utils';
 import { Typography, Box } from '@mui/material';
+import BN from 'bignumber.js';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+
+import { useWallet } from 'ui/utils';
+
 import nodeList from '../nodeList.json';
 
 const StakedListCard = ({ desc, delegate }) => {
@@ -13,14 +16,15 @@ const StakedListCard = ({ desc, delegate }) => {
   // withdrawReward
   useEffect(() => {
     const currentNode = nodeList.filter((node) => {
-      return node.id == delegate.nodeID;
+      return node.id === delegate.nodeID;
     });
     setCurrent(currentNode[0]);
-  }, []);
+  }, [delegate.nodeID]);
 
   const withdrawReward = () => {
     setLoading(true);
-    const amount = parseFloat(delegate.tokensRewarded).toFixed(8);
+
+    const amount = new BN(delegate.tokensRewarded).toFixed(8, BN.ROUND_DOWN);
     wallet
       .withdrawReward(amount, delegate.nodeID, delegate.delegatorID)
       .then(async (txID) => {
