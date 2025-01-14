@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Typography, Drawer, IconButton, Button } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -43,12 +44,15 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
   }, []);
 
   const createStake = useCallback(() => {
-    if (props.data.amount < 50) {
+    const MIN_STAKE_AMOUNT = new BN(50);
+
+    // In your component:
+    if (new BN(props.data.amount).isLessThan(MIN_STAKE_AMOUNT)) {
       notification.create('/', 'Not enough Flow', 'A minimum of 50 Flow is required for staking');
       return;
     }
 
-    const amount = parseFloat(props.data.amount).toFixed(8);
+    const amount = new BN(props.data.amount).toFixed(8, BN.ROUND_DOWN);
     wallet
       .createStake(amount, props.data.nodeid, props.data.delegateid)
       .then(async (txID) => {
