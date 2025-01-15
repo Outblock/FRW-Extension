@@ -1,3 +1,5 @@
+import { CommonParams } from './test-groups';
+
 export type FetchDetail = {
   url: string;
   params: Record<string, unknown>;
@@ -17,7 +19,9 @@ export type ApiTestResult = {
   error?: string;
 };
 
-export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
+export type ApiTestResults = Record<string, ApiTestResult[]>;
+
+export const createTestResults = (): ApiTestResults => ({
   core: [
     {
       functionName: 'sendRequest',
@@ -40,6 +44,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -69,8 +74,34 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
         message: 'Username available',
         status: 200,
       },
-      fetchDetails: [],
-      timestamp: 1736463311925,
+      fetchDetails: [
+        {
+          url: 'https://dev.lilico.app/v1/user/check?username=coolpanda',
+          params: {
+            username: 'coolpanda',
+          },
+          requestInit: {
+            method: 'get',
+            headers: {
+              Network: 'testnet',
+              Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
+              'Content-Type': 'application/json',
+            },
+          },
+          responseData: {
+            data: {
+              unique: true,
+              username: 'coolpanda',
+            },
+            message: 'Username available',
+            status: 200,
+          },
+          status: 200,
+          statusText: 'OK',
+        },
+      ],
+      timestamp: 1736725680385,
     },
     {
       functionName: 'register',
@@ -103,6 +134,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"account_key":{"hash_algo":1,"sign_algo":2,"weight":1000,"public_key":"39f1f25d8204a4372beecab155af3a387944b3650d1552c17a2bb24633068b61a40fe90a42c2f204466ce1c0c608cabc2506000662cbb4b2d79cfc35217bcfc7"},"username":"coolpanda"}',
@@ -171,6 +203,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -210,6 +243,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -247,6 +281,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"account_key":{"public_key":"a255362270ae3d4c10c3453a846c7bf287415cd9611c9976f1bc7f933249055111e4355078bbedd12c30141a4786403ca3922f1fb8a7267f1105a0460c961dd0","hash_algo":1,"sign_algo":2,"weight":1000},"device_info":{"city":"Sydney","continent":"Australia","continentCode":"AU","country":"Australia","countryCode":"AU","currency":"AU","device_id":"e8HjxNbH6SE7S0k4CEyIPU","district":"","ip":"60.242.118.130","isp":"AS7545 TPG Telecom Limited","lat":-33.8715,"lon":151.2006,"name":"FRW Chrome Extension","org":"TPG Internet Pty Ltd.","regionName":"New South Wales","type":"2","user_agent":"Chrome","zip":"2000"},"signature":"6f20208f51447bf1e8f91cc45f904c109e622c9b5baba35182deed381263d60e361c41889aea3d1fa138533ac050045a92829ffd72be0cbeb86d5d436ce23e3d"}',
@@ -307,6 +342,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"username":"coolpanda","address":"0x19323af541a61c27","account_key":{"hash_algo":1,"sign_algo":2,"weight":1000,"public_key":"c39aba17940f3e5432ea9500e95f380bc4780d76f2d92e76a10c4a04aa01fcb05e8d80ec509d1514251e660defd7f190a9e6f5a9bad843b08192b6ed94085a39"},"device_info":{"device_id":"test-device","district":"","name":"Test Device","type":"2","user_agent":"Test"},"backup_info":{}}',
@@ -556,6 +592,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -593,6 +630,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"query":"","operation_name":""}',
@@ -692,6 +730,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"to":"0xe8264050e6f51923","data":"0x7dc438a4000000000000000000000000000000000000000000000000000000000000006e000000000000000000000000000000000000000000005ebb07aa041da925bbe20000000000000000000000000000000000000000000000000000000000989680000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000053c40000000000000000000000000000000000000000000000000000000000000099"}',
@@ -730,6 +769,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -752,6 +792,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -785,6 +826,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -814,6 +856,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -841,6 +884,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -874,6 +918,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -917,6 +962,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -940,6 +986,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -958,6 +1005,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{}',
@@ -977,6 +1025,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{}',
@@ -993,6 +1042,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"account_key":{"hash_algo":1,"sign_algo":2,"weight":1000,"public_key":"23f371c3c8bf334edff60bb211978a9150deddd525cf67e1a2e8a9e2cf48652cf29e23e88d676b84a2c00473da3d804eecc1d18792e57958161cefb8aa58d148"},"network":"testnet"}',
@@ -1011,6 +1061,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1026,6 +1077,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"account_key":{"hash_algo":1,"sign_algo":2,"weight":1000,"public_key":"23f371c3c8bf334edff60bb211978a9150deddd525cf67e1a2e8a9e2cf48652cf29e23e88d676b84a2c00473da3d804eecc1d18792e57958161cefb8aa58d148"},"device_info":{"device_id":"test-device","district":"","name":"Test Device","type":"2","user_agent":"Test"}}',
@@ -1045,6 +1097,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1109,6 +1162,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"wallet_id":"","device_info":{"device_id":"test-device","district":"","name":"Test Device","type":"2","user_agent":"Test"}}',
@@ -1306,6 +1360,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"transaction":{}}',
@@ -1322,6 +1377,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1338,6 +1394,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1353,6 +1410,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"contact_name":"Test","address":"0xb3ffbb29df0b3555","username":"","domain":"","domain_type":0}',
@@ -1369,6 +1427,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"id":1,"contact_name":"Test Updated","address":"0xb3ffbb29df0b3555","domain":"","domain_type":0}',
@@ -1387,6 +1446,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{}',
@@ -1403,6 +1463,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"contact_name":"Test","address":"0xb3ffbb29df0b3555","domain":"","domain_type":0}',
@@ -1427,6 +1488,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1451,6 +1513,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1475,6 +1538,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1501,6 +1565,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1533,6 +1598,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"private":0}',
@@ -1549,6 +1615,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"nickname":"Test","avatar":""}',
@@ -1565,6 +1632,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"transaction":{},"message":{"envelope_message":""}}',
@@ -1581,6 +1649,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"url":""}',
@@ -1597,6 +1666,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1648,6 +1718,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1699,6 +1770,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1750,6 +1822,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1801,6 +1874,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1852,6 +1926,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1903,6 +1978,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -1954,6 +2030,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2027,6 +2104,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2088,6 +2166,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2304,6 +2383,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2342,10 +2422,47 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
         provider: 'binance',
       },
       functionResponse: {
-        '86400': [[1736380800, 0.728, 0.756, 0.711, 0.729, 0.733, 244552.96891644, 756]],
+        '86400': [[1736899200, 0.732, 0.778, 0.712, 0.772, 0.735, 137796.36613131, 517]],
       },
-      fetchDetails: [],
-      timestamp: 1736463324093,
+      fetchDetails: [
+        {
+          url: 'https://dev.lilico.app/v1/crypto/history?provider=binance&pair=flowusdt&after=1736973455&periods=86400',
+          params: {
+            provider: 'binance',
+            pair: 'flowusdt',
+            after: '1736973455',
+            periods: '86400',
+          },
+          requestInit: {
+            method: 'get',
+            headers: {
+              Network: 'testnet',
+              Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
+              'Content-Type': 'application/json',
+            },
+          },
+          responseData: {
+            data: {
+              allowance: {
+                Cost: 0,
+                Remaining: 0,
+              },
+              id: 'FLOWUSD_86400',
+              last: 0,
+              result: {
+                '86400': [[1736899200, 0.732, 0.778, 0.712, 0.772, 0.735, 137796.36613131, 517]],
+              },
+              timestamp: '2025-01-15T20:35:32.007Z',
+            },
+            message: 'Cached Result',
+            status: 200,
+          },
+          status: 200,
+          statusText: 'OK',
+        },
+      ],
+      timestamp: 1736973455504,
     },
   ],
   user: [
@@ -2366,6 +2483,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2488,6 +2606,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2589,6 +2708,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2630,6 +2750,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2717,6 +2838,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -2852,6 +2974,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -3608,6 +3731,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"transaction":{"cadence":"import FungibleToken from 0xa0225e7000ac82a9\\n    import FlowToken from 0x4445e7ad11568276\\n    import EVM from 0xb6763b4399a888c8\\n\\n    transaction() {\\n        let auth: auth(IssueStorageCapabilityController, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account\\n\\n        prepare(signer: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {\\n            let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(\\n                    from: /storage/flowTokenVault\\n                ) ?? panic(\\"Could not borrow reference to the owner\'s Vault!\\")\\n\\n            self.auth = signer\\n        }\\n\\n        execute {\\n            let coa <- EVM.createCadenceOwnedAccount()\\n            let storagePath = StoragePath(identifier: \\"evm\\")!\\n            let publicPath = PublicPath(identifier: \\"evm\\")!\\n            self.auth.storage.save<@EVM.CadenceOwnedAccount>(<-coa, to: storagePath)\\n            let addressableCap = self.auth.capabilities.storage.issue<&EVM.CadenceOwnedAccount>(storagePath)\\n            self.auth.capabilities.unpublish(publicPath)\\n            self.auth.capabilities.publish(addressableCap, at: publicPath)\\n        }\\n    }","refBlock":"492a3226cb1cd0df0b06356e9b30a5a46b48efbed3fd991ad3f72f6b0e86ff50","computeLimit":9999,"arguments":[],"proposalKey":{"address":"0xeeabe329dc998978","keyId":0,"sequenceNum":2},"payer":"0xcb1cf3196916f9e2","authorizers":["0xeeabe329dc998978"],"payloadSigs":[{"address":"0xeeabe329dc998978","keyId":0,"sig":"46152a726f45bafd658b126da85e4c17123fbd487959f80d0c83f5d3bebc7fbe6889986159ed89327373de2bab4ca74d0c4457254715bc0c7a0e03d382dcd5f1"}],"envelopeSigs":[{"address":"0xcb1cf3196916f9e2","keyId":0,"sig":null}]},"message":{"envelope_message":"464c4f572d56302e302d7472616e73616374696f6e0000000000000000000000f9056ff90524b904de696d706f72742046756e6769626c65546f6b656e2066726f6d203078613032323565373030306163383261390a20202020696d706f727420466c6f77546f6b656e2066726f6d203078343434356537616431313536383237360a20202020696d706f72742045564d2066726f6d203078623637363362343339396138383863380a0a202020207472616e73616374696f6e2829207b0a20202020202020206c657420617574683a206175746828497373756553746f726167654361706162696c697479436f6e74726f6c6c65722c20497373756553746f726167654361706162696c697479436f6e74726f6c6c65722c205075626c6973684361706162696c6974792c205361766556616c75652c20556e7075626c6973684361706162696c6974792920264163636f756e740a0a202020202020202070726570617265287369676e65723a206175746828426f72726f7756616c75652c20497373756553746f726167654361706162696c697479436f6e74726f6c6c65722c205075626c6973684361706162696c6974792c205361766556616c75652c20556e7075626c6973684361706162696c6974792920264163636f756e7429207b0a2020202020202020202020206c6574207661756c74526566203d207369676e65722e73746f726167652e626f72726f773c617574682846756e6769626c65546f6b656e2e5769746864726177292026466c6f77546f6b656e2e5661756c743e280a202020202020202020202020202020202020202066726f6d3a202f73746f726167652f666c6f77546f6b656e5661756c740a2020202020202020202020202020202029203f3f2070616e69632822436f756c64206e6f7420626f72726f77207265666572656e636520746f20746865206f776e65722773205661756c742122290a0a20202020202020202020202073656c662e61757468203d207369676e65720a20202020202020207d0a0a202020202020202065786563757465207b0a2020202020202020202020206c657420636f61203c2d2045564d2e637265617465436164656e63654f776e65644163636f756e7428290a2020202020202020202020206c65742073746f7261676550617468203d2053746f7261676550617468286964656e7469666965723a202265766d2229210a2020202020202020202020206c6574207075626c696350617468203d205075626c696350617468286964656e7469666965723a202265766d2229210a20202020202020202020202073656c662e617574682e73746f726167652e736176653c4045564d2e436164656e63654f776e65644163636f756e743e283c2d636f612c20746f3a2073746f7261676550617468290a2020202020202020202020206c6574206164647265737361626c65436170203d2073656c662e617574682e6361706162696c69746965732e73746f726167652e69737375653c2645564d2e436164656e63654f776e65644163636f756e743e2873746f7261676550617468290a20202020202020202020202073656c662e617574682e6361706162696c69746965732e756e7075626c697368287075626c696350617468290a20202020202020202020202073656c662e617574682e6361706162696c69746965732e7075626c697368286164647265737361626c654361702c2061743a207075626c696350617468290a20202020202020207d0a202020207dc0a0492a3226cb1cd0df0b06356e9b30a5a46b48efbed3fd991ad3f72f6b0e86ff5082270f88eeabe329dc998978800288cb1cf3196916f9e2c988eeabe329dc998978f846f8448080b84046152a726f45bafd658b126da85e4c17123fbd487959f80d0c83f5d3bebc7fbe6889986159ed89327373de2bab4ca74d0c4457254715bc0c7a0e03d382dcd5f1"}}',
@@ -3642,6 +3766,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"transaction":{},"message":{"envelope_message":""}}',
@@ -3668,6 +3793,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -3711,6 +3837,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"transaction":{}}',
@@ -4828,6 +4955,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -5729,6 +5857,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -5839,6 +5968,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"private":2}',
@@ -5896,6 +6026,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"nickname":"test","avatar":"https://lilico.app/api/avatar/beam/120/test_862?colors=FFDD32,FC814A,7678ED,B3DEE2,BCF0DA"}',
@@ -5947,6 +6078,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -5976,6 +6108,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
             body: '{"transaction":{},"message":{"envelope_message":""}}',
@@ -6093,6 +6226,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -7274,6 +7408,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'mainnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -8695,6 +8830,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -8995,6 +9131,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -9029,6 +9166,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -9201,6 +9339,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -9285,6 +9424,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -9305,6 +9445,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -9527,6 +9668,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -9767,6 +9909,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -9898,6 +10041,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -10046,6 +10190,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -10188,6 +10333,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -10254,6 +10400,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -10392,6 +10539,7 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
             headers: {
               Network: 'testnet',
               Accept: 'application/json',
+              Authorization: 'Bearer mock-token',
               'Content-Type': 'application/json',
             },
           },
@@ -10552,4 +10700,6 @@ export const API_TEST_RESULTS: Record<string, ApiTestResult[]> = {
       error: 'Unexpected token \'<\', "<!DOCTYPE "... is not valid JSON',
     },
   ],
-};
+});
+
+export const API_TEST_RESULTS = createTestResults();

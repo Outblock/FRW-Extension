@@ -399,7 +399,7 @@ const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
   return response;
 };
 // Override fetch in branches other than master
-const fetch = process.env.BRANCH_NAME === 'master' ? originalFetch : fetchCallRecorder;
+///const fetch = process.env.BRANCH_NAME === 'master' ? originalFetch : fetchCallRecorder;
 
 class OpenApiService {
   store!: OpenApiStore;
@@ -458,7 +458,6 @@ class OpenApiService {
     const user = await getAuth(app).currentUser;
     const init = {
       method,
-      async: true,
       headers: {
         Network: network,
         Accept: 'application/json',
@@ -483,7 +482,8 @@ class OpenApiService {
       const idToken = await anonymousUser?.getIdToken();
       init.headers['Authorization'] = 'Bearer ' + idToken;
     }
-
+    console.log('requestUrl', requestUrl);
+    console.log('init', init);
     const response = await fetch(requestUrl, init);
     return response.json(); // parses JSON response into native JavaScript objects
   };

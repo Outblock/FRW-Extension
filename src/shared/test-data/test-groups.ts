@@ -1,4 +1,6 @@
 import { getAccountKey } from '@/shared/utils/address';
+
+import { type ApiTestResult, type ApiTestResults } from './api-test-results';
 export interface ApiTestFunction {
   name: string;
   controlledBy?: ApiTestFunction[]; // if set we may need to go through wallet service
@@ -442,4 +444,47 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       },
     ],
   };
+};
+
+const updateParamsToParamsUsedForResult = (
+  func: ApiTestFunction,
+  groupResults: ApiTestResult[]
+): ApiTestFunction => {
+  if (!func.controlledBy) {
+    // We're calling the function directly, so search for the result in the group results
+    const groupResult = groupResults.find((result) => result.functionName === func.name);
+    if (!groupResult) {
+      // we didn't find a result, so don't update the params
+      return func;
+    }
+    // We found a result, so update the params
+    return {
+      ...func,
+      params: groupResult.functionParams ?? {},
+    };
+  }
+
+  // We're calling the function indirectly, so update the params for each function in the controlledBy array
+  return {
+    ...func,
+    controlledBy: func.controlledBy.map((func) =>
+      updateParamsToParamsUsedForResult(func, groupResults)
+    ),
+  };
+};
+
+export const updateTestParamsFromResults = (
+  apiTestGroups: ApiTestGroups,
+  results: ApiTestResults
+) => {
+  return Object.fromEntries(
+    Object.entries(apiTestGroups).map(([groupName, group]) => {
+      return [
+        groupName,
+        group.map((func: ApiTestFunction) =>
+          updateParamsToParamsUsedForResult(func, results[groupName] ?? [])
+        ),
+      ];
+    })
+  );
 };

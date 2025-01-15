@@ -16,8 +16,16 @@ import React, { useState, useEffect } from 'react';
 
 import { useWallet } from '@/ui/utils';
 
-import { API_TEST_RESULTS, type FetchDetail, type ApiTestResult } from './api-test-results';
-import { type ApiTestFunction, type CommonParams, createTestGroups } from './test-groups';
+import {
+  API_TEST_RESULTS,
+  type FetchDetail,
+  type ApiTestResult,
+} from '../../../shared/test-data/api-test-results';
+import {
+  type ApiTestFunction,
+  type CommonParams,
+  createTestGroups,
+} from '../../../shared/test-data/test-groups';
 
 const addFunctionResult = (prev: ApiTestResult[], result: ApiTestResult) => {
   const prevFunctionResult = prev.find((r) => r.functionName === result.functionName);

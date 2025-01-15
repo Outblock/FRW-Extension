@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
+import { createTestGroups } from '../../../../shared/test-data/test-groups';
 import methods from '../openapi-methods.json';
-import { createTestGroups } from '../test-groups';
 
 describe('ApiTestPage', () => {
   const dummyParams = {
