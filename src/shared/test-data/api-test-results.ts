@@ -2500,19 +2500,48 @@ export const createTestResults = (): ApiTestResults => ({
       functionParams: {},
       functionResponse: {
         data: {
-          nickname: 'coolpanda',
-          username: 'coolpanda_247',
+          nickname: 'webdev60',
+          username: 'webdev60_741',
           avatar:
-            'https://lilico.app/api/avatar/beam/120/coolpanda_247?colors=FFDD32,FC814A,7678ED,B3DEE2,BCF0DA',
+            'https://lilico.app/api/avatar/beam/120/webdev60_741?colors=FFDD32,FC814A,7678ED,B3DEE2,BCF0DA',
           private: 1,
-          created: '2025-01-09T22:55:12.542531Z',
-          id: '91408b5f-6021-4516-b938-bb41f1d9d595',
+          created: '2024-10-09T23:19:31.237534Z',
+          id: '36a69852-0f41-4da4-9a08-b3b50e8f1e8a',
         },
         message: 'Single Profile',
         status: 200,
       },
-      fetchDetails: [],
-      timestamp: 1736463326320,
+      fetchDetails: [
+        {
+          url: 'https://dev.lilico.app/v1/user/info',
+          params: {},
+          requestInit: {
+            method: 'get',
+            headers: {
+              Network: 'testnet',
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer mock-token',
+            },
+          },
+          responseData: {
+            data: {
+              nickname: 'webdev60',
+              username: 'webdev60_741',
+              avatar:
+                'https://lilico.app/api/avatar/beam/120/webdev60_741?colors=FFDD32,FC814A,7678ED,B3DEE2,BCF0DA',
+              private: 1,
+              created: '2024-10-09T23:19:31.237534Z',
+              id: '36a69852-0f41-4da4-9a08-b3b50e8f1e8a',
+            },
+            message: 'Single Profile',
+            status: 200,
+          },
+          status: 200,
+          statusText: 'OK',
+        },
+      ],
+      timestamp: 1736975872051,
     },
     {
       functionName: 'userWallet',
@@ -2520,25 +2549,76 @@ export const createTestResults = (): ApiTestResults => ({
       functionParams: {},
       functionResponse: {
         data: {
-          username: 'coolpanda_247',
-          id: '91408b5f-6021-4516-b938-bb41f1d9d595',
-          primary_wallet: 2040,
+          username: 'webdev60_741',
+          id: '36a69852-0f41-4da4-9a08-b3b50e8f1e8a',
+          primary_wallet: 1838,
           wallets: [
             {
-              id: 2040,
+              id: 1838,
               name: 'flow',
-              chain_id: 'mainnet',
+              chain_id: 'testnet',
               icon: 'placeholder',
               color: 'placeholder',
-              blockchain: null,
+              blockchain: [
+                {
+                  id: 783,
+                  name: 'Flow',
+                  chain_id: 'testnet',
+                  address: '0x2cdc100430551409',
+                  coins: ['flow'],
+                },
+              ],
             },
           ],
         },
         message: 'Single Wallet',
         status: 200,
       },
-      fetchDetails: [],
-      timestamp: 1736463326918,
+      fetchDetails: [
+        {
+          url: 'https://dev.lilico.app/v1/user/wallet',
+          params: {},
+          requestInit: {
+            method: 'get',
+            headers: {
+              Network: 'testnet',
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer mock-token',
+            },
+          },
+          responseData: {
+            data: {
+              username: 'webdev60_741',
+              id: '36a69852-0f41-4da4-9a08-b3b50e8f1e8a',
+              primary_wallet: 1838,
+              wallets: [
+                {
+                  id: 1838,
+                  name: 'flow',
+                  chain_id: 'testnet',
+                  icon: 'placeholder',
+                  color: 'placeholder',
+                  blockchain: [
+                    {
+                      id: 783,
+                      name: 'Flow',
+                      chain_id: 'testnet',
+                      address: '0x2cdc100430551409',
+                      coins: ['flow'],
+                    },
+                  ],
+                },
+              ],
+            },
+            message: 'Single Wallet',
+            status: 200,
+          },
+          status: 200,
+          statusText: 'OK',
+        },
+      ],
+      timestamp: 1736977420684,
     },
     {
       functionName: 'userWalletV2',
@@ -2546,33 +2626,108 @@ export const createTestResults = (): ApiTestResults => ({
       functionParams: {},
       functionResponse: {
         data: {
-          username: 'coolpanda_247',
-          id: '91408b5f-6021-4516-b938-bb41f1d9d595',
-          primary_wallet: 2040,
+          username: 'webdev60_741',
+          id: '36a69852-0f41-4da4-9a08-b3b50e8f1e8a',
+          primary_wallet: 1838,
           wallets: [
             {
-              id: 2040,
+              id: 1838,
               name: 'flow',
               chain_id: 'testnet',
               icon: 'placeholder',
               color: 'placeholder',
-              blockchain: null,
+              blockchain: [
+                {
+                  id: 783,
+                  name: 'Flow',
+                  chain_id: 'testnet',
+                  address: '0x2cdc100430551409',
+                  coins: ['flow'],
+                },
+              ],
             },
             {
-              id: 2040,
+              id: 1838,
               name: 'flow',
               chain_id: 'mainnet',
               icon: 'placeholder',
               color: 'placeholder',
-              blockchain: null,
+              blockchain: [
+                {
+                  id: 803,
+                  name: 'Flow',
+                  chain_id: 'mainnet',
+                  address: '0xbaaf5b95594ce9d7',
+                  coins: ['flow'],
+                },
+              ],
             },
           ],
         },
         message: 'Single Wallet',
         status: 200,
       },
-      fetchDetails: [],
-      timestamp: 1736463327509,
+      fetchDetails: [
+        {
+          url: 'https://dev.lilico.app/v2/user/wallet',
+          params: {},
+          requestInit: {
+            method: 'get',
+            headers: {
+              Network: 'testnet',
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer mock-token',
+            },
+          },
+          responseData: {
+            data: {
+              username: 'webdev60_741',
+              id: '36a69852-0f41-4da4-9a08-b3b50e8f1e8a',
+              primary_wallet: 1838,
+              wallets: [
+                {
+                  id: 1838,
+                  name: 'flow',
+                  chain_id: 'testnet',
+                  icon: 'placeholder',
+                  color: 'placeholder',
+                  blockchain: [
+                    {
+                      id: 783,
+                      name: 'Flow',
+                      chain_id: 'testnet',
+                      address: '0x2cdc100430551409',
+                      coins: ['flow'],
+                    },
+                  ],
+                },
+                {
+                  id: 1838,
+                  name: 'flow',
+                  chain_id: 'mainnet',
+                  icon: 'placeholder',
+                  color: 'placeholder',
+                  blockchain: [
+                    {
+                      id: 803,
+                      name: 'Flow',
+                      chain_id: 'mainnet',
+                      address: '0xbaaf5b95594ce9d7',
+                      coins: ['flow'],
+                    },
+                  ],
+                },
+              ],
+            },
+            message: 'Single Wallet',
+            status: 200,
+          },
+          status: 200,
+          statusText: 'OK',
+        },
+      ],
+      timestamp: 1736977452277,
     },
     {
       functionName: 'searchUser',
@@ -2641,8 +2796,30 @@ export const createTestResults = (): ApiTestResults => ({
         message: 'You can create the publickey into database',
         status: 200,
       },
-      fetchDetails: [],
-      timestamp: 1736463328687,
+      fetchDetails: [
+        {
+          url: 'https://dev.lilico.app/v3/checkimport?key=test',
+          params: {
+            key: 'test',
+          },
+          requestInit: {
+            method: 'get',
+            headers: {
+              Network: 'testnet',
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer mock-token',
+            },
+          },
+          responseData: {
+            message: 'You can create the publickey into database',
+            status: 200,
+          },
+          status: 200,
+          statusText: 'OK',
+        },
+      ],
+      timestamp: 1736977580036,
     },
   ],
   wallet: [

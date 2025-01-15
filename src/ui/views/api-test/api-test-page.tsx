@@ -136,6 +136,7 @@ const ApiTestPage: React.FC = () => {
 
     // Set up message listener for API calls
     const messageListener = (message: { type: string; data: FetchDetail }) => {
+      console.log('message', message);
       if (message.type === 'API_CALL_RECORDED') {
         const { data } = message;
         // Try to determine the function group from the URL

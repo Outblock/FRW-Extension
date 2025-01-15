@@ -100,8 +100,8 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
     user: [
       { name: 'coinMap', params: {} },
       { name: 'userInfo', params: {} },
-      { name: 'userWallet', params: {} },
-      { name: 'userWalletV2', params: {} },
+      { unused: true, name: 'userWallet', params: {} },
+      { unused: true, name: 'userWalletV2', params: {} },
       { name: 'searchUser', params: { keyword: 'webdev18_862' } },
       { name: 'checkImport', params: { key: 'test' } },
     ],

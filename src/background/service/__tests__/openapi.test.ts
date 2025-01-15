@@ -214,7 +214,7 @@ describe('OpenApiService', () => {
 
   Object.entries(testGroups).forEach(([groupName, functions]) => {
     const activeFunctions = functions.filter((func) => !func.unused);
-    if (groupName !== 'prices') {
+    if (groupName !== 'user') {
       return;
     }
     describe(groupName, () => {

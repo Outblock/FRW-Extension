@@ -362,13 +362,8 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
   },
 };
 
-const originalFetch = globalThis.fetch;
-const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
-  const response = await originalFetch(...args);
-
+const recordFetch = async (response, responseData, ...args: Parameters<typeof fetch>) => {
   try {
-    const responseData = response.ok ? await response.clone().json() : null;
-
     // Extract URL parameters from the first argument if it's a URL with query params
     const url = args[0].toString();
     const urlObj = new URL(url);
@@ -398,7 +393,10 @@ const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
   }
   return response;
 };
+
 // Override fetch in branches other than master
+//const originalFetch = globalThis.fetch;
+
 ///const fetch = process.env.BRANCH_NAME === 'master' ? originalFetch : fetchCallRecorder;
 
 class OpenApiService {
@@ -482,10 +480,13 @@ class OpenApiService {
       const idToken = await anonymousUser?.getIdToken();
       init.headers['Authorization'] = 'Bearer ' + idToken;
     }
-    console.log('requestUrl', requestUrl);
-    console.log('init', init);
+
     const response = await fetch(requestUrl, init);
-    return response.json(); // parses JSON response into native JavaScript objects
+    const responseData = await response.json(); // parses JSON response into native JavaScript objects
+
+    recordFetch(response, responseData, requestUrl, init);
+    return responseData;
+    // Record the response
   };
 
   private getUSDCPricePair = (provider: PriceProvider): string | null => {
