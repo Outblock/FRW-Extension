@@ -2124,8 +2124,6 @@ export class WalletController extends BaseController {
       if (!value.startsWith('0x')) {
         value = '0x' + value;
       }
-    } else {
-      throw new Error('Value must be a hex string');
     }
 
     // Convert the hex value to number
