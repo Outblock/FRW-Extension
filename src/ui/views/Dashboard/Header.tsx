@@ -1,5 +1,6 @@
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import {
   AppBar,
   Toolbar,
@@ -15,13 +16,14 @@ import {
   Avatar,
   Skeleton,
   CircularProgress,
+  Icon,
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import { StyledEngineProvider } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
@@ -66,6 +68,7 @@ const Header = ({ loading = false }) => {
   const usewallet = useWallet();
   const classes = useStyles();
   const history = useHistory();
+  const location = useLocation();
 
   const [isLoading, setLoading] = useState(loading);
 
@@ -140,6 +143,14 @@ const Header = ({ loading = false }) => {
     // Avoids unnecessary re-renders using a function to toggle the state
     setUsernameDrawer((prevUsernameDrawer) => !prevUsernameDrawer);
   }, []);
+
+  const goToSettings = useCallback(() => {
+    if (location.pathname.includes('/dashboard/setting')) {
+      history.push('/dashboard');
+    } else {
+      history.push('/dashboard/setting');
+    }
+  }, [history, location.pathname]);
 
   const wallets = useCallback(
     (data) => {
@@ -768,54 +779,64 @@ const Header = ({ loading = false }) => {
                   }}
                 />
               )}
-              <IconButton
-                edge="end"
-                color="inherit"
-                aria-label="avatar"
-                onClick={toggleNewsDrawer}
-                sx={{
-                  border: isPending
-                    ? ''
-                    : currentNetwork !== 'mainnet'
-                      ? `2px solid ${networkColor(currentNetwork)}`
-                      : isSandbox
-                        ? '2px solid #CCAF21'
-                        : '2px solid #282828',
-                  padding: '3px',
-                  marginRight: '0px',
-                  position: 'relative',
-                }}
-              >
-                <img
-                  src={userInfo.avatar}
-                  style={{ backgroundColor: '#797979', borderRadius: '10px' }}
-                  width="20px"
-                  height="20px"
-                />
-                {unreadCount > 0 && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '-6px',
-                      right: '-6px',
-                      backgroundColor: '#4CAF50',
-                      color: 'black',
-                      borderRadius: '50%',
-                      minWidth: '18px',
-                      height: '18px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '12px',
-                      padding: '2px',
-                      border: 'none',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {unreadCount}
-                  </Box>
-                )}
-              </IconButton>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <IconButton
+                  edge="end"
+                  color="inherit"
+                  aria-label="notification"
+                  onClick={toggleNewsDrawer}
+                >
+                  <NotificationsIcon />
+                  {unreadCount > 0 && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: '-2px',
+                        right: '-2px',
+                        backgroundColor: '#4CAF50',
+                        color: 'black',
+                        borderRadius: '50%',
+                        minWidth: '18px',
+                        height: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        padding: '2px',
+                        border: 'none',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {unreadCount}
+                    </Box>
+                  )}
+                </IconButton>
+                <IconButton
+                  edge="end"
+                  color="inherit"
+                  aria-label="avatar"
+                  onClick={() => goToSettings()}
+                  sx={{
+                    border: isPending
+                      ? ''
+                      : currentNetwork !== 'mainnet'
+                        ? `2px solid ${networkColor(currentNetwork)}`
+                        : isSandbox
+                          ? '2px solid #CCAF21'
+                          : '2px solid #282828',
+                    padding: '3px',
+                    marginRight: '0px',
+                    position: 'relative',
+                  }}
+                >
+                  <img
+                    src={userInfo.avatar}
+                    style={{ backgroundColor: '#797979', borderRadius: '10px' }}
+                    width="20px"
+                    height="20px"
+                  />
+                </IconButton>
+              </Box>
             </Box>
           </Tooltip>
         ) : (

@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { IconNfts } from '@/components/iconfont';
 import eventBus from '@/eventBus';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
@@ -21,6 +22,8 @@ import { formatLargeNumber } from 'ui/utils/number';
 import { withPrefix } from '../../../shared/utils/address';
 import theme from '../../style/LLTheme';
 import MoveBoard from '../MoveBoard';
+import NFTTab from '../NFT';
+import NftEvm from '../NftEvm';
 
 import CoinList from './Coinlist';
 import OnRampList from './OnRampList';
@@ -592,7 +595,7 @@ const WalletTab = ({ network }) => {
         </Box>
         <Tabs
           value={value}
-          sx={{ width: '100%' }}
+          sx={{ width: '100%', position: 'sticky', top: '0' }}
           onChange={handleChange}
           TabIndicatorProps={{
             style: {
@@ -624,6 +627,25 @@ const WalletTab = ({ network }) => {
             {...a11yProps(0)}
           />
           <Tab
+            icon={<IconNfts fontSize="small" />}
+            iconPosition="start"
+            label={
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{
+                  textTransform: 'capitalize',
+                  fontSize: '10',
+                  fontWeight: 'semi-bold',
+                }}
+              >
+                {chrome.i18n.getMessage('NFTs')}
+              </Typography>
+            }
+            style={{ color: '#F9F9F9', minHeight: '25px' }}
+            {...a11yProps(0)}
+          />
+          <Tab
             icon={<FlashOnRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
             iconPosition="start"
             label={
@@ -636,7 +658,7 @@ const WalletTab = ({ network }) => {
                   fontWeight: 'semi-bold',
                 }}
               >
-                {`${txCount}`} {chrome.i18n.getMessage('Activity')}
+                {chrome.i18n.getMessage('Activity')}
               </Typography>
             }
             style={{ color: '#F9F9F9', minHeight: '25px' }}
@@ -661,6 +683,9 @@ const WalletTab = ({ network }) => {
           />
         </TabPanel>
         <TabPanel value={value} index={1}>
+          {childType === 'evm' ? <NftEvm /> : <NFTTab />}
+        </TabPanel>
+        <TabPanel value={value} index={2}>
           <TransferList setCount={setTxCount} />
         </TabPanel>
       </SwipeableViews>

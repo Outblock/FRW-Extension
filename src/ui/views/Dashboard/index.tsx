@@ -112,28 +112,7 @@ const Dashboard = ({ value, setValue }) => {
         }}
       >
         <NetworkIndicator network={currentNetwork} emulatorMode={emulatorModeOn} />
-
-        {/* <Header loading={loading} /> */}
-        <SwipeableViews
-          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={value}
-          onChangeIndex={handleChangeIndex}
-          style={{ height: '100%', width: '100%' }}
-        >
-          <TabPanel value={value} index={0}>
-            <WalletTab network={currentNetwork} />
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            {isEvm ? <NftEvm /> : <NFTTab />}
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            <Staking />
-          </TabPanel>
-          <TabPanel value={value} index={3}>
-            <SettingTab />
-          </TabPanel>
-        </SwipeableViews>
-        <NavBar value={value} setValue={setValue} />
+        <WalletTab network={currentNetwork} />
       </Box>
     </div>
   );
