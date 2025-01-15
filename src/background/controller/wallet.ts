@@ -2114,36 +2114,24 @@ export class WalletController extends BaseController {
     }
     await this.getNetwork();
 
-    const script = await getScripts('evm', 'callContract');
+    const script = await getScripts('evm', 'callContractV2');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    let amount;
-
-    // If value is 0, set amount to '0.00000000'
-    if (value === 0 || value === '0x0' || value === '0') {
-      amount = '0.00000000';
-    } else {
-      // Ensure '0x' prefix for the hex value
-      if (typeof value === 'string' && !value.startsWith('0x')) {
+    if (typeof value === 'string') {
+      if (!value.startsWith('0x')) {
         value = '0x' + value;
       }
-
-      // Convert the hex value to number
-      const number = web3.utils.hexToNumber(value);
-
-      // Convert Wei to Ether
-      amount = web3.utils.fromWei(number.toString(), 'ether');
-
-      // Ensure the amount has exactly 8 decimal places
-      amount = parseFloat(amount).toFixed(8);
     }
+
+    // Convert the hex value to number
+    const number = web3.utils.hexToNumber(value);
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(amount, t.UFix64),
+      fcl.arg(number.toString(), t.UInt256),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
@@ -2151,7 +2139,7 @@ export class WalletController extends BaseController {
     mixpanelTrack.track('ft_transfer', {
       from_address: await this.getEvmAddress(),
       to_address: to,
-      amount: parseFloat(amount),
+      amount: parseFloat(number.toString()),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
@@ -2169,50 +2157,41 @@ export class WalletController extends BaseController {
     }
     await this.getNetwork();
 
-    const script = await getScripts('evm', 'callContract');
+    const script = await getScripts('evm', 'callContractV2');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    let amount;
-
-    let number;
-    // console.log('dapSendEvmTX value:', value);
-
-    // If value is 0 or similar, set amount to '0.00000000'
-    if (value === 0 || value === '0x0' || value === '0') {
-      amount = '0.00000000';
-    } else {
-      // Check if the value is a string
-      if (typeof value === 'string') {
-        // Check if it starts with '0x'
-        if (value.startsWith('0x')) {
-          // If it's hex without '0x', add '0x'
-          if (!/^0x[0-9a-fA-F]+$/.test(value)) {
-            value = '0x' + value.replace(/^0x/, '');
-          }
-        } else {
-          // If it's a regular string, convert to hex
-          value = web3.utils.toHex(value);
-        }
+    if (typeof value === 'string') {
+      if (!value.startsWith('0x')) {
+        value = '0x' + value;
       }
-
-      // Convert the hex value to number
-      number = web3.utils.hexToNumber(value);
-
-      // Convert Wei to Ether
-      amount = web3.utils.fromWei(number.toString(), 'ether');
-
-      // Ensure the amount has exactly 8 decimal places
-      amount = parseFloat(amount).toFixed(8);
+    } else {
+      throw new Error('Value must be a hex string');
     }
 
-    // console.log('Final amount:', amount);
+    // Check if the value is a string
+    if (typeof value === 'string') {
+      // Check if it starts with '0x'
+      if (value.startsWith('0x')) {
+        // If it's hex without '0x', add '0x'
+        if (!/^0x[0-9a-fA-F]+$/.test(value)) {
+          value = '0x' + value.replace(/^0x/, '');
+        }
+      } else {
+        // If it's a regular string, convert to hex
+        value = web3.utils.toHex(value);
+      }
+    }
 
+    // Convert the hex value to number
+    const number = web3.utils.hexToNumber(value);
+
+    // console.log('Final amount:', amount);
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(amount, t.UFix64),
+      fcl.arg(number.toString(), t.UInt256),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
@@ -2222,7 +2201,7 @@ export class WalletController extends BaseController {
     mixpanelTrack.track('ft_transfer', {
       from_address: evmAddress,
       to_address: to,
-      amount: parseFloat(amount),
+      amount: parseFloat(number.toString()),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
