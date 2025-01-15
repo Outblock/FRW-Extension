@@ -74,7 +74,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
   const [exceed, setExceed] = useState(false);
-  const [minAmount, setMinAmount] = useState<any>(0.001);
 
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
@@ -125,15 +124,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     };
     setEvmUser(evmContact);
 
-    try {
-      // Try fetching the min amount from the API
-      const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
-      setMinAmount(minAmount);
-    } catch (error) {
-      // If there's an error, set the min amount to 0.001
-      console.error('Error fetching min amount:', error);
-      setMinAmount(0.001);
-    }
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
     return;
@@ -310,7 +300,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
             setExceed={setExceed}
             coinInfo={coinInfo}
             setCurrentCoin={setCurrentCoin}
-            minAmount={minAmount}
           />
         )}
       </Box>

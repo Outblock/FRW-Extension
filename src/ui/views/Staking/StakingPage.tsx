@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
+import { useCoinStore } from '@/ui/stores/useCoinStore';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
 
@@ -57,6 +58,7 @@ const StakingPage = () => {
   // }
 
   const usewallet = useWallet();
+  const { availableFlow } = useCoinStore();
   const location = useParams();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
@@ -73,20 +75,11 @@ const StakingPage = () => {
   const [errorType, setErrorType] = useState<any>(null);
 
   const setInputAmount = async (value) => {
-    //todo: move this to balance store in refactor.
-    const DEFAULT_MIN_AMOUNT = new BN('0.001');
-
-    const address = withPrefix(await usewallet.getMainWallet()) || '';
-
-    const minAmount = new BN(
-      (await usewallet.openapi.getAccountMinFlow(address)) || DEFAULT_MIN_AMOUNT
-    );
-    const balance = new BN(coinInfo.balance);
-
-    const inputBalance = value === 1 ? balance.minus(minAmount) : balance.multipliedBy(value);
-
+    const balance = new BN(availableFlow);
+    const inputBalance = balance.multipliedBy(value);
     setAmount(inputBalance.toFixed(8, BN.ROUND_DOWN));
   };
+
   const setUserWallet = useCallback(async () => {
     const nodeid = location['nodeid'];
     const delegateid = location['delegateid'];

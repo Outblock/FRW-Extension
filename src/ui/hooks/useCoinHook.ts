@@ -1,11 +1,17 @@
+import BN from 'bignumber.js';
 import { useCallback, useEffect } from 'react';
 
+import { withPrefix } from '@/shared/utils/address';
 import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from 'ui/utils';
+
+const DEFAULT_MIN_AMOUNT = '0.001';
 
 export const useCoinHook = () => {
   const usewallet = useWallet();
-  const { setCoinData, setBalance } = useCoinStore();
+  const { setCoinData, setBalance, setTotalFlow, totalFlow, setAvailableFlow } = useCoinStore();
+  const { mainAddress } = useProfileStore();
 
   const handleStorageData = useCallback(
     async (storageData) => {
@@ -20,12 +26,31 @@ export const useCoinHook = () => {
           .filter((item) => item.total !== null)
           .forEach((coin) => {
             sum = sum + parseFloat(coin.total);
+            if (coin.unit.toLowerCase() === 'flow') {
+              setTotalFlow(coin.balance);
+            }
           });
         setBalance('$ ' + sum.toFixed(2));
       }
     },
-    [setCoinData, setBalance]
+    [setCoinData, setTotalFlow, setBalance]
   );
+
+  const calculateAvailableBalance = useCallback(async () => {
+    try {
+      const address = withPrefix(mainAddress) || '';
+      // TODO: need a controller for this
+      const minAmount = new BN(
+        (await usewallet.openapi.getAccountMinFlow(address)) || DEFAULT_MIN_AMOUNT
+      );
+      const total = new BN(totalFlow);
+      const availableFlow = total.minus(minAmount).toString();
+      setAvailableFlow(availableFlow);
+    } catch (error) {
+      console.error('Error calculating available balance:', error);
+      setAvailableFlow('0');
+    }
+  }, [usewallet, totalFlow, mainAddress, setAvailableFlow]);
 
   const sortWallet = useCallback(
     (data) => {
@@ -59,6 +84,10 @@ export const useCoinHook = () => {
       refreshCoinData();
     }
   }, [refreshCoinData, usewallet]);
+
+  useEffect(() => {
+    calculateAvailableBalance();
+  }, [totalFlow, calculateAvailableBalance]);
 
   return { refreshCoinData };
 };

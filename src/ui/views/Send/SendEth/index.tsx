@@ -58,24 +58,9 @@ const SendEth = () => {
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<ActiveChildType>(null);
-  const [minAmount, setMinAmount] = useState<any>(0);
   const [erc20Contract, setErc20Contract] = useState<any>(null);
   const [web3, setWeb3] = useState<any>(null);
 
-  const setUserMinAmount = useCallback(
-    async (address: string) => {
-      try {
-        // Try fetching the min amount from the API
-        const minAmount = await usewallet.openapi.getAccountMinFlow(address);
-        setMinAmount(minAmount);
-      } catch (error) {
-        // If there's an error, set the min amount to 0.001
-        console.error('Error fetching min amount:', error);
-        setMinAmount(0.001);
-      }
-    },
-    [usewallet]
-  );
   const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
@@ -131,9 +116,8 @@ const SendEth = () => {
     }
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
-    setUserMinAmount(userContact.address);
     setUser(userContact);
-  }, [setUserMinAmount, usewallet]);
+  }, [usewallet]);
 
   const checkAddress = useCallback(async () => {
     const childType = await usewallet.getActiveWallet();
@@ -237,7 +221,6 @@ const SendEth = () => {
                 setExceed={setExceed}
                 coinInfo={coinInfo}
                 setCurrentCoin={setCurrentCoin}
-                minAmount={minAmount}
               />
             )}
 

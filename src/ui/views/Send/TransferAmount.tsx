@@ -19,6 +19,7 @@ import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { useCoinStore } from '@/ui/stores/useCoinStore';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
@@ -115,15 +116,15 @@ const TransferAmount = ({
   coinInfo,
   setCurrentCoin,
   coinList,
-  minAmount,
 }) => {
   const classes = useStyles();
+  const { availableFlow } = useCoinStore();
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
   const handleMaxClick = () => {
     if (coinInfo) {
       if (coinInfo.unit.toLowerCase() === 'flow') {
-        setAmount(coinInfo.balance - minAmount);
+        setAmount(availableFlow);
       } else {
         // const minimumValue = minAmount > 0.001 ? minAmount : 0.001;
         const newAmount = coinInfo.balance - 0;

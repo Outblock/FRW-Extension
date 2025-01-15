@@ -58,22 +58,6 @@ const SendAmount = () => {
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<ActiveChildType>(null);
-  const [minAmount, setMinAmount] = useState<any>(0);
-
-  const setUserMinAmount = useCallback(
-    async (address: string) => {
-      try {
-        // Try fetching the min amount from the API
-        const minAmount = await usewallet.openapi.getAccountMinFlow(address);
-        setMinAmount(minAmount);
-      } catch (error) {
-        // If there's an error, set the min amount to 0.001
-        console.error('Error fetching min amount:', error);
-        setMinAmount(0.001);
-      }
-    },
-    [usewallet]
-  );
 
   const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
@@ -119,9 +103,8 @@ const SendAmount = () => {
       userContact.avatar = info.avatar;
       userContact.contact_name = info.username;
     }
-    setUserMinAmount(userContact.address);
     setUser(userContact);
-  }, [childType, setWallet, setCoinList, setCoinInfo, setUser, setUserMinAmount, usewallet]);
+  }, [childType, setWallet, setCoinList, setCoinInfo, setUser, usewallet]);
 
   const checkAddress = useCallback(async () => {
     const child = await usewallet.getActiveWallet();
@@ -216,7 +199,7 @@ const SendAmount = () => {
             >
               {chrome.i18n.getMessage('Transfer__Amount')}
             </Typography>
-            {coinInfo.unit && minAmount && (
+            {coinInfo.unit && (
               <TransferAmount
                 coinList={coinList}
                 amount={amount}
@@ -227,7 +210,6 @@ const SendAmount = () => {
                 setExceed={setExceed}
                 coinInfo={coinInfo}
                 setCurrentCoin={setCurrentCoin}
-                minAmount={minAmount}
               />
             )}
 
