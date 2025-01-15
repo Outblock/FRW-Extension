@@ -1,6 +1,6 @@
 import { createPersistStore } from 'background/utils';
 
-import { type Contact } from './networkModel';
+import { type Contact } from '../../shared/types/network-types';
 
 interface AddressBookStore {
   addressBook: Record<string, Contact[]>;

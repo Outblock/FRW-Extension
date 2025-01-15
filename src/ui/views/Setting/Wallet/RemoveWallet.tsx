@@ -4,9 +4,9 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { type UserInfoResponse } from '@/shared/types/network-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLSecondaryButton } from '@/ui/FRWComponent';
-import { type UserInfoResponse } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 import { openInternalPageInTab } from 'ui/utils/webapi';
 

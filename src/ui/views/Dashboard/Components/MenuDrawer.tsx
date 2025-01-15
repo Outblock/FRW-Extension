@@ -17,8 +17,8 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import type { UserInfoResponse } from '@/shared/types/network-types';
 import { isValidEthereumAddress } from '@/shared/utils/address';
-import type { UserInfoResponse } from 'background/service/networkModel';
 import importIcon from 'ui/FRWAssets/svg/importIcon.svg';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
 import { useWallet } from 'ui/utils';

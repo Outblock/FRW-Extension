@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // import { CHAINS_ENUM } from 'consts';
+import { type UserInfoResponse } from '@/shared/types/network-types';
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
-import { type UserInfoResponse } from 'background/service/networkModel';
 import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import { useApproval, useWallet } from 'ui/utils';
 

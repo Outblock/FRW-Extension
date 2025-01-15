@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Typography,
   Box,
@@ -13,13 +12,16 @@ import {
   ButtonGroup,
   Button,
 } from '@mui/material';
-import { useWallet } from 'ui/utils';
+import { makeStyles } from '@mui/styles';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
-import CollectionCard from './AddNFTCard';
+
+import { type NFTModel } from '@/shared/types/network-types';
 import { LLHeader } from '@/ui/FRWComponent';
+import { useWallet } from 'ui/utils';
+
+import CollectionCard from './AddNFTCard';
 import AddNFTConfirmation from './AddNFTConfirmation';
-import { NFTModel } from '@/background/service/networkModel';
 
 const useStyles = makeStyles(() => ({
   inputWrapper: {
@@ -94,27 +96,30 @@ const AddList = () => {
     return true;
   });
 
-  const fetchList = async (data) => {
-    setStatusLoading(true);
-    try {
-      const enabledList = await usewallet.openapi.getEnabledNFTList();
-      if (enabledList.length > 0) {
-        data.map((item) => {
-          item.added =
-            enabledList.filter(
-              (enabled) =>
-                enabled.contract_name === item.contract_name && enabled.address === item.address
-            ).length > 0;
-        });
+  const fetchList = useCallback(
+    async (data) => {
+      setStatusLoading(true);
+      try {
+        const enabledList = await usewallet.openapi.getEnabledNFTList();
+        if (enabledList.length > 0) {
+          data.map((item) => {
+            item.added =
+              enabledList.filter(
+                (enabled) =>
+                  enabled.contract_name === item.contract_name && enabled.address === item.address
+              ).length > 0;
+          });
+        }
+
+        setCollections(data);
+      } finally {
+        setStatusLoading(false);
       }
+    },
+    [usewallet, setStatusLoading, setCollections]
+  );
 
-      setCollections(data);
-    } finally {
-      setStatusLoading(false);
-    }
-  };
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const nftList = await usewallet.openapi.getAllNft();
@@ -123,13 +128,13 @@ const AddList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [usewallet, setLoading, setCollections]);
 
   useEffect(() => {
     fetchData().then((data) => {
       fetchList(data);
     });
-  }, []);
+  }, [fetchData, fetchList]);
 
   const handleNFTClick = (token) => {
     // if (!isEnabled) {

@@ -4,9 +4,9 @@ import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
 
 const { version } = packageJson;
+import { type FlowNetwork } from '../../shared/types/network-types';
 import { EMULATOR_HOST_TESTNET, EMULATOR_HOST_MAINNET } from '../fclConfig';
 import { mixpanelTrack } from '../service/mixpanel';
-import { type FlowNetwork } from '../service/networkModel';
 import pageStateCache from '../service/pageStateCache';
 
 export { default as createPersistStore } from './persisitStore';

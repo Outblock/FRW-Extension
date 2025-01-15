@@ -8,6 +8,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth/web-extension';
+import { encode } from 'rlp';
 import web3, { TransactionError } from 'web3';
 
 import {
@@ -58,10 +59,10 @@ import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
+import type { NFTData, NFTModel, WalletResponse } from '../../shared/types/network-types';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
-import type { NFTData, NFTModel, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
@@ -71,7 +72,6 @@ import { getStoragedAccount } from '../utils/getStoragedAccount';
 
 import BaseController from './base';
 import provider from './provider';
-
 interface Keyring {
   type: string;
   getAccounts(): Promise<string[]>;
@@ -1651,7 +1651,6 @@ export class WalletController extends BaseController {
       });
     }
 
-    console.log('v2data ', transformedArray, address);
     const active = await userWalletService.getActiveWallet();
     if (!active) {
       // userInfoService.addUserId(v2data.data.id);
@@ -1664,7 +1663,6 @@ export class WalletController extends BaseController {
   getUserWallets = async (): Promise<WalletResponse[]> => {
     const network = await this.getNetwork();
     const wallets = await userWalletService.getUserWallets(network);
-    console.log('getUserWallets ', wallets);
     if (!wallets[0]) {
       await this.refreshUserWallets();
       const data = await userWalletService.getUserWallets(network);
@@ -1705,7 +1703,6 @@ export class WalletController extends BaseController {
 
   getCurrentWallet = async () => {
     const wallet = await userWalletService.getCurrentWallet();
-    console.log('getCurrentWallet ', wallet);
     if (!wallet.address) {
       const network = await this.getNetwork();
       await this.refreshUserWallets();
@@ -2179,6 +2176,8 @@ export class WalletController extends BaseController {
     const regularArray = Array.from(dataArray);
 
     let amount;
+
+    let number;
     // console.log('dapSendEvmTX value:', value);
 
     // If value is 0 or similar, set amount to '0.00000000'
@@ -2200,7 +2199,7 @@ export class WalletController extends BaseController {
       }
 
       // Convert the hex value to number
-      const number = web3.utils.hexToNumber(value);
+      number = web3.utils.hexToNumber(value);
 
       // Convert Wei to Ether
       amount = web3.utils.fromWei(number.toString(), 'ether');
@@ -2218,33 +2217,51 @@ export class WalletController extends BaseController {
       fcl.arg(gasLimit, t.UInt64),
     ]);
 
+    let evmAddress = await this.getEvmAddress();
+
     mixpanelTrack.track('ft_transfer', {
-      from_address: await this.getEvmAddress(),
+      from_address: evmAddress,
       to_address: to,
       amount: parseFloat(amount),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
 
-    console.log('result ', result);
-    const res = await fcl.tx(result).onceSealed();
-    const transactionExecutedEvent = res.events.find((event) =>
-      event.type.includes('TransactionExecuted')
-    );
-
-    if (transactionExecutedEvent) {
-      const hash = transactionExecutedEvent.data.hash;
-      const hashHexString = hash.map((num) => parseInt(num).toString(16).padStart(2, '0')).join('');
-
-      return hashHexString;
-    } else {
-      console.log('Transaction Executed event not found');
+    if (evmAddress.startsWith('0x')) {
+      evmAddress = evmAddress.substring(2);
     }
 
-    // const transaction = await fcl.tx(result).onceSealed();
-    // console.log('transaction ', transaction);
+    const addressNonce = await this.getNonce(evmAddress);
 
-    // return result;
+    const keccak256 = (data: Buffer) => {
+      return ethUtil.keccak256(data);
+    };
+
+    // [nonce, gasPrice, gasLimit, to.addressData, value, data, v, r, s]
+    const directCallTxType = 255;
+    const contractCallSubType = 5;
+    const noceNumber = Number(addressNonce);
+    const gasPrice = 0;
+    const transactionValue = BigInt(number);
+    const transaction = [
+      noceNumber, // nonce
+      gasPrice, // Fixed value
+      gasLimit, // Gas Limit
+      Buffer.from(to, 'hex'), // To Address
+      transactionValue, // Value
+      Buffer.from(dataArray), // Call Data
+      directCallTxType, // Fixed value
+      BigInt('0x' + evmAddress), // From Account
+      contractCallSubType, // SubType
+    ];
+    const encodedData = encode(transaction);
+    const hash = keccak256(Buffer.from(encodedData));
+    const hashHexString = Buffer.from(hash).toString('hex');
+    if (hashHexString) {
+      return hashHexString;
+    } else {
+      return null;
+    }
   };
 
   getBalance = async (hexEncodedAddress: string): Promise<string> => {

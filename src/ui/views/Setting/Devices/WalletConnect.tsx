@@ -20,12 +20,12 @@ import React, { useState, useEffect } from 'react';
 import { useForm, FieldValues } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 
-import { FCLWalletConnectMethod } from '@/ui/utils/type';
 import {
   type DeviceInfo,
   type DeviceInfoRequest,
   type AccountKey,
-} from 'background/service/networkModel';
+} from '@/shared/types/network-types';
+import { FCLWalletConnectMethod } from '@/shared/utils/type';
 import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 

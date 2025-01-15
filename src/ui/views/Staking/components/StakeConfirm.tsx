@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Typography, Drawer, IconButton, Button } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -19,7 +20,7 @@ interface TransferConfirmationProps {
 }
 
 const StakeConfirm = (props: TransferConfirmationProps) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -32,27 +33,27 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
 
   const getPending = useCallback(async () => {
-    const pending = await wallet.getPendingTx();
+    const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  }, [wallet]);
+  }, [usewallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
   }, []);
 
-  const createStake = useCallback(() => {
-    if (props.data.amount < 50) {
+  const createStake = useCallback(async () => {
+    const MIN_STAKE_AMOUNT = new BN(50);
+    if (new BN(props.data.amount).isLessThan(MIN_STAKE_AMOUNT)) {
       notification.create('/', 'Not enough Flow', 'A minimum of 50 Flow is required for staking');
       return;
     }
-
-    const amount = parseFloat(props.data.amount).toFixed(8);
-    wallet
+    const amount = new BN(props.data.amount).toFixed(8, BN.ROUND_DOWN);
+    usewallet
       .createStake(amount, props.data.nodeid, props.data.delegateid)
       .then(async (txID) => {
-        wallet.listenTransaction(
+        usewallet.listenTransaction(
           txID,
           true,
           `${props.data.amount} have sent to the node`,
@@ -60,7 +61,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
           props.data.coinInfo.icon
         );
         props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
+        await usewallet.setDashIndex(0);
         setSending(false);
         history.push('/dashboard?activity=1');
       })
@@ -68,19 +69,20 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
         setSending(false);
         setFailed(true);
       });
-  }, [history, props, wallet]);
+  }, [history, props, usewallet]);
 
   const createDelegate = () => {
-    if (props.data.amount < 50) {
+    const MIN_STAKE_AMOUNT = new BN(50);
+
+    if (new BN(props.data.amount).isLessThan(MIN_STAKE_AMOUNT)) {
       notification.create('/', 'Not enough Flow', 'A minimum of 50 Flow is required for staking');
       return;
     }
-
-    const amount = parseFloat(props.data.amount).toFixed(8);
-    wallet
+    const amount = new BN(props.data.amount).toFixed(8, BN.ROUND_DOWN);
+    usewallet
       .createDelegator(amount, props.data.nodeid)
       .then(async (txID) => {
-        wallet.listenTransaction(
+        usewallet.listenTransaction(
           txID,
           true,
           `${props.data.amount} have sent to the node`,
@@ -88,7 +90,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
           props.data.coinInfo.icon
         );
         props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
+        await usewallet.setDashIndex(0);
         setSending(false);
         history.push('/dashboard?activity=1');
       })
