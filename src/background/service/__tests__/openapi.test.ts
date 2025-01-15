@@ -1,21 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock dayjs before any other imports
-vi.mock('dayjs', () => {
-  return {
-    default: () => ({
-      unix: () => 1234567890,
-      subtract: () => ({
-        unix: () => 1234567890,
-      }),
-      format: () => '2024-01-01',
-      utc: () => ({
-        format: () => '2024-01-01',
-      }),
-    }),
-  };
-});
-
 // Mock declarations must come first
 vi.mock('@/background/service/userWallet', async () => {
   const actual = await vi.importActual('@/background/service/userWallet');
@@ -26,7 +10,6 @@ vi.mock('@/background/service/userWallet', async () => {
       setupFcl: vi.fn(),
       reSign: vi.fn(),
       clear: vi.fn(),
-      getActiveWallet: vi.fn().mockResolvedValue('flow'),
     },
   };
 });
@@ -61,7 +44,7 @@ vi.mock('@/background/service/transaction', () => ({
   },
 }));
 
-// Mock chrome.storage and runtime before any imports
+// Mock chrome.storage before any imports
 const mockStorage = {
   local: {
     get: vi.fn().mockImplementation(() =>
@@ -214,7 +197,7 @@ describe('OpenApiService', () => {
 
   Object.entries(testGroups).forEach(([groupName, functions]) => {
     const activeFunctions = functions.filter((func) => !func.unused);
-    if (groupName !== 'user') {
+    if (groupName !== 'device') {
       return;
     }
     describe(groupName, () => {
@@ -263,8 +246,6 @@ describe('OpenApiService', () => {
             await openApiService[func.name](...Object.values(func.params));
 
             // Verify the fetch call matches exactly what was recorded
-            console.log('fetchDetail.url', fetchDetail.url);
-            console.log('fetchDetail.requestInit', fetchDetail.requestInit);
             expect(mockFetch).toHaveBeenCalledWith(fetchDetail.url, fetchDetail.requestInit);
           } catch (error) {
             console.error(`Error testing ${func.name}:`, error);

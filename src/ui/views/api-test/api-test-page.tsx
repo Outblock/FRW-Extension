@@ -53,6 +53,8 @@ const addGroupResult = (
   group: string,
   result: ApiTestResult
 ) => {
+  console.log('group', group);
+  console.log('result', result);
   const newGroupResults = addFunctionResult(prev[group] || [], result);
 
   return {
