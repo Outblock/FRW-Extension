@@ -7,6 +7,7 @@ vi.mock('@/background/service/userWallet', async () => {
     default: {
       ...actual,
       getNetwork: vi.fn().mockResolvedValue('testnet'),
+      getActiveWallet: vi.fn().mockResolvedValue('test-address'),
       setupFcl: vi.fn(),
       reSign: vi.fn(),
       clear: vi.fn(),
@@ -197,9 +198,15 @@ describe('OpenApiService', () => {
 
   Object.entries(testGroups).forEach(([groupName, functions]) => {
     const activeFunctions = functions.filter((func) => !func.unused);
-    if (groupName !== 'device') {
+
+    if (activeFunctions.length === 0) {
       return;
     }
+
+    if (groupName !== 'addressBook') {
+      return;
+    }
+
     describe(groupName, () => {
       activeFunctions.forEach((func) => {
         it(`${func.name} should make correct fetch call`, async () => {
@@ -211,6 +218,7 @@ describe('OpenApiService', () => {
           }
 
           const fetchDetail = testResult.fetchDetails[0];
+
           if (!fetchDetail) {
             throw new Error(`No fetch details found for ${func.name}`);
           }
@@ -246,7 +254,11 @@ describe('OpenApiService', () => {
             await openApiService[func.name](...Object.values(func.params));
 
             // Verify the fetch call matches exactly what was recorded
-            expect(mockFetch).toHaveBeenCalledWith(fetchDetail.url, fetchDetail.requestInit);
+            if (fetchDetail.requestInit) {
+              expect(mockFetch).toHaveBeenCalledWith(fetchDetail.url, fetchDetail.requestInit);
+            } else {
+              expect(mockFetch).toHaveBeenCalledWith(fetchDetail.url);
+            }
           } catch (error) {
             console.error(`Error testing ${func.name}:`, error);
             throw error;

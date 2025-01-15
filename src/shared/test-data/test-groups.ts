@@ -263,14 +263,14 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       {
         name: 'editAddressBook',
         params: {
-          id: 53,
+          id: 26,
           contact_name: 'Test Updated',
           address: commonParams.address,
           domain: '',
           domain_type: 0,
         },
       },
-      { name: 'deleteAddressBook', params: { id: 53 } },
+      { name: 'deleteAddressBook', params: { id: 26 } },
       {
         name: 'addExternalAddressBook',
         params: { contact_name: 'Test', address: commonParams.address, domain: '', domain_type: 0 },

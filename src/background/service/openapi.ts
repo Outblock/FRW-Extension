@@ -395,9 +395,20 @@ const recordFetch = async (response, responseData, ...args: Parameters<typeof fe
 };
 
 // Override fetch in branches other than master
-//const originalFetch = globalThis.fetch;
+const originalFetch = globalThis.fetch;
 
-///const fetch = process.env.BRANCH_NAME === 'master' ? originalFetch : fetchCallRecorder;
+const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
+  const response = await originalFetch(...args);
+  try {
+    console.log('response', response);
+    const responseData = response.ok ? await response.clone().json() : null;
+    recordFetch(response, responseData, ...args);
+  } catch (err) {
+    console.error('Error recording fetch call:', err);
+  }
+  return response;
+};
+//const fetch = process.env.BRANCH_NAME === 'master' ? globalThis.fetch : fetchCallRecorder;
 
 class OpenApiService {
   store!: OpenApiStore;
