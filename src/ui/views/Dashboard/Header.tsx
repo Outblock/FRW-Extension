@@ -1,6 +1,7 @@
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   AppBar,
   Toolbar,
@@ -706,23 +707,26 @@ const Header = ({ loading = false }) => {
           color="inherit"
           aria-label="menu"
           onClick={toggleDrawer}
-          sx={{ marginLeft: '0px', padding: '3px', position: 'relative' }}
+          sx={{
+            marginLeft: '0px',
+            padding: '3px',
+            position: 'relative',
+            border: isPending
+              ? ''
+              : currentNetwork !== 'mainnet'
+                ? `2px solid ${networkColor(currentNetwork)}`
+                : isSandbox
+                  ? '2px solid #CCAF21'
+                  : '2px solid #282828',
+            marginRight: '0px',
+          }}
         >
-          <MenuIcon />
-          {/* {unread ?
-            <Box sx={{
-              width: '8px',
-              height: '8px',
-              backgroundColor: '#41CC5D',
-              borderRadius: '8px',
-              position: 'absolute',
-              top: '5px',
-              right: '2px'
-            }}>
-            </Box>
-            :
-            <Box></Box>
-          } */}
+          <img
+            src={userInfo?.avatar}
+            style={{ backgroundColor: '#797979', borderRadius: '10px' }}
+            width="20px"
+            height="20px"
+          />
         </IconButton>
         <Box sx={{ flexGrow: 1 }} />
         {!mainAddressLoading && props && props.address ? (
@@ -817,24 +821,12 @@ const Header = ({ loading = false }) => {
                   aria-label="avatar"
                   onClick={() => goToSettings()}
                   sx={{
-                    border: isPending
-                      ? ''
-                      : currentNetwork !== 'mainnet'
-                        ? `2px solid ${networkColor(currentNetwork)}`
-                        : isSandbox
-                          ? '2px solid #CCAF21'
-                          : '2px solid #282828',
                     padding: '3px',
                     marginRight: '0px',
                     position: 'relative',
                   }}
                 >
-                  <img
-                    src={userInfo.avatar}
-                    style={{ backgroundColor: '#797979', borderRadius: '10px' }}
-                    width="20px"
-                    height="20px"
-                  />
+                  <SettingsIcon />
                 </IconButton>
               </Box>
             </Box>
