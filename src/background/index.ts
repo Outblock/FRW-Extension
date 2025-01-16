@@ -7,7 +7,7 @@ import {
   indexedDBLocalPersistence,
   setPersistence,
   onAuthStateChanged,
-} from 'firebase/auth';
+} from 'firebase/auth/web-extension';
 
 import eventBus from '@/eventBus';
 import { Message } from '@/shared/utils/messaging';
@@ -16,7 +16,6 @@ import { EVENTS } from 'consts';
 
 import { providerController, walletController } from './controller';
 import { preAuthzServiceDefinition } from './controller/serviceDefinition';
-import { fclTestnetConfig, fclMainnetConfig } from './fclConfig';
 import {
   permissionService,
   preferenceService,
@@ -45,7 +44,7 @@ const chromeWindow = await chrome.windows.getCurrent();
 
 let appStoreLoaded = false;
 
-function initAppMeta() {
+async function initAppMeta() {
   // Initialize Firebase
   // console.log('<- initAppMeta ->')
   // const document = chromeWindow.document;
@@ -64,7 +63,9 @@ function initAppMeta() {
   // head?.appendChild(description);
 
   firebaseSetup();
-  fclSetup();
+
+  // note fcl setup is async
+  await userWalletService.setupFcl();
 }
 
 async function firebaseSetup() {
@@ -81,25 +82,13 @@ async function firebaseSetup() {
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
-      fclSetup();
+      // note fcl setup is async
+      userWalletService.setupFcl();
     } else {
       // User is signed out
       signInAnonymously(auth);
     }
   });
-}
-
-async function fclSetup() {
-  const network = await userWalletService.getNetwork();
-  console.log('network is ', network);
-  switch (network) {
-    case 'mainnet':
-      await fclMainnetConfig();
-      break;
-    case 'testnet':
-      await fclTestnetConfig();
-      break;
-  }
 }
 
 async function restoreAppState() {
@@ -142,12 +131,12 @@ async function restoreAppState() {
 
   appStoreLoaded = true;
 
-  initAppMeta();
+  await initAppMeta();
 }
 
 restoreAppState();
 
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+chrome.runtime.onInstalled.addListener(({ reason }: chrome.runtime.InstalledDetails) => {
   // chrome.runtime.OnInstalledReason.Install
   if (reason === 'install') {
     chrome.tabs.create({
@@ -179,7 +168,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 // for page provider
-chrome.runtime.onConnect.addListener((port) => {
+chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
   // openapiService.getConfig();
 
   // @ts-ignore
@@ -280,7 +269,7 @@ const findPath = (service) => {
     case 'authn':
       return 'Connect';
     case 'authz':
-      return 'Confimation';
+      return 'Confirmation';
     case 'user-signature':
       return 'SignMessage';
     default:
@@ -417,3 +406,25 @@ function onMessage(msg, port) {
 }
 
 console.log('Is fetch native?', fetch.toString().includes('[native code]'));
+
+// Set environment badge based on branch
+const setEnvironmentBadge = () => {
+  const branch = process.env.BRANCH_NAME;
+
+  if (branch === 'master') {
+    // No badge for production
+    chrome.action.setBadgeText({ text: '' });
+  } else if (branch === 'dev') {
+    chrome.action.setBadgeText({ text: 'stg' });
+    chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#bf360c' });
+  } else if (branch !== undefined) {
+    chrome.action.setBadgeText({ text: '#' });
+    chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#666666' });
+  } else {
+    chrome.action.setBadgeText({ text: 'dev' });
+    chrome.action.setBadgeBackgroundColor({ color: process.env.BUILD_BACKGROUND || '#666666' });
+  }
+};
+
+// Call it when extension starts
+setEnvironmentBadge();

@@ -25,10 +25,10 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
+import type { UserInfoResponse, WalletResponse } from '@/shared/types/network-types';
 import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { useNews } from '@/ui/utils/NewsContext';
-import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
 import { useWallet, formatAddress } from 'ui/utils';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
@@ -37,6 +37,7 @@ import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
 import MenuDrawer from './Components/MenuDrawer';
 import NewsView from './Components/NewsView';
 import Popup from './Components/Popup';
+import WalletFunction from './Components/WalletFunction';
 
 const useStyles = makeStyles(() => ({
   appBar: {
@@ -61,19 +62,6 @@ type ChildAccount = {
   };
 };
 
-const tempEmoji = [
-  {
-    emoji: '🥥',
-    name: 'Coconut',
-    bgcolor: '#FFE4C4',
-  },
-  {
-    emoji: '🥑',
-    name: 'Avocado',
-    bgcolor: '#98FB98',
-  },
-];
-
 const Header = ({ loading = false }) => {
   const usewallet = useWallet();
   const classes = useStyles();
@@ -87,24 +75,31 @@ const Header = ({ loading = false }) => {
   const [drawer, setDrawer] = useState(false);
   const [userWallet, setWallet] = useState<any>(null);
   const [currentWallet, setCurrentWallet] = useState(0);
+  const [evmWallet, setEvmWallet] = useState<any>({
+    name: '',
+    icon: '',
+    address: '',
+    chain_id: 'evm',
+    id: 1,
+    coins: ['flow'],
+    color: '',
+  });
   const [current, setCurrent] = useState({});
   const [currentNetwork, setNetwork] = useState('mainnet');
-  const [emojis, setEmojis] = useState(tempEmoji);
 
   const [isSandbox, setIsSandbox] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
   const [otherAccounts, setOtherAccounts] = useState<any>(null);
   const [loggedInAccounts, setLoggedIn] = useState<any>(null);
   const [childAccounts, setChildAccount] = useState<ChildAccount>({});
-  const [modeOn, setModeOn] = useState(false);
+  const [developerModeOn, setDeveloperModeOn] = useState(false);
   // const [unread, setUnread] = useState(0);
 
   const [domain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
   const [evmAddress, setEvmAddress] = useState('');
-
-  const [flowBalance, setFlowBalance] = useState(0);
+  const [mainAddress, setMainAddress] = useState('');
 
   const [modeAnonymous, setModeAnonymous] = useState(false);
 
@@ -115,6 +110,7 @@ const Header = ({ loading = false }) => {
   const [initialStart, setInitial] = useState(true);
 
   const [switchLoading, setSwitchLoading] = useState(false);
+  const [expandAccount, setExpandAccount] = useState(false);
 
   const [, setErrorMessage] = useState('');
   const [errorCode, setErrorCode] = useState(null);
@@ -123,11 +119,11 @@ const Header = ({ loading = false }) => {
   const { unreadCount } = useNews();
 
   const toggleDrawer = () => {
-    setDrawer(!drawer);
+    setDrawer((prevDrawer) => !prevDrawer);
   };
 
   const togglePop = () => {
-    setPop(!ispop);
+    setPop((prevPop) => !prevPop);
   };
 
   // News Drawer
@@ -158,9 +154,11 @@ const Header = ({ loading = false }) => {
       return (filteredData || []).map((wallet, index) => {
         return {
           id: index,
-          name: walletName,
+          name: wallet.name || 'Wallet',
           address: withPrefix(wallet.blockchain[0].address),
           key: index,
+          icon: wallet.icon || '',
+          color: wallet.color || '',
         };
       });
     },
@@ -205,9 +203,12 @@ const Header = ({ loading = false }) => {
     const keys = await usewallet.getAccount();
     const pubKTuple = await usewallet.getPubKey();
     if (mainAddress) {
+      setMainAddress(mainAddress);
       try {
         const res = await usewallet.queryEvmAddress(mainAddress);
+        const evmWallet = await usewallet.getEvmWallet();
         setEvmAddress(res!);
+        setEvmWallet(evmWallet);
       } catch (err) {
         console.error('queryEvmAddress err', err);
       } finally {
@@ -224,32 +225,13 @@ const Header = ({ loading = false }) => {
       walletData,
       isChild
     );
-    if (!isChild) {
-      setFlowBalance(keys.balance);
-    } else {
-      usewallet.getUserWallets().then((res) => {
-        const address = res[0].blockchain[0].address;
-        usewallet.getFlowBalance(address).then((balance) => {
-          setFlowBalance(balance);
-        });
-      });
-    }
+
     await setOtherAccounts(otherAccounts);
     await setUserInfo(wallet);
     await setLoggedIn(loggedInAccounts);
-
-    // usewallet.checkUserDomain(wallet.username);
   }, [usewallet]);
 
   const fetchUserWallet = useCallback(async () => {
-    const userInfo = await usewallet.getUserInfo(false);
-    await setUserInfo(userInfo);
-    if (userInfo.private === 1) {
-      setModeAnonymous(false);
-    } else {
-      setModeAnonymous(true);
-    }
-
     freshUserWallet();
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
@@ -292,56 +274,15 @@ const Header = ({ loading = false }) => {
     await setNetwork(network);
   }, [usewallet]);
 
-  // const loadInbox = async () => {
-
-  //   const giftBoxHistory = await usewallet.getHistory();
-  //   const resp = await usewallet.fetchFlownsInbox();
-  //   let tempRead = 0;
-  //   let nftRead = 0;
-  //   Object.keys(resp.vaultBalances).map(() => {
-  //     tempRead += 1;
-  //   });
-  //   Object.keys(resp.collections).map((k) => {
-  //     nftRead += resp.collections[k].length;
-  //   });
-
-  //   giftBoxHistory.token.map((token) => {
-  //     const key = Object.keys(token)[0];
-  //     if (parseFloat(token[key]) === parseFloat(resp.vaultBalances[key])) {
-  //       tempRead -= 1;
-  //     }
-  //   });
-
-  //   Object.keys(giftBoxHistory.nft).map((k) => {
-  //     const arr = giftBoxHistory.nft[k];
-  //     arr.map((v) => {
-  //       if (resp.collections[k].includes(v)) {
-  //         nftRead -= 1;
-  //       }
-  //     })
-  //   });
-  //   const totalUnread = nftRead + tempRead;
-  //   setUnread(totalUnread);
-
-  // }
   const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
     if (developerMode) {
-      setModeOn(developerMode);
+      setDeveloperModeOn(developerMode);
     }
   };
 
-  // const goToInbox = () => {
-  //   if (domain) {
-  //     history.push('/dashboard/inbox');
-  //   } else {
-  //     history.push('/dashboard/flowns');
-  //   }
-  // }
-
-  const setWallets = async (walletInfo, key) => {
-    await usewallet.setActiveWallet(walletInfo, key);
-
+  const setWallets = async (walletInfo, key, index = null) => {
+    await usewallet.setActiveWallet(walletInfo, key, index);
     setMainLoading(false);
 
     // Clear collections
@@ -418,28 +359,18 @@ const Header = ({ loading = false }) => {
     await usewallet.checkNetwork();
   }, [usewallet]);
 
-  const fetchProfile = useCallback(async () => {
-    const emojires = await usewallet.getEmoji();
-    setEmojis(emojires);
-  }, [usewallet]);
-
   useEffect(() => {
     loadNetwork();
     fetchUserWallet();
     loadDeveloperMode();
     checkPendingTx();
     checkAuthStatus();
-    fetchProfile();
 
     const addressDone = () => {
       fetchUserWallet();
     };
 
-    const changeEmoji = () => {
-      fetchProfile();
-    };
-
-    const networkChanged = (/* network */) => {
+    const networkChanged = (network) => {
       loadNetwork();
     };
 
@@ -448,15 +379,13 @@ const Header = ({ loading = false }) => {
      * Fired when a message is sent from either an extension process or a content script.
      */
     eventBus.addEventListener('addressDone', addressDone);
-    eventBus.addEventListener('profileChanged', changeEmoji);
     eventBus.addEventListener('switchNetwork', networkChanged);
     return () => {
       eventBus.removeEventListener('addressDone', addressDone);
       eventBus.removeEventListener('switchNetwork', networkChanged);
-      eventBus.removeEventListener('profileChanged', changeEmoji);
       chrome.runtime.onMessage.removeListener(transactionHandler);
     };
-  }, [checkAuthStatus, checkPendingTx, currentNetwork, fetchProfile, fetchUserWallet, loadNetwork]);
+  }, [checkAuthStatus, checkPendingTx, currentNetwork, fetchUserWallet, loadNetwork]);
 
   useEffect(() => {
     const list = wallets(userWallet);
@@ -501,87 +430,6 @@ const Header = ({ loading = false }) => {
     },
     [usewallet, fetchUserWallet, loadNetwork, toggleUsernameDrawer, history]
   );
-
-  const WalletFunction = (props) => {
-    return (
-      <ListItem
-        onClick={() => {
-          setWallets(null, null);
-        }}
-        sx={{ mb: 0, paddingX: '0', cursor: 'pointer' }}
-      >
-        <ListItemButton
-          sx={{
-            mb: 0,
-            display: 'flex',
-            px: '16px',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          {emojis && (
-            <Box
-              sx={{
-                display: 'flex',
-                height: '32px',
-                width: '32px',
-                borderRadius: '32px',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: emojis[0]['bgcolor'],
-                marginRight: '12px',
-              }}
-            >
-              <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                {emojis[0].emoji}
-              </Typography>
-            </Box>
-          )}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              background: 'none',
-            }}
-          >
-            <Typography
-              variant="body1"
-              component="span"
-              fontWeight={'semi-bold'}
-              sx={{ fontSize: '12px' }}
-              display="flex"
-              color={props.props_id === currentWallet ? 'text.title' : 'text.nonselect'}
-            >
-              {emojis[0].name}
-              {props.address === current['address'] && (
-                <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
-                  <FiberManualRecordIcon
-                    style={{
-                      fontSize: '10px',
-                      color: '#40C900',
-                      marginLeft: '10px',
-                    }}
-                  />
-                </ListItemIcon>
-              )}
-            </Typography>
-            <Typography
-              variant="body1"
-              component="span"
-              // display="inline"
-              color={'text.nonselect'}
-              sx={{ fontSize: '12px', textTransform: 'uppercase' }}
-            >
-              {/* <span>{'  '}</span> */}
-              {(flowBalance / 100000000).toFixed(3)} FLOW
-            </Typography>
-          </Box>
-          <Box sx={{ flex: '1' }}></Box>
-          {/* <IconEnd size={12} /> */}
-        </ListItemButton>
-      </ListItem>
-    );
-  };
 
   const AccountFunction = (props) => {
     return (
@@ -770,8 +618,21 @@ const Header = ({ loading = false }) => {
 
   const createWalletList = (props) => {
     return (
-      <List component="nav" key={props.id}>
-        <WalletFunction props_id={props.id} name={props.name} address={props.address} />
+      <List component="nav" key={props.id} sx={{ mb: '0', padding: 0 }}>
+        <WalletFunction
+          props_id={props.id}
+          name={props.name}
+          address={props.address}
+          icon={props.icon}
+          color={props.color}
+          setWallets={setWallets}
+          currentWallet={currentWallet}
+          current={current}
+          mainAddress={mainAddress}
+          setExpandAccount={setExpandAccount}
+          expandAccount={expandAccount}
+          walletList={walletList}
+        />
       </List>
     );
   };
@@ -801,7 +662,7 @@ const Header = ({ loading = false }) => {
           {chrome.i18n.getMessage('Account')}
         </Typography>
         {userInfo && createAccountList(userInfo)}
-        {modeOn && NetworkFunction()}
+        {developerModeOn && NetworkFunction()}
       </Drawer>
     );
   };
@@ -982,11 +843,10 @@ const Header = ({ loading = false }) => {
               createWalletList={createWalletList}
               setWallets={setWallets}
               currentNetwork={currentNetwork}
-              evmAddress={evmAddress}
-              emojis={emojis}
+              evmWallet={evmWallet}
               networkColor={networkColor}
               evmLoading={evmLoading}
-              modeOn={modeOn}
+              modeOn={developerModeOn}
               mainAddressLoading={mainAddressLoading}
             />
           )}

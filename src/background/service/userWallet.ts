@@ -1,27 +1,27 @@
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
 import { getApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously } from 'firebase/auth/web-extension';
 
+import { signWithKey, seed2PubKey } from '@/background/utils/modules/publicPrivateKey';
+import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-// eslint-disable-next-line no-restricted-imports
-import { findAddressWithSeed, findAddressWithPK } from '@/ui/utils/modules/findAddressWithPK';
-// eslint-disable-next-line no-restricted-imports
-import { signWithKey, seed2PubKey } from '@/ui/utils/modules/passkey.js';
 import wallet from 'background/controller/wallet';
 import { keyringService, mixpanelTrack, openapiService } from 'background/service';
 import { createPersistStore } from 'background/utils';
 import { getStoragedAccount } from 'background/utils/getStoragedAccount';
-
-import { storage } from '../webapi';
 
 import type {
   WalletResponse,
   BlockchainResponse,
   ChildAccount,
   DeviceInfoRequest,
-} from './networkModel';
+  FlowNetwork,
+} from '../../shared/types/network-types';
+import { fclConfig } from '../fclConfig';
+import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
+import { storage } from '../webapi';
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -30,8 +30,9 @@ interface UserWalletStore {
   childAccount: ChildAccount;
   network: string;
   monitor: string;
-  activeChild: any;
+  activeChild: ActiveChildType;
   evmEnabled: boolean;
+  emulatorMode: boolean;
 }
 
 class UserWallet {
@@ -51,22 +52,25 @@ class UserWallet {
           name: '',
           icon: '',
           address: '',
-          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: 'mainnet',
           id: 1,
           coins: ['flow'],
+          color: '',
         },
         evmWallet: {
           name: '',
           icon: '',
           address: '',
-          chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+          chain_id: 'mainnet',
           id: 1,
           coins: ['flow'],
+          color: '',
         },
         activeChild: null,
         evmEnabled: false,
         monitor: 'flowscan',
-        network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        network: 'mainnet',
+        emulatorMode: false,
       },
     });
   };
@@ -83,33 +87,37 @@ class UserWallet {
         name: '',
         address: '',
         icon: '',
-        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        chain_id: 'mainnet',
         id: 1,
         coins: ['flow'],
+        color: '',
       },
       evmWallet: {
         name: '',
         address: '',
         icon: '',
-        chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+        chain_id: 'mainnet',
         id: 1,
         coins: ['flow'],
+        color: '',
       },
       activeChild: null,
       evmEnabled: false,
       monitor: 'flowscan',
-      network: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      network: 'mainnet',
+      emulatorMode: false,
     };
   };
 
   setUserWallets = async (filteredData, network) => {
-    for (const wallet of filteredData) {
-      const chainId = wallet.chain_id;
-      this.store.wallets[chainId] = [wallet];
-    }
-
+    this.store.wallets[network] = filteredData;
+    let walletIndex = (await storage.get('currentWalletIndex')) || 0;
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
-      const current = this.store.wallets[network][0].blockchain[0];
+      if (walletIndex >= filteredData.length) {
+        walletIndex = 0; // Reset walletIndex to 0 if it exceeds the array length
+        await storage.set('currentWalletIndex', 0);
+      }
+      const current = this.store.wallets[network][walletIndex].blockchain[0];
       this.store.currentWallet = current;
     } else {
       console.error(`No wallet found for network: ${network}`);
@@ -120,19 +128,23 @@ class UserWallet {
     this.store.childAccount = wallet;
   };
 
-  setActiveWallet = (key: any) => {
+  setActiveWallet = (key: ActiveChildType) => {
     this.store.activeChild = key;
   };
 
-  getActiveWallet = () => {
+  getActiveWallet = (): ActiveChildType => {
     return this.store.activeChild;
   };
 
-  setCurrentWallet = (wallet: any, key: any, network: string) => {
+  setCurrentWallet = async (wallet: any, key: any, network: string, index = null) => {
     if (key && key !== 'evm') {
       this.store.currentWallet = wallet;
     } else if (key === 'evm') {
       this.store.evmWallet.address = wallet.address;
+    } else if (index !== null) {
+      await storage.set('currentWalletIndex', index);
+      const current = this.store.wallets[network][index].blockchain[0];
+      this.store.currentWallet = current;
     } else {
       const current = this.store.wallets[network][0].blockchain[0];
       this.store.currentWallet = current;
@@ -153,7 +165,8 @@ class UserWallet {
     }
     if (this.store.network !== network) {
       this.store.activeChild = null;
-      this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
+      // TODO: I think this line below should be put back in. It was removed to fix an account switching bug, but without it, it's possible for currentWallet to refer to address on another network. Either currentWallet should be cleared or the line below should be put back in.
+      // this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
     }
     this.store.network = network;
   };
@@ -175,9 +188,10 @@ class UserWallet {
       name: '',
       address: '',
       icon: '',
-      chain_id: process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet',
+      chain_id: 'mainnet',
       id: 1,
       coins: ['flow'],
+      color: '',
     };
     this.store.evmEnabled = false;
   };
@@ -187,6 +201,37 @@ class UserWallet {
       await this.init();
     }
     return this.store.network;
+  };
+
+  getEmulatorMode = async (): Promise<boolean> => {
+    // Check feature flag first
+    const enableEmulatorMode = await openapiService.getFeatureFlag('emulator_mode');
+    if (!enableEmulatorMode) {
+      return false;
+    }
+    if (!this.store) {
+      await this.init();
+    }
+    return this.store.emulatorMode;
+  };
+
+  setEmulatorMode = async (emulatorMode: boolean) => {
+    let emulatorModeToSet = emulatorMode;
+    if (emulatorModeToSet) {
+      // check feature flag
+      const enableEmulatorMode = await openapiService.getFeatureFlag('emulator_mode');
+      if (!enableEmulatorMode) {
+        emulatorModeToSet = false;
+      }
+    }
+    this.store.emulatorMode = emulatorModeToSet;
+    await this.setupFcl();
+  };
+
+  setupFcl = async () => {
+    const isEmulatorMode = await this.getEmulatorMode();
+    const network = (await this.getNetwork()) as FlowNetwork;
+    await fclConfig(network, isEmulatorMode);
   };
 
   getMonitor = (): string => {
@@ -219,21 +264,41 @@ class UserWallet {
     return this.store.evmWallet;
   };
 
-  setEvmAddress = (address: string) => {
+  setEvmAddress = (address: string, emoji) => {
     if (address.length > 20) {
       this.store.evmWallet.address = address;
+      this.store.evmWallet.name = emoji[9].name;
+      this.store.evmWallet.icon = emoji[9].emoji;
+      this.store.evmWallet.color = emoji[9].bgcolor;
     } else {
       this.store.evmWallet.address = '';
     }
   };
 
-  getMainWallet = (network: string) => {
-    const wallet = this.store.wallets[network][0].blockchain[0];
+  setEvmEmoji = (emoji) => {
+    this.store.evmWallet.name = emoji.name;
+    this.store.evmWallet.icon = emoji.emoji;
+    this.store.evmWallet.color = emoji.bgcolor;
+  };
+
+  setWalletEmoji = (emoji, network, id) => {
+    this.store.wallets[network][id].name = emoji.name;
+    this.store.wallets[network][id].icon = emoji.emoji;
+    this.store.wallets[network][id].color = emoji.bgcolor;
+    this.store.wallets[network][id].blockchain[0].name = emoji.name;
+    this.store.wallets[network][id].blockchain[0].icon = emoji.emoji;
+    this.store.wallets[network][id].blockchain[0].color = emoji.bgcolor;
+  };
+
+  getMainWallet = async (network: string) => {
+    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return withPrefix(wallet.address) || '';
   };
 
-  returnMainWallet = (network: string) => {
-    const wallet = this.store.wallets[network][0].blockchain[0];
+  returnMainWallet = async (network: string) => {
+    const walletIndex = (await storage.get('currentWalletIndex')) || 0;
+    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
     return wallet;
   };
 

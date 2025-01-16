@@ -1,12 +1,13 @@
-import { TypedDataUtils, SignTypedDataVersion, normalize } from '@metamask/eth-sig-util';
 import * as fcl from '@onflow/fcl';
 import BigNumber from 'bignumber.js';
 import { ethErrors } from 'eth-rpc-errors';
-import { intToHex } from 'ethereumjs-util';
+import { isHexString, intToHex } from 'ethereumjs-util';
 import { ethers } from 'ethers';
 import RLP from 'rlp';
 import Web3 from 'web3';
+import { stringToHex } from 'web3-utils';
 
+import { signWithKey } from '@/background/utils/modules/publicPrivateKey';
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import {
   permissionService,
@@ -20,9 +21,6 @@ import { EVM_ENDPOINT } from 'consts';
 import { storage } from '../../webapi';
 import BaseController from '../base';
 import Wallet from '../wallet';
-
-// eslint-disable-next-line import/order,no-restricted-imports
-import { signWithKey } from '@/ui/utils/modules/passkey.js';
 
 interface Web3WalletPermission {
   // The name of the method corresponding to the permission
@@ -95,7 +93,6 @@ async function signMessage(msgParams, opts = {}) {
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');
-  console.log('keyindex ', [BigInt(keyindex)], account);
   // const wallet = new ethers.Wallet(privateKey);
   const signature = await signWithKey(signableData, signAlgo, hashAlgo, privateKey);
 
@@ -145,6 +142,41 @@ async function signTypeData(msgParams, opts = {}) {
 
   return '0x' + toHexString(encodedProof);
 }
+
+const SignTypedDataVersion = {
+  V1: 'V1',
+  V3: 'V3',
+  V4: 'V4',
+} as const;
+
+function normalize(input: string): string {
+  return input.toLowerCase();
+}
+
+const TypedDataUtils = {
+  eip712Hash(message: any, version: string): Buffer {
+    const types = { ...message.types };
+    delete types.EIP712Domain;
+
+    const primaryType = message.primaryType || 'OrderComponents';
+
+    const encoder = new ethers.TypedDataEncoder({
+      [primaryType]: types[primaryType],
+      ...types,
+    });
+
+    const domainSeparator = ethers.TypedDataEncoder.hashDomain(message.domain);
+    const hashStruct = encoder.hash(message.message);
+
+    const encodedData = ethers.concat([
+      Buffer.from('1901', 'hex'),
+      Buffer.from(domainSeparator.slice(2), 'hex'),
+      Buffer.from(hashStruct.slice(2), 'hex'),
+    ]);
+
+    return Buffer.from(ethers.keccak256(encodedData).slice(2), 'hex');
+  },
+};
 
 class ProviderController extends BaseController {
   ethRpc = async (data): Promise<any> => {
@@ -251,6 +283,9 @@ class ProviderController extends BaseController {
     const dataValue = transactionParams.data || '0x';
     // console.log('transactionParams ', transactionParams)
     let result = await Wallet.dapSendEvmTX(to, gas, value, dataValue);
+    if (!result) {
+      throw new Error('Transaction hash is null or undefined');
+    }
     if (!result.startsWith('0x')) {
       result = '0x' + result;
     }
@@ -388,7 +423,7 @@ class ProviderController extends BaseController {
         });
     }
   };
-  /*
+
   // Should not be in controller
   personalSign = async ({ data, approvalRes, session }) => {
     if (!data.params) return;
@@ -403,7 +438,7 @@ class ProviderController extends BaseController {
     });
     return result;
   };
- */
+
   private _checkAddress = async (address) => {
     return normalize(address).toLowerCase();
   };
@@ -570,7 +605,6 @@ class ProviderController extends BaseController {
 
     const hash = TypedDataUtils.eip712Hash(message, SignTypedDataVersion.V4);
 
-    console.log('SignTypedDataVersion.V4 ', hash);
     const result = await signTypeData(hash);
     signTextHistoryService.createHistory({
       address: address,

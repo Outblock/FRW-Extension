@@ -1,3 +1,4 @@
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import {
   Typography,
   List,
@@ -39,7 +40,7 @@ const Wallet = () => {
   const [isLoading, setLoading] = useState(true);
   const [userWallet, setWallet] = useState<any>([]);
   const [evmList, setEvmList] = useState<any>([]);
-  const [flowBalance, setFlowBalance] = useState(0);
+  const [currentAddress, setCurrentWallet] = useState('');
   const [emojis, setEmojis] = useState<any>(tempEmoji);
 
   function handleWalletClick(wallet, eindex) {
@@ -92,7 +93,8 @@ const Wallet = () => {
     const emojires = await usewallet.getEmoji();
     const wallet = await usewallet.getUserWallets();
     const fectechdWallet = await fetchBalances(wallet);
-    const network = await usewallet.getNetwork();
+    const cwallet = await usewallet.getCurrentWallet();
+    setCurrentWallet(cwallet.address);
     const evmWallet = await usewallet.getEvmWallet();
     const filteredEvm = [evmWallet].filter((evm) => evm.address);
     if (filteredEvm.length > 0) {
@@ -106,14 +108,14 @@ const Wallet = () => {
   const transformData = (data) => {
     return data.map((item, index) => ({
       id: item.id,
-      name: 'flow',
+      name: item.name,
       chain_id: item.chain_id,
-      icon: 'placeholder',
-      color: 'placeholder',
+      icon: item.icon,
+      color: item.color,
       blockchain: [
         {
           id: index + 1,
-          name: 'Flow',
+          name: item.name,
           chain_id: item.chain_id,
           address: item.address,
           coins: item.coins,
@@ -147,7 +149,7 @@ const Wallet = () => {
         >
           {userWallet.map((item) => (
             <ListItem
-              key={item.id}
+              key={item.address}
               component={Link}
               to="/dashboard/setting/wallet/detail"
               onClick={() => handleWalletClick(item, 0)}
@@ -178,15 +180,16 @@ const Wallet = () => {
                     borderRadius: '32px',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: emojis[0]['bgcolor'],
+                    backgroundColor: item.color,
                     marginRight: '12px',
                   }}
                 >
-                  <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                    {emojis[0].emoji}
-                  </Typography>
+                  <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>{item.icon}</Typography>
                 </Box>
-                <Box key={item.blockchain[0].id} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box
+                  key={item.blockchain[0].address}
+                  sx={{ display: 'flex', flexDirection: 'column' }}
+                >
                   <Box
                     sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
@@ -198,11 +201,22 @@ const Wallet = () => {
                         marginRight: '4px',
                       }}
                     >
-                      {emojis[0].name}
+                      {item.name}
                     </Typography>
                     <Typography
                       sx={{ color: '#808080', fontSize: '12px', fontWeight: '400' }}
                     >{`(${item.blockchain[0].address})`}</Typography>
+                    {item.blockchain[0].address === currentAddress && (
+                      <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
+                        <FiberManualRecordIcon
+                          style={{
+                            fontSize: '10px',
+                            color: '#40C900',
+                            marginLeft: '10px',
+                          }}
+                        />
+                      </ListItemIcon>
+                    )}
                   </Box>
                   <Typography sx={{ color: '#808080', fontSize: '12px', fontWeight: '400' }}>
                     {(item.blockchain[0].balance / 100000000).toFixed(3)} Flow
@@ -235,7 +249,7 @@ const Wallet = () => {
         >
           {evmList.map((item) => (
             <ListItem
-              key={item.id}
+              key={item.address}
               component={Link}
               to="/dashboard/setting/wallet/detail"
               onClick={() => handleWalletClick(item, 1)}
@@ -263,15 +277,16 @@ const Wallet = () => {
                     borderRadius: '32px',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: emojis[1]['bgcolor'],
+                    backgroundColor: item.color,
                     marginRight: '12px',
                   }}
                 >
-                  <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>
-                    {emojis[1].emoji}
-                  </Typography>
+                  <Typography sx={{ fontSize: '20px', fontWeight: '600' }}>{item.icon}</Typography>
                 </Box>
-                <Box key={item.blockchain[0].id} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box
+                  key={item.blockchain[0].address}
+                  sx={{ display: 'flex', flexDirection: 'column' }}
+                >
                   <Box
                     sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
@@ -283,7 +298,7 @@ const Wallet = () => {
                         marginRight: '4px',
                       }}
                     >
-                      {emojis[1].name}
+                      {item.blockchain[0].name}
                     </Typography>
                     <Typography
                       sx={{ color: '#808080', fontSize: '12px', fontWeight: '400' }}

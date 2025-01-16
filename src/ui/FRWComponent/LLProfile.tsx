@@ -2,7 +2,7 @@ import { Box, Typography, Avatar, Skeleton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React from 'react';
 
-import { formatAddress } from 'ui/utils';
+import { formatAddress, isEmoji } from 'ui/utils';
 
 export const LLProfile = ({ contact, isLoading = false }) => {
   const getName = (name: string) => {
@@ -28,21 +28,38 @@ export const LLProfile = ({ contact, isLoading = false }) => {
         }}
       >
         {!isLoading ? (
-          <Avatar
-            alt={contact.contact_name}
-            src={contact.avatar}
-            sx={{
-              color: 'primary.main',
-              backgroundColor: '#484848',
-              width: '40px',
-              height: '40px',
-            }}
-          >
-            {getName(contact.contact_name)}
-          </Avatar>
+          isEmoji(contact.avatar) ? (
+            <Box
+              sx={{
+                display: 'flex',
+                height: '40px',
+                width: '40px',
+                borderRadius: '32px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: contact['color'],
+              }}
+            >
+              <Typography sx={{ fontSize: '28px', fontWeight: '600' }}>{contact.avatar}</Typography>
+            </Box>
+          ) : (
+            <Avatar
+              alt={contact.contact_name}
+              src={contact.avatar}
+              sx={{
+                color: 'primary.main',
+                backgroundColor: '#484848',
+                width: '40px',
+                height: '40px',
+              }}
+            >
+              {getName(contact.contact_name)}
+            </Avatar>
+          )
         ) : (
           <Skeleton variant="circular" width={40} height={40} />
         )}
+
         {!isLoading ? (
           <Typography variant="body2" sx={{ textAlign: 'start' }}>
             {contact.domain?.value || formatAddress(contact.contact_name)}

@@ -1,8 +1,9 @@
 import { createPersistStore } from 'background/utils';
 import { storage } from 'background/webapi';
 
+import type { NewsItem } from '../../shared/types/network-types';
+
 import conditionsEvaluator from './conditions-evaluator';
-import type { NewsItem } from './networkModel';
 import openapi from './openapi';
 
 interface NewsStore {
@@ -35,18 +36,28 @@ class NewsService {
     if (!this.store) await this.init();
 
     const news = await openapi.getNews();
-
     // Remove dismissed news and evaluate conditions
-    const filteredNews = await Promise.all(
-      news
-        .filter((n) => !this.isDismissed(n.id))
-        .map(async (newsItem) => {
+
+    const filteredNewsPromises = news
+      .filter((n) => !this.isDismissed(n.id))
+      .map(async (newsItem) => {
+        try {
           const shouldShow = await conditionsEvaluator.evaluateConditions(newsItem.conditions);
           return shouldShow ? newsItem : null;
-        })
-    );
+        } catch (error) {
+          // Catch error here otherwise the whole news list will be empty
+          console.error('Error evaluating conditions', error);
+          return null;
+        }
+      });
+    const filteredNews = await Promise.all(filteredNewsPromises)
+      .catch((error) => {
+        console.error('Error evaluating conditions', error);
+        return [];
+      })
+      .then((news) => news.filter((item) => item !== null));
 
-    return filteredNews.filter((item): item is NewsItem => item !== null);
+    return filteredNews as NewsItem[];
   };
 
   isRead = (id: string): boolean => {

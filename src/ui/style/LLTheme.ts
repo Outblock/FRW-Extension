@@ -1,6 +1,8 @@
 import { createTheme, type ThemeOptions } from '@mui/material/styles';
 import './fonts.css';
 
+const BUILD_BACKGROUND = process.env.BUILD_BACKGROUND || '#121212'; // Default to dark theme color if not set
+
 const themeOptions: ThemeOptions = {
   components: {
     MuiCssBaseline: {
@@ -55,7 +57,7 @@ const themeOptions: ThemeOptions = {
       light: '#E5404029',
     },
     background: {
-      default: '#121212',
+      default: BUILD_BACKGROUND,
       paper: '#282828',
     },
     primary: {

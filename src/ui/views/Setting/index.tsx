@@ -91,7 +91,7 @@ const SettingTab = () => {
     // setSending(true);
     const activeChild = await usewallet.getActiveWallet();
     if (activeChild) {
-      setIsActive(activeChild);
+      setIsActive(activeChild !== null);
     }
     const keyrings = await usewallet.checkMnemonics();
     await setIsKeyphrase(keyrings);

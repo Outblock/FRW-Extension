@@ -10,21 +10,21 @@ import {
   signInAnonymously,
   onAuthStateChanged,
   type Unsubscribe,
-} from 'firebase/auth';
+  type User,
+} from 'firebase/auth/web-extension';
 import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
-import { isValidEthereumAddress } from '@/shared/utils/address';
+import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
+import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
 import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
 import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
-
-import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
 
 import {
   type AccountKey,
@@ -40,7 +40,7 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
-} from './networkModel';
+} from '../../shared/types/network-types';
 
 import {
   userWalletService,
@@ -52,7 +52,6 @@ import {
   googleSafeHostService,
   mixpanelTrack,
 } from './index';
-
 // import { userInfo } from 'os';
 // import userWallet from './userWallet';
 // const axios = axiosOriginal.create({ adapter })
@@ -90,7 +89,7 @@ const waitForAuthInit = async () => {
   (await unsubscribe!)();
 };
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user: User | null) => {
   if (user) {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/firebase.User
@@ -98,26 +97,17 @@ onAuthStateChanged(auth, (user) => {
     console.log('User is signed in');
     if (user.isAnonymous) {
       console.log('User is anonymous');
+    } else {
+      mixpanelTrack.identify(user.uid, user.displayName ?? user.uid);
+      console.log('User is signed in');
     }
   } else {
     // User is signed out
     console.log('User is signed out');
   }
-
-  fclSetup();
+  // note fcl setup is async
+  userWalletService.setupFcl();
 });
-
-const fclSetup = async () => {
-  const network = await userWalletService.getNetwork();
-  switch (network) {
-    case 'mainnet':
-      await fclMainnetConfig();
-      break;
-    case 'testnet':
-      await fclTestnetConfig();
-      break;
-  }
-};
 
 const dataConfig: Record<string, OpenApiConfigValue> = {
   check_username: {
@@ -396,7 +386,7 @@ class OpenApiService {
       fromStorage: false, // Debug only
     });
 
-    await fclSetup();
+    await userWalletService.setupFcl();
   };
 
   checkAuthStatus = async () => {
@@ -662,6 +652,9 @@ class OpenApiService {
   };
 
   register = async (account_key: AccountKey, username: string) => {
+    // Track the time until account_created is called
+    mixpanelTrack.time('account_created');
+
     const config = this.store.config.register;
     const data = await this.sendRequest(
       config.method,
@@ -1148,12 +1141,13 @@ class OpenApiService {
 
   getAccountMinFlow = async (address: string) => {
     const script = await getScripts('basic', 'getAccountMinFlow');
-
-    const minFlow = await fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(address, t.Address)],
-    });
-    return minFlow;
+    if (isValidFlowAddress(address)) {
+      const minFlow = await fcl.query({
+        cadence: script,
+        args: (arg, t) => [arg(address, t.Address)],
+      });
+      return minFlow;
+    }
   };
 
   getFlownsDomainsByAddress = async (address: string) => {
@@ -1332,16 +1326,23 @@ class OpenApiService {
     return tokenList.find((item) => item.id === contract_name);
   };
 
+  getFeatureFlags = async (): Promise<FeatureFlags> => {
+    try {
+      const config = await remoteFetch.remoteConfig();
+      return config.features;
+    } catch (err) {
+      console.error(err);
+    }
+    // By default, all feature flags are disabled
+    return {};
+  };
+  getFeatureFlag = async (featureFlag: FeatureFlagKey): Promise<boolean> => {
+    const flags = await this.getFeatureFlags();
+    return !!flags[featureFlag];
+  };
+
   getSwapInfo = async (): Promise<boolean> => {
-    remoteFetch
-      .remoteConfig()
-      .then((res) => {
-        return res.features.swap;
-      })
-      .catch((err) => {
-        console.log('getNFTCollectionInfo -->', err);
-      });
-    return false;
+    return (await this.getFeatureFlags()).swap;
   };
 
   // @ts-ignore
@@ -2180,6 +2181,15 @@ class OpenApiService {
     return data;
   };
 
+  decodeEvmCall = async (data: string, address = '') => {
+    const bodyData = {
+      to: address, // address -- optional
+      data: data, // calldata -- required
+    };
+    const res = await this.sendRequest('POST', `/api/evm/decodeData`, {}, bodyData, WEB_NEXT_URL);
+    return res;
+  };
+
   EvmNFTcollectionList = async (
     address: string,
     collectionIdentifier: string,
@@ -2318,7 +2328,6 @@ class OpenApiService {
 
   getNews = async (): Promise<NewsItem[]> => {
     // Get news from firebase function
-    const baseURL = getFirbaseFunctionUrl();
 
     const cachedNews = await storage.getExpiry('news');
 
@@ -2326,7 +2335,13 @@ class OpenApiService {
       return cachedNews;
     }
 
-    const data = await this.sendRequest('GET', '/news', {}, {}, baseURL);
+    const data = await this.sendRequest(
+      'GET',
+      process.env.API_NEWS_PATH,
+      {},
+      {},
+      process.env.API_BASE_URL
+    );
 
     const timeNow = new Date(Date.now());
 
@@ -2434,9 +2449,15 @@ class OpenApiService {
     }
 
     try {
-      const config = this.store.config.get_version;
-      const data = await this.sendRequest(config.method, config.path);
-      const version = data.extensionVersion;
+      const result = await this.sendRequest(
+        'GET',
+        process.env.API_CONFIG_PATH,
+        {},
+        {},
+        process.env.API_BASE_URL
+      );
+
+      const version = result.version;
 
       // Cache for 1 hour
       await storage.setExpiry('latestVersion', version, 3600000);

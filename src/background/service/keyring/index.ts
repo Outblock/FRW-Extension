@@ -1,34 +1,36 @@
 /// fork from https://github.com/MetaMask/KeyringController/blob/master/index.js
 
 import { EventEmitter } from 'events';
-import log from 'loglevel';
+
+import * as bip39 from 'bip39';
 import encryptor from 'browser-passworder';
 import * as ethUtil from 'ethereumjs-util';
-import * as bip39 from 'bip39';
-import { ObservableStore } from '@metamask/obs-store';
+import log from 'loglevel';
+
+import eventBus from '@/eventBus';
 import {
   normalizeAddress,
   setPageStateCacheWhenPopupClose,
   hasWalletConnectPageStateCache,
 } from 'background/utils';
-import SimpleKeyring from '@rabby-wallet/eth-simple-keyring';
-import HdKeyring from '@rabby-wallet/eth-hd-keyring';
-
-import preference from '../preference';
-import i18n from '../i18n';
 import { KEYRING_TYPE } from 'consts';
-import DisplayKeyring from './display';
-import eventBus from '@/eventBus';
+
 import { storage } from '../../webapi';
+import i18n from '../i18n';
+import preference from '../preference';
+
+import type DisplayKeyring from './display';
+import { HDKeyring } from './hdKeyring';
+import { SimpleKeyring } from './simpleKeyring';
 
 export const KEYRING_SDK_TYPES = {
   SimpleKeyring,
-  HdKeyring,
+  HDKeyring,
 };
 
 export const KEYRING_CLASS = {
   PRIVATE_KEY: SimpleKeyring.type,
-  MNEMONIC: HdKeyring.type,
+  MNEMONIC: HDKeyring.type,
 };
 
 interface MemStoreState {
@@ -44,10 +46,39 @@ export interface DisplayedKeryring {
     address: string;
     brandName: string;
     type?: string;
-    keyring?: DisplayKeyring;
+    keyring?: any;
     alianName?: string;
   }[];
-  keyring: DisplayKeyring;
+  keyring: any;
+}
+
+class SimpleStore<T> {
+  private state: T;
+  private listeners: ((state: T) => void)[] = [];
+
+  constructor(initialState: T) {
+    this.state = initialState;
+  }
+
+  getState(): T {
+    return this.state;
+  }
+
+  updateState(partialState: Partial<T>) {
+    this.state = { ...this.state, ...partialState };
+    this.notifyListeners();
+  }
+
+  subscribe(listener: (state: T) => void) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== listener);
+    };
+  }
+
+  private notifyListeners() {
+    this.listeners.forEach((listener) => listener(this.state));
+  }
 }
 
 class KeyringService extends EventEmitter {
@@ -55,8 +86,8 @@ class KeyringService extends EventEmitter {
   // PUBLIC METHODS
   //
   keyringTypes: any[];
-  store!: ObservableStore<any>;
-  memStore: ObservableStore<MemStoreState>;
+  store!: SimpleStore<any>;
+  memStore: SimpleStore<MemStoreState>;
   keyrings: any[];
   encryptor: typeof encryptor = encryptor;
   password: string | null = null;
@@ -64,18 +95,14 @@ class KeyringService extends EventEmitter {
   constructor() {
     super();
     this.keyringTypes = Object.values(KEYRING_SDK_TYPES);
-    this.memStore = new ObservableStore({
+    this.store = new SimpleStore({ booted: false });
+    this.memStore = new SimpleStore<MemStoreState>({
       isUnlocked: false,
       keyringTypes: this.keyringTypes.map((krt) => krt.type),
       keyrings: [],
       preMnemonics: '',
     });
-
     this.keyrings = [];
-  }
-
-  loadStore(initState) {
-    this.store = new ObservableStore(initState);
   }
 
   loadMemStore() {
@@ -159,7 +186,6 @@ class KeyringService extends EventEmitter {
         });
       })
       .then((firstKeyring) => {
-        console.log('firstKeyring ', firstKeyring);
         keyring = firstKeyring;
         return firstKeyring.getAccounts();
       })
@@ -222,11 +248,10 @@ class KeyringService extends EventEmitter {
    * @param {string} seed - The BIP44-compliant seed phrase.
    * @returns {Promise<Object>} A Promise that resolves to the state.
    */
-  createKeyringWithMnemonics(seed: string): Promise<any> {
+  async createKeyringWithMnemonics(seed: string): Promise<any> {
     if (!bip39.validateMnemonic(seed)) {
       return Promise.reject(new Error(i18n.t('mnemonic phrase is invalid')));
     }
-
     let keyring;
     return this.persistAllKeyrings()
       .then(() => {
@@ -755,38 +780,39 @@ class KeyringService extends EventEmitter {
     let vaultArray = this.store.getState().vault;
     let encryptedVault;
 
-    if (typeof vaultArray === 'string') {
-      vaultArray = [vaultArray];
-    }
+    // Ensure vaultArray is an array and filter out null/undefined entries
+    vaultArray = Array.isArray(vaultArray) ? vaultArray.filter(Boolean) : [vaultArray];
 
     // Initialize accountIndex to 0 if it is undefined
     if (accountIndex === undefined) {
       accountIndex = 0;
     }
 
-    // If currentId is provided, look for the encryptedString with currentId as the key in the vaultArray
+    // If currentId is provided, look for the encryptedString with currentId as the key
     if (currentId !== undefined) {
-      const foundIndex = vaultArray.findIndex((entry) => entry && entry[currentId]);
-      if (foundIndex !== -1) {
-        encryptedVault = vaultArray[foundIndex][currentId];
-      } else {
-        // Handle case when currentId is not found in the vaultArray
-        if (vaultArray[accountIndex] !== undefined) {
-          encryptedVault = vaultArray[accountIndex];
-        } else if (vaultArray[0] !== undefined) {
-          encryptedVault = vaultArray[0];
-        } else {
-          encryptedVault = vaultArray; // Default case
-        }
+      const foundEntry = vaultArray.find((entry) => entry && entry[currentId]);
+      if (foundEntry) {
+        encryptedVault = foundEntry[currentId];
       }
-    } else {
-      // Handling when currentId is not provided
-      if (vaultArray[accountIndex] !== undefined) {
-        encryptedVault = vaultArray[accountIndex];
-      } else if (vaultArray[0] !== undefined) {
-        encryptedVault = vaultArray[0];
-      } else {
-        encryptedVault = vaultArray; // Default case
+    }
+
+    // If haven't found an encrypted vault yet, try fallback options
+    if (!encryptedVault) {
+      // Try to get a valid entry using accountIndex
+      const validEntries = vaultArray.filter(Boolean);
+      if (validEntries.length > 0) {
+        if (validEntries[accountIndex]) {
+          encryptedVault =
+            typeof validEntries[accountIndex] === 'string'
+              ? validEntries[accountIndex]
+              : Object.values(validEntries[accountIndex])[0];
+        } else {
+          // Fallback to first valid entry
+          encryptedVault =
+            typeof validEntries[0] === 'string'
+              ? validEntries[0]
+              : Object.values(validEntries[0])[0];
+        }
       }
     }
 
@@ -797,8 +823,20 @@ class KeyringService extends EventEmitter {
     await this.clearKeyrings();
     const vault = await this.encryptor.decrypt(password, encryptedVault);
     this.password = password;
-    // TODO: FIXME
-    await Promise.all(Array.from(vault).map(this._restoreKeyring.bind(this)));
+
+    // Fix: Cast vault to any[] to handle the array of keyring objects
+    await Promise.all(
+      (vault as unknown as any[]).map(async (keyring) => {
+        try {
+          await this._restoreKeyring(keyring);
+          console.log('Successfully restored keyring:', keyring.type);
+        } catch (error) {
+          console.error('Failed to restore keyring:', error);
+          throw error;
+        }
+      })
+    );
+
     await this._updateMemStoreKeyrings();
     return this.keyrings;
   }
@@ -908,12 +946,26 @@ class KeyringService extends EventEmitter {
     const { type, data } = serialized;
     const Keyring = this.getKeyringClassForType(type);
     const keyring = new Keyring();
-    await keyring.deserialize(data);
 
-    // getAccounts also validates the accounts for some keyrings
-    await keyring.getAccounts();
-    this.keyrings.push(keyring);
-    return keyring;
+    try {
+      // For HD Key Tree, initialize with just the mnemonic and indexes
+      if (type === 'HD Key Tree' && data) {
+        await keyring.deserialize({
+          mnemonic: data.mnemonic,
+          activeIndexes: data.activeIndexes || [0],
+          hdPath: 'm',
+        });
+      } else {
+        await keyring.deserialize(data);
+      }
+
+      await keyring.getAccounts();
+      this.keyrings.push(keyring);
+      return keyring;
+    } catch (error) {
+      console.error('Restore keyring error:', error);
+      throw error;
+    }
   }
 
   /**
@@ -1090,7 +1142,7 @@ class KeyringService extends EventEmitter {
    * Deallocates all currently managed keyrings and accounts.
    * Used before initializing a new vault.
    */
-  /* eslint-disable require-await */
+
   async clearKeyrings(): Promise<void> {
     // clear keyrings from memory
     this.keyrings = [];
@@ -1131,6 +1183,11 @@ class KeyringService extends EventEmitter {
   setUnlocked(): void {
     this.memStore.updateState({ isUnlocked: true });
     this.emit('unlock');
+  }
+
+  loadStore(initState) {
+    this.store = new SimpleStore(initState || { booted: false });
+    return this.store.subscribe((value) => storage.set('keyringState', value));
   }
 }
 

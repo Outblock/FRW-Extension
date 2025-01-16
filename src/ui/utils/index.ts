@@ -13,10 +13,6 @@ export * from './time';
 
 export * from './number';
 
-export * from './saveStorage';
-
-export * from './mixpanelBrowserService';
-
 const UI_TYPE = {
   Tab: 'index',
   Pop: 'popup',
@@ -30,7 +26,6 @@ type UiTypeCheck = {
 };
 
 export const getUiType = (): UiTypeCheck => {
-  // eslint-disable-next-line no-restricted-globals
   const { pathname } = window.location;
   return Object.entries(UI_TYPE).reduce((m, [key, value]) => {
     m[`is${key}`] = pathname === `/${value}.html`;
@@ -121,7 +116,6 @@ export const isMetaMaskActive = async () => {
   if (!url) return false;
 
   try {
-    // eslint-disable-next-line no-restricted-globals
     const res = await window.fetch(url);
     await res.text();
 
@@ -147,4 +141,16 @@ export const formatAddress = (address) => {
     return `${address.substring(0, 6)}...${address.substring(address.length - 8)}`;
   }
   return address;
+};
+
+// Function to convert hex to decimal
+export const HexToDecimalConverter = (hexValue) => {
+  const convertHexToDecimal = (hex) => {
+    if (!hex.startsWith('0x')) {
+      hex = '0x' + hex;
+    }
+    return BigInt(hex).toString();
+  };
+  const decimalValue = convertHexToDecimal(hexValue);
+  return decimalValue;
 };

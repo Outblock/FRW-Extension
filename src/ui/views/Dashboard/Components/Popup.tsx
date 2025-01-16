@@ -16,7 +16,7 @@ import CircularProgress, { circularProgressClasses } from '@mui/material/Circula
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import type { UserInfoResponse } from 'background/service/networkModel';
+import type { UserInfoResponse } from '@/shared/types/network-types';
 import iconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
 import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';

@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import Web3 from 'web3';
 
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
@@ -13,7 +14,7 @@ import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import erc721 from 'background/utils/erc721.abi.json';
 import { EVM_ENDPOINT } from 'consts';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
 
 import IconFlow from '../../../../components/iconfont/IconFlow';
@@ -42,7 +43,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: 0,
-    movingBetweenEVMAndFlow: true, // hard to tell if the user is sending to an evm address or not. True for now.
+    // Check if the recipient is an EVM address
+    movingBetweenEVMAndFlow: isValidEthereumAddress(props?.data?.contact?.address),
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
@@ -258,7 +260,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
   const checkChild = useCallback(async () => {
     const isChild = await wallet.getActiveWallet();
-    setIsChild(isChild);
+    setIsChild(isChild !== null);
   }, [wallet]);
 
   const initializeContract = useCallback(async () => {
@@ -390,7 +392,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
             ))}
           </Box>
           {isEmoji(props.data.contact.avatar) ? (
-            <FRWProfile contact={props.data.contact} />
+            <FRWTargetProfile contact={props.data.contact} />
           ) : (
             <LLProfile contact={props.data.contact} />
           )}

@@ -1,6 +1,7 @@
-import React from 'react';
-import { makeStyles } from '@mui/styles';
 import { Typography, Box } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import React from 'react';
+
 import empty_status from '../../FRWAssets/image/empty_status.svg';
 
 const useStyles = makeStyles(() => ({

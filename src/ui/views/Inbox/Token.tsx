@@ -15,7 +15,7 @@ import { reject } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { TokenModel } from 'background/service/networkModel';
+import { TokenModel } from '@/shared/types/network-types';
 import activity from 'ui/FRWAssets/svg/activity.svg';
 import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';

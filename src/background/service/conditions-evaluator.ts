@@ -1,10 +1,12 @@
+import type { NewsConditionType } from '@/shared/types/news-types';
+
+import packageJson from '../../../package.json';
 import { userWalletService } from '../service';
 import { StorageEvaluator } from '../service/storage-evaluator';
 
-import type { NewsConditionType } from './networkModel';
 import openapi from './openapi';
 
-const CURRENT_VERSION = chrome.runtime.getManifest().version;
+const CURRENT_VERSION = packageJson.version;
 
 class ConditionsEvaluator {
   private async evaluateCondition(condition: NewsConditionType): Promise<boolean> {
@@ -18,12 +20,23 @@ class ConditionsEvaluator {
 
       case 'canUpgrade':
         const latestVersion = await openapi.getLatestVersion();
-        return this.compareVersions(CURRENT_VERSION, latestVersion) < 0;
+        try {
+          const canUpgrade = this.compareVersions(CURRENT_VERSION, latestVersion) < 0;
+          return canUpgrade;
+        } catch (err) {
+          console.error('Error evaluating canUpgrade', err);
+          return false;
+        }
 
       case 'insufficientStorage': {
         const currentAddress = userWalletService.getCurrentAddress();
         if (!currentAddress) return false;
         return this.evaluateStorageCondition(currentAddress);
+      }
+      case 'insufficientBalance': {
+        const currentAddress = userWalletService.getCurrentAddress();
+        if (!currentAddress) return false;
+        return this.evaluateBalanceCondition(currentAddress);
       }
 
       case 'unknown':
@@ -47,14 +60,14 @@ class ConditionsEvaluator {
     return 0;
   }
 
-  async evaluateConditions(conditions?: NewsConditionType[]): Promise<boolean> {
+  async evaluateConditions(conditions?: { type: NewsConditionType }[]): Promise<boolean> {
     if (!conditions || conditions.length === 0) {
       return true; // No conditions means always show
     }
 
     // Evaluate all conditions (AND logic)
     for (const condition of conditions) {
-      if (!(await this.evaluateCondition(condition))) {
+      if (!(await this.evaluateCondition(condition.type))) {
         return false;
       }
     }
@@ -65,6 +78,13 @@ class ConditionsEvaluator {
     const storageEvaluator = new StorageEvaluator();
     const { isStorageSufficient } = await storageEvaluator.evaluateStorage(address);
     return !isStorageSufficient;
+  }
+
+  async evaluateBalanceCondition(address: string): Promise<boolean> {
+    const storageEvaluator = new StorageEvaluator();
+    const { isBalanceSufficient } = await storageEvaluator.evaluateStorage(address);
+
+    return !isBalanceSufficient;
   }
 }
 

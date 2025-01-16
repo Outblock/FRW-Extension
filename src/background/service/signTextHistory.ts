@@ -1,7 +1,9 @@
-import { createPersistStore } from 'background/utils';
-import permissionService, { ConnectedSite } from './permission';
 import { sortBy } from 'lodash';
+
 import { CHAINS_ENUM, INTERNAL_REQUEST_ORIGIN } from '@/constant';
+import { createPersistStore } from 'background/utils';
+
+import permissionService, { type ConnectedSite } from './permission';
 
 export interface SignTextHistoryItem {
   site: ConnectedSite;

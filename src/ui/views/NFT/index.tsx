@@ -221,53 +221,6 @@ const NFTTab = () => {
           )}
         </Box>
 
-        {process.env.NODE_ENV === 'produssction' && (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              width: '90%',
-              margin: '10px auto 0 auto',
-              backgroundColor: '#2E2E2E',
-              borderRadius: '12px',
-              justifyContent: 'space-between',
-              padding: '5px 12px',
-            }}
-          >
-            <Box>
-              <Typography component="div" color="neutral.contrastText" sx={{ fontSize: '11px' }}>
-                {chrome.i18n.getMessage('For__testing__purpose__only')}
-              </Typography>
-              <Typography display="inline" color="neutral.contrastText" sx={{ fontSize: '11px' }}>
-                {chrome.i18n.getMessage('Showing__NFT__under')}
-                <span> </span>
-              </Typography>
-              <Typography color="primary" display="inline" sx={{ fontSize: '12px' }}>
-                {address}
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{
-                width: '63px',
-                borderRadius: '12px',
-                color: '#000000',
-                height: '30px',
-                textTransform: 'none',
-                fontSize: '10px',
-                fontWeight: 700,
-                alignSelf: 'center',
-              }}
-              onClick={() => {
-                setIsAddAddressOpen(true);
-              }}
-            >
-              {chrome.i18n.getMessage('Change')}
-            </Button>
-          </Box>
-        )}
-
         <EditNFTAddress
           isAddAddressOpen={isAddAddressOpen}
           handleCloseIconClicked={() => setIsAddAddressOpen(false)}

@@ -20,9 +20,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
+import type { StorageInfo } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
-import type { StorageInfo } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 
 import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
@@ -295,7 +295,11 @@ const WalletDetail = () => {
     const walletDetail = JSON.parse(savedWallet);
     if (walletDetail) {
       setWallet([walletDetail.wallet]);
-      setEmoji(walletDetail.selectedEmoji);
+      const selectingEmoji = {};
+      selectingEmoji['name'] = walletDetail.wallet.name;
+      selectingEmoji['emoji'] = walletDetail.wallet.icon;
+      selectingEmoji['bgcolor'] = walletDetail.wallet.color;
+      setEmoji(selectingEmoji);
     }
   }, [usewallet]);
 

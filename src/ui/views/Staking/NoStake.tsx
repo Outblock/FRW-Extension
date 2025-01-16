@@ -40,7 +40,6 @@ const NoStake = (props: NoStakeProps) => {
         width: '100%',
         overflow: 'hidden',
         height: '487px',
-        background: '#121212',
       }}
     >
       {props.noStakeOpen ? (

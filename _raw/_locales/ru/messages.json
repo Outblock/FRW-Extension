@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "Режим разработчика"
   },
+  "Emulator_Mode": {
+    "message": "Pежим эмулятора"
+  },
   "About": {
     "message": "О программе"
   },
@@ -189,6 +192,15 @@
   },
   "Testnet": {
     "message": "Testnet"
+  },
+  "Emulator": {
+    "message": "Emulator"
+  },
+  "Emulate_Testnet": {
+    "message": "Эмуляция тестовой сети"
+  },
+  "Emulate_Mainnet": {
+    "message": "Эмулировать основную сеть"
   },
   "Crescendo": {
     "message": "Crescendo"
@@ -1318,6 +1330,9 @@
   "Insufficient_Storage": {
     "message": "Недостаточно памяти"
   },
+  "Almost_run_out_of_account_storage": {
+    "message": "В вашем аккаунте недостаточно места для хранения данных"
+  },
   "Transaction_failed_storage_exceeded": {
     "message": "Ваша транзакция не выполнена, так как ваш баланс упал ниже минимального значения FLOW для использования памяти вашего аккаунта."
   },
@@ -1329,5 +1344,8 @@
   },
   "Insufficient_storage_after_action": {
     "message": "Недостаточно хранилища после этого действия."
+  },
+  "Deposit_warning_content": {
+    "message": "Пожалуйста, убедитесь, что ваш депозит осуществляется в сети FLOW EVM. Если вы используете другую сеть, ваши активы могут быть потеряны."
   }
 }

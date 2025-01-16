@@ -7,8 +7,9 @@ import type { TokenInfo } from 'flow-native-token-registry';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
-import type { PriceProvider } from '@/background/service/networkModel';
 import { storage } from '@/background/webapi';
+import type { PriceProvider } from '@/shared/types/network-types';
+import { type ActiveChildType } from '@/shared/types/wallet-types';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import StorageUsageCard from '@/ui/FRWComponent/StorageUsageCard';
 import tips from 'ui/FRWAssets/svg/tips.svg';
@@ -54,16 +55,12 @@ const TokenDetail = () => {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | undefined>(undefined);
   const [providers, setProviders] = useState<PriceProvider[]>([]);
   const [childAccount, setChildAccount] = useState<any>({});
-  const [childType, setChildType] = useState<string>('');
+  const [childType, setChildType] = useState<ActiveChildType>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleMenuToggle = () => {
     setMenuOpen(!menuOpen);
-  };
-
-  const handleMenuClose = () => {
-    setMenuOpen(false);
   };
 
   const handleDeleteEFT = async () => {
@@ -165,6 +162,7 @@ const TokenDetail = () => {
         />
       );
     } else if (childType) {
+      // We are moving from a FLOW child account
       return (
         <MoveFromChild
           isConfirmationOpen={moveOpen}

@@ -52,7 +52,7 @@ const EditProfile = (props: MoveBoardProps) => {
     if (isValidEthereumAddress(address)) {
       childType = 'evm';
     }
-    await usewallet.setEmoji(selectedEmoji, childType);
+    await usewallet.setEmoji(selectedEmoji, childType, props.userWallet[0].blockchain[0].id);
     setSelectEmoji(selectedEmoji);
     updateEmojis();
     props.updateProfileEmoji(selectedEmoji);

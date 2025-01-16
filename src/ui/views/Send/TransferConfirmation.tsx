@@ -9,7 +9,7 @@ import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
+import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
 
 interface TransferConfirmationProps {
@@ -33,8 +33,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const [count, setCount] = useState(0);
 
   const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
-  // TODO: check if this is correct
-  const movingBetweenEVMAndFlow = true;
+
+  // This component is only used for sending Flow on the Flow network
+  const movingBetweenEVMAndFlow = false;
+
   const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
     useStorageCheck({
       transferAmount,
@@ -91,7 +93,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     }
     setSending(true);
     const amount = parseFloat(props.data.amount).toFixed(8);
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet
       .transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount)
       .then(async (txID) => {
@@ -118,7 +119,6 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
 
   const sendFromChild = async () => {
     const amount = parseFloat(props.data.amount).toFixed(8);
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet
       .sendFTfromChild(
         props.data.userContact.address,
@@ -293,11 +293,16 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
         {props.data.childType === 'evm' ? (
-          <FRWProfile contact={props.data.userContact} isLoading={false} isEvm={true} />
+          <FRWProfile
+            contact={props.data.userContact}
+            isLoading={false}
+            isEvm={true}
+            fromEvm={'yes'}
+          />
         ) : props.data.childType ? (
           <LLProfile contact={props.data.userContact} />
         ) : (
-          <FRWProfile contact={props.data.userContact} />
+          <FRWProfile contact={props.data.userContact} fromEvm={'no'} />
         )}
         <Box
           sx={{
@@ -323,7 +328,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           ))}
         </Box>
         {isEmoji(props.data.contact.avatar) ? (
-          <FRWProfile contact={props.data.contact} />
+          <FRWTargetProfile contact={props.data.contact} fromEvm={'to'} />
         ) : (
           <LLProfile contact={props.data.contact} />
         )}

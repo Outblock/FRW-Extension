@@ -4,7 +4,9 @@ import packageJson from '@/../package.json';
 import { storage } from '@/background/webapi';
 
 const { version } = packageJson;
-import { mixpanelTrack } from '../service';
+import { type FlowNetwork } from '../../shared/types/network-types';
+import { EMULATOR_HOST_TESTNET, EMULATOR_HOST_MAINNET } from '../fclConfig';
+import { mixpanelTrack } from '../service/mixpanel';
 import pageStateCache from '../service/pageStateCache';
 
 export { default as createPersistStore } from './persisitStore';
@@ -95,6 +97,39 @@ export const hasWalletConnectPageStateCache = () => {
 
 export const isSameAddress = (a: string, b: string) => {
   return a.toLowerCase() === b.toLowerCase();
+};
+export const getEmulatorBaseURL = (network: FlowNetwork) => {
+  return network === 'testnet' ? EMULATOR_HOST_TESTNET : EMULATOR_HOST_MAINNET;
+};
+
+export const checkEmulatorStatus = async (network: FlowNetwork): Promise<boolean> => {
+  try {
+    const baseURL = getEmulatorBaseURL(network);
+    const response = await fetch(`${baseURL}/v1/blocks?height=sealed`);
+    console.log('checkEmulatorStatus - response ', response);
+    const data = await response.json();
+    console.log('checkEmulatorStatus - data ', data);
+    return !!data[0].block_status;
+  } catch (error) {
+    console.error('checkEmulatorAccount - error ', error);
+
+    return false;
+  }
+};
+
+export const checkEmulatorAccount = async (
+  network: FlowNetwork,
+  address: string
+): Promise<boolean> => {
+  try {
+    const baseURL = getEmulatorBaseURL(network);
+    const response = await fetch(`${baseURL}/v1/accounts/${address}`);
+    const data = await response.json();
+    return !!data.address;
+  } catch (error) {
+    console.error('checkEmulatorAccount - error ', error);
+    return false;
+  }
 };
 
 export const getScripts = async (folder: string, scriptName: string) => {

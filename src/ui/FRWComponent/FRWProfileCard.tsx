@@ -27,11 +27,22 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
   };
 
   const getEmoji = useCallback(async () => {
-    const emojiList = await usewallet.getEmoji();
     if (isValidEthereumAddress(contact.address)) {
-      setEmoji(emojiList[1]);
+      const currentWallet = await usewallet.getEvmWallet();
+      const emojiObject = tempEmoji;
+      emojiObject.emoji = currentWallet.icon;
+      emojiObject.name = currentWallet.name;
+      emojiObject.bgcolor = currentWallet.color;
+      emojiObject['type'] = 'evm';
+      setEmoji(emojiObject);
     } else {
-      setEmoji(emojiList[0]);
+      const currentWallet = await usewallet.getCurrentWallet();
+      const emojiObject = tempEmoji;
+      emojiObject.emoji = currentWallet.icon;
+      emojiObject.name = currentWallet.name;
+      emojiObject.bgcolor = currentWallet.color;
+      emojiObject['type'] = 'parent';
+      setEmoji(emojiObject);
     }
   }, [contact, usewallet]);
 

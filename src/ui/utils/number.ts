@@ -6,7 +6,6 @@ export const splitNumberByStep = (
   symbol = ',',
   forceInt = false
 ) => {
-  // eslint-disable-next-line prefer-const
   let [int, float] = (num + '').split('.');
   const reg = new RegExp(`(\\d)(?=(\\d{${step}})+(?!\\d))`, 'g');
 

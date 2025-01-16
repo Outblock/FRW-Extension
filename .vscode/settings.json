@@ -19,5 +19,8 @@
   },
   "javascript.updateImportsOnFileMove.enabled": "always",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "eslint.useFlatConfig": true
+  "eslint.useFlatConfig": true,
+  "githubPullRequests.overrideDefaultBranch": "dev",
+  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}",
+  "cSpell.words": ["Cbor", "secp"]
 }

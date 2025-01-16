@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState } from 'react';
 
-import type { StorageInfo } from '@/background/service/networkModel';
+import type { StorageInfo } from '@/shared/types/network-types';
 
 import { useWallet } from './WalletContext';
 
@@ -36,15 +36,19 @@ export const useStorageCheck = ({
     storageInfo: StorageInfo;
   }> => {
     try {
-      const { isStorageSufficient, isStorageSufficientAfterAction, storageInfo } =
-        await wallet.checkStorageStatus({
-          transferAmount: transferAmount,
-          coin,
-          movingBetweenEVMAndFlow,
-        });
+      const {
+        isStorageSufficient,
+        isBalanceSufficient,
+        isStorageSufficientAfterAction,
+        storageInfo,
+      } = await wallet.checkStorageStatus({
+        transferAmount: transferAmount,
+        coin,
+        movingBetweenEVMAndFlow,
+      });
 
       return {
-        sufficient: isStorageSufficient,
+        sufficient: isStorageSufficient && isBalanceSufficient,
         sufficientAfterAction: isStorageSufficientAfterAction,
         storageInfo,
       };

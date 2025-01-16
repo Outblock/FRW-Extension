@@ -68,6 +68,13 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const BRANCH_NAME = process.env.BRANCH_NAME;
+
+const ENVIRONMENT =
+  BRANCH_NAME === 'master' ? 'Production' : BRANCH_NAME === 'dev' ? 'Staging' : 'Development';
+
+const COMMIT_SHA = process.env.COMMIT_SHA;
+
 const About = () => {
   const classes = useStyles();
 
@@ -80,7 +87,7 @@ const About = () => {
       <Box className={classes.logoBox}>
         {/* <img src={logo} alt='logo' className={classes.logo} /> */}
 
-        <a href="https://lilico.app" target="_blank">
+        <a href="https://wallet.flow.com" target="_blank">
           <Box
             className="logoContainer"
             style={{ height: '120px', width: '120px', marginTop: '12px' }}
@@ -89,7 +96,7 @@ const About = () => {
           </Box>
         </a>
 
-        <a href="https://lilico.app" target="_blank">
+        <a href="https://wallet.flow.com" target="_blank">
           <Typography
             variant="h6"
             component="div"
@@ -107,6 +114,19 @@ const About = () => {
           {chrome.i18n.getMessage('Version')} {`${version}`}
         </Typography>
 
+        {ENVIRONMENT !== 'Production' && (
+          <Typography
+            variant="body1"
+            component="div"
+            color="text.secondary"
+            sx={{ textAlign: 'center', fontWeight: 300 }}
+          >
+            {`${
+              ENVIRONMENT === 'Staging' ? 'Staging' : BRANCH_NAME ? BRANCH_NAME : 'Local'
+            } ${COMMIT_SHA ? `Commit: ${COMMIT_SHA}` : ''}`}
+          </Typography>
+        )}
+
         {process.env.NODE_ENV !== 'production' && (
           <Typography
             variant="body1"
@@ -118,40 +138,6 @@ const About = () => {
           </Typography>
         )}
       </Box>
-
-      {/* <List className={classes.list} sx={{margin: '8px auto 16px auto'}}>
-        <ListItem
-          button
-          component={Link}
-          to=''
-          disablePadding
-          className={classes.listItem}
-        >
-          <ListItemButton className={classes.itemButton}>
-            <ListItemText primary="Check Update" />
-            <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-              <IconEnd size={12} />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-
-        <Divider sx={{ width: '90%' }} variant="middle"/>
-
-        <ListItem
-          button
-          component={Link}
-          to=''
-          disablePadding
-          className={classes.listItem}
-        >
-          <ListItemButton className={classes.itemButton}>
-            <ListItemText primary="Contact Us" />
-            <ListItemIcon aria-label="end" sx={{ minWidth: '15px' }}>
-              <IconEnd size={12} />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-      </List> */}
 
       <Box className={classes.mediaBox}>
         <Typography

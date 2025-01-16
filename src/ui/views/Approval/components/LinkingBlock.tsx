@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
   Stack,
   Box,
@@ -9,10 +8,12 @@ import {
   AccordionDetails,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { useWallet } from 'ui/utils';
-import { UserInfoResponse } from 'background/service/networkModel';
+import React, { useEffect, useState } from 'react';
+
+import { UserInfoResponse } from '@/shared/types/network-types';
 import IconCheck from 'ui/assets/check.svg';
 import Link from 'ui/FRWAssets/svg/link.svg';
+import { useWallet } from 'ui/utils';
 
 const useStyles = makeStyles({
   IconCheck: {

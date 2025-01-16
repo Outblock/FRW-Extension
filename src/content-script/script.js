@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { WalletUtils } from '@onflow/fcl';
+//import { WalletUtils } from '@onflow/fcl';
 // import { nanoid } from 'nanoid';
 
 // const channelName = nanoid();
@@ -33,4 +32,15 @@ const service = {
   },
 };
 
-WalletUtils.injectExtService(service);
+function injectExtService(service) {
+  if (service.type === 'authn' && service.endpoint !== null) {
+    if (!Array.isArray(window.fcl_extensions)) {
+      window.fcl_extensions = [];
+    }
+    window.fcl_extensions.push(service);
+  } else {
+    console.warn('Authn service is required');
+  }
+}
+
+injectExtService(service);

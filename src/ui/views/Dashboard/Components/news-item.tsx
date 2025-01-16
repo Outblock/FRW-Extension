@@ -2,9 +2,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Card, CardContent, CardMedia, IconButton, Typography, Box, Tooltip } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 
+import type { NewsItem } from '@/shared/types/network-types';
 import { useNews } from '@/ui/utils/NewsContext';
-import { openInternalPageInTab } from '@/ui/utils/webapi';
-import type { NewsItem } from 'background/service/networkModel';
+import { openInTab } from '@/ui/utils/webapi';
 
 export const NewsItemCard = ({ item }: { item: NewsItem }) => {
   const { dismissNews, markAsRead } = useNews();
@@ -149,7 +149,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
                   textOverflow: 'ellipsis',
                   cursor: item.url ? 'pointer' : 'default',
                 }}
-                onClick={item.url ? () => item.url && openInternalPageInTab(item.url) : undefined}
+                onClick={item.url ? () => item.url && openInTab(item.url) : undefined}
               >
                 {item.body}
               </Typography>
@@ -167,7 +167,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
             >
               <Box
                 component="span"
-                onClick={() => item.url && openInternalPageInTab(item.url)}
+                onClick={() => item.url && openInTab(item.url)}
                 sx={{
                   cursor: 'pointer',
                   display: 'flex',

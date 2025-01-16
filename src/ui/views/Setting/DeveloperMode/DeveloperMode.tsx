@@ -169,37 +169,38 @@ const Root = styled('span')(
 const DeveloperMode = () => {
   const usewallet = useWallet();
   const classes = useStyles();
-  const [modeOn, setModeOn] = useState(false);
+  const [developerModeOn, setDeveloperModeOn] = useState(false);
+  const [emulatorFeatureEnabled, setEmulatorFeatureEnabled] = useState(false);
+  const [emulatorModeOn, setEmulatorModeOn] = useState(false);
   const [currentNetwork, setNetwork] = useState('mainnet');
   const [currentMonitor, setMonitor] = useState('flowscan');
 
-  const loadNetwork = useCallback(async () => {
+  const loadStuff = useCallback(async () => {
     const network = await usewallet.getNetwork();
-    // const crescendo = await usewallet.checkCrescendo();
-    // if (crescendo.length > 0) {
-    //   setSandboxEnabled(true);
-    // }
-
-    setNetwork(network);
-  }, [usewallet]);
-
-  const loadMonitor = useCallback(async () => {
-    const monitor = await usewallet.getMonitor();
-    setMonitor(monitor);
-  }, [usewallet]);
-
-  const loadDeveloperMode = async () => {
     const developerMode = await storage.get('developerMode');
-    if (developerMode) {
-      setModeOn(developerMode);
-    }
-  };
+    const enableEmulatorMode = await usewallet.getFeatureFlag('emulator_mode');
+    const emulatorMode = enableEmulatorMode ? await usewallet.getEmulatorMode() : false;
+    const monitor = await usewallet.getMonitor();
+
+    return { network, developerMode, enableEmulatorMode, emulatorMode, monitor };
+  }, [usewallet]);
 
   useEffect(() => {
-    loadDeveloperMode();
-    loadNetwork();
-    loadMonitor();
-  }, [loadMonitor, loadNetwork]);
+    let mounted = true;
+
+    loadStuff().then(({ network, developerMode, enableEmulatorMode, emulatorMode, monitor }) => {
+      if (!mounted) return;
+      setNetwork(network);
+      setDeveloperModeOn(developerMode);
+      setEmulatorFeatureEnabled(enableEmulatorMode);
+      setEmulatorModeOn(emulatorMode);
+      setMonitor(monitor);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [loadStuff]);
 
   const switchNetwork = async (network: string) => {
     // if (network === 'crescendo' && !isSandboxEnabled) {
@@ -221,8 +222,26 @@ const DeveloperMode = () => {
   };
 
   const switchDeveloperMode = async () => {
-    setModeOn(!modeOn);
-    storage.set('developerMode', !modeOn);
+    setDeveloperModeOn((prev) => {
+      const newMode = !prev;
+      // This should probably be done in the background
+      storage.set('developerMode', newMode);
+      return newMode;
+    });
+  };
+
+  const switchEmulatorMode = async () => {
+    // Check if the feature flag is enabled
+    const enableEmulatorMode = await usewallet.getFeatureFlag('emulator_mode');
+    if (!enableEmulatorMode) {
+      return;
+    }
+
+    setEmulatorModeOn((prev) => {
+      const newMode = !prev;
+      usewallet.setEmulatorMode(newMode);
+      return newMode;
+    });
   };
 
   return (
@@ -234,7 +253,7 @@ const DeveloperMode = () => {
           {chrome.i18n.getMessage('Developer__Mode')}
         </Typography>
         <Switch
-          checked={modeOn}
+          checked={developerModeOn}
           slots={{
             root: Root,
           }}
@@ -243,8 +262,24 @@ const DeveloperMode = () => {
           }}
         />
       </Box>
-      <Fade in={modeOn}>
+      <Fade in={developerModeOn}>
         <Box sx={{ pb: '20px' }}>
+          {emulatorFeatureEnabled && (
+            <Box className={classes.developerBox}>
+              <Typography variant="body1" color="neutral.contrastText" style={{ weight: 600 }}>
+                {chrome.i18n.getMessage('Emulator_Mode')}
+              </Typography>
+              <Switch
+                checked={emulatorModeOn}
+                slots={{
+                  root: Root,
+                }}
+                onChange={() => {
+                  switchEmulatorMode();
+                }}
+              />
+            </Box>
+          )}
           <Typography
             variant="h6"
             color="neutral.contrastText"

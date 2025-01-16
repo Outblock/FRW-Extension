@@ -1,12 +1,13 @@
-import { MenuItem, Select, Typography, Tooltip, Button } from '@mui/material';
-import { useTheme, styled, StyledEngineProvider } from '@mui/material/styles';
+import { MenuItem, Select, Typography, Tooltip, Button, Box } from '@mui/material';
+import { styled, StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import QRCodeStyling from 'qr-code-styling';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
-import { LLTestnetIndicator, LLHeader } from 'ui/FRWComponent';
+import alertMark from '@/ui/FRWAssets/svg/alertMark.svg';
+import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
+import { LLHeader } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
@@ -35,13 +36,6 @@ const useStyles = makeStyles((theme) => ({
       border: 'none',
     },
   },
-}));
-
-const ArrowBackIconWrapper = styled('div')(() => ({
-  paddingLeft: '10px',
-  width: '100%',
-  position: 'absolute',
-  cursor: 'pointer',
 }));
 
 const CopyIconWrapper = styled('div')(() => ({
@@ -100,11 +94,6 @@ const qrCode = new QRCodeStyling({
   backgroundOptions: {
     color: '#333333',
   },
-  // imageOptions: {
-  //   crossOrigin: 'anonymous',
-  //   imageSize: 0.4,
-  //   margin: 4
-  // },
   qrOptions: {
     errorCorrectionLevel: 'M',
   },
@@ -112,30 +101,29 @@ const qrCode = new QRCodeStyling({
 
 const Deposit = () => {
   const classes = useStyles();
-  const theme = useTheme();
-  const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const ref = useRef<HTMLDivElement>(null);
 
   const [currentWallet, setCurrentWallet] = useState<number>(0);
   const [userWallets, setUserWallets] = useState<any>(null);
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [userInfo, setUserInfo] = useState<any>(null);
-  const [active, setIsActive] = useState<boolean>(false);
+  const [active, setIsActive] = useState<string>('');
+  const [emulatorModeOn, setEmulatorModeOn] = useState<boolean>(false);
 
   const fetchStuff = useCallback(async () => {
-    const isChild = await wallet.getActiveWallet();
+    const isChild = await usewallet.getActiveWallet();
     let childresp = {};
     try {
-      childresp = await wallet.checkUserChildAccount();
+      childresp = await usewallet.checkUserChildAccount();
       // Handle the response when there is no error
     } catch (error) {
       // Handle the error here
       console.error('Error checking user child account:', error);
     }
     if (isChild === 'evm') {
-      setIsActive(true);
-      const wallets = await wallet.getEvmWallet();
+      setIsActive(isChild);
+      const wallets = await usewallet.getEvmWallet();
       const result = [
         {
           id: 0,
@@ -154,7 +142,7 @@ const Deposit = () => {
         }))
       );
     } else if (isChild) {
-      setIsActive(false);
+      setIsActive(isChild);
       setUserWallets(
         Object.keys(childresp).map((key, index) => ({
           id: index,
@@ -163,23 +151,24 @@ const Deposit = () => {
         }))
       );
     } else {
-      setIsActive(true);
-      const wallets = await wallet.getUserWallets();
-      setUserWallets(
-        wallets.map((ele, idx) => ({
-          id: idx,
-          name: chrome.i18n.getMessage('Wallet'),
-          address: withPrefix(ele.blockchain[0].address),
-        }))
-      );
+      const cw = await usewallet.getCurrentWallet();
+      setUserWallets([
+        {
+          id: 0,
+          name: cw.name,
+          address: cw.address,
+        },
+      ]);
     }
 
-    await wallet.setDashIndex(0);
-    const network = await wallet.getNetwork();
+    await usewallet.setDashIndex(0);
+    const network = await usewallet.getNetwork();
     setNetwork(network);
-    const user = await wallet.getUserInfo(false);
+    const emulatorMode = await usewallet.getEmulatorMode();
+    setEmulatorModeOn(emulatorMode);
+    const user = await usewallet.getUserInfo(false);
     setUserInfo(user);
-  }, [currentNetwork, wallet]);
+  }, [currentNetwork, usewallet]);
 
   useEffect(() => {
     if (userWallets && userInfo) {
@@ -203,7 +192,7 @@ const Deposit = () => {
   return (
     <StyledEngineProvider injectFirst>
       <div className={`${classes.page} page`}>
-        {currentNetwork === 'testnet' && <LLTestnetIndicator />}
+        <NetworkIndicator network={currentNetwork} emulatorMode={emulatorModeOn} />
         <LLHeader title={chrome.i18n.getMessage('')} help={false} />
         <div className={classes.container}>
           {userWallets && (
@@ -265,6 +254,38 @@ const Deposit = () => {
                 </Typography>
               )}
             </QRContainer>
+          )}
+          {active === 'evm' && (
+            <Box
+              sx={{
+                marginY: '30px',
+                padding: '16px',
+                backgroundColor: '#222',
+                borderRadius: '12px',
+              }}
+            >
+              <Typography
+                color="grey.600"
+                sx={{
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  color: '#FFFFFFCC',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                }}
+              >
+                <img
+                  src={alertMark}
+                  alt="alert icon"
+                  style={{
+                    filter: 'brightness(0) invert(0.8)',
+                    marginTop: '2px',
+                  }}
+                />
+                {chrome.i18n.getMessage('Deposit_warning_content')}
+              </Typography>
+            </Box>
           )}
         </div>
       </div>

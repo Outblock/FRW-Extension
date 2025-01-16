@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "开发者模式"
   },
+  "Emulator_Mode": {
+    "message": "模擬器模式"
+  },
   "About": {
     "message": "关于"
   },
@@ -189,6 +192,15 @@
   },
   "Testnet": {
     "message": "测试网"
+  },
+  "Emulator": {
+    "message": "沙盒网"
+  },
+  "Emulate_Testnet": {
+    "message": "模拟测试网"
+  },
+  "Emulate_Mainnet": {
+    "message": "模拟主网"
   },
   "Crescendo": {
     "message": "沙盒网"
@@ -1318,6 +1330,9 @@
   "Insufficient_Storage": {
     "message": "存储不足"
   },
+  "Almost_run_out_of_account_storage": {
+    "message": "帐户存储空间几乎耗尽"
+  },
   "Transaction_failed_storage_exceeded": {
     "message": "您的交易失败，因为它导致您的账户余额低于账户存储使用的最低FLOW余额。"
   },
@@ -1329,5 +1344,8 @@
   },
   "Insufficient_storage_after_action": {
     "message": "此操作后存储空间不足。"
+  },
+  "Deposit_warning_content": {
+    "message": "请确保您的存款是在 FLOW EVM 网络上进行的，如果通过其他网络存款，您的资产可能会丢失。"
   }
 }

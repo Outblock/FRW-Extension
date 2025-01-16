@@ -24,7 +24,7 @@ interface SendNFTConfirmationProps {
 }
 
 const MovefromParent = (props: SendNFTConfirmationProps) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -46,11 +46,11 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const getPending = useCallback(async () => {
-    const pending = await wallet.getPendingTx();
+    const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  }, [wallet]);
+  }, [usewallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
@@ -84,23 +84,23 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   const moveNFTToFlow = async () => {
     setSending(true);
     // setSending(true);
-    const contractList = await wallet.openapi.getAllNftV2();
+    const contractList = await usewallet.openapi.getAllNftV2();
     const filteredCollections = returnFilteredCollections(contractList, props.data.nft);
 
     if (isValidEthereumAddress(selectedAccount!['address'])) {
       await moveNFTToEvm();
     } else {
-      wallet
+      usewallet
         .sendNFTtoChild(selectedAccount!['address'], '', props.data.nft.id, filteredCollections[0])
         .then(async (txID) => {
-          wallet.listenTransaction(
+          usewallet.listenTransaction(
             txID,
             true,
             `Move complete`,
             `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`
           );
           props.handleCloseIconClicked();
-          await wallet.setDashIndex(0);
+          await usewallet.setDashIndex(0);
           setSending(false);
           history.push('/dashboard?activity=1');
         })
@@ -117,17 +117,17 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
     const identifier = props.data.contract.nftTypeId
       ? props.data.contract.nftTypeId
       : props.data.contract.flowIdentifier;
-    wallet
+    usewallet
       .batchBridgeNftToEvm(identifier, [props.data.nft.id])
       .then(async (txID) => {
-        wallet.listenTransaction(
+        usewallet.listenTransaction(
           txID,
           true,
           `Move complete`,
           `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`
         );
         props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
+        await usewallet.setDashIndex(0);
         setSending(false);
         history.push('/dashboard?activity=1');
       })
@@ -163,34 +163,33 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
   }, [getPending, props.data.contact, transactionDoneHandler]);
 
   const getChildResp = useCallback(async () => {
-    const childresp = await wallet.checkUserChildAccount();
-    const ewallet: any = await wallet.getEvmWallet();
-    const emojires = await wallet.getEmoji();
+    const childresp = await usewallet.checkUserChildAccount();
+    const eWallet: any = await usewallet.getEvmWallet();
     let evmAddress;
-    if (ewallet.address) {
-      evmAddress = ensureEvmAddressPrefix(ewallet.address);
+    if (eWallet.address) {
+      evmAddress = ensureEvmAddressPrefix(eWallet.address);
     }
     let evmWallet = {};
     if (evmAddress) {
       evmWallet = {
         [evmAddress!]: {
-          name: emojires[1].name,
-          description: emojires[1].name,
+          name: eWallet.name,
+          description: eWallet.name,
           thumbnail: {
-            url: emojires[1].emoji,
+            url: eWallet.icon,
           },
         },
       };
     }
 
-    // Merge wallet lists
+    // Merge usewallet lists
     const walletList = { ...childresp, ...evmWallet };
     setChildWallets(walletList);
     const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
-  }, [wallet]);
+  }, [usewallet]);
 
   useEffect(() => {
     getChildResp();

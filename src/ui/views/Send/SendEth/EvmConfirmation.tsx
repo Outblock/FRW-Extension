@@ -34,12 +34,12 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   const [count, setCount] = useState(0);
 
   const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
-  // TODO: check if this is correct
-  const movingBetweenEVMAndFlow = true;
+
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount,
     coin: props.data?.coinInfo?.coin,
-    movingBetweenEVMAndFlow,
+    // the transfer is within the EVM network, the flag should be false
+    movingBetweenEVMAndFlow: false,
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
@@ -224,7 +224,12 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       <Box
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
-        <FRWProfile contact={props.data.userContact} isLoading={false} isEvm={true} />
+        <FRWProfile
+          contact={props.data.userContact}
+          isLoading={false}
+          isEvm={true}
+          fromEvm={'evmConfirm'}
+        />
         <Box
           sx={{
             marginLeft: '-15px',

@@ -1,14 +1,14 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, Typography, Drawer, IconButton, Grid } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import wallet from '@/background/controller/wallet';
-import { withPrefix } from '@/shared/utils/address';
+import type { Contact } from '@/shared/types/network-types';
+import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
-import type { CoinItem } from 'background/service/coinList';
-import type { Contact } from 'background/service/networkModel';
+import { type CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -95,7 +95,9 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
     coin: currentCoin,
-    movingBetweenEVMAndFlow: true,
+    // Determine if the transfer is between EVM and Flow
+    movingBetweenEVMAndFlow:
+      isValidEthereumAddress(userInfo.address) !== isValidEthereumAddress(childUserInfo.address),
   });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
@@ -157,7 +159,7 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
 
   const moveToken = async () => {
     setLoading(true);
-    const tokenResult = await wallet.openapi.getTokenInfo(currentCoin, network);
+    const tokenResult = await usewallet.openapi.getTokenInfo(currentCoin, network);
     console.log('tokenResult ', tokenResult);
     usewallet
       .moveFTfromChild(childUserInfo!.address, 'flowTokenProvider', amount!, tokenResult!.name)

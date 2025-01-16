@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
 import { Typography, Box, Drawer, Grid, Stack, InputBase, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { LLPrimaryButton } from '../../../FRWComponent';
-import { useWallet } from 'ui/utils';
+import React, { useState, useEffect } from 'react';
 import { useForm, FieldValues } from 'react-hook-form';
-import warning from '../../../FRWAssets/image/warning.png';
-import closeCircle from '../../../FRWAssets/image/closeCircle.png';
 import { useHistory } from 'react-router-dom';
+
+import { useWallet } from 'ui/utils';
+
+import closeCircle from '../../../FRWAssets/image/closeCircle.png';
+import warning from '../../../FRWAssets/image/warning.png';
+import { LLPrimaryButton } from '../../../FRWComponent';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,

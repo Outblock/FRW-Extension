@@ -4,12 +4,12 @@ import { Button, Typography, IconButton } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 
+import ResetModal from '@/ui/FRWComponent/PopupModal/resetModal';
 import { useWallet } from 'ui/utils';
 
 import IconCopy from '../../../../components/iconfont/IconCopy';
-import ResetModal from '../../../FRWComponent/PopupModal/resetModal';
 
-const ShowKey = ({ handleClick, mnemonic }) => {
+const ShowKey = ({ handleSwitchTab, mnemonic }) => {
   const usewallet = useWallet();
   const [canGoNext, setCanGoNext] = useState(false);
   const [isCoverBlur, coverBlur] = useState(true);

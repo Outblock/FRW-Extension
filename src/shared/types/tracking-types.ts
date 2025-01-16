@@ -1,19 +1,27 @@
-import type { HashAlgoType, SignAlgoType } from './algo-types';
+import type {
+  HashAlgoType,
+  SignAlgoType,
+  ImportKeyType,
+  RecoveryMechanismType,
+} from './algo-types';
 
 type OnRampSourceType = 'moonpay' | 'coinbase';
-
-type KeyType = 'passkey' | 'google_drive' | 'seed_phrase' | 'keystore' | 'private_key';
-
-type RecoveryMechanismType =
-  | 'multi-backup'
-  | 'seed-phrase'
-  | 'private_key'
-  | 'KeyStore'
-  | 'device_backup';
 
 type AddressType = 'flow' | 'evm' | 'child' | 'coa';
 
 export type TrackingEvents = {
+  // Mixpanel Events
+  $identify: {
+    distinct_id: string; // The distinct id of the user
+    $anon_distinct_id: string; // The anonymous distinct id of the user
+    $name?: string; // The name of the user
+  };
+  $mp_web_page_view: {
+    current_page_title: string; // The title of the current page
+    current_domain: string; // The domain of the current page
+    current_url_path: string; // The path of the current page
+    current_url_protocol: string;
+  };
   // General Events
   script_error: {
     error: string; // Error message of the script, e.g., Rate limit exceeded
@@ -39,11 +47,11 @@ export type TrackingEvents = {
   // Backup Events
   multi_backup_created: {
     address: string; // Address of the account that set up multi-backup
-    providers: KeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
+    providers: ImportKeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
   };
   multi_backup_creation_failed: {
     address: string; // Address of the account that set up multi-backup
-    providers: KeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
+    providers: ImportKeyType[]; // Providers used in the multi-backup, GoogleDrive, iCloud, Seed e.g. google_drive  icloud seed_phrase
   };
 
   // Transaction Events
@@ -87,7 +95,7 @@ export type TrackingEvents = {
   // Account Events
   account_created: {
     public_key: string; // The public key used for creating the new account
-    key_type?: KeyType; // The key type of the account (if available)
+    key_type?: ImportKeyType; // The key type of the account (if available)
     sign_algo: SignAlgoType; // Signature algorithm of the key
     hash_algo: HashAlgoType; // Hash algo Hash algorithm of the key
   };
@@ -98,7 +106,7 @@ export type TrackingEvents = {
   account_recovered: {
     address: string; // Address that was recovered
     mechanism: RecoveryMechanismType; // The way the account was recovered
-    methods: KeyType[]; // Array of providers used in the multi-backup, GoogleDrive, iCloud, Seed
+    methods: ImportKeyType[]; // Array of providers used in the multi-backup, GoogleDrive, iCloud, Seed
   };
 };
 
