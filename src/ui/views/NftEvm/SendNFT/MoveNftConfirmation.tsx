@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner, FRWProfileCard, FRWDropdownProfileCard } from 'ui/FRWComponent';
@@ -26,6 +27,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   console.log('MoveNftConfirmation - NftEvm');
   const usewallet = useWallet();
   const history = useHistory();
+  const { mainAddress } = useProfileStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
@@ -66,8 +68,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   };
 
   const sendNFT = async () => {
-    const parentAddress = await usewallet.getMainAddress();
-    if (parentAddress === selectedAccount!['address']) {
+    if (mainAddress === selectedAccount!['address']) {
       moveToParent();
     } else {
       moveToChild();
@@ -151,10 +152,10 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
   const getChildResp = useCallback(async () => {
     const childresp = await usewallet.checkUserChildAccount();
-    const parentAddress = await usewallet.getMainAddress();
+
     const currentWallet = await usewallet.getCurrentWallet();
     const newWallet = {
-      [parentAddress!]: {
+      [mainAddress!]: {
         name: currentWallet.name,
         description: currentWallet.name,
         thumbnail: {
@@ -170,7 +171,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
-  }, [usewallet]);
+  }, [usewallet, mainAddress]);
 
   useEffect(() => {
     getChildResp();

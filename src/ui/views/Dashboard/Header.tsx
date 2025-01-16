@@ -72,7 +72,6 @@ const Header = ({ loading = false }) => {
   const { currentNetwork, setNetwork, developerMode } = useNetworkStore();
   const {
     mainAddress,
-    userWallet,
     currentWallet,
     evmWallet,
     current,
@@ -82,10 +81,8 @@ const Header = ({ loading = false }) => {
     userInfo,
     otherAccounts,
     loggedInAccounts,
-    setWalletList,
     mainAddressLoading,
   } = useProfileStore();
-  const [isLoading, setLoading] = useState(loading);
 
   const [drawer, setDrawer] = useState(false);
 
@@ -126,29 +123,6 @@ const Header = ({ loading = false }) => {
     // Avoids unnecessary re-renders using a function to toggle the state
     setUsernameDrawer((prevUsernameDrawer) => !prevUsernameDrawer);
   }, []);
-
-  const wallets = useCallback(
-    (data) => {
-      let sortData = data;
-      if (!Array.isArray(sortData)) {
-        sortData = [];
-      }
-      const filteredData = (sortData || []).filter((wallet) => {
-        return wallet.chain_id === currentNetwork;
-      });
-      return (filteredData || []).map((wallet, index) => {
-        return {
-          id: index,
-          name: wallet.name || 'Wallet',
-          address: withPrefix(wallet.blockchain[0].address),
-          key: index,
-          icon: wallet.icon || '',
-          color: wallet.color || '',
-        };
-      });
-    },
-    [currentNetwork]
-  );
 
   const switchAccount = useCallback(
     async (account) => {
@@ -261,12 +235,6 @@ const Header = ({ loading = false }) => {
       chrome.runtime.onMessage.removeListener(transactionHandler);
     };
   }, [checkAuthStatus, checkPendingTx, currentNetwork]);
-
-  useEffect(() => {
-    const list = wallets(userWallet);
-    setWalletList(list);
-    setLoading(userWallet === null);
-  }, [userWallet, currentNetwork, setWalletList, wallets]);
 
   const checkNetwork = useCallback(async () => {
     const mainnetAvailable = await usewallet.openapi.pingNetwork('mainnet');
@@ -571,7 +539,7 @@ const Header = ({ loading = false }) => {
         )}
         <Box sx={{ flexGrow: 1 }} />
 
-        {!isLoading && userInfo && props ? (
+        {userInfo && props ? (
           <Tooltip title={isPending ? chrome.i18n.getMessage('Pending__Transaction') : ''} arrow>
             <Box style={{ position: 'relative' }}>
               {isPending && (

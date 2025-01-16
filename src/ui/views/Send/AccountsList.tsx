@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from 'ui/utils';
 
 import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
@@ -20,35 +21,23 @@ type ChildAccount = {
 
 const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
   const usewallet = useWallet();
-
+  const { mainAddress, evmAddress, walletList, evmWallet } = useProfileStore();
   const [, setGrouped] = useState<any>([]);
   const [childAccounts, setChildAccount] = useState<any[]>([]);
 
-  const [walletList, setWalletList] = useState<any[]>([]);
-  const [evmAddress, setEvmAddress] = useState<any[]>([]);
+  const [accountList, setAccountListt] = useState<any[]>([]);
+  const [evmData, setEvmAddress] = useState<any[]>([]);
 
   const getWallet = useCallback(async () => {
-    const wallet = await usewallet.getUserWallets();
-    const fData = wallet.filter((item) => item.blockchain !== null);
-    const currentNetwork = await usewallet.getNetwork();
-    let sortData = fData;
-    if (!Array.isArray(sortData)) {
-      sortData = [];
-    }
-    const wdArray = await convertArrayToContactArray(fData);
+    const wdArray = await convertArrayToContactArray(walletList);
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     if (childresp) {
       const cAccountArray = convertObjectToContactArray(childresp);
       setChildAccount(cAccountArray);
     }
 
-    const mainAddress = await usewallet.getMainAddress();
-    await setWalletList(wdArray);
+    await setAccountListt(wdArray);
     if (mainAddress) {
-      const evmAddress = await usewallet.queryEvmAddress(mainAddress);
-      const evmWallet = await usewallet.getEvmWallet();
-      console.log(' evm ', evmAddress, evmWallet);
-
       if (isValidEthereumAddress(evmAddress) && evmWallet) {
         const evmData = evmWallet;
         evmData['address'] = evmAddress!;
@@ -58,7 +47,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
         setEvmAddress([evmData]);
       }
     }
-  }, [usewallet]);
+  }, [usewallet, evmAddress, evmWallet, mainAddress, walletList]);
 
   function convertObjectToContactArray(data) {
     return Object.keys(data).map((address, index) => ({
@@ -77,12 +66,13 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
 
   async function convertArrayToContactArray(array) {
     return array.map((item) => {
+      console.log(' item ', item);
       return {
         id: item.id,
         contact_name: item.name,
         username: item.name,
         avatar: item.icon,
-        address: withPrefix(item.blockchain[0].address),
+        address: withPrefix(item.address),
         contact_type: 1,
         bgColor: item.color, // Set background color
         domain: {
@@ -112,8 +102,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
 
   return (
     <Box sx={{ height: '100%' }}>
-      {!isEmpty(walletList) &&
-        walletList.map((eachgroup, index) => (
+      {!isEmpty(accountList) &&
+        accountList.map((eachgroup, index) => (
           <List dense={false} sx={{ paddingTop: '0px', paddingBottom: '0px' }} key={index}>
             <Box>
               <ButtonBase
@@ -126,7 +116,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
             </Box>
           </List>
         ))}
-      {(!isEmpty(evmAddress) || !isEmpty(childAccounts)) && (
+      {(!isEmpty(evmData) || !isEmpty(childAccounts)) && (
         <ListSubheader
           sx={{
             lineHeight: '18px',
@@ -140,8 +130,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
           {chrome.i18n.getMessage('Linked_Account')}
         </ListSubheader>
       )}
-      {!isEmpty(evmAddress) &&
-        evmAddress.map((eachgroup, index) => (
+      {!isEmpty(evmData) &&
+        evmData.map((eachgroup, index) => (
           <List dense={false} sx={{ paddingTop: '0px', paddingBottom: '0px' }} key={index}>
             <Box>
               <ButtonBase

@@ -14,6 +14,7 @@ interface ProfileState {
   mainAddressLoading: boolean;
   childAccounts: ChildAccount;
   evmLoading: boolean;
+  listLoading: boolean;
   userInfo: UserInfoResponse | null;
   otherAccounts: any | null;
   loggedInAccounts: any | null;
@@ -25,9 +26,10 @@ interface ProfileState {
   setWalletList: (list: any[]) => void;
   setInitial: (initial: boolean) => void;
   setCurrent: (current: any) => void;
-  setMainLoading: (loading: boolean) => void;
+  setMainLoading: (mainAddressLoading: boolean) => void;
   setChildAccount: (childAccount: ChildAccount) => void;
-  setEvmLoading: (loading: boolean) => void;
+  setEvmLoading: (evmLoading: boolean) => void;
+  setListLoading: (listLoading: boolean) => void;
   setUserInfo: (info: UserInfoResponse | null) => void;
   setOtherAccounts: (accounts: any) => void;
   setLoggedInAccounts: (accounts: any) => void;
@@ -56,6 +58,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
   userInfo: null,
   otherAccounts: null,
   loggedInAccounts: null,
+  listLoading: true,
   setMainAddress: (address) => set({ mainAddress: address }),
   setEvmAddress: (address) => set({ evmAddress: address }),
   setUserWallet: (wallet) => set({ userWallet: wallet }),
@@ -64,10 +67,11 @@ export const useProfileStore = create<ProfileState>((set) => ({
   setWalletList: (list) => set({ walletList: list }),
   setInitial: (initial) => set({ initialStart: initial }),
   setCurrent: (current) => set({ current: current }),
-  setMainLoading: (loading) => set({ mainAddressLoading: loading }),
+  setMainLoading: (mainAddressLoading) => set({ mainAddressLoading: mainAddressLoading }),
   setChildAccount: (childAccount) => set({ childAccounts: childAccount }),
-  setEvmLoading: (loading) => set({ evmLoading: loading }),
+  setEvmLoading: (evmLoading) => set({ evmLoading: evmLoading }),
   setUserInfo: (info) => set({ userInfo: info }),
   setOtherAccounts: (accounts) => set({ otherAccounts: accounts }),
   setLoggedInAccounts: (accounts) => set({ loggedInAccounts: accounts }),
+  setListLoading: (listLoading) => set({ listLoading: listLoading }),
 }));

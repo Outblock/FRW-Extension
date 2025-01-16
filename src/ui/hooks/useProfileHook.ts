@@ -1,12 +1,15 @@
 import { useCallback } from 'react';
 
 import type { ChildAccount, WalletType, WalletResponse } from '@/shared/types/network-types';
-import { ensureEvmAddressPrefix } from '@/shared/utils/address';
+import { ensureEvmAddressPrefix, withPrefix } from '@/shared/utils/address';
+import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from '@/ui/utils';
 
 export const useProfileHook = () => {
   const usewallet = useWallet();
+
+  const { currentNetwork } = useNetworkStore();
   const {
     setMainAddress,
     setEvmAddress,
@@ -20,8 +23,29 @@ export const useProfileHook = () => {
     setUserInfo,
     setOtherAccounts,
     setLoggedInAccounts,
+    setWalletList,
     initialStart,
   } = useProfileStore();
+
+  const formatWallets = useCallback(
+    (data) => {
+      if (!Array.isArray(data)) return [];
+
+      const filteredData = data.filter((wallet) => {
+        return wallet.chain_id === currentNetwork;
+      });
+
+      return filteredData.map((wallet, index) => ({
+        id: index,
+        name: wallet.name || 'Wallet',
+        address: withPrefix(wallet.blockchain[0].address),
+        key: index,
+        icon: wallet.icon || '',
+        color: wallet.color || '',
+      }));
+    },
+    [currentNetwork]
+  );
 
   const fetchProfileData = useCallback(async () => {
     try {
@@ -61,7 +85,9 @@ export const useProfileHook = () => {
       await usewallet.openapi.putDeviceInfo(fData);
       setInitial(false);
     }
-  }, [usewallet, initialStart, setUserWallet, setInitial]);
+    const formattedWallets = formatWallets(fData);
+    setWalletList(formattedWallets);
+  }, [usewallet, initialStart, setUserWallet, setInitial, formatWallets, setWalletList]);
 
   const freshUserInfo = useCallback(async () => {
     const currentWallet = await usewallet.getCurrentWallet();

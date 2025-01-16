@@ -8,6 +8,7 @@ import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/a
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
@@ -26,6 +27,7 @@ interface SendNFTConfirmationProps {
 const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   console.log('MoveNftConfirmation');
   const usewallet = useWallet();
+  const { mainAddress } = useProfileStore();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -175,7 +177,6 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
 
   const getChildResp = useCallback(async () => {
     const childresp = await usewallet.checkUserChildAccount();
-    const parentAddress = await usewallet.getMainAddress();
     const eWallet = await usewallet.getEvmWallet();
     const currentWallet = await usewallet.getCurrentWallet();
     let evmAddress;
@@ -184,7 +185,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     }
 
     const newWallet = {
-      [parentAddress!]: {
+      [mainAddress!]: {
         name: currentWallet.name,
         description: currentWallet.name,
         thumbnail: {
@@ -214,7 +215,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
-  }, [usewallet]);
+  }, [usewallet, mainAddress]);
 
   const getUserContact = useCallback(async () => {
     if (props.data.userContact) {
