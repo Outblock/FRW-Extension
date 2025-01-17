@@ -37,8 +37,9 @@ gh api graphql -f query='
 echo "Available projects:"
 jq -r '.data.organization.projectsV2.nodes[] | "\(.number): \(.title) \(if .closed then "(closed)" else "" end)\n  URL: \(.url)\n  Description: \(.shortDescription // "No description")\n"' .github-data/projects.json
 
-# Get project number from user
-read -p "Enter the project number to analyze: " PROJECT_NUMBER
+# Set project number to 2
+PROJECT_NUMBER=2
+echo "Project number set to: $PROJECT_NUMBER"
 
 # Get project items
 echo "Fetching project items..."
