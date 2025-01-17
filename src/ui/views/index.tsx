@@ -1,4 +1,5 @@
 import { CssBaseline } from '@mui/material';
+import GlobalStyles from '@mui/material/GlobalStyles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
 import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
