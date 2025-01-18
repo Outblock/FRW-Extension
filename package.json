@@ -32,7 +32,8 @@
     "analyze:project": "pnpx tsx build/analyze-project.ts",
     "analyze:priority": "pnpm analyze:fetch && pnpm analyze:project",
     "emulate:testnet": "flow emulator --chain-id testnet --rpc-host access.devnet.nodes.onflow.org:9000",
-    "emulate:mainnet": "flow emulator --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000"
+    "emulate:mainnet": "flow emulator --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000",
+    "gh:login": "gh auth login -s project && gh auth status"
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.10.0",
@@ -94,7 +95,6 @@
     "file-saver": "^2.0.5",
     "firebase": "^10.14.1",
     "flow-native-token-registry": "0.1.6",
-    "graphql-tag": "^2.12.6",
     "hdkey": "0.8.0",
     "history": "^4.10.1",
     "koa-compose": "^4.1.0",
@@ -144,8 +144,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@octokit/graphql": "^8.1.2",
-    "@octokit/rest": "^21.1.0",
     "@playwright/test": "^1.49.0",
     "@svgr/webpack": "^5.5.0",
     "@types/chrome": "^0.0.281",

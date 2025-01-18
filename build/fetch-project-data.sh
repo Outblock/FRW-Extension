@@ -15,6 +15,34 @@ fi
 # Create data directory
 mkdir -p .github-data
 
+# Create data directory
+mkdir -p .github-data/Outblock
+
+# Get list of repositories in the Outblock organization
+echo "Fetching Outblock repositories..."
+gh api graphql -f query='
+  query {
+    organization(login: "Outblock") {
+      repositories(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
+        nodes {
+          name
+          nameWithOwner
+          isArchived
+        }
+      }
+    }
+  }
+' > .github-data/repositories.json
+
+# Get active repositories
+REPOS=$(jq -r '.data.organization.repositories.nodes[] | select(.isArchived == false and (.name | startswith("FRW"))) | .nameWithOwner' .github-data/repositories.json)
+
+# Debug output
+echo "Found FRW repositories:"
+echo "$REPOS" | while read -r repo; do
+  echo "- $repo"
+done
+
 # Get project data
 echo "Fetching project data..."
 gh api graphql -f query='
@@ -132,22 +160,23 @@ archived_items=$(jq '.data.organization.projectV2.items.nodes | map(select(.isAr
 echo "Total items found: $total_items"
 echo "Archived items: $archived_items"
 
-# Get all issues from the repository
-echo "Fetching repository issues..."
-gh issue list --repo Outblock/FRW-Extension --json number,title,state,createdAt,updatedAt,url,labels -L 1000 > .github-data/issues.json
+# Fetch data for each repository
+echo "Fetching repository data..."
+for repo in $REPOS; do
+  echo "Processing repository: $repo"
 
-# Get all pull requests from the repository
-echo "Fetching repository pull requests..."
-gh pr list --repo Outblock/FRW-Extension --json number,title,state,createdAt,mergedAt,url,files,body,headRefName --state all -L 100 > .github-data/pull-requests.json
+  # Convert repo name for file saving (e.g., "Outblock/FRW-Extension" -> "Outblock-FRW-Extension")
+  safe_repo=$(echo "$repo" | tr '/' '-')
 
-# For each PR, fetch its first commit message separately to avoid hitting limits
-echo "Fetching PR commit messages..."
-for pr_number in $(jq -r '.[].number' .github-data/pull-requests.json); do
-  commit_message=$(gh pr view $pr_number --repo Outblock/FRW-Extension --json commits --jq '.commits[0].messageHeadline')
-  # Add the commit message back to the PR data
-  jq --arg pr "$pr_number" --arg msg "$commit_message" \
-    'map(if (.number|tostring) == $pr then . + {"firstCommitMessage": $msg} else . end)' \
-    .github-data/pull-requests.json > .github-data/temp.json && mv .github-data/temp.json .github-data/pull-requests.json
+  # Get all issues from the repository
+  echo "Fetching issues..."
+  gh issue list --repo $repo --json number,title,state,createdAt,updatedAt,url,labels -L 1000 > ".github-data/${safe_repo}-issues.json"
+
+  # Get all pull requests from the repository
+  echo "Fetching pull requests..."
+  gh pr list --repo $repo --json number,title,state,createdAt,mergedAt,url,files,body,headRefName --state all -L 1000 > ".github-data/${safe_repo}-pull-requests.json"
+
+  echo "Completed fetching data for $repo"
 done
 
 echo "Data fetching complete. Files saved in .github-data/"

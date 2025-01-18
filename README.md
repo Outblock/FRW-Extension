@@ -119,3 +119,44 @@ The extension supports multiple languages. The language files are stored in the 
 2. Replace content in `message` property to appropriate locale language
 
 ATTENTION: When you create a new key, make sure the key doesen't include space and not duplicated with existing phrase (case insensitive).
+
+## Analyzing High Priority Issues
+
+This repository includes tools to analyze high-priority issues across repositories. To use these tools:
+
+1. Install GitHub CLI if you haven't already:
+
+   ```bash
+   # macOS
+   brew install gh
+
+   # Windows
+   winget install --id GitHub.cli
+
+   ```
+
+2. Login to GitHub CLI with project permissions:
+
+   ```bash
+   pnpm gh:login
+   ```
+
+   Follow the prompts to complete authentication. Make sure to:
+
+   - Choose "GitHub.com" for the account
+   - Choose "HTTPS" for the protocol
+   - Choose "Y" to authenticate Git with your GitHub credentials
+   - Choose "Login with a web browser" for authentication method
+
+3. Run the analysis:
+   ```bash
+   pnpm analyze:priority
+   ```
+
+The analysis will generate several files in the `.github-data` directory:
+
+- `index.html`: Overview of all repositories with high-priority issues
+- For each repository with high-priority issues:
+  - `{repo-name}-bug-heatmap.html`: Interactive visualization of bug hotspots
+  - `{repo-name}-high-priority-report.md`: Detailed markdown report
+  - `{repo-name}-high-priority-changes.json`: Raw data for further analysis
