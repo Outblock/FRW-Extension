@@ -10,8 +10,6 @@ import { useWallet } from 'ui/utils';
 
 import WalletTab from '../Wallet';
 
-import NavBar from './NavBar';
-
 const Dashboard = ({ value, setValue }) => {
   // const [value, setValue] = React.useState('wallet');
   const wallet = useWallet();
@@ -89,10 +87,9 @@ const Dashboard = ({ value, setValue }) => {
         <NetworkIndicator network={currentNetwork} emulatorMode={emulatorModeOn} />
         <div test-id="x-overflow" style={{ overflowX: 'hidden', height: '100%' }}>
           <div style={{ display: 'block', width: '100%' }}>
-            <WalletTab network={currentNetwork} value={value} setValue={setValue} />
+            <WalletTab network={currentNetwork} />
           </div>
         </div>
-        <NavBar value={value} setValue={setValue} />
       </Box>
     </div>
   );
