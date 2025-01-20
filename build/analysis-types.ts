@@ -42,37 +42,19 @@ export interface Issue {
   state: string;
   createdAt: string;
   updatedAt: string;
+  closedAt: string | null;
   url: string;
-  labels: Array<{
+  labels?: Array<{
     name: string;
   }>;
 }
 
 export interface HighPriorityChange {
-  issue: {
-    number: number;
-    title: string;
-    state: string;
-    url: string;
-    createdAt: string;
-    updatedAt: string;
+  issue: Issue & {
     isArchived: boolean;
     priority: string;
   };
-  pullRequests: Array<{
-    number: number;
-    title: string;
-    state: string;
-    url: string;
-    createdAt: string;
-    mergedAt: string | null;
-    changes: Array<{
-      path: string;
-      additions: number;
-      deletions: number;
-      changes: number;
-    }>;
-  }>;
+  pullRequests: Array<PullRequest>;
 }
 
 export interface Summary {
@@ -93,4 +75,30 @@ export interface RepoSummary {
   repoName: string;
   summary: Summary;
   firstIssueDate: Date;
+}
+
+export interface HotSpot {
+  file: string;
+  bugCount: number;
+  lastOccurrence: Date;
+  issues: Array<{
+    number: number;
+    priority: string;
+    url: string;
+    createdAt: string;
+    updatedAt: string;
+    state: string;
+    closedAt: string | null;
+    pullRequests: Array<{
+      number: number;
+      title: string;
+      url: string;
+      files: Array<{
+        path: string;
+        additions: number;
+        deletions: number;
+        changes: number;
+      }>;
+    }>;
+  }>;
 }

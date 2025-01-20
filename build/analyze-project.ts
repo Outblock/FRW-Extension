@@ -1,86 +1,72 @@
-import * as fs from 'fs';
+import { promises as fs } from 'fs';
 import * as path from 'path';
 
-import type {
-  HighPriorityChange,
-  Summary,
-  RepoSummary,
-  ProjectItem,
-  PullRequest,
+import {
+  type PullRequest,
+  type HighPriorityChange,
+  type Summary,
+  type HotSpot,
+  type RepoSummary,
+  type ProjectItem,
 } from './analysis-types';
 import { bugReportsIndexHtml } from './bug-reports-index-html';
 import { hotSpotAnalysisHtml } from './hot-spot-analysis-html';
 
 function generateHeatmapHtml(highPriorityChanges: HighPriorityChange[], summary: Summary): string {
-  // Process data for the heatmap
-  const fileMap = new Map<
-    string,
-    {
-      bugCount: number;
-      lastOccurrence: string;
-      issues: Map<number, { priority: string; url: string; pullRequests: PullRequest[] }>;
-    }
-  >();
-
-  // Process each high priority issue
-  highPriorityChanges.forEach(({ issue, pullRequests }) => {
-    let hasFiles = false;
-    pullRequests.forEach((pr) => {
-      pr.changes.forEach((change) => {
-        hasFiles = true;
-        const file = change.path;
-        const existing = fileMap.get(file) || {
-          bugCount: 0,
-          lastOccurrence: issue.createdAt,
-          issues: new Map(),
-        };
-
-        existing.bugCount += 1;
-        existing.lastOccurrence =
-          new Date(existing.lastOccurrence) > new Date(issue.createdAt)
-            ? existing.lastOccurrence
-            : issue.createdAt;
-        existing.issues.set(issue.number, {
-          priority: issue.priority,
-          url: issue.url,
-          pullRequests,
+  const hotspots = Object.entries(
+    highPriorityChanges.reduce(
+      (fileMap, change) => {
+        // First, deduplicate PRs for this issue by PR number
+        const uniquePRs = new Map();
+        change.pullRequests.forEach((pr) => {
+          uniquePRs.set(pr.number, pr);
         });
 
-        fileMap.set(file, existing);
-      });
-    });
+        Array.from(uniquePRs.values()).forEach((pr) => {
+          pr.files.forEach((file) => {
+            const existing = fileMap[file.path] || {
+              file: file.path,
+              bugCount: 0,
+              lastOccurrence: new Date(0),
+              issues: [],
+            };
 
-    // If no files were found for this issue, add it to "unknown source file"
-    if (!hasFiles) {
-      const unknown = fileMap.get('unknown source file') || {
-        bugCount: 0,
-        lastOccurrence: issue.createdAt,
-        issues: new Map(),
-      };
-      unknown.bugCount += 1;
-      unknown.lastOccurrence =
-        new Date(unknown.lastOccurrence) > new Date(issue.createdAt)
-          ? unknown.lastOccurrence
-          : issue.createdAt;
-      unknown.issues.set(issue.number, { priority: issue.priority, url: issue.url, pullRequests });
-      fileMap.set('unknown source file', unknown);
-    }
-  });
+            existing.bugCount += 1;
+            const issueDate = new Date(change.issue.createdAt);
+            if (issueDate > existing.lastOccurrence) {
+              existing.lastOccurrence = issueDate;
+            }
 
-  // Convert to array and sort by file path
-  const hotspots = Array.from(fileMap.entries())
-    .map(([file, data]) => ({
-      file,
-      bugCount: data.bugCount,
-      lastOccurrence: data.lastOccurrence,
-      issues: Array.from(data.issues.entries()).map(([number, info]) => ({
-        number,
-        priority: info.priority,
-        url: info.url,
-        pullRequests: info.pullRequests,
-      })),
-    }))
-    .sort((a, b) => a.file.localeCompare(b.file));
+            // Check if we already have this issue in the list
+            const existingIssue = existing.issues.find((i) => i.number === change.issue.number);
+            if (!existingIssue) {
+              existing.issues.push({
+                number: change.issue.number,
+                priority: change.issue.priority,
+                url: change.issue.url,
+                createdAt: change.issue.createdAt,
+                updatedAt: change.issue.updatedAt,
+                state: change.issue.state,
+                closedAt: change.issue.closedAt,
+                pullRequests: Array.from(uniquePRs.values()).map((pr) => ({
+                  number: pr.number,
+                  title: pr.title,
+                  url: pr.url,
+                  files: pr.files,
+                })),
+              });
+            }
+
+            fileMap[file.path] = existing;
+          });
+        });
+        return fileMap;
+      },
+      {} as Record<string, HotSpot>
+    )
+  )
+    .map(([_, hotspot]) => hotspot)
+    .sort((a, b) => b.bugCount - a.bugCount);
 
   // Calculate max bug count for color scaling
   const maxBugCount = Math.max(...hotspots.map((d) => d.bugCount));
@@ -104,10 +90,27 @@ function generateIndexHtml(repoSummaries: RepoSummary[]): string {
   return bugReportsIndexHtml(firstIssueDate, repoSummaries);
 }
 
+async function getClosedDateFromTimeline(
+  repo: string,
+  issueNumber: number
+): Promise<string | null> {
+  try {
+    const timelineFile = `.github-data/${repo}-timelines/issue-${issueNumber}-timeline.json`;
+    const timelineData = JSON.parse(await fs.readFile(timelineFile, 'utf8'));
+
+    // Find the closed event
+    const closedEvent = timelineData.find((event: any) => event.event === 'closed');
+    return closedEvent ? closedEvent.created_at : null;
+  } catch (error) {
+    console.log(`Could not read timeline for issue ${issueNumber} in ${repo}`);
+    return null;
+  }
+}
+
 async function analyzeData() {
   // Read repositories data
   const reposData = JSON.parse(
-    fs.readFileSync(path.join('.github-data', 'repositories.json'), 'utf8')
+    await fs.readFile(path.join('.github-data', 'repositories.json'), 'utf8')
   );
   const activeRepos = reposData.data.organization.repositories.nodes
     .filter((repo: any) => !repo.isArchived && repo.name.startsWith('FRW'))
@@ -119,7 +122,7 @@ async function analyzeData() {
 
   // Read project items data
   const projectItemsData = JSON.parse(
-    fs.readFileSync(path.join('.github-data', 'project-items.json'), 'utf8')
+    await fs.readFile(path.join('.github-data', 'project-items.json'), 'utf8')
   );
 
   const projectItems = projectItemsData.data.organization.projectV2.items.nodes as ProjectItem[];
@@ -190,7 +193,7 @@ async function analyzeData() {
     try {
       // Get PRs for this repo
       const pullRequests = JSON.parse(
-        fs.readFileSync(path.join('.github-data', `${safeRepoName}-pull-requests.json`), 'utf8')
+        await fs.readFile(path.join('.github-data', `${safeRepoName}-pull-requests.json`), 'utf8')
       ) as PullRequest[];
 
       console.log(`Found ${pullRequests.length} PRs for ${repoName}`);
@@ -275,16 +278,37 @@ async function analyzeData() {
 
       console.log(`Found links to ${issuePRMap.size} issues in PRs`);
 
+      // Get issues for this repo
+      const issues = JSON.parse(
+        await fs.readFile(path.join('.github-data', `${safeRepoName}-issues.json`), 'utf8')
+      );
+
+      // Create a map of issue numbers to their closed dates
+      const issueClosedDates = new Map<number, string>();
+      for (const issue of issues) {
+        if (issue.state === 'CLOSED') {
+          const closedDate = await getClosedDateFromTimeline(safeRepoName, issue.number);
+          if (closedDate) {
+            issueClosedDates.set(issue.number, closedDate);
+          } else {
+            // Fall back to updatedAt if timeline data is not available
+            issueClosedDates.set(issue.number, issue.updatedAt);
+          }
+        }
+      }
+
+      // Update the high priority changes mapping to include the closed date
       const highPriorityChanges: HighPriorityChange[] = highPriorityItems
         .filter((item) => item.content && item.fieldValues?.nodes)
         .map((item) => ({
           issue: {
             number: item.content.number,
             title: item.content.title,
-            state: item.content.state,
             url: item.content.url,
+            state: item.content.state,
             createdAt: item.content.createdAt,
             updatedAt: item.content.updatedAt,
+            closedAt: issueClosedDates.get(item.content.number) || null,
             isArchived: item.isArchived,
             priority:
               item.fieldValues.nodes.find(
@@ -292,15 +316,17 @@ async function analyzeData() {
               )?.name || 'Unknown',
           },
           pullRequests: (issuePRMap.get(item.content.number) || [])
-            .filter((pr) => pr && pr.files) // Ensure PR has required data
+            .filter((pr) => pr && pr.files)
             .map((pr) => ({
               number: pr.number,
               title: pr.title,
               state: pr.state,
               url: pr.url,
+              body: pr.body,
+              headRefName: pr.headRefName,
               createdAt: pr.createdAt,
               mergedAt: pr.mergedAt,
-              changes: pr.files.map((file) => ({
+              files: pr.files.map((file) => ({
                 path: file.path,
                 additions: file.additions,
                 deletions: file.deletions,
@@ -329,7 +355,7 @@ async function analyzeData() {
           (sum, item) =>
             sum +
             item.pullRequests.reduce(
-              (prSum, pr) => prSum + new Set(pr.changes.map((c) => c.path)).size,
+              (prSum, pr) => prSum + new Set(pr.files.map((c) => c.path)).size,
               0
             ),
           0
@@ -339,7 +365,7 @@ async function analyzeData() {
             sum +
             item.pullRequests.reduce(
               (prSum, pr) =>
-                prSum + pr.changes.reduce((cSum, c) => cSum + (c.additions + c.deletions), 0),
+                prSum + pr.files.reduce((cSum, c) => cSum + (c.additions + c.deletions), 0),
               0
             ),
           0
@@ -351,16 +377,16 @@ async function analyzeData() {
       };
 
       // Save results with repo name in filename
-      fs.writeFileSync(
+      await fs.writeFile(
         `.github-data/${safeRepoName}-high-priority-changes.json`,
         JSON.stringify({ summary, changes: highPriorityChanges }, null, 2)
       );
 
       const report = generateMarkdownReport(summary, highPriorityChanges);
-      fs.writeFileSync(`.github-data/${safeRepoName}-high-priority-report.md`, report);
+      await fs.writeFile(`.github-data/${safeRepoName}-high-priority-report.md`, report);
 
       const heatmapHtml = generateHeatmapHtml(highPriorityChanges, summary);
-      fs.writeFileSync(`.github-data/${safeRepoName}-bug-heatmap.html`, heatmapHtml);
+      await fs.writeFile(`.github-data/${safeRepoName}-bug-heatmap.html`, heatmapHtml);
 
       console.log(`\nAnalysis complete for ${repoName}. Results saved in:`);
       console.log(`- ${safeRepoName}-high-priority-changes.json (raw data)`);
@@ -377,7 +403,7 @@ async function analyzeData() {
   // Only generate index if there are repos with high priority issues
   if (repoSummaries.length > 0) {
     const indexHtml = generateIndexHtml(repoSummaries);
-    fs.writeFileSync('.github-data/index.html', indexHtml);
+    await fs.writeFile('.github-data/index.html', indexHtml);
     console.log('- index.html (repository index)');
   } else {
     console.log('No repositories with high priority issues found, skipping index generation');
@@ -416,7 +442,7 @@ ${changes
 - State: ${item.issue.state}
 - Created: ${new Date(item.issue.createdAt).toLocaleDateString()}
 - Last Updated: ${new Date(item.issue.updatedAt).toLocaleDateString()}
-- Archived: ${item.issue.isArchived}
+${item.issue.closedAt ? `- Closed: ${new Date(item.issue.closedAt).toLocaleDateString()}` : ''}
 - URL: ${item.issue.url}
 
 ${
@@ -431,7 +457,7 @@ ${item.pullRequests
   ${pr.mergedAt ? `- Merged: ${new Date(pr.mergedAt).toLocaleDateString()}` : ''}
 
   Changed Files:
-  ${pr.changes
+  ${pr.files
     .map(
       (file) => `  - ${file.path}
     - Added: ${file.additions} lines

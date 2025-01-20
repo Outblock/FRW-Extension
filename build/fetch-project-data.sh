@@ -170,11 +170,26 @@ for repo in $REPOS; do
 
   # Get all issues from the repository
   echo "Fetching issues..."
-  gh issue list --repo $repo --json number,title,state,createdAt,updatedAt,url,labels -L 1000 > ".github-data/${safe_repo}-issues.json"
+  gh issue list --repo $repo --state all --json number,title,state,createdAt,updatedAt,url,labels -L 1000 > ".github-data/${safe_repo}-issues.json"
 
   # Get all pull requests from the repository
   echo "Fetching pull requests..."
   gh pr list --repo $repo --json number,title,state,createdAt,mergedAt,url,files,body,headRefName --state all -L 1000 > ".github-data/${safe_repo}-pull-requests.json"
+
+  # After fetching issues, get timeline events for closed issues
+  echo "Fetching timeline events for closed issues in $repo"
+
+  # Get list of closed issue numbers
+  closed_issues=$(jq -r '.[] | select(.state=="CLOSED") | .number' ".github-data/${safe_repo}-issues.json")
+
+  # Create timeline directory
+  mkdir -p ".github-data/${safe_repo}-timelines"
+
+  # Fetch timeline for each closed issue
+  for issue in $closed_issues; do
+    gh api "repos/${repo}/issues/${issue}/timeline" --paginate > ".github-data/${safe_repo}-timelines/issue-${issue}-timeline.json"
+    echo "Fetched timeline for issue #${issue}"
+  done
 
   echo "Completed fetching data for $repo"
 done
