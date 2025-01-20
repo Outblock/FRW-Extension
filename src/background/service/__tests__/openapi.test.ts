@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock declarations must come first
 vi.mock('@/background/service/userWallet', async () => {
   const actual = await vi.importActual('@/background/service/userWallet');
   return {
@@ -89,6 +88,7 @@ import {
   type CommonParams,
 } from '@/shared/test-data/test-groups';
 
+//import walletController from '../../controller/wallet';
 import openApiService from '../openapi';
 import userWalletService from '../userWallet';
 
@@ -120,7 +120,7 @@ describe('OpenApiService', () => {
     vi.clearAllMocks();
 
     // Default mock implementation for fetch
-    mockFetch.mockImplementation((url, init) => {
+    mockFetch.mockImplementation((_url, _init) => {
       const response = {
         ok: true,
         status: 200,
@@ -150,7 +150,7 @@ describe('OpenApiService', () => {
   describe('sendRequest', () => {
     it('should make a fetch call with correct parameters', async () => {
       const mockResponse = { data: { result: 'success' } };
-      mockFetch.mockImplementationOnce((url, init) => {
+      mockFetch.mockImplementationOnce((_url, _init) => {
         const response = {
           ok: true,
           status: 200,
@@ -205,28 +205,30 @@ describe('OpenApiService', () => {
       return;
     }
 
-    if (groupName !== 'nft') {
-      return;
-    }
-
     describe(groupName, () => {
       activeFunctions.forEach((func) => {
         it(`${func.name} should make correct fetch call`, async () => {
+          if (func.controlledBy) {
+            // Can't test controlledBy functions
+            return;
+          }
+
           // Find the test result for this function
           const testResult = API_TEST_RESULTS[groupName]?.find((r) => r.functionName === func.name);
+
           if (!testResult) {
             console.warn(`No test result found for ${func.name}`);
             return;
           }
 
-          const fetchDetail = testResult.fetchDetails[0];
+          const fetchDetails = testResult.fetchDetails;
 
-          if (!fetchDetail) {
+          if (!fetchDetails?.length) {
             throw new Error(`No fetch details found for ${func.name}`);
           }
 
-          // Set the network based on the test data
-          const headers = fetchDetail.requestInit?.headers as { Network?: string };
+          // Set the network based on the first test data
+          const headers = fetchDetails[0].requestInit?.headers as { Network?: string };
           const networkHeader = headers?.Network;
           if (networkHeader) {
             vi.mocked(userWalletService.getNetwork).mockResolvedValueOnce(
@@ -234,13 +236,22 @@ describe('OpenApiService', () => {
             );
           }
 
-          // Mock the fetch response based on the test data
-          mockFetch.mockImplementationOnce((url, init) => {
+          // Create a queue of responses
+          let callIndex = 0;
+          mockFetch.mockImplementation((url, init) => {
+            const currentDetail = fetchDetails[callIndex];
+
+            if (!currentDetail) {
+              throw new Error(`Unexpected fetch call to ${url}. All mocked calls were used.`);
+            }
+
+            callIndex++;
+
             const response = {
               ok: true,
               status: 200,
               statusText: 'OK',
-              json: () => Promise.resolve(fetchDetail.responseData || {}),
+              json: () => Promise.resolve(currentDetail.responseData || {}),
               clone: function () {
                 return {
                   ...this,
@@ -255,14 +266,23 @@ describe('OpenApiService', () => {
             // Call the function with test parameters
             await openApiService[func.name](...Object.values(func.params));
 
-            // Verify the fetch call matches exactly what was recorded
-            if (fetchDetail.requestInit) {
-              expect(mockFetch).toHaveBeenCalledWith(fetchDetail.url, fetchDetail.requestInit);
-            } else {
-              expect(mockFetch).toHaveBeenCalledWith(fetchDetail.url);
-            }
+            // Verify each fetch call matches its recorded detail in sequence
+            expect(mockFetch).toHaveBeenCalledTimes(fetchDetails.length);
+            fetchDetails.forEach((detail, index) => {
+              if (detail.requestInit) {
+                expect(mockFetch).toHaveBeenNthCalledWith(
+                  index + 1,
+                  detail.url,
+                  detail.requestInit
+                );
+              } else {
+                expect(mockFetch).toHaveBeenNthCalledWith(index + 1, detail.url);
+              }
+            });
           } catch (error) {
             console.error(`Error testing ${func.name}:`, error);
+            console.error('Expected fetch calls:', fetchDetails);
+            console.error('Actual fetch calls:', mockFetch.mock.calls);
             throw error;
           }
         }, 5000);

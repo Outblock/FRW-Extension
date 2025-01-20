@@ -129,5 +129,30 @@ vi.mock('@/background/utils/storage', () => ({
   },
 }));
 
+// Mock MixpanelService
+vi.mock('@/background/service/mixpanel', () => ({
+  mixpanelTrack: {
+    track: vi.fn(),
+    identify: vi.fn(),
+    reset: vi.fn(),
+    setPeople: vi.fn(),
+    trackPageView: vi.fn(),
+    time: vi.fn(),
+    init: vi.fn(),
+    getIdInfo: vi.fn().mockResolvedValue({ $device_id: 'mock-device-id' }),
+  },
+  MixpanelService: {
+    instance: {
+      track: vi.fn(),
+      identify: vi.fn(),
+      reset: vi.fn(),
+      setPeople: vi.fn(),
+      trackPageView: vi.fn(),
+      time: vi.fn(),
+      init: vi.fn(),
+    },
+  },
+}));
+
 // Export mockAuth and fetch for use in tests
 export { mockAuth };

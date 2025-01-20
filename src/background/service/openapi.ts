@@ -402,7 +402,7 @@ const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
   try {
     console.log('response', response);
     const responseData = response.ok ? await response.clone().json() : null;
-    recordFetch(response, responseData, ...args);
+    //  recordFetch(response, responseData, ...args);
   } catch (err) {
     console.error('Error recording fetch call:', err);
   }
@@ -495,7 +495,7 @@ class OpenApiService {
     const response = await fetch(requestUrl, init);
     const responseData = await response.json(); // parses JSON response into native JavaScript objects
 
-    recordFetch(response, responseData, requestUrl, init);
+    // recordFetch(response, responseData, requestUrl, init);
     return responseData;
     // Record the response
   };
