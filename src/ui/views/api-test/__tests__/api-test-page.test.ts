@@ -6,6 +6,7 @@ import methods from '../openapi-methods.json';
 describe('ApiTestPage', () => {
   const dummyParams = {
     address: 'test-address',
+    addressEvm: 'test-address-evm',
     network: 'test-network',
     username: 'test-user',
     token: 'test-token',

@@ -14,6 +14,7 @@ export interface ApiTestGroups {
 
 export interface CommonParams {
   address: string;
+  addressEvm: string;
   network: string;
   username: string;
   token: string;
@@ -337,25 +338,25 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       { name: 'evmFTList', params: {} },
       {
         name: 'getEvmFT',
-        params: { address: commonParams.address, network: commonParams.network },
+        params: { address: commonParams.addressEvm, network: commonParams.network },
       },
       { name: 'getEvmFTPrice', params: {} },
       { name: 'evmNFTList', params: {} },
       {
         name: 'getEvmNFT',
-        params: { address: commonParams.address, network: commonParams.network },
+        params: { address: commonParams.addressEvm, network: commonParams.network },
       },
       {
         name: 'EvmNFTcollectionList',
         params: {
-          address: commonParams.address,
+          address: commonParams.addressEvm,
           collectionIdentifier: 'cadenceExampleNFTCollection',
           limit: 24,
           offset: 0,
         },
       },
-      { name: 'EvmNFTID', params: { address: commonParams.address } },
-      { name: 'EvmNFTList', params: { address: commonParams.address, limit: 24, offset: 0 } },
+      { name: 'EvmNFTID', params: { address: commonParams.addressEvm } },
+      { name: 'EvmNFTList', params: { address: commonParams.addressEvm, limit: 24, offset: 0 } },
       {
         name: 'getNFTCadenceList',
         params: {

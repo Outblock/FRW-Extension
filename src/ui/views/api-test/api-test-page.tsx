@@ -86,6 +86,7 @@ const ApiTestPage: React.FC = () => {
   const wallet = useWallet();
   const [commonParams, setCommonParams] = useState<CommonParams>({
     address: '',
+    addressEvm: '',
     network: 'testnet',
     username: 'coolpanda',
     password: process.env.DEV_PASSWORD || '',
@@ -120,12 +121,15 @@ const ApiTestPage: React.FC = () => {
     const initializeParams = async () => {
       try {
         const address = await wallet.getCurrentAddress();
+        const addressEvm = await wallet.getEvmAddress();
+        console.log('addressEvm', addressEvm);
         const network = await wallet.getNetwork();
         const publicKey = await wallet.getPubKey();
         if (address) {
           setCommonParams((prev) => ({
             ...prev,
             address,
+            addressEvm,
             network,
             publicKey,
           }));
@@ -151,13 +155,20 @@ const ApiTestPage: React.FC = () => {
             {
               url: data.url,
               params: data.params || {}, // Parameters sent to fetch
-              requestInit: data.requestInit,
+              requestInit: {
+                ...data.requestInit,
+                headers: {
+                  ...data.requestInit?.headers,
+                  Authorization: 'Bearer mock-token',
+                },
+              },
               responseData: data.responseData, // Raw response from fetch
               status: data.status,
               statusText: data.statusText,
             },
           ],
         };
+
         setResults((prev) => addGroupResult(prev, group, result));
       }
     };
@@ -307,6 +318,11 @@ const ApiTestPage: React.FC = () => {
               onChange={(e) => handleParamChange('address', e.target.value)}
             />
             <TextField
+              label="EVM Address"
+              value={commonParams.addressEvm}
+              onChange={(e) => handleParamChange('addressEvm', e.target.value)}
+            />
+            <TextField
               label="Network"
               value={commonParams.network}
               onChange={(e) => handleParamChange('network', e.target.value)}
@@ -414,9 +430,25 @@ const ApiTestPage: React.FC = () => {
                       {testResults?.flatMap((r) => (
                         <Box sx={{ mt: 2 }}>
                           <Typography variant="subtitle1">Results:</Typography>
-                          <pre style={{ maxHeight: '200px', overflow: 'auto' }}>
-                            {JSON.stringify(r, null, 2)}
-                          </pre>
+                          <Box sx={{ position: 'relative' }}>
+                            <Button
+                              sx={{
+                                position: 'absolute',
+                                right: 0,
+                                top: 0,
+                                zIndex: 1,
+                              }}
+                              size="small"
+                              onClick={() => {
+                                navigator.clipboard.writeText(JSON.stringify(r, null, 2));
+                              }}
+                            >
+                              Copy
+                            </Button>
+                            <pre style={{ maxHeight: '200px', overflow: 'auto' }}>
+                              {JSON.stringify(r, null, 2)}
+                            </pre>
+                          </Box>
                         </Box>
                       ))}
                     </Box>

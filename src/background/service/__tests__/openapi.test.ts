@@ -11,6 +11,7 @@ vi.mock('@/background/service/userWallet', async () => {
       setupFcl: vi.fn(),
       reSign: vi.fn(),
       clear: vi.fn(),
+      getEvmAddress: vi.fn().mockResolvedValue('test-address-evm'),
     },
   };
 });
@@ -94,6 +95,7 @@ import userWalletService from '../userWallet';
 describe('OpenApiService', () => {
   const commonParams: CommonParams = {
     address: 'test-address',
+    addressEvm: 'test-address-evm',
     network: 'testnet',
     username: 'coolpanda',
     token: 'flow',
@@ -203,7 +205,7 @@ describe('OpenApiService', () => {
       return;
     }
 
-    if (groupName !== 'addressBook') {
+    if (groupName !== 'nft') {
       return;
     }
 
