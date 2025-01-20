@@ -6,11 +6,11 @@ interface ProfileState {
   mainAddress: string;
   evmAddress: string;
   userWallet: any | null;
-  currentWallet: number;
+  currentWalletIndex: number;
   evmWallet: WalletType;
   walletList: any[];
   initialStart: boolean;
-  current: any;
+  currentWallet: any;
   mainAddressLoading: boolean;
   childAccounts: ChildAccount;
   evmLoading: boolean;
@@ -21,7 +21,7 @@ interface ProfileState {
   setMainAddress: (address: string) => void;
   setEvmAddress: (address: string) => void;
   setUserWallet: (wallet: any) => void;
-  setCurrentWallet: (index: number) => void;
+  setCurrentWalletIndex: (index: number) => void;
   setEvmWallet: (wallet: WalletType) => void;
   setWalletList: (list: any[]) => void;
   setInitial: (initial: boolean) => void;
@@ -39,7 +39,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
   mainAddress: '',
   evmAddress: '',
   userWallet: null,
-  currentWallet: 0,
+  currentWalletIndex: 0,
   evmWallet: {
     name: '',
     icon: '',
@@ -49,7 +49,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
     coins: ['flow'],
     color: '',
   },
-  current: {},
+  currentWallet: {},
   walletList: [],
   initialStart: true,
   mainAddressLoading: true,
@@ -62,11 +62,11 @@ export const useProfileStore = create<ProfileState>((set) => ({
   setMainAddress: (address) => set({ mainAddress: address }),
   setEvmAddress: (address) => set({ evmAddress: address }),
   setUserWallet: (wallet) => set({ userWallet: wallet }),
-  setCurrentWallet: (index) => set({ currentWallet: index }),
+  setCurrentWalletIndex: (index) => set({ currentWalletIndex: index }),
   setEvmWallet: (wallet) => set({ evmWallet: wallet }),
   setWalletList: (list) => set({ walletList: list }),
   setInitial: (initial) => set({ initialStart: initial }),
-  setCurrent: (current) => set({ current: current }),
+  setCurrent: (current) => set({ currentWallet: current }),
   setMainLoading: (mainAddressLoading) => set({ mainAddressLoading: mainAddressLoading }),
   setChildAccount: (childAccount) => set({ childAccounts: childAccount }),
   setEvmLoading: (evmLoading) => set({ evmLoading: evmLoading }),

@@ -8,6 +8,7 @@ import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -45,6 +46,7 @@ const SendAmount = () => {
   const history = useHistory();
   const location = useLocation<ContactState>();
   const usewallet = useWallet();
+  const { childAccounts, currentWallet } = useProfileStore();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
@@ -67,7 +69,7 @@ const SendAmount = () => {
     if (childType === 'evm') {
       wallet = await usewallet.getEvmWallet();
     } else {
-      wallet = await usewallet.getCurrentWallet();
+      wallet = currentWallet;
     }
     console.log('wallet ', wallet);
     const network = await usewallet.getNetwork();
@@ -88,8 +90,7 @@ const SendAmount = () => {
 
     if (isChild) {
       if (isChild !== 'evm') {
-        const childResp = await usewallet.checkUserChildAccount();
-        const cwallet = childResp[wallet.address!];
+        const cwallet = childAccounts[wallet.address!];
         userContact.avatar = cwallet.thumbnail.url;
         userContact.contact_name = cwallet.name;
       }
@@ -104,7 +105,16 @@ const SendAmount = () => {
       userContact.contact_name = info.username;
     }
     setUser(userContact);
-  }, [childType, setWallet, setCoinList, setCoinInfo, setUser, usewallet]);
+  }, [
+    childType,
+    setWallet,
+    setCoinList,
+    setCoinInfo,
+    setUser,
+    usewallet,
+    currentWallet,
+    childAccounts,
+  ]);
 
   const checkAddress = useCallback(async () => {
     const child = await usewallet.getActiveWallet();

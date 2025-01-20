@@ -74,7 +74,7 @@ const Header = ({ loading = false }) => {
     mainAddress,
     currentWallet,
     evmWallet,
-    current,
+    currentWalletIndex,
     childAccounts,
     walletList,
     evmLoading,
@@ -413,8 +413,8 @@ const Header = ({ loading = false }) => {
           icon={props.icon}
           color={props.color}
           setWallets={setWallets}
+          currentWalletIndex={currentWalletIndex}
           currentWallet={currentWallet}
-          current={current}
           mainAddress={mainAddress}
           setExpandAccount={setExpandAccount}
           expandAccount={expandAccount}
@@ -623,7 +623,7 @@ const Header = ({ loading = false }) => {
             togglePop={togglePop}
             walletList={walletList}
             childAccounts={childAccounts}
-            current={current}
+            current={currentWallet}
             createWalletList={createWalletList}
             setWallets={setWallets}
             currentNetwork={currentNetwork}
@@ -633,7 +633,7 @@ const Header = ({ loading = false }) => {
             modeOn={developerMode}
             mainAddressLoading={mainAddressLoading}
           />
-          {appBarLabel(current)}
+          {appBarLabel(currentWallet)}
           {usernameSelect()}
           <NewsDrawer />
           {userInfo && (
@@ -646,7 +646,7 @@ const Header = ({ loading = false }) => {
                 setPop(false);
               }}
               userInfo={userInfo!}
-              current={current!}
+              current={currentWallet!}
               switchAccount={switchAccount}
               loggedInAccounts={loggedInAccounts}
               switchLoading={switchLoading}

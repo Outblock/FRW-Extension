@@ -2,6 +2,7 @@ import { Box, Typography, Avatar, Skeleton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 
 const tempEmoji = {
@@ -12,23 +13,22 @@ const tempEmoji = {
 
 export const FRWProfile = ({ contact, isLoading = false, isEvm = false, fromEvm = '1' }) => {
   const usewallet = useWallet();
+  const { currentWallet, evmWallet } = useProfileStore();
   const [emoji, setEmoji] = useState(tempEmoji);
   const [isload, setLoad] = useState(true);
 
   const getEmoji = useCallback(async () => {
     setLoad(true);
     if (isEvm) {
-      const currentWallet = await usewallet.getEvmWallet();
-      console.log('getEvmWallet ', currentWallet);
+      console.log('getEvmWallet ', evmWallet);
       const emojiObject = tempEmoji;
-      emojiObject.emoji = currentWallet.icon;
-      emojiObject.name = currentWallet.name;
-      emojiObject.bgcolor = currentWallet.color;
+      emojiObject.emoji = evmWallet.icon;
+      emojiObject.name = evmWallet.name;
+      emojiObject.bgcolor = evmWallet.color;
       emojiObject['type'] = 'evm';
       setEmoji(emojiObject);
       setLoad(false);
     } else {
-      const currentWallet = await usewallet.getCurrentWallet();
       const emojiObject = tempEmoji;
       emojiObject.emoji = currentWallet.icon;
       emojiObject.name = currentWallet.name;
@@ -37,7 +37,7 @@ export const FRWProfile = ({ contact, isLoading = false, isEvm = false, fromEvm 
       setEmoji(emojiObject);
       setLoad(false);
     }
-  }, [isEvm, usewallet]);
+  }, [isEvm, currentWallet, evmWallet]);
 
   useEffect(() => {
     getEmoji();

@@ -21,18 +21,17 @@ type ChildAccount = {
 
 const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
   const usewallet = useWallet();
-  const { mainAddress, evmAddress, walletList, evmWallet } = useProfileStore();
+  const { mainAddress, evmAddress, walletList, evmWallet, childAccounts } = useProfileStore();
   const [, setGrouped] = useState<any>([]);
-  const [childAccounts, setChildAccount] = useState<any[]>([]);
+  const [childAccountsArray, setChildAccount] = useState<any[]>([]);
 
   const [accountList, setAccountListt] = useState<any[]>([]);
   const [evmData, setEvmAddress] = useState<any[]>([]);
 
   const getWallet = useCallback(async () => {
     const wdArray = await convertArrayToContactArray(walletList);
-    const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    if (childresp) {
-      const cAccountArray = convertObjectToContactArray(childresp);
+    if (childAccounts) {
+      const cAccountArray = convertObjectToContactArray(childAccounts);
       setChildAccount(cAccountArray);
     }
 
@@ -47,7 +46,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
         setEvmAddress([evmData]);
       }
     }
-  }, [usewallet, evmAddress, evmWallet, mainAddress, walletList]);
+  }, [evmAddress, evmWallet, mainAddress, walletList, childAccounts]);
 
   function convertObjectToContactArray(data) {
     return Object.keys(data).map((address, index) => ({
@@ -116,7 +115,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
             </Box>
           </List>
         ))}
-      {(!isEmpty(evmData) || !isEmpty(childAccounts)) && (
+      {(!isEmpty(evmData) || !isEmpty(childAccountsArray)) && (
         <ListSubheader
           sx={{
             lineHeight: '18px',
@@ -145,8 +144,8 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
           </List>
         ))}
 
-      {!isEmpty(childAccounts) &&
-        childAccounts.map((eachgroup, index) => (
+      {!isEmpty(childAccountsArray) &&
+        childAccountsArray.map((eachgroup, index) => (
           <List dense={false} sx={{ paddingTop: '0px', paddingBottom: '0px' }} key={index}>
             <Box>
               <ButtonBase

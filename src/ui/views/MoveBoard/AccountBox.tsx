@@ -17,7 +17,7 @@ const USER_CONTACT = {
 
 function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm = false }) {
   const usewallet = useWallet();
-  const { mainAddress, evmAddress } = useProfileStore();
+  const { mainAddress, evmAddress, childAccounts, currentWallet } = useProfileStore();
   const [first, setFirst] = useState<string>('');
   const [second, setSecond] = useState<string>('');
   const [userInfo, setUser] = useState<any>(USER_CONTACT);
@@ -26,9 +26,7 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
 
   const requestAddress = useCallback(async () => {
     const address = await usewallet.getCurrentAddress();
-    const childResp = await usewallet.checkUserChildAccount();
     const eWallet = await usewallet.getEvmWallet();
-    const currentWallet = await usewallet.getCurrentWallet();
 
     const newWallet = {
       [mainAddress!]: {
@@ -41,7 +39,7 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
     };
 
     // Merge wallet lists
-    const walletList = { ...newWallet, ...childResp };
+    const walletList = { ...newWallet, ...childAccounts };
     const firstWalletAddress = Object.keys(walletList)[0];
     const wallet = walletList[firstWalletAddress];
     setChildWallets(walletList);
@@ -62,7 +60,15 @@ function AccountBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm =
       setFirst(address!);
     }
     setSecond(mainAddress!);
-  }, [isEvm, evmAddress, mainAddress, usewallet, setSelectedChildAccount]);
+  }, [
+    isEvm,
+    evmAddress,
+    mainAddress,
+    usewallet,
+    setSelectedChildAccount,
+    childAccounts,
+    currentWallet,
+  ]);
 
   useEffect(() => {
     requestAddress();

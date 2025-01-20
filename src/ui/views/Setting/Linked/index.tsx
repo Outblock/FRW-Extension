@@ -1,7 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
-import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 import {
   Typography,
   ListItemText,
@@ -10,20 +6,15 @@ import {
   ListItemButton,
   Box,
 } from '@mui/material';
-import { useWallet } from 'ui/utils';
-// import '../../Unlock/style.css';
+import { makeStyles } from '@mui/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
 import { LLHeader } from '@/ui/FRWComponent';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import EmptyStateImage from 'ui/FRWAssets/image/search_user.png';
 
-type ChildAccount = {
-  [key: string]: {
-    name: string;
-    description: string;
-    thumbnail: {
-      url: string;
-    };
-  };
-};
+import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';
 
 const useStyles = makeStyles(() => ({
   logoBox: {
@@ -53,28 +44,8 @@ const useStyles = makeStyles(() => ({
 const Linked = () => {
   const classes = useStyles();
 
-  const history = useHistory();
-  const usewallet = useWallet();
-  const [childAccounts, setChildAccount] = useState<ChildAccount | null>(null);
-  const [userWallet, setWallet] = useState<any>(null);
+  const { childAccounts } = useProfileStore();
 
-  const fetchUserWallet = async () => {
-    // const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    usewallet
-      .checkUserChildAccount()
-      .then((res) => {
-        setChildAccount(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    const wallet = await usewallet.getUserWallets();
-    await setWallet(wallet);
-  };
-
-  useEffect(() => {
-    fetchUserWallet();
-  }, []);
   return (
     <div className="page">
       <LLHeader title={chrome.i18n.getMessage('Linked_Account')} help={false} />

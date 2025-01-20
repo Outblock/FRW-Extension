@@ -16,6 +16,7 @@ import swapIcon from '@/ui/FRWAssets/svg/swapIcon.svg';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { NumberTransition } from '@/ui/FRWComponent/NumberTransition';
 import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from '@/ui/utils';
 import { formatLargeNumber } from '@/ui/utils/number';
 
@@ -51,9 +52,10 @@ function a11yProps(index) {
 }
 
 const WalletTab = ({ network }) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const location = useLocation();
+  const { childAccounts } = useProfileStore();
   const { coins, balance } = useCoinStore();
   const [value, setValue] = React.useState(0);
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
@@ -92,9 +94,9 @@ const WalletTab = ({ network }) => {
     let data = '';
     try {
       if (childType === 'evm') {
-        data = await wallet.getEvmAddress();
+        data = await usewallet.getEvmAddress();
       } else {
-        data = await wallet.getCurrentAddress();
+        data = await usewallet.getCurrentAddress();
       }
     } catch (error) {
       console.error('Error getting address:', error);
@@ -117,7 +119,7 @@ const WalletTab = ({ network }) => {
       }
     }
     return data;
-  }, [childType, lastManualAddressCallTime, wallet]);
+  }, [childType, lastManualAddressCallTime, usewallet]);
 
   //todo: move to util
   const pollingFunction = (func, time = 1000, endTime, immediate = false) => {
@@ -140,32 +142,31 @@ const WalletTab = ({ network }) => {
 
   const fetchWallet = useCallback(async () => {
     // If childType is 'evm', handle it first
-    const activeChild = await wallet.getActiveWallet();
+    const activeChild = await usewallet.getActiveWallet();
     if (activeChild === 'evm') {
-      const storageData = await wallet.refreshEvmList(expiry_time);
+      const storageData = await usewallet.refreshEvmList(expiry_time);
       return;
       // If not 'evm', check if it's not active
     } else if (!isActive) {
-      const ftResult = await wallet.checkAccessibleFt(address);
+      const ftResult = await usewallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
       }
     }
 
     // Handle all non-evm and non-active cases here
-  }, [address, isActive, wallet]);
+  }, [address, isActive, usewallet]);
 
   const loadCache = useCallback(async () => {
-    const storageSwap = await wallet.getSwapConfig();
+    const storageSwap = await usewallet.getSwapConfig();
     setSwapConfig(storageSwap);
-    const storageData = await wallet.getCoinList(expiry_time);
-  }, [expiry_time, wallet]);
+    const storageData = await usewallet.getCoinList(expiry_time);
+  }, [expiry_time, usewallet]);
 
   const fetchChildState = useCallback(async () => {
     setChildStateLoading(true);
-    const isChild = await wallet.getActiveWallet();
-    const childresp = await wallet.checkUserChildAccount();
-    setChildAccount(childresp);
+    const isChild = await usewallet.getActiveWallet();
+    setChildAccount(childAccounts);
     setChildType(isChild);
     if (isChild && isChild !== 'evm') {
       setIsActive(false);
@@ -174,7 +175,7 @@ const WalletTab = ({ network }) => {
     }
     setChildStateLoading(false);
     return isChild;
-  }, [wallet]);
+  }, [usewallet, childAccounts]);
 
   useEffect(() => {
     fetchChildState();
@@ -216,12 +217,12 @@ const WalletTab = ({ network }) => {
 
   useEffect(() => {
     const checkPermission = async () => {
-      const result = await wallet.checkCanMoveChild();
+      const result = await usewallet.checkCanMoveChild();
       setCanMoveChild(result);
     };
 
     checkPermission();
-  }, [wallet]);
+  }, [usewallet]);
 
   useEffect(() => {
     // Add event listener for opening onramp

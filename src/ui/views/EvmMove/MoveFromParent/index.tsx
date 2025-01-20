@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { type CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -76,6 +77,7 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
 
   const usewallet = useWallet();
   const history = useHistory();
+  const { childAccounts } = useProfileStore();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
@@ -129,8 +131,7 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     };
     setUser(userContact);
 
-    const childResp = await usewallet.checkUserChildAccount();
-    const cwallet = childResp[currentAddress!];
+    const cwallet = childAccounts[currentAddress!];
     const childContact = {
       ...CHILD_CONTACT,
       address: withPrefix(currentAddress!) || '',
@@ -143,7 +144,7 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     setLoading(false);
 
     return;
-  }, [usewallet]);
+  }, [usewallet, childAccounts]);
 
   const moveToken = async () => {
     setLoading(true);

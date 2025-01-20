@@ -4,6 +4,7 @@ import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } f
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { type AccountDetails } from '@/shared/types/network-types';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
@@ -27,14 +28,14 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   console.log('MoveNftConfirmation - NftEvm');
   const usewallet = useWallet();
   const history = useHistory();
-  const { mainAddress } = useProfileStore();
+  const { mainAddress, childAccounts, currentWallet } = useProfileStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<number | null>(null);
 
   const [occupied, setOccupied] = useState(false);
-  const [selectedAccount, setSelectedChildAccount] = useState(null);
+  const [selectedAccount, setSelectedChildAccount] = useState<AccountDetails | null>(null);
   const [childWallets, setChildWallets] = useState({});
   const { sufficient: isSufficient } = useStorageCheck();
 
@@ -151,9 +152,6 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   }, [getPending, props?.data?.contact, transactionDoneHandler]);
 
   const getChildResp = useCallback(async () => {
-    const childresp = await usewallet.checkUserChildAccount();
-
-    const currentWallet = await usewallet.getCurrentWallet();
     const newWallet = {
       [mainAddress!]: {
         name: currentWallet.name,
@@ -165,13 +163,13 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
     };
 
     // Merge usewallet lists
-    const walletList = { ...newWallet, ...childresp };
+    const walletList = { ...newWallet, ...childAccounts };
     setChildWallets(walletList);
     const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
-  }, [usewallet, mainAddress]);
+  }, [mainAddress, currentWallet, childAccounts]);
 
   useEffect(() => {
     getChildResp();

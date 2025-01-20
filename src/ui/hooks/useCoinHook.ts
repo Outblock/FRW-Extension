@@ -89,5 +89,8 @@ export const useCoinHook = () => {
     calculateAvailableBalance();
   }, [totalFlow, calculateAvailableBalance]);
 
-  return { refreshCoinData };
+  return {
+    refreshCoinData,
+    handleStorageData,
+  };
 };

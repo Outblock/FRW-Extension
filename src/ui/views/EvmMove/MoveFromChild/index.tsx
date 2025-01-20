@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -75,6 +76,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
 
   const usewallet = useWallet();
   const history = useHistory();
+  const { childAccounts } = useProfileStore();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
@@ -131,8 +133,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
       contact_name: info.username,
     });
 
-    const childResp = await usewallet.checkUserChildAccount();
-    const cwallet = childResp[currentAddress!];
+    const cwallet = childAccounts[currentAddress!];
 
     setChildUser({
       ...CHILD_CONTACT,
@@ -143,7 +144,7 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
     return;
-  }, [usewallet]);
+  }, [usewallet, childAccounts]);
 
   const moveToken = useCallback(async () => {
     setLoading(true);

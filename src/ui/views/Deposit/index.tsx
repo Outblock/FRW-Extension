@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { withPrefix } from '@/shared/utils/address';
 import alertMark from '@/ui/FRWAssets/svg/alertMark.svg';
 import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { LLHeader } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -103,9 +104,10 @@ const Deposit = () => {
   const classes = useStyles();
   const usewallet = useWallet();
   const ref = useRef<HTMLDivElement>(null);
+  const { childAccounts, currentWallet, currentWalletIndex } = useProfileStore();
 
-  const [currentWallet, setCurrentWallet] = useState<number>(0);
   const [userWallets, setUserWallets] = useState<any>(null);
+  const [localWalletIndex, setLocalWalletIndex] = useState<number>(currentWalletIndex);
   const [currentNetwork, setNetwork] = useState<string>('mainnet');
   const [userInfo, setUserInfo] = useState<any>(null);
   const [active, setIsActive] = useState<string>('');
@@ -113,14 +115,6 @@ const Deposit = () => {
 
   const fetchStuff = useCallback(async () => {
     const isChild = await usewallet.getActiveWallet();
-    let childresp = {};
-    try {
-      childresp = await usewallet.checkUserChildAccount();
-      // Handle the response when there is no error
-    } catch (error) {
-      // Handle the error here
-      console.error('Error checking user child account:', error);
-    }
     if (isChild === 'evm') {
       setIsActive(isChild);
       const wallets = await usewallet.getEvmWallet();
@@ -144,19 +138,18 @@ const Deposit = () => {
     } else if (isChild) {
       setIsActive(isChild);
       setUserWallets(
-        Object.keys(childresp).map((key, index) => ({
+        Object.keys(childAccounts).map((key, index) => ({
           id: index,
           name: key,
           address: isChild,
         }))
       );
     } else {
-      const cw = await usewallet.getCurrentWallet();
       setUserWallets([
         {
           id: 0,
-          name: cw.name,
-          address: cw.address,
+          name: currentWallet.name,
+          address: currentWallet.address,
         },
       ]);
     }
@@ -168,16 +161,16 @@ const Deposit = () => {
     setEmulatorModeOn(emulatorMode);
     const user = await usewallet.getUserInfo(false);
     setUserInfo(user);
-  }, [currentNetwork, usewallet]);
+  }, [currentNetwork, usewallet, childAccounts, currentWallet]);
 
   useEffect(() => {
     if (userWallets && userInfo) {
       qrCode.update({
-        data: userWallets[currentWallet].address,
+        data: userWallets[localWalletIndex].address,
         // image: userInfo.avatar
       });
     }
-  }, [userWallets, currentWallet, userInfo]);
+  }, [userWallets, localWalletIndex, userInfo]);
 
   useEffect(() => {
     fetchStuff();
@@ -199,8 +192,8 @@ const Deposit = () => {
             <SelectContainer>
               <Select
                 className={classes.addressDropdown}
-                value={currentWallet}
-                onChange={(e) => setCurrentWallet(e.target.value as number)}
+                value={localWalletIndex}
+                onChange={(e) => setLocalWalletIndex(e.target.value as number)}
                 displayEmpty
                 inputProps={{ 'aria-label': 'Without label' }}
               >
@@ -214,7 +207,7 @@ const Deposit = () => {
                 <Tooltip title={chrome.i18n.getMessage('Copy__Address')} arrow>
                   <Button
                     onClick={() => {
-                      navigator.clipboard.writeText(userWallets[currentWallet].address);
+                      navigator.clipboard.writeText(userWallets[localWalletIndex].address);
                     }}
                     sx={{ maxWidth: '30px', minWidth: '30px' }}
                   >
@@ -227,7 +220,7 @@ const Deposit = () => {
           {userWallets && (
             <QRContainer style={{ height: currentNetwork === 'testnet' ? 350 : 330 }}>
               <QRWrapper>
-                {/* <QRCode value={userWallets[currentWallet].address} size={150} /> */}
+                {/* <QRCode value={userWallets[localWalletIndex].address} size={150} /> */}
                 <div ref={ref} />
               </QRWrapper>
               <Typography

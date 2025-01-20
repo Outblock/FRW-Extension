@@ -188,7 +188,7 @@ interface Thumbnail {
   url: string;
 }
 
-interface AccountDetails {
+export interface AccountDetails {
   name: string;
   description: string;
   thumbnail: Thumbnail;

@@ -3,6 +3,7 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet, formatAddress } from 'ui/utils';
 
 const tempEmoji = {
@@ -13,6 +14,7 @@ const tempEmoji = {
 
 export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) => {
   const usewallet = useWallet();
+  const { currentWallet } = useProfileStore();
   const [emoji, setEmoji] = useState(tempEmoji);
 
   const getName = (name: string) => {
@@ -28,7 +30,6 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
 
   const getEmoji = useCallback(async () => {
     if (isValidEthereumAddress(contact.address)) {
-      const currentWallet = await usewallet.getEvmWallet();
       const emojiObject = tempEmoji;
       emojiObject.emoji = currentWallet.icon;
       emojiObject.name = currentWallet.name;
@@ -36,7 +37,6 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
       emojiObject['type'] = 'evm';
       setEmoji(emojiObject);
     } else {
-      const currentWallet = await usewallet.getCurrentWallet();
       const emojiObject = tempEmoji;
       emojiObject.emoji = currentWallet.icon;
       emojiObject.name = currentWallet.name;
@@ -44,7 +44,7 @@ export const FRWProfileCard = ({ contact, isEvm = false, isLoading = false }) =>
       emojiObject['type'] = 'parent';
       setEmoji(emojiObject);
     }
-  }, [contact, usewallet]);
+  }, [contact, currentWallet]);
 
   useEffect(() => {
     getEmoji();

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams, useLocation } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
 
@@ -24,6 +25,7 @@ const NodeDetail = () => {
   };
 
   const usewallet = useWallet();
+  const { currentWallet } = useProfileStore();
 
   const history = useHistory();
   const location = useParams();
@@ -66,12 +68,11 @@ const NodeDetail = () => {
         console.log(err);
       });
     const token = await usewallet.getCurrentCoin();
-    const wallet = await usewallet.getCurrentWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
-    await setWallet(wallet);
+    await setWallet(currentWallet);
     const coinList = await usewallet.getCoinList();
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === 'flow');
 
@@ -92,7 +93,7 @@ const NodeDetail = () => {
     setEpochStart(epochStart);
 
     return;
-  }, [location, usewallet]);
+  }, [location, usewallet, currentWallet]);
 
   const getDate = () => {
     const date = new Date();
