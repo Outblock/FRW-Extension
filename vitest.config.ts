@@ -16,6 +16,10 @@ export default defineConfig({
       tsconfig: './tsconfig.test.json',
     },
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+    },
   },
   resolve: {
     alias: {
