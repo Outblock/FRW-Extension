@@ -48,6 +48,7 @@ function generateHeatmapHtml(highPriorityChanges: HighPriorityChange[], summary:
                 updatedAt: change.issue.updatedAt,
                 state: change.issue.state,
                 closedAt: change.issue.closedAt,
+                repo: change.repo || '',
                 pullRequests: Array.from(uniquePRs.values()).map((pr) => ({
                   number: pr.number,
                   title: pr.title,
@@ -107,6 +108,115 @@ async function getClosedDateFromTimeline(
   }
 }
 
+function generateCombinedHeatmapHtml(
+  repoData: { repoName: string; changes: HighPriorityChange[]; summary: Summary }[]
+): string {
+  // Calculate combined summary
+  const combinedSummary: Summary = {
+    totalHighPriorityIssues: 0,
+    activeIssues: 0,
+    closedIssues: 0,
+    archivedIssues: 0,
+    totalPRs: 0,
+    totalFilesChanged: 0,
+    totalChanges: 0,
+    priorities: { p0: 0, p1: 0 },
+  };
+
+  // Combine summaries
+  repoData.forEach(({ summary }) => {
+    combinedSummary.totalHighPriorityIssues += summary.totalHighPriorityIssues;
+    combinedSummary.activeIssues += summary.activeIssues;
+    combinedSummary.closedIssues += summary.closedIssues;
+    combinedSummary.archivedIssues += summary.archivedIssues;
+    combinedSummary.totalPRs += summary.totalPRs;
+    combinedSummary.totalFilesChanged += summary.totalFilesChanged;
+    combinedSummary.totalChanges += summary.totalChanges;
+    combinedSummary.priorities.p0 += summary.priorities.p0;
+    combinedSummary.priorities.p1 += summary.priorities.p1;
+  });
+
+  // Get earliest issue date
+  const firstIssueDate = new Date(
+    Math.min(
+      ...repoData.flatMap(({ changes }) =>
+        changes.map((c) => new Date(c.issue.createdAt).getTime())
+      )
+    )
+  );
+
+  // Default to last 90 days if no data
+  const defaultStartDate = new Date();
+  defaultStartDate.setDate(defaultStartDate.getDate() - 90);
+
+  // Generate hotspots for all repos
+  const allHotspots = Object.entries(
+    repoData
+      .flatMap(({ repoName, changes }) => changes)
+      .reduce(
+        (fileMap, change) => {
+          // First, deduplicate PRs for this issue by PR number
+          const uniquePRs = new Map();
+          change.pullRequests.forEach((pr) => {
+            uniquePRs.set(pr.number, pr);
+          });
+
+          Array.from(uniquePRs.values()).forEach((pr) => {
+            pr.files.forEach((file) => {
+              const existing = fileMap[file.path] || {
+                file: file.path,
+                bugCount: 0,
+                lastOccurrence: new Date(0),
+                issues: [],
+              };
+
+              existing.bugCount += 1;
+              const issueDate = new Date(change.issue.createdAt);
+              if (issueDate > existing.lastOccurrence) {
+                existing.lastOccurrence = issueDate;
+              }
+
+              // Check if we already have this issue in the list
+              const existingIssue = existing.issues.find((i) => i.number === change.issue.number);
+              if (!existingIssue) {
+                existing.issues.push({
+                  number: change.issue.number,
+                  priority: change.issue.priority,
+                  url: change.issue.url,
+                  createdAt: change.issue.createdAt,
+                  updatedAt: change.issue.updatedAt,
+                  state: change.issue.state,
+                  closedAt: change.issue.closedAt,
+                  repo: change.repo || '', // Add repo info
+                  pullRequests: Array.from(uniquePRs.values()).map((pr) => ({
+                    number: pr.number,
+                    title: pr.title,
+                    url: pr.url,
+                    files: pr.files,
+                  })),
+                });
+              }
+
+              fileMap[file.path] = existing;
+            });
+          });
+          return fileMap;
+        },
+        {} as Record<string, HotSpot>
+      )
+  )
+    .map(([_, hotspot]) => hotspot)
+    .sort((a, b) => b.bugCount - a.bugCount);
+
+  return hotSpotAnalysisHtml(
+    firstIssueDate,
+    combinedSummary,
+    allHotspots,
+    repoData.map((d) => d.repoName),
+    defaultStartDate
+  );
+}
+
 async function analyzeData() {
   // Read repositories data
   const reposData = JSON.parse(
@@ -148,6 +258,9 @@ async function analyzeData() {
   // Collect summaries for index
   const repoSummaries: RepoSummary[] = [];
 
+  // Collect data for combined report
+  const repoData: { repoName: string; changes: HighPriorityChange[]; summary: Summary }[] = [];
+
   // Process each repository
   for (const repoName of activeRepos) {
     console.log(`\nProcessing repository: ${repoName}`);
@@ -180,7 +293,7 @@ async function analyzeData() {
       const status = item.isArchived ? '(archived)' : '(active)';
       console.log(`Item ${item.content.number} ${status} has priority: ${priority}`);
 
-      return priority === 'P0-Critical' || priority === 'P1-High';
+      return priority.startsWith('P0') || priority.startsWith('P1');
     });
 
     console.log(`\nSummary for ${repoName}:`);
@@ -371,8 +484,8 @@ async function analyzeData() {
           0
         ),
         priorities: {
-          p0: highPriorityChanges.filter((item) => item.issue.priority === 'P0-Critical').length,
-          p1: highPriorityChanges.filter((item) => item.issue.priority === 'P1-High').length,
+          p0: highPriorityChanges.filter((item) => item.issue.priority.startsWith('P0')).length,
+          p1: highPriorityChanges.filter((item) => item.issue.priority.startsWith('P1')).length,
         },
       };
 
@@ -395,6 +508,19 @@ async function analyzeData() {
 
       // Add to summaries
       repoSummaries.push({ repoName, summary, firstIssueDate });
+
+      // Add repo info to each change
+      const changesWithRepo = highPriorityChanges.map((change) => ({
+        ...change,
+        repo: repoName,
+      }));
+
+      // Add to repo data
+      repoData.push({
+        repoName,
+        changes: changesWithRepo,
+        summary,
+      });
     } catch (error) {
       console.error(`Error processing repository ${repoName}:`, error);
     }
@@ -407,6 +533,13 @@ async function analyzeData() {
     console.log('- index.html (repository index)');
   } else {
     console.log('No repositories with high priority issues found, skipping index generation');
+  }
+
+  // Generate combined report if we have data
+  if (repoData.length > 0) {
+    const combinedHtml = generateCombinedHeatmapHtml(repoData);
+    await fs.writeFile('.github-data/combined-bug-heatmap.html', combinedHtml);
+    console.log('- combined-bug-heatmap.html (combined interactive heatmap)');
   }
 }
 

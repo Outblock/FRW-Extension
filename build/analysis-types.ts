@@ -39,11 +39,14 @@ export interface PullRequest {
 export interface Issue {
   number: number;
   title: string;
+  url: string;
   state: string;
   createdAt: string;
   updatedAt: string;
   closedAt: string | null;
-  url: string;
+  isArchived: boolean;
+  priority: string;
+  repo?: string;
   labels?: Array<{
     name: string;
   }>;
@@ -55,6 +58,7 @@ export interface HighPriorityChange {
     priority: string;
   };
   pullRequests: Array<PullRequest>;
+  repo?: string;
 }
 
 export interface Summary {
@@ -89,6 +93,7 @@ export interface HotSpot {
     updatedAt: string;
     state: string;
     closedAt: string | null;
+    repo: string;
     pullRequests: Array<{
       number: number;
       title: string;
