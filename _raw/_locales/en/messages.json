@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "Developer Mode"
   },
+  "Emulator_Mode": {
+    "message": "Emulator Mode"
+  },
   "About": {
     "message": "About"
   },
@@ -195,6 +198,15 @@
   },
   "Testnet": {
     "message": "Testnet"
+  },
+  "Emulator": {
+    "message": "Emulator"
+  },
+  "Emulate_Testnet": {
+    "message": "Emulate Testnet"
+  },
+  "Emulate_Mainnet": {
+    "message": "Emulate Mainnet"
   },
   "Crescendo": {
     "message": "Crescendo"
@@ -1332,5 +1344,8 @@
   },
   "Buy_FLOW": {
     "message": "Buy FLOW"
+  },
+  "Deposit_warning_content": {
+    "message": "Please make sure you deposit is ON FLOW EVM network, if your deposit via another network your assets may be lost."
   }
 }

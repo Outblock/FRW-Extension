@@ -1,6 +1,4 @@
 import { createPersistStore, createSessionStore } from 'background/utils';
-
-import { TransactionItem } from './networkModel';
 interface TransactionStore {
   expiry: number;
   total: number;
@@ -154,7 +152,6 @@ class Transaction {
   };
 
   setTransaction = (data, network: string) => {
-    console.log('data ', data);
     const txList: TransferItem[] = [];
     if (data.transactions && data.transactions.length > 0) {
       data.transactions.forEach(async (tx) => {

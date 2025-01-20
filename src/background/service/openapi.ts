@@ -26,8 +26,6 @@ import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/fireba
 import fetchConfig from 'background/utils/remoteConfig';
 import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 
-import { fclMainnetConfig, fclTestnetConfig } from '../fclConfig';
-
 import {
   type AccountKey,
   type CheckResponse,
@@ -42,7 +40,7 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
-} from './networkModel';
+} from '../../shared/types/network-types';
 
 import {
   userWalletService,
@@ -107,21 +105,9 @@ onAuthStateChanged(auth, (user: User | null) => {
     // User is signed out
     console.log('User is signed out');
   }
-
-  fclSetup();
+  // note fcl setup is async
+  userWalletService.setupFcl();
 });
-
-const fclSetup = async () => {
-  const network = await userWalletService.getNetwork();
-  switch (network) {
-    case 'mainnet':
-      await fclMainnetConfig();
-      break;
-    case 'testnet':
-      await fclTestnetConfig();
-      break;
-  }
-};
 
 const dataConfig: Record<string, OpenApiConfigValue> = {
   check_username: {
@@ -400,7 +386,7 @@ class OpenApiService {
       fromStorage: false, // Debug only
     });
 
-    await fclSetup();
+    await userWalletService.setupFcl();
   };
 
   checkAuthStatus = async () => {

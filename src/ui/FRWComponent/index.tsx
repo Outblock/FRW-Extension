@@ -10,7 +10,6 @@ export * from './LLHeader';
 export * from './LLPinAlert';
 export * from './LLResetPopup';
 export * from './LLResetPopup';
-export * from './LLTestnetIndicator';
 export * from './LLConnectLoading';
 export * from './LLLinkingLoading';
 export * from './LLFlownsPop';

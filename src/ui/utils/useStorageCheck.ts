@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState } from 'react';
 
-import type { StorageInfo } from '@/background/service/networkModel';
+import type { StorageInfo } from '@/shared/types/network-types';
 
 import { useWallet } from './WalletContext';
 

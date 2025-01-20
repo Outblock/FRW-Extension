@@ -9,7 +9,7 @@ import HDWallet from 'ethereum-hdwallet';
 import React, { useEffect, useCallback, useState } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 
-import { FCLWalletConnectMethod } from '@/ui/utils/type';
+import { FCLWalletConnectMethod } from '@/shared/utils/type';
 import lilo from 'ui/FRWAssets/image/lilo.png';
 import { useWallet } from 'ui/utils';
 

@@ -4,11 +4,11 @@ import { ThemeProvider } from '@mui/material/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import type { Contact } from '@/shared/types/network-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { type CoinItem } from 'background/service/coinList';
-import type { Contact } from 'background/service/networkModel';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 

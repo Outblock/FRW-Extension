@@ -76,6 +76,9 @@
   "Developer__Mode": {
     "message": "Режим разработчика"
   },
+  "Emulator_Mode": {
+    "message": "Pежим эмулятора"
+  },
   "About": {
     "message": "О программе"
   },
@@ -189,6 +192,15 @@
   },
   "Testnet": {
     "message": "Testnet"
+  },
+  "Emulator": {
+    "message": "Emulator"
+  },
+  "Emulate_Testnet": {
+    "message": "Эмуляция тестовой сети"
+  },
+  "Emulate_Mainnet": {
+    "message": "Эмулировать основную сеть"
   },
   "Crescendo": {
     "message": "Crescendo"
@@ -1332,5 +1344,8 @@
   },
   "Insufficient_storage_after_action": {
     "message": "Недостаточно хранилища после этого действия."
+  },
+  "Deposit_warning_content": {
+    "message": "Пожалуйста, убедитесь, что ваш депозит осуществляется в сети FLOW EVM. Если вы используете другую сеть, ваши активы могут быть потеряны."
   }
 }

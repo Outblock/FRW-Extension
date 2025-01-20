@@ -31,8 +31,6 @@ const Staking = () => {
       await wallet.setupDelegator(address);
       setLoading(true);
     }
-    // setNoStake(true);
-    // const result = await wallet.createStake('true');
   };
 
   const loadNetwork = useCallback(async () => {

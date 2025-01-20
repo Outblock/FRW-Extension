@@ -12,15 +12,16 @@ import { keyringService, mixpanelTrack, openapiService } from 'background/servic
 import { createPersistStore } from 'background/utils';
 import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 
-import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
-import { storage } from '../webapi';
-
 import type {
   WalletResponse,
   BlockchainResponse,
   ChildAccount,
   DeviceInfoRequest,
-} from './networkModel';
+  FlowNetwork,
+} from '../../shared/types/network-types';
+import { fclConfig } from '../fclConfig';
+import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
+import { storage } from '../webapi';
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -31,6 +32,7 @@ interface UserWalletStore {
   monitor: string;
   activeChild: ActiveChildType;
   evmEnabled: boolean;
+  emulatorMode: boolean;
 }
 
 class UserWallet {
@@ -68,6 +70,7 @@ class UserWallet {
         evmEnabled: false,
         monitor: 'flowscan',
         network: 'mainnet',
+        emulatorMode: false,
       },
     });
   };
@@ -102,11 +105,11 @@ class UserWallet {
       evmEnabled: false,
       monitor: 'flowscan',
       network: 'mainnet',
+      emulatorMode: false,
     };
   };
 
   setUserWallets = async (filteredData, network) => {
-    console.log('filteredData ', filteredData);
     this.store.wallets[network] = filteredData;
     let walletIndex = (await storage.get('currentWalletIndex')) || 0;
     if (this.store.wallets[network] && this.store.wallets[network].length > 0) {
@@ -162,6 +165,7 @@ class UserWallet {
     }
     if (this.store.network !== network) {
       this.store.activeChild = null;
+      // TODO: I think this line below should be put back in. It was removed to fix an account switching bug, but without it, it's possible for currentWallet to refer to address on another network. Either currentWallet should be cleared or the line below should be put back in.
       // this.store.currentWallet = this.store.wallets[network][0].blockchain[0];
     }
     this.store.network = network;
@@ -199,6 +203,37 @@ class UserWallet {
     return this.store.network;
   };
 
+  getEmulatorMode = async (): Promise<boolean> => {
+    // Check feature flag first
+    const enableEmulatorMode = await openapiService.getFeatureFlag('emulator_mode');
+    if (!enableEmulatorMode) {
+      return false;
+    }
+    if (!this.store) {
+      await this.init();
+    }
+    return this.store.emulatorMode;
+  };
+
+  setEmulatorMode = async (emulatorMode: boolean) => {
+    let emulatorModeToSet = emulatorMode;
+    if (emulatorModeToSet) {
+      // check feature flag
+      const enableEmulatorMode = await openapiService.getFeatureFlag('emulator_mode');
+      if (!enableEmulatorMode) {
+        emulatorModeToSet = false;
+      }
+    }
+    this.store.emulatorMode = emulatorModeToSet;
+    await this.setupFcl();
+  };
+
+  setupFcl = async () => {
+    const isEmulatorMode = await this.getEmulatorMode();
+    const network = (await this.getNetwork()) as FlowNetwork;
+    await fclConfig(network, isEmulatorMode);
+  };
+
   getMonitor = (): string => {
     return this.store.monitor;
   };
@@ -230,7 +265,6 @@ class UserWallet {
   };
 
   setEvmAddress = (address: string, emoji) => {
-    console.log('emoji setEvmAddress ', emoji);
     if (address.length > 20) {
       this.store.evmWallet.address = address;
       this.store.evmWallet.name = emoji[9].name;
