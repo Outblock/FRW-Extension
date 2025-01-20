@@ -238,7 +238,7 @@ describe('OpenApiService', () => {
 
           // Create a queue of responses
           let callIndex = 0;
-          mockFetch.mockImplementation((url, init) => {
+          mockFetch.mockImplementation((url, _init) => {
             const currentDetail = fetchDetails[callIndex];
 
             if (!currentDetail) {
