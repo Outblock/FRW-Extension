@@ -38,9 +38,10 @@ function TabPanel(props) {
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
+      style={{ height: '100%', display: value === index ? 'block' : 'none' }}
       {...other}
     >
-      {value === index && children}
+      {children}
     </div>
   );
 }
@@ -579,14 +580,19 @@ const WalletTab = ({ network }) => {
       </Box>
       <Tabs
         value={value}
-        sx={{ width: '100%', position: 'sticky', top: '0', zIndex: 1100, backgroundColor: 'black' }}
+        sx={{
+          width: '100%',
+          position: 'sticky',
+          top: '0',
+          zIndex: 1100,
+          backgroundColor: 'black',
+        }}
         onChange={handleChange}
         TabIndicatorProps={{
           style: {
             backgroundColor: '#5a5a5a',
           },
         }}
-        // textColor="inherit"
         variant="fullWidth"
         aria-label="full width tabs example"
       >
@@ -646,28 +652,39 @@ const WalletTab = ({ network }) => {
           style={{ color: '#F9F9F9', minHeight: '25px' }}
         />
       </Tabs>
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={value}
-        onChangeIndex={handleChangeIndex}
-        style={{ height: '100%', width: '100%', flex: 1, overflow: 'auto' }}
-      >
-        <TabPanel value={value} index={0}>
-          <CoinList
-            data={coinData}
-            ableFt={accessible}
-            isActive={isActive}
-            childType={childType}
-            coinLoading={coinLoading}
-          />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          {childType === 'evm' ? <NftEvm /> : <NFTTab />}
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          <TransferList setCount={setTxCount} />
-        </TabPanel>
-      </SwipeableViews>
+      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+        <SwipeableViews
+          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          index={value}
+          onChangeIndex={handleChangeIndex}
+          style={{ height: '100%', width: '100%' }}
+          containerStyle={{ height: '100%' }}
+          resistance
+          disabled
+        >
+          <TabPanel value={value} index={0}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              <CoinList
+                data={coinData}
+                ableFt={accessible}
+                isActive={isActive}
+                childType={childType}
+                coinLoading={coinLoading}
+              />
+            </Box>
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              {childType === 'evm' ? <NftEvm /> : <NFTTab />}
+            </Box>
+          </TabPanel>
+          <TabPanel value={value} index={2}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              <TransferList setCount={setTxCount} />
+            </Box>
+          </TabPanel>
+        </SwipeableViews>
+      </Box>
       <LLComingSoon alertOpen={alertOpen} handleCloseIconClicked={() => setAlertOpen(false)} />
 
       <Drawer
