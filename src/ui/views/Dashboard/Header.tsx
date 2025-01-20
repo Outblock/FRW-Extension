@@ -82,6 +82,7 @@ const Header = ({ loading = false }) => {
     otherAccounts,
     loggedInAccounts,
     mainAddressLoading,
+    clearProfileData,
   } = useProfileStore();
 
   const [drawer, setDrawer] = useState(false);
@@ -141,6 +142,7 @@ const Header = ({ loading = false }) => {
         await usewallet.switchNetwork(switchingTo);
         setNetwork(switchingTo);
         clearCoins();
+        clearProfileData();
         history.push('/switchunlock');
       } catch (error) {
         console.error('Error during account switch:', error);
@@ -149,7 +151,7 @@ const Header = ({ loading = false }) => {
         setSwitchLoading(false);
       }
     },
-    [usewallet, history, setNetwork, clearCoins]
+    [usewallet, history, setNetwork, clearCoins, clearProfileData]
   );
 
   const setWallets = async (walletInfo, key, index = null) => {
@@ -614,25 +616,27 @@ const Header = ({ loading = false }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          <MenuDrawer
-            userInfo={userInfo!}
-            drawer={drawer}
-            toggleDrawer={toggleDrawer}
-            otherAccounts={otherAccounts}
-            switchAccount={switchAccount}
-            togglePop={togglePop}
-            walletList={walletList}
-            childAccounts={childAccounts}
-            current={currentWallet}
-            createWalletList={createWalletList}
-            setWallets={setWallets}
-            currentNetwork={currentNetwork}
-            evmWallet={evmWallet}
-            networkColor={networkColor}
-            evmLoading={evmLoading}
-            modeOn={developerMode}
-            mainAddressLoading={mainAddressLoading}
-          />
+          {walletList && (
+            <MenuDrawer
+              userInfo={userInfo!}
+              drawer={drawer}
+              toggleDrawer={toggleDrawer}
+              otherAccounts={otherAccounts}
+              switchAccount={switchAccount}
+              togglePop={togglePop}
+              walletList={walletList}
+              childAccounts={childAccounts}
+              current={currentWallet}
+              createWalletList={createWalletList}
+              setWallets={setWallets}
+              currentNetwork={currentNetwork}
+              evmWallet={evmWallet}
+              networkColor={networkColor}
+              evmLoading={evmLoading}
+              modeOn={developerMode}
+              mainAddressLoading={mainAddressLoading}
+            />
+          )}
           {appBarLabel(currentWallet)}
           {usernameSelect()}
           <NewsDrawer />

@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 
 import type { ChildAccount, WalletType, UserInfoResponse } from '../../shared/types/network-types';
 
@@ -33,6 +33,7 @@ interface ProfileState {
   setUserInfo: (info: UserInfoResponse | null) => void;
   setOtherAccounts: (accounts: any) => void;
   setLoggedInAccounts: (accounts: any) => void;
+  clearProfileData: () => void;
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
@@ -74,4 +75,30 @@ export const useProfileStore = create<ProfileState>((set) => ({
   setOtherAccounts: (accounts) => set({ otherAccounts: accounts }),
   setLoggedInAccounts: (accounts) => set({ loggedInAccounts: accounts }),
   setListLoading: (listLoading) => set({ listLoading: listLoading }),
+  clearProfileData: () =>
+    set({
+      mainAddress: '',
+      evmAddress: '',
+      userWallet: null,
+      currentWalletIndex: 0,
+      evmWallet: {
+        name: '',
+        icon: '',
+        address: '',
+        chain_id: 'evm',
+        id: 1,
+        coins: ['flow'],
+        color: '',
+      },
+      walletList: [],
+      initialStart: true,
+      currentWallet: {},
+      mainAddressLoading: true,
+      childAccounts: {},
+      evmLoading: true,
+      listLoading: true,
+      userInfo: null,
+      otherAccounts: null,
+      loggedInAccounts: null,
+    }),
 }));
