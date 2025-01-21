@@ -33,9 +33,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run tests
-        run: pnpm test
-
       - name: Create .env.pro file
         run: |
           cat << EOF > .env.pro
@@ -71,7 +68,13 @@ jobs:
           OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"
           WC_PROJECTID="${{ secrets.WC_PROJECTID }}"
           MIXPANEL_TOKEN="${{ secrets.MIXPANEL_TOKEN }}"
+          TEST_PASSWORD="${{ secrets.TEST_PASSWORD }}"
+          TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
+          TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
           EOF
+
+      - name: Run tests
+        run: pnpm test
 
       - name: Build
         run: pnpm run build:ci
