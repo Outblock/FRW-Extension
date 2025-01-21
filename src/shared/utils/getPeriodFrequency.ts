@@ -1,4 +1,4 @@
-import { Period, PeriodFrequency } from '@/background/service/networkModel';
+import { Period, PeriodFrequency } from '@/shared/types/network-types';
 
 export const getPeriodFrequency = (period: Period): PeriodFrequency => {
   switch (period) {

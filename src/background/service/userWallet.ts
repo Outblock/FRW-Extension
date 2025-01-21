@@ -12,17 +12,16 @@ import { keyringService, mixpanelTrack, openapiService } from 'background/servic
 import { createPersistStore } from 'background/utils';
 import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 
-import { fclConfig } from '../fclConfig';
-import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
-import { storage } from '../webapi';
-
 import type {
   WalletResponse,
   BlockchainResponse,
   ChildAccount,
   DeviceInfoRequest,
   FlowNetwork,
-} from './networkModel';
+} from '../../shared/types/network-types';
+import { fclConfig } from '../fclConfig';
+import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
+import { storage } from '../webapi';
 
 interface UserWalletStore {
   wallets: Record<string, WalletResponse[]>;
@@ -266,7 +265,6 @@ class UserWallet {
   };
 
   setEvmAddress = (address: string, emoji) => {
-    console.log('emoji setEvmAddress ', emoji);
     if (address.length > 20) {
       this.store.evmWallet.address = address;
       this.store.evmWallet.name = emoji[9].name;

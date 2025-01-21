@@ -3,7 +3,7 @@ import type { Object } from 'ts-toolbelt';
 
 import type { WalletController as WalletControllerClass } from 'background/controller/wallet';
 
-import type { IExtractFromPromise } from './type';
+import type { IExtractFromPromise } from '../../shared/utils/type';
 
 export type WalletControllerType = Object.Merge<
   {

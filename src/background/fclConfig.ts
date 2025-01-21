@@ -1,7 +1,8 @@
 import * as fcl from '@onflow/fcl';
 import { send as httpSend } from '@onflow/transport-http';
 
-import { type FlowNetwork } from './service/networkModel';
+import { type FlowNetwork } from '../shared/types/network-types';
+
 import { storage } from './webapi';
 
 const CONTRACTS_URL =

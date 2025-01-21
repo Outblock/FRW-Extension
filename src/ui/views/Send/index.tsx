@@ -24,8 +24,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { type Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
-import { type Contact } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 
 import IconAbout from '../../../components/iconfont/IconAbout';

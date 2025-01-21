@@ -1,8 +1,9 @@
 import { createPersistStore } from 'background/utils';
 import { storage } from 'background/webapi';
 
+import type { NewsItem } from '../../shared/types/network-types';
+
 import conditionsEvaluator from './conditions-evaluator';
-import type { NewsItem } from './networkModel';
 import openapi from './openapi';
 
 interface NewsStore {

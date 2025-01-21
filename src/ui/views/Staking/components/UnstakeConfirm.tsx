@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Typography, Drawer, IconButton, Button } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -43,8 +44,7 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
 
   const unstake = useCallback(() => {
     setSending(true);
-    const amount = parseFloat(props.data.amount).toFixed(8);
-
+    const amount = new BN(props.data.amount).toFixed(8, BN.ROUND_DOWN);
     wallet
       .unstake(amount, props.data.nodeid, props.data.delegateid)
       .then(async (txID) => {
