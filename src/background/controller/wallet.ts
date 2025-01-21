@@ -43,6 +43,7 @@ import {
   nftService,
   googleDriveService,
   passwordService,
+  flownsService,
   stakingService,
   proxyService,
   newsService,
@@ -987,6 +988,23 @@ export class WalletController extends BaseController {
     const wallet = await userWalletService.returnMainWallet(network);
 
     return wallet;
+  };
+  fetchFlownsInbox = async () => {
+    const info = await userInfoService.getUserInfo();
+    const res = await openapiService.getFlownsInbox(info.username);
+
+    return res;
+  };
+
+  setPopStat = async (stat: boolean) => {
+    const network = await this.getNetwork();
+    flownsService.setPop(network, stat);
+  };
+
+  fetchPopStat = async () => {
+    const network = await this.getNetwork();
+    const popStat = await flownsService.getPop(network);
+    return popStat;
   };
 
   fetchUserDomain = async () => {
@@ -3826,6 +3844,21 @@ export class WalletController extends BaseController {
 
   updateProfilePreference = async (privacy: number) => {
     await openapiService.updateProfilePreference(privacy);
+  };
+
+  setHistory = async (token, nft) => {
+    const network = await userWalletService.getNetwork();
+    const data = {
+      token,
+      nft,
+    };
+    await flownsService.setHistory(network, data);
+  };
+
+  getHistory = async () => {
+    const network = await userWalletService.getNetwork();
+    const resp = await flownsService.getHistory(network);
+    return resp;
   };
 
   nodeInfo = async (address) => {

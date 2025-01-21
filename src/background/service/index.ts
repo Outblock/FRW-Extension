@@ -15,6 +15,7 @@ export { default as passwordService } from './password';
 export { default as nftService } from './nft';
 export { default as googleDriveService } from './googleDrive';
 export { default as googleSafeHostService } from './googleSafeHost';
+export { default as flownsService } from './flowns';
 export { default as stakingService } from './staking';
 export { default as signTextHistoryService } from './signTextHistory';
 export { default as i18n } from './i18n';

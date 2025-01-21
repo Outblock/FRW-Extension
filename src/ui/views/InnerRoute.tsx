@@ -12,6 +12,8 @@ import Swap from '../views/Swap';
 
 import Dashboard from './Dashboard';
 import Header from './Dashboard/Header';
+import Flowns from './Flowns';
+import Inbox from './Inbox';
 import CollectionDetail from './NFT/CollectionDetail';
 import Detail from './NFT/Detail';
 import AddList from './NFT/NFTList/AddList';
@@ -217,11 +219,15 @@ const InnerRoute = (props: RouteComponentProps) => {
             <PrivateRoute path={`${props.match.url}/setting/backups`}>
               <ManageBackups />
             </PrivateRoute>
-
+            <PrivateRoute path={`${props.match.url}/flowns`}>
+              <Flowns />
+            </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/enable`}>
               <Enable />
             </PrivateRoute>
-
+            <PrivateRoute path={`${props.match.url}/inbox`}>
+              <Inbox />
+            </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/staking/page/:nodeid/:delegateid`}>
               <StakingPage />
             </PrivateRoute>
