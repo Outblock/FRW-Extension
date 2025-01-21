@@ -120,6 +120,14 @@ The extension supports multiple languages. The language files are stored in the 
 
 ATTENTION: When you create a new key, make sure the key doesen't include space and not duplicated with existing phrase (case insensitive).
 
+## Test Environment Variables
+
+Setup the following environment variables in .env.dev file:
+
+- TEST_PASSWORD: The password for the test wallet
+- TEST_PK_P256: The P256 public key for the test wallet
+- TEST_PK_SECP256K1: The SECP256K1 public key for the test wallet
+
 ## Analyzing High Priority Issues
 
 This repository includes tools to analyze high-priority issues across repositories. To use these tools:
