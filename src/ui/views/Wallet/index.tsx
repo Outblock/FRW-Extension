@@ -55,7 +55,7 @@ const WalletTab = ({ network }) => {
   const usewallet = useWallet();
   const history = useHistory();
   const location = useLocation();
-  const { childAccounts } = useProfileStore();
+  const { childAccounts, evmWallet, currentWallet } = useProfileStore();
   const { coins, balance } = useCoinStore();
   const [value, setValue] = React.useState(0);
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
@@ -80,8 +80,6 @@ const WalletTab = ({ network }) => {
   const incLink =
     network === 'mainnet' ? 'https://app.increment.fi/swap' : 'https://demo.increment.fi/swap';
 
-  const expiry_time = 60000;
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -94,9 +92,9 @@ const WalletTab = ({ network }) => {
     let data = '';
     try {
       if (childType === 'evm') {
-        data = await usewallet.getEvmAddress();
+        data = evmWallet.address;
       } else {
-        data = await usewallet.getCurrentAddress();
+        data = currentWallet.address;
       }
     } catch (error) {
       console.error('Error getting address:', error);
@@ -119,7 +117,7 @@ const WalletTab = ({ network }) => {
       }
     }
     return data;
-  }, [childType, lastManualAddressCallTime, usewallet]);
+  }, [childType, lastManualAddressCallTime, evmWallet, currentWallet]);
 
   //todo: move to util
   const pollingFunction = (func, time = 1000, endTime, immediate = false) => {
@@ -144,7 +142,6 @@ const WalletTab = ({ network }) => {
     // If childType is 'evm', handle it first
     const activeChild = await usewallet.getActiveWallet();
     if (activeChild === 'evm') {
-      const storageData = await usewallet.refreshEvmList(expiry_time);
       return;
       // If not 'evm', check if it's not active
     } else if (!isActive) {
@@ -160,8 +157,7 @@ const WalletTab = ({ network }) => {
   const loadCache = useCallback(async () => {
     const storageSwap = await usewallet.getSwapConfig();
     setSwapConfig(storageSwap);
-    const storageData = await usewallet.getCoinList(expiry_time);
-  }, [expiry_time, usewallet]);
+  }, [usewallet]);
 
   const fetchChildState = useCallback(async () => {
     setChildStateLoading(true);

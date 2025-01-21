@@ -17,8 +17,6 @@ import { formatLargeNumber } from 'ui/utils/number';
 
 import IconCreate from '../../../components/iconfont/IconCreate';
 
-import TokenDropdown from './TokenDropdown';
-
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   // const wallet = useWallet();
   const [isLoading, setLoading] = useState(true);
@@ -27,7 +25,6 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
 
   useEffect(() => {
     setLoading(data.length === 0);
-    console.log('data ', data);
     if (data.length) {
       setCoinList(data);
       setLoading(false);
