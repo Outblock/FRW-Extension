@@ -9,6 +9,8 @@ import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
 import { WalletProvider, useWallet } from 'ui/utils';
 
+// Uncomment this when we need to test api-test
+// import ApiTestPage from './api-test/api-test-page';
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
 import { Landing } from './Landing';
@@ -42,6 +44,10 @@ const Routes = () => {
       <PrivateRoute path="/approval">
         <Approval />
       </PrivateRoute>
+      {/* uncomment this when we need to test api-test */}
+      {/* <PrivateRoute path="/api-test">
+        <ApiTestPage />
+      </PrivateRoute> */}
     </>
   );
 };
