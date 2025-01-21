@@ -33,9 +33,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run tests
-        run: pnpm test
-
       - name: Create .env.pro file
         run: |
           cat << EOF > .env.pro
@@ -75,6 +72,9 @@ jobs:
           TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
           TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
           EOF
+
+      - name: Run tests
+        run: pnpm test
 
       - name: Build
         run: pnpm run build:ci
