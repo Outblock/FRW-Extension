@@ -27,5 +27,6 @@ dependency-usage.md
 extension-dependencies.md
 emulator-account.pkey
 flow.json
-
+coverage
+.github-data
 playwright/.auth
