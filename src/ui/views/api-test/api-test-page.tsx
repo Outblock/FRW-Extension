@@ -89,7 +89,7 @@ const ApiTestPage: React.FC = () => {
     addressEvm: '',
     network: 'testnet',
     username: 'coolpanda',
-    password: process.env.DEV_PASSWORD || '',
+    password: process.env.TEST_PASSWORD || '',
     token: 'flow',
     mnemonicExisting: '',
     mnemonicGenerated: '',
