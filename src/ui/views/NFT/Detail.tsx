@@ -98,7 +98,7 @@ const Detail = () => {
   const location = useLocation();
   const history = useHistory();
   const usewallet = useWallet();
-  const { childAccounts } = useProfileStore();
+  const { childAccounts, mainAddress, currentWallet, userInfo } = useProfileStore();
   const [nftDetail, setDetail] = useState<any>(null);
   const [metadata, setMetadata] = useState<any>(null);
   const [mediaLoading, setMediaLoading] = useState(true);
@@ -137,13 +137,11 @@ const Detail = () => {
   }, []);
 
   const fetchNft = useCallback(async () => {
-    const userInfo = await usewallet.getUserInfo(false);
-    const currentAddress = await usewallet.getCurrentAddress();
-    const userWallets = await usewallet.getUserWallets();
-    const parentAddress = userWallets[0].blockchain[0].address;
+    const currentAddress = currentWallet.address;
+    const parentAddress = mainAddress;
     const isChild = await usewallet.getActiveWallet();
     const userTemplate = {
-      avatar: userInfo.avatar,
+      avatar: userInfo!.avatar,
       domain: {
         domain_type: 0,
         value: '',
@@ -166,18 +164,18 @@ const Detail = () => {
       userTwo = {
         ...userTemplate,
         address: parentAddress,
-        contact_name: userInfo.nickname,
+        contact_name: userInfo!.nickname,
       };
     } else {
       userOne = {
         ...userTemplate,
         address: currentAddress,
-        contact_name: userInfo.nickname,
+        contact_name: userInfo!.nickname,
       };
       userTwo = {
         ...userTemplate,
         address: parentAddress,
-        contact_name: userInfo.nickname,
+        contact_name: userInfo!.nickname,
       };
     }
     setContactOne(userOne);
@@ -185,7 +183,16 @@ const Detail = () => {
     setChildActive(isChild ? true : false);
 
     await usewallet.setDashIndex(1);
-  }, [usewallet, childAccounts, setContactOne, setContactTwo, setChildActive]);
+  }, [
+    usewallet,
+    childAccounts,
+    mainAddress,
+    currentWallet,
+    userInfo,
+    setContactOne,
+    setContactTwo,
+    setChildActive,
+  ]);
 
   useEffect(() => {
     fetchNft();

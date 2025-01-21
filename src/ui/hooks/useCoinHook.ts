@@ -15,23 +15,37 @@ export const useCoinHook = () => {
 
   const handleStorageData = useCallback(
     async (storageData) => {
-      if (storageData) {
-        const uniqueTokens = storageData.filter(
-          (token, index, self) =>
-            index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
-        );
-        await setCoinData(uniqueTokens);
-        let sum = 0;
-        storageData
-          .filter((item) => item.total !== null)
-          .forEach((coin) => {
-            sum = sum + parseFloat(coin.total);
-            if (coin.unit.toLowerCase() === 'flow') {
-              setTotalFlow(coin.balance);
-            }
-          });
-        setBalance('$ ' + sum.toFixed(2));
+      if (!storageData) return;
+
+      // Create a map for faster lookups
+      const uniqueTokenMap = new Map();
+      let sum = new BN(0);
+      let flowBalance = new BN(0);
+
+      // Single pass through the data
+      for (const coin of storageData) {
+        const lowerUnit = coin.unit.toLowerCase();
+
+        // Handle unique tokens
+        if (!uniqueTokenMap.has(lowerUnit)) {
+          uniqueTokenMap.set(lowerUnit, coin);
+        }
+
+        // Calculate sum and flow balance
+        if (coin.total !== null) {
+          sum = sum.plus(new BN(coin.total));
+          if (lowerUnit === 'flow') {
+            flowBalance = new BN(coin.balance);
+          }
+        }
       }
+
+      // Batch updates
+      await Promise.all([
+        setCoinData(Array.from(uniqueTokenMap.values())),
+        setTotalFlow(flowBalance.toString()),
+        setBalance(`$ ${sum.toFixed(2)}`),
+      ]);
     },
     [setCoinData, setTotalFlow, setBalance]
   );
