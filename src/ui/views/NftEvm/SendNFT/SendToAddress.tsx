@@ -18,10 +18,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { type Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import { type MatchMedia } from '@/ui/utils/url';
-import { type Contact } from 'background/service/networkModel';
 import { useWallet } from 'ui/utils';
 
 import IconAbout from '../../../../components/iconfont/IconAbout';

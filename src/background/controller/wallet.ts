@@ -8,6 +8,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth/web-extension';
+import { encode } from 'rlp';
 import web3, { TransactionError } from 'web3';
 
 import {
@@ -58,10 +59,10 @@ import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
+import type { NFTData, NFTModel, WalletResponse } from '../../shared/types/network-types';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
-import type { NFTData, NFTModel, WalletResponse } from '../service/networkModel';
 import type { ConnectedSite } from '../service/permission';
 import type { Account } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
@@ -71,7 +72,6 @@ import { getStoragedAccount } from '../utils/getStoragedAccount';
 
 import BaseController from './base';
 import provider from './provider';
-
 interface Keyring {
   type: string;
   getAccounts(): Promise<string[]>;
@@ -1651,7 +1651,6 @@ export class WalletController extends BaseController {
       });
     }
 
-    console.log('v2data ', transformedArray, address);
     const active = await userWalletService.getActiveWallet();
     if (!active) {
       // userInfoService.addUserId(v2data.data.id);
@@ -1664,7 +1663,6 @@ export class WalletController extends BaseController {
   getUserWallets = async (): Promise<WalletResponse[]> => {
     const network = await this.getNetwork();
     const wallets = await userWalletService.getUserWallets(network);
-    console.log('getUserWallets ', wallets);
     if (!wallets[0]) {
       await this.refreshUserWallets();
       const data = await userWalletService.getUserWallets(network);
@@ -1705,7 +1703,6 @@ export class WalletController extends BaseController {
 
   getCurrentWallet = async () => {
     const wallet = await userWalletService.getCurrentWallet();
-    console.log('getCurrentWallet ', wallet);
     if (!wallet.address) {
       const network = await this.getNetwork();
       await this.refreshUserWallets();
@@ -1931,7 +1928,7 @@ export class WalletController extends BaseController {
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
 
     console.log('integerAmountStr amount ', integerAmountStr, amount);
-    const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlowV2');
+    const script = await getScripts('bridge', 'bridgeTokensFromEvmToFlowV3');
     const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowidentifier, t.String),
       fcl.arg(integerAmountStr, t.UInt256),
@@ -2117,36 +2114,24 @@ export class WalletController extends BaseController {
     }
     await this.getNetwork();
 
-    const script = await getScripts('evm', 'callContract');
+    const script = await getScripts('evm', 'callContractV2');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    let amount;
-
-    // If value is 0, set amount to '0.00000000'
-    if (value === 0 || value === '0x0' || value === '0') {
-      amount = '0.00000000';
-    } else {
-      // Ensure '0x' prefix for the hex value
-      if (typeof value === 'string' && !value.startsWith('0x')) {
+    if (typeof value === 'string') {
+      if (!value.startsWith('0x')) {
         value = '0x' + value;
       }
-
-      // Convert the hex value to number
-      const number = web3.utils.hexToNumber(value);
-
-      // Convert Wei to Ether
-      amount = web3.utils.fromWei(number.toString(), 'ether');
-
-      // Ensure the amount has exactly 8 decimal places
-      amount = parseFloat(amount).toFixed(8);
     }
+
+    // Convert the hex value to number
+    const number = web3.utils.hexToNumber(value);
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(amount, t.UFix64),
+      fcl.arg(number.toString(), t.UInt256),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
@@ -2154,7 +2139,7 @@ export class WalletController extends BaseController {
     mixpanelTrack.track('ft_transfer', {
       from_address: await this.getEvmAddress(),
       to_address: to,
-      amount: parseFloat(amount),
+      amount: parseFloat(number.toString()),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
@@ -2172,79 +2157,90 @@ export class WalletController extends BaseController {
     }
     await this.getNetwork();
 
-    const script = await getScripts('evm', 'callContract');
+    const script = await getScripts('evm', 'callContractV2');
     const gasLimit = 30000000;
     const dataBuffer = Buffer.from(data.slice(2), 'hex');
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    let amount;
-    // console.log('dapSendEvmTX value:', value);
-
-    // If value is 0 or similar, set amount to '0.00000000'
-    if (value === 0 || value === '0x0' || value === '0') {
-      amount = '0.00000000';
-    } else {
-      // Check if the value is a string
-      if (typeof value === 'string') {
-        // Check if it starts with '0x'
-        if (value.startsWith('0x')) {
-          // If it's hex without '0x', add '0x'
-          if (!/^0x[0-9a-fA-F]+$/.test(value)) {
-            value = '0x' + value.replace(/^0x/, '');
-          }
-        } else {
-          // If it's a regular string, convert to hex
-          value = web3.utils.toHex(value);
-        }
+    if (typeof value === 'string') {
+      if (!value.startsWith('0x')) {
+        value = '0x' + value;
       }
-
-      // Convert the hex value to number
-      const number = web3.utils.hexToNumber(value);
-
-      // Convert Wei to Ether
-      amount = web3.utils.fromWei(number.toString(), 'ether');
-
-      // Ensure the amount has exactly 8 decimal places
-      amount = parseFloat(amount).toFixed(8);
+    } else {
+      throw new Error('Value must be a hex string');
     }
 
-    // console.log('Final amount:', amount);
+    // Check if the value is a string
+    if (typeof value === 'string') {
+      // Check if it starts with '0x'
+      if (value.startsWith('0x')) {
+        // If it's hex without '0x', add '0x'
+        if (!/^0x[0-9a-fA-F]+$/.test(value)) {
+          value = '0x' + value.replace(/^0x/, '');
+        }
+      } else {
+        // If it's a regular string, convert to hex
+        value = web3.utils.toHex(value);
+      }
+    }
 
+    // Convert the hex value to number
+    const number = web3.utils.hexToNumber(value);
+
+    // console.log('Final amount:', amount);
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(amount, t.UFix64),
+      fcl.arg(number.toString(), t.UInt256),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
 
+    let evmAddress = await this.getEvmAddress();
+
     mixpanelTrack.track('ft_transfer', {
-      from_address: await this.getEvmAddress(),
+      from_address: evmAddress,
       to_address: to,
-      amount: parseFloat(amount),
+      amount: parseFloat(number.toString()),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
 
-    console.log('result ', result);
-    const res = await fcl.tx(result).onceSealed();
-    const transactionExecutedEvent = res.events.find((event) =>
-      event.type.includes('TransactionExecuted')
-    );
-
-    if (transactionExecutedEvent) {
-      const hash = transactionExecutedEvent.data.hash;
-      const hashHexString = hash.map((num) => parseInt(num).toString(16).padStart(2, '0')).join('');
-
-      return hashHexString;
-    } else {
-      console.log('Transaction Executed event not found');
+    if (evmAddress.startsWith('0x')) {
+      evmAddress = evmAddress.substring(2);
     }
 
-    // const transaction = await fcl.tx(result).onceSealed();
-    // console.log('transaction ', transaction);
+    const addressNonce = await this.getNonce(evmAddress);
 
-    // return result;
+    const keccak256 = (data: Buffer) => {
+      return ethUtil.keccak256(data);
+    };
+
+    // [nonce, gasPrice, gasLimit, to.addressData, value, data, v, r, s]
+    const directCallTxType = 255;
+    const contractCallSubType = 5;
+    const noceNumber = Number(addressNonce);
+    const gasPrice = 0;
+    const transactionValue = BigInt(number);
+    const transaction = [
+      noceNumber, // nonce
+      gasPrice, // Fixed value
+      gasLimit, // Gas Limit
+      Buffer.from(to, 'hex'), // To Address
+      transactionValue, // Value
+      Buffer.from(dataArray), // Call Data
+      directCallTxType, // Fixed value
+      BigInt('0x' + evmAddress), // From Account
+      contractCallSubType, // SubType
+    ];
+    const encodedData = encode(transaction);
+    const hash = keccak256(Buffer.from(encodedData));
+    const hashHexString = Buffer.from(hash).toString('hex');
+    if (hashHexString) {
+      return hashHexString;
+    } else {
+      return null;
+    }
   };
 
   getBalance = async (hexEncodedAddress: string): Promise<string> => {
@@ -2334,7 +2330,7 @@ export class WalletController extends BaseController {
       throw new Error(`Invaild token name - ${symbol}`);
     }
     await this.getNetwork();
-    const script = await getScripts('ft', 'transferTokens');
+    const script = await getScripts('ft', 'transferTokensV3');
 
     const txID = await userWalletService.sendTransaction(
       script
@@ -2364,7 +2360,7 @@ export class WalletController extends BaseController {
     amount: string
   ): Promise<string> => {
     const token = await openapiService.getTokenInfo(symbol);
-    const script = await getScripts('ft', 'transferTokens');
+    const script = await getScripts('ft', 'transferTokensV3');
 
     if (!token) {
       throw new Error(`Invaild token name - ${symbol}`);
@@ -3028,7 +3024,7 @@ export class WalletController extends BaseController {
     ids: number,
     receiver: string
   ): Promise<string> => {
-    const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlowV2');
+    const script = await getScripts('bridge', 'bridgeNFTFromEvmToFlowV3');
 
     const txID = await userWalletService.sendTransaction(script, [
       fcl.arg(flowIdentifier, t.String),
@@ -3058,7 +3054,7 @@ export class WalletController extends BaseController {
 
   sendNFT = async (recipient: string, id: any, token: any): Promise<string> => {
     await this.getNetwork();
-    const script = await getScripts('collection', 'sendNFT');
+    const script = await getScripts('collection', 'sendNFTV3');
 
     const txID = await userWalletService.sendTransaction(
       script
@@ -3082,7 +3078,7 @@ export class WalletController extends BaseController {
 
   sendNBANFT = async (recipient: string, id: any, token: NFTModel): Promise<string> => {
     await this.getNetwork();
-    const script = await getScripts('collection', 'sendNbaNFT');
+    const script = await getScripts('collection', 'sendNbaNFTV3');
 
     const txID = await userWalletService.sendTransaction(
       script

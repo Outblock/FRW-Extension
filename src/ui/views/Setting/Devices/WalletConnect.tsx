@@ -25,7 +25,7 @@ import {
   type DeviceInfo,
   type DeviceInfoRequest,
   type AccountKey,
-} from 'background/service/networkModel';
+} from '@/shared/types/network-types';
 import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 

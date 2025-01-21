@@ -25,10 +25,10 @@ import { useHistory } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
 import eventBus from '@/eventBus';
+import type { UserInfoResponse, WalletResponse } from '@/shared/types/network-types';
 import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { useNews } from '@/ui/utils/NewsContext';
-import type { UserInfoResponse, WalletResponse } from 'background/service/networkModel';
 import { useWallet, formatAddress } from 'ui/utils';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
@@ -829,27 +829,25 @@ const Header = ({ loading = false }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          {userInfo && (
-            <MenuDrawer
-              userInfo={userInfo!}
-              drawer={drawer}
-              toggleDrawer={toggleDrawer}
-              otherAccounts={otherAccounts}
-              switchAccount={switchAccount}
-              togglePop={togglePop}
-              walletList={walletList}
-              childAccounts={childAccounts}
-              current={current}
-              createWalletList={createWalletList}
-              setWallets={setWallets}
-              currentNetwork={currentNetwork}
-              evmWallet={evmWallet}
-              networkColor={networkColor}
-              evmLoading={evmLoading}
-              modeOn={developerModeOn}
-              mainAddressLoading={mainAddressLoading}
-            />
-          )}
+          <MenuDrawer
+            userInfo={userInfo!}
+            drawer={drawer}
+            toggleDrawer={toggleDrawer}
+            otherAccounts={otherAccounts}
+            switchAccount={switchAccount}
+            togglePop={togglePop}
+            walletList={walletList}
+            childAccounts={childAccounts}
+            current={current}
+            createWalletList={createWalletList}
+            setWallets={setWallets}
+            currentNetwork={currentNetwork}
+            evmWallet={evmWallet}
+            networkColor={networkColor}
+            evmLoading={evmLoading}
+            modeOn={developerModeOn}
+            mainAddressLoading={mainAddressLoading}
+          />
           {appBarLabel(current)}
           {usernameSelect()}
           <NewsDrawer />

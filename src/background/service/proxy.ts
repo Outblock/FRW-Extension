@@ -5,10 +5,10 @@ import { FCLWalletConnectMethod } from '@/shared/types/fcl-connect-types';
 import wallet from 'background/controller/wallet';
 import { keyringService, openapiService } from 'background/service';
 
+import { type DeviceInfoRequest } from '../../shared/types/network-types';
 import { storage } from '../webapi';
 
 import { proxyToken } from './authentication';
-import { type DeviceInfoRequest } from './networkModel';
 
 class Proxy {
   proxySign = async (token: string, userId: string) => {

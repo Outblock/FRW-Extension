@@ -12,12 +12,6 @@ import { getScripts, findKeyAndInfo } from 'background/utils';
 import fetchConfig from 'background/utils/remoteConfig';
 
 import {
-  getAppInstallationId,
-  getUserToken,
-  signInWithToken,
-  verifyAuthStatus,
-} from './authentication';
-import {
   type AccountKey,
   type CheckResponse,
   type SignInResponse,
@@ -31,7 +25,14 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
-} from './networkModel';
+} from '../../shared/types/network-types';
+
+import {
+  getAppInstallationId,
+  getUserToken,
+  signInWithToken,
+  verifyAuthStatus,
+} from './authentication';
 
 import {
   userWalletService,
@@ -506,6 +507,54 @@ const DATA_CONFIG = {
     host: process.env.API_BASE_URL,
   },
 };
+
+const recordFetch = async (response, responseData, ...args: Parameters<typeof fetch>) => {
+  try {
+    // Extract URL parameters from the first argument if it's a URL with query params
+    const url = args[0].toString();
+    const urlObj = new URL(url);
+    const urlParams = Object.fromEntries(urlObj.searchParams.entries());
+
+    // Send message to UI with request/response details
+
+    const messageData = {
+      method: args[1]?.method,
+      url: args[0],
+      params: urlParams, // URL parameters extracted from the URL
+      requestInit: args[1],
+      responseData, // Raw response from fetch
+      timestamp: Date.now(),
+      status: response.status,
+      statusText: response.statusText,
+      // Note: functionParams and functionResponse will be added by the calling function
+    };
+    console.log('fetchCallRecorder - response & messageData', response, messageData);
+
+    chrome.runtime.sendMessage({
+      type: 'API_CALL_RECORDED',
+      data: messageData,
+    });
+  } catch (err) {
+    console.error('Error sending message to UI:', err);
+  }
+  return response;
+};
+
+// Override fetch in branches other than master
+const originalFetch = globalThis.fetch;
+
+const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
+  const response = await originalFetch(...args);
+  try {
+    console.log('response', response);
+    const responseData = response.ok ? await response.clone().json() : null;
+    //  recordFetch(response, responseData, ...args);
+  } catch (err) {
+    console.error('Error recording fetch call:', err);
+  }
+  return response;
+};
+///const fetch = process.env.BRANCH_NAME === 'master' ? globalThis.fetch : fetchCallRecorder;
 
 const fetchRequest = async (
   method = 'GET',
@@ -1898,6 +1947,7 @@ class OpenApiService {
 
     console.log('getTransactionTemplate ->', init);
     const response = await fetch('https://flix.flow.com/v1/templates/search', init);
+
     const template = await response.json();
 
     console.log('template ->', template);
@@ -2454,5 +2504,47 @@ class OpenApiService {
 }
 
 const openApiService = new OpenApiService();
+
+if (process.env.NODE_ENV === 'development') {
+  // Log all functions and their signatures
+  const functions = Object.entries(openApiService)
+    .filter(
+      ([name, value]) =>
+        typeof value === 'function' &&
+        name !== 'constructor' &&
+        typeof name === 'string' &&
+        name !== 'get'
+    )
+    .map(([name]) => {
+      const func = openApiService[name];
+      // Use a safer way to get function info
+      const funcStr = func.toString();
+      const isAsync = funcStr.startsWith('async');
+      const basicSignature = funcStr.split('{')[0].trim();
+
+      return {
+        name,
+        isAsync,
+        fullBody: funcStr,
+        usesSendRequest: funcStr.includes('this.sendRequest'),
+        usesFetchDirectly: funcStr.includes('fetch('),
+        basicSignature,
+        // Simple regex to extract parameter names without accessing arguments
+        params: basicSignature
+          .slice(basicSignature.indexOf('(') + 1, basicSignature.lastIndexOf(')'))
+          .split(',')
+          .map((param) => param.trim())
+          .map((param) => {
+            if (param.startsWith('PriceProvider.')) {
+              return param.replace('PriceProvider.', '');
+            }
+            return param;
+          })
+          .filter(Boolean),
+      };
+    });
+
+  console.log('OpenApiService Functions:', functions);
+}
 
 export default openApiService;

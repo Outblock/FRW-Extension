@@ -6,7 +6,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'master' && 'production' || github.ref_name == 'dev' && 'staging' || 'development' }}
+    environment: >-
+      ${{
+        github.ref_type == 'tag' && 'production' ||
+        github.ref_name == 'master' && 'production' ||
+        github.ref_name == 'dev' && 'staging' ||
+        'development'
+      }}
 
     strategy:
       matrix:
@@ -26,9 +32,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
-      - name: Run tests
-        run: pnpm test
 
       - name: Create .env.pro file
         run: |
@@ -65,7 +68,13 @@ jobs:
           OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"
           WC_PROJECTID="${{ secrets.WC_PROJECTID }}"
           MIXPANEL_TOKEN="${{ secrets.MIXPANEL_TOKEN }}"
+          TEST_PASSWORD="${{ secrets.TEST_PASSWORD }}"
+          TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
+          TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
           EOF
+
+      - name: Run tests
+        run: pnpm test
 
       - name: Build
         run: pnpm run build:ci
