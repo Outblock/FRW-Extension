@@ -9,9 +9,7 @@ import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/addre
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
 import { getScripts, findKeyAndInfo } from 'background/utils';
-import { getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
 import fetchConfig from 'background/utils/remoteConfig';
-import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 
 import {
   getAppInstallationId,
@@ -47,6 +45,13 @@ import {
   newsService,
 } from './index';
 
+const INITIAL_OPENAPI_URL =
+  process.env.NODE_ENV === 'production' ? 'https://api.lilico.app' : 'https://dev.lilico.app';
+const WEB_NEXT_URL =
+  process.env.NODE_ENV === 'production' ? 'https://lilico.app' : 'https://test.lilico.app';
+
+const FIREBASE_FUNCTIONS_URL = process.env.FB_FUNCTIONS!;
+
 const remoteFetch = fetchConfig;
 
 const DATA_CONFIG = {
@@ -54,328 +59,517 @@ const DATA_CONFIG = {
     path: '/v1/user/check',
     method: 'get',
     params: ['username'],
+    host: INITIAL_OPENAPI_URL,
   },
   search_user: {
     path: '/v1/user/search',
     method: 'get',
     params: ['keyword'],
+    host: INITIAL_OPENAPI_URL,
   },
   register: {
     path: '/v1/register',
     method: 'post',
     params: ['username', 'account_key'],
+    host: INITIAL_OPENAPI_URL,
   },
   create_flow_address: {
     path: '/v1/user/address',
     method: 'post',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   create_flow_sandbox_address: {
     path: '/v1/user/address/crescendo',
     method: 'post',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   create_flow_network_address: {
     path: '/v1/user/address/network',
     method: 'post',
     params: ['account_key', 'network'],
+    host: INITIAL_OPENAPI_URL,
   },
   login: {
     path: '/v1/login',
     method: 'post',
     params: ['public_key', 'signature'],
+    host: INITIAL_OPENAPI_URL,
   },
   loginv2: {
     path: '/v2/login',
     method: 'post',
     params: ['public_key', 'signature'],
+    host: INITIAL_OPENAPI_URL,
   },
   loginv3: {
     path: '/v3/login',
     method: 'post',
     params: ['signature', 'account_key', 'device_info'],
+    host: INITIAL_OPENAPI_URL,
   },
   importKey: {
     path: '/v3/import',
     method: 'post',
     params: ['username', 'account_key', 'device_info', 'backup_info', 'address'],
+    host: INITIAL_OPENAPI_URL,
   },
   coin_map: {
     path: '/v1/coin/map',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   user_wallet: {
     path: '/v1/user/wallet',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   user_wallet_v2: {
     path: '/v2/user/wallet',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   user_info: {
     path: '/v1/user/info',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   prepare_transaction: {
     path: '/v1/account/presign',
     method: 'post',
     params: ['transaction'],
+    host: INITIAL_OPENAPI_URL,
   },
-  sign_payer: {
-    path: '/v1/account/signpayer',
+  sign_as_payer: {
+    path: '/signAsPayer',
     method: 'post',
     params: ['transaction', 'message'],
+    host: FIREBASE_FUNCTIONS_URL,
+  },
+  sign_as_proposer: {
+    path: '/signAsProposer',
+    method: 'post',
+    params: ['transaction', 'message'],
+    host: FIREBASE_FUNCTIONS_URL,
+  },
+  get_proposer: {
+    path: '/getProposer',
+    method: 'get',
+    params: [],
+    host: FIREBASE_FUNCTIONS_URL,
   },
   send_transaction: {
     path: '/v1/account/transaction',
     method: 'post',
     params: ['transaction'],
+    host: INITIAL_OPENAPI_URL,
   },
   coin_list: {
     path: '/v1/account/info',
     method: 'get',
     params: ['address'],
+    host: INITIAL_OPENAPI_URL,
   },
   coin_rate: {
     path: '/v1/coin/rate',
     method: 'get',
     params: ['coinId'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_list_v2: {
     path: '/v2/nft/list',
     method: 'get',
     params: ['address', 'offset', 'limit'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_list_lilico_v2: {
     path: '/v2/nft/detail/list',
     method: 'get',
     params: ['address', 'offset', 'limit'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_collections_lilico_v2: {
     path: '/v2/nft/collections',
     method: 'get',
     params: ['address'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_collections_single_v2: {
     path: '/v2/nft/single',
     method: 'get',
     params: ['address', 'contractName', 'limit', 'offset'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_meta: {
     path: '/v2/nft/meta',
     method: 'get',
     params: ['address', 'contractName', 'contractAddress', 'tokenId'],
+    host: INITIAL_OPENAPI_URL,
   },
   fetch_address_book: {
     path: '/v1/addressbook/contact',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   add_address_book: {
     path: '/v1/addressbook/contact',
     method: 'put',
     params: ['contact_name', 'username', 'address', 'domain', 'domain_type'],
+    host: INITIAL_OPENAPI_URL,
   },
   edit_address_book: {
     path: '/v1/addressbook/contact',
     method: 'post',
     params: ['id', 'contact_name', 'address', 'domain', 'domain_type'],
+    host: INITIAL_OPENAPI_URL,
   },
   delete_address_book: {
     path: '/v1/addressbook/contact',
     method: 'delete',
     params: ['id'],
+    host: INITIAL_OPENAPI_URL,
   },
   add_external_address_book: {
     path: '/v1/addressbook/external',
     method: 'put',
     params: ['contact_name', 'address', 'domain', 'domain_type'],
+    host: INITIAL_OPENAPI_URL,
   },
   account_transaction: {
     path: '/v1/account/transaction',
     method: 'get',
     params: ['address', 'limit', 'offset'],
+    host: INITIAL_OPENAPI_URL,
   },
   validate_recaptcha: {
     path: '/v1/user/recaptcha',
     method: 'get',
     params: ['token'],
+    host: INITIAL_OPENAPI_URL,
   },
   crypto_map: {
     path: '/v1/crypto/map',
     method: 'get',
     params: ['provider', 'pair'],
+    host: INITIAL_OPENAPI_URL,
   },
   crypto_flow: {
     path: '/v1/crypto/summary',
     method: 'get',
     params: ['provider', 'pair'],
+    host: INITIAL_OPENAPI_URL,
   },
   crypto_history: {
     path: '/v1/crypto/history',
     method: 'get',
     params: ['provider', 'pair', 'after', 'history'],
+    host: INITIAL_OPENAPI_URL,
   },
   account_query: {
     path: '/v1/account/query',
     method: 'post',
     params: ['query', 'operation_name'],
+    host: INITIAL_OPENAPI_URL,
   },
   profile_preference: {
     path: '/v1/profile/preference',
     method: 'post',
     params: ['private'],
+    host: INITIAL_OPENAPI_URL,
   },
   profile_update: {
     path: '/v1/profile',
     method: 'post',
     params: ['nickname', 'avatar'],
+    host: INITIAL_OPENAPI_URL,
   },
   flowns_prepare: {
     path: '/v1/flowns/prepare',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   flowns_signature: {
     path: '/v1/flowns/signature',
     method: 'post',
     params: ['transaction', 'message'],
+    host: INITIAL_OPENAPI_URL,
   },
   payer_signature: {
     path: '/v1/flowns/payer/signature',
     method: 'post',
     params: ['transaction', 'message'],
+    host: INITIAL_OPENAPI_URL,
   },
   get_transfers: {
     path: '/v1/account/transfers',
     method: 'get',
     params: ['address', 'after', 'limit'],
+    host: INITIAL_OPENAPI_URL,
   },
   manual_address: {
     path: '/v1/user/manualaddress',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   device_list: {
     path: '/v1/user/device',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   key_list: {
     path: '/v1/user/keys',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   add_device: {
     path: '/v1/user/device',
     method: 'put',
     params: ['device_info', 'wallet_id', 'wallettest_id '],
+    host: INITIAL_OPENAPI_URL,
   },
   add_device_v3: {
     path: '/v3/user/device',
     method: 'put',
     params: ['device_info', 'wallet_id', 'wallettest_id '],
+    host: INITIAL_OPENAPI_URL,
   },
   get_location: {
     path: '/v1/user/location',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   sync_device: {
     path: '/v3/sync',
     method: 'post',
     params: ['account_key', 'device_info '],
+    host: INITIAL_OPENAPI_URL,
   },
   check_import: {
     path: '/v3/checkimport',
     method: 'get',
     params: ['key'],
+    host: INITIAL_OPENAPI_URL,
   },
   get_version: {
     path: '/version',
     method: 'get',
     params: [],
+    host: INITIAL_OPENAPI_URL,
+  },
+  get_prices: {
+    path: '/api/prices',
+    method: 'get',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  moonpay_signature: {
+    path: '/moonPaySignature',
+    method: 'POST',
+    params: ['transaction', 'message'],
+    host: INITIAL_OPENAPI_URL,
+  },
+  get_evm_transfers: {
+    path: (params: { address: string }) => `/api/evm/${params.address}/transactions`,
+    method: 'GET',
+    params: ['address', 'after', 'limit'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog: {
+    path: 'api/nft/collections',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  cadence_scripts: {
+    path: '/api/scripts',
+    method: 'GET',
+    params: ['network'],
+    host: WEB_NEXT_URL,
+  },
+  cadence_scripts_v2: {
+    path: '/api/v2/scripts',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_list: {
+    path: '/api/v2/nft/list',
+    method: 'GET',
+    params: ['address', 'limit', 'offset', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_collections: {
+    path: '/api/v2/nft/id',
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_collection_list: {
+    path: '/api/v2/nft/collectionList',
+    method: 'GET',
+    params: ['address', 'limit', 'offset', 'collectionIdentifier', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_collection_api_paging: {
+    path: (params: { network: string }) => `/api/storage/${params.network}/nft`,
+    method: 'GET',
+    params: ['address', 'limit', 'offset', 'path', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_collection_info: {
+    path: (params: { network: string }) => `/api/storage/${params.network}/nft/collection`,
+    method: 'GET',
+    params: ['address', 'path', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_collection_list: {
+    path: '/api/nft/collections',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  evm_ft_list: {
+    path: '/api/evm/fts',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  get_evm_ft: {
+    path: (params: { address: string }) => `/api/v3/evm/${params.address}/fts`,
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_list: {
+    path: '/api/evm/nfts',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_detail: {
+    path: (params: { address: string }) => `/api/evm/${params.address}/nfts`,
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_decode_data: {
+    path: '/api/evm/decodeData',
+    method: 'POST',
+    params: ['to', 'data'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_collection_list: {
+    path: '/api/v3/evm/nft/collectionList',
+    method: 'GET',
+    params: ['address', 'collectionIdentifier', 'limit', 'offset', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_id: {
+    path: '/api/v3/evm/nft/id',
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_list_v3: {
+    path: '/api/v3/evm/nft/list',
+    method: 'GET',
+    params: ['address', 'limit', 'offset', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_gentx: {
+    path: '/api/nft/gentx',
+    method: 'GET',
+    params: ['collectionIdentifier'],
+    host: WEB_NEXT_URL,
+  },
+  get_news: {
+    path: process.env.API_NEWS_PATH,
+    method: 'GET',
+    params: [],
+    host: process.env.API_BASE_URL,
+  },
+  get_config: {
+    path: process.env.API_CONFIG_PATH,
+    method: 'GET',
+    params: [],
+    host: process.env.API_BASE_URL,
   },
 };
 
-const originalFetch = globalThis.fetch;
-const fetch = async (...args: Parameters<typeof originalFetch>) => {
-  console.log('fetch called', args);
-  const response = await originalFetch(...args);
-  const responseData = await response.clone().json();
+const fetchRequest = async (
+  method = 'GET',
+  url = '',
+  params = {},
+  data = {},
+  host = INITIAL_OPENAPI_URL
+) => {
+  // Default options are marked with *
+  let requestUrl = '';
 
-  // Extract URL parameters from the first argument if it's a URL with query params
-  const url = args[0].toString();
-  const urlObj = new URL(url);
-  const urlParams = Object.fromEntries(urlObj.searchParams.entries());
+  if (Object.keys(params).length) {
+    requestUrl = host + url + '?' + new URLSearchParams(params).toString();
+  } else {
+    requestUrl = host + url;
+  }
+  const network = await userWalletService.getNetwork();
 
-  // Send message to UI with request/response details
-  chrome.runtime.sendMessage({
-    type: 'API_CALL_RECORDED',
-    data: {
-      method: args[1]?.method,
-      url: args[0],
-      params: urlParams, // URL parameters extracted from the URL
-      requestInit: args[1],
-      responseData, // Raw response from fetch
-      timestamp: Date.now(),
-      // Note: functionParams and functionResponse will be added by the calling function
+  const idToken = await getUserToken();
+  const init: RequestInit = {
+    method,
+    headers: {
+      Network: network,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + idToken,
     },
-  });
+  };
 
-  console.log('response', response);
-  return response;
+  if (method.toUpperCase() !== 'GET') {
+    init.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(requestUrl, init);
+  const responseData = await response.json();
+
+  return responseData; // parses JSON response into native JavaScript objects
+};
+
+const fetchConfigRequest = <key extends keyof typeof DATA_CONFIG>(
+  config: (typeof DATA_CONFIG)[key],
+  params?: any,
+  data?: any
+) => {
+  return fetchRequest(
+    config.method,
+    typeof config.path === 'function' ? config.path(params) : config.path,
+    params,
+    data,
+    config.host
+  );
 };
 
 class OpenApiService {
+  sendRequest = async (method: string, url: string, params: any, data: any, host: string) => {
+    return fetchRequest(method, url, params, data, host);
+  };
+
   init = async () => {
     await userWalletService.setupFcl();
   };
 
   checkAuthStatus = async () => {
     return verifyAuthStatus();
-  };
-
-  sendRequest = async (
-    method = 'GET',
-    url = '',
-    params = {},
-    data = {},
-    host = INITIAL_OPENAPI_URL
-  ) => {
-    // Default options are marked with *
-    let requestUrl = '';
-
-    if (Object.keys(params).length) {
-      requestUrl = host + url + '?' + new URLSearchParams(params).toString();
-    } else {
-      requestUrl = host + url;
-    }
-    const network = await userWalletService.getNetwork();
-
-    const idToken = await getUserToken();
-    const init: RequestInit = {
-      method,
-      headers: {
-        Network: network,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + idToken,
-      },
-    };
-
-    if (method.toUpperCase() !== 'GET') {
-      init.body = JSON.stringify(data);
-    }
-
-    const response = await fetch(requestUrl, init);
-    const responseData = await response.json();
-
-    return responseData; // parses JSON response into native JavaScript objects
   };
 
   private getUSDCPricePair = (provider: PriceProvider): string | null => {
@@ -410,7 +604,7 @@ class OpenApiService {
 
   getUSDCPrice = async (provider = PriceProvider.binance): Promise<CheckResponse> => {
     const config = DATA_CONFIG.crypto_map;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       provider,
       pair: this.getUSDCPricePair(provider),
     });
@@ -443,7 +637,8 @@ class OpenApiService {
     const pricesMap: Record<string, string> = {};
 
     try {
-      const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
+      const config = DATA_CONFIG.get_prices;
+      const response = await fetchConfigRequest(config, {}, {});
       const data = response?.data || [];
 
       data.forEach((token) => {
@@ -509,7 +704,7 @@ class OpenApiService {
     if (!pair) {
       throw new Error('no price provider found');
     }
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       provider,
       pair: pair,
     });
@@ -548,7 +743,7 @@ class OpenApiService {
     }
 
     const config = DATA_CONFIG.crypto_history;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       provider,
       pair: this.getTokenPair(token, provider),
       after: period === Period.all ? '' : after.unix(),
@@ -574,7 +769,7 @@ class OpenApiService {
 
   checkUsername = async (username: string) => {
     const config = DATA_CONFIG.check_username;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       username,
     });
     return data;
@@ -585,9 +780,8 @@ class OpenApiService {
     mixpanelTrack.time('account_created');
 
     const config = DATA_CONFIG.register;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         account_key,
@@ -616,12 +810,7 @@ class OpenApiService {
     //   public_key,
     //   signature,
     // });
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
+    const result = await fetchConfigRequest(config, {}, { public_key, signature });
     if (!result.data) {
       throw new Error('NoUserFound');
     }
@@ -638,12 +827,7 @@ class OpenApiService {
     replaceUser = true
   ): Promise<SignInResponse> => {
     const config = DATA_CONFIG.loginv2;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
+    const result = await fetchConfigRequest(config, {}, { public_key, signature });
     if (!result.data) {
       throw new Error('NoUserFound');
     }
@@ -661,12 +845,7 @@ class OpenApiService {
     replaceUser = true
   ): Promise<SignInResponse> => {
     const config = DATA_CONFIG.loginv3;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { account_key, device_info, signature }
-    );
+    const result = await fetchConfigRequest(config, {}, { account_key, device_info, signature });
     if (!result.data) {
       throw new Error('NoUserFound');
     }
@@ -694,9 +873,8 @@ class OpenApiService {
     replaceUser = true
   ): Promise<SignInResponse> => {
     const config = DATA_CONFIG.importKey;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
+    const result = await fetchConfigRequest(
+      config,
       {},
       { username, address, account_key, device_info, backup_info }
     );
@@ -712,45 +890,44 @@ class OpenApiService {
 
   coinMap = async () => {
     const config = DATA_CONFIG.coin_map;
-    const data = await this.sendRequest(config.method, config.path);
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
   userInfo = async (): Promise<UserInfoResponse> => {
     const config = DATA_CONFIG.user_info;
-    return await this.sendRequest(config.method, config.path);
+    return await fetchConfigRequest(config);
   };
 
   userWallet = async () => {
     const config = DATA_CONFIG.user_wallet;
-    const data = await this.sendRequest(config.method, config.path);
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
   //todo check data
   userWalletV2 = async () => {
     const config = DATA_CONFIG.user_wallet_v2;
-    const data = await this.sendRequest(config.method, config.path);
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
   createFlowAddress = async () => {
     const config = DATA_CONFIG.create_flow_address;
-    const data = await this.sendRequest(config.method, config.path);
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
   createFlowSandboxAddress = async () => {
     const config = DATA_CONFIG.create_flow_sandbox_address;
-    const data = await this.sendRequest(config.method, config.path);
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
   createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
     const config = DATA_CONFIG.create_flow_network_address;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         account_key,
@@ -761,14 +938,14 @@ class OpenApiService {
   };
 
   getMoonpayURL = async (url) => {
-    const baseURL = getFirbaseFunctionUrl();
-    const response = await this.sendRequest('POST', '/moonPaySignature', {}, { url: url }, baseURL);
+    const config = DATA_CONFIG.moonpay_signature;
+    const response = await fetchConfigRequest(config, {}, { url: url });
     return response;
   };
 
   prepareTransaction = async (transaction: FlowTransaction) => {
     const config = DATA_CONFIG.prepare_transaction;
-    const data = await this.sendRequest(config.method, config.path, {}, { transaction });
+    const data = await fetchConfigRequest(config, {}, { transaction });
     return data;
   };
 
@@ -776,16 +953,8 @@ class OpenApiService {
     const messages = {
       envelope_message: message,
     };
-    const config = DATA_CONFIG.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest(
-      'POST',
-      '/signAsPayer',
-      {},
-      { transaction, message: messages },
-      baseURL
-    );
+    const config = DATA_CONFIG.sign_as_payer;
+    const data = await fetchConfigRequest(config, {}, { transaction, message: messages });
     // (config.method, config.path, {}, { transaction, message: messages });
     return data;
   };
@@ -794,34 +963,22 @@ class OpenApiService {
     const messages = {
       envelope_message: message,
     };
-    const config = DATA_CONFIG.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest(
-      'POST',
-      '/signAsProposer',
-      {},
-      { transaction, message: messages },
-      baseURL
-    );
-    // (config.method, config.path, {}, { transaction, message: messages });
+    const config = DATA_CONFIG.sign_as_proposer;
+    const data = await fetchConfigRequest(config, {}, { transaction, message: messages });
+
     return data;
   };
 
   getProposer = async () => {
-    const config = DATA_CONFIG.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest('GET', '/getProposer', {}, {}, baseURL);
-    // (config.method, config.path, {}, { transaction, message: messages });
+    const config = DATA_CONFIG.get_proposer;
+    const data = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   sendTransaction = async (transaction): Promise<SendTransactionResponse> => {
     const config = DATA_CONFIG.send_transaction;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         transaction,
@@ -832,7 +989,7 @@ class OpenApiService {
 
   getCoinList = async (address) => {
     const config = DATA_CONFIG.coin_list;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       address,
     });
     return data;
@@ -840,7 +997,7 @@ class OpenApiService {
 
   getCoinRate = async (coinId) => {
     const config = DATA_CONFIG.coin_rate;
-    const data = await this.sendRequest(config.method, config.path, { coinId });
+    const data = await fetchConfigRequest(config, { coinId });
     return data;
   };
 
@@ -851,7 +1008,7 @@ class OpenApiService {
     tokenId: number
   ) => {
     const config = DATA_CONFIG.nft_meta;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       address,
       contractName,
       contractAddress,
@@ -863,7 +1020,7 @@ class OpenApiService {
 
   getAddressBook = async () => {
     const config = DATA_CONFIG.fetch_address_book;
-    const data = await this.sendRequest(config.method, config.path);
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
@@ -875,9 +1032,8 @@ class OpenApiService {
     domain_type = 0
   ) => {
     const config = DATA_CONFIG.add_address_book;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         contact_name,
@@ -898,9 +1054,8 @@ class OpenApiService {
     domain_type = 0
   ) => {
     const config = DATA_CONFIG.edit_address_book;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         id,
@@ -915,7 +1070,7 @@ class OpenApiService {
 
   deleteAddressBook = async (id: number) => {
     const config = DATA_CONFIG.delete_address_book;
-    const data = await this.sendRequest(config.method, config.path, { id });
+    const data = await fetchConfigRequest(config, { id });
     return data;
   };
 
@@ -926,9 +1081,8 @@ class OpenApiService {
     domain_type = 0
   ) => {
     const config = DATA_CONFIG.add_external_address_book;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         contact_name,
@@ -1065,7 +1219,7 @@ class OpenApiService {
 
   // getTransaction = async (address: string, limit: number, offset: number) => {
   //   const config = DATA_CONFIG.account_transaction;
-  //   const data = await this.sendRequest(config.method, config.path, {
+  //   const data = await fetchConfigRequest(config, {
   //     address,
   //     limit,
   //     offset,
@@ -1076,7 +1230,7 @@ class OpenApiService {
 
   getTransfers = async (address: string, after = '', limit: number) => {
     const config = DATA_CONFIG.get_transfers;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       address,
       after,
       limit,
@@ -1086,54 +1240,53 @@ class OpenApiService {
   };
 
   getEVMTransfers = async (address: string, after = '', limit: number) => {
-    const data = await this.sendRequest(
-      'GET',
-      `/api/evm/${address}/transactions`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.get_evm_transfers;
+    const data = await fetchConfigRequest(config, {
+      address,
+      after,
+      limit,
+    });
     return data;
   };
 
   getManualAddress = async () => {
     const config = DATA_CONFIG.manual_address;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   deviceList = async () => {
     const config = DATA_CONFIG.device_list;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   keyList = async () => {
     const config = DATA_CONFIG.key_list;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   getLocation = async () => {
     const config = DATA_CONFIG.get_location;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   addDevice = async (params) => {
     const config = DATA_CONFIG.add_device_v3;
-    const data = await this.sendRequest(config.method, config.path, {}, params);
+    const data = await fetchConfigRequest(config, {}, params);
 
     return data;
   };
 
   synceDevice = async (params) => {
     const config = DATA_CONFIG.sync_device;
-    const data = await this.sendRequest(config.method, config.path, {}, params);
+    const data = await fetchConfigRequest(config, {}, params);
 
     return data;
   };
@@ -1144,7 +1297,7 @@ class OpenApiService {
 
   searchUser = async (keyword: string) => {
     const config = DATA_CONFIG.search_user;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       keyword,
     });
 
@@ -1153,7 +1306,7 @@ class OpenApiService {
 
   checkImport = async (key: string) => {
     const config = DATA_CONFIG.check_import;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       key,
     });
 
@@ -1783,7 +1936,7 @@ class OpenApiService {
 
   validateRecaptcha = async (token: string) => {
     const config = DATA_CONFIG.validate_recaptcha;
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       token,
     });
 
@@ -1792,9 +1945,8 @@ class OpenApiService {
 
   flowScanQuery = async (query: string, operationName: string) => {
     const config = DATA_CONFIG.account_query;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         query,
@@ -1817,9 +1969,8 @@ class OpenApiService {
 
   updateProfilePreference = async (privacy: number) => {
     const config = DATA_CONFIG.profile_preference;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         private: privacy,
@@ -1831,9 +1982,8 @@ class OpenApiService {
 
   updateProfile = async (nickname: string, avatar: string) => {
     const config = DATA_CONFIG.profile_update;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         nickname: nickname,
@@ -1846,7 +1996,7 @@ class OpenApiService {
 
   flownsPrepare = async () => {
     const config = DATA_CONFIG.flowns_prepare;
-    const data = await this.sendRequest(config.method, config.path, {}, {});
+    const data = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
@@ -1856,9 +2006,8 @@ class OpenApiService {
     };
     // console.log({transaction,message})
     const config = DATA_CONFIG.flowns_signature;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         transaction,
@@ -1874,9 +2023,8 @@ class OpenApiService {
       envelope_message: envelope,
     };
     const config = DATA_CONFIG.flowns_signature;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         transaction,
@@ -1915,51 +2063,40 @@ class OpenApiService {
   };
 
   nftCatalog = async () => {
-    const { data } = await this.sendRequest(
-      'GET',
-      'api/nft/collections',
-      {},
-      {},
-      'https://lilico.app/'
-    );
+    const config = DATA_CONFIG.nft_catalog;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   cadenceScripts = async (network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/scripts?network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.cadence_scripts;
+    const { data } = await fetchConfigRequest(config, { network }, {});
     return data;
   };
 
   cadenceScriptsV2 = async () => {
-    const { data } = await this.sendRequest('GET', '/api/v2/scripts', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.cadence_scripts_v2;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   nftCatalogList = async (address: string, limit: any, offset: any, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_list;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      limit,
+      offset,
+      network,
+    });
     return data;
   };
 
   nftCatalogCollections = async (address: string, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/id?address=${address}&network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_collections;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
@@ -1970,13 +2107,14 @@ class OpenApiService {
     offset: any,
     network: string
   ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}&network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_collection_list;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      limit,
+      offset,
+      collectionIdentifier: contractName,
+      network,
+    });
     return data;
   };
 
@@ -1987,13 +2125,14 @@ class OpenApiService {
     offset: any,
     network: string
   ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/storage/${network}/nft?address=${address}&limit=${limit}&offset=${offset}&path=${contractName}`,
-      {},
-      {},
-      'https://lilico.app'
-    );
+    const config = DATA_CONFIG.nft_catalog_collection_api_paging;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      limit,
+      offset,
+      path: contractName,
+      network,
+    });
     return data;
   };
 
@@ -2004,34 +2143,33 @@ class OpenApiService {
     offset: any,
     network: string
   ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/storage/${network}/nft/collection?address=${address}&path=${contractName}`,
-      {},
-      {},
-      'https://lilico.app'
-    );
+    const config = DATA_CONFIG.nft_catalog_collection_info;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      path: contractName,
+      network,
+    });
     return data;
   };
 
   nftCollectionList = async () => {
-    const { data } = await this.sendRequest('GET', '/api/nft/collections', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.nft_collection_list;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   evmFTList = async () => {
-    const { data } = await this.sendRequest('GET', '/api/evm/fts', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.evm_ft_list;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   getEvmFT = async (address: string, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/${address}/fts?network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.get_evm_ft;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
@@ -2041,25 +2179,26 @@ class OpenApiService {
     if (gitPrice) {
       return gitPrice;
     } else {
-      const { data } = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
+      const config = DATA_CONFIG.get_prices;
+      const { data } = await fetchConfigRequest(config, {}, {});
+
       storage.setExpiry('EVMPrice', data, 6000);
       return data;
     }
   };
 
   evmNFTList = async () => {
-    const { data } = await this.sendRequest('GET', '/api/evm/nfts', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.evm_nft_list;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   getEvmNFT = async (address: string, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/evm/${address}/nfts?network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.evm_nft_detail;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
@@ -2068,7 +2207,8 @@ class OpenApiService {
       to: address, // address -- optional
       data: data, // calldata -- required
     };
-    const res = await this.sendRequest('POST', `/api/evm/decodeData`, {}, bodyData, WEB_NEXT_URL);
+    const config = DATA_CONFIG.evm_decode_data;
+    const res = await fetchConfigRequest(config, {}, bodyData);
     return res;
   };
 
@@ -2078,49 +2218,46 @@ class OpenApiService {
     limit = 24,
     offset = 0
   ) => {
-    const network = await userWalletService.getNetwork();
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.evm_nft_collection_list;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      collectionIdentifier,
+      limit,
+      offset,
+    });
     return data;
   };
 
   EvmNFTID = async (address: string) => {
     const network = await userWalletService.getNetwork();
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/nft/id?network=${network}&address=${address}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.evm_nft_id;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
   EvmNFTList = async (address: string, limit = 24, offset = 0) => {
     const network = await userWalletService.getNetwork();
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/nft/list?network=${network}&address=${address}&limit=${limit}&offset=${offset}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.evm_nft_list_v3;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      limit,
+      offset,
+      network,
+    });
     return data;
   };
 
   getNFTCadenceList = async (address: string, network = 'mainnet', offset = 0, limit = 5) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/id?network=${network}&address=${address}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_collections;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+      offset,
+      limit,
+    });
     return data;
   };
 
@@ -2131,43 +2268,32 @@ class OpenApiService {
     offset = 0,
     limit = 24
   ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_collection_list;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+      offset,
+      limit,
+      collectionIdentifier: identifier,
+    });
     return data;
   };
 
   getNFTV2CollectionList = async (address: string, network = 'mainnet') => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collections?network=${network}&address=${address}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_collection_list;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
   genTx = async (contract_name: string) => {
-    const network = await userWalletService.getNetwork();
-
-    const init = {
-      headers: {
-        Network: network,
-        Authorization: `Bearer ${await getUserToken()}`,
-      },
-    };
-
-    const response = await fetch(
-      `${WEB_NEXT_URL}/api/nft/gentx?collectionIdentifier=${contract_name}`,
-      init
-    );
-
-    return response.json();
+    const config = DATA_CONFIG.nft_gentx;
+    const { data } = await fetchConfigRequest(config, {
+      collectionIdentifier: contract_name,
+    });
+    return data;
   };
 
   putDeviceInfo = async (walletData) => {
@@ -2203,13 +2329,8 @@ class OpenApiService {
       return cachedNews;
     }
 
-    const data = await this.sendRequest(
-      'GET',
-      process.env.API_NEWS_PATH,
-      {},
-      {},
-      process.env.API_BASE_URL
-    );
+    const config = DATA_CONFIG.get_news;
+    const { data } = await fetchConfigRequest(config, {}, {});
 
     const timeNow = new Date(Date.now());
 
@@ -2317,13 +2438,8 @@ class OpenApiService {
     }
 
     try {
-      const result = await this.sendRequest(
-        'GET',
-        process.env.API_CONFIG_PATH,
-        {},
-        {},
-        process.env.API_BASE_URL
-      );
+      const config = DATA_CONFIG.get_config;
+      const result = await fetchConfigRequest(config, {}, {});
 
       const version = result.version;
 
@@ -2338,53 +2454,5 @@ class OpenApiService {
 }
 
 const openApiService = new OpenApiService();
-
-// Log all functions and their signatures
-const functions = Object.entries(openApiService)
-  .filter(
-    ([name, value]) =>
-      typeof value === 'function' &&
-      name !== 'constructor' &&
-      typeof name === 'string' &&
-      name !== 'get'
-  )
-  .map(([name]) => {
-    const func = openApiService[name];
-    // Use a safer way to get function info
-    const funcStr = func.toString();
-    const isAsync = funcStr.startsWith('async');
-    const basicSignature = funcStr.split('{')[0].trim();
-
-    return {
-      name,
-      isAsync,
-      fullBody: funcStr,
-      usesSendRequest: funcStr.includes('this.sendRequest'),
-      usesFetchDirectly: funcStr.includes('fetch('),
-      basicSignature,
-      // Simple regex to extract parameter names without accessing arguments
-      params: basicSignature
-        .slice(basicSignature.indexOf('(') + 1, basicSignature.lastIndexOf(')'))
-        .split(',')
-        .map((param) => param.trim())
-        .map((param) => {
-          if (param.startsWith('PriceProvider.')) {
-            return param.replace('PriceProvider.', '');
-          }
-          return param;
-        })
-        .filter(Boolean),
-    };
-  });
-
-console.log('OpenApiService Functions:', functions);
-console.table(
-  functions.map((f) => ({
-    name: f.name,
-    async: f.isAsync ? 'yes' : 'no',
-    params: f.params.join(', ') || 'none',
-    signature: f.basicSignature,
-  }))
-);
 
 export default openApiService;

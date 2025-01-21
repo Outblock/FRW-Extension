@@ -12,8 +12,3 @@ export function getFirbaseConfig() {
 
   return firebaseConfig;
 }
-
-export function getFirbaseFunctionUrl() {
-  console.log(process.env.FB_FUNCTIONS, 'process.env.FB_FUNCTIONS==');
-  return process.env.FB_FUNCTIONS;
-}

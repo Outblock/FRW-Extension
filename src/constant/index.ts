@@ -138,15 +138,6 @@ export const INTERNAL_REQUEST_SESSION = {
   icon: './images/icon-128.png',
 };
 
-export const INITIAL_OPENAPI_URL =
-  process.env.NODE_ENV === 'production' ? 'https://api.lilico.app' : 'https://dev.lilico.app';
-export const WEB_NEXT_URL =
-  process.env.NODE_ENV === 'production' ? 'https://lilico.app' : 'https://test.lilico.app';
-// export const INITIAL_OPENAPI_URL = 'http://localhost:4747';
-
-// export const INITIAL_OPENAPI_URL = process.env.INITIAL_OPENAPI_URL!;
-// export const WEB_NEXT_URL = process.env.WEB_NEXT_URL!;
-
 export const EVENTS = {
   broadcastToUI: 'broadcastToUI',
   broadcastToBackground: 'broadcastToBackground',
