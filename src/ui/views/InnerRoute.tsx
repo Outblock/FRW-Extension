@@ -23,6 +23,7 @@ import NftEvmDetail from './NftEvm/Detail';
 import SendNftEvm from './NftEvm/SendNFT/SendToAddress';
 import SendAmount from './Send/SendAmount';
 import SendEth from './Send/SendEth';
+import SettingTab from './Setting';
 import About from './Setting/About/About';
 import Account from './Setting/Account';
 import AddressBook from './Setting/AddressBook';
@@ -187,6 +188,9 @@ const InnerRoute = (props: RouteComponentProps) => {
             </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/nested/add_list`}>
               <AddList />
+            </PrivateRoute>
+            <PrivateRoute exact path={`${props.match.url}/setting`}>
+              <SettingTab />
             </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/setting/about`}>
               <About />

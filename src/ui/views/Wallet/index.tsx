@@ -1,11 +1,12 @@
 import FlashOnRoundedIcon from '@mui/icons-material/FlashOnRounded';
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded';
-import { Typography, Button, Tab, Tabs, Skeleton, Drawer, CardMedia } from '@mui/material';
+import { Typography, Button, Skeleton, Drawer, CardMedia, Tabs, Tab } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { IconNfts } from '@/components/iconfont';
 import eventBus from '@/eventBus';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
@@ -21,6 +22,8 @@ import { formatLargeNumber } from 'ui/utils/number';
 import { withPrefix } from '../../../shared/utils/address';
 import theme from '../../style/LLTheme';
 import MoveBoard from '../MoveBoard';
+import NFTTab from '../NFT';
+import NftEvm from '../NftEvm';
 
 import CoinList from './Coinlist';
 import OnRampList from './OnRampList';
@@ -35,25 +38,19 @@ function TabPanel(props) {
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
+      style={{ height: '100%', display: value === index ? 'block' : 'none' }}
       {...other}
     >
-      {value === index && children}
+      {children}
     </div>
   );
 }
-
-function a11yProps(index) {
-  return {
-    id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`,
-  };
-}
-
 const WalletTab = ({ network }) => {
   const wallet = useWallet();
   const history = useHistory();
   const location = useLocation();
   const [value, setValue] = React.useState(0);
+
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [address, setAddress] = useState<string>('');
   const [coinData, setCoinData] = useState<any>([]);
@@ -297,7 +294,7 @@ const WalletTab = ({ network }) => {
     return function cleanup() {
       clearInterval(pollTimer);
     };
-  }, [fetchChildState, location.search, setUserAddress]);
+  }, [fetchChildState, location.search, setUserAddress, setValue]);
 
   const goMoveBoard = async () => {
     setMoveBoard(true);
@@ -351,14 +348,13 @@ const WalletTab = ({ network }) => {
 
   return (
     <Box
+      test-id="wallet-tab"
       sx={{
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'black',
         width: '100%',
         height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
       }}
     >
       <Box
@@ -376,7 +372,6 @@ const WalletTab = ({ network }) => {
               py: '25px',
               my: '18px',
               borderRadius: '8px',
-              // height: '48px',
               alignSelf: 'center',
             }}
           />
@@ -391,14 +386,6 @@ const WalletTab = ({ network }) => {
             }}
             component="span"
           >
-            {/* {balance} */}
-            {/* <ReactTextTransition
-              text={balance}
-              springConfig={{ damping: 20 }}
-              style={{textAlign: 'center' }}
-              noOverflow
-            /> */}
-
             {`$${formatLargeNumber(balance)}`.split('').map((n, i) => (
               <NumberTransition key={`${n}-${i}`} number={n} delay={i * 20} />
             ))}
@@ -590,80 +577,114 @@ const WalletTab = ({ network }) => {
             </Box>
           )}
         </Box>
-        <Tabs
-          value={value}
-          sx={{ width: '100%' }}
-          onChange={handleChange}
-          TabIndicatorProps={{
-            style: {
-              backgroundColor: '#5a5a5a',
-            },
-          }}
-          // textColor="inherit"
-          variant="fullWidth"
-          aria-label="full width tabs example"
-        >
-          <Tab
-            icon={<SavingsRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
-            iconPosition="start"
-            label={
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{
-                  textTransform: 'capitalize',
-                  fontSize: '10',
-                  fontWeight: 'semi-bold',
-                }}
-              >
-                {childType === 'evm' ? filteredCoinData?.length || '' : coinData?.length || ''}{' '}
-                {chrome.i18n.getMessage('coins')}
-              </Typography>
-            }
-            style={{ color: '#F9F9F9', minHeight: '25px' }}
-            {...a11yProps(0)}
-          />
-          <Tab
-            icon={<FlashOnRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
-            iconPosition="start"
-            label={
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{
-                  textTransform: 'capitalize',
-                  fontSize: '10',
-                  fontWeight: 'semi-bold',
-                }}
-              >
-                {`${txCount}`} {chrome.i18n.getMessage('Activity')}
-              </Typography>
-            }
-            style={{ color: '#F9F9F9', minHeight: '25px' }}
-            {...a11yProps(1)}
-          />
-        </Tabs>
       </Box>
-
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={value}
-        onChangeIndex={handleChangeIndex}
-        style={{ height: '100%', width: '100%' }}
+      <Tabs
+        value={value}
+        sx={{
+          width: '100%',
+          position: 'sticky',
+          top: '0',
+          zIndex: 1100,
+          backgroundColor: 'black',
+        }}
+        onChange={handleChange}
+        TabIndicatorProps={{
+          style: {
+            backgroundColor: '#5a5a5a',
+          },
+        }}
+        variant="fullWidth"
+        aria-label="full width tabs example"
       >
-        <TabPanel value={value} index={0}>
-          <CoinList
-            data={coinData}
-            ableFt={accessible}
-            isActive={isActive}
-            childType={childType}
-            coinLoading={coinLoading}
-          />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <TransferList setCount={setTxCount} />
-        </TabPanel>
-      </SwipeableViews>
+        <Tab
+          icon={<SavingsRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
+          iconPosition="start"
+          label={
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                textTransform: 'capitalize',
+                fontSize: '10',
+                fontWeight: 'semi-bold',
+              }}
+            >
+              {childType === 'evm' ? filteredCoinData?.length || '' : coinData?.length || ''}{' '}
+              {chrome.i18n.getMessage('coins')}
+            </Typography>
+          }
+          style={{ color: '#F9F9F9', minHeight: '25px' }}
+        />
+        <Tab
+          icon={<IconNfts fontSize="small" />}
+          iconPosition="start"
+          label={
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                textTransform: 'capitalize',
+                fontSize: '10',
+                fontWeight: 'semi-bold',
+              }}
+            >
+              {chrome.i18n.getMessage('NFTs')}
+            </Typography>
+          }
+          style={{ color: '#F9F9F9', minHeight: '25px' }}
+        />
+        <Tab
+          icon={<FlashOnRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
+          iconPosition="start"
+          label={
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                textTransform: 'capitalize',
+                fontSize: '10',
+                fontWeight: 'semi-bold',
+              }}
+            >
+              {chrome.i18n.getMessage('Activity')}
+            </Typography>
+          }
+          style={{ color: '#F9F9F9', minHeight: '25px' }}
+        />
+      </Tabs>
+      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+        <SwipeableViews
+          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          index={value}
+          onChangeIndex={handleChangeIndex}
+          style={{ height: '100%', width: '100%' }}
+          containerStyle={{ height: '100%' }}
+          resistance
+          disabled
+        >
+          <TabPanel value={value} index={0}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              <CoinList
+                data={coinData}
+                ableFt={accessible}
+                isActive={isActive}
+                childType={childType}
+                coinLoading={coinLoading}
+              />
+            </Box>
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              {childType === 'evm' ? <NftEvm /> : <NFTTab />}
+            </Box>
+          </TabPanel>
+          <TabPanel value={value} index={2}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              <TransferList setCount={setTxCount} />
+            </Box>
+          </TabPanel>
+        </SwipeableViews>
+      </Box>
       <LLComingSoon alertOpen={alertOpen} handleCloseIconClicked={() => setAlertOpen(false)} />
 
       <Drawer
