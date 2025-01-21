@@ -88,7 +88,7 @@ const Root = styled('span')(
     `
 );
 
-const Flowns = () => {
+const Account = () => {
   const history = useHistory();
   const wallet = useWallet();
   const [username, setUsername] = useState('');
@@ -109,12 +109,6 @@ const Flowns = () => {
   };
 
   const getAnonymousMode = useCallback(async () => {
-    // const domain = await wallet.fetchUserDomain();
-    // if (domain) {
-    //   setDomain(domain);
-    // } else {
-    //   setShowPop(true);
-    // }
     const userInfo = await wallet.fetchUserInfo();
     if (userInfo.private === 1) {
       setModeAnonymous(false);
@@ -264,86 +258,7 @@ const Flowns = () => {
               }}
             />
           </Box>
-          {/* {domain && <Box sx={{
-            backgroundColor: '#282828',
-            width: '100%',
-            marginTop:'10px',
-            display: 'flex',
-            padding:'20px 24px',
-            justifyContent: 'space-between',
-            borderRadius: '16px',
-          }}>
-            <Box sx={{display: 'flex', flexDirection: 'column'}}>
-              <Typography variant='body1' color='primary.contrastText' style={{weight: 600}}>Lilico Domain</Typography>
-              <Typography variant="caption" color='text.secondary' sx={{weight: 400, fontSize: '12px'}}>
-                {username}.meow
-              </Typography>
-            </Box>
-            <CheckCircleIcon
-              size={24}
-              color={'#41CC5D'}
-            />
-          </Box>
-          } */}
-          {/* {showPop &&
-            <Box sx={{display:'flex',justifyContent:'space-between',
-            //  width:'100%',
-              alignItems: 'center',
-              border: '1px solid #FFFFFF',
-              borderRadius:'12px',
-              padding:'0px 15px 0px 0px',
-              marginTop: '16px',
-              backgroundImage:`url(${bannerbackground})`,
-              backgroundSize: '370px, 60px'
 
-            }}
-            >
-              <Box
-                sx={{
-                  width: '254px',
-                  height: '46px',
-                  // backgroundColor:'#333333',
-                  // borderRadius:'12px',
-                  display:'flex',
-                  alignItems: 'center',
-                  paddingLeft:'16px'
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  align="left"
-                  paddingTop="18px"
-                  paddingBottom="15px"
-                  color="#FFFFFF"
-                  fontSize="12px"
-                >
-                  {chrome.i18n.getMessage('Claim__for__your')}
-                  <Typography
-                    display="inline"
-                    sx={{
-                      fontWeight: 'bold',
-                      fontSize:'12px',
-                      color:'#FFFFFF'
-                    }}
-                    variant="body2"
-                  >
-                    {chrome.i18n.getMessage('FREE')}
-                  </Typography>{' '}{chrome.i18n.getMessage('Lilico__domain')}
-                </Typography>
-              </Box>
-              <LLPrimaryButton
-                label={chrome.i18n.getMessage('Claim')}
-                onClick={()=>{history.push('/dashboard/flowns')}}
-                sx={{
-                  borderRadius:'14.5px',
-                  height:'29px',
-                  width:'62px',
-                  fontSize:'12px',
-                  textTransform: 'none !important',
-                }}
-              />
-            </Box>
-          } */}
           <EditAccount
             isEdit={isEdit}
             handleCloseIconClicked={() => toggleEdit()}
@@ -362,4 +277,4 @@ const Flowns = () => {
   );
 };
 
-export default Flowns;
+export default Account;

@@ -17,8 +17,6 @@ import {
   type CheckResponse,
   type SignInResponse,
   type UserInfoResponse,
-  type FlowTransaction,
-  type SendTransactionResponse,
   type TokenModel,
   type NFTModel,
   type StorageInfo,
@@ -210,24 +208,6 @@ const DATA_CONFIG = {
     path: '/v1/profile',
     method: 'POST',
     params: ['nickname', 'avatar'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  flowns_prepare: {
-    path: '/v1/flowns/prepare',
-    method: 'GET',
-    params: [],
-    host: INITIAL_OPENAPI_URL,
-  },
-  flowns_signature: {
-    path: '/v1/flowns/signature',
-    method: 'POST',
-    params: ['transaction', 'message'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  payer_signature: {
-    path: '/v1/flowns/payer/signature',
-    method: 'POST',
-    params: ['transaction', 'message'],
     host: INITIAL_OPENAPI_URL,
   },
   get_transfers: {
@@ -1817,41 +1797,6 @@ class OpenApiService {
       {
         nickname: nickname,
         avatar: avatar,
-      }
-    );
-
-    return data;
-  };
-
-  flownsAuthTransaction = async (transaction, envelope: string) => {
-    const message = {
-      envelope_message: envelope,
-    };
-    // console.log({transaction,message})
-    const config = DATA_CONFIG.flowns_signature;
-    const data = await fetchConfigRequest(
-      config,
-      {},
-      {
-        transaction,
-        message,
-      }
-    );
-
-    return data;
-  };
-
-  flownsTransaction = async (transaction, envelope: string) => {
-    const message = {
-      envelope_message: envelope,
-    };
-    const config = DATA_CONFIG.flowns_signature;
-    const data = await fetchConfigRequest(
-      config,
-      {},
-      {
-        transaction,
-        message,
       }
     );
 
