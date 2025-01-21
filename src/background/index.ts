@@ -32,7 +32,6 @@ import {
   nftService,
   googleSafeHostService,
   passwordService,
-  flownsService,
   stakingService,
   mixpanelTrack,
 } from './service';
@@ -101,7 +100,6 @@ async function restoreAppState() {
   await nftService.init();
   await googleSafeHostService.init();
   await passwordService.init();
-  await flownsService.init();
   await stakingService.init();
   await mixpanelTrack.init();
   // rpcCache.start();

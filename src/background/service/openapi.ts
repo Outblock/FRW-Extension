@@ -74,30 +74,6 @@ const DATA_CONFIG = {
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
-  create_flow_sandbox_address: {
-    path: '/v1/user/address/crescendo',
-    method: 'POST',
-    params: [],
-    host: INITIAL_OPENAPI_URL,
-  },
-  create_flow_network_address: {
-    path: '/v1/user/address/network',
-    method: 'POST',
-    params: ['account_key', 'network'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  login: {
-    path: '/v1/login',
-    method: 'POST',
-    params: ['public_key', 'signature'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  loginv2: {
-    path: '/v2/login',
-    method: 'POST',
-    params: ['public_key', 'signature'],
-    host: INITIAL_OPENAPI_URL,
-  },
   loginv3: {
     path: '/v3/login',
     method: 'POST',
@@ -116,28 +92,10 @@ const DATA_CONFIG = {
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
-  user_wallet: {
-    path: '/v1/user/wallet',
-    method: 'GET',
-    params: [],
-    host: INITIAL_OPENAPI_URL,
-  },
-  user_wallet_v2: {
-    path: '/v2/user/wallet',
-    method: 'GET',
-    params: [],
-    host: INITIAL_OPENAPI_URL,
-  },
   user_info: {
     path: '/v1/user/info',
     method: 'GET',
     params: [],
-    host: INITIAL_OPENAPI_URL,
-  },
-  prepare_transaction: {
-    path: '/v1/account/presign',
-    method: 'POST',
-    params: ['transaction'],
     host: INITIAL_OPENAPI_URL,
   },
   sign_as_payer: {
@@ -157,24 +115,6 @@ const DATA_CONFIG = {
     method: 'GET',
     params: [],
     host: FIREBASE_FUNCTIONS_URL,
-  },
-  send_transaction: {
-    path: '/v1/account/transaction',
-    method: 'POST',
-    params: ['transaction'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  coin_list: {
-    path: '/v1/account/info',
-    method: 'GET',
-    params: ['address'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  coin_rate: {
-    path: '/v1/coin/rate',
-    method: 'GET',
-    params: ['coinId'],
-    host: INITIAL_OPENAPI_URL,
   },
   nft_list_v2: {
     path: '/v2/nft/list',
@@ -198,12 +138,6 @@ const DATA_CONFIG = {
     path: '/v2/nft/single',
     method: 'GET',
     params: ['address', 'contractName', 'limit', 'offset'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  nft_meta: {
-    path: '/v2/nft/meta',
-    method: 'GET',
-    params: ['address', 'contractName', 'contractAddress', 'tokenId'],
     host: INITIAL_OPENAPI_URL,
   },
   fetch_address_book: {
@@ -264,12 +198,6 @@ const DATA_CONFIG = {
     path: '/v1/crypto/history',
     method: 'GET',
     params: ['provider', 'pair', 'after', 'history'],
-    host: INITIAL_OPENAPI_URL,
-  },
-  account_query: {
-    path: '/v1/account/query',
-    method: 'POST',
-    params: ['query', 'operation_name'],
     host: INITIAL_OPENAPI_URL,
   },
   profile_preference: {
@@ -416,18 +344,6 @@ const DATA_CONFIG = {
     params: ['address', 'limit', 'offset', 'collectionIdentifier', 'network'],
     host: WEB_NEXT_URL,
   },
-  nft_catalog_collection_api_paging: {
-    path: (params: { network: string }) => `/api/storage/${params.network}/nft`,
-    method: 'GET',
-    params: ['address', 'limit', 'offset', 'path', 'network'],
-    host: WEB_NEXT_URL,
-  },
-  nft_catalog_collection_info: {
-    path: (params: { network: string }) => `/api/storage/${params.network}/nft/collection`,
-    method: 'GET',
-    params: ['address', 'path', 'network'],
-    host: WEB_NEXT_URL,
-  },
   nft_collection_list: {
     path: '/api/nft/collections',
     method: 'GET',
@@ -488,12 +404,6 @@ const DATA_CONFIG = {
     path: '/api/v3/evm/nft/list',
     method: 'GET',
     params: ['address', 'limit', 'offset', 'network'],
-    host: WEB_NEXT_URL,
-  },
-  nft_gentx: {
-    path: '/api/nft/gentx',
-    method: 'GET',
-    params: ['collectionIdentifier'],
     host: WEB_NEXT_URL,
   },
   get_news: {
@@ -851,44 +761,6 @@ class OpenApiService {
     return data;
   };
 
-  login = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = DATA_CONFIG.login;
-    // const result = await this.request[config.method](config.path, {
-    //   public_key,
-    //   signature,
-    // });
-    const result = await fetchConfigRequest(config, {}, { public_key, signature });
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
-  };
-
-  loginV2 = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = DATA_CONFIG.loginv2;
-    const result = await fetchConfigRequest(config, {}, { public_key, signature });
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
-  };
-
   loginV3 = async (
     account_key: any,
     device_info: any,
@@ -950,41 +822,9 @@ class OpenApiService {
     return await fetchConfigRequest(config);
   };
 
-  userWallet = async () => {
-    const config = DATA_CONFIG.user_wallet;
-    const data = await fetchConfigRequest(config);
-    return data;
-  };
-
-  //todo check data
-  userWalletV2 = async () => {
-    const config = DATA_CONFIG.user_wallet_v2;
-    const data = await fetchConfigRequest(config);
-    return data;
-  };
-
   createFlowAddress = async () => {
     const config = DATA_CONFIG.create_flow_address;
     const data = await fetchConfigRequest(config);
-    return data;
-  };
-
-  createFlowSandboxAddress = async () => {
-    const config = DATA_CONFIG.create_flow_sandbox_address;
-    const data = await fetchConfigRequest(config);
-    return data;
-  };
-
-  createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
-    const config = DATA_CONFIG.create_flow_network_address;
-    const data = await fetchConfigRequest(
-      config,
-      {},
-      {
-        account_key,
-        network,
-      }
-    );
     return data;
   };
 
@@ -992,12 +832,6 @@ class OpenApiService {
     const config = DATA_CONFIG.moonpay_signature;
     const response = await fetchConfigRequest(config, {}, { url: url });
     return response;
-  };
-
-  prepareTransaction = async (transaction: FlowTransaction) => {
-    const config = DATA_CONFIG.prepare_transaction;
-    const data = await fetchConfigRequest(config, {}, { transaction });
-    return data;
   };
 
   signPayer = async (transaction, message: string) => {
@@ -1023,49 +857,6 @@ class OpenApiService {
   getProposer = async () => {
     const config = DATA_CONFIG.get_proposer;
     const data = await fetchConfigRequest(config, {}, {});
-    return data;
-  };
-
-  sendTransaction = async (transaction): Promise<SendTransactionResponse> => {
-    const config = DATA_CONFIG.send_transaction;
-    const data = await fetchConfigRequest(
-      config,
-      {},
-      {
-        transaction,
-      }
-    );
-    return data;
-  };
-
-  getCoinList = async (address) => {
-    const config = DATA_CONFIG.coin_list;
-    const data = await fetchConfigRequest(config, {
-      address,
-    });
-    return data;
-  };
-
-  getCoinRate = async (coinId) => {
-    const config = DATA_CONFIG.coin_rate;
-    const data = await fetchConfigRequest(config, { coinId });
-    return data;
-  };
-
-  getNFTMetadata = async (
-    address: string,
-    contractName: string,
-    contractAddress: string,
-    tokenId: number
-  ) => {
-    const config = DATA_CONFIG.nft_meta;
-    const data = await fetchConfigRequest(config, {
-      address,
-      contractName,
-      contractAddress,
-      tokenId,
-    });
-
     return data;
   };
 
@@ -1995,20 +1786,6 @@ class OpenApiService {
     return data;
   };
 
-  flowScanQuery = async (query: string, operationName: string) => {
-    const config = DATA_CONFIG.account_query;
-    const data = await fetchConfigRequest(
-      config,
-      {},
-      {
-        query,
-        operation_name: operationName,
-      }
-    );
-
-    return data;
-  };
-
   pingNetwork = async (network: string): Promise<boolean> => {
     try {
       const response = await fetch(`https://rest-${network}.onflow.org/v1/blocks?height=sealed`);
@@ -2043,12 +1820,6 @@ class OpenApiService {
       }
     );
 
-    return data;
-  };
-
-  flownsPrepare = async () => {
-    const config = DATA_CONFIG.flowns_prepare;
-    const data = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
@@ -2170,40 +1941,6 @@ class OpenApiService {
     return data;
   };
 
-  nftCollectionApiPaging = async (
-    address: string,
-    contractName: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
-    const config = DATA_CONFIG.nft_catalog_collection_api_paging;
-    const { data } = await fetchConfigRequest(config, {
-      address,
-      limit,
-      offset,
-      path: contractName,
-      network,
-    });
-    return data;
-  };
-
-  nftCollectionInfo = async (
-    address: string,
-    contractName: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
-    const config = DATA_CONFIG.nft_catalog_collection_info;
-    const { data } = await fetchConfigRequest(config, {
-      address,
-      path: contractName,
-      network,
-    });
-    return data;
-  };
-
   nftCollectionList = async () => {
     const config = DATA_CONFIG.nft_collection_list;
     const { data } = await fetchConfigRequest(config, {}, {});
@@ -2313,37 +2050,11 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceCollection = async (
-    address: string,
-    network = 'mainnet',
-    identifier,
-    offset = 0,
-    limit = 24
-  ) => {
-    const config = DATA_CONFIG.nft_catalog_collection_list;
-    const { data } = await fetchConfigRequest(config, {
-      address,
-      network,
-      offset,
-      limit,
-      collectionIdentifier: identifier,
-    });
-    return data;
-  };
-
   getNFTV2CollectionList = async (address: string, network = 'mainnet') => {
     const config = DATA_CONFIG.nft_v2_collection_list;
     const { data } = await fetchConfigRequest(config, {
       network,
       address,
-    });
-    return data;
-  };
-
-  genTx = async (contract_name: string) => {
-    const config = DATA_CONFIG.nft_gentx;
-    const { data } = await fetchConfigRequest(config, {
-      collectionIdentifier: contract_name,
     });
     return data;
   };
