@@ -8,7 +8,6 @@ import { useWallet } from '@/ui/utils';
 
 export const useProfileHook = () => {
   const usewallet = useWallet();
-
   const { currentNetwork } = useNetworkStore();
   const {
     setMainAddress,
@@ -27,6 +26,7 @@ export const useProfileHook = () => {
     initialStart,
   } = useProfileStore();
 
+  // Helper function for formatWallets
   const formatWallets = useCallback(
     (data) => {
       if (!Array.isArray(data)) return [];
@@ -47,14 +47,67 @@ export const useProfileHook = () => {
     [currentNetwork]
   );
 
+  // Helper function for fetchUserWallet
+  const freshUserInfo = useCallback(async () => {
+    try {
+      const [currentWallet, isChild, mainAddress] = await Promise.all([
+        usewallet.getCurrentWallet(),
+        usewallet.getActiveWallet(),
+        usewallet.getMainAddress(),
+      ]);
+
+      if (isChild === 'evm') {
+        const [res, evmWallet] = await Promise.all([
+          usewallet.queryEvmAddress(mainAddress!),
+          usewallet.getEvmWallet(),
+        ]);
+        evmWallet.address = ensureEvmAddressPrefix(res);
+        await setCurrent(evmWallet);
+      } else if (isChild) {
+        await setCurrent(currentWallet);
+      } else {
+        const mainwallet = await usewallet.returnMainWallet();
+        await setCurrent(mainwallet);
+      }
+
+      const [keys, pubKTuple, walletData] = await Promise.all([
+        usewallet.getAccount(),
+        usewallet.getPubKey(),
+        usewallet.getUserInfo(true),
+      ]);
+
+      const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(
+        currentWallet,
+        keys,
+        pubKTuple,
+        walletData,
+        isChild
+      );
+
+      await Promise.all([
+        setOtherAccounts(otherAccounts),
+        setUserInfo(wallet),
+        setLoggedInAccounts(loggedInAccounts),
+      ]);
+    } catch (error) {
+      console.error('Error in freshUserInfo:', error);
+    } finally {
+      setMainLoading(false);
+    }
+  }, [usewallet, setCurrent, setMainLoading, setUserInfo, setOtherAccounts, setLoggedInAccounts]);
+
+  // 1. First called in index.ts, get the user info(name and avatar) and the main address
   const fetchProfileData = useCallback(async () => {
     try {
       const mainAddress = await usewallet.getMainAddress();
       if (mainAddress) {
         setMainAddress(mainAddress);
         try {
-          const evmRes = await usewallet.queryEvmAddress(mainAddress);
-          const emoji = await usewallet.getEmoji();
+          const [evmRes, emoji] = await Promise.all([
+            usewallet.queryEvmAddress(mainAddress),
+            usewallet.getEmoji(),
+          ]);
+
           const newEvmRes: WalletType = {
             name: emoji[9].name,
             icon: emoji[9].emoji,
@@ -64,6 +117,7 @@ export const useProfileHook = () => {
             coins: [],
             color: emoji[9].bgcolor,
           };
+
           setEvmWallet(newEvmRes);
           setEvmLoading(false);
           setEvmAddress(ensureEvmAddressPrefix(evmRes!));
@@ -76,6 +130,7 @@ export const useProfileHook = () => {
     }
   }, [usewallet, setMainAddress, setEvmAddress, setEvmWallet, setEvmLoading]);
 
+  // 2. Second called in index.ts, get all the address for this userunder the current network
   const freshUserWallet = useCallback(async () => {
     const wallet: WalletResponse[] = await usewallet.getUserWallets();
     const fData: WalletResponse[] = wallet.filter((item) => item.blockchain !== null);
@@ -89,46 +144,7 @@ export const useProfileHook = () => {
     setWalletList(formattedWallets);
   }, [usewallet, initialStart, setUserWallet, setInitial, formatWallets, setWalletList]);
 
-  const freshUserInfo = useCallback(async () => {
-    const currentWallet = await usewallet.getCurrentWallet();
-    const isChild = await usewallet.getActiveWallet();
-
-    const mainAddress = await usewallet.getMainAddress();
-    if (isChild === 'evm') {
-      const res = await usewallet.queryEvmAddress(mainAddress!);
-      const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(res);
-      evmWallet.address = evmAddress;
-      await setCurrent(evmWallet);
-      setMainLoading(false);
-    } else if (isChild) {
-      const currentWallet = await usewallet.getCurrentWallet();
-      await setCurrent(currentWallet);
-      setMainLoading(false);
-    } else {
-      const mainwallet = await usewallet.returnMainWallet();
-      await setCurrent(mainwallet);
-      setMainLoading(false);
-    }
-    const keys = await usewallet.getAccount();
-    const pubKTuple = await usewallet.getPubKey();
-    console.log('mainAddress', mainAddress);
-
-    const walletData = await usewallet.getUserInfo(true);
-
-    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(
-      currentWallet,
-      keys,
-      pubKTuple,
-      walletData,
-      isChild
-    );
-
-    await setOtherAccounts(otherAccounts);
-    await setUserInfo(wallet);
-    await setLoggedInAccounts(loggedInAccounts);
-  }, [usewallet, setCurrent, setMainLoading, setUserInfo, setOtherAccounts, setLoggedInAccounts]);
-
+  // 3. Third called in index.ts check the child account and set the child account
   const fetchUserWallet = useCallback(async () => {
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
