@@ -47,6 +47,47 @@ export const useProfileHook = () => {
     [currentNetwork]
   );
 
+  // Helper function to handle EVM wallet setup
+  const setupEvmWallet = useCallback(
+    async (mainAddress: string) => {
+      try {
+        const [evmRes, emoji, evmWallet] = await Promise.all([
+          usewallet.queryEvmAddress(mainAddress),
+          usewallet.getEmoji(),
+          usewallet.getEvmWallet(),
+        ]);
+
+        const evmAddress = ensureEvmAddressPrefix(evmRes!);
+
+        // Setup EVM wallet data
+        const evmWalletData: WalletType = {
+          ...evmWallet,
+          name: emoji[9].name,
+          icon: emoji[9].emoji,
+          address: evmAddress,
+          chain_id: '1',
+          id: 1,
+          coins: [],
+          color: emoji[9].bgcolor,
+        };
+
+        // Batch updates
+        await Promise.all([
+          setCurrent(evmWalletData),
+          setEvmWallet(evmWalletData),
+          setEvmAddress(evmAddress),
+        ]);
+        setEvmLoading(false);
+
+        return evmWalletData;
+      } catch (error) {
+        console.error('Error setting up EVM wallet:', error);
+        throw error;
+      }
+    },
+    [usewallet, setCurrent, setEvmWallet, setEvmAddress, setEvmLoading]
+  );
+
   // Helper function for fetchUserWallet
   const freshUserInfo = useCallback(async () => {
     try {
@@ -57,12 +98,7 @@ export const useProfileHook = () => {
       ]);
 
       if (isChild === 'evm') {
-        const [res, evmWallet] = await Promise.all([
-          usewallet.queryEvmAddress(mainAddress!),
-          usewallet.getEvmWallet(),
-        ]);
-        evmWallet.address = ensureEvmAddressPrefix(res);
-        await setCurrent(evmWallet);
+        await setupEvmWallet(mainAddress!);
       } else if (isChild) {
         await setCurrent(currentWallet);
       } else {
@@ -94,7 +130,15 @@ export const useProfileHook = () => {
     } finally {
       setMainLoading(false);
     }
-  }, [usewallet, setCurrent, setMainLoading, setUserInfo, setOtherAccounts, setLoggedInAccounts]);
+  }, [
+    usewallet,
+    setLoggedInAccounts,
+    setOtherAccounts,
+    setUserInfo,
+    setCurrent,
+    setupEvmWallet,
+    setMainLoading,
+  ]);
 
   // 1. First called in index.ts, get the user info(name and avatar) and the main address
   const fetchProfileData = useCallback(async () => {
@@ -102,33 +146,12 @@ export const useProfileHook = () => {
       const mainAddress = await usewallet.getMainAddress();
       if (mainAddress) {
         setMainAddress(mainAddress);
-        try {
-          const [evmRes, emoji] = await Promise.all([
-            usewallet.queryEvmAddress(mainAddress),
-            usewallet.getEmoji(),
-          ]);
-
-          const newEvmRes: WalletType = {
-            name: emoji[9].name,
-            icon: emoji[9].emoji,
-            address: ensureEvmAddressPrefix(evmRes!),
-            chain_id: '1',
-            id: 1,
-            coins: [],
-            color: emoji[9].bgcolor,
-          };
-
-          setEvmWallet(newEvmRes);
-          setEvmLoading(false);
-          setEvmAddress(ensureEvmAddressPrefix(evmRes!));
-        } catch (err) {
-          console.error('queryEvmAddress err', err);
-        }
+        await setupEvmWallet(mainAddress);
       }
     } catch (err) {
       console.error('fetchProfileData err', err);
     }
-  }, [usewallet, setMainAddress, setEvmAddress, setEvmWallet, setEvmLoading]);
+  }, [usewallet, setMainAddress, setupEvmWallet]);
 
   // 2. Second called in index.ts, get all the address for this userunder the current network
   const freshUserWallet = useCallback(async () => {
