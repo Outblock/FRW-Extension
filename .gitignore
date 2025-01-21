@@ -28,3 +28,4 @@ extension-dependencies.md
 emulator-account.pkey
 flow.json
 .github-data
+playwright/.auth

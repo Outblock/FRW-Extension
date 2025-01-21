@@ -141,6 +141,7 @@ const RepeatPhrase = ({ handleSwitchTab, mnemonic }) => {
                       transition: 'all .3s linear',
                     }}
                     key={i}
+                    aria-label={`row${i}`}
                   >
                     {word.map((v, index) => {
                       return (
