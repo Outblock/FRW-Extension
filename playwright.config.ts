@@ -33,10 +33,10 @@ export default defineConfig({
     video: process.env.CI ? 'on-first-retry' : 'off',
     screenshot: process.env.CI ? 'only-on-failure' : 'off',
   },
-  globalTimeout: 160 * 1000,
+  // globalTimeout: 160 * 1000,
   globalSetup: './e2e/utils/global.setup.ts',
   globalTeardown: './e2e/utils/global.teardown.ts',
-
+  // timeout: 3_600_000,
   /* Configure projects for major browsers */
   projects: [
     {

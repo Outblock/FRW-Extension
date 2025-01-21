@@ -79,10 +79,10 @@ export const test = base.extend<{
 });
 
 export const cleanExtension = async () => {
-  // const userDataDir = '/tmp/test-user-data-dir/Default/Local Extension Settings';
-  // if (fs.existsSync(userDataDir)) {
-  //   fs.rmSync(userDataDir, { recursive: true, force: true });
-  // }
+  const userDataDir = '/tmp/test-user-data-dir/Default/Local Extension Settings';
+  if (fs.existsSync(userDataDir)) {
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+  }
 };
 
 export const expect = test.expect;
