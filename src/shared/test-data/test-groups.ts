@@ -1,6 +1,7 @@
 import { getAccountKey } from '@/shared/utils/address';
 
-import { type ApiTestResult, type ApiTestResults } from './api-test-results';
+import { type ApiTestResult, type ApiTestResults } from './api-test-results-types';
+
 export interface ApiTestFunction {
   name: string;
   controlledBy?: ApiTestFunction[]; // if set we may need to go through wallet service

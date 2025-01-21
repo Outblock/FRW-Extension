@@ -81,7 +81,7 @@ export const getUserToken = async () => {
     throw new Error('Could not get the user');
   }
 
-  const idToken = await getIdToken(user);
+  const idToken = await user.getIdToken();
   if (!idToken) {
     throw new Error('No idToken found');
   }

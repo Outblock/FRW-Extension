@@ -4,6 +4,7 @@ import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
+import { INITIAL_OPENAPI_URL, FIREBASE_FUNCTIONS_URL, WEB_NEXT_URL } from '@/constant/api-hosts';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
@@ -46,175 +47,168 @@ import {
   newsService,
 } from './index';
 
-const INITIAL_OPENAPI_URL =
-  process.env.NODE_ENV === 'production' ? 'https://api.lilico.app' : 'https://dev.lilico.app';
-const WEB_NEXT_URL =
-  process.env.NODE_ENV === 'production' ? 'https://lilico.app' : 'https://test.lilico.app';
-
-const FIREBASE_FUNCTIONS_URL = process.env.FB_FUNCTIONS!;
-
 const remoteFetch = fetchConfig;
 
 const DATA_CONFIG = {
   check_username: {
     path: '/v1/user/check',
-    method: 'get',
+    method: 'GET',
     params: ['username'],
     host: INITIAL_OPENAPI_URL,
   },
   search_user: {
     path: '/v1/user/search',
-    method: 'get',
+    method: 'GET',
     params: ['keyword'],
     host: INITIAL_OPENAPI_URL,
   },
   register: {
     path: '/v1/register',
-    method: 'post',
+    method: 'POST',
     params: ['username', 'account_key'],
     host: INITIAL_OPENAPI_URL,
   },
   create_flow_address: {
     path: '/v1/user/address',
-    method: 'post',
+    method: 'POST',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   create_flow_sandbox_address: {
     path: '/v1/user/address/crescendo',
-    method: 'post',
+    method: 'POST',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   create_flow_network_address: {
     path: '/v1/user/address/network',
-    method: 'post',
+    method: 'POST',
     params: ['account_key', 'network'],
     host: INITIAL_OPENAPI_URL,
   },
   login: {
     path: '/v1/login',
-    method: 'post',
+    method: 'POST',
     params: ['public_key', 'signature'],
     host: INITIAL_OPENAPI_URL,
   },
   loginv2: {
     path: '/v2/login',
-    method: 'post',
+    method: 'POST',
     params: ['public_key', 'signature'],
     host: INITIAL_OPENAPI_URL,
   },
   loginv3: {
     path: '/v3/login',
-    method: 'post',
+    method: 'POST',
     params: ['signature', 'account_key', 'device_info'],
     host: INITIAL_OPENAPI_URL,
   },
   importKey: {
     path: '/v3/import',
-    method: 'post',
+    method: 'POST',
     params: ['username', 'account_key', 'device_info', 'backup_info', 'address'],
     host: INITIAL_OPENAPI_URL,
   },
   coin_map: {
     path: '/v1/coin/map',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   user_wallet: {
     path: '/v1/user/wallet',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   user_wallet_v2: {
     path: '/v2/user/wallet',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   user_info: {
     path: '/v1/user/info',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   prepare_transaction: {
     path: '/v1/account/presign',
-    method: 'post',
+    method: 'POST',
     params: ['transaction'],
     host: INITIAL_OPENAPI_URL,
   },
   sign_as_payer: {
     path: '/signAsPayer',
-    method: 'post',
+    method: 'POST',
     params: ['transaction', 'message'],
     host: FIREBASE_FUNCTIONS_URL,
   },
   sign_as_proposer: {
     path: '/signAsProposer',
-    method: 'post',
+    method: 'POST',
     params: ['transaction', 'message'],
     host: FIREBASE_FUNCTIONS_URL,
   },
   get_proposer: {
     path: '/getProposer',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: FIREBASE_FUNCTIONS_URL,
   },
   send_transaction: {
     path: '/v1/account/transaction',
-    method: 'post',
+    method: 'POST',
     params: ['transaction'],
     host: INITIAL_OPENAPI_URL,
   },
   coin_list: {
     path: '/v1/account/info',
-    method: 'get',
+    method: 'GET',
     params: ['address'],
     host: INITIAL_OPENAPI_URL,
   },
   coin_rate: {
     path: '/v1/coin/rate',
-    method: 'get',
+    method: 'GET',
     params: ['coinId'],
     host: INITIAL_OPENAPI_URL,
   },
   nft_list_v2: {
     path: '/v2/nft/list',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'offset', 'limit'],
     host: INITIAL_OPENAPI_URL,
   },
   nft_list_lilico_v2: {
     path: '/v2/nft/detail/list',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'offset', 'limit'],
     host: INITIAL_OPENAPI_URL,
   },
   nft_collections_lilico_v2: {
     path: '/v2/nft/collections',
-    method: 'get',
+    method: 'GET',
     params: ['address'],
     host: INITIAL_OPENAPI_URL,
   },
   nft_collections_single_v2: {
     path: '/v2/nft/single',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'contractName', 'limit', 'offset'],
     host: INITIAL_OPENAPI_URL,
   },
   nft_meta: {
     path: '/v2/nft/meta',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'contractName', 'contractAddress', 'tokenId'],
     host: INITIAL_OPENAPI_URL,
   },
   fetch_address_book: {
     path: '/v1/addressbook/contact',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
@@ -226,7 +220,7 @@ const DATA_CONFIG = {
   },
   edit_address_book: {
     path: '/v1/addressbook/contact',
-    method: 'post',
+    method: 'POST',
     params: ['id', 'contact_name', 'address', 'domain', 'domain_type'],
     host: INITIAL_OPENAPI_URL,
   },
@@ -244,91 +238,91 @@ const DATA_CONFIG = {
   },
   account_transaction: {
     path: '/v1/account/transaction',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'limit', 'offset'],
     host: INITIAL_OPENAPI_URL,
   },
   validate_recaptcha: {
     path: '/v1/user/recaptcha',
-    method: 'get',
+    method: 'GET',
     params: ['token'],
     host: INITIAL_OPENAPI_URL,
   },
   crypto_map: {
     path: '/v1/crypto/map',
-    method: 'get',
+    method: 'GET',
     params: ['provider', 'pair'],
     host: INITIAL_OPENAPI_URL,
   },
   crypto_flow: {
     path: '/v1/crypto/summary',
-    method: 'get',
+    method: 'GET',
     params: ['provider', 'pair'],
     host: INITIAL_OPENAPI_URL,
   },
   crypto_history: {
     path: '/v1/crypto/history',
-    method: 'get',
+    method: 'GET',
     params: ['provider', 'pair', 'after', 'history'],
     host: INITIAL_OPENAPI_URL,
   },
   account_query: {
     path: '/v1/account/query',
-    method: 'post',
+    method: 'POST',
     params: ['query', 'operation_name'],
     host: INITIAL_OPENAPI_URL,
   },
   profile_preference: {
     path: '/v1/profile/preference',
-    method: 'post',
+    method: 'POST',
     params: ['private'],
     host: INITIAL_OPENAPI_URL,
   },
   profile_update: {
     path: '/v1/profile',
-    method: 'post',
+    method: 'POST',
     params: ['nickname', 'avatar'],
     host: INITIAL_OPENAPI_URL,
   },
   flowns_prepare: {
     path: '/v1/flowns/prepare',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   flowns_signature: {
     path: '/v1/flowns/signature',
-    method: 'post',
+    method: 'POST',
     params: ['transaction', 'message'],
     host: INITIAL_OPENAPI_URL,
   },
   payer_signature: {
     path: '/v1/flowns/payer/signature',
-    method: 'post',
+    method: 'POST',
     params: ['transaction', 'message'],
     host: INITIAL_OPENAPI_URL,
   },
   get_transfers: {
     path: '/v1/account/transfers',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'after', 'limit'],
     host: INITIAL_OPENAPI_URL,
   },
   manual_address: {
     path: '/v1/user/manualaddress',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   device_list: {
     path: '/v1/user/device',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   key_list: {
     path: '/v1/user/keys',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
@@ -346,31 +340,31 @@ const DATA_CONFIG = {
   },
   get_location: {
     path: '/v1/user/location',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   sync_device: {
     path: '/v3/sync',
-    method: 'post',
+    method: 'POST',
     params: ['account_key', 'device_info '],
     host: INITIAL_OPENAPI_URL,
   },
   check_import: {
     path: '/v3/checkimport',
-    method: 'get',
+    method: 'GET',
     params: ['key'],
     host: INITIAL_OPENAPI_URL,
   },
   get_version: {
     path: '/version',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: INITIAL_OPENAPI_URL,
   },
   get_prices: {
     path: '/api/prices',
-    method: 'get',
+    method: 'GET',
     params: [],
     host: WEB_NEXT_URL,
   },
@@ -378,7 +372,7 @@ const DATA_CONFIG = {
     path: '/moonPaySignature',
     method: 'POST',
     params: ['transaction', 'message'],
-    host: INITIAL_OPENAPI_URL,
+    host: FIREBASE_FUNCTIONS_URL,
   },
   get_evm_transfers: {
     path: (params: { address: string }) => `/api/evm/${params.address}/transactions`,
@@ -387,7 +381,7 @@ const DATA_CONFIG = {
     host: WEB_NEXT_URL,
   },
   nft_catalog: {
-    path: 'api/nft/collections',
+    path: '/api/nft/collections',
     method: 'GET',
     params: [],
     host: WEB_NEXT_URL,
@@ -447,7 +441,8 @@ const DATA_CONFIG = {
     host: WEB_NEXT_URL,
   },
   get_evm_ft: {
-    path: (params: { address: string }) => `/api/v3/evm/${params.address}/fts`,
+    path: (params: { address: string; network: string }) =>
+      `/api/v3/evm/${params.address}/fts?network=${params.network}`,
     method: 'GET',
     params: ['address', 'network'],
     host: WEB_NEXT_URL,
@@ -459,7 +454,14 @@ const DATA_CONFIG = {
     host: WEB_NEXT_URL,
   },
   evm_nft_detail: {
-    path: (params: { address: string }) => `/api/evm/${params.address}/nfts`,
+    path: (params: { address: string; network: string }) =>
+      `/api/evm/${params.address}/nfts?network=${params.network}`,
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_v2_collection_list: {
+    path: '/api/v2/nft/collections',
     method: 'GET',
     params: ['address', 'network'],
     host: WEB_NEXT_URL,
@@ -602,7 +604,7 @@ const fetchConfigRequest = <key extends keyof typeof DATA_CONFIG>(
   return fetchRequest(
     config.method,
     typeof config.path === 'function' ? config.path(params) : config.path,
-    params,
+    typeof config.path === 'function' ? {} : params,
     data,
     config.host
   );
@@ -687,7 +689,7 @@ class OpenApiService {
 
     try {
       const config = DATA_CONFIG.get_prices;
-      const response = await fetchConfigRequest(config, {}, {});
+      const response = await fetchConfigRequest(config);
       const data = response?.data || [];
 
       data.forEach((token) => {
@@ -2269,7 +2271,9 @@ class OpenApiService {
     offset = 0
   ) => {
     const config = DATA_CONFIG.evm_nft_collection_list;
+    const network = await userWalletService.getNetwork();
     const { data } = await fetchConfigRequest(config, {
+      network,
       address,
       collectionIdentifier,
       limit,
@@ -2282,8 +2286,8 @@ class OpenApiService {
     const network = await userWalletService.getNetwork();
     const config = DATA_CONFIG.evm_nft_id;
     const { data } = await fetchConfigRequest(config, {
-      address,
       network,
+      address,
     });
     return data;
   };
@@ -2292,10 +2296,10 @@ class OpenApiService {
     const network = await userWalletService.getNetwork();
     const config = DATA_CONFIG.evm_nft_list_v3;
     const { data } = await fetchConfigRequest(config, {
+      network,
       address,
       limit,
       offset,
-      network,
     });
     return data;
   };
@@ -2303,10 +2307,8 @@ class OpenApiService {
   getNFTCadenceList = async (address: string, network = 'mainnet', offset = 0, limit = 5) => {
     const config = DATA_CONFIG.nft_catalog_collections;
     const { data } = await fetchConfigRequest(config, {
-      address,
       network,
-      offset,
-      limit,
+      address,
     });
     return data;
   };
@@ -2330,10 +2332,10 @@ class OpenApiService {
   };
 
   getNFTV2CollectionList = async (address: string, network = 'mainnet') => {
-    const config = DATA_CONFIG.nft_catalog_collection_list;
+    const config = DATA_CONFIG.nft_v2_collection_list;
     const { data } = await fetchConfigRequest(config, {
-      address,
       network,
+      address,
     });
     return data;
   };
@@ -2380,7 +2382,7 @@ class OpenApiService {
     }
 
     const config = DATA_CONFIG.get_news;
-    const { data } = await fetchConfigRequest(config, {}, {});
+    const data = await fetchConfigRequest(config, {}, {});
 
     const timeNow = new Date(Date.now());
 
@@ -2513,7 +2515,7 @@ if (process.env.NODE_ENV === 'development') {
         typeof value === 'function' &&
         name !== 'constructor' &&
         typeof name === 'string' &&
-        name !== 'get'
+        name !== 'GET'
     )
     .map(([name]) => {
       const func = openApiService[name];
