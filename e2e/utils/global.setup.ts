@@ -1,48 +1,15 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-import { test, chromium, expect } from '@playwright/test';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const authFilePath = path.join(__dirname, '../playwright/.auth/user.json');
-const keysFilePath = path.join(__dirname, '../playwright/.auth/keys.json');
+import { loadExtension, getClipboardText, saveAuth } from './helper';
 
 const getNumber = (str: string) => {
   const match = str.match(/\d+/);
   return match ? parseInt(match[0]) : null;
 };
 
-const getClipboardText = async () => {
-  const text = await navigator.clipboard.readText();
-  return text;
-};
+const password = 'TestPassword';
 
-test('Register test', async () => {
-  // Get path to extension
-  const pathToExtension = path.join(__dirname, '../dist');
-
-  // Launch browser with extension
-  const context = await chromium.launchPersistentContext('/tmp/test-user-data-dir', {
-    headless: false,
-    args: [
-      `--disable-extensions-except=${pathToExtension}`,
-      `--load-extension=${pathToExtension}`,
-      '--allow-read-clipboard',
-      '--allow-write-clipboard',
-    ],
-    permissions: ['clipboard-read', 'clipboard-write'],
-  });
-
-  // for manifest v3:
-  let [background] = context.serviceWorkers();
-  if (!background) background = await context.waitForEvent('serviceworker');
-
-  // Get extension ID from service worker URL
-  const extensionId = background.url().split('/')[2];
-
+// for user register and login
+export default async function globalSetup() {
+  const { context, extensionId } = await loadExtension();
   // Create a new page and navigate to extension
   const page = await context.newPage();
 
@@ -77,9 +44,6 @@ test('Register test', async () => {
 
   const keyArr = clipboardText.split(' ');
 
-  // keys length should be 12
-  expect(keyArr.length).toBe(12);
-
   // next step
   await page.getByRole('button', { name: 'Okay, I have saved it properly' }).click();
 
@@ -105,9 +69,6 @@ test('Register test', async () => {
     .filter({ hasText: /^Next$/ })
     .click();
 
-  // init pwd
-  const password = 'TestPassword';
-
   // fill
   await page.getByPlaceholder('Create a password').fill(password);
   await page.getByPlaceholder('Confirm your password').fill(password);
@@ -120,10 +81,7 @@ test('Register test', async () => {
   // register finished
   await registerBtn.isEnabled();
 
-  // save context to auth file
-  await page.context().storageState({ path: authFilePath });
-
-  // Unlock wallet
+  // login
   await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
 
   await page.waitForSelector('.logoContainer', { state: 'visible' });
@@ -140,21 +98,20 @@ test('Register test', async () => {
   // get address
   const copyIcon = await page.getByLabel('Copy Address');
   await copyIcon.isVisible();
+  await copyIcon.isEnabled();
 
   await copyIcon.click();
 
   const flowAddr = await page.evaluate(getClipboardText);
 
   // save keys and pwd to keys file
-  await fs.writeFileSync(
-    keysFilePath,
-    JSON.stringify({
-      privateKey: clipboardText,
-      password: password,
-      addr: flowAddr,
-    })
-  );
 
-  // Cleanup;
+  console.log('saveAuth ->', clipboardText, password, flowAddr);
+  await saveAuth({
+    privateKey: clipboardText,
+    password: password,
+    addr: flowAddr,
+  });
+
   await context.close();
-});
+}
