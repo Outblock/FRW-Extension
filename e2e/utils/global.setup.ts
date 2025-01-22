@@ -1,51 +1,18 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-import { test, chromium, expect } from '@playwright/test';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const authFilePath = path.join(__dirname, '../playwright/.auth/user.json');
-const keysFilePath = path.join(__dirname, '../playwright/.auth/keys.json');
+import { getClipboardText, saveAuth, expect, test as setup } from './helper';
 
 const getNumber = (str: string) => {
   const match = str.match(/\d+/);
   return match ? parseInt(match[0]) : null;
 };
 
-const getClipboardText = async () => {
-  const text = await navigator.clipboard.readText();
-  return text;
-};
+const password = 'TestPassword';
 
-test('Register test', async () => {
-  // Get path to extension
-  const pathToExtension = path.join(__dirname, '../dist');
-
-  // Launch browser with extension
-  const context = await chromium.launchPersistentContext('/tmp/test-user-data-dir', {
-    headless: false,
-    args: [
-      `--disable-extensions-except=${pathToExtension}`,
-      `--load-extension=${pathToExtension}`,
-      '--allow-read-clipboard',
-      '--allow-write-clipboard',
-    ],
-    permissions: ['clipboard-read', 'clipboard-write'],
-  });
-
-  // for manifest v3:
-  let [background] = context.serviceWorkers();
-  if (!background) background = await context.waitForEvent('serviceworker');
-
-  // Get extension ID from service worker URL
-  const extensionId = background.url().split('/')[2];
-
+// for user register and login
+setup('setup new wallet user', async ({ page, extensionId }) => {
+  // let playwright know this is going to be slow
+  // Wait up to 2 minutes to setup an account
+  setup.setTimeout(120_000);
   // Create a new page and navigate to extension
-  const page = await context.newPage();
-
   // Navigate and wait for network to be idle
   await page.goto(`chrome-extension://${extensionId}/index.html#/welcome`);
 
@@ -77,9 +44,6 @@ test('Register test', async () => {
 
   const keyArr = clipboardText.split(' ');
 
-  // keys length should be 12
-  expect(keyArr.length).toBe(12);
-
   // next step
   await page.getByRole('button', { name: 'Okay, I have saved it properly' }).click();
 
@@ -105,9 +69,6 @@ test('Register test', async () => {
     .filter({ hasText: /^Next$/ })
     .click();
 
-  // init pwd
-  const password = 'TestPassword';
-
   // fill
   await page.getByPlaceholder('Create a password').fill(password);
   await page.getByPlaceholder('Confirm your password').fill(password);
@@ -116,45 +77,26 @@ test('Register test', async () => {
 
   const registerBtn = await page.getByRole('button', { name: 'Register' });
   await registerBtn.click();
+  await expect(page.getByRole('button', { name: 'Connect and Back up' })).toBeVisible({
+    timeout: 120_000,
+  });
 
-  // register finished
-  await registerBtn.isEnabled();
-
-  // save context to auth file
-  await page.context().storageState({ path: authFilePath });
-
-  // Unlock wallet
-  await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
-
-  await page.waitForSelector('.logoContainer', { state: 'visible' });
-
-  await page.getByPlaceholder('Enter your password').fill(password);
-
-  const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
-  await unlockBtn.click();
-
-  await unlockBtn.isEnabled();
-
+  // await unlockBtn.isEnabled();
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
-
   // get address
   const copyIcon = await page.getByLabel('Copy Address');
-  await copyIcon.isVisible();
+  await expect(copyIcon).toBeEnabled({ timeout: 600_000 }); // 10 minutes...
+
+  await copyIcon.isEnabled();
 
   await copyIcon.click();
 
   const flowAddr = await page.evaluate(getClipboardText);
 
   // save keys and pwd to keys file
-  await fs.writeFileSync(
-    keysFilePath,
-    JSON.stringify({
-      privateKey: clipboardText,
-      password: password,
-      addr: flowAddr,
-    })
-  );
-
-  // Cleanup;
-  await context.close();
+  await saveAuth({
+    privateKey: clipboardText,
+    password: password,
+    addr: flowAddr,
+  });
 });

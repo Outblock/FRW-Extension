@@ -162,7 +162,7 @@ const EthSwitch = ({ params: { origin, target } }: ConnectProps) => {
                   textAlign: 'center',
                 }}
               >
-                {currentNetwork}
+                {target}
               </Typography>
             </Box>
             <img style={{ width: '116px' }} src={Link} />
