@@ -1,4 +1,4 @@
-import { loadExtension, getClipboardText, saveAuth } from './helper';
+import { getClipboardText, saveAuth, expect, test as setup } from './helper';
 
 const getNumber = (str: string) => {
   const match = str.match(/\d+/);
@@ -8,11 +8,8 @@ const getNumber = (str: string) => {
 const password = 'TestPassword';
 
 // for user register and login
-export default async function globalSetup() {
-  const { context, extensionId } = await loadExtension();
+setup('setup new wallet user', async ({ page, extensionId }) => {
   // Create a new page and navigate to extension
-  const page = await context.newPage();
-
   // Navigate and wait for network to be idle
   await page.goto(`chrome-extension://${extensionId}/index.html#/welcome`);
 
@@ -95,6 +92,8 @@ export default async function globalSetup() {
 
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
+  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
+
   // get address
   const copyIcon = await page.getByLabel('Copy Address');
   await copyIcon.isVisible();
@@ -112,6 +111,4 @@ export default async function globalSetup() {
     password: password,
     addr: flowAddr,
   });
-
-  await context.close();
-}
+});

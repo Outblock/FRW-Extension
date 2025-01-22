@@ -20,6 +20,7 @@ test('Login test', async ({ page, extensionId }) => {
   // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
   // get address
+  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
   const copyIcon = await page.getByLabel('Copy Address');
   await copyIcon.isVisible();
 
