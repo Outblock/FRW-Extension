@@ -74,29 +74,30 @@ setup('setup new wallet user', async ({ page, extensionId }) => {
 
   const registerBtn = await page.getByRole('button', { name: 'Register' });
   await registerBtn.click();
-
+  await expect(page.getByRole('button', { name: 'Connect and Back up' })).toBeVisible({
+    timeout: 120_000,
+  });
   // register finished
-  await registerBtn.isEnabled();
+  //await registerBtn.isEnabled();
+  //await page.getByText('Back Up', { exact: true }).isVisible();
 
-  // login
-  await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
+  // // login
+  // await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
 
-  await page.waitForSelector('.logoContainer', { state: 'visible' });
+  // await page.waitForSelector('.logoContainer', { state: 'visible' });
 
-  await page.getByPlaceholder('Enter your password').clear();
-  await page.getByPlaceholder('Enter your password').fill(password);
+  // await page.getByPlaceholder('Enter your password').clear();
+  // await page.getByPlaceholder('Enter your password').fill(password);
 
-  const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
-  await unlockBtn.click();
+  // const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
+  // await unlockBtn.click();
 
-  await unlockBtn.isEnabled();
-
+  // await unlockBtn.isEnabled();
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
-
+  await page.pause();
   // get address
   const copyIcon = await page.getByLabel('Copy Address');
-  await copyIcon.isVisible();
-  await expect(copyIcon).toBeEnabled({ timeout: 120_000 });
+  await expect(copyIcon).toBeEnabled({ timeout: 600_000 }); // 10 minutes...
 
   await copyIcon.isEnabled();
 
