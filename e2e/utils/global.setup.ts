@@ -9,6 +9,9 @@ const password = 'TestPassword';
 
 // for user register and login
 setup('setup new wallet user', async ({ page, extensionId }) => {
+  // let playwright know this is going to be slow
+  // Wait up to 2 minutes to setup an account
+  setup.setTimeout(120_000);
   // Create a new page and navigate to extension
   // Navigate and wait for network to be idle
   await page.goto(`chrome-extension://${extensionId}/index.html#/welcome`);
@@ -77,24 +80,9 @@ setup('setup new wallet user', async ({ page, extensionId }) => {
   await expect(page.getByRole('button', { name: 'Connect and Back up' })).toBeVisible({
     timeout: 120_000,
   });
-  // register finished
-  //await registerBtn.isEnabled();
-  //await page.getByText('Back Up', { exact: true }).isVisible();
-
-  // // login
-  // await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
-
-  // await page.waitForSelector('.logoContainer', { state: 'visible' });
-
-  // await page.getByPlaceholder('Enter your password').clear();
-  // await page.getByPlaceholder('Enter your password').fill(password);
-
-  // const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
-  // await unlockBtn.click();
 
   // await unlockBtn.isEnabled();
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
-  await page.pause();
   // get address
   const copyIcon = await page.getByLabel('Copy Address');
   await expect(copyIcon).toBeEnabled({ timeout: 600_000 }); // 10 minutes...
@@ -106,8 +94,6 @@ setup('setup new wallet user', async ({ page, extensionId }) => {
   const flowAddr = await page.evaluate(getClipboardText);
 
   // save keys and pwd to keys file
-
-  console.log('saveAuth ->', clipboardText, password, flowAddr);
   await saveAuth({
     privateKey: clipboardText,
     password: password,
