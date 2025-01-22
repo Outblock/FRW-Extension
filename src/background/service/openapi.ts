@@ -1823,6 +1823,7 @@ class OpenApiService {
     return data;
   };
 
+  // @deprecated
   flownsAuthTransaction = async (transaction, envelope: string) => {
     const message = {
       envelope_message: envelope,
@@ -1840,7 +1841,7 @@ class OpenApiService {
 
     return data;
   };
-
+  // @deprecated
   flownsTransaction = async (transaction, envelope: string) => {
     const message = {
       envelope_message: envelope,
@@ -1857,14 +1858,14 @@ class OpenApiService {
 
     return data;
   };
-
+  // @deprecated
   swapEstimate = async (network: string, inToken: string, outToken: string, amount) => {
     const response = await fetch(
       `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&inAmount=${amount}`
     );
     return response.json();
   };
-
+  // @deprecated
   swapOutEstimate = async (network: string, inToken: string, outToken: string, amount) => {
     const response = await fetch(
       `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&outAmount=${amount}`
@@ -1879,6 +1880,7 @@ class OpenApiService {
     return response.json();
   };
 
+  // @deprecated
   swapPairs = async (network: string) => {
     const response = await fetch(`https://lilico.app/api/swap/v1/${network}/pairs`);
     console.log(response);
@@ -1888,12 +1890,6 @@ class OpenApiService {
   nftCatalog = async () => {
     const config = DATA_CONFIG.nft_catalog;
     const { data } = await fetchConfigRequest(config, {}, {});
-    return data;
-  };
-
-  cadenceScripts = async (network: string) => {
-    const config = DATA_CONFIG.cadence_scripts;
-    const { data } = await fetchConfigRequest(config, { network }, {});
     return data;
   };
 
