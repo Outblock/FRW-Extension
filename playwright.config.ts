@@ -42,6 +42,7 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: /.*global\.setup\.ts/,
+      teardown: 'cleanup',
     },
     {
       name: 'main',
@@ -51,6 +52,10 @@ export default defineConfig({
         browserName: 'chromium',
       },
       dependencies: ['setup'],
+    },
+    {
+      name: 'cleanup',
+      testMatch: /.*global\.teardown\.ts/,
     },
 
     /* Test against mobile viewports. */

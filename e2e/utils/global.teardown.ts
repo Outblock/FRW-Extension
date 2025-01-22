@@ -1,7 +1,7 @@
-import { cleanAuth, cleanExtension } from './helper';
+import { cleanAuth, cleanExtension, test as teardown } from './helper';
 
-export default async function globalTeardown() {
+teardown('cleanup extension storage', async ({ page, extensionId }) => {
   //   Create a new page and navigate to extension
   await cleanAuth();
   await cleanExtension();
-}
+});

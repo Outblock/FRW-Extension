@@ -83,6 +83,7 @@ setup('setup new wallet user', async ({ page, extensionId }) => {
 
   await page.waitForSelector('.logoContainer', { state: 'visible' });
 
+  await page.getByPlaceholder('Enter your password').clear();
   await page.getByPlaceholder('Enter your password').fill(password);
 
   const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
@@ -92,11 +93,11 @@ setup('setup new wallet user', async ({ page, extensionId }) => {
 
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
-  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
-
   // get address
   const copyIcon = await page.getByLabel('Copy Address');
   await copyIcon.isVisible();
+  await expect(copyIcon).toBeEnabled({ timeout: 120_000 });
+
   await copyIcon.isEnabled();
 
   await copyIcon.click();
