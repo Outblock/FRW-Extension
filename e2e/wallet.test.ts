@@ -1,37 +1,32 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { getClipboardText, test, expect, getAuth } from './utils/helper';
 
-import { test, chromium } from '@playwright/test';
+test('Login test', async ({ page, extensionId }) => {
+  const keysFile = await getAuth();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-test('Load extension', async () => {
-  // Get path to extension
-  const pathToExtension = path.join(__dirname, '../dist');
-
-  // Launch browser with extension
-  const context = await chromium.launchPersistentContext('/tmp/test-user-data-dir', {
-    headless: false,
-    args: [`--disable-extensions-except=${pathToExtension}`, `--load-extension=${pathToExtension}`],
-  });
-
-  // for manifest v3:
-  let [background] = context.serviceWorkers();
-  if (!background) background = await context.waitForEvent('serviceworker');
-
-  // Get extension ID from service worker URL
-  const extensionId = background.url().split('/')[2];
-
-  // Create a new page and navigate to extension
-  const page = await context.newPage();
+  const { password, addr } = keysFile;
 
   // Navigate and wait for network to be idle
-  await page.goto(`chrome-extension://${extensionId}/index.html#/welcome`);
+  await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
 
-  // Wait for the welcome page to be fully loaded
-  await page.waitForSelector('.welcomeBox', { state: 'visible' });
+  await page.waitForSelector('.logoContainer', { state: 'visible' });
 
-  // Cleanup
-  await context.close();
+  await page.getByPlaceholder('Enter your password').fill(password);
+
+  const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
+  await unlockBtn.click();
+
+  // await unlockBtn.isEnabled();
+
+  // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
+
+  // get address
+  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
+  const copyIcon = await page.getByLabel('Copy Address');
+  await copyIcon.isVisible();
+
+  await copyIcon.click();
+
+  const flowAddr = await page.evaluate(getClipboardText);
+
+  expect(flowAddr).toBe(addr);
 });
