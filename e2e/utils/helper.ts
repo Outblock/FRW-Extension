@@ -16,13 +16,22 @@ export const getClipboardText = async () => {
 
 // save keys auth file
 export const saveAuth = async (auth) => {
-  await fs.writeFileSync(keysFilePath, auth ? JSON.stringify(auth) : '');
+  if (auth) {
+    await fs.writeFileSync(keysFilePath, JSON.stringify(auth));
+  } else {
+    if (fs.existsSync(keysFilePath)) {
+      await fs.unlinkSync(keysFilePath);
+    }
+  }
 };
 
 // get keys auth file
 export const getAuth = async () => {
-  const keysFile = JSON.parse(fs.readFileSync(keysFilePath, 'utf8'));
-  return keysFile;
+  const keysFileContent = fs.existsSync(keysFilePath)
+    ? fs.readFileSync(keysFilePath, 'utf8')
+    : null;
+  const keysFile = keysFileContent ? JSON.parse(keysFileContent) : null;
+  return keysFile || { password: '', addr: '' };
 };
 
 // delete keys file
@@ -30,23 +39,41 @@ export const cleanAuth = async () => {
   await saveAuth(null);
 };
 
-export const loadExtension = async () => {
-  const pathToExtension = path.join(__dirname, '../../dist');
-  const context = await chromium.launchPersistentContext('/tmp/test-user-data-dir', {
-    headless: false,
-    args: [
-      `--disable-extensions-except=${pathToExtension}`,
-      `--load-extension=${pathToExtension}`,
-      '--allow-read-clipboard',
-      '--allow-write-clipboard',
-    ],
-    permissions: ['clipboard-read', 'clipboard-write'],
-  });
-  let [background] = context.serviceWorkers();
-  if (!background) background = await context.waitForEvent('serviceworker');
-  const extensionId = background.url().split('/')[2];
+export const loginToExtension = async ({ page, extensionId }) => {
+  const keysFile = await getAuth();
 
-  return { context, extensionId };
+  if (keysFile.password === '') {
+    return false;
+  }
+
+  const { password, addr } = keysFile;
+
+  // Navigate and wait for network to be idle
+  // Navigate and wait for network to be idle
+  await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
+
+  await page.waitForSelector('.logoContainer', { state: 'visible' });
+
+  await page.getByPlaceholder('Enter your password').clear();
+  await page.getByPlaceholder('Enter your password').fill(password);
+
+  const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
+  await unlockBtn.click();
+  // await unlockBtn.isEnabled();
+
+  // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
+
+  // get address
+  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
+  const copyIcon = await page.getByLabel('Copy Address');
+  await copyIcon.isVisible();
+
+  await copyIcon.click();
+
+  const flowAddr = await page.evaluate(getClipboardText);
+
+  expect(flowAddr).toBe(addr);
+  return true;
 };
 
 export const test = base.extend<{
@@ -63,6 +90,10 @@ export const test = base.extend<{
         '--allow-read-clipboard',
         '--allow-write-clipboard',
       ],
+      env: {
+        ...process.env,
+        TEST_MODE: 'true',
+      },
       permissions: ['clipboard-read', 'clipboard-write'],
     });
 
