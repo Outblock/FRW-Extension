@@ -2,6 +2,7 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Switch, withRouter, type RouteComponentProps } from 'react-router-dom';
 
+import { useInitHook } from '@/ui/hooks';
 import { PrivateRoute } from 'ui/component';
 import { useWallet } from 'ui/utils';
 
@@ -72,25 +73,27 @@ const InnerRoute = (props: RouteComponentProps) => {
   const classes = useStyles();
   const [value, setValue] = useState(0);
 
-  const wallet = useWallet();
+  const usewallet = useWallet();
+  const { initializeStore } = useInitHook();
 
   const fetch = useCallback(async () => {
-    const dashIndex = await wallet.getDashIndex();
+    const dashIndex = await usewallet.getDashIndex();
     if (dashIndex) {
       setValue(dashIndex);
     } else {
       setValue(0);
-      await wallet.setDashIndex(0);
+      await usewallet.setDashIndex(0);
     }
-  }, [wallet]);
+    initializeStore();
+  }, [usewallet, initializeStore]);
 
   useEffect(() => {
     fetch();
   }, [fetch]);
 
   useEffect(() => {
-    wallet.setDashIndex(value);
-  }, [value, wallet]);
+    usewallet.setDashIndex(value);
+  }, [value, usewallet]);
 
   return (
     <React.Fragment>
