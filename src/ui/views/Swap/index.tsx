@@ -6,6 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { type Contact } from '@/shared/types/network-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -77,6 +78,7 @@ const Swap = () => {
   // }
 
   const usewallet = useWallet();
+  const { currentWallet } = useProfileStore();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
@@ -103,12 +105,11 @@ const Swap = () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    const wallet = await usewallet.getCurrentWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
-    await setWallet(wallet);
+    await setWallet(currentWallet);
     const coinList = await usewallet.getCoinList();
     setCoinList(coinList);
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
@@ -117,7 +118,7 @@ const Swap = () => {
     const info = await usewallet.getUserInfo(false);
     const userContact = {
       ...USER_CONTACT,
-      address: withPrefix(wallet.address) || '',
+      address: withPrefix(currentWallet.address) || '',
       avatar: info.avatar,
       contact_name: info.username,
     };
@@ -128,7 +129,7 @@ const Swap = () => {
     });
     setLoading(false);
     return;
-  }, [usewallet]);
+  }, [usewallet, currentWallet]);
 
   const updateCoinInfo = (token) => {
     if (selectTarget) {

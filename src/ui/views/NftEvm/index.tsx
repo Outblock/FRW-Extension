@@ -8,6 +8,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { storage } from '@/background/webapi';
 import { ensureEvmAddressPrefix } from '@/shared/utils/address';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from 'ui/utils';
 
 import GridTab from './GridTab';
@@ -15,7 +16,7 @@ import ListTab from './ListTab';
 
 const NftEvm = () => {
   const wallet = useWallet();
-
+  const { mainAddress } = useProfileStore();
   const [address, setAddress] = useState<string | null>(null);
   const [value, setValue] = useState(0);
   const [nftCount, setCount] = useState<number>(0);
@@ -25,13 +26,12 @@ const NftEvm = () => {
   const listRef = useRef<any>(null);
 
   const loadNFTs = useCallback(async () => {
-    const mainAddress = await wallet.getMainAddress();
     const address = await wallet.queryEvmAddress(mainAddress!);
     // const flowCoins = fetchRemoteConfig.flowCoins();
     setIsActive(false);
     // setAddress(address);
     setAddress(ensureEvmAddressPrefix(address));
-  }, [wallet]);
+  }, [wallet, mainAddress]);
 
   const fetchPreferredTab = useCallback(async () => {
     const tab = await storage.get('PreferredNFT');

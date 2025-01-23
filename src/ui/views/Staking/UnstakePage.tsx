@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { LLHeader } from '@/ui/FRWComponent';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
 
@@ -55,6 +56,7 @@ const UnstakePage = () => {
 
   const usewallet = useWallet();
   const location = useParams();
+  const { currentWallet } = useProfileStore();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
@@ -84,7 +86,6 @@ const UnstakePage = () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    const wallet = await usewallet.getCurrentWallet();
     const network = await usewallet.getNetwork();
     usewallet
       .delegateStore()
@@ -99,7 +100,7 @@ const UnstakePage = () => {
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
-    await setWallet(wallet);
+    await setWallet(currentWallet);
     const coinList = await usewallet.getCoinList();
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === 'flow');
     console.log(coinList);
@@ -107,7 +108,7 @@ const UnstakePage = () => {
     setCoinInfo(coinInfo!);
     setLoading(false);
     return;
-  }, [usewallet, location]);
+  }, [usewallet, location, currentWallet]);
 
   const getApy = useCallback(async () => {
     const result = await usewallet.getApr();

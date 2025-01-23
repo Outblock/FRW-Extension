@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 
 import theme from '../style/LLTheme';
@@ -15,13 +16,13 @@ const tempEmoji = {
 
 export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fromEvm = '1' }) => {
   const usewallet = useWallet();
+  const { currentWallet } = useProfileStore();
   const [emoji, setEmoji] = useState(tempEmoji);
   const [isload, setLoad] = useState(true);
 
   const getEmoji = useCallback(async () => {
     setLoad(true);
     if (isEvm) {
-      const currentWallet = await usewallet.getEvmWallet();
       const emojiObject = {
         ...tempEmoji,
         emoji: currentWallet.icon,
@@ -31,7 +32,6 @@ export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fr
       };
       setEmoji(emojiObject);
     } else {
-      const currentWallet = await usewallet.getCurrentWallet();
       const emojiObject = {
         ...tempEmoji,
         emoji: currentWallet.icon,
@@ -42,7 +42,7 @@ export const FRWTargetProfile = ({ contact, isLoading = false, isEvm = false, fr
       setEmoji(emojiObject);
     }
     setLoad(false);
-  }, [isEvm, usewallet]);
+  }, [isEvm, currentWallet]);
 
   useEffect(() => {
     getEmoji();

@@ -1,9 +1,10 @@
 import { CssBaseline } from '@mui/material';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
 
+import { useInitHook } from '@/ui/hooks';
 import themeOptions from '@/ui/style/LLTheme';
 import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
@@ -53,6 +54,11 @@ const Routes = () => {
 };
 
 function Main() {
+  const { initializeStore } = useInitHook();
+
+  useEffect(() => {
+    initializeStore();
+  }, [initializeStore]);
   return (
     <Router>
       <Routes />

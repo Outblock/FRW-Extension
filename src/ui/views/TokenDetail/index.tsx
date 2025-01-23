@@ -12,6 +12,7 @@ import type { PriceProvider } from '@/shared/types/network-types';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import StorageUsageCard from '@/ui/FRWComponent/StorageUsageCard';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import tips from 'ui/FRWAssets/svg/tips.svg';
 import { useWallet } from 'ui/utils';
 
@@ -46,6 +47,7 @@ const TokenDetail = () => {
   const classes = useStyles();
   const usewallet = useWallet();
   const history = useHistory();
+  const { childAccounts, currentWallet } = useProfileStore();
   const [price, setPrice] = useState(0);
   const [accessible, setAccessible] = useState(true);
   const token = useParams<{ id: string }>().id.toLowerCase();
@@ -136,17 +138,15 @@ const TokenDetail = () => {
 
   const loadNetwork = useCallback(async () => {
     const network = await usewallet.getNetwork();
-    const currentWallet = await usewallet.getCurrentWallet();
     setCurrentWallet(currentWallet);
     setNetwork(network);
-  }, [usewallet]);
+  }, [usewallet, currentWallet]);
 
   const requestChildType = useCallback(async () => {
     const result = await usewallet.getActiveWallet();
-    const childresp = await usewallet.checkUserChildAccount();
-    setChildAccount(childresp);
+    setChildAccount(childAccounts);
     setChildType(result);
-  }, [usewallet]);
+  }, [usewallet, childAccounts]);
 
   const renderMoveComponent = () => {
     if (childType === 'evm') {

@@ -6,6 +6,7 @@ import { isValidEthereumAddress } from '@/shared/utils/address';
 import { NFTDrawer } from '@/ui/FRWComponent/GeneralPages';
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 import { useWallet } from 'ui/utils';
@@ -38,6 +39,7 @@ const checkContractAddressInCollections = (nft, activec) => {
 const MoveFromChild = (props: MoveBoardProps) => {
   const usewallet = useWallet();
   const history = useHistory();
+  const { mainAddress } = useProfileStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [collectionList, setCollectionList] = useState<any>(null);
   const [selectedCollection, setSelected] = useState<string>('');
@@ -183,8 +185,7 @@ const MoveFromChild = (props: MoveBoardProps) => {
   };
 
   const moveNFT = async () => {
-    const parentAddress = await usewallet.getMainAddress();
-    if (parentAddress === selectedAccount!['address']) {
+    if (mainAddress === selectedAccount!['address']) {
       moveToParent();
     } else if (isValidEthereumAddress(selectedAccount!['address'])) {
       moveToEvm();

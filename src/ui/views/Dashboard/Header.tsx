@@ -27,10 +27,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
-import eventBus from '@/eventBus';
-import type { UserInfoResponse, WalletResponse } from '@/shared/types/network-types';
 import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
+import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useNetworkStore } from '@/ui/stores/useNetworkStore';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useNews } from '@/ui/utils/NewsContext';
 import { useWallet, formatAddress } from 'ui/utils';
 
@@ -71,53 +72,41 @@ const Header = ({ loading = false }) => {
   const history = useHistory();
   const location = useLocation();
 
-  const [isLoading, setLoading] = useState(loading);
+  const { clearCoins } = useCoinStore();
+  const { currentNetwork, setNetwork, developerMode } = useNetworkStore();
+  const {
+    mainAddress,
+    currentWallet,
+    evmWallet,
+    currentWalletIndex,
+    childAccounts,
+    walletList,
+    evmLoading,
+    userInfo,
+    otherAccounts,
+    loggedInAccounts,
+    mainAddressLoading,
+    clearProfileData,
+  } = useProfileStore();
 
-  const [mainAddressLoading, setMainLoading] = useState(true);
-
-  const [evmLoading, setEvmLoading] = useState(true);
   const [drawer, setDrawer] = useState(false);
-  const [userWallet, setWallet] = useState<any>(null);
-  const [currentWallet, setCurrentWallet] = useState(0);
-  const [evmWallet, setEvmWallet] = useState<any>({
-    name: '',
-    icon: '',
-    address: '',
-    chain_id: 'evm',
-    id: 1,
-    coins: ['flow'],
-    color: '',
-  });
-  const [current, setCurrent] = useState({});
-  const [currentNetwork, setNetwork] = useState('mainnet');
 
-  const [isSandbox, setIsSandbox] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
-  const [otherAccounts, setOtherAccounts] = useState<any>(null);
-  const [loggedInAccounts, setLoggedIn] = useState<any>(null);
-  const [childAccounts, setChildAccount] = useState<ChildAccount>({});
-  const [developerModeOn, setDeveloperModeOn] = useState(false);
-  // const [unread, setUnread] = useState(0);
-
-  const [domain] = useState('');
   const [mainnetAvailable, setMainnetAvailable] = useState(true);
   const [testnetAvailable, setTestnetAvailable] = useState(true);
-  const [evmAddress, setEvmAddress] = useState('');
-  const [mainAddress, setMainAddress] = useState('');
-
-  const [modeAnonymous, setModeAnonymous] = useState(false);
 
   const [isPending, setIsPending] = useState(false);
 
   const [ispop, setPop] = useState(false);
 
-  const [initialStart, setInitial] = useState(true);
-
   const [switchLoading, setSwitchLoading] = useState(false);
   const [expandAccount, setExpandAccount] = useState(false);
-
   const [, setErrorMessage] = useState('');
   const [errorCode, setErrorCode] = useState(null);
+
+  // News Drawer
+  const [showNewsDrawer, setShowNewsDrawer] = useState(false);
+  const [usernameDrawer, setUsernameDrawer] = useState(false);
+
   // const { unreadCount } = useNotificationStore();
   // TODO: add notification count
   const { unreadCount } = useNews();
@@ -130,15 +119,10 @@ const Header = ({ loading = false }) => {
     setPop((prevPop) => !prevPop);
   };
 
-  // News Drawer
-  const [showNewsDrawer, setShowNewsDrawer] = useState(false);
-
   const toggleNewsDrawer = useCallback(() => {
     // Avoids unnecessary re-renders using a function to toggle the state
     setShowNewsDrawer((prevShowNewsDrawer) => !prevShowNewsDrawer);
   }, []);
-
-  const [usernameDrawer, setUsernameDrawer] = useState(false);
 
   const toggleUsernameDrawer = useCallback(() => {
     // Avoids unnecessary re-renders using a function to toggle the state
@@ -153,109 +137,11 @@ const Header = ({ loading = false }) => {
     }
   }, [history, location.pathname]);
 
-  const wallets = useCallback(
-    (data) => {
-      let sortData = data;
-      const walletName = domain ? domain : 'Wallet';
-      if (!Array.isArray(sortData)) {
-        sortData = [];
-      }
-      const filteredData = (sortData || []).filter((wallet) => {
-        return wallet.chain_id === currentNetwork;
-      });
-      return (filteredData || []).map((wallet, index) => {
-        return {
-          id: index,
-          name: wallet.name || 'Wallet',
-          address: withPrefix(wallet.blockchain[0].address),
-          key: index,
-          icon: wallet.icon || '',
-          color: wallet.color || '',
-        };
-      });
-    },
-    [currentNetwork, domain]
-  );
-
-  const [walletList, setWalletList] = useState([]);
-
-  const freshUserWallet = useCallback(async () => {
-    const wallet: WalletResponse[] = await usewallet.getUserWallets();
-    const fData: WalletResponse[] = wallet.filter((item) => item.blockchain !== null);
-
-    // putDeviceInfo(fData);
-    setWallet(fData);
-    if (initialStart) {
-      await usewallet.openapi.putDeviceInfo(fData);
-      setInitial(false);
-    }
-  }, [initialStart, usewallet]);
-
-  const freshUserInfo = useCallback(async () => {
-    const currentWallet = await usewallet.getCurrentWallet();
-    const isChild = await usewallet.getActiveWallet();
-
-    const mainAddress = await usewallet.getMainAddress();
-    if (isChild === 'evm') {
-      const res = await usewallet.queryEvmAddress(mainAddress!);
-      const evmWallet = await usewallet.getEvmWallet();
-      const evmAddress = ensureEvmAddressPrefix(res);
-      evmWallet.address = evmAddress;
-      await setCurrent(evmWallet);
-      setMainLoading(false);
-    } else if (isChild) {
-      const currentWallet = await usewallet.getCurrentWallet();
-      await setCurrent(currentWallet);
-      setMainLoading(false);
-    } else {
-      const mainwallet = await usewallet.returnMainWallet();
-      await setCurrent(mainwallet);
-      setMainLoading(false);
-    }
-    const keys = await usewallet.getAccount();
-    const pubKTuple = await usewallet.getPubKey();
-    if (mainAddress) {
-      setMainAddress(mainAddress);
-      try {
-        const res = await usewallet.queryEvmAddress(mainAddress);
-        const evmWallet = await usewallet.getEvmWallet();
-        setEvmAddress(res!);
-        setEvmWallet(evmWallet);
-      } catch (err) {
-        console.error('queryEvmAddress err', err);
-      } finally {
-        setEvmLoading(false);
-      }
-    }
-
-    const walletData = await usewallet.getUserInfo(true);
-
-    const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(
-      currentWallet,
-      keys,
-      pubKTuple,
-      walletData,
-      isChild
-    );
-
-    await setOtherAccounts(otherAccounts);
-    await setUserInfo(wallet);
-    await setLoggedIn(loggedInAccounts);
-  }, [usewallet]);
-
-  const fetchUserWallet = useCallback(async () => {
-    freshUserWallet();
-    freshUserInfo();
-    const childresp: ChildAccount = await usewallet.checkUserChildAccount();
-    setChildAccount(childresp);
-    usewallet.setChildWallet(childresp);
-  }, [freshUserInfo, freshUserWallet, usewallet]);
-
   const switchAccount = useCallback(
     async (account) => {
       setSwitchLoading(true);
       try {
-        const switchingTo = process.env.NODE_ENV === 'production' ? 'mainnet' : 'testnet';
+        const switchingTo = 'mainnet';
         await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
         if (account.id) {
           await storage.set('currentId', account.id);
@@ -266,7 +152,9 @@ const Header = ({ loading = false }) => {
         await usewallet.lockWallet();
         await usewallet.clearWallet();
         await usewallet.switchNetwork(switchingTo);
-
+        setNetwork(switchingTo);
+        clearCoins();
+        clearProfileData();
         history.push('/switchunlock');
       } catch (error) {
         console.error('Error during account switch:', error);
@@ -275,36 +163,14 @@ const Header = ({ loading = false }) => {
         setSwitchLoading(false);
       }
     },
-    [usewallet, history]
+    [usewallet, history, setNetwork, clearCoins, clearProfileData]
   );
-
-  const loadNetwork = useCallback(async () => {
-    const network = await usewallet.getNetwork();
-    setIsSandbox(false);
-
-    setEvmLoading(true);
-    await setNetwork(network);
-  }, [usewallet]);
-
-  const loadDeveloperMode = async () => {
-    const developerMode = await storage.get('developerMode');
-    if (developerMode) {
-      setDeveloperModeOn(developerMode);
-    }
-  };
 
   const setWallets = async (walletInfo, key, index = null) => {
     await usewallet.setActiveWallet(walletInfo, key, index);
-    setMainLoading(false);
-
     // Clear collections
     usewallet.clearNFTCollection();
     usewallet.clearCoinList();
-
-    // Refresh wallet data
-    await fetchUserWallet();
-    await loadNetwork();
-
     // Navigate if needed
     history.push('/dashboard');
     window.location.reload();
@@ -372,39 +238,17 @@ const Header = ({ loading = false }) => {
   }, [usewallet]);
 
   useEffect(() => {
-    loadNetwork();
-    fetchUserWallet();
-    loadDeveloperMode();
     checkPendingTx();
     checkAuthStatus();
-
-    const addressDone = () => {
-      fetchUserWallet();
-    };
-
-    const networkChanged = (network) => {
-      loadNetwork();
-    };
 
     chrome.runtime.onMessage.addListener(transactionHandler);
     /**
      * Fired when a message is sent from either an extension process or a content script.
      */
-    eventBus.addEventListener('addressDone', addressDone);
-    eventBus.addEventListener('switchNetwork', networkChanged);
     return () => {
-      eventBus.removeEventListener('addressDone', addressDone);
-      eventBus.removeEventListener('switchNetwork', networkChanged);
       chrome.runtime.onMessage.removeListener(transactionHandler);
     };
-  }, [checkAuthStatus, checkPendingTx, currentNetwork, fetchUserWallet, loadNetwork]);
-
-  useEffect(() => {
-    const list = wallets(userWallet);
-    setWalletList(list);
-    setCurrentWallet(0);
-    setLoading(userWallet === null);
-  }, [userWallet, currentNetwork, wallets]);
+  }, [checkAuthStatus, checkPendingTx, currentNetwork]);
 
   const checkNetwork = useCallback(async () => {
     const mainnetAvailable = await usewallet.openapi.pingNetwork('mainnet');
@@ -425,22 +269,16 @@ const Header = ({ loading = false }) => {
     async (network: string) => {
       // Update local states
       setNetwork(network);
-      setMainLoading(true);
-      setEvmLoading(true);
 
       // Switch network in wallet
       await usewallet.switchNetwork(network);
-
-      // Refresh wallet data
-      await fetchUserWallet();
-      await loadNetwork();
 
       toggleUsernameDrawer();
 
       // Navigate if needed
       history.push('/dashboard');
     },
-    [usewallet, fetchUserWallet, loadNetwork, toggleUsernameDrawer, history]
+    [usewallet, toggleUsernameDrawer, history, setNetwork]
   );
 
   const AccountFunction = (props) => {
@@ -478,11 +316,6 @@ const Header = ({ loading = false }) => {
                   {'@' + props.username}
                 </Typography>
               </Tooltip>
-              {modeAnonymous && (
-                <Tooltip title={chrome.i18n.getMessage('Anonymous__mode__on')} arrow>
-                  <img style={{ display: 'inline-block', width: '20px' }} src={EyeOff} />
-                </Tooltip>
-              )}
             </Box>
           </ListItemText>
         </ListItemButton>
@@ -579,50 +412,6 @@ const Header = ({ loading = false }) => {
               </ListItemText>
             </ListItemButton>
           </ListItem>
-
-          {/* {isSandboxEnabled && <ListItem
-            disablePadding
-            key='crescendo'
-            secondaryAction={
-              !crescendoAvailable && (<ListItemText>
-                <Typography
-                  variant="caption"
-                  component="span"
-                  display="inline"
-                  color='error.main'
-                >
-                  {chrome.i18n.getMessage('Unavailable')}
-                </Typography>
-              </ListItemText>)
-            }
-            onClick={() => {
-              switchNetwork('crescendo');
-            }}>
-            <ListItemButton>
-              <ListItemIcon>
-                <FiberManualRecordIcon
-                  style={{
-                    color: networkColor('crescendo'),
-                    fontSize: '10px',
-                    marginLeft: '10px',
-                    marginRight: '10px',
-                    opacity: currentNetwork == 'crescendo' ? '1' : '0.1',
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText>
-                <Typography
-                  variant="body1"
-                  component="span"
-                  display="inline"
-                  color='text'
-                >
-                  {chrome.i18n.getMessage('Crescendo')}
-                </Typography>
-              </ListItemText>
-            </ListItemButton>
-          </ListItem>
-          } */}
         </List>
       </>
     );
@@ -638,8 +427,8 @@ const Header = ({ loading = false }) => {
           icon={props.icon}
           color={props.color}
           setWallets={setWallets}
+          currentWalletIndex={currentWalletIndex}
           currentWallet={currentWallet}
-          current={current}
           mainAddress={mainAddress}
           setExpandAccount={setExpandAccount}
           expandAccount={expandAccount}
@@ -674,7 +463,7 @@ const Header = ({ loading = false }) => {
           {chrome.i18n.getMessage('Account')}
         </Typography>
         {userInfo && createAccountList(userInfo)}
-        {developerModeOn && NetworkFunction()}
+        {developerMode && NetworkFunction()}
       </Drawer>
     );
   };
@@ -715,9 +504,7 @@ const Header = ({ loading = false }) => {
               ? ''
               : currentNetwork !== 'mainnet'
                 ? `2px solid ${networkColor(currentNetwork)}`
-                : isSandbox
-                  ? '2px solid #CCAF21'
-                  : '2px solid #282828',
+                : '2px solid #282828',
             marginRight: '0px',
           }}
         >
@@ -767,7 +554,7 @@ const Header = ({ loading = false }) => {
         )}
         <Box sx={{ flexGrow: 1 }} />
 
-        {!isLoading && userInfo && props ? (
+        {userInfo && props ? (
           <Tooltip title={isPending ? chrome.i18n.getMessage('Pending__Transaction') : ''} arrow>
             <Box style={{ position: 'relative' }}>
               {isPending && (
@@ -842,26 +629,28 @@ const Header = ({ loading = false }) => {
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
         <Toolbar sx={{ px: '12px', backgroundColor: '#282828' }}>
-          <MenuDrawer
-            userInfo={userInfo!}
-            drawer={drawer}
-            toggleDrawer={toggleDrawer}
-            otherAccounts={otherAccounts}
-            switchAccount={switchAccount}
-            togglePop={togglePop}
-            walletList={walletList}
-            childAccounts={childAccounts}
-            current={current}
-            createWalletList={createWalletList}
-            setWallets={setWallets}
-            currentNetwork={currentNetwork}
-            evmWallet={evmWallet}
-            networkColor={networkColor}
-            evmLoading={evmLoading}
-            modeOn={developerModeOn}
-            mainAddressLoading={mainAddressLoading}
-          />
-          {appBarLabel(current)}
+          {walletList && (
+            <MenuDrawer
+              userInfo={userInfo!}
+              drawer={drawer}
+              toggleDrawer={toggleDrawer}
+              otherAccounts={otherAccounts}
+              switchAccount={switchAccount}
+              togglePop={togglePop}
+              walletList={walletList}
+              childAccounts={childAccounts}
+              current={currentWallet}
+              createWalletList={createWalletList}
+              setWallets={setWallets}
+              currentNetwork={currentNetwork}
+              evmWallet={evmWallet}
+              networkColor={networkColor}
+              evmLoading={evmLoading}
+              modeOn={developerMode}
+              mainAddressLoading={mainAddressLoading}
+            />
+          )}
+          {appBarLabel(currentWallet)}
           {usernameSelect()}
           <NewsDrawer />
           {userInfo && (
@@ -874,7 +663,7 @@ const Header = ({ loading = false }) => {
                 setPop(false);
               }}
               userInfo={userInfo!}
-              current={current!}
+              current={currentWallet!}
               switchAccount={switchAccount}
               loggedInAccounts={loggedInAccounts}
               switchLoading={switchLoading}

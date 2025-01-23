@@ -8,6 +8,7 @@ import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -45,6 +46,7 @@ const SendAmount = () => {
   const history = useHistory();
   const location = useLocation<ContactState>();
   const usewallet = useWallet();
+  const { childAccounts, currentWallet } = useProfileStore();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
@@ -58,22 +60,6 @@ const SendAmount = () => {
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<ActiveChildType>(null);
-  const [minAmount, setMinAmount] = useState<any>(0);
-
-  const setUserMinAmount = useCallback(
-    async (address: string) => {
-      try {
-        // Try fetching the min amount from the API
-        const minAmount = await usewallet.openapi.getAccountMinFlow(address);
-        setMinAmount(minAmount);
-      } catch (error) {
-        // If there's an error, set the min amount to 0.001
-        console.error('Error fetching min amount:', error);
-        setMinAmount(0.001);
-      }
-    },
-    [usewallet]
-  );
 
   const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
@@ -83,7 +69,7 @@ const SendAmount = () => {
     if (childType === 'evm') {
       wallet = await usewallet.getEvmWallet();
     } else {
-      wallet = await usewallet.getCurrentWallet();
+      wallet = currentWallet;
     }
     console.log('wallet ', wallet);
     const network = await usewallet.getNetwork();
@@ -104,8 +90,7 @@ const SendAmount = () => {
 
     if (isChild) {
       if (isChild !== 'evm') {
-        const childResp = await usewallet.checkUserChildAccount();
-        const cwallet = childResp[wallet.address!];
+        const cwallet = childAccounts[wallet.address!];
         userContact.avatar = cwallet.thumbnail.url;
         userContact.contact_name = cwallet.name;
       }
@@ -119,9 +104,17 @@ const SendAmount = () => {
       userContact.avatar = info.avatar;
       userContact.contact_name = info.username;
     }
-    setUserMinAmount(userContact.address);
     setUser(userContact);
-  }, [childType, setWallet, setCoinList, setCoinInfo, setUser, setUserMinAmount, usewallet]);
+  }, [
+    childType,
+    setWallet,
+    setCoinList,
+    setCoinInfo,
+    setUser,
+    usewallet,
+    currentWallet,
+    childAccounts,
+  ]);
 
   const checkAddress = useCallback(async () => {
     const child = await usewallet.getActiveWallet();
@@ -216,7 +209,7 @@ const SendAmount = () => {
             >
               {chrome.i18n.getMessage('Transfer__Amount')}
             </Typography>
-            {coinInfo.unit && minAmount && (
+            {coinInfo.unit && (
               <TransferAmount
                 coinList={coinList}
                 amount={amount}
@@ -227,7 +220,6 @@ const SendAmount = () => {
                 setExceed={setExceed}
                 coinInfo={coinInfo}
                 setCurrentCoin={setCurrentCoin}
-                minAmount={minAmount}
               />
             )}
 

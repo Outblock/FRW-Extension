@@ -9,6 +9,7 @@ import { isValidEthereumAddress } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import erc721 from 'background/utils/erc721.abi.json';
@@ -31,6 +32,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   console.log('SendNFTConfirmation');
   const wallet = useWallet();
   const history = useHistory();
+  const { childAccounts } = useProfileStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
@@ -115,11 +117,13 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
       sendChildNft();
     } else {
       try {
-        const childresp = await wallet.checkUserChildAccount();
         let containsKey = false;
 
-        if (childresp) {
-          containsKey = Object.prototype.hasOwnProperty.call(childresp, props.data.contact.address);
+        if (childAccounts) {
+          containsKey = Object.prototype.hasOwnProperty.call(
+            childAccounts,
+            props.data.contact.address
+          );
         }
 
         let txID = '';

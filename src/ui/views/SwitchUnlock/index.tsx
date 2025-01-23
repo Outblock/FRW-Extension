@@ -3,11 +3,12 @@ import { Input, Typography, Box, FormControl } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 
+import lilo from '@/ui/FRWAssets/image/lilo.png';
+import { LLPrimaryButton, LLResetPopup } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import lilo from 'ui/FRWAssets/image/lilo.png';
-import { LLPrimaryButton, LLResetPopup } from 'ui/FRWComponent';
-import { useWallet, useApproval, useWalletRequest } from 'ui/utils';
-import { openInternalPageInTab } from 'ui/utils/webapi';
+import { useInitHook } from '@/ui/hooks';
+import { useWallet, useApproval, useWalletRequest } from '@/ui/utils';
+import { openInternalPageInTab } from '@/ui/utils/webapi';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 
@@ -39,7 +40,8 @@ const DEFAULT_PASSWORD =
   process.env.NODE_ENV === 'development' ? process.env.DEV_PASSWORD || '' : '';
 
 const SwitchUnlock = () => {
-  const wallet = useWallet();
+  const usewallett = useWallet();
+  const { initializeStore } = useInitHook();
   const classes = useStyles();
   const [, resolveApproval] = useApproval();
   const inputEl = useRef<any>(null);
@@ -56,14 +58,15 @@ const SwitchUnlock = () => {
 
   const restPass = async () => {
     // setResetPop(true);
-    await wallet.lockWallet();
+    await usewallett.lockWallet();
     openInternalPageInTab('forgot');
   };
 
-  const [run] = useWalletRequest(wallet.switchUnlock, {
+  const [run] = useWalletRequest(usewallett.switchUnlock, {
     onSuccess() {
       setLoading(false);
       resolveApproval('unlocked');
+      initializeStore();
     },
     onError() {
       setLoading(false);

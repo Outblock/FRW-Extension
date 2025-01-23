@@ -174,11 +174,21 @@ export interface BlockchainResponse {
   color: string;
 }
 
+export interface WalletType {
+  name: string;
+  icon: string;
+  address: string;
+  chain_id: string;
+  id: number;
+  coins: string[];
+  color: string;
+}
+
 interface Thumbnail {
   url: string;
 }
 
-interface AccountDetails {
+export interface AccountDetails {
   name: string;
   description: string;
   thumbnail: Thumbnail;

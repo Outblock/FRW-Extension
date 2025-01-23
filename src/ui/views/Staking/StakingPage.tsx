@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
+import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
 
@@ -57,6 +59,8 @@ const StakingPage = () => {
   // }
 
   const usewallet = useWallet();
+  const { availableFlow } = useCoinStore();
+  const { currentWallet } = useProfileStore();
   const location = useParams();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
@@ -73,20 +77,11 @@ const StakingPage = () => {
   const [errorType, setErrorType] = useState<any>(null);
 
   const setInputAmount = async (value) => {
-    //todo: move this to balance store in refactor.
-    const DEFAULT_MIN_AMOUNT = new BN('0.001');
-
-    const address = withPrefix(await usewallet.getMainWallet()) || '';
-
-    const minAmount = new BN(
-      (await usewallet.openapi.getAccountMinFlow(address)) || DEFAULT_MIN_AMOUNT
-    );
-    const balance = new BN(coinInfo.balance);
-
-    const inputBalance = value === 1 ? balance.minus(minAmount) : balance.multipliedBy(value);
-
+    const balance = new BN(availableFlow);
+    const inputBalance = balance.multipliedBy(value);
     setAmount(inputBalance.toFixed(8, BN.ROUND_DOWN));
   };
+
   const setUserWallet = useCallback(async () => {
     const nodeid = location['nodeid'];
     const delegateid = location['delegateid'];
@@ -95,12 +90,11 @@ const StakingPage = () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    const wallet = await usewallet.getCurrentWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
-    await setWallet(wallet);
+    await setWallet(currentWallet);
     const coinList = await usewallet.getCoinList();
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === 'flow');
     console.log(coinList);
@@ -108,7 +102,7 @@ const StakingPage = () => {
     setCoinInfo(coinInfo!);
     setLoading(false);
     return;
-  }, [location, usewallet]);
+  }, [location, usewallet, currentWallet]);
 
   const getApy = useCallback(async () => {
     const result = await usewallet.getApr();
