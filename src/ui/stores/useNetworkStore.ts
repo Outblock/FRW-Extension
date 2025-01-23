@@ -8,8 +8,10 @@ import { useProfileHook } from '../hooks/useProfileHook';
 interface NetworkState {
   currentNetwork: string;
   developerMode: boolean;
+  emulatorModeOn: boolean;
   setNetwork: (network: string) => void;
   setDeveloperMode: (mode: boolean) => void;
+  setEmulatorModeOn: (mode: boolean) => void;
 }
 
 export const useNetworkStore = create<NetworkState>()(
@@ -26,8 +28,10 @@ export const useNetworkStore = create<NetworkState>()(
     return {
       currentNetwork: 'mainnet',
       developerMode: false,
+      emulatorModeOn: false,
       setNetwork: (network) => set({ currentNetwork: network }),
       setDeveloperMode: (mode) => set({ developerMode: mode }),
+      setEmulatorModeOn: (mode) => set({ emulatorModeOn: mode }),
     };
   })
 );

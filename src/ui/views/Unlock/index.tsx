@@ -6,7 +6,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import lilo from '@/ui/FRWAssets/image/lilo.png';
 import { LLPrimaryButton, LLResetPopup } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { useInitHook } from '@/ui/hooks';
 import { useWallet, useApproval, useWalletRequest } from '@/ui/utils';
 import { openInternalPageInTab } from '@/ui/utils/webapi';
 
@@ -57,7 +56,6 @@ const Unlock = () => {
   const usewallett = useWallet();
   const classes = useStyles();
   const [, resolveApproval] = useApproval();
-  const { initializeStore } = useInitHook();
   const inputEl = useRef<any>(null);
   // const { t } = useTranslation();
   const [showError, setShowError] = useState(false);
@@ -78,7 +76,6 @@ const Unlock = () => {
   const [run] = useWalletRequest(usewallett.unlock, {
     onSuccess() {
       resolveApproval('unlocked');
-      initializeStore();
     },
     onError() {
       setShowError(true);

@@ -5,6 +5,7 @@ import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
 import React, { useEffect, useState } from 'react';
 
 import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
+import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 import { useWallet } from 'ui/utils';
 
@@ -12,17 +13,8 @@ import WalletTab from '../Wallet';
 
 const Dashboard = ({ value, setValue }) => {
   // const [value, setValue] = React.useState('wallet');
-  const wallet = useWallet();
-
-  const [currentNetwork, setNetwork] = useState<string>('mainnet');
-  const [domain, setDomain] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isEvm, setIsEvm] = useState<boolean>(false);
-  const [emulatorModeOn, setEmulatorModeOn] = useState<boolean>(false);
-
-  const handleChangeIndex = (index) => {
-    setValue(index);
-  };
+  const usewallet = useWallet();
+  const { currentNetwork, emulatorModeOn, setEmulatorModeOn, setNetwork } = useNetworkStore();
 
   useEffect(() => {
     console.log('useEffect - fetchAll');
@@ -30,17 +22,12 @@ const Dashboard = ({ value, setValue }) => {
 
     const fetchAll = async () => {
       //todo fix cadence loading
-      await wallet.getCadenceScripts();
-      const [network, emulatorMode, userDomain] = await Promise.all([
-        wallet.getNetwork(),
-        wallet.getEmulatorMode(),
-        wallet.fetchUserDomain(),
+      await usewallet.getCadenceScripts();
+      const [network, emulatorMode] = await Promise.all([
+        usewallet.getNetwork(),
+        usewallet.getEmulatorMode(),
       ]);
-      const isChild = await wallet.getActiveWallet();
 
-      if (isChild === 'evm') {
-        setIsEvm(true);
-      }
       const env: string = process.env.NODE_ENV!;
       const firebaseConfig = getFirbaseConfig();
 
@@ -57,22 +44,20 @@ const Dashboard = ({ value, setValue }) => {
           console.error('Error fetching remote config:', error);
         });
 
-      return { network, emulatorMode, userDomain };
+      return { network, emulatorMode };
     };
 
-    fetchAll().then(({ network, emulatorMode, userDomain }) => {
+    fetchAll().then(({ network, emulatorMode }) => {
       if (isMounted) {
         setNetwork(network);
         setEmulatorModeOn(emulatorMode);
-        setDomain(userDomain);
-        setLoading(false);
       }
     });
 
     return () => {
       isMounted = false;
     };
-  }, [wallet]);
+  }, [usewallet, setEmulatorModeOn, setNetwork]);
 
   return (
     <div className="page">
