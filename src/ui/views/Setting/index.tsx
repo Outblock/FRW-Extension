@@ -16,6 +16,7 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
+import { LLHeader } from '@/ui/FRWComponent';
 import { useWallet } from '@/ui/utils';
 import Device from 'ui/FRWAssets/svg/device.svg';
 import IconLink from 'ui/FRWAssets/svg/Iconlink.svg';
@@ -103,9 +104,7 @@ const SettingTab = () => {
 
   return (
     <div className="page">
-      <Typography component="div" variant="h5" sx={{ padding: '18px', textAlign: 'center' }}>
-        {chrome.i18n.getMessage('Settings')}
-      </Typography>
+      <LLHeader title={chrome.i18n.getMessage('Settings')} help={false} />
       <div className={classes.listDiv}>
         <List className={classes.list} sx={{ margin: '8px auto 16px auto', pt: 0, pb: 0 }}>
           <ListItem
