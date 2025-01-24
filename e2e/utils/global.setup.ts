@@ -1,4 +1,11 @@
-import { getClipboardText, saveAuth, expect, test as setup, loginToExtension } from './helper';
+import {
+  getClipboardText,
+  saveAuth,
+  expect,
+  test as setup,
+  loginToExtension,
+  closeOpenedPages,
+} from './helper';
 
 const getNumber = (str: string) => {
   const match = str.match(/\d+/);
@@ -27,21 +34,12 @@ setup('setup new wallet or login if already registered', async ({ page, extensio
   const isWelcomePage = pageUrl.includes('welcome');
   console.log('isWelcomePage', isWelcomePage);
 
-  const allPages = page.context().pages();
-  if (allPages.length > 1) {
-    for (const p of allPages) {
-      if (p !== page) {
-        await p.close();
-      }
-    }
-  }
-
   if (isUnlockPage) {
     // We're not starting from a fresh install, so login
     await loginToExtension({ page, extensionId });
   } else {
     // We're starting from a fresh install, so create a new wallet
-
+    await closeOpenedPages(page);
     // Wait for the welcome page to be fully loaded
     await page.waitForSelector('.welcomeBox', { state: 'visible' });
 

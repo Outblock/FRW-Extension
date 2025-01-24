@@ -1,4 +1,5 @@
-import React, { type ReactNode, createContext, useContext } from 'react';
+import { EVENTS } from 'node_modules/react-hook-form/dist/constants';
+import React, { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import type { Object } from 'ts-toolbelt';
 
 import type { WalletController as WalletControllerClass } from 'background/controller/wallet';
@@ -29,6 +30,7 @@ export type WalletController = Object.Merge<
 
 const WalletContext = createContext<{
   wallet: WalletController;
+  loaded: boolean;
 } | null>(null);
 
 const WalletProvider = ({
@@ -37,7 +39,50 @@ const WalletProvider = ({
 }: {
   children?: ReactNode;
   wallet: WalletController;
-}) => <WalletContext.Provider value={{ wallet }}>{children}</WalletContext.Provider>;
+}) => {
+  const [walletInitialized, setWalletInitialized] = useState(false);
+
+  useEffect(() => {
+    console.log('WalletProvider - useEffect ->', wallet);
+    const checkWalletInitialized = async () => {
+      const walletInitialized = await wallet.isLoaded();
+      if (walletInitialized) {
+        setWalletInitialized(true);
+      }
+    };
+    checkWalletInitialized();
+  }, [wallet]);
+
+  const walletInitializedListener = (msg: any, sender: any, sendResponse: any) => {
+    console.log('WalletProvider - walletInitializedListener ->', msg);
+    if (msg.type === 'walletInitialized') {
+      console.log('WalletProvider - got the message!! ->', msg);
+      setWalletInitialized(true);
+    }
+  };
+  useEffect(() => {
+    let walletListener: typeof walletInitializedListener | null = null;
+    console.log('wallet initialized ->', walletInitialized);
+    if (!walletInitialized) {
+      walletListener = walletInitializedListener;
+      chrome.runtime.onMessage.addListener(walletListener);
+    } else if (walletListener) {
+      chrome.runtime.onMessage.removeListener(walletListener);
+      walletListener = null;
+    }
+    return () => {
+      if (walletListener) {
+        chrome.runtime.onMessage.removeListener(walletListener);
+      }
+    };
+  }, [walletInitialized]);
+
+  return (
+    <WalletContext.Provider value={{ wallet, loaded: walletInitialized }}>
+      {children}
+    </WalletContext.Provider>
+  );
+};
 
 /**
  * @deprecated The method should not be used
@@ -58,4 +103,12 @@ const useWallet = () => {
   return wallet;
 };
 
-export { WalletProvider, useWalletOld, useWallet };
+const useWalletLoaded = () => {
+  const { loaded } = useContext(WalletContext) as unknown as {
+    loaded: boolean;
+  };
+
+  return loaded;
+};
+
+export { WalletProvider, useWalletOld, useWallet, useWalletLoaded };

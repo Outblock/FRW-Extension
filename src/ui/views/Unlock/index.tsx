@@ -3,11 +3,10 @@ import { Input, Typography, Box, FormControl } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { walletController } from '@/background/controller';
 import lilo from '@/ui/FRWAssets/image/lilo.png';
 import { LLPrimaryButton, LLResetPopup } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { useWallet, useApproval, useWalletRequest } from '@/ui/utils';
+import { useWallet, useApproval, useWalletRequest, useWalletLoaded } from '@/ui/utils';
 import { openInternalPageInTab } from '@/ui/utils/webapi';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
@@ -55,8 +54,7 @@ const DEFAULT_PASSWORD =
 
 const Unlock = () => {
   const wallet = useWallet();
-  const [walletIsLoaded, setWalletIsLoaded] = useState(false);
-  console.log('walletIsLoaded', walletIsLoaded);
+  const walletIsLoaded = useWalletLoaded();
   const classes = useStyles();
   const [, resolveApproval] = useApproval();
   const inputEl = useRef<any>(null);
@@ -64,18 +62,6 @@ const Unlock = () => {
   const [showError, setShowError] = useState(false);
   const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [resetPop, setResetPop] = useState<boolean>(false);
-
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const loaded = await wallet.isLoaded();
-      console.log('loaded', loaded);
-      setWalletIsLoaded(loaded);
-      if (loaded) {
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [wallet]);
 
   useEffect(() => {
     if (!inputEl.current) return;

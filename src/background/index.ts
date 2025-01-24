@@ -135,6 +135,18 @@ async function restoreAppState() {
 
   // Set the loaded flag to true so that the UI knows the app is ready
   walletController.setLoaded(true);
+
+  chrome.tabs
+    .query({
+      active: true,
+      lastFocusedWindow: true,
+    })
+    .then((tabs) => {
+      const tabId = tabs[0].id;
+      if (tabId) {
+        chrome.tabs.sendMessage(tabId, { type: 'walletInitialized' });
+      }
+    });
 }
 
 restoreAppState();

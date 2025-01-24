@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { test as base, chromium, type BrowserContext } from '@playwright/test';
+import { test as base, chromium, type Page, type BrowserContext } from '@playwright/test';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +39,17 @@ export const cleanAuth = async () => {
   await saveAuth(null);
 };
 
+export const closeOpenedPages = async (page: Page) => {
+  const allPages = page.context().pages();
+  if (allPages.length > 1) {
+    for (const p of allPages) {
+      if (p !== page) {
+        await p.close();
+      }
+    }
+  }
+};
+
 export const loginToExtension = async ({ page, extensionId }) => {
   const keysFile = await getAuth();
 
@@ -48,7 +59,9 @@ export const loginToExtension = async ({ page, extensionId }) => {
 
   const { password, addr } = keysFile;
 
-  // Navigate and wait for network to be idle
+  // close all pages except the current page
+  await closeOpenedPages(page);
+
   // Navigate and wait for network to be idle
   await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
 
@@ -57,9 +70,14 @@ export const loginToExtension = async ({ page, extensionId }) => {
   await page.getByPlaceholder('Enter your password').clear();
   await page.getByPlaceholder('Enter your password').fill(password);
 
+  await page.pause();
   const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
+
   // Wait for the button to be enabled
-  await expect(unlockBtn).toBeEnabled({ enabled: true, timeout: 120_000 });
+  await expect(unlockBtn).toBeEnabled({ enabled: true, timeout: 12_000 });
+
+  // close all pages except the current page (the extension opens them in the background)
+  await closeOpenedPages(page);
   await unlockBtn.click();
 
   // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);

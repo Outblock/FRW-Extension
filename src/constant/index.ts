@@ -148,6 +148,7 @@ export const WEB_NEXT_URL =
 // export const WEB_NEXT_URL = process.env.WEB_NEXT_URL!;
 
 export const EVENTS = {
+  walletIntialized: 'walletIntialized',
   broadcastToUI: 'broadcastToUI',
   broadcastToBackground: 'broadcastToBackground',
   UIToBackground: 'UIToBackground',
