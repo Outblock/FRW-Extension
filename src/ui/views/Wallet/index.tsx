@@ -16,6 +16,7 @@ import sendIcon from '@/ui/FRWAssets/svg/sendIcon.svg';
 import swapIcon from '@/ui/FRWAssets/svg/swapIcon.svg';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { NumberTransition } from '@/ui/FRWComponent/NumberTransition';
+import { useInitHook } from '@/ui/hooks';
 import { useCoinStore } from '@/ui/stores/useCoinStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from '@/ui/utils';
@@ -51,6 +52,7 @@ const WalletTab = ({ network }) => {
   const usewallet = useWallet();
   const history = useHistory();
   const location = useLocation();
+  const { initializeStore } = useInitHook();
   const { childAccounts, evmWallet, currentWallet } = useProfileStore();
   const { coins, balance } = useCoinStore();
   const [value, setValue] = React.useState(0);
@@ -72,7 +74,6 @@ const WalletTab = ({ network }) => {
   const [canMoveChild, setCanMoveChild] = useState(true);
   const [receiveHover, setReceiveHover] = useState(false);
   const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
-  const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
 
   const incLink =
     network === 'mainnet' ? 'https://app.increment.fi/swap' : 'https://demo.increment.fi/swap';
@@ -99,22 +100,9 @@ const WalletTab = ({ network }) => {
     }
     if (data) {
       setAddress(withPrefix(data) || '');
-    } else {
-      const currentTime = Date.now();
-      if (currentTime - lastManualAddressCallTime > 60000) {
-        try {
-          // await wallet.openapi.getManualAddress();
-          setlastManualAddressCallTime(currentTime);
-        } catch (error) {
-          console.error('Error getting manual address:', error);
-        }
-      } else {
-        // eslint-disable-next-line no-console
-        console.log('Skipped calling getManualAddress to prevent frequent calls');
-      }
     }
     return data;
-  }, [childType, lastManualAddressCallTime, evmWallet, currentWallet]);
+  }, [childType, evmWallet, currentWallet]);
 
   //todo: move to util
   const pollingFunction = (func, time = 1000, endTime, immediate = false) => {
@@ -182,6 +170,24 @@ const WalletTab = ({ network }) => {
       clearInterval(pollTimer);
     };
   }, [fetchChildState, location.search, setUserAddress, setValue]);
+
+  useEffect(() => {
+    // First call after 40 seconds
+    const initialTimer = setTimeout(() => {
+      const pollTimer = setInterval(() => {
+        if (!address) {
+          // Only call if address is empty
+          initializeStore();
+        }
+      }, 10000); // Then call every 10 seconds
+
+      // Cleanup interval when component unmounts
+      return () => clearInterval(pollTimer);
+    }, 40000);
+
+    // Cleanup timeout when component unmounts
+    return () => clearTimeout(initialTimer);
+  }, [initializeStore, address]);
 
   const goMoveBoard = async () => {
     setMoveBoard(true);

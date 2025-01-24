@@ -255,8 +255,6 @@ const Header = ({ loading = false }) => {
     setMainnetAvailable(mainnetAvailable);
     const testnetAvailable = await usewallet.openapi.pingNetwork('testnet');
     setTestnetAvailable(testnetAvailable);
-    // const crescendoAvailable = await usewallet.openapi.pingNetwork('crescendo')
-    // setSandboxnetAvailable(crescendoAvailable)
   }, [usewallet]);
 
   useEffect(() => {

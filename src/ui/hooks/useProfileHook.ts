@@ -106,11 +106,20 @@ export const useProfileHook = () => {
         await setCurrent(mainwallet);
       }
 
-      const [keys, pubKTuple, walletData] = await Promise.all([
-        usewallet.getAccount(),
-        usewallet.getPubKey(),
-        usewallet.getUserInfo(true),
-      ]);
+      const [keys, pubKTuple] = await Promise.all([usewallet.getAccount(), usewallet.getPubKey()]);
+
+      // Separate getUserInfo with retry since it depends on address from cadence and userinfo from openapi
+      let walletData;
+      try {
+        walletData = await retryOperation(
+          () => usewallet.getUserInfo(true),
+          3, // max attempts
+          1000 // delay between attempts
+        );
+      } catch (error) {
+        console.error('All attempts failed to get user info:', error);
+        throw error;
+      }
 
       const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(
         currentWallet,
@@ -180,4 +189,16 @@ export const useProfileHook = () => {
     freshUserWallet,
     fetchUserWallet,
   };
+};
+
+const retryOperation = async (operation: () => Promise<any>, maxAttempts = 3, delay = 1000) => {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (attempt === maxAttempts) throw error;
+      console.log(`Attempt ${attempt} failed, retrying in ${delay}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
 };
