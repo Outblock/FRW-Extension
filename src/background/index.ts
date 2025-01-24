@@ -132,6 +132,9 @@ async function restoreAppState() {
   appStoreLoaded = true;
 
   await initAppMeta();
+
+  // Set the loaded flag to true so that the UI knows the app is ready
+  walletController.setLoaded(true);
 }
 
 restoreAppState();

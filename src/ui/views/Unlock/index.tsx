@@ -1,8 +1,9 @@
 // import { useTranslation } from 'react-i18next';
 import { Input, Typography, Box, FormControl } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { walletController } from '@/background/controller';
 import lilo from '@/ui/FRWAssets/image/lilo.png';
 import { LLPrimaryButton, LLResetPopup } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
@@ -53,7 +54,9 @@ const DEFAULT_PASSWORD =
   process.env.NODE_ENV === 'development' ? process.env.DEV_PASSWORD || '' : '';
 
 const Unlock = () => {
-  const usewallett = useWallet();
+  const wallet = useWallet();
+  const [walletIsLoaded, setWalletIsLoaded] = useState(false);
+  console.log('walletIsLoaded', walletIsLoaded);
   const classes = useStyles();
   const [, resolveApproval] = useApproval();
   const inputEl = useRef<any>(null);
@@ -63,30 +66,51 @@ const Unlock = () => {
   const [resetPop, setResetPop] = useState<boolean>(false);
 
   useEffect(() => {
+    const interval = setInterval(async () => {
+      const loaded = await wallet.isLoaded();
+      console.log('loaded', loaded);
+      setWalletIsLoaded(loaded);
+      if (loaded) {
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [wallet]);
+
+  useEffect(() => {
     if (!inputEl.current) return;
     inputEl.current.focus();
   }, []);
 
-  const restPass = async () => {
+  const restPass = useCallback(async () => {
     // setResetPop(true);
-    await usewallett.lockWallet();
+    await wallet.lockWallet();
     openInternalPageInTab('forgot');
-  };
+  }, [wallet]);
 
-  const [run] = useWalletRequest(usewallett.unlock, {
+  const [run] = useWalletRequest(wallet.unlock, {
     onSuccess() {
       resolveApproval('unlocked');
     },
-    onError() {
+    onError(err) {
+      console.error('onError', err);
       setShowError(true);
     },
   });
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      run(password);
-    }
-  };
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === 'Enter') {
+        run(password);
+      }
+    },
+    [run, password]
+  );
+
+  const handleUnlock = useCallback(() => {
+    console.log('handleUnlock', password);
+    run(password);
+  }, [run, password]);
 
   return (
     <Box
@@ -167,9 +191,11 @@ const Unlock = () => {
           // className="w-full block"\
           color="success"
           type="submit"
-          onClick={() => run(password)}
+          onClick={handleUnlock}
           fullWidth
           label={chrome.i18n.getMessage('Unlock_Wallet')}
+          disabled={!walletIsLoaded}
+
           // sx={{marginTop: '40px', height: '48px'}}
           // type="primary"
           // size="large"

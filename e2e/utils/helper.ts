@@ -58,8 +58,9 @@ export const loginToExtension = async ({ page, extensionId }) => {
   await page.getByPlaceholder('Enter your password').fill(password);
 
   const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
+  // Wait for the button to be enabled
+  await expect(unlockBtn).toBeEnabled({ enabled: true, timeout: 120_000 });
   await unlockBtn.click();
-  // await unlockBtn.isEnabled();
 
   // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
