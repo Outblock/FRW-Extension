@@ -73,11 +73,7 @@ export const useProfileHook = () => {
         };
 
         // Batch updates
-        await Promise.all([
-          setCurrent(evmWalletData),
-          setEvmWallet(evmWalletData),
-          setEvmAddress(evmAddress),
-        ]);
+        await Promise.all([setEvmWallet(evmWalletData), setEvmAddress(evmAddress)]);
         setEvmLoading(false);
 
         return evmWalletData;
@@ -86,7 +82,7 @@ export const useProfileHook = () => {
         throw error;
       }
     },
-    [usewallet, setCurrent, setEvmWallet, setEvmAddress, setEvmLoading]
+    [usewallet, setEvmWallet, setEvmAddress, setEvmLoading]
   );
 
   // Helper function for fetchUserWallet
