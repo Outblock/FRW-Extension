@@ -33,7 +33,7 @@ import { useCoinStore } from '@/ui/stores/useCoinStore';
 import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useNews } from '@/ui/utils/NewsContext';
-import { useWallet, formatAddress } from 'ui/utils';
+import { useWallet, formatAddress, useWalletLoaded } from 'ui/utils';
 
 import IconCopy from '../../../components/iconfont/IconCopy';
 import EyeOff from '../../FRWAssets/svg/EyeOff.svg';
@@ -68,6 +68,7 @@ type ChildAccount = {
 
 const Header = ({ loading = false }) => {
   const usewallet = useWallet();
+  const walletLoaded = useWalletLoaded();
   const classes = useStyles();
   const history = useHistory();
   const location = useLocation();
@@ -622,7 +623,9 @@ const Header = ({ loading = false }) => {
       </Toolbar>
     );
   };
-
+  if (!walletLoaded) {
+    return null;
+  }
   return (
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>

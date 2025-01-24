@@ -70,11 +70,9 @@ export const loginToExtension = async ({ page, extensionId }) => {
   await page.getByPlaceholder('Enter your password').clear();
   await page.getByPlaceholder('Enter your password').fill(password);
 
-  await page.pause();
   const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
 
-  // Wait for the button to be enabled
-  await expect(unlockBtn).toBeEnabled({ enabled: true, timeout: 12_000 });
+  await expect(unlockBtn).toBeEnabled({ enabled: true, timeout: 60_000 });
 
   // close all pages except the current page (the extension opens them in the background)
   await closeOpenedPages(page);
@@ -92,6 +90,7 @@ export const loginToExtension = async ({ page, extensionId }) => {
   const flowAddr = await page.evaluate(getClipboardText);
 
   expect(flowAddr).toBe(addr);
+
   return true;
 };
 

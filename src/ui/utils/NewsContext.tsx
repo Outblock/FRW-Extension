@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 
 import type { NewsItem } from '@/shared/types/network-types';
-import { useWallet } from 'ui/utils';
+import { useWallet, useWalletLoaded } from 'ui/utils';
 
 interface NewsContextType {
   news: NewsItem[];
@@ -26,6 +26,7 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const wallet = useWallet();
+  const walletLoaded = useWalletLoaded();
 
   useEffect(() => {
     let isMounted = true;
@@ -40,12 +41,14 @@ export function NewsProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    fetchNews().catch(console.error);
+    if (walletLoaded) {
+      fetchNews().catch(console.error);
+    }
 
     return () => {
       isMounted = false;
     };
-  }, [wallet]);
+  }, [wallet, walletLoaded]);
 
   const isRead = useCallback(
     async (id: string): Promise<boolean> => {

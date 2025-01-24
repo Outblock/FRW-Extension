@@ -113,6 +113,7 @@ async function restoreAppState() {
 
   // Init keyring and openapi first since this two service will not be migrated
   // await migrateData();
+
   await permissionService.init();
   await preferenceService.init();
   await pageStateCacheService.init();
@@ -135,17 +136,23 @@ async function restoreAppState() {
 
   // Set the loaded flag to true so that the UI knows the app is ready
   walletController.setLoaded(true);
+  console.log('restoreAppState chrome.runtime.sendMessage->');
+  chrome.runtime.sendMessage({ type: 'walletInitialized' });
 
+  console.log('restoreAppState chrome.tabs.query->');
   chrome.tabs
     .query({
       active: true,
       lastFocusedWindow: true,
     })
     .then((tabs) => {
-      const tabId = tabs[0].id;
-      if (tabId) {
-        chrome.tabs.sendMessage(tabId, { type: 'walletInitialized' });
-      }
+      tabs.forEach((tab) => {
+        const tabId = tab.id;
+        if (tabId) {
+          console.log('restoreAppState chrome.tabs.sendMessage->', tabId);
+          chrome.tabs.sendMessage(tabId, { type: 'walletInitialized' });
+        }
+      });
     });
 }
 

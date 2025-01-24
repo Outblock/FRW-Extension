@@ -1,4 +1,3 @@
-import { EVENTS } from 'node_modules/react-hook-form/dist/constants';
 import React, { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import type { Object } from 'ts-toolbelt';
 
@@ -43,10 +42,13 @@ const WalletProvider = ({
   const [walletInitialized, setWalletInitialized] = useState(false);
 
   useEffect(() => {
-    console.log('WalletProvider - useEffect ->', wallet);
     const checkWalletInitialized = async () => {
       const walletInitialized = await wallet.isLoaded();
       if (walletInitialized) {
+        console.log(
+          'WalletProvider - checkWalletInitialized - setWalletInitialized ->',
+          walletInitialized
+        );
         setWalletInitialized(true);
       }
     };
@@ -54,15 +56,14 @@ const WalletProvider = ({
   }, [wallet]);
 
   const walletInitializedListener = (msg: any, sender: any, sendResponse: any) => {
-    console.log('WalletProvider - walletInitializedListener ->', msg);
     if (msg.type === 'walletInitialized') {
+      // eslint-disable-next-line no-console
       console.log('WalletProvider - got the message!! ->', msg);
       setWalletInitialized(true);
     }
   };
   useEffect(() => {
     let walletListener: typeof walletInitializedListener | null = null;
-    console.log('wallet initialized ->', walletInitialized);
     if (!walletInitialized) {
       walletListener = walletInitializedListener;
       chrome.runtime.onMessage.addListener(walletListener);
@@ -73,6 +74,7 @@ const WalletProvider = ({
     return () => {
       if (walletListener) {
         chrome.runtime.onMessage.removeListener(walletListener);
+        walletListener = null;
       }
     };
   }, [walletInitialized]);
