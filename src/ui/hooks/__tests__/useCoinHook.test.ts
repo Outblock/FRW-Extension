@@ -2,11 +2,8 @@ import { act } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useCoinStore } from '@/ui/stores/useCoinStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
-import { useWallet } from '@/ui/utils/WalletContext';
 
 import { useCoinHook } from '../useCoinHook';
-
 // Mock React
 vi.mock('react', async () => {
   const actual = await vi.importActual('react');
@@ -55,6 +52,7 @@ vi.mock('@/ui/stores/useProfileStore', () => ({
 
 // Mock the wallet context
 vi.mock('@/ui/utils/WalletContext', () => ({
+  useWalletLoaded: vi.fn().mockResolvedValue(true),
   useWallet: () => ({
     refreshCoinList: vi.fn().mockResolvedValue(undefined),
     getMainWallet: vi.fn(),
@@ -149,6 +147,8 @@ describe('useCoinHook', () => {
 
       // Mock useWallet
       vi.mock('@/ui/utils/WalletContext', () => ({
+        useWalletLoaded: vi.fn().mockResolvedValue(true),
+
         useWallet: () => ({
           refreshCoinList: vi.fn().mockResolvedValue(undefined),
           getMainWallet: vi.fn(),

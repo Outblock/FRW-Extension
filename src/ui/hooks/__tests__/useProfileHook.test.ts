@@ -46,6 +46,7 @@ vi.mock('@/ui/stores/useProfileStore', () => ({
 }));
 
 vi.mock('@/ui/utils/WalletContext', () => ({
+  useWalletLoaded: vi.fn().mockResolvedValue(true),
   useWallet: () => ({
     getMainAddress: vi.fn().mockResolvedValue('0x138c20de202897fb'),
     queryEvmAddress: vi.fn().mockResolvedValue('0x0000000000000000000000022888571dfacf27b4'),
@@ -89,13 +90,11 @@ vi.mock('@/ui/utils/WalletContext', () => ({
       type: 'flow',
       blockchain: 'flow',
     }),
-    getUserInfo: vi.fn((forceRefresh = false) =>
-      Promise.resolve({
-        name: 'Test User',
-        accounts: ['account1', 'account2'],
-        loggedInAccounts: ['account1'],
-      })
-    ),
+    getUserInfo: vi.fn().mockResolvedValue({
+      name: 'Test User',
+      accounts: ['account1', 'account2'],
+      loggedInAccounts: ['account1'],
+    }),
     refreshCoinList: vi.fn().mockResolvedValue(undefined),
     checkUserChildAccount: vi.fn().mockResolvedValue({
       address: '0x123',
