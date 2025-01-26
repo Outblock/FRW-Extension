@@ -5,6 +5,7 @@ import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { ensureEvmAddressPrefix } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
@@ -100,7 +101,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     setSending(true);
     let address, gas, value, data;
     const encodedData = props.data.erc20Contract.methods
-      .transfer(props.data.contact.address, integerAmountStr)
+      .transfer(ensureEvmAddressPrefix(props.data.contact.address), integerAmountStr)
       .encodeABI();
 
     if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
