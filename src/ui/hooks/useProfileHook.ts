@@ -4,10 +4,11 @@ import type { ChildAccount, WalletType, WalletResponse } from '@/shared/types/ne
 import { ensureEvmAddressPrefix, withPrefix } from '@/shared/utils/address';
 import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
-import { useWallet } from '@/ui/utils';
+import { useWallet, useWalletLoaded } from '@/ui/utils/WalletContext';
 
 export const useProfileHook = () => {
   const usewallet = useWallet();
+  const walletLoaded = useWalletLoaded();
   const { currentNetwork } = useNetworkStore();
   const {
     setMainAddress,
@@ -72,11 +73,7 @@ export const useProfileHook = () => {
         };
 
         // Batch updates
-        await Promise.all([
-          setCurrent(evmWalletData),
-          setEvmWallet(evmWalletData),
-          setEvmAddress(evmAddress),
-        ]);
+        await Promise.all([setEvmWallet(evmWalletData), setEvmAddress(evmAddress)]);
         setEvmLoading(false);
 
         return evmWalletData;
@@ -85,11 +82,12 @@ export const useProfileHook = () => {
         throw error;
       }
     },
-    [usewallet, setCurrent, setEvmWallet, setEvmAddress, setEvmLoading]
+    [usewallet, setEvmWallet, setEvmAddress, setEvmLoading]
   );
 
   // Helper function for fetchUserWallet
   const freshUserInfo = useCallback(async () => {
+    if (!usewallet || !walletLoaded) return;
     try {
       const [currentWallet, isChild, mainAddress] = await Promise.all([
         usewallet.getCurrentWallet(),
@@ -141,6 +139,7 @@ export const useProfileHook = () => {
     }
   }, [
     usewallet,
+    walletLoaded,
     setLoggedInAccounts,
     setOtherAccounts,
     setUserInfo,
@@ -151,6 +150,7 @@ export const useProfileHook = () => {
 
   // 1. First called in index.ts, get the user info(name and avatar) and the main address
   const fetchProfileData = useCallback(async () => {
+    if (!usewallet || !walletLoaded) return;
     try {
       const mainAddress = await usewallet.getMainAddress();
       if (mainAddress) {
@@ -160,10 +160,11 @@ export const useProfileHook = () => {
     } catch (err) {
       console.error('fetchProfileData err', err);
     }
-  }, [usewallet, setMainAddress, setupEvmWallet]);
+  }, [usewallet, setMainAddress, setupEvmWallet, walletLoaded]);
 
   // 2. Second called in index.ts, get all the address for this userunder the current network
   const freshUserWallet = useCallback(async () => {
+    if (!usewallet || !walletLoaded) return;
     const wallet: WalletResponse[] = await usewallet.getUserWallets();
     const fData: WalletResponse[] = wallet.filter((item) => item.blockchain !== null);
 
@@ -174,15 +175,24 @@ export const useProfileHook = () => {
     }
     const formattedWallets = formatWallets(fData);
     setWalletList(formattedWallets);
-  }, [usewallet, initialStart, setUserWallet, setInitial, formatWallets, setWalletList]);
+  }, [
+    usewallet,
+    initialStart,
+    setUserWallet,
+    setInitial,
+    formatWallets,
+    setWalletList,
+    walletLoaded,
+  ]);
 
   // 3. Third called in index.ts check the child account and set the child account
   const fetchUserWallet = useCallback(async () => {
+    if (!usewallet || !walletLoaded) return;
     freshUserInfo();
     const childresp: ChildAccount = await usewallet.checkUserChildAccount();
     setChildAccount(childresp);
     usewallet.setChildWallet(childresp);
-  }, [freshUserInfo, usewallet, setChildAccount]);
+  }, [freshUserInfo, usewallet, setChildAccount, walletLoaded]);
 
   return {
     fetchProfileData,

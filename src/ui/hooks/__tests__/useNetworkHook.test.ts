@@ -22,6 +22,8 @@ vi.mock('@/ui/stores/useNetworkStore', () => ({
 
 // Mock the wallet context
 vi.mock('@/ui/utils/WalletContext', () => ({
+  useWalletLoaded: vi.fn().mockResolvedValue(true),
+
   useWallet: vi.fn().mockReturnValue({
     getNetwork: vi.fn().mockResolvedValue('mainnet'),
   }),

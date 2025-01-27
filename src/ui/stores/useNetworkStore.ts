@@ -42,6 +42,7 @@ useNetworkStore.subscribe(
   async () => {
     // Trigger profile updates when network changes
     const { fetchProfileData, freshUserWallet, fetchUserWallet } = useProfileHook();
+
     await fetchProfileData();
     await freshUserWallet();
     await fetchUserWallet();

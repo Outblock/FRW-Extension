@@ -4,12 +4,13 @@ import { useCallback, useEffect } from 'react';
 import { withPrefix } from '@/shared/utils/address';
 import { useCoinStore } from '@/ui/stores/useCoinStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
-import { useWallet } from 'ui/utils';
+import { useWallet, useWalletLoaded } from '@/ui/utils/WalletContext';
 
 const DEFAULT_MIN_AMOUNT = '0.001';
 
 export const useCoinHook = () => {
   const usewallet = useWallet();
+  const walletLoaded = useWalletLoaded();
   const { setCoinData, setBalance, setTotalFlow, totalFlow, setAvailableFlow } = useCoinStore();
   const { mainAddress } = useProfileStore();
 
@@ -81,7 +82,7 @@ export const useCoinHook = () => {
   );
 
   const refreshCoinData = useCallback(async () => {
-    if (!usewallet) return;
+    if (!usewallet || !walletLoaded) return;
 
     try {
       const refreshedCoinlist = await usewallet.refreshCoinList(60000);
@@ -91,17 +92,19 @@ export const useCoinHook = () => {
     } catch (error) {
       console.error('Error refreshing coin data:', error);
     }
-  }, [usewallet, sortWallet]);
+  }, [usewallet, sortWallet, walletLoaded]);
 
   useEffect(() => {
-    if (usewallet) {
+    if (usewallet && walletLoaded) {
       refreshCoinData();
     }
-  }, [refreshCoinData, usewallet]);
+  }, [refreshCoinData, usewallet, walletLoaded]);
 
   useEffect(() => {
-    calculateAvailableBalance();
-  }, [totalFlow, calculateAvailableBalance]);
+    if (walletLoaded) {
+      calculateAvailableBalance();
+    }
+  }, [totalFlow, calculateAvailableBalance, walletLoaded]);
 
   return {
     refreshCoinData,

@@ -94,11 +94,19 @@ interface TokenTransaction {
 export class WalletController extends BaseController {
   openapi = openapiService;
   private storageEvaluator: StorageEvaluator;
+  private loaded = false;
 
   constructor() {
     super();
     this.storageEvaluator = new StorageEvaluator();
   }
+  // Adding as tests load the extension really, really fast
+  // It's possible to call the wallet controller before services are loaded
+  // setLoaded is called in index.ts of the background
+  isLoaded = async () => this.loaded;
+  setLoaded = async (loaded: boolean) => {
+    this.loaded = loaded;
+  };
 
   /* wallet */
   boot = async (password) => {
