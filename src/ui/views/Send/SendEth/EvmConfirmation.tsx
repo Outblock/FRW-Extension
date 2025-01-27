@@ -5,6 +5,7 @@ import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { ensureEvmAddressPrefix } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
@@ -88,19 +89,16 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     const tokenResult = await usewallet.openapi.getTokenInfo(props.data.tokenSymbol, network);
 
     const amountStr = props.data.amount.toString();
-
     const amountBN = new BN(amountStr.replace('.', ''));
-
     const decimalsCount = amountStr.split('.')[1]?.length || 0;
     const scaleFactor = new BN(10).pow(tokenResult!.decimals - decimalsCount);
-
-    // Multiply amountBN by scaleFactor
     const integerAmount = amountBN.multipliedBy(scaleFactor);
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
     setSending(true);
+
     let address, gas, value, data;
     const encodedData = props.data.erc20Contract.methods
-      .transfer(props.data.contact.address, integerAmountStr)
+      .transfer(ensureEvmAddressPrefix(props.data.contact.address), integerAmountStr)
       .encodeABI();
 
     if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
@@ -112,34 +110,33 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       const tokenInfo = await usewallet.openapi.getEvmTokenInfo(
         props.data.coinInfo.unit.toLowerCase()
       );
-      address = tokenInfo!.address;
       gas = '1312d00';
-      value = 0;
-      data = encodedData;
+      address = ensureEvmAddressPrefix(tokenInfo!.address);
+      value = '0x0'; // Zero value as hex
+      data = encodedData.startsWith('0x') ? encodedData : `0x${encodedData}`;
     }
 
-    usewallet
-      .sendEvmTransaction(address, gas, value, data)
-      .then(async (txID) => {
-        await usewallet.setRecent(props.data.contact);
-        usewallet.listenTransaction(
-          txID,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await usewallet.setDashIndex(0);
-        setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
-      })
-      .catch((err) => {
-        console.error('sendEvmTransaction transfer error: ', err);
-        setSending(false);
-        setFailed(true);
-      });
+    try {
+      const txID = await usewallet.sendEvmTransaction(address, gas, value, data);
+      await usewallet.setRecent(props.data.contact);
+      usewallet.listenTransaction(
+        txID,
+        true,
+        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
+        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
+        props.data.coinInfo.icon
+      );
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      setTid(txID);
+      history.push('/dashboard?activity=1');
+    } catch (err) {
+      console.error('sendEvmTransaction transfer error: ', err);
+      setSending(false);
+      setFailed(true);
+      setErrorMessage(err.message);
+    }
   }, [history, props, usewallet]);
 
   const transactionDoneHandler = useCallback(
