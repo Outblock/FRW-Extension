@@ -279,7 +279,7 @@ class ProviderController extends BaseController {
     const from = transactionParams.from || '';
     const gas = transactionParams.gas || '0x76c0';
     const to = transactionParams.to || '';
-    const value = transactionParams.value || '0x';
+    const value = transactionParams.value || '0x0';
     const dataValue = transactionParams.data || '0x';
     // console.log('transactionParams ', transactionParams)
     let result = await Wallet.dapSendEvmTX(to, gas, value, dataValue);
