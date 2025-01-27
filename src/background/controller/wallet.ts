@@ -2145,7 +2145,7 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  dapSendEvmTX = async (to: string, gas, value, data) => {
+  dapSendEvmTX = async (to: string, gas: string | number, value: string, data: string) => {
     if (to.startsWith('0x')) {
       to = to.substring(2);
     }
@@ -2157,12 +2157,8 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    if (typeof value === 'string') {
-      if (!value.startsWith('0x')) {
-        value = '0x' + value;
-      }
-    } else {
-      throw new Error('Value must be a hex string');
+    if (!value.startsWith('0x')) {
+      value = '0x' + value;
     }
 
     // Check if the value is a string
