@@ -2108,7 +2108,7 @@ export class WalletController extends BaseController {
     return true;
   };
 
-  sendEvmTransaction = async (to: string, gas, value, data) => {
+  sendEvmTransaction = async (to: string, gas: string | number, value: string, data: string) => {
     if (to.startsWith('0x')) {
       to = to.substring(2);
     }
@@ -2120,18 +2120,16 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
-    if (typeof value === 'string') {
-      if (!value.startsWith('0x')) {
-        value = '0x' + value;
-      }
+    if (!value.startsWith('0x')) {
+      value = '0x' + value;
     }
 
-    // Convert the hex value to number
-    const number = web3.utils.hexToNumber(value);
+    // Convert hex to BigInt
+    const transactionValue = value === '0x' ? BigInt(0) : BigInt(value);
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(number.toString(), t.UInt256),
+      fcl.arg(transactionValue.toString(), t.UInt256),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
@@ -2139,16 +2137,12 @@ export class WalletController extends BaseController {
     mixpanelTrack.track('ft_transfer', {
       from_address: await this.getEvmAddress(),
       to_address: to,
-      amount: parseFloat(number.toString()),
+      amount: Number(transactionValue),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
 
     return result;
-    // const transaction = await fcl.tx(result).onceSealed();
-    // console.log('transaction ', transaction);
-
-    // return result;
   };
 
   dapSendEvmTX = async (to: string, gas, value, data) => {
@@ -2185,13 +2179,12 @@ export class WalletController extends BaseController {
       }
     }
 
-    // Convert the hex value to number
-    const number = web3.utils.hexToNumber(value);
+    // Convert hex to BigInt directly to avoid potential number overflow
+    const transactionValue = value === '0x' ? BigInt(0) : BigInt(value);
 
-    // console.log('Final amount:', amount);
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, t.String),
-      fcl.arg(number.toString(), t.UInt256),
+      fcl.arg(transactionValue.toString(), t.UInt256),
       fcl.arg(regularArray, t.Array(t.UInt8)),
       fcl.arg(gasLimit, t.UInt64),
     ]);
@@ -2201,7 +2194,7 @@ export class WalletController extends BaseController {
     mixpanelTrack.track('ft_transfer', {
       from_address: evmAddress,
       to_address: to,
-      amount: parseFloat(number.toString()),
+      amount: parseFloat(transactionValue.toString()),
       ft_identifier: 'FLOW',
       type: 'evm',
     });
@@ -2221,7 +2214,6 @@ export class WalletController extends BaseController {
     const contractCallSubType = 5;
     const noceNumber = Number(addressNonce);
     const gasPrice = 0;
-    const transactionValue = BigInt(number);
     const transaction = [
       noceNumber, // nonce
       gasPrice, // Fixed value

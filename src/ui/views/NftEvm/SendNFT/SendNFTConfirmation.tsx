@@ -125,7 +125,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
     const gas = '1312d00';
 
     wallet
-      .sendEvmTransaction(props.data.nft.evmAddress, gas, 0, encodedData)
+      .sendEvmTransaction(props.data.nft.evmAddress, gas, '0x', encodedData)
       .then(async (txID) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
