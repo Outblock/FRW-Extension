@@ -490,142 +490,159 @@ const Header = ({ loading = false }) => {
   const appBarLabel = (props) => {
     return (
       <Toolbar sx={{ height: '56px', width: '100%', display: 'flex', px: '0px' }}>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          onClick={toggleDrawer}
+        <Box sx={{ flex: '0 0 68px' }}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={toggleDrawer}
+            sx={{
+              marginLeft: '0px',
+              padding: '3px',
+              position: 'relative',
+              border: isPending
+                ? ''
+                : currentNetwork !== 'mainnet'
+                  ? `2px solid ${networkColor(currentNetwork)}`
+                  : '2px solid #282828',
+              marginRight: '0px',
+            }}
+          >
+            <img
+              src={userInfo?.avatar}
+              style={{ backgroundColor: '#797979', borderRadius: '10px' }}
+              width="20px"
+              height="20px"
+            />
+          </IconButton>
+        </Box>
+
+        <Box
           sx={{
-            marginLeft: '0px',
-            padding: '3px',
-            position: 'relative',
-            border: isPending
-              ? ''
-              : currentNetwork !== 'mainnet'
-                ? `2px solid ${networkColor(currentNetwork)}`
-                : '2px solid #282828',
-            marginRight: '0px',
+            flex: '1 1 auto',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
-          <img
-            src={userInfo?.avatar}
-            style={{ backgroundColor: '#797979', borderRadius: '10px' }}
-            width="20px"
-            height="20px"
-          />
-        </IconButton>
-        <Box sx={{ flexGrow: 1 }} />
-        {!mainAddressLoading && props && props.address ? (
-          <Tooltip title={chrome.i18n.getMessage('Copy__Address')} arrow>
-            <Button
-              onClick={() => {
-                navigator.clipboard.writeText(props.address);
-              }}
-              variant="text"
-            >
-              <Box component="div" sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography
-                  variant="overline"
-                  color="text"
-                  align="center"
-                  display="block"
-                  sx={{ lineHeight: '1.5' }}
+          {!mainAddressLoading && props && props.address ? (
+            <Tooltip title={chrome.i18n.getMessage('Copy__Address')} arrow>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(props.address);
+                }}
+                variant="text"
+              >
+                <Box
+                  component="div"
+                  sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                 >
-                  {`${props.name === 'Flow' ? 'Wallet' : props.name}${
-                    isValidEthereumAddress(props.address) ? ' EVM' : ''
-                  }`}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: '5px' }}>
                   <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ textTransform: 'lowercase' }}
+                    variant="overline"
+                    color="text"
+                    align="center"
+                    display="block"
+                    sx={{ lineHeight: '1.5' }}
                   >
-                    {formatAddress(props.address)}
+                    {`${props.name === 'Flow' ? 'Wallet' : props.name}${
+                      isValidEthereumAddress(props.address) ? ' EVM' : ''
+                    }`}
                   </Typography>
-                  <IconCopy fill="icon.navi" width="12px" />
+                  <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ textTransform: 'lowercase' }}
+                    >
+                      {formatAddress(props.address)}
+                    </Typography>
+                    <IconCopy fill="icon.navi" width="12px" />
+                  </Box>
+                </Box>
+              </Button>
+            </Tooltip>
+          ) : (
+            <Skeleton variant="rectangular" width={78} height={33} sx={{ borderRadius: '8px' }} />
+          )}
+        </Box>
+
+        <Box sx={{ flex: '0 0 68px' }}>
+          {userInfo && props ? (
+            <Tooltip title={isPending ? chrome.i18n.getMessage('Pending__Transaction') : ''} arrow>
+              <Box style={{ position: 'relative' }}>
+                {isPending && (
+                  <CircularProgress
+                    size={'28px'}
+                    sx={{
+                      position: 'absolute',
+                      width: '28px',
+                      height: '28px',
+                      left: '-1px',
+                      top: '-1px',
+                      color: networkColor(currentNetwork),
+                    }}
+                  />
+                )}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <IconButton
+                    edge="end"
+                    color="inherit"
+                    aria-label="notification"
+                    onClick={toggleNewsDrawer}
+                  >
+                    <NotificationsIcon />
+                    {unreadCount > 0 && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: '-2px',
+                          right: '-2px',
+                          backgroundColor: '#4CAF50',
+                          color: 'black',
+                          borderRadius: '50%',
+                          minWidth: '18px',
+                          height: '18px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '12px',
+                          padding: '2px',
+                          border: 'none',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {unreadCount}
+                      </Box>
+                    )}
+                  </IconButton>
+                  <IconButton
+                    edge="end"
+                    color="inherit"
+                    aria-label="avatar"
+                    onClick={() => goToSettings()}
+                    sx={{
+                      padding: '3px',
+                      marginRight: '0px',
+                      position: 'relative',
+                    }}
+                  >
+                    <SettingsIcon />
+                  </IconButton>
                 </Box>
               </Box>
-            </Button>
-          </Tooltip>
-        ) : (
-          <Skeleton variant="rectangular" width={78} height={33} sx={{ borderRadius: '8px' }} />
-        )}
-        <Box sx={{ flexGrow: 1 }} />
-
-        {userInfo && props ? (
-          <Tooltip title={isPending ? chrome.i18n.getMessage('Pending__Transaction') : ''} arrow>
-            <Box style={{ position: 'relative' }}>
-              {isPending && (
-                <CircularProgress
-                  size={'28px'}
-                  sx={{
-                    position: 'absolute',
-                    width: '28px',
-                    height: '28px',
-                    left: '-1px',
-                    top: '-1px',
-                    color: networkColor(currentNetwork),
-                  }}
-                />
-              )}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <IconButton
-                  edge="end"
-                  color="inherit"
-                  aria-label="notification"
-                  onClick={toggleNewsDrawer}
-                >
-                  <NotificationsIcon />
-                  {unreadCount > 0 && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: '-2px',
-                        right: '-2px',
-                        backgroundColor: '#4CAF50',
-                        color: 'black',
-                        borderRadius: '50%',
-                        minWidth: '18px',
-                        height: '18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '12px',
-                        padding: '2px',
-                        border: 'none',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {unreadCount}
-                    </Box>
-                  )}
-                </IconButton>
-                <IconButton
-                  edge="end"
-                  color="inherit"
-                  aria-label="avatar"
-                  onClick={() => goToSettings()}
-                  sx={{
-                    padding: '3px',
-                    marginRight: '0px',
-                    position: 'relative',
-                  }}
-                >
-                  <SettingsIcon />
-                </IconButton>
-              </Box>
-            </Box>
-          </Tooltip>
-        ) : (
-          <Skeleton variant="circular" width={20} height={20} />
-        )}
+            </Tooltip>
+          ) : (
+            <Skeleton variant="circular" width={20} height={20} />
+          )}
+        </Box>
       </Toolbar>
     );
   };
+
   if (!walletLoaded) {
     return null;
   }
+
   return (
     <StyledEngineProvider injectFirst>
       <AppBar position="relative" className={classes.appBar} elevation={0}>
