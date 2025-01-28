@@ -1,6 +1,10 @@
 import { useCallback } from 'react';
 
-import type { ChildAccount, WalletType, WalletResponse } from '@/shared/types/network-types';
+import type {
+  ChildAccount,
+  BlockchainResponse,
+  WalletResponse,
+} from '@/shared/types/network-types';
 import { ensureEvmAddressPrefix, withPrefix } from '@/shared/utils/address';
 import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { useProfileStore } from '@/ui/stores/useProfileStore';
@@ -61,7 +65,7 @@ export const useProfileHook = () => {
         const evmAddress = ensureEvmAddressPrefix(evmRes!);
 
         // Setup EVM wallet data
-        const evmWalletData: WalletType = {
+        const evmWalletData: BlockchainResponse = {
           ...evmWallet,
           name: emoji[9].name,
           icon: emoji[9].emoji,
@@ -96,7 +100,8 @@ export const useProfileHook = () => {
       ]);
 
       if (isChild === 'evm') {
-        await setupEvmWallet(mainAddress!);
+        const evmWalletData = await setupEvmWallet(mainAddress!);
+        await setCurrent(evmWalletData);
       } else if (isChild) {
         await setCurrent(currentWallet);
       } else {
