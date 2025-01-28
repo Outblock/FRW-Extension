@@ -17,10 +17,13 @@ export const getClipboardText = async () => {
 // save keys auth file
 export const saveAuth = async (auth) => {
   if (auth) {
-    await fs.writeFileSync(keysFilePath, JSON.stringify(auth));
+    // Ensure directory exists
+    const dirPath = path.dirname(keysFilePath);
+    fs.mkdirSync(dirPath, { recursive: true });
+    fs.writeFileSync(keysFilePath, JSON.stringify(auth));
   } else {
     if (fs.existsSync(keysFilePath)) {
-      await fs.unlinkSync(keysFilePath);
+      fs.unlinkSync(keysFilePath);
     }
   }
 };
