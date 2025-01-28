@@ -68,9 +68,16 @@ jobs:
           OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"
           WC_PROJECTID="${{ secrets.WC_PROJECTID }}"
           MIXPANEL_TOKEN="${{ secrets.MIXPANEL_TOKEN }}"
+          EOF
+
+      - name: Create .env.test file
+        run: |
+          cat << EOF > .env.test
           TEST_PASSWORD="${{ secrets.TEST_PASSWORD }}"
           TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
           TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
+          TEST_SEED_PHRASE_SENDER="${{ secrets.TEST_SEED_PHRASE_SENDER }}"
+          TEST_SEED_PHRASE_RECEIVER="${{ secrets.TEST_SEED_PHRASE_RECEIVER }}"
           EOF
 
       - name: Run tests

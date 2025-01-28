@@ -88,13 +88,75 @@ export const loginToExtension = async ({ page, extensionId }) => {
   const copyIcon = await page.getByLabel('Copy Address');
   await copyIcon.isVisible();
 
+  await page.pause();
+
   await copyIcon.click();
 
   const flowAddr = await page.evaluate(getClipboardText);
 
-  expect(flowAddr).toBe(addr);
+  if (flowAddr !== addr) {
+    // switch to the correct account
+    await page.getByLabel('menu').click();
+    await page.getByRole('button', { name: 'close' }).click();
+    await page.getByRole('button', { name: 'avatar testuser' }).click();
+  } else {
+    return true;
+  }
 
-  return true;
+  expect(flowAddr).toBe(addr);
+};
+
+export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase }) => {
+  const password = process.env.TEST_PASSWORD;
+  if (!password) {
+    throw new Error('TEST_PASSWORD is not set');
+  }
+
+  // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
+
+  // // This locks the wallet
+  // await page.getByLabel('menu').click();
+  // await page.getByRole('button', { name: 'Import Profile' }).click();
+
+  // // Close all pages except the current page (the extension opens them in the background)
+  // await closeOpenedPages(page);
+
+  // Don't login before this. The account should be locked
+
+  // Go to import the sender account
+  await page.goto(`chrome-extension://${extensionId}/index.html#/welcome/accountimport`);
+
+  // Close all pages except the current page (the extension opens them in the background)
+  await closeOpenedPages(page);
+
+  await page.getByRole('tab', { name: 'Seed Phrase' }).click();
+  await page.getByPlaceholder('Import 12 or 24 words split').click();
+
+  await page.getByPlaceholder('Import 12 or 24 words split').fill(seedPhrase);
+
+  await page.getByRole('button', { name: 'Import' }).click();
+
+  await page.getByPlaceholder('Confirm Password').fill(password);
+  await page.getByRole('button', { name: 'Login' }).click();
+
+  await page.pause();
+
+  await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
+
+  // get address
+  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
+  const copyIcon = await page.getByLabel('Copy Address');
+  await copyIcon.isVisible();
+
+  await page.pause();
+};
+
+export const importSenderAccount = async ({ page, extensionId }) => {
+  await importAccountBySeedPhrase({
+    page,
+    extensionId,
+    seedPhrase: process.env.TEST_SEED_PHRASE_SENDER,
+  });
 };
 
 export const test = base.extend<{
