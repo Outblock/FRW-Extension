@@ -53,6 +53,17 @@ export const closeOpenedPages = async (page: Page) => {
   }
 };
 
+export const getCurrentAddress = async (page: Page) => {
+  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
+  const copyIcon = await page.getByLabel('Copy Address');
+  await copyIcon.isVisible();
+
+  await copyIcon.click();
+
+  const flowAddr = await page.evaluate(getClipboardText);
+  return flowAddr;
+};
+
 export const loginToExtension = async ({ page, extensionId }) => {
   const keysFile = await getAuth();
 
@@ -84,42 +95,29 @@ export const loginToExtension = async ({ page, extensionId }) => {
   // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
   // get address
-  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
-  const copyIcon = await page.getByLabel('Copy Address');
-  await copyIcon.isVisible();
-
-  await page.pause();
-
-  await copyIcon.click();
-
-  const flowAddr = await page.evaluate(getClipboardText);
+  let flowAddr = await getCurrentAddress(page);
 
   if (flowAddr !== addr) {
     // switch to the correct account
     await page.getByLabel('menu').click();
     await page.getByRole('button', { name: 'close' }).click();
     await page.getByRole('button', { name: 'avatar testuser' }).click();
-  } else {
-    return true;
+
+    await page.getByPlaceholder('Enter your password').fill(password);
+    await page.getByRole('button', { name: 'Unlock Wallet' }).click();
+
+    // get address
+    flowAddr = await getCurrentAddress(page);
   }
 
   expect(flowAddr).toBe(addr);
 };
 
-export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase }) => {
+export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase, username }) => {
   const password = process.env.TEST_PASSWORD;
   if (!password) {
     throw new Error('TEST_PASSWORD is not set');
   }
-
-  // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
-
-  // // This locks the wallet
-  // await page.getByLabel('menu').click();
-  // await page.getByRole('button', { name: 'Import Profile' }).click();
-
-  // // Close all pages except the current page (the extension opens them in the background)
-  // await closeOpenedPages(page);
 
   // Don't login before this. The account should be locked
 
@@ -136,19 +134,21 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase 
 
   await page.getByRole('button', { name: 'Import' }).click();
 
-  await page.getByPlaceholder('Confirm Password').fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
+  // Create user name if need be...
 
-  await page.pause();
+  // await page.getByPlaceholder('Username').fill(username);
+
+  // await page.getByPlaceholder('Create a password').fill(password);
+  // await page.getByPlaceholder('Confirm your password').fill(password);
+
+  await page.getByRole('button', { name: 'Login' }).click();
 
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
   // get address
-  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
-  const copyIcon = await page.getByLabel('Copy Address');
-  await copyIcon.isVisible();
+  const flowAddr = await getCurrentAddress(page);
 
-  await page.pause();
+  return flowAddr;
 };
 
 export const importSenderAccount = async ({ page, extensionId }) => {
@@ -156,6 +156,16 @@ export const importSenderAccount = async ({ page, extensionId }) => {
     page,
     extensionId,
     seedPhrase: process.env.TEST_SEED_PHRASE_SENDER,
+    username: 'sender',
+  });
+};
+
+export const importReceiverAccount = async ({ page, extensionId }) => {
+  await importAccountBySeedPhrase({
+    page,
+    extensionId,
+    seedPhrase: process.env.TEST_SEED_PHRASE_RECEIVER,
+    username: 'receiver',
   });
 };
 
