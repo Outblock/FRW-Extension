@@ -2132,8 +2132,18 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
+    // Handle the case where the value is '0.0'
+    if (/^0\.0+$/.test(value)) {
+      value = '0x0';
+    }
+
     if (!value.startsWith('0x')) {
       value = '0x' + value;
+    }
+
+    // At this point the value should be a valid hex string. Check to make sure
+    if (!/^0x[0-9a-fA-F]+$/.test(value)) {
+      throw new Error('Invalid hex string value');
     }
 
     // Convert hex to BigInt
@@ -2169,6 +2179,11 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
+    // Handle the case where the value is '0.0'
+    if (/^0\.0+$/.test(value)) {
+      value = '0x0';
+    }
+
     if (!value.startsWith('0x')) {
       value = '0x' + value;
     }
@@ -2186,7 +2201,10 @@ export class WalletController extends BaseController {
         value = web3.utils.toHex(value);
       }
     }
-
+    // At this point the value should be a valid hex string. Check to make sure
+    if (!/^0x[0-9a-fA-F]+$/.test(value)) {
+      throw new Error('Invalid hex string value');
+    }
     // Convert hex to BigInt directly to avoid potential number overflow
     const transactionValue = value === '0x' ? BigInt(0) : BigInt(value);
 
