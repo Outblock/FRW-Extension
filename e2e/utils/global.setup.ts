@@ -12,10 +12,13 @@ const getNumber = (str: string) => {
   return match ? parseInt(match[0]) : null;
 };
 
-const password = 'TestPassword';
-
 // for user register and login
 setup('setup new wallet or login if already registered', async ({ page, extensionId }) => {
+  // Use test password
+  const password = process.env.TEST_PASSWORD;
+  if (!password) {
+    throw new Error('TEST_PASSWORD is not set');
+  }
   // let playwright know this is going to be slow
   // Wait up to 2 minutes to setup an account
   setup.setTimeout(500_000);

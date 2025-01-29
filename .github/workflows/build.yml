@@ -71,6 +71,10 @@ jobs:
           TEST_PASSWORD="${{ secrets.TEST_PASSWORD }}"
           TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
           TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
+          TEST_SEED_PHRASE_RECEIVER="${{ secrets.TEST_SEED_PHRASE_RECEIVER }}"
+          TEST_SEED_PHRASE_SENDER="${{ secrets.TEST_SEED_PHRASE_SENDER }}"
+          TEST_SENDER_ADDR="${{ secrets.TEST_SENDER_ADDR }}"
+          TEST_RECEIVER_ADDR="${{ secrets.TEST_RECEIVER_ADDR }}"
           EOF
 
       - name: Run tests

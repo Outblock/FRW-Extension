@@ -64,15 +64,17 @@ export const getCurrentAddress = async (page: Page) => {
   return flowAddr;
 };
 
-export const loginToExtension = async ({ page, extensionId }) => {
-  const keysFile = await getAuth();
+export const lockExtension = async ({ page }) => {
+  // Assume we're logged in before calling this
 
-  if (keysFile.password === '') {
-    return false;
-  }
+  await page.getByLabel('menu').click();
+  await page.getByRole('button', { name: 'Lock Wallet' }).click();
+  const unlockBtn = await page.getByRole('button', { name: 'Unlock Wallet' });
 
-  const { password, addr } = keysFile;
+  await expect(unlockBtn).toBeEnabled({ enabled: true, timeout: 60_000 });
+};
 
+export const loginToExtensionAccount = async ({ page, extensionId, addr, password }) => {
   // close all pages except the current page
   await closeOpenedPages(page);
 
@@ -101,7 +103,9 @@ export const loginToExtension = async ({ page, extensionId }) => {
     // switch to the correct account
     await page.getByLabel('menu').click();
     await page.getByRole('button', { name: 'close' }).click();
-    await page.getByRole('button', { name: 'avatar testuser' }).click();
+    await expect(page.getByText('Profile', { exact: true })).toBeVisible();
+    // Switch to the correct account. Note doest not handle more than 3 accounts loaded
+    await page.getByRole('button', { name: 'avatar' }).getByText(addr).click();
 
     await page.getByPlaceholder('Enter your password').fill(password);
     await page.getByRole('button', { name: 'Unlock Wallet' }).click();
@@ -113,13 +117,25 @@ export const loginToExtension = async ({ page, extensionId }) => {
   expect(flowAddr).toBe(addr);
 };
 
+export const loginToExtension = async ({ page, extensionId }) => {
+  const keysFile = await getAuth();
+
+  if (keysFile.password === '') {
+    return false;
+  }
+
+  const { password, addr } = keysFile;
+
+  return loginToExtensionAccount({ page, extensionId, password, addr });
+};
+
 export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase, username }) => {
+  // Don't login before this. The account should be locked
+
   const password = process.env.TEST_PASSWORD;
   if (!password) {
     throw new Error('TEST_PASSWORD is not set');
   }
-
-  // Don't login before this. The account should be locked
 
   // Go to import the sender account
   await page.goto(`chrome-extension://${extensionId}/index.html#/welcome/accountimport`);
@@ -133,15 +149,17 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase,
   await page.getByPlaceholder('Import 12 or 24 words split').fill(seedPhrase);
 
   await page.getByRole('button', { name: 'Import' }).click();
+  // We need to wait for the next step to be visible
+  await expect(page.getByText('STEP')).not.toContainText('1/6');
 
   const step = await page.getByText('STEP').textContent();
 
-  if (step === 'STEP 4/6') {
+  if (step.includes('4')) {
     // We've already imported the account before
     await page.getByPlaceholder('Confirm Password').fill(password);
     await page.getByRole('button', { name: 'Login' }).click();
     // await page.getByRole('button', { name: 'Login' }).click();
-  } else if (step === 'STEP 2/6') {
+  } else if (step.includes('2')) {
     // We haven't imported the account before
     await page.getByPlaceholder('Username').fill(username);
     await page.getByRole('button', { name: 'Next' }).click();
@@ -151,8 +169,9 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase,
     await page.getByPlaceholder('Confirm your password').fill(password);
     await page.getByRole('button', { name: 'Login' }).click();
   }
+
   // Wait for the Google Drive backup text to be visible
-  await expect(page.getByText('Google Drive', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Connect and Back up' })).toBeVisible();
 
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
@@ -168,6 +187,40 @@ export const importSenderAccount = async ({ page, extensionId }) => {
     extensionId,
     seedPhrase: process.env.TEST_SEED_PHRASE_SENDER,
     username: 'sender',
+  });
+};
+
+export const loginToSenderAccount = async ({ page, extensionId }) => {
+  if (!process.env.TEST_SENDER_ADDR) {
+    throw new Error('TEST_SENDER_ADDR is not set');
+  }
+
+  if (!process.env.TEST_PASSWORD) {
+    throw new Error('TEST_PASSWORD is not set');
+  }
+
+  await loginToExtensionAccount({
+    page,
+    extensionId,
+    addr: process.env.TEST_SENDER_ADDR!,
+    password: process.env.TEST_PASSWORD!,
+  });
+};
+
+export const loginToReceiverAccount = async ({ page, extensionId }) => {
+  if (!process.env.TEST_RECEIVER_ADDR) {
+    throw new Error('TEST_RECEIVER_ADDR is not set');
+  }
+
+  if (!process.env.TEST_PASSWORD) {
+    throw new Error('TEST_PASSWORD is not set');
+  }
+
+  await loginToExtensionAccount({
+    page,
+    extensionId,
+    addr: process.env.TEST_RECEIVER_ADDR!,
+    password: process.env.TEST_PASSWORD!,
   });
 };
 
