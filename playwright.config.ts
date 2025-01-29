@@ -1,4 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: ['.env.dev', '.env.pro', '.env.test'] });
 
 /**
  * Read environment variables from file.

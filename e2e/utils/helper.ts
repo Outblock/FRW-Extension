@@ -134,28 +134,25 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase,
 
   await page.getByRole('button', { name: 'Import' }).click();
 
-  await page.pause();
-
-  // Create user name if need be...
-
-  // await page.getByPlaceholder('Username').fill(username);
-
-  // await page.getByPlaceholder('Create a password').fill(password);
-  // await page.getByPlaceholder('Confirm your password').fill(password);
-
-  // await page.getByRole('button', { name: 'Login' }).click();
-
-  // Option 3 - Welcome back
   const step = await page.getByText('STEP').textContent();
-  await page.pause();
 
   if (step === 'STEP 4/6') {
+    // We've already imported the account before
+    await page.getByPlaceholder('Confirm Password').fill(password);
+    await page.getByRole('button', { name: 'Login' }).click();
     // await page.getByRole('button', { name: 'Login' }).click();
-  }
+  } else if (step === 'STEP 2/6') {
+    // We haven't imported the account before
+    await page.getByPlaceholder('Username').fill(username);
+    await page.getByRole('button', { name: 'Next' }).click();
 
-  //getByRole('heading', { name: 'Welcome Back' })
-  //locator('div').filter({ hasText: /^STEP 4\/6$/ })
-  //getByText('STEP 4/')
+    // fill in the password
+    await page.getByPlaceholder('Create a password').fill(password);
+    await page.getByPlaceholder('Confirm your password').fill(password);
+    await page.getByRole('button', { name: 'Login' }).click();
+  }
+  // Wait for the Google Drive backup text to be visible
+  await expect(page.getByText('Google Drive', { exact: true })).toBeVisible();
 
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
