@@ -1731,8 +1731,12 @@ export class WalletController extends BaseController {
   };
 
   getEvmAddress = async () => {
-    const wallet = await userWalletService.getEvmWallet();
+    const wallet = userWalletService.getEvmWallet();
     const address = withPrefix(wallet.address) || '';
+
+    if (!isValidEthereumAddress(address)) {
+      throw new Error('Invalid Ethereum address');
+    }
     return address;
   };
 
@@ -3368,7 +3372,8 @@ export class WalletController extends BaseController {
   };
 
   getEvmEnabled = async (): Promise<boolean> => {
-    const address = await this.getEvmAddress();
+    // Get straight from the userWalletService as getEvmAddress() throws an error if the address is not valid
+    const address = userWalletService.getEvmWallet();
     return !!address && isValidEthereumAddress(address);
   };
 
