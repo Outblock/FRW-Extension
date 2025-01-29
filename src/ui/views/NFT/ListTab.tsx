@@ -1,7 +1,4 @@
-/* eslint-disable indent */
-import React, { forwardRef, useImperativeHandle } from 'react';
-import { Box } from '@mui/system';
-import { makeStyles } from '@mui/styles';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import {
   Typography,
   Card,
@@ -12,12 +9,15 @@ import {
   Grid,
   Skeleton,
 } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Box } from '@mui/system';
+import React, { forwardRef, useImperativeHandle, useEffect, useState, useCallback } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { useEffect, useState } from 'react';
+
 import { useWallet } from '@/ui/utils/WalletContext';
-import EmptyStatus from './EmptyStatus';
 import placeholder from 'ui/FRWAssets/image/placeholder.png';
+
+import EmptyStatus from './EmptyStatus';
 
 interface ListTabProps {
   data: any;
@@ -87,51 +87,56 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
     },
   }));
 
-  const fetchCollectionCache = async (address: string) => {
-    setAccessible(props.accessible);
-    try {
-      setCollectionLoading(true);
-      const list = await usewallet.getCollectionCache();
-      if (list && list.length > 0) {
-        setCollectionEmpty(false);
-        setCollections(list);
-        const count = list.reduce((acc, item) => acc + item.count, 0);
-        props.setCount(count);
-      } else {
+  const fetchLatestCollection = useCallback(
+    async (address: string) => {
+      try {
+        const list = await usewallet.refreshCollection(address);
+        setCollectionLoading(false);
+        if (list && list.length > 0) {
+          setCollectionEmpty(false);
+          setCollections(list);
+        } else {
+          setCollectionEmpty(true);
+        }
+      } catch (err) {
+        console.log(err);
+        setCollectionLoading(false);
+        setCollectionEmpty(true);
+      }
+    },
+    [usewallet]
+  );
+  const fetchCollectionCache = useCallback(
+    async (address: string) => {
+      setAccessible(props.accessible);
+      try {
+        setCollectionLoading(true);
+        const list = await usewallet.getCollectionCache();
+        if (list && list.length > 0) {
+          setCollectionEmpty(false);
+          setCollections(list);
+          const count = list.reduce((acc, item) => acc + item.count, 0);
+          props.setCount(count);
+        } else {
+          setCollectionEmpty(true);
+          fetchLatestCollection(address);
+        }
+      } catch {
         setCollectionEmpty(true);
         fetchLatestCollection(address);
+      } finally {
+        setCollectionLoading(false);
       }
-    } catch {
-      setCollectionEmpty(true);
-      fetchLatestCollection(address);
-    } finally {
-      setCollectionLoading(false);
-    }
-  };
-
-  const fetchLatestCollection = async (address: string) => {
-    try {
-      const list = await usewallet.refreshCollection(address);
-      setCollectionLoading(false);
-      if (list && list.length > 0) {
-        setCollectionEmpty(false);
-        setCollections(list);
-      } else {
-        setCollectionEmpty(true);
-      }
-    } catch (err) {
-      console.log(err);
-      setCollectionLoading(false);
-      setCollectionEmpty(true);
-    }
-  };
+    },
+    [props, usewallet, fetchLatestCollection]
+  );
 
   useEffect(() => {
     if (props.data.ownerAddress) {
       fetchCollectionCache(props.data.ownerAddress);
       setAddress(props.data.ownerAddress);
     }
-  }, [props.data.ownerAddress]);
+  }, [props.data.ownerAddress, fetchCollectionCache]);
 
   const extractContractAddress = (collection) => {
     return collection.split('.')[2];
@@ -230,9 +235,7 @@ const ListTab = forwardRef((props: ListTabProps, ref) => {
   };
 
   const createListCard = (props, index) => {
-    console.log('isAccessible ', props);
     const isAccessible = checkContractAddressInCollections(props);
-    console.log('isAccessible ', isAccessible, props);
     return (
       <CollectionView
         name={props.collection ? props.collection.name : props.name}

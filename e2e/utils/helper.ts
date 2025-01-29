@@ -150,7 +150,7 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase,
   await page.pause();
 
   if (step === 'STEP 4/6') {
-    await page.getByRole('button', { name: 'Login' }).click();
+    // await page.getByRole('button', { name: 'Login' }).click();
   }
 
   //getByRole('heading', { name: 'Welcome Back' })
