@@ -207,25 +207,10 @@ export class WalletController extends BaseController {
 
     // only password is correct then we store it
     await passwordService.setPassword(password);
-
-    sessionService.broadcastEvent('unlock');
-  };
-
-  switchUnlock = async (password: string) => {
-    // const alianNameInited = await preferenceService.getInitAlianNameStatus();
-    // const alianNames = await preferenceService.getAllAlianName();
-
-    await keyringService.submitPassword(password);
-
-    // only password is correct then we store it
-    await passwordService.setPassword(password);
     const pubKey = await this.getPubKey();
     await userWalletService.switchLogin(pubKey);
 
     sessionService.broadcastEvent('unlock');
-    // if (!alianNameInited && Object.values(alianNames).length === 0) {
-    //   this.initAlianNames();
-    // }
   };
 
   retrievePk = async (password: string) => {
@@ -268,6 +253,7 @@ export class WalletController extends BaseController {
 
   isUnlocked = async () => {
     const isUnlocked = keyringService.memStore.getState().isUnlocked;
+    // TODO: Below probably never unlocks anything as the password is encrypted
     if (!isUnlocked) {
       let password = '';
       try {
@@ -291,6 +277,7 @@ export class WalletController extends BaseController {
   lockWallet = async () => {
     await keyringService.setLocked();
     await passwordService.clear();
+    await userWalletService.signOutCurrentUser();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
   };

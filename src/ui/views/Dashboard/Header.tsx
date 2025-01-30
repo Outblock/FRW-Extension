@@ -156,7 +156,7 @@ const Header = ({ loading = false }) => {
         setNetwork(switchingTo);
         clearCoins();
         clearProfileData();
-        history.push('/switchunlock');
+        history.push('/unlock');
       } catch (error) {
         console.error('Error during account switch:', error);
         // Handle any additional error reporting or user feedback here if needed
