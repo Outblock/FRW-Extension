@@ -269,7 +269,12 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase,
 
   if (step.includes('4')) {
     // We've already imported the account before
-    await page.getByPlaceholder('Confirm Password').fill(password);
+    const confirmPasswordField = await page.getByPlaceholder('Confirm Password');
+    const confirmPasswordValue = await confirmPasswordField.inputValue();
+    if (!confirmPasswordValue) {
+      await confirmPasswordField.fill(password);
+    }
+    // await page.getByPlaceholder('Confirm Password').fill(password);
     await page.getByRole('button', { name: 'Login' }).click();
     // await page.getByRole('button', { name: 'Login' }).click();
   } else if (step.includes('2')) {
@@ -384,6 +389,24 @@ export const cleanExtension = async () => {
   if (fs.existsSync(userDataDir)) {
     fs.rmSync(userDataDir, { recursive: true, force: true });
   }
+};
+
+export const switchToEvm = async ({ page, extensionId }) => {
+  // Assume the user is on the dashboard page
+  await page.getByLabel('menu').click();
+  // switch to COA account
+  await page.getByRole('button', { name: 'EVM' }).nth(0).click();
+  // get address
+  await getCurrentAddress(page);
+};
+
+export const switchToFlow = async ({ page, extensionId }) => {
+  // Assume the user is on the dashboard page
+  await page.getByLabel('menu').click();
+  // switch to COA account
+  await page.getByRole('button', { name: 'Flow' }).nth(0).click();
+  // get address
+  await getCurrentAddress(page);
 };
 
 export const expect = test.expect;

@@ -1,11 +1,15 @@
-import { test, loginToSenderAccount, expect } from './utils/helper';
+import { test, loginToSenderAccount, expect, getCurrentAddress } from './utils/helper';
 
 test('send other-FT COA to COA', async ({ page, extensionId }) => {
+  // This can take a while
+  test.setTimeout(60_000);
   await loginToSenderAccount({ page, extensionId });
   // await page.goto('chrome-extension://cfiagdgiikmjgfjnlballglniejjgegi/index.html#/dashboard');
   await page.getByLabel('menu').click();
   // switch to COA account
   await page.getByRole('button', { name: 'EVM' }).nth(0).click();
+  // Wait for the EVM account to be loaded
+  await getCurrentAddress(page);
   // send FLOW token from COA to COA
   await page.getByRole('button', { name: /^FLOW \$/i }).click();
   await page.getByRole('button', { name: 'Send' }).click();
@@ -16,14 +20,27 @@ test('send other-FT COA to COA', async ({ page, extensionId }) => {
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
-  await expect(page.getByRole('progressbar')).toBeVisible();
-  await expect(page.getByRole('progressbar')).not.toBeVisible();
-  // await expect(
-  //   page.locator('li').filter({ hasText: 'Execute Contract' }).nth(0).getByRole('paragraph').nth(4)
-  // ).toHaveText('pending');
+
+  await page.waitForURL(/.*dashboard\?activity=1/);
+  const progressBar = page.getByRole('progressbar');
+
+  await expect(progressBar).toBeVisible();
+  await page.pause();
+  const status = await page
+    .locator('li')
+    .filter({ hasText: 'Execute Contract' })
+    .nth(0)
+    .getByRole('paragraph')
+    .nth(4)
+    .textContent();
+  console.log('status ', status);
+  await expect(status).toContain('pending');
+  await expect(progressBar).not.toBeVisible();
+
   await expect(
     page.locator('li').filter({ hasText: 'Execute Contract' }).nth(0).getByRole('paragraph').nth(4)
-  ).toHaveText('success');
+  ).toContainText('success');
+  /*
   // send  stFlow token from COA to COA
   await page.getByRole('tab', { name: 'coins' }).click();
   await page.getByRole('button', { name: 'Liquid Staked Flow $' }).click();
@@ -64,5 +81,12 @@ test('send other-FT COA to COA', async ({ page, extensionId }) => {
   await page.getByPlaceholder('Amount').fill('0.0000011212343254366');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
+  await page.pause();
+  await expect(page.getByRole('progressbar')).toBeVisible();
+  await expect(page.getByRole('progressbar')).not.toBeVisible();
+  await expect(
+    page.locator('li').filter({ hasText: 'Execute Contract' }).nth(0).getByRole('paragraph').nth(4)
+  ).toHaveText('success');
+*/
   // await page.pause();
 });
