@@ -2455,22 +2455,27 @@ class OpenApiService {
       await storage.set('hashAlgo', keyInfo.hashAlgo);
       await storage.set('pubKey', keyInfo.publicKey);
 
-      wallet['address'] = currentWallet.address;
-      wallet['pubKey'] = keyInfo.publicKey;
-      wallet['hashAlgo'] = keyInfo.hashAlgo;
-      wallet['signAlgo'] = keyInfo.signAlgo;
-      wallet['weight'] = keys.keys[0].weight;
+      const updatedWallet = {
+        ...wallet,
+        address: currentWallet.address,
+        pubKey: keyInfo.publicKey,
+        hashAlgo: keyInfo.hashAlgo,
+        signAlgo: keyInfo.signAlgo,
+        weight: keys.keys[0].weight,
+      };
 
-      log.log('wallet is this:', wallet);
+      log.log('wallet is this:', updatedWallet);
 
       const accountIndex = loggedInAccounts.findIndex(
-        (account) => account.username === wallet.username
+        // Check both pubKey and username. Older versions allowed the pubKey to be imported twice with different usernames
+        (account) =>
+          account.pubKey === updatedWallet.pubKey && account.username === updatedWallet.username
       );
 
       if (accountIndex === -1) {
-        loggedInAccounts.push(wallet);
+        loggedInAccounts.push(updatedWallet);
       } else {
-        loggedInAccounts[accountIndex] = wallet;
+        loggedInAccounts[accountIndex] = updatedWallet;
       }
       await storage.set('loggedInAccounts', loggedInAccounts);
     }

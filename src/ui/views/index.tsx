@@ -15,7 +15,6 @@ import InnerRoute from './InnerRoute';
 import { Landing } from './Landing';
 import RetrievePK from './RetrievePK';
 import SortHat from './SortHat';
-import SwitchUnlock from './SwitchUnlock';
 import Unlock from './Unlock';
 
 const theme = createTheme(themeOptions);
@@ -34,7 +33,6 @@ const Routes = () => {
         <SortHat />
       </Route>
       <Route exact path="/unlock" component={Unlock} />
-      <Route exact path="/switchunlock" component={SwitchUnlock} />
       <Route exact path="/retrieve" component={RetrievePK} />
       <Landing />
       <Route path="/dashboard">
