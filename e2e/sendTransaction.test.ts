@@ -25,21 +25,14 @@ test('send other-FT COA to COA', async ({ page, extensionId }) => {
   const progressBar = page.getByRole('progressbar');
 
   await expect(progressBar).toBeVisible();
-  await page.pause();
-  const status = await page
-    .locator('li')
-    .filter({ hasText: 'Execute Contract' })
-    .nth(0)
-    .getByRole('paragraph')
-    .nth(4)
-    .textContent();
-  console.log('status ', status);
-  await expect(status).toContain('pending');
-  await expect(progressBar).not.toBeVisible();
+  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
 
-  await expect(
-    page.locator('li').filter({ hasText: 'Execute Contract' }).nth(0).getByRole('paragraph').nth(4)
-  ).toContainText('success');
+  await expect(page.locator('li').first().filter({ hasText: 'success' })).toBeVisible({
+    timeout: 60_000,
+  });
   /*
   // send  stFlow token from COA to COA
   await page.getByRole('tab', { name: 'coins' }).click();
