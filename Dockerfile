@@ -15,4 +15,3 @@ RUN mv e2e-flow.json flow.json
 
 
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD ["sleep", "10000"]
