@@ -213,23 +213,6 @@ export class WalletController extends BaseController {
     sessionService.broadcastEvent('unlock');
   };
 
-  switchUnlock = async (password: string) => {
-    // const alianNameInited = await preferenceService.getInitAlianNameStatus();
-    // const alianNames = await preferenceService.getAllAlianName();
-
-    await keyringService.submitPassword(password);
-
-    // only password is correct then we store it
-    await passwordService.setPassword(password);
-    const pubKey = await this.getPubKey();
-    await userWalletService.switchLogin(pubKey);
-
-    sessionService.broadcastEvent('unlock');
-    // if (!alianNameInited && Object.values(alianNames).length === 0) {
-    //   this.initAlianNames();
-    // }
-  };
-
   retrievePk = async (password: string) => {
     // const alianNameInited = await preferenceService.getInitAlianNameStatus();
     // const alianNames = await preferenceService.getAllAlianName();
