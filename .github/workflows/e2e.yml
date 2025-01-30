@@ -12,7 +12,7 @@ jobs:
 
       - run: sh -ci "$(curl -fsSL https://raw.githubusercontent.com/onflow/flow-cli/master/install.sh)"
 
-      - run: /root/.local/bin/flow emulator --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000 --start-block-height 101908562 &
+      - run: /root/.local/bin/flow emulator -f flow-emulator.json --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000 --start-block-height 101908562 &
       - run: sleep 4
       - run: /root/.local/bin/flow blocks get 101908562 --host localhost:3569 --include transactions
 
