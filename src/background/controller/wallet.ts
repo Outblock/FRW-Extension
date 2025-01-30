@@ -319,7 +319,7 @@ export class WalletController extends BaseController {
     await passwordService.clear();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openIndexPage('reset');
+    openIndexPage('forgot/reset');
     await this.switchNetwork(switchingTo);
   };
 
@@ -351,11 +351,6 @@ export class WalletController extends BaseController {
   clearPageStateCache = () => pageStateCacheService.clear();
   setPageStateCache = (cache: CacheState) => pageStateCacheService.set(cache);
 
-  getAddressBalance = async (address: string) => {
-    const data = await openapiService.getCoinList(address);
-    preferenceService.updateAddressBalance(address, data);
-    return data;
-  };
   getAddressCacheBalance = (address: string | undefined) => {
     if (!address) return null;
     return preferenceService.getAddressBalance(address);
@@ -858,15 +853,6 @@ export class WalletController extends BaseController {
   updateIsFirstOpen = () => {
     return preferenceService.updateIsFirstOpen();
   };
-  listChainAssets = async (address: string) => {
-    return await openapiService.getCoinList(address);
-  };
-  // getAddedToken = (address: string) => {
-  //   return preferenceService.getAddedToken(address);
-  // };
-  // updateAddedToken = (address: string, tokenList: []) => {
-  //   return preferenceService.updateAddedToken(address, tokenList);
-  // };
 
   // lilico new service
 
@@ -1518,17 +1504,6 @@ export class WalletController extends BaseController {
     const address = await this.getCurrentAddress();
     const NFTList = await openapiService.getNFTCadenceList(address!, network);
     return NFTList;
-  };
-
-  requestCollectionInfo = async (identifier) => {
-    const network = await this.getNetwork();
-    const address = await this.getCurrentAddress();
-    const NFTCollection = await openapiService.getNFTCadenceCollection(
-      address!,
-      network,
-      identifier
-    );
-    return NFTCollection;
   };
 
   private currencyBalance = (balance: string, price) => {
@@ -2527,15 +2502,6 @@ export class WalletController extends BaseController {
     );
   };
 
-  enableNFTStorage = async (contract_name: string) => {
-    const result = await openapiService.genTx(contract_name);
-    if (!result) {
-      return;
-    }
-    const cadence = result.data;
-    return await userWalletService.sendTransaction(cadence, []);
-  };
-
   enableNFTStorageLocal = async (token: NFTModel) => {
     const script = await getScripts('collection', 'enableNFTStorage');
     if (token['contractName']) {
@@ -3343,7 +3309,10 @@ export class WalletController extends BaseController {
 
   checkNetwork = async () => {
     const network = await this.getNetwork();
-    await this.switchNetwork(network);
+    const isUnlocked = await this.isUnlocked();
+    if (isUnlocked && network) {
+      await this.switchNetwork(network);
+    }
   };
 
   switchMonitor = async (monitor: string) => {
@@ -3682,43 +3651,6 @@ export class WalletController extends BaseController {
     return data;
   };
 
-  getSingleCollectionv2 = async (address: string, contract: string, offset = 0) => {
-    const network = await this.getNetwork();
-    const data = await openapiService.getNFTCadenceCollection(
-      address!,
-      network,
-      contract,
-      offset,
-      24
-    );
-
-    data.nfts.map((nft) => {
-      nft.unique_id = nft.collectionName + '_' + nft.id;
-    });
-    function getUniqueListBy(arr, key) {
-      return [...new Map(arr.map((item) => [item[key], item])).values()];
-    }
-    const unique_nfts = getUniqueListBy(data.nfts, 'unique_id');
-    data.nfts = unique_nfts;
-    return data;
-  };
-
-  getCollectionApi = async (address: string, contract: string, offset = 0) => {
-    const network = await this.getNetwork();
-    const result = await openapiService.nftCollectionApiPaging(
-      address!,
-      contract,
-      24,
-      offset,
-      network
-    );
-    result['info'] = result.collection;
-    // result['info']['collectionDisplay']['name'] = result.collection.display.name
-    // result['nftCount'] = result.collection.nftCount
-    console.log('result  ---- ', result);
-    return result;
-  };
-
   refreshCollection = async (address: string) => {
     // change the address to real address after testing complete
     // const address = await this.getCurrentAddress();
@@ -3933,16 +3865,6 @@ export class WalletController extends BaseController {
     await openapiService.updateProfilePreference(privacy);
   };
 
-  flownsPrepare = async () => {
-    const resp = await openapiService.flownsPrepare();
-    return resp;
-  };
-
-  // flownsResponse = async (script, domain, flownsAddress, lilicoAddress) => {
-  //   const resp = await flownsService.sendTransaction(script, domain, flownsAddress, lilicoAddress);
-  //   return resp;
-  // };
-
   setHistory = async (token, nft) => {
     const network = await userWalletService.getNetwork();
     const data = {
@@ -4030,21 +3952,6 @@ export class WalletController extends BaseController {
 
   setupDelegator = async (address) => {
     const result = await stakingService.setup(address);
-    return result;
-  };
-
-  createFlowSandboxAddress = async (network) => {
-    const account = await getStoragedAccount();
-    const { hashAlgo, signAlgo, pubKey, weight } = account;
-
-    const accountKey = {
-      public_key: pubKey,
-      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
-      weight: weight,
-    };
-
-    const result = await openapiService.createFlowNetworkAddress(accountKey, network);
     return result;
   };
 

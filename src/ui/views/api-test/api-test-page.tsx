@@ -16,11 +16,8 @@ import React, { useState, useEffect } from 'react';
 
 import { useWallet } from '@/ui/utils';
 
-import {
-  API_TEST_RESULTS,
-  type FetchDetail,
-  type ApiTestResult,
-} from '../../../shared/test-data/api-test-results';
+import { API_TEST_RESULTS } from '../../../shared/test-data/api-test-results';
+import type { ApiTestResult, FetchDetail } from '../../../shared/test-data/api-test-results-types';
 import {
   type ApiTestFunction,
   type CommonParams,

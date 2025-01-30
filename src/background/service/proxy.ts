@@ -1,12 +1,14 @@
 import { Core } from '@walletconnect/core';
 import SignClient from '@walletconnect/sign-client';
 
-import { FCLWalletConnectMethod } from '@/shared/utils/type';
+import { FCLWalletConnectMethod } from '@/shared/types/fcl-connect-types';
 import wallet from 'background/controller/wallet';
 import { keyringService, openapiService } from 'background/service';
 
 import { type DeviceInfoRequest } from '../../shared/types/network-types';
 import { storage } from '../webapi';
+
+import { proxyToken } from './authentication';
 
 class Proxy {
   proxySign = async (token: string, userId: string) => {
@@ -14,7 +16,7 @@ class Proxy {
   };
 
   requestJwt = async () => {
-    return wallet.openapi.proxytoken();
+    return proxyToken();
   };
 
   checkProxy = async () => {
@@ -163,6 +165,7 @@ class Proxy {
   getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
     const result = await openapiService.getLocation();
     const installationId = await openapiService.getInstallationId();
+    console.log('installationId ', installationId);
     // console.log('location ', userlocation);
     const userlocation = result.data;
     const deviceInfo: DeviceInfoRequest = {

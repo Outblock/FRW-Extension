@@ -45,21 +45,6 @@ vi.mock('@/background/service/transaction', () => ({
   },
 }));
 
-// Mock chrome.storage before any imports
-const mockStorage = {
-  local: {
-    get: vi.fn().mockImplementation(() =>
-      Promise.resolve({
-        auth: { token: 'mock-token' },
-        network: 'testnet',
-      })
-    ),
-    set: vi.fn().mockImplementation(() => Promise.resolve()),
-  },
-};
-
-vi.stubGlobal('chrome', { storage: mockStorage });
-
 vi.mock('dayjs', () => {
   return {
     default: () => ({

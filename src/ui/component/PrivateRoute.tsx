@@ -15,7 +15,7 @@ const PrivateRoute = ({ children, ...rest }) => {
 
     const fetchLockState = async () => {
       const booted = await wallet.isBooted();
-
+      console.log('booted', booted);
       if (!booted) {
         return { booted, unlocked: false };
       } else {

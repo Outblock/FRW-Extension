@@ -1,30 +1,16 @@
 import * as fcl from '@onflow/fcl';
-import type { Method } from 'axios';
 import dayjs from 'dayjs';
-import { initializeApp, getApp } from 'firebase/app';
-import {
-  getAuth,
-  signInWithCustomToken,
-  setPersistence,
-  indexedDBLocalPersistence,
-  signInAnonymously,
-  onAuthStateChanged,
-  type Unsubscribe,
-  type User,
-} from 'firebase/auth/web-extension';
-import { getInstallations, getId } from 'firebase/installations';
 import type { TokenInfo } from 'flow-native-token-registry';
 import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
+import { INITIAL_OPENAPI_URL, FIREBASE_FUNCTIONS_URL, WEB_NEXT_URL } from '@/constant/api-hosts';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
-import { createPersistStore, getScripts, findKeyAndInfo } from 'background/utils';
-import { getFirbaseConfig, getFirbaseFunctionUrl } from 'background/utils/firebaseConfig';
+import { getScripts, findKeyAndInfo } from 'background/utils';
 import fetchConfig from 'background/utils/remoteConfig';
-import { INITIAL_OPENAPI_URL, WEB_NEXT_URL } from 'consts';
 
 import {
   type AccountKey,
@@ -43,6 +29,13 @@ import {
 } from '../../shared/types/network-types';
 
 import {
+  getAppInstallationId,
+  getUserToken,
+  signInWithToken,
+  verifyAuthStatus,
+} from './authentication';
+
+import {
   userWalletService,
   coinListService,
   addressBookService,
@@ -51,314 +44,379 @@ import {
   nftService,
   googleSafeHostService,
   mixpanelTrack,
+  newsService,
 } from './index';
-// import { userInfo } from 'os';
-// import userWallet from './userWallet';
-// const axios = axiosOriginal.create({ adapter })
-
-export interface OpenApiConfigValue {
-  path: string;
-  method: Method;
-  params?: string[];
-}
-
-export interface OpenApiStore {
-  host: string;
-  config: Record<string, OpenApiConfigValue>;
-}
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
-const firebaseConfig = getFirbaseConfig();
-const app = initializeApp(firebaseConfig, process.env.NODE_ENV);
-const auth = getAuth(app);
-// const remoteConfig = getRemoteConfig(app);
 
 const remoteFetch = fetchConfig;
-const pricesMap = {};
 
-const waitForAuthInit = async () => {
-  let unsubscribe: Unsubscribe;
-  await new Promise<void>((resolve) => {
-    unsubscribe = auth.onAuthStateChanged((_user) => resolve());
-  });
-  (await unsubscribe!)();
-};
-
-onAuthStateChanged(auth, (user: User | null) => {
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/firebase.User
-    // const uid = user.uid;
-    console.log('User is signed in');
-    if (user.isAnonymous) {
-      console.log('User is anonymous');
-    } else {
-      mixpanelTrack.identify(user.uid, user.displayName ?? user.uid);
-      console.log('User is signed in');
-    }
-  } else {
-    // User is signed out
-    console.log('User is signed out');
-  }
-  // note fcl setup is async
-  userWalletService.setupFcl();
-});
-
-const dataConfig: Record<string, OpenApiConfigValue> = {
+const DATA_CONFIG = {
   check_username: {
     path: '/v1/user/check',
-    method: 'get',
+    method: 'GET',
     params: ['username'],
+    host: INITIAL_OPENAPI_URL,
   },
   search_user: {
     path: '/v1/user/search',
-    method: 'get',
+    method: 'GET',
     params: ['keyword'],
+    host: INITIAL_OPENAPI_URL,
   },
   register: {
     path: '/v1/register',
-    method: 'post',
+    method: 'POST',
     params: ['username', 'account_key'],
+    host: INITIAL_OPENAPI_URL,
   },
   create_flow_address: {
     path: '/v1/user/address',
-    method: 'post',
+    method: 'POST',
     params: [],
-  },
-  create_flow_sandbox_address: {
-    path: '/v1/user/address/crescendo',
-    method: 'post',
-    params: [],
-  },
-  create_flow_network_address: {
-    path: '/v1/user/address/network',
-    method: 'post',
-    params: ['account_key', 'network'],
-  },
-  login: {
-    path: '/v1/login',
-    method: 'post',
-    params: ['public_key', 'signature'],
-  },
-  loginv2: {
-    path: '/v2/login',
-    method: 'post',
-    params: ['public_key', 'signature'],
+    host: INITIAL_OPENAPI_URL,
   },
   loginv3: {
     path: '/v3/login',
-    method: 'post',
+    method: 'POST',
     params: ['signature', 'account_key', 'device_info'],
+    host: INITIAL_OPENAPI_URL,
   },
   importKey: {
     path: '/v3/import',
-    method: 'post',
+    method: 'POST',
     params: ['username', 'account_key', 'device_info', 'backup_info', 'address'],
+    host: INITIAL_OPENAPI_URL,
   },
   coin_map: {
     path: '/v1/coin/map',
-    method: 'get',
+    method: 'GET',
     params: [],
-  },
-  user_wallet: {
-    path: '/v1/user/wallet',
-    method: 'get',
-    params: [],
-  },
-  user_wallet_v2: {
-    path: '/v2/user/wallet',
-    method: 'get',
-    params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   user_info: {
     path: '/v1/user/info',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
-  prepare_transaction: {
-    path: '/v1/account/presign',
-    method: 'post',
-    params: ['transaction'],
-  },
-  sign_payer: {
-    path: '/v1/account/signpayer',
-    method: 'post',
+  sign_as_payer: {
+    path: '/signAsPayer',
+    method: 'POST',
     params: ['transaction', 'message'],
+    host: FIREBASE_FUNCTIONS_URL,
   },
-  send_transaction: {
-    path: '/v1/account/transaction',
-    method: 'post',
-    params: ['transaction'],
+  sign_as_proposer: {
+    path: '/signAsProposer',
+    method: 'POST',
+    params: ['transaction', 'message'],
+    host: FIREBASE_FUNCTIONS_URL,
   },
-  coin_list: {
-    path: '/v1/account/info',
-    method: 'get',
-    params: ['address'],
-  },
-  coin_rate: {
-    path: '/v1/coin/rate',
-    method: 'get',
-    params: ['coinId'],
+  get_proposer: {
+    path: '/getProposer',
+    method: 'GET',
+    params: [],
+    host: FIREBASE_FUNCTIONS_URL,
   },
   nft_list_v2: {
     path: '/v2/nft/list',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'offset', 'limit'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_list_lilico_v2: {
     path: '/v2/nft/detail/list',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'offset', 'limit'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_collections_lilico_v2: {
     path: '/v2/nft/collections',
-    method: 'get',
+    method: 'GET',
     params: ['address'],
+    host: INITIAL_OPENAPI_URL,
   },
   nft_collections_single_v2: {
     path: '/v2/nft/single',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'contractName', 'limit', 'offset'],
-  },
-  nft_meta: {
-    path: '/v2/nft/meta',
-    method: 'get',
-    params: ['address', 'contractName', 'contractAddress', 'tokenId'],
+    host: INITIAL_OPENAPI_URL,
   },
   fetch_address_book: {
     path: '/v1/addressbook/contact',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   add_address_book: {
     path: '/v1/addressbook/contact',
     method: 'put',
     params: ['contact_name', 'username', 'address', 'domain', 'domain_type'],
+    host: INITIAL_OPENAPI_URL,
   },
   edit_address_book: {
     path: '/v1/addressbook/contact',
-    method: 'post',
+    method: 'POST',
     params: ['id', 'contact_name', 'address', 'domain', 'domain_type'],
+    host: INITIAL_OPENAPI_URL,
   },
   delete_address_book: {
     path: '/v1/addressbook/contact',
     method: 'delete',
     params: ['id'],
+    host: INITIAL_OPENAPI_URL,
   },
   add_external_address_book: {
     path: '/v1/addressbook/external',
     method: 'put',
     params: ['contact_name', 'address', 'domain', 'domain_type'],
+    host: INITIAL_OPENAPI_URL,
   },
   account_transaction: {
     path: '/v1/account/transaction',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'limit', 'offset'],
+    host: INITIAL_OPENAPI_URL,
   },
   validate_recaptcha: {
     path: '/v1/user/recaptcha',
-    method: 'get',
+    method: 'GET',
     params: ['token'],
+    host: INITIAL_OPENAPI_URL,
   },
   crypto_map: {
     path: '/v1/crypto/map',
-    method: 'get',
+    method: 'GET',
     params: ['provider', 'pair'],
+    host: INITIAL_OPENAPI_URL,
   },
   crypto_flow: {
     path: '/v1/crypto/summary',
-    method: 'get',
+    method: 'GET',
     params: ['provider', 'pair'],
+    host: INITIAL_OPENAPI_URL,
   },
   crypto_history: {
     path: '/v1/crypto/history',
-    method: 'get',
+    method: 'GET',
     params: ['provider', 'pair', 'after', 'history'],
-  },
-  account_query: {
-    path: '/v1/account/query',
-    method: 'post',
-    params: ['query', 'operation_name'],
+    host: INITIAL_OPENAPI_URL,
   },
   profile_preference: {
     path: '/v1/profile/preference',
-    method: 'post',
+    method: 'POST',
     params: ['private'],
+    host: INITIAL_OPENAPI_URL,
   },
   profile_update: {
     path: '/v1/profile',
-    method: 'post',
+    method: 'POST',
     params: ['nickname', 'avatar'],
+    host: INITIAL_OPENAPI_URL,
   },
   flowns_prepare: {
     path: '/v1/flowns/prepare',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   flowns_signature: {
     path: '/v1/flowns/signature',
-    method: 'post',
+    method: 'POST',
     params: ['transaction', 'message'],
+    host: INITIAL_OPENAPI_URL,
   },
   payer_signature: {
     path: '/v1/flowns/payer/signature',
-    method: 'post',
+    method: 'POST',
     params: ['transaction', 'message'],
+    host: INITIAL_OPENAPI_URL,
   },
   get_transfers: {
     path: '/v1/account/transfers',
-    method: 'get',
+    method: 'GET',
     params: ['address', 'after', 'limit'],
+    host: INITIAL_OPENAPI_URL,
   },
   manual_address: {
     path: '/v1/user/manualaddress',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   device_list: {
     path: '/v1/user/device',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   key_list: {
     path: '/v1/user/keys',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   add_device: {
     path: '/v1/user/device',
     method: 'put',
     params: ['device_info', 'wallet_id', 'wallettest_id '],
+    host: INITIAL_OPENAPI_URL,
   },
   add_device_v3: {
     path: '/v3/user/device',
     method: 'put',
     params: ['device_info', 'wallet_id', 'wallettest_id '],
+    host: INITIAL_OPENAPI_URL,
   },
   get_location: {
     path: '/v1/user/location',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
   },
   sync_device: {
     path: '/v3/sync',
-    method: 'post',
+    method: 'POST',
     params: ['account_key', 'device_info '],
+    host: INITIAL_OPENAPI_URL,
   },
   check_import: {
     path: '/v3/checkimport',
-    method: 'get',
+    method: 'GET',
     params: ['key'],
+    host: INITIAL_OPENAPI_URL,
   },
   get_version: {
     path: '/version',
-    method: 'get',
+    method: 'GET',
     params: [],
+    host: INITIAL_OPENAPI_URL,
+  },
+  get_prices: {
+    path: '/api/prices',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  moonpay_signature: {
+    path: '/moonPaySignature',
+    method: 'POST',
+    params: ['transaction', 'message'],
+    host: FIREBASE_FUNCTIONS_URL,
+  },
+  get_evm_transfers: {
+    path: (params: { address: string }) => `/api/evm/${params.address}/transactions`,
+    method: 'GET',
+    params: ['address', 'after', 'limit'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog: {
+    path: '/api/nft/collections',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  cadence_scripts: {
+    path: '/api/scripts',
+    method: 'GET',
+    params: ['network'],
+    host: WEB_NEXT_URL,
+  },
+  cadence_scripts_v2: {
+    path: '/api/v2/scripts',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_list: {
+    path: '/api/v2/nft/list',
+    method: 'GET',
+    params: ['address', 'limit', 'offset', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_collections: {
+    path: '/api/v2/nft/id',
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_catalog_collection_list: {
+    path: '/api/v2/nft/collectionList',
+    method: 'GET',
+    params: ['address', 'limit', 'offset', 'collectionIdentifier', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_collection_list: {
+    path: '/api/nft/collections',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  evm_ft_list: {
+    path: '/api/evm/fts',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  get_evm_ft: {
+    path: (params: { address: string; network: string }) =>
+      `/api/v3/evm/${params.address}/fts?network=${params.network}`,
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_list: {
+    path: '/api/evm/nfts',
+    method: 'GET',
+    params: [],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_detail: {
+    path: (params: { address: string; network: string }) =>
+      `/api/evm/${params.address}/nfts?network=${params.network}`,
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  nft_v2_collection_list: {
+    path: '/api/v2/nft/collections',
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_decode_data: {
+    path: '/api/evm/decodeData',
+    method: 'POST',
+    params: ['to', 'data'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_collection_list: {
+    path: '/api/v3/evm/nft/collectionList',
+    method: 'GET',
+    params: ['address', 'collectionIdentifier', 'limit', 'offset', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_id: {
+    path: '/api/v3/evm/nft/id',
+    method: 'GET',
+    params: ['address', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  evm_nft_list_v3: {
+    path: '/api/v3/evm/nft/list',
+    method: 'GET',
+    params: ['address', 'limit', 'offset', 'network'],
+    host: WEB_NEXT_URL,
+  },
+  get_news: {
+    path: process.env.API_NEWS_PATH,
+    method: 'GET',
+    params: [],
+    host: process.env.API_BASE_URL,
+  },
+  get_config: {
+    path: process.env.API_CONFIG_PATH,
+    method: 'GET',
+    params: [],
+    host: process.env.API_BASE_URL,
   },
 };
 
@@ -410,94 +468,69 @@ const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
 };
 ///const fetch = process.env.BRANCH_NAME === 'master' ? globalThis.fetch : fetchCallRecorder;
 
-class OpenApiService {
-  store!: OpenApiStore;
+const fetchRequest = async (
+  method = 'GET',
+  url = '',
+  params = {},
+  data = {},
+  host = INITIAL_OPENAPI_URL
+) => {
+  // Default options are marked with *
+  let requestUrl = '';
 
-  // request = rateLimit(axios.create(), { maxRPS });
+  if (Object.keys(params).length) {
+    requestUrl = host + url + '?' + new URLSearchParams(params).toString();
+  } else {
+    requestUrl = host + url;
+  }
+  const network = await userWalletService.getNetwork();
 
-  setHost = async (host: string) => {
-    this.store.host = host;
-    await this.init();
+  const idToken = await getUserToken();
+  const init: RequestInit = {
+    method,
+    headers: {
+      Network: network,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + idToken,
+    },
   };
 
-  getHost = () => {
-    return this.store.host;
+  if (method.toUpperCase() !== 'GET') {
+    init.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(requestUrl, init);
+  const responseData = await response.json();
+
+  return responseData; // parses JSON response into native JavaScript objects
+};
+
+const fetchConfigRequest = <key extends keyof typeof DATA_CONFIG>(
+  config: (typeof DATA_CONFIG)[key],
+  params?: any,
+  data?: any
+) => {
+  return fetchRequest(
+    config.method,
+    typeof config.path === 'function' ? config.path(params) : config.path,
+    typeof config.path === 'function' ? {} : params,
+    data,
+    config.host
+  );
+};
+
+class OpenApiService {
+  sendRequest = async (method: string, url: string, params: any, data: any, host: string) => {
+    return fetchRequest(method, url, params, data, host);
   };
 
   init = async () => {
-    this.store = await createPersistStore({
-      name: 'openapi',
-      template: {
-        host: INITIAL_OPENAPI_URL,
-        config: dataConfig,
-      },
-      fromStorage: false, // Debug only
-    });
-
     await userWalletService.setupFcl();
   };
 
   checkAuthStatus = async () => {
-    await waitForAuthInit();
-    const app = getApp(process.env.NODE_ENV!);
-    const user = await getAuth(app).currentUser;
-    if (user && user.isAnonymous) {
-      userWalletService.reSign();
-    }
-  };
-
-  sendRequest = async (
-    method = 'GET',
-    url = '',
-    params = {},
-    data = {},
-    host = this.store.host
-  ) => {
-    // Default options are marked with *
-    let requestUrl = '';
-
-    if (Object.keys(params).length) {
-      requestUrl = host + url + '?' + new URLSearchParams(params).toString();
-    } else {
-      requestUrl = host + url;
-    }
-    const network = await userWalletService.getNetwork();
-
-    const app = getApp(process.env.NODE_ENV!);
-    const user = await getAuth(app).currentUser;
-    const init = {
-      method,
-      headers: {
-        Network: network,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    };
-
-    if (method.toUpperCase() !== 'GET') {
-      init['body'] = JSON.stringify(data);
-    }
-
-    // Wait for firebase auth to complete
-    await waitForAuthInit();
-
-    if (user !== null) {
-      const idToken = await user.getIdToken();
-      init.headers['Authorization'] = 'Bearer ' + idToken;
-    } else {
-      // If no user, then sign in as anonymous first
-      await signInAnonymously(auth);
-      const anonymousUser = await getAuth(app).currentUser;
-      const idToken = await anonymousUser?.getIdToken();
-      init.headers['Authorization'] = 'Bearer ' + idToken;
-    }
-
-    const response = await fetch(requestUrl, init);
-    const responseData = await response.json(); // parses JSON response into native JavaScript objects
-
-    // recordFetch(response, responseData, requestUrl, init);
-    return responseData;
-    // Record the response
+    return verifyAuthStatus();
   };
 
   private getUSDCPricePair = (provider: PriceProvider): string | null => {
@@ -531,8 +564,8 @@ class OpenApiService {
   };
 
   getUSDCPrice = async (provider = PriceProvider.binance): Promise<CheckResponse> => {
-    const config = this.store.config.crypto_map;
-    const data = await this.sendRequest(config.method, config.path, {
+    const config = DATA_CONFIG.crypto_map;
+    const data = await fetchConfigRequest(config, {
       provider,
       pair: this.getUSDCPricePair(provider),
     });
@@ -565,7 +598,8 @@ class OpenApiService {
     const pricesMap: Record<string, string> = {};
 
     try {
-      const response = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
+      const config = DATA_CONFIG.get_prices;
+      const response = await fetchConfigRequest(config);
       const data = response?.data || [];
 
       data.forEach((token) => {
@@ -626,12 +660,12 @@ class OpenApiService {
   };
 
   getTokenPrice = async (token: string, provider = PriceProvider.binance) => {
-    const config = this.store.config.crypto_flow;
+    const config = DATA_CONFIG.crypto_flow;
     const pair = this.getTokenPair(token, provider);
     if (!pair) {
       throw new Error('no price provider found');
     }
-    const data = await this.sendRequest(config.method, config.path, {
+    const data = await fetchConfigRequest(config, {
       provider,
       pair: pair,
     });
@@ -669,8 +703,8 @@ class OpenApiService {
         break;
     }
 
-    const config = this.store.config.crypto_history;
-    const data = await this.sendRequest(config.method, config.path, {
+    const config = DATA_CONFIG.crypto_history;
+    const data = await fetchConfigRequest(config, {
       provider,
       pair: this.getTokenPair(token, provider),
       after: period === Period.all ? '' : after.unix(),
@@ -681,8 +715,7 @@ class OpenApiService {
 
   private _signWithCustom = async (token) => {
     this.clearAllStorage();
-    await setPersistence(auth, indexedDBLocalPersistence);
-    await signInWithCustomToken(auth, token);
+    await signInWithToken(token);
   };
 
   private clearAllStorage = () => {
@@ -692,11 +725,12 @@ class OpenApiService {
     addressBookService.clear();
     userWalletService.clear();
     transactionService.clear();
+    newsService.clear();
   };
 
   checkUsername = async (username: string) => {
-    const config = this.store.config.check_username;
-    const data = await this.sendRequest(config.method, config.path, {
+    const config = DATA_CONFIG.check_username;
+    const data = await fetchConfigRequest(config, {
       username,
     });
     return data;
@@ -706,10 +740,9 @@ class OpenApiService {
     // Track the time until account_created is called
     mixpanelTrack.time('account_created');
 
-    const config = this.store.config.register;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.register;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         account_key,
@@ -728,67 +761,14 @@ class OpenApiService {
     return data;
   };
 
-  login = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = this.store.config.login;
-    // const result = await this.request[config.method](config.path, {
-    //   public_key,
-    //   signature,
-    // });
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
-  };
-
-  loginV2 = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = this.store.config.loginv2;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
-  };
-
   loginV3 = async (
     account_key: any,
     device_info: any,
     signature: string,
     replaceUser = true
   ): Promise<SignInResponse> => {
-    const config = this.store.config.loginv3;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { account_key, device_info, signature }
-    );
+    const config = DATA_CONFIG.loginv3;
+    const result = await fetchConfigRequest(config, {}, { account_key, device_info, signature });
     if (!result.data) {
       throw new Error('NoUserFound');
     }
@@ -807,20 +787,6 @@ class OpenApiService {
     return;
   };
 
-  proxytoken = async () => {
-    // Default options are marked with *
-
-    const app = getApp(process.env.NODE_ENV!);
-
-    // Wait for firebase auth to complete
-    await waitForAuthInit();
-
-    await signInAnonymously(auth);
-    const anonymousUser = await getAuth(app).currentUser;
-    const idToken = await anonymousUser?.getIdToken();
-    return idToken;
-  };
-
   importKey = async (
     account_key: any,
     device_info: any,
@@ -829,10 +795,9 @@ class OpenApiService {
     address: string,
     replaceUser = true
   ): Promise<SignInResponse> => {
-    const config = this.store.config.importKey;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.importKey;
+    const result = await fetchConfigRequest(
+      config,
       {},
       { username, address, account_key, device_info, backup_info }
     );
@@ -847,81 +812,34 @@ class OpenApiService {
   };
 
   coinMap = async () => {
-    const config = this.store.config.coin_map;
-    const data = await this.sendRequest(config.method, config.path);
+    const config = DATA_CONFIG.coin_map;
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
   userInfo = async (): Promise<UserInfoResponse> => {
-    const config = this.store.config.user_info;
-    return await this.sendRequest(config.method, config.path);
-  };
-
-  userWallet = async () => {
-    const config = this.store.config.user_wallet;
-    const data = await this.sendRequest(config.method, config.path);
-    return data;
-  };
-
-  //todo check data
-  userWalletV2 = async () => {
-    const config = this.store.config.user_wallet_v2;
-    const data = await this.sendRequest(config.method, config.path);
-    return data;
+    const config = DATA_CONFIG.user_info;
+    return await fetchConfigRequest(config);
   };
 
   createFlowAddress = async () => {
-    const config = this.store.config.create_flow_address;
-    const data = await this.sendRequest(config.method, config.path);
-    return data;
-  };
-
-  createFlowSandboxAddress = async () => {
-    const config = this.store.config.create_flow_sandbox_address;
-    const data = await this.sendRequest(config.method, config.path);
-    return data;
-  };
-
-  createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
-    const config = this.store.config.create_flow_network_address;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        account_key,
-        network,
-      }
-    );
+    const config = DATA_CONFIG.create_flow_address;
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
   getMoonpayURL = async (url) => {
-    const baseURL = getFirbaseFunctionUrl();
-    const response = await this.sendRequest('POST', '/moonPaySignature', {}, { url: url }, baseURL);
+    const config = DATA_CONFIG.moonpay_signature;
+    const response = await fetchConfigRequest(config, {}, { url: url });
     return response;
-  };
-
-  prepareTransaction = async (transaction: FlowTransaction) => {
-    const config = this.store.config.prepare_transaction;
-    const data = await this.sendRequest(config.method, config.path, {}, { transaction });
-    return data;
   };
 
   signPayer = async (transaction, message: string) => {
     const messages = {
       envelope_message: message,
     };
-    const config = this.store.config.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest(
-      'POST',
-      '/signAsPayer',
-      {},
-      { transaction, message: messages },
-      baseURL
-    );
+    const config = DATA_CONFIG.sign_as_payer;
+    const data = await fetchConfigRequest(config, {}, { transaction, message: messages });
     // (config.method, config.path, {}, { transaction, message: messages });
     return data;
   };
@@ -930,108 +848,21 @@ class OpenApiService {
     const messages = {
       envelope_message: message,
     };
-    const config = this.store.config.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest(
-      'POST',
-      '/signAsProposer',
-      {},
-      { transaction, message: messages },
-      baseURL
-    );
-    // (config.method, config.path, {}, { transaction, message: messages });
+    const config = DATA_CONFIG.sign_as_proposer;
+    const data = await fetchConfigRequest(config, {}, { transaction, message: messages });
+
     return data;
   };
 
   getProposer = async () => {
-    const config = this.store.config.sign_payer;
-    const baseURL = getFirbaseFunctionUrl();
-    // 'http://localhost:5001/lilico-dev/us-central1'
-    const data = await this.sendRequest('GET', '/getProposer', {}, {}, baseURL);
-    // (config.method, config.path, {}, { transaction, message: messages });
-    return data;
-  };
-
-  sendTransaction = async (transaction): Promise<SendTransactionResponse> => {
-    const config = this.store.config.send_transaction;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        transaction,
-      }
-    );
-    return data;
-  };
-
-  getCoinList = async (address) => {
-    const config = this.store.config.coin_list;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-    });
-    return data;
-  };
-
-  getCoinRate = async (coinId) => {
-    const config = this.store.config.coin_rate;
-    const data = await this.sendRequest(config.method, config.path, { coinId });
-    return data;
-  };
-
-  getNFTList = async (address: string, offset: number, limit: number) => {
-    const config = this.store.config.nft_list;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-      offset,
-      limit,
-    });
-    return data;
-  };
-
-  // getNFTListV2 = async (address: string, offset: number, limit: number) => {
-  //   const alchemyAPI = (await storage.get('alchemyAPI')) || false;
-  //   const config = alchemyAPI
-  //     ? this.store.config.nft_list_v2
-  //     : this.store.config.nft_list_lilico_v2;
-  //   const data = await this.sendRequest(config.method, config.path, {
-  //     address,
-  //     offset,
-  //     limit,
-  //   });
-  //   return data;
-  // };
-
-  // getNFTCollectionV2 = async (address: string) => {
-  //   // const alchemyAPI = await storage.get('alchemyAPI') || false
-  //   const config = this.store.config.nft_collections_lilico_v2;
-  //   const data = await this.sendRequest(config.method, config.path, {
-  //     address,
-  //   });
-  //   return data;
-  // };
-
-  getNFTMetadata = async (
-    address: string,
-    contractName: string,
-    contractAddress: string,
-    tokenId: number
-  ) => {
-    const config = this.store.config.nft_meta;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-      contractName,
-      contractAddress,
-      tokenId,
-    });
-
+    const config = DATA_CONFIG.get_proposer;
+    const data = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   getAddressBook = async () => {
-    const config = this.store.config.fetch_address_book;
-    const data = await this.sendRequest(config.method, config.path);
+    const config = DATA_CONFIG.fetch_address_book;
+    const data = await fetchConfigRequest(config);
     return data;
   };
 
@@ -1042,10 +873,9 @@ class OpenApiService {
     domain = '',
     domain_type = 0
   ) => {
-    const config = this.store.config.add_address_book;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.add_address_book;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         contact_name,
@@ -1065,10 +895,9 @@ class OpenApiService {
     domain = '',
     domain_type = 0
   ) => {
-    const config = this.store.config.edit_address_book;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.edit_address_book;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         id,
@@ -1082,8 +911,8 @@ class OpenApiService {
   };
 
   deleteAddressBook = async (id: number) => {
-    const config = this.store.config.delete_address_book;
-    const data = await this.sendRequest(config.method, config.path, { id });
+    const config = DATA_CONFIG.delete_address_book;
+    const data = await fetchConfigRequest(config, { id });
     return data;
   };
 
@@ -1093,10 +922,9 @@ class OpenApiService {
     domain = '',
     domain_type = 0
   ) => {
-    const config = this.store.config.add_external_address_book;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.add_external_address_book;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         contact_name,
@@ -1232,8 +1060,8 @@ class OpenApiService {
   };
 
   // getTransaction = async (address: string, limit: number, offset: number) => {
-  //   const config = this.store.config.account_transaction;
-  //   const data = await this.sendRequest(config.method, config.path, {
+  //   const config = DATA_CONFIG.account_transaction;
+  //   const data = await fetchConfigRequest(config, {
   //     address,
   //     limit,
   //     offset,
@@ -1243,8 +1071,8 @@ class OpenApiService {
   // };
 
   getTransfers = async (address: string, after = '', limit: number) => {
-    const config = this.store.config.get_transfers;
-    const data = await this.sendRequest(config.method, config.path, {
+    const config = DATA_CONFIG.get_transfers;
+    const data = await fetchConfigRequest(config, {
       address,
       after,
       limit,
@@ -1254,67 +1082,64 @@ class OpenApiService {
   };
 
   getEVMTransfers = async (address: string, after = '', limit: number) => {
-    const data = await this.sendRequest(
-      'GET',
-      `/api/evm/${address}/transactions`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.get_evm_transfers;
+    const data = await fetchConfigRequest(config, {
+      address,
+      after,
+      limit,
+    });
     return data;
   };
 
   getManualAddress = async () => {
-    const config = this.store.config.manual_address;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const config = DATA_CONFIG.manual_address;
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   deviceList = async () => {
-    const config = this.store.config.device_list;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const config = DATA_CONFIG.device_list;
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   keyList = async () => {
-    const config = this.store.config.key_list;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const config = DATA_CONFIG.key_list;
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   getLocation = async () => {
-    const config = this.store.config.get_location;
-    const data = await this.sendRequest(config.method, config.path, {});
+    const config = DATA_CONFIG.get_location;
+    const data = await fetchConfigRequest(config, {});
 
     return data;
   };
 
   addDevice = async (params) => {
-    const config = this.store.config.add_device_v3;
-    const data = await this.sendRequest(config.method, config.path, {}, params);
+    const config = DATA_CONFIG.add_device_v3;
+    const data = await fetchConfigRequest(config, {}, params);
 
     return data;
   };
 
   synceDevice = async (params) => {
-    const config = this.store.config.sync_device;
-    const data = await this.sendRequest(config.method, config.path, {}, params);
+    const config = DATA_CONFIG.sync_device;
+    const data = await fetchConfigRequest(config, {}, params);
 
     return data;
   };
 
   getInstallationId = async () => {
-    const installations = await getInstallations(app);
-    const id = await getId(installations);
-    return id;
+    return await getAppInstallationId();
   };
 
   searchUser = async (keyword: string) => {
-    const config = this.store.config.search_user;
-    const data = await this.sendRequest(config.method, config.path, {
+    const config = DATA_CONFIG.search_user;
+    const data = await fetchConfigRequest(config, {
       keyword,
     });
 
@@ -1322,8 +1147,8 @@ class OpenApiService {
   };
 
   checkImport = async (key: string) => {
-    const config = this.store.config.check_import;
-    const data = await this.sendRequest(config.method, config.path, {
+    const config = DATA_CONFIG.check_import;
+    const data = await fetchConfigRequest(config, {
       key,
     });
 
@@ -1491,6 +1316,7 @@ class OpenApiService {
     }
 
     const response = await fetch(url);
+
     const { tokens = [] } = await response.json();
     const hasFlowToken = tokens.some((token) => token.symbol.toLowerCase() === 'flow');
     if (!hasFlowToken) {
@@ -1952,25 +1778,10 @@ class OpenApiService {
   };
 
   validateRecaptcha = async (token: string) => {
-    const config = this.store.config.validate_recaptcha;
-    const data = await this.sendRequest(config.method, config.path, {
+    const config = DATA_CONFIG.validate_recaptcha;
+    const data = await fetchConfigRequest(config, {
       token,
     });
-
-    return data;
-  };
-
-  flowScanQuery = async (query: string, operationName: string) => {
-    const config = this.store.config.account_query;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        query,
-        operation_name: operationName,
-      }
-    );
 
     return data;
   };
@@ -1986,10 +1797,9 @@ class OpenApiService {
   };
 
   updateProfilePreference = async (privacy: number) => {
-    const config = this.store.config.profile_preference;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.profile_preference;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         private: privacy,
@@ -2000,10 +1810,9 @@ class OpenApiService {
   };
 
   updateProfile = async (nickname: string, avatar: string) => {
-    const config = this.store.config.profile_update;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.profile_update;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         nickname: nickname,
@@ -2014,21 +1823,15 @@ class OpenApiService {
     return data;
   };
 
-  flownsPrepare = async () => {
-    const config = this.store.config.flowns_prepare;
-    const data = await this.sendRequest(config.method, config.path, {}, {});
-    return data;
-  };
-
+  // @deprecated
   flownsAuthTransaction = async (transaction, envelope: string) => {
     const message = {
       envelope_message: envelope,
     };
     // console.log({transaction,message})
-    const config = this.store.config.flowns_signature;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.flowns_signature;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         transaction,
@@ -2038,15 +1841,14 @@ class OpenApiService {
 
     return data;
   };
-
+  // @deprecated
   flownsTransaction = async (transaction, envelope: string) => {
     const message = {
       envelope_message: envelope,
     };
-    const config = this.store.config.flowns_signature;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
+    const config = DATA_CONFIG.flowns_signature;
+    const data = await fetchConfigRequest(
+      config,
       {},
       {
         transaction,
@@ -2056,14 +1858,14 @@ class OpenApiService {
 
     return data;
   };
-
+  // @deprecated
   swapEstimate = async (network: string, inToken: string, outToken: string, amount) => {
     const response = await fetch(
       `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&inAmount=${amount}`
     );
     return response.json();
   };
-
+  // @deprecated
   swapOutEstimate = async (network: string, inToken: string, outToken: string, amount) => {
     const response = await fetch(
       `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&outAmount=${amount}`
@@ -2078,6 +1880,7 @@ class OpenApiService {
     return response.json();
   };
 
+  // @deprecated
   swapPairs = async (network: string) => {
     const response = await fetch(`https://lilico.app/api/swap/v1/${network}/pairs`);
     console.log(response);
@@ -2085,51 +1888,34 @@ class OpenApiService {
   };
 
   nftCatalog = async () => {
-    const { data } = await this.sendRequest(
-      'GET',
-      'api/nft/collections',
-      {},
-      {},
-      'https://lilico.app/'
-    );
-    return data;
-  };
-
-  cadenceScripts = async (network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/scripts?network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   cadenceScriptsV2 = async () => {
-    const { data } = await this.sendRequest('GET', '/api/v2/scripts', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.cadence_scripts_v2;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   nftCatalogList = async (address: string, limit: any, offset: any, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_list;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      limit,
+      offset,
+      network,
+    });
     return data;
   };
 
   nftCatalogCollections = async (address: string, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/id?address=${address}&network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_collections;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
@@ -2140,68 +1926,35 @@ class OpenApiService {
     offset: any,
     network: string
   ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}&network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
-    return data;
-  };
-
-  nftCollectionApiPaging = async (
-    address: string,
-    contractName: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/storage/${network}/nft?address=${address}&limit=${limit}&offset=${offset}&path=${contractName}`,
-      {},
-      {},
-      'https://lilico.app'
-    );
-    return data;
-  };
-
-  nftCollectionInfo = async (
-    address: string,
-    contractName: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/storage/${network}/nft/collection?address=${address}&path=${contractName}`,
-      {},
-      {},
-      'https://lilico.app'
-    );
+    const config = DATA_CONFIG.nft_catalog_collection_list;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      limit,
+      offset,
+      collectionIdentifier: contractName,
+      network,
+    });
     return data;
   };
 
   nftCollectionList = async () => {
-    const { data } = await this.sendRequest('GET', '/api/nft/collections', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.nft_collection_list;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   evmFTList = async () => {
-    const { data } = await this.sendRequest('GET', '/api/evm/fts', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.evm_ft_list;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   getEvmFT = async (address: string, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/${address}/fts?network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.get_evm_ft;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
@@ -2211,25 +1964,26 @@ class OpenApiService {
     if (gitPrice) {
       return gitPrice;
     } else {
-      const { data } = await this.sendRequest('GET', '/api/prices', {}, {}, WEB_NEXT_URL);
+      const config = DATA_CONFIG.get_prices;
+      const { data } = await fetchConfigRequest(config, {}, {});
+
       storage.setExpiry('EVMPrice', data, 6000);
       return data;
     }
   };
 
   evmNFTList = async () => {
-    const { data } = await this.sendRequest('GET', '/api/evm/nfts', {}, {}, WEB_NEXT_URL);
+    const config = DATA_CONFIG.evm_nft_list;
+    const { data } = await fetchConfigRequest(config, {}, {});
     return data;
   };
 
   getEvmNFT = async (address: string, network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/evm/${address}/nfts?network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.evm_nft_detail;
+    const { data } = await fetchConfigRequest(config, {
+      address,
+      network,
+    });
     return data;
   };
 
@@ -2238,7 +1992,8 @@ class OpenApiService {
       to: address, // address -- optional
       data: data, // calldata -- required
     };
-    const res = await this.sendRequest('POST', `/api/evm/decodeData`, {}, bodyData, WEB_NEXT_URL);
+    const config = DATA_CONFIG.evm_decode_data;
+    const res = await fetchConfigRequest(config, {}, bodyData);
     return res;
   };
 
@@ -2248,110 +2003,56 @@ class OpenApiService {
     limit = 24,
     offset = 0
   ) => {
+    const config = DATA_CONFIG.evm_nft_collection_list;
     const network = await userWalletService.getNetwork();
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const { data } = await fetchConfigRequest(config, {
+      network,
+      address,
+      collectionIdentifier,
+      limit,
+      offset,
+    });
     return data;
   };
 
   EvmNFTID = async (address: string) => {
     const network = await userWalletService.getNetwork();
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/nft/id?network=${network}&address=${address}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.evm_nft_id;
+    const { data } = await fetchConfigRequest(config, {
+      network,
+      address,
+    });
     return data;
   };
 
   EvmNFTList = async (address: string, limit = 24, offset = 0) => {
     const network = await userWalletService.getNetwork();
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/nft/list?network=${network}&address=${address}&limit=${limit}&offset=${offset}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.evm_nft_list_v3;
+    const { data } = await fetchConfigRequest(config, {
+      network,
+      address,
+      limit,
+      offset,
+    });
     return data;
   };
 
   getNFTCadenceList = async (address: string, network = 'mainnet', offset = 0, limit = 5) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/id?network=${network}&address=${address}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
-    return data;
-  };
-
-  getNFTCadenceCollection = async (
-    address: string,
-    network = 'mainnet',
-    identifier,
-    offset = 0,
-    limit = 24
-  ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_catalog_collections;
+    const { data } = await fetchConfigRequest(config, {
+      network,
+      address,
+    });
     return data;
   };
 
   getNFTV2CollectionList = async (address: string, network = 'mainnet') => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collections?network=${network}&address=${address}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
+    const config = DATA_CONFIG.nft_v2_collection_list;
+    const { data } = await fetchConfigRequest(config, {
+      network,
+      address,
+    });
     return data;
-  };
-
-  genTx = async (contract_name: string) => {
-    const network = await userWalletService.getNetwork();
-    const app = getApp(process.env.NODE_ENV!);
-    const user = await getAuth(app).currentUser;
-
-    // Wait for firebase auth to complete
-    await waitForAuthInit();
-
-    const init = {
-      headers: {
-        Network: network,
-      },
-    };
-
-    if (user !== null) {
-      const idToken = await user.getIdToken();
-      init.headers['Authorization'] = idToken;
-    } else {
-      // If no user, then sign in as anonymous first
-      await signInAnonymously(auth);
-      const anonymousUser = await getAuth(app).currentUser;
-      const idToken = await anonymousUser?.getIdToken();
-      init.headers['Authorization'] = idToken;
-    }
-    const response = await fetch(
-      `${WEB_NEXT_URL}/api/nft/gentx?collectionIdentifier=${contract_name}`,
-      init
-    );
-
-    return response.json();
   };
 
   putDeviceInfo = async (walletData) => {
@@ -2387,13 +2088,8 @@ class OpenApiService {
       return cachedNews;
     }
 
-    const data = await this.sendRequest(
-      'GET',
-      process.env.API_NEWS_PATH,
-      {},
-      {},
-      process.env.API_BASE_URL
-    );
+    const config = DATA_CONFIG.get_news;
+    const data = await fetchConfigRequest(config, {}, {});
 
     const timeNow = new Date(Date.now());
 
@@ -2501,13 +2197,8 @@ class OpenApiService {
     }
 
     try {
-      const result = await this.sendRequest(
-        'GET',
-        process.env.API_CONFIG_PATH,
-        {},
-        {},
-        process.env.API_BASE_URL
-      );
+      const config = DATA_CONFIG.get_config;
+      const result = await fetchConfigRequest(config, {}, {});
 
       const version = result.version;
 
@@ -2531,7 +2222,7 @@ if (process.env.NODE_ENV === 'development') {
         typeof value === 'function' &&
         name !== 'constructor' &&
         typeof name === 'string' &&
-        name !== 'get'
+        name !== 'GET'
     )
     .map(([name]) => {
       const func = openApiService[name];
