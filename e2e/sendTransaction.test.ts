@@ -1,19 +1,4 @@
-import {
-  test,
-  loginToExtension,
-  importSenderAccount,
-  importReceiverAccount,
-  loginToExtensionAccount,
-  loginToSenderAccount,
-  lockExtension,
-} from './utils/helper';
-
-test.beforeAll(async ({ page, extensionId }) => {
-  await importSenderAccount({ page, extensionId });
-  await lockExtension({ page });
-  await importReceiverAccount({ page, extensionId });
-  await lockExtension({ page });
-});
+import { test, loginToSenderAccount } from './utils/helper';
 
 test('send other-FT COA to COA', async ({ page, extensionId }) => {
   await loginToSenderAccount({ page, extensionId });
