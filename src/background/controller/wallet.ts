@@ -277,6 +277,7 @@ export class WalletController extends BaseController {
   lockWallet = async () => {
     await keyringService.setLocked();
     await passwordService.clear();
+    await userWalletService.signOutCurrentUser();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
   };

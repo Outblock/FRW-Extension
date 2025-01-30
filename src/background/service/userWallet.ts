@@ -629,6 +629,12 @@ class UserWallet {
     }
   };
 
+  signOutCurrentUser = async () => {
+    const app = getApp(process.env.NODE_ENV!);
+    const auth = getAuth(app);
+    await signInAnonymously(auth);
+  };
+
   getDeviceInfo = async (): Promise<DeviceInfoRequest> => {
     const result = await wallet.openapi.getLocation();
     const installationId = await wallet.openapi.getInstallationId();
