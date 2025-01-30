@@ -490,7 +490,20 @@ const Header = ({ loading = false }) => {
   const appBarLabel = (props) => {
     return (
       <Toolbar sx={{ height: '56px', width: '100%', display: 'flex', px: '0px' }}>
-        <Box sx={{ flex: '0 0 68px' }}>
+        <Box sx={{ flex: '0 0 68px', position: 'relative' }}>
+          {isPending && (
+            <CircularProgress
+              size={'28px'}
+              sx={{
+                position: 'absolute',
+                width: '28px',
+                height: '28px',
+                left: '-1px',
+                top: '-1px',
+                color: networkColor(currentNetwork),
+              }}
+            />
+          )}
           <IconButton
             edge="start"
             color="inherit"
@@ -570,19 +583,6 @@ const Header = ({ loading = false }) => {
           {userInfo && props ? (
             <Tooltip title={isPending ? chrome.i18n.getMessage('Pending__Transaction') : ''} arrow>
               <Box style={{ position: 'relative' }}>
-                {isPending && (
-                  <CircularProgress
-                    size={'28px'}
-                    sx={{
-                      position: 'absolute',
-                      width: '28px',
-                      height: '28px',
-                      left: '-1px',
-                      top: '-1px',
-                      color: networkColor(currentNetwork),
-                    }}
-                  />
-                )}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <IconButton
                     edge="end"
