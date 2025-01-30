@@ -90,7 +90,6 @@ export const loginToExtension = async ({ page, extensionId }) => {
 
   await copyIcon.click();
 
-  await page.pause();
   const flowAddr = await page.evaluate(getClipboardText);
 
   expect(flowAddr).toBe(addr);
