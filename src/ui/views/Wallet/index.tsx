@@ -552,23 +552,25 @@ const WalletTab = ({ network }) => {
         >
           <TabPanel value={value} index={0}>
             <Box sx={{ height: '100%', overflow: 'auto' }}>
-              <CoinList
-                data={coins}
-                ableFt={accessible}
-                isActive={isActive}
-                childType={childType}
-                coinLoading={coinLoading}
-              />
+              {value === 0 && (
+                <CoinList
+                  data={coins}
+                  ableFt={accessible}
+                  isActive={isActive}
+                  childType={childType}
+                  coinLoading={coinLoading}
+                />
+              )}
             </Box>
           </TabPanel>
           <TabPanel value={value} index={1}>
             <Box sx={{ height: '100%', overflow: 'auto' }}>
-              {childType === 'evm' ? <NftEvm /> : <NFTTab />}
+              {value === 1 && (childType === 'evm' ? <NftEvm /> : <NFTTab />)}
             </Box>
           </TabPanel>
           <TabPanel value={value} index={2}>
             <Box sx={{ height: '100%', overflow: 'auto' }}>
-              <TransferList setCount={setTxCount} />
+              {value === 2 && <TransferList setCount={setTxCount} />}
             </Box>
           </TabPanel>
         </SwipeableViews>
