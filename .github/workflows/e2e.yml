@@ -3,6 +3,9 @@ name: E2E environment
 on:
   push:
 
+env:
+  BLOCK: 101914675
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -12,7 +15,15 @@ jobs:
 
       - run: sh -ci "$(curl -fsSL https://raw.githubusercontent.com/onflow/flow-cli/master/install.sh)"
 
-      - run: /root/.local/bin/flow emulator -f flow-emulator.json --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000 --start-block-height 101908562 &
-      - run: sleep 4
-      - run: /root/.local/bin/flow blocks get 101908562 --host localhost:3569 --include transactions
+      - run: mv e2e-flow.json flow.json
+      - run: ls
+      - run: |
+          /root/.local/bin/flow emulator --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000 --start-block-height $BLOCK > emulator.log 2>&1 &
+
+          until grep -q "Started gRPC server on port" emulator.log; do
+            sleep 1
+          done
+
+          /root/.local/bin/flow status --network emulator
+          /root/.local/bin/flow blocks get $BLOCK --host 127.0.0.1:3569 --include transactions
 
