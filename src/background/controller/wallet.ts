@@ -1348,7 +1348,7 @@ export class WalletController extends BaseController {
 
     const tokenList = await openapiService.getTokenListFromGithub(network);
 
-    const address = await this.getEvmAddress();
+    const address = await this.getRawEvmAddressWithPrefix();
     if (!isValidEthereumAddress(address)) {
       return new Error('Invalid Ethereum address in coinlist');
     }
@@ -1717,12 +1717,16 @@ export class WalletController extends BaseController {
     await userWalletService.setEvmAddress(address, emoji);
   };
 
-  getEvmAddress = async () => {
+  getRawEvmAddressWithPrefix = async () => {
     const wallet = userWalletService.getEvmWallet();
-    const address = withPrefix(wallet.address) || '';
+    return withPrefix(wallet.address) || '';
+  };
+
+  getEvmAddress = async () => {
+    const address = await this.getRawEvmAddressWithPrefix();
 
     if (!isValidEthereumAddress(address)) {
-      throw new Error('Invalid Ethereum address');
+      throw new Error(`Invalid Ethereum address ${address}`);
     }
     return address;
   };
@@ -2011,7 +2015,7 @@ export class WalletController extends BaseController {
 
     mixpanelTrack.track('ft_transfer', {
       from_address: (await this.getCurrentAddress()) || '',
-      to_address: await this.getEvmAddress(),
+      to_address: await this.getRawEvmAddressWithPrefix(),
       amount: parseFloat(formattedAmount),
       ft_identifier: flowIdentifier,
       type: 'evm',
@@ -2042,7 +2046,7 @@ export class WalletController extends BaseController {
     ]);
 
     mixpanelTrack.track('ft_transfer', {
-      from_address: await this.getEvmAddress(),
+      from_address: await this.getRawEvmAddressWithPrefix(),
       to_address: (await this.getCurrentAddress()) || '',
       amount: parseFloat(integerAmountStr),
       ft_identifier: flowIdentifier,
@@ -2059,17 +2063,17 @@ export class WalletController extends BaseController {
 
     let evmAddress = '';
     try {
-      evmAddress = await this.getEvmAddress();
+      evmAddress = await this.getRawEvmAddressWithPrefix();
     } catch (error) {
-      await this.refreshEvmWallets();
+      evmAddress = '';
       console.error('Error getting EVM address:', error);
     }
-
-    if (evmAddress.length > 20) {
+    if (isValidEthereumAddress(evmAddress)) {
       return evmAddress;
-    } else {
-      await this.refreshEvmWallets();
     }
+    // Otherwise, refresh the EVM wallets and try again
+    await this.refreshEvmWallets();
+
     try {
       const script = await getScripts('evm', 'getCoaAddr');
       const result = await fcl.query({
@@ -2144,7 +2148,7 @@ export class WalletController extends BaseController {
     ]);
 
     mixpanelTrack.track('ft_transfer', {
-      from_address: await this.getEvmAddress(),
+      from_address: await this.getRawEvmAddressWithPrefix(),
       to_address: to,
       amount: Number(transactionValue),
       ft_identifier: 'FLOW',
@@ -3342,6 +3346,7 @@ export class WalletController extends BaseController {
   };
 
   refreshAll = async () => {
+    console.log('refreshAll');
     await this.refreshUserWallets();
     this.clearNFT();
     this.refreshAddressBook();
