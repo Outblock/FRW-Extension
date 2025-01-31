@@ -48,7 +48,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         browserName: 'chromium',
-        channel: 'chrome',
+        channel: 'chromium',
         headless: process.env.CI ? true : false,
       },
       testMatch: /.*global\.setup\.ts/,
@@ -60,7 +60,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Chrome extension testing configuration
         browserName: 'chromium',
-        channel: 'chrome',
+        channel: 'chromium',
         headless: process.env.CI ? true : false,
       },
       dependencies: ['setup'],
@@ -70,7 +70,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         browserName: 'chromium',
-        channel: 'chrome',
+        channel: 'chromium',
         headless: process.env.CI ? true : false,
       },
       testMatch: /.*global\.teardown\.ts/,
