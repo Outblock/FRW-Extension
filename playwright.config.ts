@@ -45,6 +45,12 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
+      use: {
+        ...devices['Desktop Chrome'],
+        browserName: 'chromium',
+        channel: 'chrome',
+        headless: process.env.CI ? true : false,
+      },
       testMatch: /.*global\.setup\.ts/,
       teardown: 'cleanup',
     },
@@ -54,12 +60,19 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Chrome extension testing configuration
         browserName: 'chromium',
+        channel: 'chrome',
         headless: process.env.CI ? true : false,
       },
       dependencies: ['setup'],
     },
     {
       name: 'cleanup',
+      use: {
+        ...devices['Desktop Chrome'],
+        browserName: 'chromium',
+        channel: 'chrome',
+        headless: process.env.CI ? true : false,
+      },
       testMatch: /.*global\.teardown\.ts/,
     },
 
