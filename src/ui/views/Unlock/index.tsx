@@ -94,7 +94,6 @@ const Unlock = () => {
   );
 
   const handleUnlock = useCallback(() => {
-    console.log('handleUnlock', password);
     run(password);
   }, [run, password]);
 

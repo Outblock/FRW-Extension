@@ -163,7 +163,7 @@ const WalletTab = ({ network }) => {
     const pollTimer = pollingFunction(setUserAddress, 5000, 300000, true);
 
     if (location.search.includes('activity')) {
-      setValue(1);
+      setValue(2);
     }
 
     return function cleanup() {

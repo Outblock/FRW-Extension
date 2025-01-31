@@ -72,7 +72,7 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
         },
         controlledBy: [
           {
-            name: 'switchUnlock',
+            name: 'unlock',
             params: { password: commonParams.password },
           },
         ],
