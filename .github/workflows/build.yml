@@ -111,6 +111,13 @@ jobs:
     needs: build
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    environment: >-
+      ${{
+        github.ref_type == 'tag' && 'production' ||
+        github.ref_name == 'master' && 'production' ||
+        github.ref_name == 'dev' && 'staging' ||
+        'development'
+      }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
