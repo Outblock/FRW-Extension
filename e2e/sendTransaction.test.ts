@@ -28,7 +28,6 @@ test('send other-FT COA to COA', async ({ page, extensionId }) => {
   // This can take a while
   test.setTimeout(300_000);
   await loginToSenderAccount({ page, extensionId });
-  // await page.goto('chrome-extension://cfiagdgiikmjgfjnlballglniejjgegi/index.html#/dashboard');
   await page.getByLabel('menu').click();
   // switch to COA account
   await page.getByRole('button', { name: 'EVM' }).nth(0).click();
@@ -36,30 +35,30 @@ test('send other-FT COA to COA', async ({ page, extensionId }) => {
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: /^FLOW \$/i,
-    receiver: process.env.TEST_RECEIVER_EVMADDR!,
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
   // Send stFLOW token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: 'Liquid Staked Flow $',
-    receiver: process.env.TEST_RECEIVER_EVMADDR!,
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
   // Send USDC token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: 'Bridged USDC (Celer) $',
-    receiver: process.env.TEST_RECEIVER_EVMADDR!,
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
   // Send BETA token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: 'BETA $',
-    receiver: process.env.TEST_RECEIVER_EVMADDR!,
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
   // Send TRUMP token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: 'OFFICIAL TRUMP $',
-    receiver: process.env.TEST_RECEIVER_EVMADDR!,
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
 });
