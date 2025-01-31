@@ -143,6 +143,9 @@ jobs:
         run: pnpm playwright install --with-deps
       - name: Run Playwright tests
         run: pnpm test:e2e
+        env:
+          CI: true
+          HEADLESS: true
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
