@@ -35,6 +35,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: process.env.CI ? 'on-first-retry' : 'off',
     screenshot: process.env.CI ? 'only-on-failure' : 'off',
+    headless: process.env.CI ? true : false,
   },
   // globalTimeout: 160 * 1000,
   //globalSetup: './e2e/utils/global.setup.ts',
@@ -44,6 +45,12 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
+      use: {
+        ...devices['Desktop Chrome'],
+        browserName: 'chromium',
+        channel: 'chromium',
+        headless: process.env.CI ? true : false,
+      },
       testMatch: /.*global\.setup\.ts/,
       teardown: 'cleanup',
     },
@@ -53,11 +60,19 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Chrome extension testing configuration
         browserName: 'chromium',
+        channel: 'chromium',
+        headless: process.env.CI ? true : false,
       },
       dependencies: ['setup'],
     },
     {
       name: 'cleanup',
+      use: {
+        ...devices['Desktop Chrome'],
+        browserName: 'chromium',
+        channel: 'chromium',
+        headless: process.env.CI ? true : false,
+      },
       testMatch: /.*global\.teardown\.ts/,
     },
 
