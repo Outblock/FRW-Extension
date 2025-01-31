@@ -1,4 +1,4 @@
-import { test, loginToSenderAccount, expect, getCurrentAddress } from './utils/helper';
+import { test, loginToSenderAccount, expect, getCurrentAddress, switchToEvm } from './utils/helper';
 export const sendTokenfromCOAtoCOA = async ({ page, tokenname, receiver }) => {
   // Wait for the EVM account to be loaded
   await getCurrentAddress(page);
@@ -24,37 +24,62 @@ export const sendTokenfromCOAtoCOA = async ({ page, tokenname, receiver }) => {
   });
 };
 
-test('send other-FT COA to COA', async ({ page, extensionId }) => {
-  // This can take a while
-  test.setTimeout(300_000);
+test.beforeEach(async ({ page, extensionId }) => {
+  // Login to our sender account
   await loginToSenderAccount({ page, extensionId });
-  await page.getByLabel('menu').click();
-  // switch to COA account
-  await page.getByRole('button', { name: 'EVM' }).nth(0).click();
+  // switch to EVM account
+  await switchToEvm({ page, extensionId });
+});
+
+test('send Flow COA to COA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+
   // Send FLOW token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: /^FLOW \$/i,
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
+});
+
+test('send Staked Flow COA to COA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+
   // Send stFLOW token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: 'Liquid Staked Flow $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
+});
+
+test('send USDC token from COA to COA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
   // Send USDC token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: 'Bridged USDC (Celer) $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
+});
+
+test('send BETA token from COA to COA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
   // Send BETA token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
     tokenname: 'BETA $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
+});
+
+test('send TRUMP token from COA to COA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
   // Send TRUMP token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
