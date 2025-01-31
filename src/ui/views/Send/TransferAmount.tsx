@@ -126,8 +126,8 @@ const TransferAmount = ({
       if (coinInfo.unit.toLowerCase() === 'flow') {
         setAmount(availableFlow);
       } else {
-        // const minimumValue = minAmount > 0.001 ? minAmount : 0.001;
-        const newAmount = coinInfo.balance - 0;
+        // Retain this as a string to avoid floating point precision issues
+        const newAmount = coinInfo.balance;
         setAmount(newAmount);
       }
     }
