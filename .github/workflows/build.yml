@@ -68,6 +68,11 @@ jobs:
           OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"
           WC_PROJECTID="${{ secrets.WC_PROJECTID }}"
           MIXPANEL_TOKEN="${{ secrets.MIXPANEL_TOKEN }}"
+          EOF
+      - name: Create .env.test file
+        run: |
+          cat << EOF > .env.test
+          # Test secrets
           TEST_PASSWORD="${{ secrets.TEST_PASSWORD }}"
           TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
           TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
@@ -79,7 +84,7 @@ jobs:
           TEST_RECEIVER_EVM_ADDR="${{ secrets.TEST_RECEIVER_EVM_ADDR }}"
           EOF
 
-      - name: Run tests
+      - name: Run Unit tests
         run: pnpm test
 
       - name: Build
@@ -111,17 +116,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - name: Install dependencies
-        run: pnpm install
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: extension-build
           path: dist/
+      - name: Create .env.test file
+        run: |
+          cat << EOF > .env.test
+          # Test secrets
+          TEST_PASSWORD="${{ secrets.TEST_PASSWORD }}"
+          TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
+          TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
+          TEST_SEED_PHRASE_RECEIVER="${{ secrets.TEST_SEED_PHRASE_RECEIVER }}"
+          TEST_SEED_PHRASE_SENDER="${{ secrets.TEST_SEED_PHRASE_SENDER }}"
+          TEST_SENDER_ADDR="${{ secrets.TEST_SENDER_ADDR }}"
+          TEST_RECEIVER_ADDR="${{ secrets.TEST_RECEIVER_ADDR }}"
+          TEST_SENDER_EVM_ADDR="${{ secrets.TEST_SENDER_EVM_ADDR }}"
+          TEST_RECEIVER_EVM_ADDR="${{ secrets.TEST_RECEIVER_EVM_ADDR }}"
+          EOF
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: pnpm install
       - name: Install Playwright Browsers
         run: pnpm playwright install --with-deps
       - name: Run Playwright tests
-        run: pnpm playwright test
+        run: pnpm test:e2e
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
