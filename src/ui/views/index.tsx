@@ -42,9 +42,11 @@ const Routes = () => {
         <Approval />
       </PrivateRoute>
       {/* uncomment this when we need to test api-test */}
-      <PrivateRoute path="/api-test">
-        <ApiTestPage />
-      </PrivateRoute>
+      {process.env.NODE_ENV === 'development' && (
+        <PrivateRoute path="/api-test">
+          <ApiTestPage />
+        </PrivateRoute>
+      )}
     </>
   );
 };
