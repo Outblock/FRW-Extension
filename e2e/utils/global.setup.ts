@@ -1,10 +1,6 @@
 import {
-  getClipboardText,
-  saveAuth,
-  expect,
   test as setup,
   loginAsTestUser,
-  closeOpenedPages,
   registerTestUser,
   importReceiverAccount,
   importSenderAccount,
@@ -38,6 +34,7 @@ setup('setup new wallet or login if already registered', async ({ page, extensio
 
 setup('Import sender and receiver accounts', async ({ page, extensionId }) => {
   // Lock the extension and import sender and receiver accounts
+
   await importSenderAccount({ page, extensionId });
   await lockExtension({ page });
   await importReceiverAccount({ page, extensionId });

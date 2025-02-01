@@ -292,8 +292,9 @@ class UserWallet {
 
   getMainWallet = async (network: string) => {
     const walletIndex = (await storage.get('currentWalletIndex')) || 0;
-    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
-    return withPrefix(wallet.address) || '';
+    // Check if the wallet exists before accessing it
+    const wallet = this.store.wallets?.[network]?.[walletIndex]?.blockchain?.[0];
+    return withPrefix(wallet?.address) || '';
   };
 
   returnMainWallet = async (network: string) => {

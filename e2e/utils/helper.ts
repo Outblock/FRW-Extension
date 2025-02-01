@@ -82,6 +82,7 @@ export const loginToExtensionAccount = async ({ page, extensionId, addr, passwor
   await page.goto(`chrome-extension://${extensionId}/index.html#/unlock`);
 
   await page.waitForSelector('.logoContainer', { state: 'visible' });
+  await closeOpenedPages(page);
 
   await page.getByPlaceholder('Enter your password').clear();
   await page.getByPlaceholder('Enter your password').fill(password);
@@ -91,9 +92,7 @@ export const loginToExtensionAccount = async ({ page, extensionId, addr, passwor
   await expect(unlockBtn).toBeEnabled({ enabled: true, timeout: 60_000 });
 
   // close all pages except the current page (the extension opens them in the background)
-  await closeOpenedPages(page);
   await unlockBtn.click();
-
   // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
   // get address
@@ -107,6 +106,7 @@ export const loginToExtensionAccount = async ({ page, extensionId, addr, passwor
     // Switch to the correct account. Note doest not handle more than 3 accounts loaded
     await page.getByRole('button', { name: 'avatar' }).getByText(addr).click();
 
+    await page.getByPlaceholder('Enter your password').clear();
     await page.getByPlaceholder('Enter your password').fill(password);
     await page.getByRole('button', { name: 'Unlock Wallet' }).click();
 
@@ -191,7 +191,9 @@ export const registerAccount = async ({ page, extensionId, username, password })
     .click();
 
   // fill
+  await page.getByPlaceholder('Create a password').clear();
   await page.getByPlaceholder('Create a password').fill(password);
+  await page.getByPlaceholder('Confirm your password').clear();
   await page.getByPlaceholder('Confirm your password').fill(password);
 
   await page.getByLabel("I agree to Flow Wallet's").click();
@@ -204,6 +206,7 @@ export const registerAccount = async ({ page, extensionId, username, password })
 
   // await unlockBtn.isEnabled();
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
+
   // get address
   const copyIcon = await page.getByLabel('Copy Address');
   await expect(copyIcon).toBeEnabled({ timeout: 600_000 }); // 10 minutes...
@@ -242,7 +245,13 @@ export const registerTestUser = async ({ page, extensionId }) => {
   });
 };
 
-export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase, username }) => {
+export const importAccountBySeedPhrase = async ({
+  page,
+  extensionId,
+  seedPhrase,
+  username,
+  accountAddr = '',
+}) => {
   // Don't login before this. The account should be locked
 
   const password = process.env.TEST_PASSWORD;
@@ -283,7 +292,9 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase,
     await page.getByRole('button', { name: 'Next' }).click();
 
     // fill in the password
+    await page.getByPlaceholder('Create a password').clear();
     await page.getByPlaceholder('Create a password').fill(password);
+    await page.getByPlaceholder('Confirm your password').clear();
     await page.getByPlaceholder('Confirm your password').fill(password);
     await page.getByRole('button', { name: 'Login' }).click();
   }
@@ -294,7 +305,15 @@ export const importAccountBySeedPhrase = async ({ page, extensionId, seedPhrase,
   await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
 
   // get address
+  if (accountAddr) {
+    await expect(page.getByLabel('Copy Address')).toContainText(accountAddr);
+  }
+
   const flowAddr = await getCurrentAddress(page);
+
+  if (accountAddr && flowAddr !== accountAddr) {
+    throw new Error('Account address does not match');
+  }
 
   return flowAddr;
 };
@@ -305,6 +324,7 @@ export const importSenderAccount = async ({ page, extensionId }) => {
     extensionId,
     seedPhrase: process.env.TEST_SEED_PHRASE_SENDER,
     username: 'sender',
+    accountAddr: process.env.TEST_SENDER_ADDR,
   });
 };
 
@@ -348,6 +368,7 @@ export const importReceiverAccount = async ({ page, extensionId }) => {
     extensionId,
     seedPhrase: process.env.TEST_SEED_PHRASE_RECEIVER,
     username: 'receiver',
+    accountAddr: process.env.TEST_RECEIVER_ADDR,
   });
 };
 
