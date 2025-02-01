@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { vi } from 'vitest';
 
-dotenv.config({ path: ['.env.development.local', '.env.local', '.env'] });
+dotenv.config({ path: ['.env.dev', '.env.pro', '.env.test'] });
 
 // Set up environment variables
 vi.stubEnv('NODE_ENV', 'test');
