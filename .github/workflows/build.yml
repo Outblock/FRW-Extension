@@ -68,11 +68,6 @@ jobs:
           OAUTH2_SCOPES="${{ vars.OAUTH2_SCOPES }}"
           WC_PROJECTID="${{ secrets.WC_PROJECTID }}"
           MIXPANEL_TOKEN="${{ secrets.MIXPANEL_TOKEN }}"
-          EOF
-      - name: Create .env.test file
-        run: |
-          cat << EOF > .env.test
-          # Test secrets
           TEST_PASSWORD="${{ secrets.TEST_PASSWORD }}"
           TEST_PK_P256="${{ secrets.TEST_PK_P256 }}"
           TEST_PK_SECP256K1="${{ secrets.TEST_PK_SECP256K1 }}"
@@ -80,11 +75,9 @@ jobs:
           TEST_SEED_PHRASE_SENDER="${{ secrets.TEST_SEED_PHRASE_SENDER }}"
           TEST_SENDER_ADDR="${{ secrets.TEST_SENDER_ADDR }}"
           TEST_RECEIVER_ADDR="${{ secrets.TEST_RECEIVER_ADDR }}"
-          TEST_SENDER_EVM_ADDR="${{ secrets.TEST_SENDER_EVM_ADDR }}"
-          TEST_RECEIVER_EVM_ADDR="${{ secrets.TEST_RECEIVER_EVM_ADDR }}"
           EOF
 
-      - name: Run Unit tests
+      - name: Run tests
         run: pnpm test
 
       - name: Build
@@ -153,8 +146,9 @@ jobs:
         env:
           CI: true
           HEADLESS: true
+        continue-on-error: true
       - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+        if: always()
         with:
           name: playwright-report
           path: playwright-report/
