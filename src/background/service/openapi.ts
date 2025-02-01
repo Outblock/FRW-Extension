@@ -2430,72 +2430,54 @@ class OpenApiService {
     return news;
   };
 
-  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
-    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+  saveWalletInfo = async (currentWallet, keys, pubKTuple, wallet) => {
+    await storage.set('keyIndex', '');
+    await storage.set('hashAlgo', '');
+    await storage.set('signAlgo', '');
+    await storage.set('pubKey', '');
 
-    if (!isChild) {
-      await storage.set('keyIndex', '');
-      await storage.set('hashAlgo', '');
-      await storage.set('signAlgo', '');
-      await storage.set('pubKey', '');
-
-      const { P256, SECP256K1 } = pubKTuple;
-
-      const keyInfoA = findKeyAndInfo(keys, P256.pubK);
-      const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
-      const keyInfo = keyInfoA ||
-        keyInfoB || {
-          index: 0,
-          signAlgo: keys.keys[0].signAlgo,
-          hashAlgo: keys.keys[0].hashAlgo,
-          publicKey: keys.keys[0].publicKey,
-        };
-      await storage.set('keyIndex', keyInfo.index);
-      await storage.set('signAlgo', keyInfo.signAlgo);
-      await storage.set('hashAlgo', keyInfo.hashAlgo);
-      await storage.set('pubKey', keyInfo.publicKey);
-
-      const updatedWallet = {
-        ...wallet,
-        address: currentWallet.address,
-        pubKey: keyInfo.publicKey,
-        hashAlgo: keyInfo.hashAlgo,
-        signAlgo: keyInfo.signAlgo,
-        weight: keys.keys[0].weight,
+    const { P256, SECP256K1 } = pubKTuple;
+    const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+    const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+    const keyInfo = keyInfoA ||
+      keyInfoB || {
+        index: 0,
+        signAlgo: keys.keys[0].signAlgo,
+        hashAlgo: keys.keys[0].hashAlgo,
+        publicKey: keys.keys[0].publicKey,
       };
 
-      log.log('wallet is this:', updatedWallet);
+    await storage.set('keyIndex', keyInfo.index);
+    await storage.set('signAlgo', keyInfo.signAlgo);
+    await storage.set('hashAlgo', keyInfo.hashAlgo);
+    await storage.set('pubKey', keyInfo.publicKey);
 
-      const accountIndex = loggedInAccounts.findIndex(
-        // Check both pubKey and username. Older versions allowed the pubKey to be imported twice with different usernames
-        (account) =>
-          account.pubKey === updatedWallet.pubKey && account.username === updatedWallet.username
-      );
+    const updatedWallet = {
+      ...wallet,
+      address: currentWallet.address,
+      pubKey: keyInfo.publicKey,
+      hashAlgo: keyInfo.hashAlgo,
+      signAlgo: keyInfo.signAlgo,
+      weight: keys.keys[0].weight,
+    };
 
-      if (accountIndex === -1) {
-        loggedInAccounts.push(updatedWallet);
-      } else {
-        loggedInAccounts[accountIndex] = updatedWallet;
-      }
-      await storage.set('loggedInAccounts', loggedInAccounts);
+    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+    const accountIndex = loggedInAccounts.findIndex(
+      (account) =>
+        account.pubKey === updatedWallet.pubKey && account.username === updatedWallet.username
+    );
+
+    if (accountIndex === -1) {
+      loggedInAccounts.push(updatedWallet);
+    } else {
+      loggedInAccounts[accountIndex] = updatedWallet;
     }
+    await storage.set('loggedInAccounts', loggedInAccounts);
 
-    log.log('Updated loggedInAccounts:', loggedInAccounts);
-    const otherAccounts = loggedInAccounts
-      .filter((account) => account.username !== wallet.username)
-      .map((account) => {
-        const indexInLoggedInAccounts = loggedInAccounts.findIndex(
-          (loggedInAccount) => loggedInAccount.username === account.username
-        );
-        return { ...account, indexInLoggedInAccounts };
-      })
-      .slice(0, 2);
-
-    log.log('otherAccounts with index:', otherAccounts);
-    // await setOtherAccounts(otherAccounts);
-    // await setUserInfo(wallet);
-    // await setLoggedIn(loggedInAccounts);
-    return { otherAccounts, wallet, loggedInAccounts };
+    return {
+      updatedWallet,
+      loggedInAccounts,
+    };
   };
 
   getLatestVersion = async (): Promise<string> => {

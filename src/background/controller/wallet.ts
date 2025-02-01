@@ -4170,6 +4170,32 @@ export class WalletController extends BaseController {
       await storage.set('currentId', userId);
     }
   };
+
+  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
+    if (!isChild) {
+      const { updatedWallet, loggedInAccounts } = await openapiService.saveWalletInfo(
+        currentWallet,
+        keys,
+        pubKTuple,
+        wallet
+      );
+
+      return {
+        wallet: updatedWallet,
+        loggedInAccounts,
+        otherAccounts: loggedInAccounts.filter(
+          (account) => account.pubKey !== updatedWallet.pubKey
+        ),
+      };
+    }
+
+    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+    return {
+      wallet,
+      loggedInAccounts,
+      otherAccounts: loggedInAccounts.filter((account) => account.pubKey !== wallet.pubKey),
+    };
+  };
 }
 
 export default new WalletController();

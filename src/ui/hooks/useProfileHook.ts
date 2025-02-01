@@ -124,7 +124,7 @@ export const useProfileHook = () => {
         throw error;
       }
 
-      const { otherAccounts, wallet, loggedInAccounts } = await usewallet.openapi.freshUserInfo(
+      const { otherAccounts, wallet, loggedInAccounts } = await usewallet.freshUserInfo(
         currentWallet,
         keys,
         pubKTuple,
