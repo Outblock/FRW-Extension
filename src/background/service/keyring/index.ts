@@ -704,9 +704,10 @@ class KeyringService extends EventEmitter {
 
         const oldVault = this.store.getState().vault;
         const deepVault = (await storage.get('deepVault')) || []; // Retrieve deepVault from storage
-
-        const vaultArray = Array.isArray(oldVault) ? oldVault : [oldVault];
-        const deepVaultArray = Array.isArray(deepVault) ? deepVault : [deepVault]; // Ensure deepVault is treated as array
+        // Check if oldVault is defined and not an array, if so convert it to an array
+        // If undefined, set it to an empty array
+        const vaultArray = Array.isArray(oldVault) ? oldVault : oldVault ? [oldVault] : [];
+        const deepVaultArray = Array.isArray(deepVault) ? deepVault : deepVault ? [deepVault] : []; // Ensure deepVault is treated as array
 
         // Handle the case when currentId is available
         if (currentId !== null && currentId !== undefined) {

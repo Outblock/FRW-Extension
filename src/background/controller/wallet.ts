@@ -280,6 +280,8 @@ export class WalletController extends BaseController {
     await userWalletService.signOutCurrentUser();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
+    // Switch to mainnet
+    await this.switchNetwork('mainnet');
   };
 
   // lockadd here
