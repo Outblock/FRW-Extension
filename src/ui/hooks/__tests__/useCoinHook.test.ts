@@ -16,7 +16,7 @@ vi.mock('react', async () => {
 });
 
 // Mock the stores
-vi.mock('@/ui/stores/useCoinStore', () => {
+vi.mock('@/ui/stores/coinStore', () => {
   const mockSetBalance = vi.fn();
   const mockSetCoinData = vi.fn();
   const mockSetTotalFlow = vi.fn();
@@ -44,7 +44,7 @@ vi.mock('@/ui/stores/useCoinStore', () => {
   };
 });
 
-vi.mock('@/ui/stores/useProfileStore', () => ({
+vi.mock('@/ui/stores/profileStore', () => ({
   useProfileStore: vi.fn().mockReturnValue({
     mainAddress: 'test-address',
   }),

@@ -15,7 +15,7 @@ vi.mock('react', async () => {
   };
 });
 
-vi.mock('@/ui/stores/useNetworkStore', () => ({
+vi.mock('@/ui/stores/networkStore', () => ({
   useNetworkStore: vi.fn().mockReturnValue({
     currentNetwork: 'mainnet',
   }),
@@ -27,7 +27,7 @@ const mocks = {
   setEvmWallet: vi.fn(),
 };
 
-vi.mock('@/ui/stores/useProfileStore', () => ({
+vi.mock('@/ui/stores/profileStore', () => ({
   useProfileStore: vi.fn().mockReturnValue({
     setMainAddress: vi.fn(),
     setEvmAddress: vi.fn(),
