@@ -18,7 +18,12 @@ import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
-import { type LoggedInAccountWithIndex, type LoggedInAccount } from '@/shared/types/wallet-types';
+import {
+  type LoggedInAccountWithIndex,
+  type LoggedInAccount,
+  type FlowAddress,
+  type ActiveChildType,
+} from '@/shared/types/wallet-types';
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
@@ -41,6 +46,7 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
+  type BlockchainResponse,
 } from '../../shared/types/network-types';
 
 import {
@@ -2431,7 +2437,13 @@ class OpenApiService {
     return news;
   };
 
-  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
+  freshUserInfo = async (
+    currentWallet: BlockchainResponse,
+    keys: AccountKey[],
+    pubKTuple,
+    wallet,
+    isChild: ActiveChildType
+  ) => {
     const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
 
     if (!isChild) {
@@ -2455,10 +2467,15 @@ class OpenApiService {
       await storage.set('signAlgo', keyInfo.signAlgo);
       await storage.set('hashAlgo', keyInfo.hashAlgo);
       await storage.set('pubKey', keyInfo.publicKey);
+      // Make sure the address is a FlowAddress
 
+      if (!isValidFlowAddress(currentWallet.address)) {
+        throw new Error('Invalid Flow address');
+      }
+      const flowAddress: FlowAddress = currentWallet.address as FlowAddress;
       const updatedWallet: LoggedInAccount = {
         ...wallet,
-        address: currentWallet.address,
+        address: flowAddress,
         pubKey: keyInfo.publicKey,
         hashAlgo: keyInfo.hashAlgo,
         signAlgo: keyInfo.signAlgo,

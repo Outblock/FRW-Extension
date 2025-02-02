@@ -25,9 +25,10 @@ import {
 import eventBus from '@/eventBus';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
-import { type LoggedInAccount } from '@/shared/types/wallet-types';
-import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
+import { type ActiveChildType, type LoggedInAccount } from '@/shared/types/wallet-types';
+import { ensureEvmAddressPrefix, isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+import { retryOperation } from '@/shared/utils/retryOperation';
 import {
   keyringService,
   preferenceService,
@@ -53,14 +54,19 @@ import {
 import i18n from 'background/service/i18n';
 import { type DisplayedKeryring, KEYRING_CLASS } from 'background/service/keyring';
 import type { CacheState } from 'background/service/pageStateCache';
-import { getScripts } from 'background/utils';
+import { findKeyAndInfo, getScripts } from 'background/utils';
 import emoji from 'background/utils/emoji.json';
 import fetchConfig from 'background/utils/remoteConfig';
 import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
-import type { NFTData, NFTModel, WalletResponse } from '../../shared/types/network-types';
+import type {
+  BlockchainResponse,
+  NFTData,
+  NFTModel,
+  WalletResponse,
+} from '../../shared/types/network-types';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
@@ -449,11 +455,35 @@ export class WalletController extends BaseController {
         const seed = await seed2PubKey(mnemonic);
         const PK1 = seed.P256.pk;
         const PK2 = seed.SECP256K1.pk;
+        try {
+          // Try using logged in accounts first
+          const account = await getStoragedAccount();
+          const signAlgo =
+            typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+          privateKey = signAlgo === 1 ? PK1 : PK2;
+        } catch {
+          // Couldn't load from logged in accounts, so we need to load from fcl
 
-        const account = await getStoragedAccount();
-        const signAlgo =
-          typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
-        privateKey = signAlgo === 1 ? PK1 : PK2;
+          const keys = await this.getAccount();
+          const pubKTuple = await this.getPubKey();
+          // Figure out the signAlgo for the account
+          const { P256, SECP256K1 } = pubKTuple;
+
+          const keyInfoA = findKeyAndInfo(keys, P256.pubK);
+          const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+          const keyInfo = keyInfoA ||
+            keyInfoB || {
+              index: 0,
+              signAlgo: keys.keys[0].signAlgo,
+              hashAlgo: keys.keys[0].hashAlgo,
+              publicKey: keys.keys[0].publicKey,
+            };
+          const signAlgo =
+            typeof keyInfo.signAlgo === 'string' ? getSignAlgo(keyInfo.signAlgo) : keyInfo.signAlgo;
+
+          privateKey = signAlgo === 1 ? PK1 : PK2;
+        }
+
         break;
       } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
         privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
@@ -1695,7 +1725,7 @@ export class WalletController extends BaseController {
     return wallet.address !== '';
   };
 
-  getCurrentWallet = async () => {
+  getCurrentWallet = async (): Promise<BlockchainResponse | undefined> => {
     const wallet = await userWalletService.getCurrentWallet();
     if (!wallet.address) {
       const network = await this.getNetwork();

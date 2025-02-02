@@ -1,5 +1,6 @@
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
+import { Block } from 'ethers';
 import { getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth/web-extension';
 
@@ -256,7 +257,7 @@ class UserWallet {
     this.store.currentWallet = chain;
   };
 
-  getCurrentWallet = () => {
+  getCurrentWallet = (): BlockchainResponse => {
     return this.store.currentWallet;
   };
 
@@ -297,9 +298,9 @@ class UserWallet {
     return withPrefix(wallet?.address) || '';
   };
 
-  returnMainWallet = async (network: string) => {
+  returnMainWallet = async (network: string): Promise<BlockchainResponse | undefined> => {
     const walletIndex = (await storage.get('currentWalletIndex')) || 0;
-    const wallet = this.store.wallets[network][walletIndex].blockchain[0];
+    const wallet = this.store.wallets?.[network]?.[walletIndex]?.blockchain?.[0];
     return wallet;
   };
 
