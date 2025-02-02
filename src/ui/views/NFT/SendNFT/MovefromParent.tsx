@@ -8,7 +8,7 @@ import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/a
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { MatchMediaType } from '@/ui/utils/url';
 import { LLSpinner, FRWProfileCard, FRWDropdownProfileCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';

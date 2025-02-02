@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams, useLocation } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
 

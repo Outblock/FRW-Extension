@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useNetworkStore } from '@/ui/stores/useNetworkStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
 
 import { useNetworkHook } from '../useNetworkHook';
 

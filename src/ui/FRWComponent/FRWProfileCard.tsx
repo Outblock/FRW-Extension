@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet, formatAddress } from 'ui/utils';
 
 const tempEmoji = {

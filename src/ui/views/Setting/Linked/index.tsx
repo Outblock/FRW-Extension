@@ -11,7 +11,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { LLHeader } from '@/ui/FRWComponent';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import EmptyStateImage from 'ui/FRWAssets/image/search_user.png';
 
 import IconEnd from '../../../../components/iconfont/IconAVector11Stroke';

@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { ensureEvmAddressPrefix } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import accountMove from 'ui/FRWAssets/svg/accountMove.svg';
 import { FWMoveDropdown } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';

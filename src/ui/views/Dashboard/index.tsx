@@ -5,7 +5,7 @@ import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
 import React, { useEffect, useState } from 'react';
 
 import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
-import { useNetworkStore } from '@/ui/stores/useNetworkStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 import { useWallet } from 'ui/utils';
 

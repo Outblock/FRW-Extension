@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
 
 import { useCoinHook } from '../useCoinHook';
 // Mock React

@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { type CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';

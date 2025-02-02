@@ -12,7 +12,7 @@ import type { PriceProvider } from '@/shared/types/network-types';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import StorageUsageCard from '@/ui/FRWComponent/StorageUsageCard';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import tips from 'ui/FRWAssets/svg/tips.svg';
 import { useWallet } from 'ui/utils';
 

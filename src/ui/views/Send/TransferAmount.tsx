@@ -19,7 +19,7 @@ import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
