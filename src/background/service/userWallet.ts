@@ -4,7 +4,7 @@ import { getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth/web-extension';
 
 import { signWithKey, seed2PubKey } from '@/background/utils/modules/publicPrivateKey';
-import { type ActiveChildType } from '@/shared/types/wallet-types';
+import { type LoggedInAccount, type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
 import wallet from 'background/controller/wallet';
@@ -360,11 +360,7 @@ class UserWallet {
     const keys1 = pubKey.P256;
     const kesy2 = pubKey.SECP256K1;
 
-    const account = await getStoragedAccount();
-    // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
-    //   throw new Error("Invalid account index.");
-    // }
-    // const account = loggedInAccounts[accountIndex];
+    const account: LoggedInAccount = await getStoragedAccount();
     const ktype =
       typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
     const keys = ktype === 1 ? keys1 : kesy2;

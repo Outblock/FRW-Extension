@@ -25,6 +25,7 @@ import {
 import eventBus from '@/eventBus';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
+import { type LoggedInAccount } from '@/shared/types/wallet-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
 import {
@@ -450,10 +451,6 @@ export class WalletController extends BaseController {
         const PK2 = seed.SECP256K1.pk;
 
         const account = await getStoragedAccount();
-        // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
-        //   throw new Error("Invalid account index.");
-        // }
-        // const account = loggedInAccounts[accountIndex];
         const signAlgo =
           typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
         privateKey = signAlgo === 1 ? PK1 : PK2;
@@ -4149,7 +4146,7 @@ export class WalletController extends BaseController {
   };
 
   saveIndex = async (username = '', userId = null) => {
-    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
     let currentindex = 0;
 
     if (!loggedInAccounts || loggedInAccounts.length === 0) {
@@ -4167,6 +4164,8 @@ export class WalletController extends BaseController {
     await storage.set(`user${userId}_phrase`, passphrase);
     await storage.remove(`temp_path`);
     await storage.remove(`temp_phrase`);
+    // Note that currentAccountIndex is only used in keyring for old accounts that don't have an id stored in the keyring
+    // currentId always takes precedence
     await storage.set('currentAccountIndex', currentindex);
     if (userId) {
       await storage.set('currentId', userId);

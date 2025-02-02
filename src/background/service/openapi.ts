@@ -18,6 +18,7 @@ import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
+import { type LoggedInAccountWithIndex, type LoggedInAccount } from '@/shared/types/wallet-types';
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
@@ -2431,7 +2432,7 @@ class OpenApiService {
   };
 
   freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
-    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
 
     if (!isChild) {
       await storage.set('keyIndex', '');
@@ -2455,7 +2456,7 @@ class OpenApiService {
       await storage.set('hashAlgo', keyInfo.hashAlgo);
       await storage.set('pubKey', keyInfo.publicKey);
 
-      const updatedWallet = {
+      const updatedWallet: LoggedInAccount = {
         ...wallet,
         address: currentWallet.address,
         pubKey: keyInfo.publicKey,
@@ -2481,7 +2482,7 @@ class OpenApiService {
     }
 
     log.log('Updated loggedInAccounts:', loggedInAccounts);
-    const otherAccounts = loggedInAccounts
+    const otherAccounts: LoggedInAccountWithIndex[] = loggedInAccounts
       .filter((account) => account.username !== wallet.username)
       .map((account) => {
         const indexInLoggedInAccounts = loggedInAccounts.findIndex(
@@ -2492,9 +2493,6 @@ class OpenApiService {
       .slice(0, 2);
 
     log.log('otherAccounts with index:', otherAccounts);
-    // await setOtherAccounts(otherAccounts);
-    // await setUserInfo(wallet);
-    // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
   };
 
