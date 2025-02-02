@@ -23,7 +23,7 @@ const Keydetail = () => {
   const verify = useCallback(async () => {
     try {
       const pwd = location.state.password;
-      const result = await usewallet.getKey(pwd);
+      const result = await usewallet.getPrivateKeyForCurrentAccount(pwd);
       setKey(result);
 
       const pubKey = await storage.get('pubKey');

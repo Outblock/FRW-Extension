@@ -1,4 +1,5 @@
 import * as fcl from '@onflow/fcl';
+import type { Account as FclAccount } from '@onflow/typedefs';
 import type { Method } from 'axios';
 import dayjs from 'dayjs';
 import { initializeApp, getApp } from 'firebase/app';
@@ -2439,7 +2440,7 @@ class OpenApiService {
 
   freshUserInfo = async (
     currentWallet: BlockchainResponse,
-    keys: AccountKey[],
+    keys: FclAccount,
     pubKTuple,
     wallet,
     isChild: ActiveChildType

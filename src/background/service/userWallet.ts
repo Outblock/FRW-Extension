@@ -347,7 +347,7 @@ class UserWallet {
     const hashAlgo = await storage.get('hashAlgo');
     const signAlgo = await storage.get('signAlgo');
     const password = keyringService.password;
-    const privateKey = await wallet.getKey(password);
+    const privateKey = await wallet.getPrivateKeyForCurrentAccount(password);
     const realSignature = await signWithKey(
       Buffer.from(signableMessage, 'hex'),
       signAlgo,
@@ -419,7 +419,7 @@ class UserWallet {
 
   reSign = async () => {
     const password = keyringService.password;
-    const privateKey = await wallet.getKey(password);
+    const privateKey = await wallet.getPrivateKeyForCurrentAccount(password);
     return await this.sigInWithPk(privateKey);
   };
 

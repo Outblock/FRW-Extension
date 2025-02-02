@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fcl from '@onflow/fcl';
+import type { Account as FclAccount } from '@onflow/typedefs';
 import * as t from '@onflow/types';
 import BN from 'bignumber.js';
 import * as bip39 from 'bip39';
@@ -71,7 +72,7 @@ import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import type { ConnectedSite } from '../service/permission';
-import type { Account } from '../service/preference';
+import type { PreferenceAccount } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
@@ -445,7 +446,7 @@ export class WalletController extends BaseController {
     return false;
   };
 
-  getKey = async (password) => {
+  getPrivateKeyForCurrentAccount = async (password) => {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');
 
@@ -464,19 +465,19 @@ export class WalletController extends BaseController {
         } catch {
           // Couldn't load from logged in accounts, so we need to load from fcl
 
-          const keys = await this.getAccount();
+          const fclAccount: FclAccount = await this.getAccount();
           const pubKTuple = await this.getPubKey();
           // Figure out the signAlgo for the account
           const { P256, SECP256K1 } = pubKTuple;
 
-          const keyInfoA = findKeyAndInfo(keys, P256.pubK);
-          const keyInfoB = findKeyAndInfo(keys, SECP256K1.pubK);
+          const keyInfoA = findKeyAndInfo(fclAccount, P256.pubK);
+          const keyInfoB = findKeyAndInfo(fclAccount, SECP256K1.pubK);
           const keyInfo = keyInfoA ||
             keyInfoB || {
               index: 0,
-              signAlgo: keys.keys[0].signAlgo,
-              hashAlgo: keys.keys[0].hashAlgo,
-              publicKey: keys.keys[0].publicKey,
+              signAlgo: fclAccount.keys[0].signAlgo,
+              hashAlgo: fclAccount.keys[0].hashAlgo,
+              publicKey: fclAccount.keys[0].publicKey,
             };
           const signAlgo =
             typeof keyInfo.signAlgo === 'string' ? getSignAlgo(keyInfo.signAlgo) : keyInfo.signAlgo;
@@ -675,7 +676,7 @@ export class WalletController extends BaseController {
     }));
   };
 
-  getAllVisibleAccountsArray: () => Promise<Account[]> = () => {
+  getAllVisibleAccountsArray: () => Promise<PreferenceAccount[]> = () => {
     return keyringService.getAllVisibleAccountsArray();
   };
 
@@ -688,7 +689,7 @@ export class WalletController extends BaseController {
     }));
   };
 
-  changeAccount = (account: Account) => {
+  changeAccount = (account: PreferenceAccount) => {
     preferenceService.setCurrentAccount(account);
   };
 
@@ -4054,29 +4055,14 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  createFlowSandboxAddress = async (network) => {
-    const account = await getStoragedAccount();
-    const { hashAlgo, signAlgo, pubKey, weight } = account;
-
-    const accountKey = {
-      public_key: pubKey,
-      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
-      weight: weight,
-    };
-
-    const result = await openapiService.createFlowNetworkAddress(accountKey, network);
-    return result;
-  };
-
   checkCrescendo = async () => {
     const result = await userWalletService.checkCrescendo();
     return result;
   };
 
-  getAccount = async () => {
+  getAccount = async (): Promise<FclAccount> => {
     const address = await this.getCurrentAddress();
-    const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
+    const account = await fcl.account(address!);
     return account;
   };
 
