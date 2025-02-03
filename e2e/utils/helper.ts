@@ -54,9 +54,12 @@ export const closeOpenedPages = async (page: Page) => {
 };
 
 export const getCurrentAddress = async (page: Page) => {
-  await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
+  // Wait for the dashboard page to be fully loaded
+  await page.waitForURL(/.*\/dashboard.*/);
+
+  //await expect(page.getByLabel('Copy Address')).toBeVisible({ timeout: 120_000 });
   const copyIcon = await page.getByLabel('Copy Address');
-  await copyIcon.isVisible();
+  await copyIcon.isVisible({ timeout: 120_000 });
 
   await copyIcon.click();
 
@@ -93,10 +96,6 @@ export const loginToExtensionAccount = async ({ page, extensionId, addr, passwor
 
   // close all pages except the current page (the extension opens them in the background)
   await unlockBtn.click();
-  // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
-  // Wait for the dashboard page to be fully loaded
-  await page.waitForURL(/.*\/dashboard.*/);
-
   // get address
   let flowAddr = await getCurrentAddress(page);
 
@@ -308,7 +307,10 @@ export const importAccountBySeedPhrase = async ({
 
   // get address
   if (accountAddr) {
-    await expect(page.getByLabel('Copy Address')).toContainText(accountAddr);
+    // wait for the dashboard page to be fully loaded
+    await page.waitForURL(/.*\/dashboard.*/);
+    // wait for the copy address button to be visible with the right address
+    await expect(await page.getByLabel('Copy Address')).toContainText(accountAddr);
   }
 
   const flowAddr = await getCurrentAddress(page);
