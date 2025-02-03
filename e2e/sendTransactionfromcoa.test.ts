@@ -1,0 +1,225 @@
+import { test, loginToSenderAccount, expect, getCurrentAddress, switchToEvm } from './utils/helper';
+export const sendToken = async ({ page, tokenname, receiver, successtext }) => {
+  // Wait for the EVM account to be loaded
+  await getCurrentAddress(page);
+  await page.getByRole('tab', { name: 'coins' }).click();
+  // send Ft token from COA
+  await page.getByRole('button', { name: tokenname }).click();
+  await page.getByRole('button', { name: 'SEND' }).click();
+  await page.getByPlaceholder('Search address(0x), or flow').click();
+  await page.getByPlaceholder('Search address(0x), or flow').fill(receiver);
+  await page.getByPlaceholder('Amount').fill('0.000112134354657');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('button', { name: 'Send' }).click();
+  await page.waitForURL(/.*dashboard\?activity=1/);
+  const progressBar = page.getByRole('progressbar');
+  await expect(progressBar).toBeVisible();
+  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
+
+  await expect(page.locator('li').first().filter({ hasText: successtext })).toBeVisible({
+    timeout: 60_000,
+  });
+};
+
+export const moveToken = async ({ page, tokenname, successtext }) => {
+  // Wait for the EVM account to be loaded
+  await getCurrentAddress(page);
+  await page.getByRole('tab', { name: 'coins' }).click();
+  await page.getByRole('button', { name: tokenname }).click();
+  await page.getByRole('button', { name: 'Move' }).click();
+  await page.getByPlaceholder('Amount').click();
+  await page.getByPlaceholder('Amount').fill('0.000112134354657');
+  await page.getByRole('button', { name: 'Move' }).click();
+  await page.waitForURL(/.*dashboard\?activity=1/);
+  const progressBar = page.getByRole('progressbar');
+  await expect(progressBar).toBeVisible();
+  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
+
+  await expect(page.locator('li').first().filter({ hasText: successtext })).toBeVisible({
+    timeout: 60_000,
+  });
+};
+
+test.beforeEach(async ({ page, extensionId }) => {
+  // Login to our sender account
+  await loginToSenderAccount({ page, extensionId });
+  // switch to EVM account
+  await switchToEvm({ page, extensionId });
+});
+//Send Fts from COA to COA
+test('send Flow COA to COA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+  // Send FLOW token from COA to COA
+  await sendToken({
+    page,
+    tokenname: /^FLOW \$/i,
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send Staked Flow COA to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send stFLOW token from COA to COA
+  await sendToken({
+    page,
+    tokenname: 'Liquid Staked Flow $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send USDC token COA to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send USDC token from COA to COA
+  await sendToken({
+    page,
+    tokenname: 'Bridged USDC (Celer) $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send BETA token COA to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send BETA token from COA to COA
+  await sendToken({
+    page,
+    tokenname: 'BETA $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send TRUMP token COA to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send TRUMP token from COA to COA
+  await sendToken({
+    page,
+    tokenname: 'OFFICIAL TRUMP $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+
+//Send FTS from COA to FLOW
+test('send Flow COA to FLOW', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+  // Send FLOW token from COA to FLOW
+  await sendToken({
+    page,
+    tokenname: /^FLOW \$/i,
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send Staked Flow COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send stFLOW token from COA to FLOW
+  await sendToken({
+    page,
+    tokenname: 'Liquid Staked Flow $',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send USDC token COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send USDC token from COA to FLOW
+  await sendToken({
+    page,
+    tokenname: 'Bridged USDC (Celer) $',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send BETA token COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send BETA token from COA to FLOW
+  await sendToken({
+    page,
+    tokenname: 'BETA $',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+    successtext: 'success',
+  });
+});
+//Send FTs from COA to EOA (metamask)
+test('send Flow COA to EOA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+  // Send FLOW token from COA to EOA
+  await sendToken({
+    page,
+    tokenname: /^FLOW \$/i,
+    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send USDC token COA to EOA', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send USDC token from COA to EOA
+  await sendToken({
+    page,
+    tokenname: 'Bridged USDC (Celer) $',
+    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+
+test('send BETA token COA to EOA', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Send BETA token from COA to EOA
+  await sendToken({
+    page,
+    tokenname: 'BETA $',
+    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+    successtext: 'success',
+  });
+});
+//Move FTs from COA to FLOW
+test('move Flow COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move FLOW token from COA to FLOW
+  await moveToken({
+    page,
+    tokenname: /^FLOW \$/i,
+    successtext: 'success',
+  });
+});
+
+test('move USDC token COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move USDC token from COA to EOA
+  await moveToken({
+    page,
+    tokenname: 'Bridged USDC (Celer) $',
+    successtext: 'success',
+  });
+});
+
+test('move BETA token COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move BETA token from COA to EOA
+  await moveToken({
+    page,
+    tokenname: 'BETA $',
+    successtext: 'success',
+  });
+});
+
+//Send NFT from COA to COA
+//Send NFT from COA to FLOW
+//Send NFT from COA to EOA
+//Move NFT from COA to FLOW
