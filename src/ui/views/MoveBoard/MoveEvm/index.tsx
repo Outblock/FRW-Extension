@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 
 import { NFTDrawer } from '@/ui/FRWComponent/GeneralPages';
 import WarningSnackbar from '@/ui/FRWComponent/WarningSnackbar';
-import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import alertMark from 'ui/FRWAssets/svg/alertMark.svg';
 import { useWallet } from 'ui/utils';
@@ -23,6 +23,7 @@ interface MoveBoardProps {
 const MoveEvm = (props: MoveBoardProps) => {
   const usewallet = useWallet();
   const history = useHistory();
+  const { mainAddress } = useProfileStore();
   const [cadenceNft, setCadenceNft] = useState<any>(null);
   const [collectionList, setCollectionList] = useState<any>(null);
   const [selectedCollection, setSelected] = useState<string>('');
@@ -114,8 +115,7 @@ const MoveEvm = (props: MoveBoardProps) => {
   };
 
   const moveNFT = async () => {
-    const parentAddress = await usewallet.getMainAddress();
-    if (parentAddress === selectedAccount!['address']) {
+    if (mainAddress === selectedAccount!['address']) {
       moveToParent();
     } else {
       moveToChild();

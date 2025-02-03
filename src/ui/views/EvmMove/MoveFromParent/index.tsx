@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { type CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -76,6 +77,7 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
 
   const usewallet = useWallet();
   const history = useHistory();
+  const { childAccounts } = useProfileStore();
   const [userWallet, setWallet] = useState<any>(null);
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
@@ -91,7 +93,6 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
-  const [minAmount, setMinAmount] = useState<any>(0.001);
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
     coin: currentCoin,
@@ -130,8 +131,7 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     };
     setUser(userContact);
 
-    const childResp = await usewallet.checkUserChildAccount();
-    const cwallet = childResp[currentAddress!];
+    const cwallet = childAccounts[currentAddress!];
     const childContact = {
       ...CHILD_CONTACT,
       address: withPrefix(currentAddress!) || '',
@@ -142,20 +142,9 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     setChildUser(childContact);
     // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
-    try {
-      // Try fetching the min amount from the API
-      const minAmount = await usewallet.openapi.getAccountMinFlow(userContact.address);
-      setMinAmount(minAmount);
-    } catch (error) {
-      // If there's an error, set the min amount to 0.001
-      console.error('Error fetching min amount:', error);
-      setMinAmount(0.001);
-    }
 
     return;
-  }, [usewallet]);
-
-  const setUserMinAmount = async () => {};
+  }, [usewallet, childAccounts]);
 
   const moveToken = async () => {
     setLoading(true);
@@ -299,7 +288,6 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
             setExceed={setExceed}
             coinInfo={coinInfo}
             setCurrentCoin={setCurrentCoin}
-            minAmount={minAmount}
           />
         )}
       </Box>

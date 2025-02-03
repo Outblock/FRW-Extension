@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { Box, Typography, CardMedia } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
-import { useWallet } from 'ui/utils';
+import React, { useEffect, useState, useCallback } from 'react';
+
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 
 const tempEmoji = {
   emoji: '🥥',
@@ -10,23 +11,23 @@ const tempEmoji = {
 };
 
 const TransferFrom = ({ wallet, userInfo, isChild = false }) => {
-  const usewallet = useWallet();
+  const { currentWallet } = useProfileStore();
   const [emoji, setEmoji] = useState(tempEmoji);
 
-  const getEmoji = async () => {
-    const currentWallet = await usewallet.getCurrentWallet();
-    const emojiObject = tempEmoji;
-    emojiObject.emoji = currentWallet.icon;
-    emojiObject.name = currentWallet.name;
-    emojiObject.bgcolor = currentWallet.color;
-    emojiObject['type'] = 'parent';
+  const getEmoji = useCallback(async () => {
+    const emojiObject = {
+      ...tempEmoji,
+      emoji: currentWallet.icon,
+      name: currentWallet.name,
+      bgcolor: currentWallet.color,
+      type: 'parent',
+    };
     setEmoji(emojiObject);
-  };
+  }, [currentWallet.icon, currentWallet.name, currentWallet.color, setEmoji]);
 
   useEffect(() => {
     getEmoji();
-    console.log('userInfo ', wallet, userInfo);
-  }, [userInfo]);
+  }, [getEmoji]);
 
   return (
     <StyledEngineProvider injectFirst>

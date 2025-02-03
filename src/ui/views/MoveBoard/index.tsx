@@ -121,7 +121,7 @@ const MoveBoard = (props: MoveBoardProps) => {
   return (
     <Drawer
       anchor="bottom"
-      sx={{ zIndex: '1000 !important' }}
+      sx={{ zIndex: '1100 !important' }}
       transitionDuration={300}
       open={props.showMoveBoard}
       PaperProps={{

@@ -15,6 +15,7 @@ import { Link, useRouteMatch } from 'react-router-dom';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from '@/ui/utils';
 import { storage } from 'background/webapi';
 import { formatAddress } from 'ui/utils';
@@ -37,6 +38,7 @@ const tempEmoji = [
 const Wallet = () => {
   const { url } = useRouteMatch();
   const usewallet = useWallet();
+  const { currentWallet } = useProfileStore();
   const [isLoading, setLoading] = useState(true);
   const [userWallet, setWallet] = useState<any>([]);
   const [evmList, setEvmList] = useState<any>([]);
@@ -93,8 +95,7 @@ const Wallet = () => {
     const emojires = await usewallet.getEmoji();
     const wallet = await usewallet.getUserWallets();
     const fectechdWallet = await fetchBalances(wallet);
-    const cwallet = await usewallet.getCurrentWallet();
-    setCurrentWallet(cwallet.address);
+    setCurrentWallet(currentWallet.address);
     const evmWallet = await usewallet.getEvmWallet();
     const filteredEvm = [evmWallet].filter((evm) => evm.address);
     if (filteredEvm.length > 0) {
@@ -103,7 +104,7 @@ const Wallet = () => {
     }
     setEmojis(emojires);
     setWallet(fectechdWallet);
-  }, [usewallet, fetchBalances, fetchEvmBalances]);
+  }, [usewallet, currentWallet, fetchBalances, fetchEvmBalances]);
 
   const transformData = (data) => {
     return data.map((item, index) => ({

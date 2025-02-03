@@ -100,6 +100,9 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
     async (request) => {
       if (request.msg === 'transactionDone') {
         const currentWallet = await usewallet.getCurrentWallet();
+        if (!currentWallet) {
+          throw new Error('Current wallet is undefined');
+        }
         const res = await usewallet.queryEvmAddress(currentWallet.address);
         setEvmAddress(res!);
         setIsEvm(isValidEthereumAddress(res));

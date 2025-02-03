@@ -1,5 +1,4 @@
 import { CssBaseline } from '@mui/material';
-import GlobalStyles from '@mui/material/GlobalStyles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
 import { HashRouter as Router, Route, useLocation } from 'react-router-dom';
@@ -9,12 +8,13 @@ import { NewsProvider } from '@/ui/utils/NewsContext';
 import { PrivateRoute } from 'ui/component';
 import { WalletProvider, useWallet } from 'ui/utils';
 
+// Uncomment this when we need to test api-test
+import ApiTestPage from './api-test/api-test-page';
 import Approval from './Approval';
 import InnerRoute from './InnerRoute';
 import { Landing } from './Landing';
 import RetrievePK from './RetrievePK';
 import SortHat from './SortHat';
-import SwitchUnlock from './SwitchUnlock';
 import Unlock from './Unlock';
 
 const theme = createTheme(themeOptions);
@@ -33,7 +33,6 @@ const Routes = () => {
         <SortHat />
       </Route>
       <Route exact path="/unlock" component={Unlock} />
-      <Route exact path="/switchunlock" component={SwitchUnlock} />
       <Route exact path="/retrieve" component={RetrievePK} />
       <Landing />
       <Route path="/dashboard">
@@ -42,6 +41,12 @@ const Routes = () => {
       <PrivateRoute path="/approval">
         <Approval />
       </PrivateRoute>
+      {/* uncomment this when we need to test api-test */}
+      {process.env.NODE_ENV === 'development' && (
+        <PrivateRoute path="/api-test">
+          <ApiTestPage />
+        </PrivateRoute>
+      )}
     </>
   );
 };

@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import type { UserInfoResponse } from '@/shared/types/network-types';
+import { type LoggedInAccountWithIndex, type LoggedInAccount } from '@/shared/types/wallet-types';
 import iconCheck from 'ui/FRWAssets/svg/iconCheck.svg';
 import popAdd from 'ui/FRWAssets/svg/popAdd.svg';
 import popLock from 'ui/FRWAssets/svg/popLock.svg';
@@ -31,8 +32,8 @@ interface TransferConfirmationProps {
   handleAddBtnClicked: () => void;
   userInfo: UserInfoResponse;
   current: any;
-  switchAccount: any;
-  loggedInAccounts: any;
+  switchAccount: (account: LoggedInAccountWithIndex) => void;
+  loggedInAccounts: LoggedInAccount[];
   switchLoading: boolean;
 }
 
@@ -100,19 +101,19 @@ const Popup = (props: TransferConfirmationProps) => {
                 paddingBottom: '16px',
               }}
             >
-              {props.loggedInAccounts.map((user, index) => {
-                const userWithIndex = {
-                  ...user,
+              {props.loggedInAccounts.map((loggedInAccount: LoggedInAccount, index: number) => {
+                const loggedInAccountWithIndex: LoggedInAccountWithIndex = {
+                  ...loggedInAccount,
                   indexInLoggedInAccounts: index,
                 };
                 return (
                   <ListItem
                     disablePadding
-                    key={user.username}
+                    key={loggedInAccount.username}
                     onClick={() => {
-                      if (user.username !== props.userInfo.username) {
+                      if (loggedInAccount.username !== props.userInfo.username) {
                         setLoadingIndex(index); // Set the loading index
-                        props.switchAccount(userWithIndex);
+                        props.switchAccount(loggedInAccountWithIndex);
                       }
                     }}
                   >
@@ -120,7 +121,7 @@ const Popup = (props: TransferConfirmationProps) => {
                       <ListItemIcon>
                         <Avatar
                           component="span"
-                          src={user.avatar}
+                          src={loggedInAccount.avatar}
                           sx={{ width: '32px', height: '32px' }}
                           alt="avatar"
                         />
@@ -139,7 +140,7 @@ const Popup = (props: TransferConfirmationProps) => {
                             display="inline"
                             color="text.primary"
                           >
-                            {user.nickname}
+                            {loggedInAccount.nickname}
                           </Typography>
                           <Typography
                             variant="body1"
@@ -148,11 +149,13 @@ const Popup = (props: TransferConfirmationProps) => {
                             color="text.secondary"
                             sx={{ fontSize: '12px' }}
                           >
-                            {user.address ? user.address : user.nickname}
+                            {loggedInAccount.address
+                              ? loggedInAccount.address
+                              : loggedInAccount.nickname}
                           </Typography>
                         </Box>
                       </ListItemText>
-                      {user.username === props.userInfo.username && (
+                      {loggedInAccount.username === props.userInfo.username && (
                         <CardMedia
                           component="img"
                           sx={{ width: '16px', height: '16px' }}

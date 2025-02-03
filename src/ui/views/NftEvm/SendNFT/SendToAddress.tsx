@@ -21,6 +21,7 @@ import SwipeableViews from 'react-swipeable-views';
 import { type Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { type MatchMedia } from '@/ui/utils/url';
 import { useWallet } from 'ui/utils';
 
@@ -137,8 +138,9 @@ const SendToAddress = () => {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const location = useLocation();
+  const { currentWallet } = useProfileStore();
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -157,10 +159,10 @@ const SendToAddress = () => {
   const [media, setMedia] = useState<MatchMedia | null>(null);
 
   const fetchAddressBook = useCallback(async () => {
-    await wallet.setDashIndex(0);
+    await usewallet.setDashIndex(0);
     try {
-      const response = await wallet.getAddressBook();
-      let recent = await wallet.getRecent();
+      const response = await usewallet.getAddressBook();
+      let recent = await usewallet.getRecent();
       if (recent) {
         recent.forEach((c) => {
           if (response) {
@@ -192,20 +194,19 @@ const SendToAddress = () => {
     } catch (err) {
       console.log('err: ', err);
     }
-  }, [wallet]);
+  }, [usewallet]);
 
   useEffect(() => {
     fetchAddressBook();
   }, [fetchAddressBook]);
 
   const setUserInfo = useCallback(async () => {
-    await wallet.setDashIndex(1);
-    const info = await wallet.getUserInfo(false);
-    const currentWallet = await wallet.getCurrentWallet();
-    const activeChild = await wallet.getActiveWallet();
+    await usewallet.setDashIndex(1);
+    const info = await usewallet.getUserInfo(false);
+    const activeChild = await usewallet.getActiveWallet();
     const userContact = { ...USER_CONTACT };
     if (activeChild === 'evm') {
-      const data = await wallet.getEvmAddress();
+      const data = await usewallet.getEvmAddress();
       userContact.address = data;
     } else {
       userContact.address = withPrefix(currentWallet.address) || '';
@@ -213,7 +214,7 @@ const SendToAddress = () => {
     userContact.avatar = info.avatar;
     userContact.contact_name = info.username;
     setUser(userContact);
-  }, [wallet]);
+  }, [usewallet, currentWallet]);
 
   const fetchNFTInfo = useCallback(async () => {
     const state = location.state as NFTDetailState;
@@ -224,7 +225,7 @@ const SendToAddress = () => {
     setDetail(NFT);
     setMedia(media);
 
-    const contractList = await wallet.openapi.getAllNft();
+    const contractList = await usewallet.openapi.getAllNft();
     console.log('contractList ', contractList);
     console.log('NFT ', NFT);
     const filteredCollections = returnFilteredCollections(contractList, NFT);
@@ -232,7 +233,7 @@ const SendToAddress = () => {
     if (filteredCollections.length > 0) {
       setContractInfo(filteredCollections[0]);
     }
-  }, [wallet, location.state]);
+  }, [usewallet, location.state]);
 
   const returnFilteredCollections = (contractList, NFT) => {
     return contractList.filter((collection) => collection.name === NFT.collectionName);
@@ -267,17 +268,17 @@ const SendToAddress = () => {
     }
     switch (searchType) {
       case 0:
-        result = await wallet.openapi.getFindAddress(keyword + '');
+        result = await usewallet.openapi.getFindAddress(keyword + '');
         group = '.find';
         keys = keyword + '.find';
         break;
       case 1:
-        result = await wallet.openapi.getFlownsAddress(keyword + '');
+        result = await usewallet.openapi.getFlownsAddress(keyword + '');
         group = '.flowns';
         keys = keyword + '.fn';
         break;
       case 2:
-        result = await wallet.openapi.getFlownsAddress(keyword + '', 'meow');
+        result = await usewallet.openapi.getFlownsAddress(keyword + '', 'meow');
         group = '.meow';
         keys = keyword + '.meow';
         break;
@@ -307,7 +308,7 @@ const SendToAddress = () => {
   };
 
   const searchUser = async () => {
-    let result = await wallet.openapi.searchUser(searchKey);
+    let result = await usewallet.openapi.searchUser(searchKey);
     result = result.data.users;
     const fArray = searchContacts;
     const reg = /^((0x))/g;

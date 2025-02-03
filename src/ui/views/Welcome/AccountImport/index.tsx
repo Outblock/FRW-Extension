@@ -8,7 +8,6 @@ import GoogleBackup from '@/ui/FRWComponent/LandingPages/GoogleBackup';
 import LandingComponents from '@/ui/FRWComponent/LandingPages/LandingComponents';
 import PickUsername from '@/ui/FRWComponent/LandingPages/PickUsername';
 import SetPassword from '@/ui/FRWComponent/LandingPages/SetPassword';
-import { useNavigation } from '@/ui/utils/landingPage';
 import { storage } from 'background/webapi';
 import { useWallet } from 'ui/utils';
 
@@ -30,8 +29,6 @@ type StepType = (typeof STEPS)[keyof typeof STEPS];
 const AccountImport = () => {
   const history = useHistory();
   const usewallet = useWallet();
-
-  const navigation = useNavigation(5);
 
   const [mnemonic, setMnemonic] = useState('');
   const [pk, setPk] = useState(null);
@@ -108,13 +105,12 @@ const AccountImport = () => {
     await usewallet.boot(newPassword);
     storage.remove('premnemonic');
     await usewallet.saveIndex(username);
-
     if (pk) {
       await usewallet.importPrivateKey(pk);
-      navigation.goCustom(5);
+      setActiveTab(STEPS.ALL_SET);
     } else {
       await usewallet.createKeyringWithMnemonics(mnemonic);
-      navigation.goCustom(4);
+      setActiveTab(STEPS.GOOGLE_BACKUP);
     }
   };
 

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as fcl from '@onflow/fcl';
+import type { Account as FclAccount } from '@onflow/typedefs';
 import * as t from '@onflow/types';
 import BN from 'bignumber.js';
 import * as bip39 from 'bip39';
@@ -25,8 +26,10 @@ import {
 import eventBus from '@/eventBus';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
 import { type TrackingEvents } from '@/shared/types/tracking-types';
-import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
+import { type ActiveChildType, type LoggedInAccount } from '@/shared/types/wallet-types';
+import { ensureEvmAddressPrefix, isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
+import { retryOperation } from '@/shared/utils/retryOperation';
 import {
   keyringService,
   preferenceService,
@@ -52,23 +55,28 @@ import {
 import i18n from 'background/service/i18n';
 import { type DisplayedKeryring, KEYRING_CLASS } from 'background/service/keyring';
 import type { CacheState } from 'background/service/pageStateCache';
-import { getScripts } from 'background/utils';
+import { findKeyAndInfo, getScripts } from 'background/utils';
 import emoji from 'background/utils/emoji.json';
 import fetchConfig from 'background/utils/remoteConfig';
 import { notification, storage } from 'background/webapi';
 import { openIndexPage } from 'background/webapi/tab';
 import { INTERNAL_REQUEST_ORIGIN, EVENTS, KEYRING_TYPE } from 'consts';
 
-import type { NFTData, NFTModel, WalletResponse } from '../../shared/types/network-types';
+import type {
+  BlockchainResponse,
+  NFTData,
+  NFTModel,
+  WalletResponse,
+} from '../../shared/types/network-types';
 import placeholder from '../images/placeholder.png';
 import { type CoinItem } from '../service/coinList';
 import DisplayKeyring from '../service/keyring/display';
 import type { ConnectedSite } from '../service/permission';
-import type { Account } from '../service/preference';
+import type { PreferenceAccount } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
-import { getStoragedAccount } from '../utils/getStoragedAccount';
+import { getLoggedInAccount } from '../utils/getLoggedInAccount';
 
 import BaseController from './base';
 import provider from './provider';
@@ -94,11 +102,19 @@ interface TokenTransaction {
 export class WalletController extends BaseController {
   openapi = openapiService;
   private storageEvaluator: StorageEvaluator;
+  private loaded = false;
 
   constructor() {
     super();
     this.storageEvaluator = new StorageEvaluator();
   }
+  // Adding as tests load the extension really, really fast
+  // It's possible to call the wallet controller before services are loaded
+  // setLoaded is called in index.ts of the background
+  isLoaded = async () => this.loaded;
+  setLoaded = async (loaded: boolean) => {
+    this.loaded = loaded;
+  };
 
   /* wallet */
   boot = async (password) => {
@@ -199,25 +215,10 @@ export class WalletController extends BaseController {
 
     // only password is correct then we store it
     await passwordService.setPassword(password);
-
-    sessionService.broadcastEvent('unlock');
-  };
-
-  switchUnlock = async (password: string) => {
-    // const alianNameInited = await preferenceService.getInitAlianNameStatus();
-    // const alianNames = await preferenceService.getAllAlianName();
-
-    await keyringService.submitPassword(password);
-
-    // only password is correct then we store it
-    await passwordService.setPassword(password);
     const pubKey = await this.getPubKey();
     await userWalletService.switchLogin(pubKey);
 
     sessionService.broadcastEvent('unlock');
-    // if (!alianNameInited && Object.values(alianNames).length === 0) {
-    //   this.initAlianNames();
-    // }
   };
 
   retrievePk = async (password: string) => {
@@ -260,6 +261,7 @@ export class WalletController extends BaseController {
 
   isUnlocked = async () => {
     const isUnlocked = keyringService.memStore.getState().isUnlocked;
+    // TODO: Below probably never unlocks anything as the password is encrypted
     if (!isUnlocked) {
       let password = '';
       try {
@@ -283,8 +285,11 @@ export class WalletController extends BaseController {
   lockWallet = async () => {
     await keyringService.setLocked();
     await passwordService.clear();
+    await userWalletService.signOutCurrentUser();
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
+    // Switch to mainnet
+    await this.switchNetwork('mainnet');
   };
 
   // lockadd here
@@ -441,7 +446,7 @@ export class WalletController extends BaseController {
     return false;
   };
 
-  getKey = async (password) => {
+  getPrivateKeyForCurrentAccount = async (password) => {
     let privateKey;
     const keyrings = await this.getKeyrings(password || '');
 
@@ -452,14 +457,55 @@ export class WalletController extends BaseController {
         const PK1 = seed.P256.pk;
         const PK2 = seed.SECP256K1.pk;
 
-        const account = await getStoragedAccount();
-        // if (accountIndex < 0 || accountIndex >= loggedInAccounts.length) {
-        //   throw new Error("Invalid account index.");
-        // }
-        // const account = loggedInAccounts[accountIndex];
-        const signAlgo =
-          typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
-        privateKey = signAlgo === 1 ? PK1 : PK2;
+        // We need to know the signAlgo for the account, so we can use the correct private key
+        // The signAlgo is stored in the account object for each public key return from fcl
+
+        // getLoggedInAccount is using currentId from storage to get the account
+        // That should tell us the account to use
+
+        try {
+          // Try using logged in accounts first
+          const account = await getLoggedInAccount();
+          const signAlgo =
+            typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
+          privateKey = signAlgo === 1 ? PK1 : PK2;
+        } catch {
+          // Couldn't load from logged in accounts.
+          // The signAlgo used to login isn't saved. We need to
+
+          // We may be in the process of switching login. We have a public and private key, but we don't have the signAlgo or the address of the account
+          console.error('Error getting logged in account - using the indexer instead');
+
+          // Look for the account using the pubKey
+          const network = (await this.getNetwork()) || 'mainnet';
+          // Find the address associated with the pubKey
+          // This should return an array of address information records
+          const addressAndKeyInfoArray = await findAddressWithNetwork(seed, network);
+          // Find which signAlgo and hashAlgo is used on the account
+          if (!Array.isArray(addressAndKeyInfoArray) || !addressAndKeyInfoArray.length) {
+            throw new Error('No address found');
+          }
+          // Follow the same logic as freshUserInfo in openapi.ts
+          // Look for the P256 key first
+          let index = addressAndKeyInfoArray.findIndex((key) => key.publicKey === seed.P256.pubK);
+          if (index === -1) {
+            // If no P256 key is found, look for the SECP256K1 key
+            index = addressAndKeyInfoArray.findIndex(
+              (key) => key.publicKey === seed.SECP256K1.pubK
+            );
+          } else {
+            // If a P256 key is found, use the first key
+            index = 0;
+          }
+
+          const signAlgo =
+            typeof addressAndKeyInfoArray[index].signAlgo === 'string'
+              ? getSignAlgo(addressAndKeyInfoArray[index].signAlgo)
+              : addressAndKeyInfoArray[index].signAlgo;
+
+          privateKey = signAlgo === 1 ? PK1 : PK2;
+        }
+
         break;
       } else if (keyring.wallets && keyring.wallets.length > 0 && keyring.wallets[0].privateKey) {
         privateKey = keyrings[0].wallets[0].privateKey.toString('hex');
@@ -651,7 +697,7 @@ export class WalletController extends BaseController {
     }));
   };
 
-  getAllVisibleAccountsArray: () => Promise<Account[]> = () => {
+  getAllVisibleAccountsArray: () => Promise<PreferenceAccount[]> = () => {
     return keyringService.getAllVisibleAccountsArray();
   };
 
@@ -664,7 +710,7 @@ export class WalletController extends BaseController {
     }));
   };
 
-  changeAccount = (account: Account) => {
+  changeAccount = (account: PreferenceAccount) => {
     preferenceService.setCurrentAccount(account);
   };
 
@@ -1353,7 +1399,7 @@ export class WalletController extends BaseController {
 
     const tokenList = await openapiService.getTokenListFromGithub(network);
 
-    const address = await this.getEvmAddress();
+    const address = await this.getRawEvmAddressWithPrefix();
     if (!isValidEthereumAddress(address)) {
       return new Error('Invalid Ethereum address in coinlist');
     }
@@ -1588,6 +1634,7 @@ export class WalletController extends BaseController {
   };
 
   //user wallets
+  // TODO: Move this to userWalletService
   refreshUserWallets = async () => {
     const network = await this.getNetwork();
 
@@ -1701,7 +1748,7 @@ export class WalletController extends BaseController {
     return wallet.address !== '';
   };
 
-  getCurrentWallet = async () => {
+  getCurrentWallet = async (): Promise<BlockchainResponse | undefined> => {
     const wallet = await userWalletService.getCurrentWallet();
     if (!wallet.address) {
       const network = await this.getNetwork();
@@ -1722,9 +1769,17 @@ export class WalletController extends BaseController {
     await userWalletService.setEvmAddress(address, emoji);
   };
 
+  getRawEvmAddressWithPrefix = async () => {
+    const wallet = userWalletService.getEvmWallet();
+    return withPrefix(wallet.address) || '';
+  };
+
   getEvmAddress = async () => {
-    const wallet = await userWalletService.getEvmWallet();
-    const address = withPrefix(wallet.address) || '';
+    const address = await this.getRawEvmAddressWithPrefix();
+
+    if (!isValidEthereumAddress(address)) {
+      throw new Error(`Invalid Ethereum address ${address}`);
+    }
     return address;
   };
 
@@ -2012,7 +2067,7 @@ export class WalletController extends BaseController {
 
     mixpanelTrack.track('ft_transfer', {
       from_address: (await this.getCurrentAddress()) || '',
-      to_address: await this.getEvmAddress(),
+      to_address: await this.getRawEvmAddressWithPrefix(),
       amount: parseFloat(formattedAmount),
       ft_identifier: flowIdentifier,
       type: 'evm',
@@ -2043,7 +2098,7 @@ export class WalletController extends BaseController {
     ]);
 
     mixpanelTrack.track('ft_transfer', {
-      from_address: await this.getEvmAddress(),
+      from_address: await this.getRawEvmAddressWithPrefix(),
       to_address: (await this.getCurrentAddress()) || '',
       amount: parseFloat(integerAmountStr),
       ft_identifier: flowIdentifier,
@@ -2060,17 +2115,17 @@ export class WalletController extends BaseController {
 
     let evmAddress = '';
     try {
-      evmAddress = await this.getEvmAddress();
+      evmAddress = await this.getRawEvmAddressWithPrefix();
     } catch (error) {
-      await this.refreshEvmWallets();
+      evmAddress = '';
       console.error('Error getting EVM address:', error);
     }
-
-    if (evmAddress.length > 20) {
+    if (isValidEthereumAddress(evmAddress)) {
       return evmAddress;
-    } else {
-      await this.refreshEvmWallets();
     }
+    // Otherwise, refresh the EVM wallets and try again
+    await this.refreshEvmWallets();
+
     try {
       const script = await getScripts('evm', 'getCoaAddr');
       const result = await fcl.query({
@@ -2120,8 +2175,18 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
+    // Handle the case where the value is '0.0'
+    if (/^0\.0+$/.test(value)) {
+      value = '0x0';
+    }
+
     if (!value.startsWith('0x')) {
       value = '0x' + value;
+    }
+
+    // At this point the value should be a valid hex string. Check to make sure
+    if (!/^0x[0-9a-fA-F]+$/.test(value)) {
+      throw new Error('Invalid hex string value');
     }
 
     // Convert hex to BigInt
@@ -2135,7 +2200,7 @@ export class WalletController extends BaseController {
     ]);
 
     mixpanelTrack.track('ft_transfer', {
-      from_address: await this.getEvmAddress(),
+      from_address: await this.getRawEvmAddressWithPrefix(),
       to_address: to,
       amount: Number(transactionValue),
       ft_identifier: 'FLOW',
@@ -2157,6 +2222,11 @@ export class WalletController extends BaseController {
     const dataArray = Uint8Array.from(dataBuffer);
     const regularArray = Array.from(dataArray);
 
+    // Handle the case where the value is '0.0'
+    if (/^0\.0+$/.test(value)) {
+      value = '0x0';
+    }
+
     if (!value.startsWith('0x')) {
       value = '0x' + value;
     }
@@ -2174,7 +2244,10 @@ export class WalletController extends BaseController {
         value = web3.utils.toHex(value);
       }
     }
-
+    // At this point the value should be a valid hex string. Check to make sure
+    if (!/^0x[0-9a-fA-F]+$/.test(value)) {
+      throw new Error('Invalid hex string value');
+    }
     // Convert hex to BigInt directly to avoid potential number overflow
     const transactionValue = value === '0x' ? BigInt(0) : BigInt(value);
 
@@ -3325,6 +3398,7 @@ export class WalletController extends BaseController {
   };
 
   refreshAll = async () => {
+    console.log('refreshAll');
     await this.refreshUserWallets();
     this.clearNFT();
     this.refreshAddressBook();
@@ -3360,7 +3434,8 @@ export class WalletController extends BaseController {
   };
 
   getEvmEnabled = async (): Promise<boolean> => {
-    const address = await this.getEvmAddress();
+    // Get straight from the userWalletService as getEvmAddress() throws an error if the address is not valid
+    const address = userWalletService.getEvmWallet();
     return !!address && isValidEthereumAddress(address);
   };
 
@@ -4002,29 +4077,14 @@ export class WalletController extends BaseController {
     return result;
   };
 
-  createFlowSandboxAddress = async (network) => {
-    const account = await getStoragedAccount();
-    const { hashAlgo, signAlgo, pubKey, weight } = account;
-
-    const accountKey = {
-      public_key: pubKey,
-      hash_algo: typeof hashAlgo === 'string' ? getHashAlgo(hashAlgo) : hashAlgo,
-      sign_algo: typeof signAlgo === 'string' ? getSignAlgo(signAlgo) : signAlgo,
-      weight: weight,
-    };
-
-    const result = await openapiService.createFlowNetworkAddress(accountKey, network);
-    return result;
-  };
-
   checkCrescendo = async () => {
     const result = await userWalletService.checkCrescendo();
     return result;
   };
 
-  getAccount = async () => {
+  getAccount = async (): Promise<FclAccount> => {
     const address = await this.getCurrentAddress();
-    const account = await fcl.send([fcl.getAccount(address!)]).then(fcl.decode);
+    const account = await fcl.account(address!);
     return account;
   };
 
@@ -4124,7 +4184,7 @@ export class WalletController extends BaseController {
   };
 
   saveIndex = async (username = '', userId = null) => {
-    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
     let currentindex = 0;
 
     if (!loggedInAccounts || loggedInAccounts.length === 0) {
@@ -4142,6 +4202,8 @@ export class WalletController extends BaseController {
     await storage.set(`user${userId}_phrase`, passphrase);
     await storage.remove(`temp_path`);
     await storage.remove(`temp_phrase`);
+    // Note that currentAccountIndex is only used in keyring for old accounts that don't have an id stored in the keyring
+    // currentId always takes precedence
     await storage.set('currentAccountIndex', currentindex);
     if (userId) {
       await storage.set('currentId', userId);

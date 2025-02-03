@@ -4,10 +4,12 @@ import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } f
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { type AccountDetails } from '@/shared/types/network-types';
 import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
@@ -26,6 +28,7 @@ interface SendNFTConfirmationProps {
 const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   console.log('MoveNftConfirmation');
   const usewallet = useWallet();
+  const { mainAddress, childAccounts, currentWallet } = useProfileStore();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -33,7 +36,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   const [errorCode, setErrorCode] = useState<number | null>(null);
 
   const [occupied, setOccupied] = useState(false);
-  const [childWallet, setChildWallet] = useState(null);
+  const [childWallet, setChildWallet] = useState<AccountDetails | null>(null);
   const [selectedAccount, setSelectedChildAccount] = useState(null);
   const [childWallets, setChildWallets] = useState({});
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
@@ -174,17 +177,14 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
   }, [getPending, props.data.contact, transactionDoneHandler]);
 
   const getChildResp = useCallback(async () => {
-    const childresp = await usewallet.checkUserChildAccount();
-    const parentAddress = await usewallet.getMainAddress();
     const eWallet = await usewallet.getEvmWallet();
-    const currentWallet = await usewallet.getCurrentWallet();
     let evmAddress;
     if (eWallet.address) {
       evmAddress = ensureEvmAddressPrefix(eWallet.address);
     }
 
     const newWallet = {
-      [parentAddress!]: {
+      [mainAddress!]: {
         name: currentWallet.name,
         description: currentWallet.name,
         thumbnail: {
@@ -205,23 +205,20 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         },
       };
     }
-    console.log('eWallet ', evmWallet);
     // Merge usewallet lists
-    const walletList = { ...newWallet, ...childresp, ...evmWallet };
-    console.log('eWallet walletList', walletList);
+    const walletList = { ...newWallet, ...childAccounts, ...evmWallet };
     setChildWallets(walletList);
     const firstWalletAddress = Object.keys(walletList)[0];
     if (firstWalletAddress) {
       setSelectedChildAccount(walletList[firstWalletAddress]);
     }
-  }, [usewallet]);
+  }, [usewallet, mainAddress, childAccounts, currentWallet]);
 
   const getUserContact = useCallback(async () => {
     if (props.data.userContact) {
-      const childresp = await usewallet.checkUserChildAccount();
-      setChildWallet(childresp[props.data.userContact.address]);
+      setChildWallet(childAccounts[props.data.userContact.address]);
     }
-  }, [props.data.userContact, usewallet]);
+  }, [props.data.userContact, childAccounts]);
 
   useEffect(() => {
     getChildResp();

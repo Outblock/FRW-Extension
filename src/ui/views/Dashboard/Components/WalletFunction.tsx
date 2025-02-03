@@ -38,7 +38,7 @@ const WalletFunction = (props) => {
   return props.address === props.mainAddress || props.expandAccount ? (
     <ListItem
       onClick={() => {
-        if (props.address === props.current['address']) {
+        if (props.address === props.currentWallet['address']) {
           toggleExpand(); // Toggle the list if the current address is clicked
         } else {
           props.setWallets(props, null, props.props_id); // Set the wallet if it's a different address
@@ -85,10 +85,10 @@ const WalletFunction = (props) => {
             fontWeight={'semi-bold'}
             sx={{ fontSize: '12px' }}
             display="flex"
-            color={props.props_id === props.currentWallet ? 'text.title' : 'text.nonselect'}
+            color={props.props_id === props.currentWalletIndex ? 'text.title' : 'text.nonselect'}
           >
             {props.name}
-            {props.address === props.current['address'] && (
+            {props.address === props.currentWallet['address'] && (
               <ListItemIcon style={{ display: 'flex', alignItems: 'center' }}>
                 <FiberManualRecordIcon
                   style={{
@@ -112,7 +112,7 @@ const WalletFunction = (props) => {
           </Typography>
         </Box>
         <Box sx={{ flex: '1' }}></Box>
-        {props.address === props.current['address'] && props.walletList.length > 1 && (
+        {props.address === props.currentWallet['address'] && props.walletList.length > 1 && (
           <IconEnd
             size={12}
             style={{

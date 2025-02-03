@@ -1,26 +1,32 @@
 import FlashOnRoundedIcon from '@mui/icons-material/FlashOnRounded';
 import SavingsRoundedIcon from '@mui/icons-material/SavingsRounded';
-import { Typography, Button, Tab, Tabs, Skeleton, Drawer, CardMedia } from '@mui/material';
+import { Typography, Button, Skeleton, Drawer, CardMedia, Tabs, Tab } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
+import { IconNfts } from '@/components/iconfont';
 import eventBus from '@/eventBus';
 import { type ActiveChildType } from '@/shared/types/wallet-types';
+import buyIcon from '@/ui/FRWAssets/svg/buyIcon.svg';
+import iconMove from '@/ui/FRWAssets/svg/homeMove.svg';
+import receiveIcon from '@/ui/FRWAssets/svg/receiveIcon.svg';
+import sendIcon from '@/ui/FRWAssets/svg/sendIcon.svg';
+import swapIcon from '@/ui/FRWAssets/svg/swapIcon.svg';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { NumberTransition } from '@/ui/FRWComponent/NumberTransition';
-import buyIcon from 'ui/FRWAssets/svg/buyIcon.svg';
-import iconMove from 'ui/FRWAssets/svg/homeMove.svg';
-import receiveIcon from 'ui/FRWAssets/svg/receiveIcon.svg';
-import sendIcon from 'ui/FRWAssets/svg/sendIcon.svg';
-import swapIcon from 'ui/FRWAssets/svg/swapIcon.svg';
-import { useWallet } from 'ui/utils';
-import { formatLargeNumber } from 'ui/utils/number';
+import { useInitHook } from '@/ui/hooks';
+import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useWallet } from '@/ui/utils';
+import { formatLargeNumber } from '@/ui/utils/number';
 
 import { withPrefix } from '../../../shared/utils/address';
 import theme from '../../style/LLTheme';
 import MoveBoard from '../MoveBoard';
+import NFTTab from '../NFT';
+import NftEvm from '../NftEvm';
 
 import CoinList from './Coinlist';
 import OnRampList from './OnRampList';
@@ -35,30 +41,25 @@ function TabPanel(props) {
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
+      style={{ height: '100%', display: value === index ? 'block' : 'none' }}
       {...other}
     >
-      {value === index && children}
+      {children}
     </div>
   );
 }
-
-function a11yProps(index) {
-  return {
-    id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`,
-  };
-}
-
 const WalletTab = ({ network }) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
   const location = useLocation();
+  const { initializeStore } = useInitHook();
+  const { childAccounts, evmWallet, currentWallet } = useProfileStore();
+  const { coins, balance } = useCoinStore();
   const [value, setValue] = React.useState(0);
+
   const [coinLoading, setCoinLoading] = useState<boolean>(false);
   const [address, setAddress] = useState<string>('');
-  const [coinData, setCoinData] = useState<any>([]);
   const [accessible, setAccessible] = useState<any>([]);
-  const [balance, setBalance] = useState<string>('$0.00');
   const [childType, setChildType] = useState<ActiveChildType>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [, setChildAccount] = useState<any>({});
@@ -73,12 +74,9 @@ const WalletTab = ({ network }) => {
   const [canMoveChild, setCanMoveChild] = useState(true);
   const [receiveHover, setReceiveHover] = useState(false);
   const [childStateLoading, setChildStateLoading] = useState<boolean>(false);
-  const [lastManualAddressCallTime, setlastManualAddressCallTime] = useState<any>(0);
 
   const incLink =
     network === 'mainnet' ? 'https://app.increment.fi/swap' : 'https://demo.increment.fi/swap';
-
-  const expiry_time = 60000;
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -92,9 +90,9 @@ const WalletTab = ({ network }) => {
     let data = '';
     try {
       if (childType === 'evm') {
-        data = await wallet.getEvmAddress();
+        data = evmWallet.address;
       } else {
-        data = await wallet.getCurrentAddress();
+        data = currentWallet.address;
       }
     } catch (error) {
       console.error('Error getting address:', error);
@@ -102,22 +100,9 @@ const WalletTab = ({ network }) => {
     }
     if (data) {
       setAddress(withPrefix(data) || '');
-    } else {
-      const currentTime = Date.now();
-      if (currentTime - lastManualAddressCallTime > 60000) {
-        try {
-          // await wallet.openapi.getManualAddress();
-          setlastManualAddressCallTime(currentTime);
-        } catch (error) {
-          console.error('Error getting manual address:', error);
-        }
-      } else {
-        // eslint-disable-next-line no-console
-        console.log('Skipped calling getManualAddress to prevent frequent calls');
-      }
     }
     return data;
-  }, [childType, lastManualAddressCallTime, wallet]);
+  }, [childType, evmWallet, currentWallet]);
 
   //todo: move to util
   const pollingFunction = (func, time = 1000, endTime, immediate = false) => {
@@ -138,144 +123,31 @@ const WalletTab = ({ network }) => {
     return pollTimer;
   };
 
-  const handleStorageData = useCallback(
-    async (storageData) => {
-      if (storageData) {
-        const uniqueTokens = storageData.filter(
-          (token, index, self) =>
-            index === self.findIndex((t) => t.unit.toLowerCase() === token.unit.toLowerCase())
-        );
-        await setCoinData(uniqueTokens);
-        let sum = 0;
-        storageData
-          .filter((item) => item.total !== null)
-          .forEach((coin) => {
-            sum = sum + parseFloat(coin.total);
-          });
-        setBalance('$ ' + sum.toFixed(2));
-      }
-    },
-    [setCoinData, setBalance]
-  );
-
-  const sortWallet = useCallback(
-    (data) => {
-      const sorted = data.sort((a, b) => {
-        if (b.total === a.total) {
-          return b.balance - a.balance;
-        } else {
-          return b.total - a.total;
-        }
-      });
-      handleStorageData(sorted);
-    },
-    [handleStorageData]
-  );
-
-  const refreshWithRetry = useCallback(
-    async (expiry_time, retryCount = 0, delay = 2000, maxRetries = 5) => {
-      if (childStateLoading) {
-        console.log('childStateLoading.');
-        return;
-      }
-      try {
-        const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-        console.log(`refreshedCoinlist fetching price for token:`, refreshedCoinlist);
-
-        if (
-          Array.isArray(refreshedCoinlist) &&
-          refreshedCoinlist.length === 0 &&
-          retryCount < maxRetries
-        ) {
-          console.log(
-            `No data found, retrying in 5 seconds... (Attempt ${retryCount + 1} of ${maxRetries})`
-          );
-          setTimeout(() => {
-            refreshWithRetry(expiry_time, retryCount + 1);
-          }, delay);
-        } else {
-          console.log(`refreshedCoinlist found, refreshedCoinlist`, refreshedCoinlist);
-          sortWallet(refreshedCoinlist);
-        }
-      } catch (error) {
-        console.error(`Error fetching price for token:`, error);
-        if (retryCount < maxRetries) {
-          console.log(
-            `Retrying refreshCoinList in ${delay / 1000} seconds... (Attempt ${
-              retryCount + 1
-            } of ${maxRetries})`
-          );
-          setTimeout(() => {
-            refreshWithRetry(expiry_time, retryCount + 1);
-          }, delay);
-        } else {
-          wallet
-            .refreshCoinList(expiry_time)
-            .then((res) => {
-              if (Array.isArray(res) && res.length === 0 && retryCount < maxRetries) {
-                console.log(
-                  `No data found in storage, retrying in 5 seconds... (Attempt ${
-                    retryCount + 1
-                  } of ${maxRetries})`
-                );
-                setTimeout(() => {
-                  refreshWithRetry(expiry_time, retryCount + 1);
-                }, delay);
-              } else {
-                console.log(`res found, refreshedCoinlist`, res);
-                sortWallet(res);
-              }
-            })
-            .catch((err) => {
-              console.error(`Error getting CoinList price for token:`, err);
-            });
-        }
-      }
-    },
-    [childStateLoading, sortWallet, wallet]
-  );
-
   const fetchWallet = useCallback(async () => {
     // If childType is 'evm', handle it first
-    const activeChild = await wallet.getActiveWallet();
+    const activeChild = await usewallet.getActiveWallet();
     if (activeChild === 'evm') {
-      const storageData = await wallet.refreshEvmList(expiry_time);
-      sortWallet(storageData);
       return;
       // If not 'evm', check if it's not active
     } else if (!isActive) {
-      const ftResult = await wallet.checkAccessibleFt(address);
+      const ftResult = await usewallet.checkAccessibleFt(address);
       if (ftResult) {
         setAccessible(ftResult);
       }
     }
 
     // Handle all non-evm and non-active cases here
-    try {
-      console.log('refreshing ');
-      const refreshedCoinlist = await wallet.refreshCoinList(expiry_time);
-      if (Array.isArray(refreshedCoinlist) && refreshedCoinlist.length === 0) {
-        refreshWithRetry(expiry_time);
-      } else {
-        sortWallet(refreshedCoinlist);
-      }
-    } catch {
-      refreshWithRetry(expiry_time);
-    }
-  }, [address, isActive, refreshWithRetry, sortWallet, wallet]);
+  }, [address, isActive, usewallet]);
 
   const loadCache = useCallback(async () => {
-    const storageSwap = await wallet.getSwapConfig();
+    const storageSwap = await usewallet.getSwapConfig();
     setSwapConfig(storageSwap);
-    const storageData = await wallet.getCoinList(expiry_time);
-    sortWallet(storageData);
-  }, [expiry_time, sortWallet, wallet]);
+  }, [usewallet]);
 
   const fetchChildState = useCallback(async () => {
     setChildStateLoading(true);
-    const isChild = await wallet.getActiveWallet();
-    const childresp = await wallet.checkUserChildAccount();
-    setChildAccount(childresp);
+    const isChild = await usewallet.getActiveWallet();
+    setChildAccount(childAccounts);
     setChildType(isChild);
     if (isChild && isChild !== 'evm') {
       setIsActive(false);
@@ -284,32 +156,45 @@ const WalletTab = ({ network }) => {
     }
     setChildStateLoading(false);
     return isChild;
-  }, [wallet]);
+  }, [usewallet, childAccounts]);
 
   useEffect(() => {
     fetchChildState();
     const pollTimer = pollingFunction(setUserAddress, 5000, 300000, true);
 
     if (location.search.includes('activity')) {
-      setValue(1);
+      setValue(2);
     }
 
     return function cleanup() {
       clearInterval(pollTimer);
     };
-  }, [fetchChildState, location.search, setUserAddress]);
+  }, [fetchChildState, location.search, setUserAddress, setValue]);
+
+  useEffect(() => {
+    // First call after 40 seconds
+    const initialTimer = setTimeout(() => {
+      const pollTimer = setInterval(() => {
+        if (!address) {
+          // Only call if address is empty
+          initializeStore();
+        }
+      }, 10000); // Then call every 10 seconds
+
+      // Cleanup interval when component unmounts
+      return () => clearInterval(pollTimer);
+    }, 40000);
+
+    // Cleanup timeout when component unmounts
+    return () => clearTimeout(initialTimer);
+  }, [initializeStore, address]);
 
   const goMoveBoard = async () => {
     setMoveBoard(true);
   };
 
-  const filteredCoinData = coinData.filter((coin) => {
-    if (
-      childType === 'evm' &&
-      coin.unit !== 'flow' &&
-      parseFloat(coin.balance) === 0 &&
-      !coin.custom
-    ) {
+  const filteredCoinData = coins.filter((coin) => {
+    if (childType === 'evm' && coin.unit !== 'flow' && Number(coin.balance) === 0 && !coin.custom) {
       return false;
     }
     return true;
@@ -331,12 +216,12 @@ const WalletTab = ({ network }) => {
 
   useEffect(() => {
     const checkPermission = async () => {
-      const result = await wallet.checkCanMoveChild();
+      const result = await usewallet.checkCanMoveChild();
       setCanMoveChild(result);
     };
 
     checkPermission();
-  }, [wallet]);
+  }, [usewallet]);
 
   useEffect(() => {
     // Add event listener for opening onramp
@@ -351,14 +236,13 @@ const WalletTab = ({ network }) => {
 
   return (
     <Box
+      test-id="wallet-tab"
       sx={{
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'black',
         width: '100%',
         height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
       }}
     >
       <Box
@@ -376,7 +260,6 @@ const WalletTab = ({ network }) => {
               py: '25px',
               my: '18px',
               borderRadius: '8px',
-              // height: '48px',
               alignSelf: 'center',
             }}
           />
@@ -391,14 +274,6 @@ const WalletTab = ({ network }) => {
             }}
             component="span"
           >
-            {/* {balance} */}
-            {/* <ReactTextTransition
-              text={balance}
-              springConfig={{ damping: 20 }}
-              style={{textAlign: 'center' }}
-              noOverflow
-            /> */}
-
             {`$${formatLargeNumber(balance)}`.split('').map((n, i) => (
               <NumberTransition key={`${n}-${i}`} number={n} delay={i * 20} />
             ))}
@@ -590,80 +465,116 @@ const WalletTab = ({ network }) => {
             </Box>
           )}
         </Box>
-        <Tabs
-          value={value}
-          sx={{ width: '100%' }}
-          onChange={handleChange}
-          TabIndicatorProps={{
-            style: {
-              backgroundColor: '#5a5a5a',
-            },
-          }}
-          // textColor="inherit"
-          variant="fullWidth"
-          aria-label="full width tabs example"
-        >
-          <Tab
-            icon={<SavingsRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
-            iconPosition="start"
-            label={
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{
-                  textTransform: 'capitalize',
-                  fontSize: '10',
-                  fontWeight: 'semi-bold',
-                }}
-              >
-                {childType === 'evm' ? filteredCoinData?.length || '' : coinData?.length || ''}{' '}
-                {chrome.i18n.getMessage('coins')}
-              </Typography>
-            }
-            style={{ color: '#F9F9F9', minHeight: '25px' }}
-            {...a11yProps(0)}
-          />
-          <Tab
-            icon={<FlashOnRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
-            iconPosition="start"
-            label={
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{
-                  textTransform: 'capitalize',
-                  fontSize: '10',
-                  fontWeight: 'semi-bold',
-                }}
-              >
-                {`${txCount}`} {chrome.i18n.getMessage('Activity')}
-              </Typography>
-            }
-            style={{ color: '#F9F9F9', minHeight: '25px' }}
-            {...a11yProps(1)}
-          />
-        </Tabs>
       </Box>
-
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={value}
-        onChangeIndex={handleChangeIndex}
-        style={{ height: '100%', width: '100%' }}
+      <Tabs
+        value={value}
+        sx={{
+          width: '100%',
+          position: 'sticky',
+          top: '0',
+          zIndex: 1100,
+          backgroundColor: 'black',
+        }}
+        onChange={handleChange}
+        TabIndicatorProps={{
+          style: {
+            backgroundColor: '#5a5a5a',
+          },
+        }}
+        variant="fullWidth"
+        aria-label="full width tabs example"
       >
-        <TabPanel value={value} index={0}>
-          <CoinList
-            data={coinData}
-            ableFt={accessible}
-            isActive={isActive}
-            childType={childType}
-            coinLoading={coinLoading}
-          />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <TransferList setCount={setTxCount} />
-        </TabPanel>
-      </SwipeableViews>
+        <Tab
+          icon={<SavingsRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
+          iconPosition="start"
+          label={
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                textTransform: 'capitalize',
+                fontSize: '10',
+                fontWeight: 'semi-bold',
+              }}
+            >
+              {childType === 'evm' ? filteredCoinData?.length || '' : coins?.length || ''}{' '}
+              {chrome.i18n.getMessage('coins')}
+            </Typography>
+          }
+          style={{ color: '#F9F9F9', minHeight: '25px' }}
+        />
+        <Tab
+          icon={<IconNfts fontSize="small" />}
+          iconPosition="start"
+          label={
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                textTransform: 'capitalize',
+                fontSize: '10',
+                fontWeight: 'semi-bold',
+              }}
+            >
+              {chrome.i18n.getMessage('NFTs')}
+            </Typography>
+          }
+          style={{ color: '#F9F9F9', minHeight: '25px' }}
+        />
+        <Tab
+          icon={<FlashOnRoundedIcon sx={{ color: 'text.secondary' }} fontSize="small" />}
+          iconPosition="start"
+          label={
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                textTransform: 'capitalize',
+                fontSize: '10',
+                fontWeight: 'semi-bold',
+              }}
+            >
+              {chrome.i18n.getMessage('Activity')}
+            </Typography>
+          }
+          style={{ color: '#F9F9F9', minHeight: '25px' }}
+        />
+      </Tabs>
+      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+        <SwipeableViews
+          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          index={value}
+          onChangeIndex={handleChangeIndex}
+          style={{ height: '100%', width: '100%' }}
+          containerStyle={{ height: '100%' }}
+          resistance
+          disabled
+        >
+          <TabPanel value={value} index={0}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              {value === 0 && (
+                <CoinList
+                  data={coins}
+                  ableFt={accessible}
+                  isActive={isActive}
+                  childType={childType}
+                  coinLoading={coinLoading}
+                />
+              )}
+            </Box>
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              {value === 1 && (childType === 'evm' ? <NftEvm /> : <NFTTab />)}
+            </Box>
+          </TabPanel>
+          <TabPanel value={value} index={2}>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>
+              {value === 2 && <TransferList setCount={setTxCount} />}
+            </Box>
+          </TabPanel>
+        </SwipeableViews>
+      </Box>
       <LLComingSoon alertOpen={alertOpen} handleCloseIconClicked={() => setAlertOpen(false)} />
 
       <Drawer

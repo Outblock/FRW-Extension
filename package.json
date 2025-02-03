@@ -1,6 +1,6 @@
 {
   "name": "flow-reference-wallet",
-  "version": "2.6.10",
+  "version": "2.7.0",
   "description": "Digital wallet created for everyone.",
   "type": "module",
   "scripts": {
@@ -22,14 +22,20 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:e2e:ui:debug": "playwright test --ui --debug",
     "test:unit": "vitest",
+    "test:unit:coverage": "vitest --coverage",
     "pub": "pnpx tsx build/release.ts",
     "prepare": "husky",
     "preinstall": "npx only-allow pnpm",
     "analyze:imports": "pnpx tsx build/analyze-imports.ts",
     "analyze:dependencies": "pnpx tsx build/analyze-dependencies.ts",
+    "analyze:fetch": "./build/fetch-project-data.sh",
+    "analyze:project": "pnpx tsx build/analyze-project.ts",
+    "analyze:priority": "pnpm analyze:fetch && pnpm analyze:project",
     "emulate:testnet": "flow emulator --chain-id testnet --rpc-host access.devnet.nodes.onflow.org:9000",
-    "emulate:mainnet": "flow emulator --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000"
+    "emulate:mainnet": "flow emulator --chain-id mainnet --rpc-host access.mainnet.nodes.onflow.org:9000",
+    "gh:login": "gh auth login -s project && gh auth status"
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^1.10.0",
@@ -136,6 +142,7 @@
     "web3": "^4.15.0",
     "web3-utils": "^4.3.2",
     "webextension-polyfill": "^0.12.0",
+    "zustand": "^5.0.2",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
@@ -155,6 +162,7 @@
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
+    "@vitest/coverage-v8": "2.1.8",
     "@welldone-software/why-did-you-render": "^6.2.3",
     "autoprefixer": "^10.4.20",
     "css-loader": "^5.2.7",

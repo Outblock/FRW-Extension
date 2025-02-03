@@ -23,9 +23,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
 import { type UserInfoResponse } from '@/shared/types/network-types';
+import IconNext from '@/ui/FRWAssets/svg/nextgray.svg';
 import { LLSecondaryButton } from '@/ui/FRWComponent';
-import placeholder from 'ui/FRWAssets/image/placeholder.png';
-import IconNext from 'ui/FRWAssets/svg/nextgray.svg';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { useWallet } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../components/iconfont/IconCheckmark';
@@ -99,6 +99,7 @@ const LinkedDetail = () => {
 
   const history = useHistory();
   const usewallet = useWallet();
+  const { childAccounts } = useProfileStore();
   const [childAccount, setChildAccount] = useState<ChildAccount | null>(null);
   const [unlinking, setUnlinking] = useState<boolean>(false);
   const [active, setIsActive] = useState<boolean>(false);
@@ -119,7 +120,6 @@ const LinkedDetail = () => {
 
   const fetchUserWallet = useCallback(async () => {
     try {
-      const childresp = await usewallet.checkUserChildAccount();
       const isChild = await usewallet.getActiveWallet();
       // const flowCoins = fetchRemoteConfig.flowCoins();
       if (isChild) {
@@ -128,7 +128,7 @@ const LinkedDetail = () => {
         setIsActive(true);
       }
       const key = location['key'];
-      setChildAccount(childresp[key]);
+      setChildAccount(childAccounts[key]);
       setKey(key);
       const catalog = await usewallet.getNftCatalog();
 
@@ -169,7 +169,7 @@ const LinkedDetail = () => {
       console.error('Error fetching data:', error);
       setLoading(false);
     }
-  }, [usewallet, location]);
+  }, [usewallet, location, childAccounts]);
 
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
 

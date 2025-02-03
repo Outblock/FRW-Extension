@@ -1,55 +1,20 @@
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
-import { getApp, initializeApp } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { fetchAndActivate, getRemoteConfig } from 'firebase/remote-config';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import SwipeableViews from 'react-swipeable-views';
+import React, { useEffect, useState } from 'react';
 
-import { storage } from '@/background/webapi';
 import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
+import { useNetworkStore } from '@/ui/stores/useNetworkStore';
 import { getFirbaseConfig } from 'background/utils/firebaseConfig';
 import { useWallet } from 'ui/utils';
 
-import NFTTab from '../NFT';
-import NftEvm from '../NftEvm';
-import SettingTab from '../Setting';
-import Staking from '../Staking';
 import WalletTab from '../Wallet';
-
-import NavBar from './NavBar';
-
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
-      {...other}
-    >
-      {value === index && children}
-    </div>
-  );
-}
 
 const Dashboard = ({ value, setValue }) => {
   // const [value, setValue] = React.useState('wallet');
-  const history = useHistory();
-  const wallet = useWallet();
-
-  const theme = useTheme();
-  const [currentNetwork, setNetwork] = useState<string>('mainnet');
-  const [domain, setDomain] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isEvm, setIsEvm] = useState<boolean>(false);
-  const [emulatorModeOn, setEmulatorModeOn] = useState<boolean>(false);
-
-  const handleChangeIndex = (index) => {
-    setValue(index);
-  };
+  const usewallet = useWallet();
+  const { currentNetwork, emulatorModeOn, setEmulatorModeOn, setNetwork } = useNetworkStore();
 
   useEffect(() => {
     console.log('useEffect - fetchAll');
@@ -57,17 +22,12 @@ const Dashboard = ({ value, setValue }) => {
 
     const fetchAll = async () => {
       //todo fix cadence loading
-      await wallet.getCadenceScripts();
-      const [network, emulatorMode, userDomain] = await Promise.all([
-        wallet.getNetwork(),
-        wallet.getEmulatorMode(),
-        wallet.fetchUserDomain(),
+      await usewallet.getCadenceScripts();
+      const [network, emulatorMode] = await Promise.all([
+        usewallet.getNetwork(),
+        usewallet.getEmulatorMode(),
       ]);
-      const isChild = await wallet.getActiveWallet();
 
-      if (isChild === 'evm') {
-        setIsEvm(true);
-      }
       const env: string = process.env.NODE_ENV!;
       const firebaseConfig = getFirbaseConfig();
 
@@ -84,22 +44,20 @@ const Dashboard = ({ value, setValue }) => {
           console.error('Error fetching remote config:', error);
         });
 
-      return { network, emulatorMode, userDomain };
+      return { network, emulatorMode };
     };
 
-    fetchAll().then(({ network, emulatorMode, userDomain }) => {
+    fetchAll().then(({ network, emulatorMode }) => {
       if (isMounted) {
         setNetwork(network);
         setEmulatorModeOn(emulatorMode);
-        setDomain(userDomain);
-        setLoading(false);
       }
     });
 
     return () => {
       isMounted = false;
     };
-  }, [wallet]);
+  }, [usewallet, setEmulatorModeOn, setNetwork]);
 
   return (
     <div className="page">
@@ -112,28 +70,11 @@ const Dashboard = ({ value, setValue }) => {
         }}
       >
         <NetworkIndicator network={currentNetwork} emulatorMode={emulatorModeOn} />
-
-        {/* <Header loading={loading} /> */}
-        <SwipeableViews
-          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={value}
-          onChangeIndex={handleChangeIndex}
-          style={{ height: '100%', width: '100%' }}
-        >
-          <TabPanel value={value} index={0}>
+        <div test-id="x-overflow" style={{ overflowX: 'hidden', height: '100%' }}>
+          <div style={{ display: 'block', width: '100%' }}>
             <WalletTab network={currentNetwork} />
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            {isEvm ? <NftEvm /> : <NFTTab />}
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            <Staking />
-          </TabPanel>
-          <TabPanel value={value} index={3}>
-            <SettingTab />
-          </TabPanel>
-        </SwipeableViews>
-        <NavBar value={value} setValue={setValue} />
+          </div>
+        </div>
       </Box>
     </div>
   );

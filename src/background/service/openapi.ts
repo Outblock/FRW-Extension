@@ -1,4 +1,5 @@
 import * as fcl from '@onflow/fcl';
+import type { Account as FclAccount } from '@onflow/typedefs';
 import type { Method } from 'axios';
 import dayjs from 'dayjs';
 import { initializeApp, getApp } from 'firebase/app';
@@ -18,6 +19,12 @@ import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
+import {
+  type LoggedInAccountWithIndex,
+  type LoggedInAccount,
+  type FlowAddress,
+  type ActiveChildType,
+} from '@/shared/types/wallet-types';
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
@@ -40,6 +47,7 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
+  type BlockchainResponse,
 } from '../../shared/types/network-types';
 
 import {
@@ -362,6 +370,54 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
   },
 };
 
+const recordFetch = async (response, responseData, ...args: Parameters<typeof fetch>) => {
+  try {
+    // Extract URL parameters from the first argument if it's a URL with query params
+    const url = args[0].toString();
+    const urlObj = new URL(url);
+    const urlParams = Object.fromEntries(urlObj.searchParams.entries());
+
+    // Send message to UI with request/response details
+
+    const messageData = {
+      method: args[1]?.method,
+      url: args[0],
+      params: urlParams, // URL parameters extracted from the URL
+      requestInit: args[1],
+      responseData, // Raw response from fetch
+      timestamp: Date.now(),
+      status: response.status,
+      statusText: response.statusText,
+      // Note: functionParams and functionResponse will be added by the calling function
+    };
+    console.log('fetchCallRecorder - response & messageData', response, messageData);
+
+    chrome.runtime.sendMessage({
+      type: 'API_CALL_RECORDED',
+      data: messageData,
+    });
+  } catch (err) {
+    console.error('Error sending message to UI:', err);
+  }
+  return response;
+};
+
+// Override fetch in branches other than master
+const originalFetch = globalThis.fetch;
+
+const fetchCallRecorder = async (...args: Parameters<typeof originalFetch>) => {
+  const response = await originalFetch(...args);
+  try {
+    console.log('response', response);
+    const responseData = response.ok ? await response.clone().json() : null;
+    //  recordFetch(response, responseData, ...args);
+  } catch (err) {
+    console.error('Error recording fetch call:', err);
+  }
+  return response;
+};
+///const fetch = process.env.BRANCH_NAME === 'master' ? globalThis.fetch : fetchCallRecorder;
+
 class OpenApiService {
   store!: OpenApiStore;
 
@@ -419,7 +475,6 @@ class OpenApiService {
     const user = await getAuth(app).currentUser;
     const init = {
       method,
-      async: true,
       headers: {
         Network: network,
         Accept: 'application/json',
@@ -446,7 +501,11 @@ class OpenApiService {
     }
 
     const response = await fetch(requestUrl, init);
-    return response.json(); // parses JSON response into native JavaScript objects
+    const responseData = await response.json(); // parses JSON response into native JavaScript objects
+
+    // recordFetch(response, responseData, requestUrl, init);
+    return responseData;
+    // Record the response
   };
 
   private getUSDCPricePair = (provider: PriceProvider): string | null => {
@@ -1863,6 +1922,7 @@ class OpenApiService {
 
     console.log('getTransactionTemplate ->', init);
     const response = await fetch('https://flix.flow.com/v1/templates/search', init);
+
     const template = await response.json();
 
     console.log('template ->', template);
@@ -2378,8 +2438,14 @@ class OpenApiService {
     return news;
   };
 
-  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
-    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+  freshUserInfo = async (
+    currentWallet: BlockchainResponse,
+    keys: FclAccount,
+    pubKTuple,
+    wallet,
+    isChild: ActiveChildType
+  ) => {
+    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
 
     if (!isChild) {
       await storage.set('keyIndex', '');
@@ -2402,29 +2468,39 @@ class OpenApiService {
       await storage.set('signAlgo', keyInfo.signAlgo);
       await storage.set('hashAlgo', keyInfo.hashAlgo);
       await storage.set('pubKey', keyInfo.publicKey);
+      // Make sure the address is a FlowAddress
 
-      wallet['address'] = currentWallet.address;
-      wallet['pubKey'] = keyInfo.publicKey;
-      wallet['hashAlgo'] = keyInfo.hashAlgo;
-      wallet['signAlgo'] = keyInfo.signAlgo;
-      wallet['weight'] = keys.keys[0].weight;
+      if (!isValidFlowAddress(currentWallet.address)) {
+        throw new Error('Invalid Flow address');
+      }
+      const flowAddress: FlowAddress = currentWallet.address as FlowAddress;
+      const updatedWallet: LoggedInAccount = {
+        ...wallet,
+        address: flowAddress,
+        pubKey: keyInfo.publicKey,
+        hashAlgo: keyInfo.hashAlgo,
+        signAlgo: keyInfo.signAlgo,
+        weight: keys.keys[0].weight,
+      };
 
-      log.log('wallet is this:', wallet);
+      log.log('wallet is this:', updatedWallet);
 
       const accountIndex = loggedInAccounts.findIndex(
-        (account) => account.username === wallet.username
+        // Check both pubKey and username. Older versions allowed the pubKey to be imported twice with different usernames
+        (account) =>
+          account.pubKey === updatedWallet.pubKey && account.username === updatedWallet.username
       );
 
       if (accountIndex === -1) {
-        loggedInAccounts.push(wallet);
+        loggedInAccounts.push(updatedWallet);
       } else {
-        loggedInAccounts[accountIndex] = wallet;
+        loggedInAccounts[accountIndex] = updatedWallet;
       }
       await storage.set('loggedInAccounts', loggedInAccounts);
     }
 
     log.log('Updated loggedInAccounts:', loggedInAccounts);
-    const otherAccounts = loggedInAccounts
+    const otherAccounts: LoggedInAccountWithIndex[] = loggedInAccounts
       .filter((account) => account.username !== wallet.username)
       .map((account) => {
         const indexInLoggedInAccounts = loggedInAccounts.findIndex(
@@ -2435,9 +2511,6 @@ class OpenApiService {
       .slice(0, 2);
 
     log.log('otherAccounts with index:', otherAccounts);
-    // await setOtherAccounts(otherAccounts);
-    // await setUserInfo(wallet);
-    // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
   };
 
@@ -2469,4 +2542,48 @@ class OpenApiService {
   };
 }
 
-export default new OpenApiService();
+const openApiService = new OpenApiService();
+
+if (process.env.NODE_ENV === 'development') {
+  // Log all functions and their signatures
+  const functions = Object.entries(openApiService)
+    .filter(
+      ([name, value]) =>
+        typeof value === 'function' &&
+        name !== 'constructor' &&
+        typeof name === 'string' &&
+        name !== 'get'
+    )
+    .map(([name]) => {
+      const func = openApiService[name];
+      // Use a safer way to get function info
+      const funcStr = func.toString();
+      const isAsync = funcStr.startsWith('async');
+      const basicSignature = funcStr.split('{')[0].trim();
+
+      return {
+        name,
+        isAsync,
+        fullBody: funcStr,
+        usesSendRequest: funcStr.includes('this.sendRequest'),
+        usesFetchDirectly: funcStr.includes('fetch('),
+        basicSignature,
+        // Simple regex to extract parameter names without accessing arguments
+        params: basicSignature
+          .slice(basicSignature.indexOf('(') + 1, basicSignature.lastIndexOf(')'))
+          .split(',')
+          .map((param) => param.trim())
+          .map((param) => {
+            if (param.startsWith('PriceProvider.')) {
+              return param.replace('PriceProvider.', '');
+            }
+            return param;
+          })
+          .filter(Boolean),
+      };
+    });
+
+  console.log('OpenApiService Functions:', functions);
+}
+
+export default openApiService;

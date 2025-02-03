@@ -10,6 +10,7 @@ yarn.lock
 .env
 .env.dev
 .env.pro
+.env.*
 dist.zip
 _raw/manifest.json
 _raw/react-devtools.js
@@ -27,3 +28,6 @@ dependency-usage.md
 extension-dependencies.md
 emulator-account.pkey
 flow.json
+coverage
+.github-data
+playwright/.auth

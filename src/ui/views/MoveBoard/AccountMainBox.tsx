@@ -2,12 +2,11 @@ import { Typography, Box, CardMedia } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { storage } from '@/background/webapi';
 import { ensureEvmAddressPrefix } from '@/shared/utils/address';
-import emoji from 'background/utils/emoji.json';
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import accountMove from 'ui/FRWAssets/svg/accountMove.svg';
-import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';
-import { useWallet, formatAddress } from 'ui/utils';
+import { FWMoveDropdown } from 'ui/FRWComponent';
+import { useWallet } from 'ui/utils';
 
 const USER_CONTACT = {
   contact_name: '',
@@ -16,26 +15,19 @@ const USER_CONTACT = {
 
 function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isEvm = false }) {
   const usewallet = useWallet();
-
+  const { mainAddress, evmAddress, childAccounts, currentWallet } = useProfileStore();
   const [first, setFirst] = useState<string>('');
   const [userInfo, setUser] = useState<any>(USER_CONTACT);
   const [firstEmoji, setFirstEmoji] = useState<any>(null);
   const [childWallets, setChildWallets] = useState({});
 
   const requestAddress = useCallback(async () => {
-    const parentAddress = await usewallet.getMainAddress();
     const address = await usewallet.getCurrentAddress();
-    const childResp = await usewallet.checkUserChildAccount();
     const eWallet = await usewallet.getEvmWallet();
-    const currentWallet = await usewallet.getCurrentWallet();
-    let evmAddress;
-    if (eWallet.address) {
-      evmAddress = ensureEvmAddressPrefix(eWallet.address);
-    }
 
     if (isChild) {
       const newWallet = {
-        [parentAddress!]: {
+        [mainAddress!]: {
           name: currentWallet.name,
           description: currentWallet.name,
           thumbnail: {
@@ -58,10 +50,10 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
       }
 
       // Merge wallet lists
-      const walletList = { ...childResp, ...newWallet, ...evmWallet };
+      const walletList = { ...childAccounts, ...newWallet, ...evmWallet };
       delete walletList[address!];
       const firstWalletAddress = Object.keys(walletList)[0];
-      const wallet = childResp[address!];
+      const wallet = childAccounts[address!];
       setChildWallets(walletList);
 
       const userContact = {
@@ -86,16 +78,24 @@ function AccountMainBox({ isChild, setSelectedChildAccount, selectedAccount, isE
           },
         };
       }
-      const walletList = { ...childResp, ...evmWallet };
+      const walletList = { ...childAccounts, ...evmWallet };
       setChildWallets(walletList);
       const firstWalletAddress = Object.keys(walletList)[0];
       if (firstWalletAddress) {
         setSelectedChildAccount(walletList[firstWalletAddress]);
       }
-      setFirst(parentAddress!);
+      setFirst(mainAddress!);
       setFirstEmoji(currentWallet);
     }
-  }, [usewallet, isChild, setSelectedChildAccount]);
+  }, [
+    usewallet,
+    isChild,
+    setSelectedChildAccount,
+    mainAddress,
+    evmAddress,
+    childAccounts,
+    currentWallet,
+  ]);
 
   useEffect(() => {
     requestAddress();
