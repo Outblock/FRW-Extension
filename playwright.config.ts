@@ -25,16 +25,28 @@ export default defineConfig({
   /* Opt out of parallel tests because we are using a data directory. */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? 'github' : 'html',
+  reporter: [['html'], ['github'], ['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    video: process.env.CI ? 'on-first-retry' : 'off',
-    screenshot: process.env.CI ? 'only-on-failure' : 'off',
+    /* Collect trace for all tests and retries */
+    trace: 'on',
+
+    /* Take screenshots on failure */
+    screenshot: 'only-on-failure',
+
+    /* Record video for failed tests */
+    video: 'retain-on-failure',
+
+    /* Capture full page screenshot before and after each test */
+    contextOptions: {
+      recordVideo: {
+        dir: 'playwright-report/videos/',
+      },
+    },
+
     headless: process.env.CI ? true : false,
   },
   // globalTimeout: 160 * 1000,
