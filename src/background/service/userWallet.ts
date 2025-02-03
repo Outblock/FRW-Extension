@@ -1,17 +1,19 @@
 import * as secp from '@noble/secp256k1';
 import * as fcl from '@onflow/fcl';
-import { Block } from 'ethers';
 import { getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth/web-extension';
 
+import wallet from '@/background/controller/wallet';
+import keyringService from '@/background/service/keyring';
+import { mixpanelTrack } from '@/background/service/mixpanel';
+import openapiService from '@/background/service/openapi';
+import { getLoggedInAccount } from '@/background/utils/getStoragedAccount';
 import { signWithKey, seed2PubKey } from '@/background/utils/modules/publicPrivateKey';
+import createPersistStore from '@/background/utils/persisitStore';
+import { type HashAlgoType, type SignAlgoType } from '@/shared/types/algo-types';
 import { type LoggedInAccount, type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { getHashAlgo, getSignAlgo } from '@/shared/utils/algo';
-import wallet from 'background/controller/wallet';
-import { keyringService, mixpanelTrack, openapiService } from 'background/service';
-import { createPersistStore } from 'background/utils';
-import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 
 import type {
   WalletResponse,
@@ -21,7 +23,11 @@ import type {
   FlowNetwork,
 } from '../../shared/types/network-types';
 import { fclConfig } from '../fclConfig';
-import { findAddressWithSeed, findAddressWithPK } from '../utils/modules/findAddressWithPK';
+import {
+  findAddressWithSeed,
+  findAddressWithPK,
+  findAddressWithNetwork,
+} from '../utils/modules/findAddressWithPK';
 import { storage } from '../webapi';
 
 interface UserWalletStore {
@@ -358,19 +364,53 @@ class UserWallet {
   };
 
   switchLogin = async (pubKey: any, replaceUser = true) => {
-    const keys1 = pubKey.P256;
-    const kesy2 = pubKey.SECP256K1;
+    const pubKeyP256 = pubKey.P256;
+    const pubKeySECP256K1 = pubKey.SECP256K1;
 
-    const account: LoggedInAccount = await getStoragedAccount();
-    const ktype =
-      typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
-    const keys = ktype === 1 ? keys1 : kesy2;
+    // The issue is here in using getStoragedAccount()
+    let account: Partial<LoggedInAccount> & {
+      hashAlgo: HashAlgoType;
+      signAlgo: SignAlgoType;
+      pubKey: string;
+      weight: number;
+    };
+    try {
+      // Try to get the account from  loggedInAccounts
+      account = await getLoggedInAccount();
+    } catch (error) {
+      console.error('Error getting logged in account - recreate it', error);
+      // Look for the account using the pubKey
+      const network = (await this.getNetwork()) || 'mainnet';
+      // Find the address associated with the pubKey
+      // This should return an array of address information records
+      const addressAndKeyInfoArray = await findAddressWithNetwork(pubKey, network);
+      // Find which signAlgo and hashAlgo is used on the account
+      if (!Array.isArray(addressAndKeyInfoArray) || !addressAndKeyInfoArray.length) {
+        throw new Error('No address found');
+      }
+      // Follow the same logic as freshUserInfo in openapi.ts
+      // Look for the P256 key first
+      let index = addressAndKeyInfoArray.findIndex((key) => key.publicKey === pubKeyP256.pubK);
+      if (index === -1) {
+        // If no P256 key is found, look for the SECP256K1 key
+        index = addressAndKeyInfoArray.findIndex((key) => key.publicKey === pubKeySECP256K1.pubK);
+      } else {
+        // If a P256 key is found, use the first key
+        index = 0;
+      }
+      // Use the SEP256 first, if that's not found, use the P256
+      account = {
+        ...addressAndKeyInfoArray[index],
+      };
+    }
+    const keyType = getSignAlgo(account.signAlgo!);
+    const keys = keyType === 1 ? pubKeyP256 : pubKeySECP256K1;
     let result = [
       {
-        hashAlgo: account.hashAlgo,
-        signAlgo: account.signAlgo,
+        hashAlgo: account.hashAlgo!,
+        signAlgo: account.signAlgo!,
         pubK: keys.pubK,
-        weight: account.weight,
+        weight: account.weight!,
       },
     ];
 

@@ -76,7 +76,7 @@ import type { PreferenceAccount } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
-import { getStoragedAccount } from '../utils/getStoragedAccount';
+import { getLoggedInAccount } from '../utils/getStoragedAccount';
 
 import BaseController from './base';
 import provider from './provider';
@@ -456,31 +456,52 @@ export class WalletController extends BaseController {
         const seed = await seed2PubKey(mnemonic);
         const PK1 = seed.P256.pk;
         const PK2 = seed.SECP256K1.pk;
+
+        // We need to know the signAlgo for the account, so we can use the correct private key
+        // The signAlgo is stored in the account object for each public key return from fcl
+
+        // getLoggedInAccount is using currentId from storage to get the account
+        // That should tell us the account to use
+
         try {
           // Try using logged in accounts first
-          const account = await getStoragedAccount();
+          const account = await getLoggedInAccount();
           const signAlgo =
             typeof account.signAlgo === 'string' ? getSignAlgo(account.signAlgo) : account.signAlgo;
           privateKey = signAlgo === 1 ? PK1 : PK2;
         } catch {
-          // Couldn't load from logged in accounts, so we need to load from fcl
+          // Couldn't load from logged in accounts.
+          // The signAlgo used to login isn't saved. We need to
 
-          const fclAccount: FclAccount = await this.getAccount();
-          const pubKTuple = await this.getPubKey();
-          // Figure out the signAlgo for the account
-          const { P256, SECP256K1 } = pubKTuple;
+          // We may be in the process of switching login. We have a public and private key, but we don't have the signAlgo or the address of the account
+          console.error('Error getting logged in account - using the indexer instead');
 
-          const keyInfoA = findKeyAndInfo(fclAccount, P256.pubK);
-          const keyInfoB = findKeyAndInfo(fclAccount, SECP256K1.pubK);
-          const keyInfo = keyInfoA ||
-            keyInfoB || {
-              index: 0,
-              signAlgo: fclAccount.keys[0].signAlgo,
-              hashAlgo: fclAccount.keys[0].hashAlgo,
-              publicKey: fclAccount.keys[0].publicKey,
-            };
+          // Look for the account using the pubKey
+          const network = (await this.getNetwork()) || 'mainnet';
+          // Find the address associated with the pubKey
+          // This should return an array of address information records
+          const addressAndKeyInfoArray = await findAddressWithNetwork(seed, network);
+          // Find which signAlgo and hashAlgo is used on the account
+          if (!Array.isArray(addressAndKeyInfoArray) || !addressAndKeyInfoArray.length) {
+            throw new Error('No address found');
+          }
+          // Follow the same logic as freshUserInfo in openapi.ts
+          // Look for the P256 key first
+          let index = addressAndKeyInfoArray.findIndex((key) => key.publicKey === seed.P256.pubK);
+          if (index === -1) {
+            // If no P256 key is found, look for the SECP256K1 key
+            index = addressAndKeyInfoArray.findIndex(
+              (key) => key.publicKey === seed.SECP256K1.pubK
+            );
+          } else {
+            // If a P256 key is found, use the first key
+            index = 0;
+          }
+
           const signAlgo =
-            typeof keyInfo.signAlgo === 'string' ? getSignAlgo(keyInfo.signAlgo) : keyInfo.signAlgo;
+            typeof addressAndKeyInfoArray[index].signAlgo === 'string'
+              ? getSignAlgo(addressAndKeyInfoArray[index].signAlgo)
+              : addressAndKeyInfoArray[index].signAlgo;
 
           privateKey = signAlgo === 1 ? PK1 : PK2;
         }
@@ -1613,6 +1634,7 @@ export class WalletController extends BaseController {
   };
 
   //user wallets
+  // TODO: Move this to userWalletService
   refreshUserWallets = async () => {
     const network = await this.getNetwork();
 
