@@ -100,6 +100,10 @@ class PreferenceService {
     if (this.store.isDefaultWallet === undefined || this.store.isDefaultWallet === null) {
       this.store.isDefaultWallet = true;
     }
+    if (this.store.currentAccount) {
+      // Clear address - it shouldn't be stored
+      this.store.currentAccount.address = '';
+    }
     if (!this.store.lastTimeSendToken) {
       this.store.lastTimeSendToken = {};
     }
@@ -181,13 +185,12 @@ class PreferenceService {
       ...this.store.hiddenAddresses,
       {
         type,
-        address,
+        address: '',
         brandName,
       },
     ];
     if (
       type === this.store.currentAccount?.type &&
-      address === this.store.currentAccount.address &&
       brandName === this.store.currentAccount.brandName
     ) {
       this.resetCurrentAccount();
@@ -215,7 +218,12 @@ class PreferenceService {
   };
 
   setCurrentAccount = (account: PreferenceAccount | null) => {
-    this.store.currentAccount = account;
+    this.store.currentAccount = account
+      ? {
+          ...account,
+          address: '', //  clear address
+        }
+      : undefined;
     if (account) {
       sessionService.broadcastEvent('accountsChanged', [account.address]);
       eventBus.emit(EVENTS.broadcastToUI, {
