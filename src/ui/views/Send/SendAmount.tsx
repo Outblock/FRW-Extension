@@ -52,7 +52,7 @@ const SendAmount = () => {
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
-  const [amount, setAmount] = useState<string | undefined>(undefined);
+  const [amount, setAmount] = useState<string>('0');
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [validated, setValidated] = useState<any>(null);
   const [userInfo, setUser] = useState<Contact>(USER_CONTACT);

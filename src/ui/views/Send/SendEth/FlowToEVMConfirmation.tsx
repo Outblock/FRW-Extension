@@ -1,6 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -20,7 +21,7 @@ interface ToEthConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
-const ToEthConfirmation = (props: ToEthConfirmationProps) => {
+const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
@@ -79,7 +80,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   }, []);
 
   const transferFlow = useCallback(async () => {
-    const amount = parseFloat(props.data.amount).toFixed(8);
+    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
     wallet
       .transferFlowEvm(props.data.contact.address, amount)
@@ -106,17 +107,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   }, [history, props, wallet]);
 
   const transferFt = useCallback(async () => {
-    const amount = props.data.amount * 1e18;
     setSending(true);
-    // TB: I don't know why this is needed
-    const encodedData = props.data.erc20Contract.methods
-      .transfer(props.data.contact.address, amount)
-      .encodeABI();
+
     const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
-    // Note that gas is not used in this function
-    const gas = '1312d00';
-    const value = parseFloat(props.data.amount).toFixed(8);
-    const data = encodedData;
+    const value = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
     const address = tokenResult!.address.startsWith('0x')
       ? tokenResult!.address.slice(2)
@@ -389,4 +383,4 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   );
 };
 
-export default ToEthConfirmation;
+export default FlowToEVMConfirmation;

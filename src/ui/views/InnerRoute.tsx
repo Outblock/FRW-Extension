@@ -9,6 +9,7 @@ import { useWallet } from 'ui/utils';
 import Deposit from '../views/Deposit';
 import Enable from '../views/Enable';
 import Send from '../views/Send';
+//Transaction TODO: this is not used anymore, should be removed
 import Swap from '../views/Swap';
 
 import Dashboard from './Dashboard';

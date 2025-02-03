@@ -8,6 +8,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import * as ethUtil from 'ethereumjs-util';
 import { getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth/web-extension';
+import type { TokenInfo } from 'flow-native-token-registry';
 import { encode } from 'rlp';
 import web3, { TransactionError } from 'web3';
 
@@ -1885,11 +1886,11 @@ export class WalletController extends BaseController {
 
   transferFTToEvmV2 = async (
     vaultIdentifier: string,
-    amount = '1.0',
-    recipient
+    amount = '0.0',
+    recipient: string
   ): Promise<string> => {
     await this.getNetwork();
-    const formattedAmount = parseFloat(amount).toFixed(8);
+    const formattedAmount = new BN(amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
     const script = await getScripts('bridge', 'bridgeTokensToEvmAddressV2');
 
@@ -1912,9 +1913,9 @@ export class WalletController extends BaseController {
 
   transferFTFromEvm = async (
     flowidentifier: string,
-    amount = '1.0',
+    amount: string,
     receiver: string,
-    tokenResult
+    tokenResult: TokenInfo
   ): Promise<string> => {
     await this.getNetwork();
     const amountStr = amount.toString();
@@ -1951,9 +1952,9 @@ export class WalletController extends BaseController {
     return txID;
   };
 
-  withdrawFlowEvm = async (amount = '1.0', address: string): Promise<string> => {
+  withdrawFlowEvm = async (amount = '0.0', address: string): Promise<string> => {
     await this.getNetwork();
-    const formattedAmount = parseFloat(amount).toFixed(8);
+    const formattedAmount = new BN(amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
     const script = await getScripts('evm', 'withdrawCoa');
 
     const txID = await userWalletService.sendTransaction(script, [

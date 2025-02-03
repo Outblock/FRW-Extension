@@ -14,7 +14,7 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-interface ToEthConfirmationProps {
+interface EvmConfirmationProps {
   isConfirmationOpen: boolean;
   data: any;
   handleCloseIconClicked: () => void;
@@ -22,7 +22,7 @@ interface ToEthConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
-const ToEthConfirmation = (props: ToEthConfirmationProps) => {
+const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
   const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
@@ -84,8 +84,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   }, []);
 
   const transferToken = useCallback(async () => {
-    const amount = props.data.amount * 1e18;
     const network = await usewallet.getNetwork();
+    //Transaction TODO: tokeninfo getting directly from api using tokenSymbol, need to add filter on contractName and address
     const tokenResult = await usewallet.openapi.getTokenInfo(props.data.tokenSymbol, network);
 
     const amountStr = props.data.amount.toString();
@@ -375,4 +375,4 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   );
 };
 
-export default ToEthConfirmation;
+export default EvmToEvmConfirmation;

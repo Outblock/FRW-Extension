@@ -1,6 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
@@ -55,6 +56,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     '#41CC5D',
     '#41CC5D',
   ];
+
   const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
@@ -82,17 +84,35 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     setOccupied(false);
   }, []);
 
-  const transferToken = async () => {
-    // TODO: Replace it with real data
-    if (props.data.childType === 'evm') {
-      withDrawEvm();
-      return;
-    } else if (props.data.childType) {
-      sendFromChild();
-      return;
-    }
+  const runTransaction = async () => {
     setSending(true);
-    const amount = parseFloat(props.data.amount).toFixed(8);
+    try {
+      if (props.data.childType === 'evm') {
+        await handleEvmTransfer();
+      } else if (props.data.childType) {
+        await tokenFromChild();
+      } else {
+        await transferTokenOnCadence();
+      }
+    } catch {
+      setFailed(true);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleEvmTransfer = async () => {
+    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
+      await flowFromEvm();
+    } else {
+      await otherFTFromEvm();
+    }
+  };
+
+  const transferTokenOnCadence = async () => {
+    setSending(true);
+    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
+
     wallet
       .transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount)
       .then(async (txID) => {
@@ -117,8 +137,9 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       });
   };
 
-  const sendFromChild = async () => {
-    const amount = parseFloat(props.data.amount).toFixed(8);
+  const tokenFromChild = async () => {
+    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
+
     wallet
       .sendFTfromChild(
         props.data.userContact.address,
@@ -149,21 +170,9 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       });
   };
 
-  const withDrawEvm = async () => {
-    console.log('transferToken ->', props.data);
-    setSending(true);
-    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
-      transferFlow();
-    } else {
-      transferFt();
-    }
-  };
-
-  const transferFlow = async () => {
-    const amount = parseFloat(props.data.amount).toFixed(8);
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
+  const flowFromEvm = async () => {
     wallet
-      .withdrawFlowEvm(amount, props.data.contact.address)
+      .withdrawFlowEvm(props.data.amount, props.data.contact.address)
       .then(async (txID) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
@@ -185,7 +194,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       });
   };
 
-  const transferFt = async () => {
+  const otherFTFromEvm = async () => {
     const tokenResult = await wallet.openapi.getEvmTokenInfo(props.data.tokenSymbol);
     console.log('tokenResult ', tokenResult, props.data.amount);
 
@@ -194,7 +203,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         tokenResult!['flowIdentifier'],
         props.data.amount,
         props.data.contact.address,
-        tokenResult
+        tokenResult!
       )
       .then(async (txID) => {
         await wallet.setRecent(props.data.contact);
@@ -396,7 +405,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       />
 
       <Button
-        onClick={transferToken}
+        onClick={runTransaction}
         disabled={sending || occupied}
         variant="contained"
         color="success"

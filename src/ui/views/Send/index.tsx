@@ -521,7 +521,7 @@ const Send = () => {
                     isLoading={isLoading}
                     handleClick={(eachgroup) => {
                       const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
+                      //Transaction TODO: make these two routes and components structure match
                       const pathname = isEvmAddress
                         ? '/dashboard/wallet/sendeth'
                         : '/dashboard/wallet/sendAmount';

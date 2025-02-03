@@ -17,8 +17,9 @@ import { useWallet } from 'ui/utils';
 import CancelIcon from '../../../../components/iconfont/IconClose';
 import TransferAmount from '../TransferAmount';
 
-import EvmConfirmation from './EvmConfirmation';
-import ToEthConfirmation from './ToEthConfirmation';
+import EvmToEvmConfirmation from './EvmToEvmConfirmation';
+import FlowToEVMConfirmation from './FlowToEVMConfirmation';
+
 interface ContactState {
   contact: Contact;
 }
@@ -304,7 +305,7 @@ const SendEth = () => {
             </Button>
           </Box>
           {childType === 'evm' ? (
-            <EvmConfirmation
+            <EvmToEvmConfirmation
               isConfirmationOpen={isConfirmationOpen}
               data={{
                 contact: location.state.contact,
@@ -322,7 +323,7 @@ const SendEth = () => {
               }}
             />
           ) : (
-            <ToEthConfirmation
+            <FlowToEVMConfirmation
               isConfirmationOpen={isConfirmationOpen}
               data={{
                 contact: location.state.contact,
