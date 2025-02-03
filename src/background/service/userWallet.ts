@@ -7,7 +7,7 @@ import wallet from '@/background/controller/wallet';
 import keyringService from '@/background/service/keyring';
 import { mixpanelTrack } from '@/background/service/mixpanel';
 import openapiService from '@/background/service/openapi';
-import { getLoggedInAccount } from '@/background/utils/getStoragedAccount';
+import { getLoggedInAccount } from '@/background/utils/getLoggedInAccount';
 import { signWithKey, seed2PubKey } from '@/background/utils/modules/publicPrivateKey';
 import createPersistStore from '@/background/utils/persisitStore';
 import { type HashAlgoType, type SignAlgoType } from '@/shared/types/algo-types';

@@ -76,7 +76,7 @@ import type { PreferenceAccount } from '../service/preference';
 import { type EvaluateStorageResult, StorageEvaluator } from '../service/storage-evaluator';
 import type { UserInfoStore } from '../service/user';
 import defaultConfig from '../utils/defaultConfig.json';
-import { getLoggedInAccount } from '../utils/getStoragedAccount';
+import { getLoggedInAccount } from '../utils/getLoggedInAccount';
 
 import BaseController from './base';
 import provider from './provider';

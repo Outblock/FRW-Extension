@@ -2,7 +2,7 @@ import { Box, Grid, IconButton, Typography } from '@mui/material';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useRouteMatch } from 'react-router-dom';
 
-import { getLoggedInAccount } from '@/background/utils/getStoragedAccount';
+import { getLoggedInAccount } from '@/background/utils/getLoggedInAccount';
 import { storage } from '@/background/webapi';
 import { LLHeader } from '@/ui/FRWComponent';
 import { useWallet } from 'ui/utils';
