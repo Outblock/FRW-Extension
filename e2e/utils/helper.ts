@@ -94,6 +94,8 @@ export const loginToExtensionAccount = async ({ page, extensionId, addr, passwor
   // close all pages except the current page (the extension opens them in the background)
   await unlockBtn.click();
   // await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
+  // Wait for the dashboard page to be fully loaded
+  await page.waitForURL(/.*\/dashboard.*/);
 
   // get address
   let flowAddr = await getCurrentAddress(page);
