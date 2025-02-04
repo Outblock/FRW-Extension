@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { type LoggedInAccountWithIndex, type LoggedInAccount } from '@/shared/types/wallet-types';
+
 import type { ChildAccount, WalletType, UserInfoResponse } from '../../shared/types/network-types';
 
 interface ProfileState {
@@ -16,8 +18,8 @@ interface ProfileState {
   evmLoading: boolean;
   listLoading: boolean;
   userInfo: UserInfoResponse | null;
-  otherAccounts: any | null;
-  loggedInAccounts: any | null;
+  otherAccounts: LoggedInAccountWithIndex[];
+  loggedInAccounts: LoggedInAccount[];
   setMainAddress: (address: string) => void;
   setEvmAddress: (address: string) => void;
   setUserWallet: (wallet: any) => void;
@@ -57,8 +59,8 @@ export const useProfileStore = create<ProfileState>((set) => ({
   evmLoading: true,
   childAccounts: {},
   userInfo: null,
-  otherAccounts: null,
-  loggedInAccounts: null,
+  otherAccounts: [],
+  loggedInAccounts: [],
   listLoading: true,
   setMainAddress: (address) => set({ mainAddress: address }),
   setEvmAddress: (address) => set({ evmAddress: address }),
@@ -72,8 +74,8 @@ export const useProfileStore = create<ProfileState>((set) => ({
   setChildAccount: (childAccount) => set({ childAccounts: childAccount }),
   setEvmLoading: (evmLoading) => set({ evmLoading: evmLoading }),
   setUserInfo: (info) => set({ userInfo: info }),
-  setOtherAccounts: (accounts) => set({ otherAccounts: accounts }),
-  setLoggedInAccounts: (accounts) => set({ loggedInAccounts: accounts }),
+  setOtherAccounts: (accounts: LoggedInAccountWithIndex[]) => set({ otherAccounts: accounts }),
+  setLoggedInAccounts: (accounts: LoggedInAccount[]) => set({ loggedInAccounts: accounts }),
   setListLoading: (listLoading) => set({ listLoading: listLoading }),
   clearProfileData: () =>
     set({
@@ -98,7 +100,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
       evmLoading: true,
       listLoading: true,
       userInfo: null,
-      otherAccounts: null,
-      loggedInAccounts: null,
+      otherAccounts: [],
+      loggedInAccounts: [],
     }),
 }));

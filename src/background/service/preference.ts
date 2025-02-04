@@ -11,7 +11,7 @@ import { FlowNetwork } from '../../shared/types/network-types';
 import { keyringService, sessionService, i18n } from './index';
 
 const version = process.env.release || '0';
-export interface Account {
+export interface PreferenceAccount {
   type: string;
   address: string;
   brandName: string;
@@ -32,9 +32,9 @@ export interface Account {
 //   [address: string]: string[];
 // }
 interface PreferenceStore {
-  currentAccount: Account | undefined | null;
+  currentAccount: PreferenceAccount | undefined | null;
   externalLinkAck: boolean;
-  hiddenAddresses: Account[];
+  hiddenAddresses: PreferenceAccount[];
   balanceMap: {
     [address: string]: any;
   };
@@ -99,6 +99,10 @@ class PreferenceService {
     i18n.changeLanguage(this.store.locale);
     if (this.store.isDefaultWallet === undefined || this.store.isDefaultWallet === null) {
       this.store.isDefaultWallet = true;
+    }
+    if (this.store.currentAccount) {
+      // Clear address - it shouldn't be stored
+      this.store.currentAccount.address = '';
     }
     if (!this.store.lastTimeSendToken) {
       this.store.lastTimeSendToken = {};
@@ -172,7 +176,7 @@ class PreferenceService {
   //     .filter((lang) => SUPPORT_LOCALES.includes(lang));
   // };
 
-  getHiddenAddresses = (): Account[] => {
+  getHiddenAddresses = (): PreferenceAccount[] => {
     return cloneDeep(this.store.hiddenAddresses);
   };
 
@@ -181,13 +185,12 @@ class PreferenceService {
       ...this.store.hiddenAddresses,
       {
         type,
-        address,
+        address: '',
         brandName,
       },
     ];
     if (
       type === this.store.currentAccount?.type &&
-      address === this.store.currentAccount.address &&
       brandName === this.store.currentAccount.brandName
     ) {
       this.resetCurrentAccount();
@@ -210,12 +213,17 @@ class PreferenceService {
     });
   };
 
-  getCurrentAccount = (): Account | undefined | null => {
+  getCurrentAccount = (): PreferenceAccount | undefined | null => {
     return cloneDeep(this.store.currentAccount);
   };
 
-  setCurrentAccount = (account: Account | null) => {
-    this.store.currentAccount = account;
+  setCurrentAccount = (account: PreferenceAccount | null) => {
+    this.store.currentAccount = account
+      ? {
+          ...account,
+          address: '', //  clear address
+        }
+      : undefined;
     if (account) {
       sessionService.broadcastEvent('accountsChanged', [account.address]);
       eventBus.emit(EVENTS.broadcastToUI, {

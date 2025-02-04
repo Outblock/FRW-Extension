@@ -2,9 +2,9 @@ import { Box, Grid, IconButton, Typography } from '@mui/material';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useRouteMatch } from 'react-router-dom';
 
+import { getLoggedInAccount } from '@/background/utils/getLoggedInAccount';
 import { storage } from '@/background/webapi';
 import { LLHeader } from '@/ui/FRWComponent';
-import { getStoragedAccount } from 'background/utils/getStoragedAccount';
 import { useWallet } from 'ui/utils';
 
 import IconCopy from '../../../../components/iconfont/IconCopy';
@@ -23,11 +23,11 @@ const Keydetail = () => {
   const verify = useCallback(async () => {
     try {
       const pwd = location.state.password;
-      const result = await usewallet.getKey(pwd);
+      const result = await usewallet.getPrivateKeyForCurrentAccount(pwd);
       setKey(result);
 
       const pubKey = await storage.get('pubKey');
-      const account = await getStoragedAccount();
+      const account = await getLoggedInAccount();
       const { hashAlgo, signAlgo } = account;
 
       setPublicKey(pubKey);

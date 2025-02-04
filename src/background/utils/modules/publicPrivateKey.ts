@@ -57,6 +57,9 @@ const seed2PubKey = async (seed: string) => {
   const { HDWallet, Curve } = await initWasm();
 
   const currentId = (await storage.get('currentId')) ?? 0;
+
+  // Note that currentAccountIndex is only used in keyring for old accounts that don't have an id stored in the keyring
+  // currentId always takes precedence
   const accountIndex = (await storage.get('currentAccountIndex')) ?? 0;
   const pathKeyIndex = `user${accountIndex}_path`;
   const phraseKeyIndex = `user${accountIndex}_phrase`;

@@ -87,7 +87,7 @@ async function signMessage(msgParams, opts = {}) {
 
   // Retrieve the private key from the wallet (assuming Ethereum wallet)
   const password = keyringService.password;
-  const privateKey = await Wallet.getKey(password);
+  const privateKey = await Wallet.getPrivateKeyForCurrentAccount(password);
   const currentWallet = await Wallet.getMainWallet();
   const account = await fcl.account(currentWallet);
   const hashAlgo = await storage.get('hashAlgo');
@@ -123,7 +123,7 @@ async function signTypeData(msgParams, opts = {}) {
 
   // Retrieve the private key from the wallet (assuming Ethereum wallet)
   const password = keyringService.password;
-  const privateKey = await Wallet.getKey(password);
+  const privateKey = await Wallet.getPrivateKeyForCurrentAccount(password);
   const hashAlgo = await storage.get('hashAlgo');
   const signAlgo = await storage.get('signAlgo');
   const keyindex = await storage.get('keyIndex');

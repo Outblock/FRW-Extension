@@ -99,6 +99,10 @@ export const useProfileHook = () => {
         usewallet.getMainAddress(),
       ]);
 
+      if (!currentWallet) {
+        throw new Error('Current wallet is undefined');
+      }
+
       if (isChild === 'evm') {
         const evmWalletData = await setupEvmWallet(mainAddress!);
         await setCurrent(evmWalletData);

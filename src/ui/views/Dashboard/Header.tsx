@@ -27,7 +27,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { storage } from '@/background/webapi';
-import { withPrefix, ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { type LoggedInAccountWithIndex } from '@/shared/types/wallet-types';
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { useCoinStore } from '@/ui/stores/coinStore';
 import { useNetworkStore } from '@/ui/stores/networkStore';
@@ -139,10 +140,13 @@ const Header = ({ loading = false }) => {
   }, [history, location.pathname]);
 
   const switchAccount = useCallback(
-    async (account) => {
+    async (account: LoggedInAccountWithIndex) => {
       setSwitchLoading(true);
       try {
         const switchingTo = 'mainnet';
+        // Note that currentAccountIndex is only used in keyring for old accounts that don't have an id stored in the keyring
+        // currentId always takes precedence
+        // NOTE: TO FIX it also should be set to the index of the account in the keyring array, NOT the index in the loggedInAccounts array
         await storage.set('currentAccountIndex', account.indexInLoggedInAccounts);
         if (account.id) {
           await storage.set('currentId', account.id);
