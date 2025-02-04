@@ -2,7 +2,7 @@ import * as fcl from '@onflow/fcl';
 
 import { userWalletService } from 'background/service';
 
-export const findAddressWithKey = async (pubKeyHex, address) => {
+export const findAddressWithKey = async (pubKeyHex: string, address: string | null = null) => {
   if (!address) {
     const data = await getAddressByIndexer(pubKeyHex);
     if (data.accounts && data.accounts.length > 0) {
@@ -22,7 +22,7 @@ export const findAddressWithKey = async (pubKeyHex, address) => {
   return await findAddres(address, pubKeyHex);
 };
 
-export const findAddressOnlyKey = async (pubKeyHex, network) => {
+export const findAddressOnlyKey = async (pubKeyHex: string, network: string) => {
   let data;
   if (network === 'testnet') {
     data = await getAddressTestnet(pubKeyHex);
@@ -44,14 +44,14 @@ export const findAddressOnlyKey = async (pubKeyHex, network) => {
   return null;
 };
 
-export async function getAddressByIndexer(publicKey) {
+export async function getAddressByIndexer(publicKey: string) {
   const url = `https://production.key-indexer.flow.com/key/${publicKey}`;
   const result = await fetch(url);
   const json = await result.json();
   return json;
 }
 
-export async function getAddressTestnet(publicKey) {
+export async function getAddressTestnet(publicKey: string) {
   const url = `https://staging.key-indexer.flow.com/key/${publicKey}`;
   const result = await fetch(url);
   const json = await result.json();
