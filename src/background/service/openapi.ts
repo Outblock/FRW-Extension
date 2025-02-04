@@ -1239,17 +1239,6 @@ class OpenApiService {
     return address;
   };
 
-  // getTransaction = async (address: string, limit: number, offset: number) => {
-  //   const config = this.store.config.account_transaction;
-  //   const data = await this.sendRequest(config.method, config.path, {
-  //     address,
-  //     limit,
-  //     offset,
-  //   });
-
-  //   return data;
-  // };
-
   getTransfers = async (address: string, after = '', limit: number) => {
     const config = this.store.config.get_transfers;
     const data = await this.sendRequest(config.method, config.path, {

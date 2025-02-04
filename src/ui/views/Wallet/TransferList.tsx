@@ -15,8 +15,7 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import React, { useCallback, useEffect, useState } from 'react';
-import useSWR from 'swr';
+import React, { useEffect } from 'react';
 
 import { formatString } from '@/shared/utils/address';
 import { useTransferList } from '@/ui/hooks/useTransferListHook';
@@ -32,45 +31,19 @@ const TransferList = () => {
     useTransferListStore();
   const { currentWallet } = useProfileStore();
 
-  const { transactions: stateTransactions } = useTransferListStore.getState();
-  const initialTx = [...stateTransactions].filter((tx) => tx.status !== 'Pending')[0];
-  const [shouldFetch, setShouldFetch] = useState(false);
-
-  const { mutate } = useSWR(
-    shouldFetch ? ['transferList', initialTx?.hash] : null,
-    async () => {
-      console.log('fetching transferlist');
-      const { transactions: newTransactions } = useTransferListStore.getState();
-      const newTx = newTransactions.filter((tx) => tx.status !== 'Pending')[0];
-      if (JSON.stringify(initialTx) === JSON.stringify(newTx)) {
-        await fetchTransactions(true);
-      }
-      setShouldFetch(false);
-    },
-    {
-      refreshInterval: 5000,
-      revalidateOnFocus: false,
-      refreshWhenHidden: true,
-      dedupingInterval: 2000,
-      errorRetryCount: 5,
-      revalidateOnMount: false,
-    }
-  );
-
   useEffect(() => {
     fetchTransactions();
     const handler = (req) => {
-      if (req.msg === 'transactionDone') {
-        console.log('Transaction update received:', req.msg);
-        setShouldFetch(true);
-        mutate();
+      if (req.msg === 'transferListUpdated') {
+        console.log('Transfer list updated');
+        fetchTransactions();
       }
       return true;
     };
 
     chrome.runtime.onMessage.addListener(handler);
     return () => chrome.runtime.onMessage.removeListener(handler);
-  }, [mutate, fetchTransactions]);
+  }, [fetchTransactions]);
 
   const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp);

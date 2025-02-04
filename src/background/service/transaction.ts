@@ -143,6 +143,11 @@ class Transaction {
     this.session.pendingItem[network] = newList;
   };
 
+  // only used when evm transaction get updated.
+  clearPending = (network: string) => {
+    this.session.pendingItem[network] = [];
+  };
+
   getExpiry = () => {
     return this.store.expiry;
   };

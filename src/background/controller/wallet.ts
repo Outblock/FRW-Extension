@@ -3308,10 +3308,15 @@ export class WalletController extends BaseController {
     transactionService.setExpiry(exp);
     const isChild = await this.getActiveWallet();
     let dataResult = {};
+    let evmAddress;
     if (isChild === 'evm') {
-      let evmAddress = await this.queryEvmAddress(address);
-      if (!evmAddress!.startsWith('0x')) {
-        evmAddress = '0x' + evmAddress;
+      if (!isValidEthereumAddress(address)) {
+        evmAddress = await this.queryEvmAddress(address);
+        if (!evmAddress!.startsWith('0x')) {
+          evmAddress = '0x' + evmAddress;
+        }
+      } else {
+        evmAddress = address;
       }
       const evmResult = await openapiService.getEVMTransfers(evmAddress!, '', limit);
       if (evmResult) {
@@ -3521,6 +3526,40 @@ export class WalletController extends BaseController {
     return await this.poll(fetchReport, validate, 3000);
   };
 
+  pollTransferList = async (address: string, maxAttempts = 5) => {
+    let attempts = 0;
+    const network = await this.getNetwork();
+    const initialTxArray = await transactionService.listTransactions(network);
+    const initialTx = initialTxArray[0];
+    const initialHash = initialTx?.hash;
+
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        console.log('Max polling attempts reached');
+        return;
+      }
+
+      console.log('Polling transfer list, attempt:', attempts + 1);
+      await this.getTransaction(address, 15, 0, 60000, true);
+
+      const { list: newTransactions } = await this.getTransaction(address, 15, 0, 60000, true);
+      const newTx = newTransactions.filter((tx) => tx.status !== 'Pending')[0];
+      if (newTx?.hash === initialTx?.hash) {
+        attempts++;
+        setTimeout(poll, 5000); // Poll every 5 seconds
+      } else {
+        const walletType = await this.getActiveWallet();
+        if (walletType === 'evm') {
+          await this.clearPending();
+          await this.getTransaction(address, 15, 0, 60000);
+        }
+        chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
+      }
+    };
+
+    await poll();
+  };
+
   listenTransaction = async (
     txId: string,
     sendNotification = true,
@@ -3608,12 +3647,19 @@ export class WalletController extends BaseController {
       // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
 
-      // Tell the UI that the transaction is done
+      // Start polling for transfer list updates
+      await this.pollTransferList(address);
+
       eventBus.emit('transactionDone');
       chrome.runtime.sendMessage({
         msg: 'transactionDone',
       });
     }
+  };
+
+  clearPending = async () => {
+    const network = await this.getNetwork();
+    transactionService.clearPending(network);
   };
 
   getNFTListCahce = async (): Promise<NFTData> => {
