@@ -117,7 +117,7 @@ const EthSuggest = (data) => {
     }
 
     await storage.set(`${network}evmCustomToken`, evmCustomToken);
-    await usewallet.openapi.refreshEvmGitToken(network);
+    await usewallet.openapi.refreshEvmToken(network);
     setLoading(false);
   };
 
