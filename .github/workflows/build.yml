@@ -88,6 +88,7 @@ jobs:
           BRANCH_NAME: ${{ github.ref_name }}
           PR_TITLE: ${{ github.event.pull_request.title || '' }}
           PR_NUMBER: ${{ github.event.pull_request.number || '' }}
+          DEPLOYMENT_ENV: ${{ github.ref_type == 'tag' && 'production' || github.ref_name == 'master' && 'production' || github.ref_name == 'dev' && 'staging' || 'development' }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
