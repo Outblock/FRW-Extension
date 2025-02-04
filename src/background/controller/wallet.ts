@@ -3281,10 +3281,10 @@ export class WalletController extends BaseController {
     // txList['list'] = await transactionService.listTransactions();
     txList['count'] = await transactionService.getCount();
     const sealed = await transactionService.listTransactions(network);
+    const pending = await transactionService.listPending(network);
     if (now.getTime() > expiry) {
       this.refreshTransaction(address, limit, offset, _expiry);
     }
-    const pending = await transactionService.listPending(network);
     let totalList = sealed;
     if (pending && pending.length > 0) {
       totalList = pending.concat(sealed);
@@ -3609,7 +3609,6 @@ export class WalletController extends BaseController {
     } finally {
       // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
-      transactionService.removePending(txId, address, network);
 
       // Refresh the transaction list
       this.refreshTransaction(address, 15, 0);
