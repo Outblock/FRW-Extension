@@ -32,9 +32,6 @@ test.beforeEach(async ({ page, extensionId }) => {
 });
 
 test('send Flow COA to COA', async ({ page }) => {
-  // This can take a while
-  test.setTimeout(60_000);
-
   // Send FLOW token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
@@ -44,9 +41,6 @@ test('send Flow COA to COA', async ({ page }) => {
 });
 
 test('send Staked Flow COA to COA', async ({ page }) => {
-  // This can take a while
-  test.setTimeout(60_000);
-
   // Send stFLOW token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
@@ -56,8 +50,6 @@ test('send Staked Flow COA to COA', async ({ page }) => {
 });
 
 test('send USDC token from COA to COA', async ({ page }) => {
-  // This can take a while
-  test.setTimeout(60_000);
   // Send USDC token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
@@ -67,8 +59,6 @@ test('send USDC token from COA to COA', async ({ page }) => {
 });
 
 test('send BETA token from COA to COA', async ({ page }) => {
-  // This can take a while
-  test.setTimeout(60_000);
   // Send BETA token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
@@ -78,8 +68,6 @@ test('send BETA token from COA to COA', async ({ page }) => {
 });
 
 test('send TRUMP token from COA to COA', async ({ page }) => {
-  // This can take a while
-  test.setTimeout(60_000);
   // Send TRUMP token from COA to COA
   await sendTokenfromCOAtoCOA({
     page,
