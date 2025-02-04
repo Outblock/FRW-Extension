@@ -26,16 +26,25 @@ export default defineConfig({
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? 'github' : 'html',
+
+  // set the timeout for each test to 120 seconds. We're sending transactions and waiting for them to be confirmed.
+  timeout: 120_000,
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    ...devices['Desktop Chrome'],
+
     trace: 'on-first-retry',
     video: 'off',
-    screenshot: 'off',
-    headless: process.env.CI ? true : false,
+    screenshot: process.env.CI ? 'off' : 'on',
+    headless: true,
+
+    browserName: 'chromium',
+    channel: 'chromium',
   },
   // globalTimeout: 160 * 1000,
   //globalSetup: './e2e/utils/global.setup.ts',
@@ -45,34 +54,15 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
-      use: {
-        ...devices['Desktop Chrome'],
-        browserName: 'chromium',
-        channel: 'chromium',
-        headless: process.env.CI ? true : false,
-      },
       testMatch: /.*global\.setup\.ts/,
       teardown: 'cleanup',
     },
     {
       name: 'main',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Chrome extension testing configuration
-        browserName: 'chromium',
-        channel: 'chromium',
-        headless: process.env.CI ? true : false,
-      },
       dependencies: ['setup'],
     },
     {
       name: 'cleanup',
-      use: {
-        ...devices['Desktop Chrome'],
-        browserName: 'chromium',
-        channel: 'chromium',
-        headless: process.env.CI ? true : false,
-      },
       testMatch: /.*global\.teardown\.ts/,
     },
 
