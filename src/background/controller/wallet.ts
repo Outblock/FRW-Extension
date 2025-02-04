@@ -3270,28 +3270,29 @@ export class WalletController extends BaseController {
 
   //transaction
 
-  getTransaction = async (address: string, limit: number, offset: number, _expiry = 60000) => {
+  getTransaction = async (
+    address: string,
+    limit: number,
+    offset: number,
+    _expiry = 60000,
+    forceRefresh = false
+  ) => {
     const network = await this.getNetwork();
     const now = new Date();
     const expiry = transactionService.getExpiry();
-    // compare the expiry time of the item with the current time
 
-    const txList = {};
+    // Refresh if forced or expired
+    if (forceRefresh || now.getTime() > expiry) {
+      await this.refreshTransaction(address, limit, offset, _expiry);
+    }
 
-    // txList['list'] = await transactionService.listTransactions();
-    txList['count'] = await transactionService.getCount();
     const sealed = await transactionService.listTransactions(network);
     const pending = await transactionService.listPending(network);
-    if (now.getTime() > expiry) {
-      this.refreshTransaction(address, limit, offset, _expiry);
-    }
-    let totalList = sealed;
-    if (pending && pending.length > 0) {
-      totalList = pending.concat(sealed);
-    }
-    txList['list'] = totalList;
 
-    return txList;
+    return {
+      count: await transactionService.getCount(),
+      list: pending?.length ? [...pending, ...sealed] : sealed,
+    };
   };
 
   getPendingTx = async () => {
@@ -3327,9 +3328,6 @@ export class WalletController extends BaseController {
     }
 
     transactionService.setTransaction(dataResult, network);
-    chrome.runtime.sendMessage({
-      msg: 'transferListReceived',
-    });
   };
 
   signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
@@ -3609,9 +3607,6 @@ export class WalletController extends BaseController {
     } finally {
       // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
-
-      // Refresh the transaction list
-      this.refreshTransaction(address, 15, 0);
 
       // Tell the UI that the transaction is done
       eventBus.emit('transactionDone');

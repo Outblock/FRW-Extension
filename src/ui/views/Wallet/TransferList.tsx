@@ -16,6 +16,7 @@ import {
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import React, { useCallback, useEffect, useState } from 'react';
+import useSWR from 'swr';
 
 import { formatString } from '@/shared/utils/address';
 import { useTransferList } from '@/ui/hooks/useTransferListHook';
@@ -31,56 +32,45 @@ const TransferList = () => {
     useTransferListStore();
   const { currentWallet } = useProfileStore();
 
-  const handleFetch = useCallback(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+  const { transactions: stateTransactions } = useTransferListStore.getState();
+  const initialTx = [...stateTransactions].filter((tx) => tx.status !== 'Pending')[0];
+  const [shouldFetch, setShouldFetch] = useState(false);
 
-  useEffect(() => {
-    handleFetch();
-  }, [handleFetch]);
-
-  const extMessageHandler = useCallback(
-    (req) => {
-      if (req.msg === 'transferListReceived') {
-        const { transactions } = useTransferListStore.getState();
-        // remove the pending transactions and take out the first transaction for comparison
-        const initialTransactions = [...transactions].filter((tx) => tx.status !== 'Pending')[0];
-        let retryCount = 0;
-        // set the max retries to 5 times for fetching new transactions
-        const maxRetries = 5;
-
-        const checkAndRetry = () => {
-          const { transactions: newTransactions } = useTransferListStore.getState();
-          // get the first transaction from the new transactions
-          const filteredNewTransactions = newTransactions.filter(
-            (tx) => tx.status !== 'Pending'
-          )[0];
-          // compare the initial transactions and the new transactions if they are the same, then fetch the transactions again
-          if (JSON.stringify(initialTransactions) === JSON.stringify(filteredNewTransactions)) {
-            if (retryCount < maxRetries) {
-              retryCount++;
-              fetchTransactions();
-              setTimeout(checkAndRetry, 5000);
-            }
-          }
-        };
-
-        fetchTransactions();
-        setTimeout(checkAndRetry, 5000);
+  const { mutate } = useSWR(
+    shouldFetch ? ['transferList', initialTx?.hash] : null,
+    async () => {
+      console.log('fetching transferlist');
+      const { transactions: newTransactions } = useTransferListStore.getState();
+      const newTx = newTransactions.filter((tx) => tx.status !== 'Pending')[0];
+      if (JSON.stringify(initialTx) === JSON.stringify(newTx)) {
+        await fetchTransactions(true);
       }
-      return true;
+      setShouldFetch(false);
     },
-    [fetchTransactions]
+    {
+      refreshInterval: 5000,
+      revalidateOnFocus: false,
+      refreshWhenHidden: true,
+      dedupingInterval: 2000,
+      errorRetryCount: 5,
+      revalidateOnMount: false,
+    }
   );
 
   useEffect(() => {
     fetchTransactions();
-    chrome.runtime.onMessage.addListener(extMessageHandler);
-
-    return () => {
-      chrome.runtime.onMessage.removeListener(extMessageHandler);
+    const handler = (req) => {
+      if (req.msg === 'transactionDone') {
+        console.log('Transaction update received:', req.msg);
+        setShouldFetch(true);
+        mutate();
+      }
+      return true;
     };
-  }, [extMessageHandler, fetchTransactions]);
+
+    chrome.runtime.onMessage.addListener(handler);
+    return () => chrome.runtime.onMessage.removeListener(handler);
+  }, [mutate, fetchTransactions]);
 
   const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp);
