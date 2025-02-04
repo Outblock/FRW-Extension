@@ -21,7 +21,7 @@ export const TokenPrice: React.FC<TokenPriceProps> = ({
       {showPrefix && '$'}
       {leadingPart}
       {zeroPart !== null && <sub style={{ fontSize: '0.7em' }}>{zeroPart}</sub>}
-      {endingPart}
+      {endingPart !== null && endingPart}
     </span>
   );
 };
