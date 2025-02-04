@@ -1371,12 +1371,6 @@ export class WalletController extends BaseController {
       await this.fetchTokenList(_expiry);
       await this.fetchBalance({ signal });
 
-      // const allTokens = await openapiService.getAllTokenInfo();
-      // const enabledSymbols = tokenList.map((token) => token.symbol);
-      // const disableSymbols = allTokens.map((token) => token.symbol).filter((symbol) => !enabledSymbols.includes(symbol));
-      // console.log('disableSymbols are these ', disableSymbols, enabledSymbols, coins)
-      // disableSymbols.forEach((coin) => coinListService.removeCoin(coin, network));
-
       const coinListResult = coinListService.listCoins(network);
       return coinListResult;
     } catch (err) {
@@ -3348,7 +3342,6 @@ export class WalletController extends BaseController {
         console.log('No active tab found');
         return;
       }
-      console.log('tabs', tabs);
       if (tabs[0].id) {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'FCW:NETWORK',

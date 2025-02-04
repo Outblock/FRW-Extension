@@ -369,12 +369,12 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     params: [],
   },
   get_ft_list: {
-    path: '/v3/fts',
+    path: '/api/v3/fts',
     method: 'get',
     params: ['network', 'chain_type'],
   },
   get_nft_list: {
-    path: '/v3/nfts',
+    path: '/api/v3/nfts',
     method: 'get',
     params: ['network', 'chain_type'],
   },
@@ -1419,20 +1419,19 @@ class OpenApiService {
     return (await this.getFeatureFlags()).swap;
   };
 
-  // @ts-ignore
-  getAllTokenInfo = async (fiterNetwork = true): Promise<TokenInfo[]> => {
+  getAllTokenInfo = async (filterNetwork = true): Promise<TokenInfo[]> => {
     const network = await userWalletService.getNetwork();
     const list = await this.getTokenList(network);
-    return fiterNetwork ? list.filter((item) => item.address) : list;
+    return filterNetwork ? list.filter((item) => item.address) : list;
   };
 
-  getAllNft = async (fiterNetwork = true): Promise<NFTModel[]> => {
+  getAllNft = async (filterNetwork = true): Promise<NFTModel[]> => {
     const list = await remoteFetch.nftCollection();
     // const network = await userWalletService.getNetwork();
     return list;
   };
 
-  getAllNftV2 = async (fiterNetwork = true): Promise<NFTModel[]> => {
+  getAllNftV2 = async (filterNetwork = true): Promise<NFTModel[]> => {
     const list = await remoteFetch.nftv2Collection();
     // const network = await userWalletService.getNetwork();
     return list;
@@ -1499,12 +1498,18 @@ class OpenApiService {
 
   fetchFTList = async (network: string, chainType: string) => {
     const config = this.store.config.get_ft_list;
-    const data = await this.sendRequest(config.method, config.path, {
-      network,
-      chain_type: chainType,
-    });
+    const data = await this.sendRequest(
+      config.method,
+      config.path,
+      {
+        network,
+        chain_type: chainType,
+      },
+      {},
+      WEB_NEXT_URL
+    );
 
-    return data;
+    return data.tokens;
   };
 
   addFlowTokenIfMissing = (tokens) => {
