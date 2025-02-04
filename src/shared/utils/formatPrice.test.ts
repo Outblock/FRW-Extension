@@ -10,7 +10,7 @@ describe('formatPrice', () => {
       {
         input: 0,
         threshold: 4,
-        expected: { leadingPart: '0.00', zeroPart: null, endingPart: null },
+        expected: { leadingPart: '-', zeroPart: null, endingPart: null },
       },
     ];
 
@@ -230,7 +230,7 @@ describe('formatPrice', () => {
         input: 0,
         threshold: 2,
         expected: {
-          leadingPart: '0.00',
+          leadingPart: '-',
           zeroPart: null,
           endingPart: null,
         },
