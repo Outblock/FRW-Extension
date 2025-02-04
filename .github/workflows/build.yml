@@ -42,6 +42,7 @@ jobs:
           PR_TITLE="${{ github.event.pull_request.title || '' }}"
           PR_NUMBER="${{ github.event.pull_request.number || '' }}"
           BUILD_BACKGROUND="${{ vars.BUILD_BACKGROUND }}"
+          DEPLOYMENT_ENV="${{ github.ref_type == 'tag' && 'production' || github.ref_name == 'master' && 'production' || github.ref_name == 'dev' && 'staging' || 'development' }}"
 
           # Google drive
           GD_BACKUP_NAME="${{ vars.GD_BACKUP_NAME }}"
