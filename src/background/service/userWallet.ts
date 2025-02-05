@@ -390,15 +390,17 @@ class UserWallet {
       }
       // Follow the same logic as freshUserInfo in openapi.ts
       // Look for the P256 key first
-      let index = addressAndKeyInfoArray.findIndex((key) => key.publicKey === pubKeyP256.pubK);
+
+      let index = addressAndKeyInfoArray.findIndex((key) => key.pubK === pubKeyP256.pubK);
       if (index === -1) {
         // If no P256 key is found, look for the SECP256K1 key
-        index = addressAndKeyInfoArray.findIndex((key) => key.publicKey === pubKeySECP256K1.pubK);
-      } else {
-        // If a P256 key is found, use the first key
-        index = 0;
+        index = addressAndKeyInfoArray.findIndex((key) => key.pubK === pubKeySECP256K1.pubK);
+
+        if (index === -1) {
+          // Just use the first one
+          index = 0;
+        }
       }
-      // Use the SEP256 first, if that's not found, use the P256
       account = {
         ...addressAndKeyInfoArray[index],
       };
