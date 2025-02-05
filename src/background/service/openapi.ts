@@ -564,7 +564,7 @@ class OpenApiService {
     }
   };
 
-  getTokenPrices = async (storageKey: string, isEvm: boolean = false) => {
+  getTokenPrices = async (storageKey: string) => {
     const cachedPrices = await storage.getExpiry(storageKey);
     if (cachedPrices) {
       return cachedPrices;
@@ -583,7 +583,9 @@ class OpenApiService {
           const key = evmAddress.toLowerCase();
           pricesMap[key] = Number(rateToUSD).toFixed(8);
           const symbolKey = symbol.toUpperCase();
-          pricesMap[symbolKey] = Number(rateToUSD).toFixed(8);
+          if (symbolKey) {
+            pricesMap[symbolKey] = Number(rateToUSD).toFixed(8);
+          }
         } else if (token.contractName && token.contractAddress) {
           // Flow chain price
           const { rateToUSD, contractName, contractAddress } = token;
@@ -2199,6 +2201,7 @@ class OpenApiService {
     return data;
   };
 
+  // TODO: remove this function, need to verify, doesn't look to be used anywhere
   getEvmFTPrice = async () => {
     const gitPrice = await storage.getExpiry('EVMPrice');
 

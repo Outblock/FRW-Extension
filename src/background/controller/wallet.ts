@@ -1460,7 +1460,7 @@ export class WalletController extends BaseController {
 
     const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
 
-    const data = await openapiService.getTokenPrices('evmPrice', true);
+    const data = await openapiService.getTokenPrices('pricesMap');
     const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
     const allPrice = await Promise.all(prices);
     const coins: CoinItem[] = mergedList.map((token, index) => {
