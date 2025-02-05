@@ -123,7 +123,6 @@ const Swap = () => {
       contact_name: info.username,
     };
     setUser(userContact);
-    // const result = await usewallet.openapi.fetchTokenList(network);
     usewallet.openapi.getAllToken().then((res) => {
       setTokens([...res]);
     });

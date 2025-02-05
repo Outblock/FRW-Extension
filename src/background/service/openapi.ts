@@ -2038,13 +2038,6 @@ class OpenApiService {
     return response.json();
   };
 
-  fetchTokenList = async (network: string) => {
-    const response =
-      await fetch(`https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/src/tokens/flow-${network}.tokenlist.json
-    `);
-    return response.json();
-  };
-
   swapPairs = async (network: string) => {
     const response = await fetch(`https://lilico.app/api/swap/v1/${network}/pairs`);
     console.log(response);

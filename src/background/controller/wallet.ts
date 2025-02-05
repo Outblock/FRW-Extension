@@ -1365,24 +1365,6 @@ export class WalletController extends BaseController {
     }
   };
 
-  fetchCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
-    const network = await this.getNetwork();
-    try {
-      await this.fetchTokenList(_expiry);
-      await this.fetchBalance({ signal });
-
-      const coinListResult = coinListService.listCoins(network);
-      return coinListResult;
-    } catch (err) {
-      if (err.message === 'Operation aborted') {
-        console.log('refreshCoinList operation aborted.');
-      } else {
-        console.error('fetch coinlist encountered an error:', err);
-      }
-      throw err;
-    }
-  };
-
   refreshEvmList = async (_expiry = 60000) => {
     const now = new Date();
     const exp = _expiry + now.getTime();

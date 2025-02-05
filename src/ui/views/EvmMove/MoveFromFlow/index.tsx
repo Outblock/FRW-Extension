@@ -136,7 +136,6 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
       contact_name: evmWallet.name,
     };
     setEvmUser(evmContact);
-    // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
 
     return;

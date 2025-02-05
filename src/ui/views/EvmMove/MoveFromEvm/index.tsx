@@ -124,7 +124,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     };
     setEvmUser(evmContact);
 
-    // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
     return;
   }, [usewallet]);
