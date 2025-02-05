@@ -16,6 +16,7 @@ import { useHistory } from 'react-router-dom';
 import { formatLargeNumber } from 'ui/utils/number';
 
 import IconCreate from '../../../components/iconfont/IconCreate';
+import { TokenPrice } from '../TokenDetail/TokenPrice';
 
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   // const wallet = useWallet();
@@ -109,8 +110,8 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                       marginRight: '6px',
                     }}
                   >
-                    {props.change === null ? '-' : '$'}
-                    {props.price}
+                    {props.change === null ? '-' : ''}
+                    <TokenPrice price={props.price} prefix="$" />
                   </Typography>
                   {props.change !== 0 && (
                     <Typography
@@ -217,11 +218,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                     </ListItemIcon>
                     <StartListItemText
                       primary={coin.coin}
-                      price={
-                        typeof coin.price === 'number' && !isNaN(coin.price)
-                          ? coin.price.toFixed(3)
-                          : 'N/A'
-                      }
+                      price={coin.price}
                       change={parseFloat(coin.change24h.toFixed(2))}
                     />
                   </ListItemButton>

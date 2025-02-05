@@ -577,20 +577,17 @@ class OpenApiService {
       const data = response?.data || [];
 
       data.forEach((token) => {
-        if (isEvm && token.evmAddress) {
+        if (token.evmAddress) {
           // EVM price
-          const { rateToUSD, evmAddress } = token;
+          const { rateToUSD, evmAddress, symbol } = token;
           const key = evmAddress.toLowerCase();
           pricesMap[key] = Number(rateToUSD).toFixed(8);
-        } else if (!isEvm && token.contractName && token.contractAddress) {
+          const symbolKey = symbol.toUpperCase();
+          pricesMap[symbolKey] = Number(rateToUSD).toFixed(8);
+        } else if (token.contractName && token.contractAddress) {
           // Flow chain price
           const { rateToUSD, contractName, contractAddress } = token;
           const key = `${contractName.toLowerCase()}${contractAddress.toLowerCase()}`;
-          pricesMap[key] = Number(rateToUSD).toFixed(8);
-        } else if (isEvm && token.symbol) {
-          // Handle fallback for EVM tokens
-          const { rateToUSD, symbol } = token;
-          const key = symbol.toUpperCase();
           pricesMap[key] = Number(rateToUSD).toFixed(8);
         }
       });

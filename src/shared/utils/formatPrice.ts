@@ -10,7 +10,7 @@ interface FormattedPrice {
 }
 
 export function formatPrice(price: number, zeroCondenseThreshold = 4): FormattedPrice {
-  if (price === 0) {
+  if (price === 0 || price === null || price === undefined) {
     return {
       price,
       formattedPrice: {
@@ -34,7 +34,8 @@ export function formatPrice(price: number, zeroCondenseThreshold = 4): Formatted
 
   // Convert to non-scientific notation string
   const priceStr = price.toFixed(20);
-  const [whole, decimal] = priceStr.split('.');
+  const parts = priceStr.split('.');
+  const decimal = parts.length > 1 ? parts[1] : '0';
 
   // Count total zeros after the decimal point
   let totalZeros = 0;
