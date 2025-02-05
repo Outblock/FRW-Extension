@@ -47,7 +47,6 @@ import {
   googleDriveService,
   passwordService,
   flownsService,
-  stakingService,
   proxyService,
   newsService,
   mixpanelTrack,
@@ -3837,81 +3836,6 @@ export class WalletController extends BaseController {
     const network = await userWalletService.getNetwork();
     const resp = await flownsService.getHistory(network);
     return resp;
-  };
-
-  nodeInfo = async (address) => {
-    const result = await stakingService.nodeInfo(address);
-    return result;
-  };
-
-  stakeInfo = async (address) => {
-    const result = await stakingService.stakeInfo(address);
-    return result;
-  };
-
-  delegateInfo = async (address) => {
-    const result = await stakingService.delegateInfo(address);
-    return result;
-  };
-
-  delegateStore = async () => {
-    const result = await stakingService.delegateStore();
-    return result;
-  };
-
-  createDelegator = async (amount, node) => {
-    const result = await stakingService.createDelegator(amount, node);
-    // Track delegation creation
-    mixpanelTrack.track('delegation_created', {
-      address: (await this.getCurrentAddress()) || '',
-      node_id: node,
-      amount: amount,
-    });
-    return result;
-  };
-
-  createStake = async (amount, node, delegate) => {
-    const result = await stakingService.createStake(amount, node, delegate);
-    return result;
-  };
-
-  withdrawReward = async (amount, node, delegate) => {
-    const result = await stakingService.withdrawReward(amount, node, delegate);
-    return result;
-  };
-
-  restakeReward = async (amount, node, delegate) => {
-    const result = await stakingService.restakeReward(amount, node, delegate);
-    return result;
-  };
-
-  restakeUnstaked = async (amount, node, delegate) => {
-    const result = await stakingService.restakeUnstaked(amount, node, delegate);
-    return result;
-  };
-
-  withdrawUnstaked = async (amount, node, delegate) => {
-    const result = await stakingService.withdrawUnstaked(amount, node, delegate);
-    return result;
-  };
-
-  unstake = async (amount, node, delegate) => {
-    const result = await stakingService.unstake(amount, node, delegate);
-    return result;
-  };
-
-  checkStakingSetup = async (address) => {
-    return await stakingService.checkSetup(address);
-  };
-
-  setupDelegator = async (address) => {
-    const result = await stakingService.setup(address);
-    return result;
-  };
-
-  checkCrescendo = async () => {
-    const result = await userWalletService.checkCrescendo();
-    return result;
   };
 
   getAccount = async (): Promise<FclAccount> => {

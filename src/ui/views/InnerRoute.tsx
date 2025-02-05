@@ -46,9 +46,6 @@ import './Landing.css';
 import WalletList from './Setting/Wallet';
 import RemoveWallet from './Setting/Wallet/RemoveWallet';
 import WalletDetail from './Setting/Wallet/WalletDetail';
-import NodeDetail from './Staking/NodeDetail';
-import StakingPage from './Staking/StakingPage';
-import UnstakePage from './Staking/UnstakePage';
 import TokenDetail from './TokenDetail';
 import TokenList from './TokenList';
 import AddCustomEvmToken from './Wallet/AddCustom/AddCustomEvmToken';
@@ -226,15 +223,6 @@ const InnerRoute = (props: RouteComponentProps) => {
             </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/enable`}>
               <Enable />
-            </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/staking/page/:nodeid/:delegateid`}>
-              <StakingPage />
-            </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/unstake/page/:nodeid/:delegateid`}>
-              <UnstakePage />
-            </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/staking/node/:nodeid/:delegateid`}>
-              <NodeDetail />
             </PrivateRoute>
           </Switch>
         </div>
