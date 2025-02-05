@@ -180,11 +180,10 @@ const TransferList = () => {
             <>
               {' '}
               {(transactions || []).map((tx) => {
-                console.log('tx', tx);
                 return (
                   <ListItem
-                    key={`${tx.cadenceId || tx.hash}_${tx.interaction}`}
-                    data-testid={`${tx.cadenceId || tx.hash}_${tx.interaction}`}
+                    key={`${tx.cadenceTxId || tx.hash}_${tx.interaction}`}
+                    data-testid={`${tx.cadenceTxId || tx.hash}_${tx.interaction}`}
                     secondaryAction={
                       <EndListItemText
                         status={tx.status}

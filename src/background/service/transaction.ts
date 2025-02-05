@@ -235,11 +235,21 @@ class Transaction {
         if (pendingItem) {
           // Store the cadence transaction id
           transactionHolder.cadenceTxId = pendingItem.cadenceTxId;
+        } else {
+          // see if there's an existing transaction with cadenceId in the store
+          const existingTx = this.store.transactionItem[network]?.find(
+            (item) => item.hash === tx.txid
+          );
+          if (existingTx && existingTx.cadenceTxId) {
+            // Found existing cadence transaction id
+            transactionHolder.cadenceTxId = existingTx.cadenceTxId;
+          }
         }
 
         txList.push(transactionHolder);
         this.removePending(tx.txid, tx.sender, network);
       });
+      console.log('txList', txList);
       this.store.transactionItem[network] = txList;
       this.store.total = data.total;
     }
