@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-types */
+import debounce from 'debounce';
+
 import { storage } from 'background/webapi';
-import { debounce } from 'debounce';
 
 const sessionStorage = (name: string, obj: object) => {
-  debounce(storage.setSession(name, obj), 1000);
+  debounce(() => storage.setSession(name, obj), 1000);
 };
 
 interface CreateSessionStoreParams<T> {

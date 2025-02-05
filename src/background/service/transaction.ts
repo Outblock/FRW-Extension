@@ -1,6 +1,8 @@
 import type { TransactionStatus } from '@onflow/typedefs';
 
-import { createPersistStore, createSessionStore } from 'background/utils';
+import createPersistStore from 'background/utils/persisitStore';
+import createSessionStore from 'background/utils/sessionStore';
+
 interface TransactionStore {
   expiry: number;
   total: number;
@@ -249,7 +251,6 @@ class Transaction {
         txList.push(transactionHolder);
         this.removePending(tx.txid, tx.sender, network);
       });
-      console.log('txList', txList);
       this.store.transactionItem[network] = txList;
       this.store.total = data.total;
     }
