@@ -1049,12 +1049,6 @@ export class WalletController extends BaseController {
 
     return wallet;
   };
-  fetchFlownsInbox = async () => {
-    const info = await userInfoService.getUserInfo();
-    const res = await openapiService.getFlownsInbox(info.username);
-
-    return res;
-  };
 
   setPopStat = async (stat: boolean) => {
     const network = await this.getNetwork();
@@ -2520,37 +2514,6 @@ export class WalletController extends BaseController {
     );
   };
 
-  claimNFTFromInbox = async (
-    domain: string,
-    itemId: string,
-    symbol: string,
-    root = 'meow'
-  ): Promise<string> => {
-    const domainName = domain.split('.')[0];
-    const token = await openapiService.getNFTCollectionInfo(symbol);
-    if (!token) {
-      throw new Error(`Invaild token name - ${symbol}`);
-    }
-    const address = fcl.sansPrefix(token.address);
-    const key = `A.${address}.${symbol}.Collection`;
-    const script = await getScripts('domain', 'claimNFTFromInbox');
-
-    return await userWalletService.sendTransaction(
-      script
-        .replaceAll('<NFT>', token.contract_name)
-        .replaceAll('<NFTAddress>', token.address)
-        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
-        .replaceAll('<CollectionPublicType>', token.path.public_type)
-        .replaceAll('<CollectionPublicPath>', token.path.public_path),
-      [
-        fcl.arg(domainName, t.String),
-        fcl.arg(root, t.String),
-        fcl.arg(key, t.String),
-        fcl.arg(itemId, t.UInt64),
-      ]
-    );
-  };
-
   enableTokenStorage = async (symbol: string) => {
     const token = await openapiService.getTokenInfo(symbol);
     if (!token) {
@@ -3159,113 +3122,6 @@ export class WalletController extends BaseController {
       isMove: false,
     });
     return txID;
-  };
-
-  sendInboxNFT = async (recipient: string, id: any, token: any): Promise<string> => {
-    const script = await getScripts('domain', 'sendInboxNFT');
-
-    const txID = await userWalletService.sendTransaction(
-      script
-        .replaceAll('<NFT>', token.contract_name)
-        .replaceAll('<NFTAddress>', token.address)
-        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
-        .replaceAll('<CollectionPublicPath>', token.path.public_path),
-      [fcl.arg(recipient, t.Address), fcl.arg(parseInt(id), t.UInt64)]
-    );
-    mixpanelTrack.track('nft_transfer', {
-      tx_id: txID,
-      from_address: (await this.getCurrentAddress()) || '',
-      to_address: recipient,
-      nft_identifier: token.contract_name,
-      from_type: 'flow',
-      to_type: 'flow',
-      isMove: false,
-    });
-    return txID;
-  };
-
-  // SwapTokensForExactTokens
-  swapSend = async (
-    swapPaths,
-    tokenInMax,
-    tokenInVaultPath,
-    tokenOutSplit,
-    tokenOutVaultPath,
-    tokenOutReceiverPath,
-    tokenOutBalancePath,
-    deadline
-  ): Promise<string> => {
-    await this.getNetwork();
-    // let SwapConfig = testnetCodes;
-
-    // if (network == 'mainnet') {
-    //   SwapConfig = mainnetCodes;
-    // }
-
-    // const CODE = SwapConfig.Codes.Transactions.SwapTokensForExactTokens;
-    const CODE = await getScripts('swap', 'SwapTokensForExactTokens');
-
-    const tokenOutKey = swapPaths[swapPaths.length - 1];
-    const arr = tokenOutKey.split('.');
-    if (arr.length !== 3) {
-      throw Error(`Invalid TokenKey String, expect [A.address.name] got ${tokenOutKey}`);
-    }
-    const tokenName = arr[2];
-    const tokenAddress = `0x${arr[1]}`;
-    return await userWalletService.sendTransaction(
-      CODE.replaceAll('Token1Name', tokenName).replaceAll('Token1Addr', tokenAddress),
-      [
-        fcl.arg(swapPaths, t.Array(t.String)),
-        fcl.arg(tokenOutSplit, t.Array(t.UFix64)),
-        fcl.arg(tokenInMax.toFixed(8), t.UFix64),
-        fcl.arg(deadline.toFixed(8), t.UFix64),
-        fcl.arg({ domain: 'storage', identifier: tokenInVaultPath }, t.Path),
-        fcl.arg({ domain: 'storage', identifier: tokenOutVaultPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutReceiverPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutBalancePath }, t.Path),
-      ]
-    );
-  };
-
-  // SwapExactTokensForTokens
-  sendSwap = async (
-    swapPaths,
-    tokenInSplit,
-    tokenInVaultPath,
-    tokenOutMin,
-    tokenOutVaultPath,
-    tokenOutReceiverPath,
-    tokenOutBalancePath,
-    deadline
-  ): Promise<string> => {
-    await this.getNetwork();
-    // let SwapConfig = testnetCodes;
-    // if (network == 'mainnet') {
-    //   SwapConfig = mainnetCodes;
-    // }
-    // const CODE = SwapConfig.Codes.Transactions.SwapExactTokensForTokens;
-    const CODE = await getScripts('swap', 'SwapExactTokensForTokens');
-
-    const tokenOutKey = swapPaths[swapPaths.length - 1];
-    const arr = tokenOutKey.split('.');
-    if (arr.length !== 3) {
-      throw Error(`Invalid TokenKey String, expect [A.adress.name] got ${tokenOutKey}`);
-    }
-    const tokenName = arr[2];
-    const tokenAddress = `0x${arr[1]}`;
-    return await userWalletService.sendTransaction(
-      CODE.replaceAll('Token1Name', tokenName).replaceAll('Token1Addr', tokenAddress),
-      [
-        fcl.arg(swapPaths, t.Array(t.String)),
-        fcl.arg(tokenInSplit, t.Array(t.UFix64)),
-        fcl.arg(tokenOutMin.toFixed(8), t.UFix64),
-        fcl.arg(deadline.toFixed(8), t.UFix64),
-        fcl.arg({ domain: 'storage', identifier: tokenInVaultPath }, t.Path),
-        fcl.arg({ domain: 'storage', identifier: tokenOutVaultPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutReceiverPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutBalancePath }, t.Path),
-      ]
-    );
   };
 
   //transaction

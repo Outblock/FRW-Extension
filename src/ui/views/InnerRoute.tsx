@@ -9,12 +9,10 @@ import { useWallet } from 'ui/utils';
 import Deposit from '../views/Deposit';
 import Enable from '../views/Enable';
 import Send from '../views/Send';
-import Swap from '../views/Swap';
 
 import Dashboard from './Dashboard';
 import Header from './Dashboard/Header';
 import Flowns from './Flowns';
-import Inbox from './Inbox';
 import CollectionDetail from './NFT/CollectionDetail';
 import Detail from './NFT/Detail';
 import AddList from './NFT/NFTList/AddList';
@@ -168,9 +166,6 @@ const InnerRoute = (props: RouteComponentProps) => {
             <PrivateRoute path={`${props.match.url}/wallet/send`}>
               <Send />
             </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/wallet/swap`}>
-              <Swap />
-            </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/wallet/deposit`}>
               <Deposit />
             </PrivateRoute>
@@ -231,9 +226,6 @@ const InnerRoute = (props: RouteComponentProps) => {
             </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/enable`}>
               <Enable />
-            </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/inbox`}>
-              <Inbox />
             </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/staking/page/:nodeid/:delegateid`}>
               <StakingPage />
