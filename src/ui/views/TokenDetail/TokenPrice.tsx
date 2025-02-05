@@ -26,7 +26,16 @@ export const TokenPrice: React.FC<TokenPriceProps> = ({
     <span className={className}>
       {showPrefix && prefix}
       <span style={leadingPart === '-' ? { padding: '0 0.25rem' } : undefined}>{leadingPart}</span>
-      {zeroPart !== null && <sub style={{ fontSize: '0.7em' }}>{zeroPart}</sub>}
+      {zeroPart !== null && (
+        <sub
+          style={{
+            fontSize: '0.7em',
+            verticalAlign: '-0.25em',
+          }}
+        >
+          {zeroPart}
+        </sub>
+      )}
       {endingPart !== null && endingPart}
     </span>
   );
