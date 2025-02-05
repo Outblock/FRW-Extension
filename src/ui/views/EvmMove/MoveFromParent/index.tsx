@@ -125,7 +125,6 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     };
 
     setChildUser(childContact);
-    // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
 
     return;
