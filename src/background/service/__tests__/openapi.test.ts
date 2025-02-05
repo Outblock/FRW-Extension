@@ -81,7 +81,7 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 // Then imports
-import { API_TEST_RESULTS, type FetchDetail } from '@/shared/test-data/api-test-results';
+import { API_TEST_RESULTS } from '@/shared/test-data/api-test-results';
 import {
   createTestGroups,
   updateTestParamsFromResults,
@@ -228,9 +228,7 @@ describe('OpenApiService', () => {
           }
 
           // Set the network based on the first test data
-          const headers = (fetchDetails[0] as FetchDetail).requestInit?.headers as {
-            Network?: string;
-          };
+          const headers = fetchDetails[0].requestInit?.headers as { Network?: string };
           const networkHeader = headers?.Network;
           if (networkHeader) {
             vi.mocked(userWalletService.getNetwork).mockResolvedValueOnce(
@@ -253,7 +251,7 @@ describe('OpenApiService', () => {
               ok: true,
               status: 200,
               statusText: 'OK',
-              json: () => Promise.resolve((currentDetail as FetchDetail).responseData || {}),
+              json: () => Promise.resolve(currentDetail.responseData || {}),
               clone: function () {
                 return {
                   ...this,
