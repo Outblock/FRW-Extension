@@ -132,9 +132,9 @@ const MoveEvm = (props: MoveBoardProps) => {
         collection.flowIdentifier,
         nftIdArray
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Move complete`,
           `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`
@@ -143,7 +143,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.log(err);
@@ -158,9 +158,9 @@ const MoveEvm = (props: MoveBoardProps) => {
     console.log('collectionDetail ', collectionDetail);
     usewallet
       .batchBridgeNftFromEvm(collection.flowIdentifier, nftIdArray)
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Move complete`,
           `You have moved ${nftIdArray.length} ${collection.CollectionName} from evm to your flow address. \nClick to view this transaction.`
@@ -169,7 +169,7 @@ const MoveEvm = (props: MoveBoardProps) => {
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.log(err);

@@ -52,9 +52,9 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
     const amount = new BN(props.data.amount).toFixed(8, BN.ROUND_DOWN);
     usewallet
       .createStake(amount, props.data.nodeid, props.data.delegateid)
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} have sent to the node`,
           `You have sent ${props.data.amount} Flow to node id: ${props.data.nodeid}. \nClick to view this transaction.`,
@@ -63,7 +63,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setSending(false);
@@ -81,9 +81,9 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
     const amount = new BN(props.data.amount).toFixed(8, BN.ROUND_DOWN);
     usewallet
       .createDelegator(amount, props.data.nodeid)
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} have sent to the node`,
           `You have sent ${props.data.amount} Flow to node id: ${props.data.nodeid}. \nClick to view this transaction.`,
@@ -92,7 +92,7 @@ const StakeConfirm = (props: TransferConfirmationProps) => {
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setSending(false);

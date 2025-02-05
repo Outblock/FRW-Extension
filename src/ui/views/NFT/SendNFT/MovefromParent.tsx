@@ -94,9 +94,9 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
     } else {
       usewallet
         .sendNFTtoChild(selectedAccount!['address'], '', props.data.nft.id, filteredCollections[0])
-        .then(async (txID) => {
+        .then(async (txId) => {
           usewallet.listenTransaction(
-            txID,
+            txId,
             true,
             `Move complete`,
             `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`
@@ -104,7 +104,7 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
           props.handleCloseIconClicked();
           await usewallet.setDashIndex(0);
           setSending(false);
-          history.push('/dashboard?activity=1');
+          history.push(`/dashboard?activity=1&txId=${txId}`);
         })
         .catch((err) => {
           console.error('err ', err);
@@ -121,9 +121,9 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
       : props.data.contract.flowIdentifier;
     usewallet
       .batchBridgeNftToEvm(identifier, [props.data.nft.id])
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Move complete`,
           `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`
@@ -131,7 +131,7 @@ const MovefromParent = (props: SendNFTConfirmationProps) => {
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setSending(false);

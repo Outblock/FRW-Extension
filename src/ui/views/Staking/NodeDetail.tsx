@@ -125,9 +125,9 @@ const NodeDetail = () => {
     const amount = nodeInfo.tokensRewarded;
     usewallet
       .withdrawReward(amount, nodeInfo.nodeID, nodeInfo.delegatorID)
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${amount}  Flow claimed`,
           `You have claimed ${amount} Flow from the staking node. \nClick to view this transaction.`,
@@ -135,7 +135,7 @@ const NodeDetail = () => {
         );
         await usewallet.setDashIndex(0);
         setLoading(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         console.log('failed');
@@ -149,9 +149,9 @@ const NodeDetail = () => {
     const amount = nodeInfo.tokensUnstaked;
     usewallet
       .withdrawUnstaked(amount, nodeInfo.nodeID, nodeInfo.delegatorID)
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${amount}  Flow withdrawed`,
           `You have claimed ${amount} Flow from the staking node. \nClick to view this transaction.`,
@@ -159,7 +159,7 @@ const NodeDetail = () => {
         );
         await usewallet.setDashIndex(0);
         setLoading(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         console.log('failed');
@@ -173,9 +173,9 @@ const NodeDetail = () => {
     const amount = nodeInfo.tokensUnstaked;
     usewallet
       .restakeUnstaked(amount, nodeInfo.nodeID, nodeInfo.delegatorID)
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${amount}  Flow staked`,
           `You have staked ${amount} Flow to the staking node. \nClick to view this transaction.`,
@@ -183,7 +183,7 @@ const NodeDetail = () => {
         );
         await usewallet.setDashIndex(0);
         setLoading(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         console.log('failed');
@@ -197,9 +197,9 @@ const NodeDetail = () => {
     const amount = nodeInfo.tokensRewarded;
     usewallet
       .restakeReward(amount, nodeInfo.nodeID, nodeInfo.delegatorID)
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${amount}  Flow staked`,
           `You have staked ${amount} Flow to the staking node. \nClick to view this transaction.`,
@@ -207,7 +207,7 @@ const NodeDetail = () => {
         );
         await usewallet.setDashIndex(0);
         setLoading(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         console.log('failed');

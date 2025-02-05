@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import { Box, Drawer, Grid, Typography, Stack, InputBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import CloseIcon from '@mui/icons-material/Close';
-import { LLPrimaryButton, LLSpinner } from '../../../FRWComponent';
-import { useWallet } from 'ui/utils';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+
+import { useWallet } from 'ui/utils';
+
+import { LLPrimaryButton, LLSpinner } from '../../../FRWComponent';
 
 const StyledInput = styled(InputBase)(({ theme }) => ({
   zIndex: 1,
@@ -48,17 +50,17 @@ const EditAccount = (props: EditAccountProps) => {
     setIsLoading(true);
     wallet
       .editChildAccount(props.address!, name, desc, props.childAccount.thumbnail.url)
-      .then(async (resp) => {
+      .then(async (txId) => {
         setIsLoading(false);
         props.handleCancelBtnClicked();
         wallet.listenTransaction(
-          resp['txId'],
+          txId,
           true,
           `${props.address} unlinked`,
           `You have unlinked the child account ${props.address} from your account. \nClick to view this transaction.`
         );
         await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setIsLoading(false);
@@ -70,7 +72,7 @@ const EditAccount = (props: EditAccountProps) => {
   useEffect(() => {
     setName(props.childAccount.name);
     setDesc(props.childAccount.description);
-  }, []);
+  }, [props?.childAccount?.name, props?.childAccount?.description]);
 
   const renderContent = () => (
     <Box

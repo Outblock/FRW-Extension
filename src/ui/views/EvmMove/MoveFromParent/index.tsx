@@ -152,15 +152,15 @@ const MoveFromParent = (props: TransferConfirmationProps) => {
     console.log('tokenResult ', tokenResult);
     usewallet
       .moveFTfromChild(childUserInfo!.address, 'flowTokenProvider', amount!, tokenResult!.name)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer complete',
           `Your have moved ${amount} Flow to your address ${childAddress}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })
