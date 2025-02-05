@@ -806,13 +806,13 @@
     "params": ["address", "token"]
   },
   {
-    "name": "fetchGitTokenList",
+    "name": "fetchFTList",
     "isAsync": true,
-    "fullBody": "async (network, chainType, childType) => {\n        const isProduction = \"development\" === 'production';\n        let url;\n        if (isProduction) {\n            url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;\n        }\n        else if (!isProduction &&\n            childType !== 'evm' &&\n            (network === 'testnet' || network === 'mainnet')) {\n            url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`;\n        }\n        else {\n            url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;\n        }\n        const response = await fetch(url);\n        const { tokens = [] } = await response.json();\n        const hasFlowToken = tokens.some((token) => token.symbol.toLowerCase() === 'flow');\n        if (!hasFlowToken) {\n            tokens.push({\n                name: 'Flow',\n                address: '0x4445e7ad11568276',\n                contractName: 'FlowToken',\n                path: {\n                    balance: '/public/flowTokenBalance',\n                    receiver: '/public/flowTokenReceiver',\n                    vault: '/storage/flowTokenVault',\n                },\n                logoURI: 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',\n                decimals: 8,\n                symbol: 'flow',\n            });\n        }\n        return tokens;\n    }",
+    "fullBody": "async (network, chainType) => {\n    const config = this.store.config.get_ft_list;\n    const data = await this.sendRequest(config.method, config.path, {\n        network,\n        chain_type: chainType,\n    }, {}, consts__WEBPACK_IMPORTED_MODULE_13__.WEB_NEXT_URL);\n    return data.tokens;\n}",
     "usesSendRequest": false,
     "usesFetchDirectly": true,
-    "basicSignature": "async (network, chainType, childType) =>",
-    "params": ["network", "chainType", "childType"]
+    "basicSignature": "async (network, chainType) =>",
+    "params": ["network", "chainType"]
   },
   {
     "name": "addFlowTokenIfMissing",
