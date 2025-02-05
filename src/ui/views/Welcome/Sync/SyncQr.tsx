@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Typography, CardMedia } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import { Core } from '@walletconnect/core';
@@ -10,6 +10,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 
 import { FCLWalletConnectMethod } from '@/shared/utils/type';
+import scanIcon from 'ui/assets/scan.svg';
 import lilo from 'ui/FRWAssets/image/lilo.png';
 import { useWallet } from 'ui/utils';
 
@@ -286,7 +287,7 @@ const SyncQr = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          px: '24px',
+          padding: '0 24px 20px',
           height: '380px',
           width: '100%',
           position: 'relative',
@@ -297,7 +298,6 @@ const SyncQr = ({
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            marginBottom: '20px',
             width: '353px',
           }}
         >
@@ -316,16 +316,27 @@ const SyncQr = ({
               {chrome.i18n.getMessage('Lilico')}
             </span>
           </Typography>
+          <Box sx={{ position: 'relative' }}>
+            <Typography
+              variant="body1"
+              sx={{ color: 'primary.light', fontSize: '16px', margin: '24px 0 32px' }}
+            >
+              {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
 
-          <Typography
-            variant="body1"
-            sx={{ color: 'primary.light', pt: '16px', fontSize: '16px', margin: '24px 0 32px' }}
-          >
-            {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
-
-            {chrome.i18n.getMessage('Open_your_Flow_Reference_on_Mobil')}
-          </Typography>
-
+              {chrome.i18n.getMessage('Open_your_Flow_Reference_on_Mobil')}
+            </Typography>{' '}
+            <CardMedia
+              component="img"
+              sx={{
+                width: '20px',
+                height: '20px',
+                top: '27px',
+                right: '-2px',
+                position: 'absolute',
+              }}
+              image={scanIcon}
+            />
+          </Box>
           <Typography variant="body1" sx={{ color: '#8C9BAB', pt: '12px', fontSize: '12px' }}>
             {/* {chrome.i18n.getMessage('appDescription')} {' '} */}
 
