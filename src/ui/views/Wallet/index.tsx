@@ -66,7 +66,6 @@ const WalletTab = ({ network }) => {
   const [txCount, setTxCount] = useState('');
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [, setSwapConfig] = useState(false);
   const [showMoveBoard, setMoveBoard] = useState(false);
   const [buyHover, setBuyHover] = useState(false);
   const [sendHover, setSendHover] = useState(false);
@@ -138,11 +137,6 @@ const WalletTab = ({ network }) => {
 
     // Handle all non-evm and non-active cases here
   }, [address, isActive, usewallet]);
-
-  const loadCache = useCallback(async () => {
-    const storageSwap = await usewallet.getSwapConfig();
-    setSwapConfig(storageSwap);
-  }, [usewallet]);
 
   const fetchChildState = useCallback(async () => {
     setChildStateLoading(true);

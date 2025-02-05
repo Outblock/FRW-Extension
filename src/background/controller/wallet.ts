@@ -3694,25 +3694,6 @@ export class WalletController extends BaseController {
     }
   };
 
-  getSwapConfig = async () => {
-    const swapStorage = await storage.get('swapConfig');
-
-    const now = new Date();
-    const exp = 1000 * 60 * 60 * 1 + now.getTime();
-    if (swapStorage && swapStorage['expiry'] && now.getTime() <= swapStorage['expiry']) {
-      return swapStorage['data'];
-    }
-
-    const data = (await openapiService.getSwapInfo()) ?? false;
-    console.log('data expired ');
-    const swapConfig = {
-      data: data,
-      expiry: exp,
-    };
-    storage.set('swapConfig', swapConfig);
-    return data;
-  };
-
   reset = async () => {
     await keyringService.loadStore(undefined);
     keyringService.store.subscribe((value) => storage.set('keyringState', value));
@@ -3916,11 +3897,6 @@ export class WalletController extends BaseController {
 
   unstake = async (amount, node, delegate) => {
     const result = await stakingService.unstake(amount, node, delegate);
-    return result;
-  };
-
-  getApr = async () => {
-    const result = await stakingService.getApr();
     return result;
   };
 

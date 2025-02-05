@@ -135,10 +135,6 @@ const MoveToken = ({
     return selectCoin && <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />;
   };
 
-  const swap = () => {
-    setCoinType(!coinType);
-  };
-
   const currentCoinType = useCallback(() => {
     setCoin(coinInfo.unit);
   }, [coinInfo.unit]);
