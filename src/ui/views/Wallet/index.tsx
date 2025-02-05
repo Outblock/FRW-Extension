@@ -198,11 +198,10 @@ const WalletTab = ({ network }) => {
     setCoinLoading(address === '');
     if (address) {
       setCoinLoading(true);
-      loadCache();
       setCoinLoading(false);
       fetchWallet();
     }
-  }, [address, fetchWallet, loadCache]);
+  }, [address, fetchWallet]);
 
   useEffect(() => {
     setUserAddress();
