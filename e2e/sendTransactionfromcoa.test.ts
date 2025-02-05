@@ -1,5 +1,5 @@
 import { test, loginToSenderAccount, expect, getCurrentAddress, switchToEvm } from './utils/helper';
-export const sendToken = async ({ page, tokenname, receiver, successtext }) => {
+export const sendTokenCOA = async ({ page, tokenname, receiver, successtext }) => {
   // Wait for the EVM account to be loaded
   await getCurrentAddress(page);
   await page.getByRole('tab', { name: 'coins' }).click();
@@ -24,7 +24,7 @@ export const sendToken = async ({ page, tokenname, receiver, successtext }) => {
   });
 };
 
-export const moveToken = async ({ page, tokenname, successtext }) => {
+export const moveTokenCOA = async ({ page, tokenname, successtext }) => {
   // Wait for the EVM account to be loaded
   await getCurrentAddress(page);
   await page.getByRole('tab', { name: 'coins' }).click();
@@ -57,7 +57,7 @@ test('send Flow COA to COA', async ({ page }) => {
   // This can take a while
   test.setTimeout(60_000);
   // Send FLOW token from COA to COA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: /^FLOW \$/i,
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
@@ -68,7 +68,7 @@ test('send Flow COA to COA', async ({ page }) => {
 test('send Staked Flow COA to COA', async ({ page }) => {
   test.setTimeout(60_000);
   // Send stFLOW token from COA to COA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'Liquid Staked Flow $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
@@ -79,7 +79,7 @@ test('send Staked Flow COA to COA', async ({ page }) => {
 test('send USDC token COA to COA', async ({ page }) => {
   test.setTimeout(60_000);
   // Send USDC token from COA to COA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'Bridged USDC (Celer) $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
@@ -90,7 +90,7 @@ test('send USDC token COA to COA', async ({ page }) => {
 test('send BETA token COA to COA', async ({ page }) => {
   test.setTimeout(60_000);
   // Send BETA token from COA to COA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'BETA $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
@@ -101,7 +101,7 @@ test('send BETA token COA to COA', async ({ page }) => {
 test('send TRUMP token COA to COA', async ({ page }) => {
   test.setTimeout(60_000);
   // Send TRUMP token from COA to COA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'OFFICIAL TRUMP $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
@@ -114,7 +114,7 @@ test('send Flow COA to FLOW', async ({ page }) => {
   // This can take a while
   test.setTimeout(60_000);
   // Send FLOW token from COA to FLOW
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: /^FLOW \$/i,
     receiver: process.env.TEST_RECEIVER_ADDR!,
@@ -125,7 +125,7 @@ test('send Flow COA to FLOW', async ({ page }) => {
 test('send Staked Flow COA to FLOW', async ({ page }) => {
   test.setTimeout(60_000);
   // Send stFLOW token from COA to FLOW
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'Liquid Staked Flow $',
     receiver: process.env.TEST_RECEIVER_ADDR!,
@@ -136,7 +136,7 @@ test('send Staked Flow COA to FLOW', async ({ page }) => {
 test('send USDC token COA to FLOW', async ({ page }) => {
   test.setTimeout(60_000);
   // Send USDC token from COA to FLOW
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'Bridged USDC (Celer) $',
     receiver: process.env.TEST_RECEIVER_ADDR!,
@@ -147,7 +147,7 @@ test('send USDC token COA to FLOW', async ({ page }) => {
 test('send BETA token COA to FLOW', async ({ page }) => {
   test.setTimeout(60_000);
   // Send BETA token from COA to FLOW
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'BETA $',
     receiver: process.env.TEST_RECEIVER_ADDR!,
@@ -159,7 +159,7 @@ test('send Flow COA to EOA', async ({ page }) => {
   // This can take a while
   test.setTimeout(60_000);
   // Send FLOW token from COA to EOA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: /^FLOW \$/i,
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
@@ -170,7 +170,7 @@ test('send Flow COA to EOA', async ({ page }) => {
 test('send USDC token COA to EOA', async ({ page }) => {
   test.setTimeout(60_000);
   // Send USDC token from COA to EOA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'Bridged USDC (Celer) $',
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
@@ -181,7 +181,7 @@ test('send USDC token COA to EOA', async ({ page }) => {
 test('send BETA token COA to EOA', async ({ page }) => {
   test.setTimeout(60_000);
   // Send BETA token from COA to EOA
-  await sendToken({
+  await sendTokenCOA({
     page,
     tokenname: 'BETA $',
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
@@ -192,7 +192,7 @@ test('send BETA token COA to EOA', async ({ page }) => {
 test('move Flow COA to FLOW', async ({ page }) => {
   test.setTimeout(60_000);
   // Move FLOW token from COA to FLOW
-  await moveToken({
+  await moveTokenCOA({
     page,
     tokenname: /^FLOW \$/i,
     successtext: 'success',
@@ -202,7 +202,7 @@ test('move Flow COA to FLOW', async ({ page }) => {
 test('move USDC token COA to FLOW', async ({ page }) => {
   test.setTimeout(60_000);
   // Move USDC token from COA to EOA
-  await moveToken({
+  await moveTokenCOA({
     page,
     tokenname: 'Bridged USDC (Celer) $',
     successtext: 'success',
@@ -212,7 +212,7 @@ test('move USDC token COA to FLOW', async ({ page }) => {
 test('move BETA token COA to FLOW', async ({ page }) => {
   test.setTimeout(60_000);
   // Move BETA token from COA to EOA
-  await moveToken({
+  await moveTokenCOA({
     page,
     tokenname: 'BETA $',
     successtext: 'success',

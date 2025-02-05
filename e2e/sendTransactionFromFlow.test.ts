@@ -1,0 +1,206 @@
+import { test, loginToSenderAccount, expect, getCurrentAddress } from './utils/helper';
+export const sendTokenFlow = async ({ page, tokenname, receiver }) => {
+  // Wait for the EVM account to be loaded
+  await getCurrentAddress(page);
+  await page.getByRole('tab', { name: 'coins' }).click();
+  // send Ft token from COA
+  await page.getByRole('button', { name: tokenname }).click();
+  await page.getByRole('button', { name: 'SEND' }).click();
+  await page.getByPlaceholder('Search address(0x), or flow').click();
+  await page.getByPlaceholder('Search address(0x), or flow').fill(receiver);
+  await page.getByPlaceholder('Amount').fill('0.000112134354657');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('button', { name: 'Send' }).click();
+  await page.waitForURL(/.*dashboard\?activity=1/);
+  const progressBar = page.getByRole('progressbar');
+  await expect(progressBar).toBeVisible();
+  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
+
+  await expect(
+    page
+      .locator('li')
+      .first()
+      .filter({ hasText: 'a few seconds ago' })
+      .filter({ hasText: 'sealed' })
+  ).toBeVisible({
+    timeout: 60_000,
+  });
+};
+
+export const moveTokenFlow = async ({ page, tokenname }) => {
+  // Wait for the EVM account to be loaded
+  await getCurrentAddress(page);
+  await page.getByRole('tab', { name: 'coins' }).click();
+  await page.getByRole('button', { name: tokenname }).click();
+  await page.getByRole('button', { name: 'Move' }).click();
+  await page.getByPlaceholder('Amount').click();
+  await page.getByPlaceholder('Amount').fill('0.000112134354657');
+
+  await page.getByRole('button', { name: 'Move' }).click();
+  await page.waitForURL(/.*dashboard\?activity=1/);
+  const progressBar = page.getByRole('progressbar');
+  await expect(progressBar).toBeVisible();
+  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
+
+  await expect(
+    page
+      .locator('li')
+      .first()
+      .filter({ hasText: 'a few seconds ago' })
+      .filter({ hasText: 'sealed' })
+  ).toBeVisible({
+    timeout: 60_000,
+  });
+};
+
+test.beforeEach(async ({ page, extensionId }) => {
+  // Login to our sender account
+  await loginToSenderAccount({ page, extensionId });
+});
+//Send FLOW token from Flow to Flow
+test('send FLOW flow to flow', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: /^FLOW \$/i,
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+  });
+});
+//Send USDC from Flow to Flow
+test('send USDC flow to flow', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'USDC.e (Flow) $',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+  });
+});
+//Send StFlow from Flow to Flow
+test('send stFlow flow to flow', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'Liquid Staked Flow $',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+  });
+});
+
+//Send BETA from Flow to Flow
+test('send BETA flow to flow', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'BETA $',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
+  });
+});
+//Send FLOW token from Flow to COA
+test('send FLOW flow to COA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: /^FLOW \$/i,
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+  });
+});
+//Send USDC from Flow to Flow
+test('send USDC flow to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'USDC.e (Flow) $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+  });
+});
+//Send StFlow from Flow to COA
+test('send stFlow flow to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'Liquid Staked Flow $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+  });
+});
+
+//Send BETA from Flow to COA
+test('send BETA flow to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'BETA $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+  });
+});
+//Send FLOW token from Flow to EOA
+test('send FLOW flow to EOA', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: /^FLOW \$/i,
+    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+  });
+});
+//Send USDC from Flow to EOA
+test('send USDC flow to EOA', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'USDC.e (Flow) $',
+    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+  });
+});
+//Send StFlow from Flow to EOA
+test('send stFlow flow to EOA', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'Liquid Staked Flow $',
+    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+  });
+});
+
+//Send BETA from Flow to EOA
+test('send BETA flow to EOA', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
+    page,
+    tokenname: 'BETA $',
+    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+  });
+});
+//Move FTs from  Flow to COA
+test('move Flow Flow to COA', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move FLOW token from COA to FLOW
+  await moveTokenFlow({
+    page,
+    tokenname: /^FLOW \$/i,
+  });
+});
+
+test('move USDC token COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move USDC token from COA to EOA
+  await moveTokenFlow({
+    page,
+    tokenname: 'Bridged USDC (Celer) $',
+  });
+});
+
+test('move BETA token COA to FLOW', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move BETA token from COA to EOA
+  await moveTokenFlow({
+    page,
+    tokenname: 'BETA $',
+  });
+});
