@@ -110,6 +110,12 @@ vi.mock('@/ui/utils/WalletContext', () => ({
         loggedInAccounts: ['account1'],
       }),
     },
+    returnMainWallet: vi.fn().mockResolvedValue({
+      name: 'Test Wallet',
+      address: '0x138c20de202897fb',
+      type: 'flow',
+      blockchain: 'flow',
+    }),
   }),
 }));
 
@@ -159,31 +165,39 @@ describe('useProfileHook', () => {
     it('should update user wallet data', async () => {
       const mockSetWalletList = vi.fn();
       const mockSetParentWallet = vi.fn();
+      const mockSetCurrent = vi.fn();
+      const mockSetMainLoading = vi.fn();
 
-      vi.mocked(useProfileStore).mockReturnValueOnce({
+      vi.mocked(useProfileStore).mockReturnValue({
         setMainAddress: vi.fn(),
         setEvmAddress: vi.fn(),
         setEvmWallet: vi.fn(),
         setParentWallet: mockSetParentWallet,
-        setCurrent: vi.fn(),
+        setCurrent: mockSetCurrent,
         setChildAccount: vi.fn(),
         setUserInfo: vi.fn(),
         setOtherAccounts: vi.fn(),
         setLoggedInAccounts: vi.fn(),
-        setMainLoading: vi.fn(),
+        setMainLoading: mockSetMainLoading,
         setEvmLoading: vi.fn(),
         setInitial: vi.fn(),
         setWalletList: mockSetWalletList,
         initialStart: true,
       });
 
-      const { freshUserWallet } = useProfileHook();
+      const { fetchUserWallet } = useProfileHook();
       await act(async () => {
-        await freshUserWallet();
+        await fetchUserWallet();
       });
 
-      expect(mockSetWalletList).toHaveBeenCalled();
-      expect(mockSetParentWallet).toHaveBeenCalled();
+      expect(mockSetParentWallet).toHaveBeenCalledWith({
+        name: 'Test Wallet',
+        address: '0x138c20de202897fb',
+        type: 'flow',
+        blockchain: 'flow',
+      });
+      expect(mockSetCurrent).toHaveBeenCalled();
+      expect(mockSetMainLoading).toHaveBeenCalledWith(false);
     });
   });
 
@@ -193,8 +207,7 @@ describe('useProfileHook', () => {
       const mockSetOtherAccounts = vi.fn();
       const mockSetLoggedInAccounts = vi.fn();
 
-      // Mock the profile store
-      vi.mocked(useProfileStore).mockReturnValueOnce({
+      vi.mocked(useProfileStore).mockReturnValue({
         setMainAddress: vi.fn(),
         setEvmAddress: vi.fn(),
         setEvmWallet: vi.fn(),
