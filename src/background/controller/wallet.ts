@@ -3543,18 +3543,20 @@ export class WalletController extends BaseController {
       await this.getTransaction(address, 15, 0, 60000, true);
 
       const { list: newTransactions } = await this.getTransaction(address, 15, 0, 60000, true);
+      console.log('newTransactions', newTransactions);
       const newTx = newTransactions.filter((tx) => tx.status !== 'Pending')[0];
+      console.log('newTx', newTx);
       if (newTx?.hash === initialTx?.hash) {
         attempts++;
         setTimeout(poll, 5000); // Poll every 5 seconds
-      } else {
+      } /* else {
         const walletType = await this.getActiveWallet();
         if (walletType === 'evm') {
           await this.clearPending();
           await this.getTransaction(address, 15, 0, 60000);
         }
         chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
-      }
+      } */
     };
 
     await poll();
@@ -3586,7 +3588,12 @@ export class WalletController extends BaseController {
 
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
-      await fcl.tx(txId).onceExecuted();
+      const txStatus = await fcl.tx(txId).onceExecuted();
+      // Log the transaction status
+      console.log('txStatus', txStatus);
+
+      // Update the pending transaction with the transaction status
+      transactionService.updatePending(txId, network, txStatus);
 
       // Track the transaction result
       mixpanelTrack.track('transaction_result', {

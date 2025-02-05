@@ -1,3 +1,5 @@
+import type { TransactionStatus } from '@onflow/typedefs';
+
 import { createPersistStore, createSessionStore } from 'background/utils';
 interface TransactionStore {
   expiry: number;
@@ -122,6 +124,8 @@ class Transaction {
       transferType: 1,
       image: '',
     } as TransferItem;
+
+    // Not sure we have a string for this
     txItem.status = chrome.i18n.getMessage('PENDING');
     txItem.time = now.getTime();
     txItem.token = 'Exec Transaction';
@@ -130,16 +134,39 @@ class Transaction {
     txItem.hash = txId;
     txItem.image = icon;
     txItem.title = title;
-    console.log('txItem ', txItem);
     txList.unshift(txItem);
+    this.session.pendingItem[network] = txList;
+  };
+
+  updatePending = (txId: string, network: string, transactionStatus: TransactionStatus) => {
+    console.log('updatePending', txId, network, transactionStatus);
+    const txList = this.session.pendingItem[network];
+    const txItemIndex = txList.findIndex((item) => item.hash === txId);
+    if (txItemIndex === -1) {
+      // txItem not found, return
+      return;
+    }
+    const txItem = txList[txItemIndex];
+    txItem.status = transactionStatus.statusString;
+    txItem.error = transactionStatus.statusCode === 1;
+
+    const evmEvent = transactionStatus.events.find((event) => event.type.includes('EVM'));
+    if (evmEvent) {
+      const hashBytes = evmEvent.data.hash.map((byte) => parseInt(byte));
+      txItem.hash = '0x' + Buffer.from(hashBytes).toString('hex');
+    }
+    txList[txItemIndex] = txItem;
+    console.log('txItem - updated', txItem);
     this.session.pendingItem[network] = txList;
   };
 
   removePending = (txId: string, address: string, network: string) => {
     const txList = this.session.pendingItem[network];
+    console.log('removePending - txList', txId, address, network, txList);
     const newList = txList.filter((item) => {
       return item.hash !== txId;
     });
+    console.log('removePending - newList', newList);
     this.session.pendingItem[network] = newList;
   };
 
