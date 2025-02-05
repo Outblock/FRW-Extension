@@ -1384,10 +1384,6 @@ class OpenApiService {
     return !!flags[featureFlag];
   };
 
-  getSwapInfo = async (): Promise<boolean> => {
-    return (await this.getFeatureFlags()).swap;
-  };
-
   // @ts-ignore
   getAllTokenInfo = async (fiterNetwork = true): Promise<TokenInfo[]> => {
     const network = await userWalletService.getNetwork();
