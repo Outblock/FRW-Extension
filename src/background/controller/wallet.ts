@@ -1265,25 +1265,6 @@ export class WalletController extends BaseController {
     }
   };
 
-  fetchTokenList = async (_expiry = 5000) => {
-    const network = await this.getNetwork();
-    try {
-      const now = new Date();
-      const exp = _expiry + now.getTime();
-      coinListService.setExpiry(exp);
-
-      const tokenList = await openapiService.getEnabledTokenList(network);
-      return tokenList;
-    } catch (err) {
-      if (err.message === 'Operation aborted') {
-        console.log('fetchTokenList operation aborted.');
-      } else {
-        console.error('fetchTokenList encountered an error:', err);
-      }
-      throw err;
-    }
-  };
-
   fetchBalance = async ({ signal } = { signal: new AbortController().signal }) => {
     const network = await this.getNetwork();
     const tokenList = await openapiService.getEnabledTokenList(network);
@@ -1361,7 +1342,6 @@ export class WalletController extends BaseController {
   fetchCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
     const network = await this.getNetwork();
     try {
-      await this.fetchTokenList(_expiry);
       await this.fetchBalance({ signal });
 
       // const allTokens = await openapiService.getAllTokenInfo();
