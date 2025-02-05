@@ -179,10 +179,12 @@ const TransferList = () => {
           {transactions && transactions.length ? (
             <>
               {' '}
-              {(transactions || []).map((tx: any, index) => {
+              {(transactions || []).map((tx) => {
+                console.log('tx', tx);
                 return (
                   <ListItem
-                    key={index}
+                    key={`${tx.cadenceId || tx.hash}_${tx.interaction}`}
+                    data-testid={`${tx.cadenceId || tx.hash}_${tx.interaction}`}
                     secondaryAction={
                       <EndListItemText
                         status={tx.status}
