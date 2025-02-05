@@ -3270,7 +3270,7 @@ export class WalletController extends BaseController {
 
   //transaction
 
-  getTransaction = async (
+  getTransactions = async (
     address: string,
     limit: number,
     offset: number,
@@ -3283,7 +3283,7 @@ export class WalletController extends BaseController {
 
     // Refresh if forced or expired
     if (forceRefresh || now.getTime() > expiry) {
-      await this.refreshTransaction(address, limit, offset, _expiry);
+      await this.refreshTransactions(address, limit, offset, _expiry);
     }
 
     const sealed = await transactionService.listTransactions(network);
@@ -3301,7 +3301,7 @@ export class WalletController extends BaseController {
     return pending;
   };
 
-  refreshTransaction = async (address: string, limit: number, offset: number, _expiry = 5000) => {
+  refreshTransactions = async (address: string, limit: number, offset: number, _expiry = 5000) => {
     const network = await this.getNetwork();
     const now = new Date();
     const exp = _expiry + now.getTime();
@@ -3409,7 +3409,7 @@ export class WalletController extends BaseController {
     await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
     if (address) {
-      this.refreshTransaction(address, 15, 0);
+      this.refreshTransactions(address, 15, 0);
     }
 
     this.abort();
@@ -3535,7 +3535,7 @@ export class WalletController extends BaseController {
         return;
       }
 
-      const { list: newTransactions } = await this.getTransaction(address, 15, 0, 5000, true);
+      const { list: newTransactions } = await this.getTransactions(address, 15, 0, 5000, true);
       const foundTx = newTransactions?.find((tx) => tx.hash === txHash);
       if (foundTx && foundTx.indexed) {
         // Has been picked up by the indexer

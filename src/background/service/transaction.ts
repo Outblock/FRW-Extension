@@ -26,6 +26,8 @@ interface TransferItem {
   image: string;
   // If true, the transaction is indexed
   indexed: boolean;
+  // The cadence transaction id
+  cadenceTxId?: string;
 }
 
 const now = new Date();
@@ -126,6 +128,7 @@ class Transaction {
       transferType: 1,
       image: '',
       indexed: false,
+      cadenceTxId: '',
     } as TransferItem;
 
     // Not sure we have a string for this
@@ -135,6 +138,7 @@ class Transaction {
     txItem.sender = address;
     txItem.error = false;
     txItem.hash = txId;
+    txItem.cadenceTxId = txId;
     txItem.image = icon;
     txItem.title = title;
     txList.unshift(txItem);
@@ -157,7 +161,9 @@ class Transaction {
       chrome.i18n.getMessage(transactionStatus.statusString) || transactionStatus.statusString;
     txItem.error = transactionStatus.statusCode === 1;
 
-    const evmEvent = transactionStatus.events.find((event) => event.type.includes('EVM'));
+    const evmEvent = transactionStatus.events.find(
+      (event) => event.type.includes('EVM') && !!event.data?.hash
+    );
     if (evmEvent) {
       const hashBytes = evmEvent.data.hash.map((byte) => parseInt(byte));
       txItem.hash = '0x' + Buffer.from(hashBytes).toString('hex');
@@ -224,6 +230,13 @@ class Transaction {
         transactionHolder.token = tx.token;
         transactionHolder.type = tx.type;
         transactionHolder.transferType = tx.transfer_type;
+        // see if there's a pending item for this transaction
+        const pendingItem = this.session.pendingItem[network].find((item) => item.hash === tx.txid);
+        if (pendingItem) {
+          // Store the cadence transaction id
+          transactionHolder.cadenceTxId = pendingItem.cadenceTxId;
+        }
+
         txList.push(transactionHolder);
         this.removePending(tx.txid, tx.sender, network);
       });

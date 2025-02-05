@@ -27,7 +27,7 @@ export const useTransferList = () => {
         const viewSourceUrl = await usewallet.getViewSourceUrl();
         setFlowscanURL(url);
         setViewSourceURL(viewSourceUrl);
-        const data = await usewallet.getTransaction(
+        const data = await usewallet.getTransactions(
           currentWallet.address!,
           15,
           0,
