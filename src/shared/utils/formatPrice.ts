@@ -9,6 +9,13 @@ interface FormattedPrice {
   formattedPrice: PriceParts;
 }
 
+/**
+ * Condenses the price to a more readable format.
+ * @param price - The price to format.
+ * @param zeroCondenseThreshold - The number of zeros to condense. example: 4 would condense 0.0000123 to 0.0(3)12.
+ * First zero after decimal point is maintained for readability.
+ * @returns The formatted price.
+ */
 export function formatPrice(price: number, zeroCondenseThreshold = 4): FormattedPrice {
   if (price === 0 || price === null || price === undefined) {
     return {
