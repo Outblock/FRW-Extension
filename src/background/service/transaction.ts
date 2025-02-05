@@ -24,6 +24,8 @@ interface TransferItem {
   type: number;
   transferType: number;
   image: string;
+  // If true, the transaction is indexed
+  indexed: boolean;
 }
 
 const now = new Date();
@@ -123,6 +125,7 @@ class Transaction {
       type: 1,
       transferType: 1,
       image: '',
+      indexed: false,
     } as TransferItem;
 
     // Not sure we have a string for this
@@ -138,8 +141,11 @@ class Transaction {
     this.session.pendingItem[network] = txList;
   };
 
-  updatePending = (txId: string, network: string, transactionStatus: TransactionStatus) => {
-    console.log('updatePending', txId, network, transactionStatus);
+  updatePending = (
+    txId: string,
+    network: string,
+    transactionStatus: TransactionStatus
+  ): string | undefined => {
     const txList = this.session.pendingItem[network];
     const txItemIndex = txList.findIndex((item) => item.hash === txId);
     if (txItemIndex === -1) {
@@ -147,7 +153,8 @@ class Transaction {
       return;
     }
     const txItem = txList[txItemIndex];
-    txItem.status = transactionStatus.statusString;
+    txItem.status =
+      chrome.i18n.getMessage(transactionStatus.statusString) || transactionStatus.statusString;
     txItem.error = transactionStatus.statusCode === 1;
 
     const evmEvent = transactionStatus.events.find((event) => event.type.includes('EVM'));
@@ -156,17 +163,16 @@ class Transaction {
       txItem.hash = '0x' + Buffer.from(hashBytes).toString('hex');
     }
     txList[txItemIndex] = txItem;
-    console.log('txItem - updated', txItem);
     this.session.pendingItem[network] = txList;
+    // Return the hash of the transaction
+    return txItem.hash;
   };
 
   removePending = (txId: string, address: string, network: string) => {
     const txList = this.session.pendingItem[network];
-    console.log('removePending - txList', txId, address, network, txList);
     const newList = txList.filter((item) => {
       return item.hash !== txId;
     });
-    console.log('removePending - newList', newList);
     this.session.pendingItem[network] = newList;
   };
 
@@ -203,6 +209,7 @@ class Transaction {
           type: 1,
           transferType: 1,
           image: '',
+          indexed: true,
         } as TransferItem;
         // const amountValue = parseInt(tx.node.amount.value) / 100000000
         transactionHolder.sender = tx.sender;

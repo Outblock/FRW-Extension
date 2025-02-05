@@ -43,9 +43,6 @@
   "Edit": {
     "message": "编辑"
   },
-  "Pending": {
-    "message": "待定"
-  },
   "From": {
     "message": "从"
   },
@@ -965,7 +962,10 @@
     "message": "错误"
   },
   "PENDING": {
-    "message": "等待中"
+    "message": "待定"
+  },
+  "EXECUTED": {
+    "message": "已执行"
   },
   "Transaction__Sealed": {
     "message": "交易完成"

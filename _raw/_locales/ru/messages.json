@@ -43,9 +43,6 @@
   "Edit": {
     "message": "Редактирование"
   },
-  "Pending": {
-    "message": "В ожидании"
-  },
   "From": {
     "message": "От"
   },
@@ -962,7 +959,10 @@
     "message": "Ошибка"
   },
   "PENDING": {
-    "message": "ОЖИДАНИЕ"
+    "message": "В ожидании"
+  },
+  "EXECUTED": {
+    "message": "B ыполнено"
   },
   "Transaction__Sealed": {
     "message": "Транзакция закрыта"

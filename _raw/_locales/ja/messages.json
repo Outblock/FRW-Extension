@@ -43,9 +43,6 @@
   "Edit": {
     "message": "編集"
   },
-  "Pending": {
-    "message": "保留中"
-  },
   "From": {
     "message": "から"
   },
@@ -963,6 +960,9 @@
   },
   "PENDING": {
     "message": "保留中"
+  },
+  "EXECUTED": {
+    "message": "実行済み"
   },
   "Transaction__Sealed": {
     "message": "トランザクションが封印されました"

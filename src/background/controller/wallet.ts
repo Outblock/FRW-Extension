@@ -3526,12 +3526,8 @@ export class WalletController extends BaseController {
     return await this.poll(fetchReport, validate, 3000);
   };
 
-  pollTransferList = async (address: string, maxAttempts = 5) => {
+  pollTransferList = async (address: string, txHash: string, maxAttempts = 5) => {
     let attempts = 0;
-    const network = await this.getNetwork();
-    const initialTxArray = await transactionService.listTransactions(network);
-    const initialTx = initialTxArray[0];
-    const initialHash = initialTx?.hash;
 
     const poll = async () => {
       if (attempts >= maxAttempts) {
@@ -3539,24 +3535,18 @@ export class WalletController extends BaseController {
         return;
       }
 
-      console.log('Polling transfer list, attempt:', attempts + 1);
-      await this.getTransaction(address, 15, 0, 60000, true);
+      const { list: newTransactions } = await this.getTransaction(address, 15, 0, 5000, true);
+      const foundTx = newTransactions?.find((tx) => tx.hash === txHash);
+      if (foundTx && foundTx.indexed) {
+        // Has been picked up by the indexer
+        // Send a message to the UI to update the transfer list
+        chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
+      } else {
+        // Has not been picked up by the indexer yet
 
-      const { list: newTransactions } = await this.getTransaction(address, 15, 0, 60000, true);
-      console.log('newTransactions', newTransactions);
-      const newTx = newTransactions.filter((tx) => tx.status !== 'Pending')[0];
-      console.log('newTx', newTx);
-      if (newTx?.hash === initialTx?.hash) {
         attempts++;
         setTimeout(poll, 5000); // Poll every 5 seconds
-      } /* else {
-        const walletType = await this.getActiveWallet();
-        if (walletType === 'evm') {
-          await this.clearPending();
-          await this.getTransaction(address, 15, 0, 60000);
-        }
-        chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
-      } */
+      }
     };
 
     await poll();
@@ -3574,7 +3564,7 @@ export class WalletController extends BaseController {
     }
     const address = (await this.getCurrentAddress()) || '0x';
     const network = await this.getNetwork();
-
+    let txHash: string | undefined = txId;
     try {
       chrome.storage.session.set({
         transactionPending: { txId, network, date: new Date() },
@@ -3589,11 +3579,8 @@ export class WalletController extends BaseController {
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
       const txStatus = await fcl.tx(txId).onceExecuted();
-      // Log the transaction status
-      console.log('txStatus', txStatus);
-
       // Update the pending transaction with the transaction status
-      transactionService.updatePending(txId, network, txStatus);
+      txHash = transactionService.updatePending(txId, network, txStatus);
 
       // Track the transaction result
       mixpanelTrack.track('transaction_result', {
@@ -3654,13 +3641,16 @@ export class WalletController extends BaseController {
       // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
 
-      // Start polling for transfer list updates
-      await this.pollTransferList(address);
-
+      // Message the UI that the transaction is done
       eventBus.emit('transactionDone');
       chrome.runtime.sendMessage({
         msg: 'transactionDone',
       });
+
+      if (txHash) {
+        // Start polling for transfer list updates
+        await this.pollTransferList(address, txHash);
+      }
     }
   };
 
