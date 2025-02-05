@@ -36,43 +36,44 @@ export interface AddressBookValues {
   address: string;
 }
 
-const EditAccount = (props: EditAccountProps) => {
-  const history = useHistory();
-
+const EditAccount = ({
+  isAddAddressOpen,
+  handleCloseIconClicked,
+  handleCancelBtnClicked,
+  childAccount,
+  address,
+}: EditAccountProps) => {
   const wallet = useWallet();
+  const history = useHistory();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [failed, setFailed] = useState<boolean>(false);
-  const [name, setName] = useState<string>('');
-  const [desc, setDesc] = useState<string>('');
+  const [name, setName] = useState<string>(childAccount?.name || '');
+  const [desc, setDesc] = useState<string>(childAccount?.description || '');
 
   const onSubmit = async () => {
     setIsLoading(true);
     wallet
-      .editChildAccount(props.address!, name, desc, props.childAccount.thumbnail.url)
+      .editChildAccount(address!, name, desc, childAccount.thumbnail.url)
       .then(async (txId) => {
         setIsLoading(false);
-        props.handleCancelBtnClicked();
+        handleCancelBtnClicked();
         wallet.listenTransaction(
           txId,
           true,
-          `${props.address} unlinked`,
-          `You have unlinked the child account ${props.address} from your account. \nClick to view this transaction.`
+          `${address} unlinked`,
+          `You have unlinked the child account ${address} from your account. \nClick to view this transaction.`
         );
         await wallet.setDashIndex(0);
         history.push(`/dashboard?activity=1&txId=${txId}`);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('EditAccount - failed to edit child account', error);
+
         setIsLoading(false);
         setFailed(false);
-        console.log('failed ');
       });
   };
-
-  useEffect(() => {
-    setName(props.childAccount.name);
-    setDesc(props.childAccount.description);
-  }, [props?.childAccount?.name, props?.childAccount?.description]);
 
   const renderContent = () => (
     <Box
@@ -102,7 +103,7 @@ const EditAccount = (props: EditAccountProps) => {
           <CloseIcon
             fontSize="medium"
             sx={{ color: 'icon.navi', cursor: 'pointer', align: 'center' }}
-            onClick={props.handleCloseIconClicked}
+            onClick={handleCloseIconClicked}
           />
         </Grid>
       </Grid>
@@ -210,7 +211,7 @@ const EditAccount = (props: EditAccountProps) => {
   return (
     <Drawer
       anchor="bottom"
-      open={props.isAddAddressOpen}
+      open={isAddAddressOpen}
       transitionDuration={300}
       PaperProps={{
         sx: {
