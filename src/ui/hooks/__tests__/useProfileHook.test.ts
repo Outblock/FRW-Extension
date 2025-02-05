@@ -32,7 +32,7 @@ vi.mock('@/ui/stores/useProfileStore', () => ({
     setMainAddress: vi.fn(),
     setEvmAddress: vi.fn(),
     setEvmWallet: vi.fn(),
-    setUserWallet: vi.fn(),
+    setParentWallet: vi.fn(),
     setCurrent: vi.fn(),
     setChildAccount: vi.fn(),
     setUserInfo: vi.fn(),
@@ -119,7 +119,7 @@ describe('useProfileHook', () => {
       setMainAddress: mocks.setMainAddress,
       setEvmAddress: mocks.setEvmAddress,
       setEvmWallet: mocks.setEvmWallet,
-      setUserWallet: vi.fn(),
+      setParentWallet: vi.fn(),
       setCurrent: vi.fn(),
       setChildAccount: vi.fn(),
       setUserInfo: vi.fn(),
@@ -158,13 +158,13 @@ describe('useProfileHook', () => {
   describe('freshUserWallet', () => {
     it('should update user wallet data', async () => {
       const mockSetWalletList = vi.fn();
-      const mockSetUserWallet = vi.fn();
+      const mockSetParentWallet = vi.fn();
 
       vi.mocked(useProfileStore).mockReturnValueOnce({
         setMainAddress: vi.fn(),
         setEvmAddress: vi.fn(),
         setEvmWallet: vi.fn(),
-        setUserWallet: mockSetUserWallet,
+        setParentWallet: mockSetParentWallet,
         setCurrent: vi.fn(),
         setChildAccount: vi.fn(),
         setUserInfo: vi.fn(),
@@ -183,7 +183,7 @@ describe('useProfileHook', () => {
       });
 
       expect(mockSetWalletList).toHaveBeenCalled();
-      expect(mockSetUserWallet).toHaveBeenCalled();
+      expect(mockSetParentWallet).toHaveBeenCalled();
     });
   });
 
@@ -198,7 +198,7 @@ describe('useProfileHook', () => {
         setMainAddress: vi.fn(),
         setEvmAddress: vi.fn(),
         setEvmWallet: vi.fn(),
-        setUserWallet: vi.fn(),
+        setParentWallet: vi.fn(),
         setCurrent: vi.fn(),
         setChildAccount: vi.fn(),
         setUserInfo: mockSetUserInfo,
