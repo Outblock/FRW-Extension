@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useNetworkStore } from '@/ui/stores/useNetworkStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
 import { useWallet, useWalletLoaded } from '@/ui/utils';
 
 export const useNetworkHook = () => {

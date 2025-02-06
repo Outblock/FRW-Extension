@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { type Contact } from '@/shared/types/network-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';

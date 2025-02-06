@@ -3271,28 +3271,29 @@ export class WalletController extends BaseController {
 
   //transaction
 
-  getTransaction = async (address: string, limit: number, offset: number, _expiry = 60000) => {
+  getTransactions = async (
+    address: string,
+    limit: number,
+    offset: number,
+    _expiry = 60000,
+    forceRefresh = false
+  ) => {
     const network = await this.getNetwork();
     const now = new Date();
     const expiry = transactionService.getExpiry();
-    // compare the expiry time of the item with the current time
 
-    const txList = {};
+    // Refresh if forced or expired
+    if (forceRefresh || now.getTime() > expiry) {
+      await this.refreshTransactions(address, limit, offset, _expiry);
+    }
 
-    // txList['list'] = await transactionService.listTransactions();
-    txList['count'] = await transactionService.getCount();
     const sealed = await transactionService.listTransactions(network);
-    if (now.getTime() > expiry) {
-      this.refreshTransaction(address, limit, offset, _expiry);
-    }
     const pending = await transactionService.listPending(network);
-    let totalList = sealed;
-    if (pending && pending.length > 0) {
-      totalList = pending.concat(sealed);
-    }
-    txList['list'] = totalList;
 
-    return txList;
+    return {
+      count: await transactionService.getCount(),
+      list: pending?.length ? [...pending, ...sealed] : sealed,
+    };
   };
 
   getPendingTx = async () => {
@@ -3301,17 +3302,22 @@ export class WalletController extends BaseController {
     return pending;
   };
 
-  refreshTransaction = async (address: string, limit: number, offset: number, _expiry = 5000) => {
+  refreshTransactions = async (address: string, limit: number, offset: number, _expiry = 5000) => {
     const network = await this.getNetwork();
     const now = new Date();
     const exp = _expiry + now.getTime();
     transactionService.setExpiry(exp);
     const isChild = await this.getActiveWallet();
     let dataResult = {};
+    let evmAddress;
     if (isChild === 'evm') {
-      let evmAddress = await this.queryEvmAddress(address);
-      if (!evmAddress!.startsWith('0x')) {
-        evmAddress = '0x' + evmAddress;
+      if (!isValidEthereumAddress(address)) {
+        evmAddress = await this.queryEvmAddress(address);
+        if (!evmAddress!.startsWith('0x')) {
+          evmAddress = '0x' + evmAddress;
+        }
+      } else {
+        evmAddress = address;
       }
       const evmResult = await openapiService.getEVMTransfers(evmAddress!, '', limit);
       if (evmResult) {
@@ -3328,9 +3334,6 @@ export class WalletController extends BaseController {
     }
 
     transactionService.setTransaction(dataResult, network);
-    chrome.runtime.sendMessage({
-      msg: 'transferListReceived',
-    });
   };
 
   signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
@@ -3407,7 +3410,7 @@ export class WalletController extends BaseController {
     await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
     if (address) {
-      this.refreshTransaction(address, 15, 0);
+      this.refreshTransactions(address, 15, 0);
     }
 
     this.abort();
@@ -3524,6 +3527,31 @@ export class WalletController extends BaseController {
     return await this.poll(fetchReport, validate, 3000);
   };
 
+  pollTransferList = async (address: string, txHash: string, maxAttempts = 5) => {
+    let attempts = 0;
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        console.log('Max polling attempts reached');
+        return;
+      }
+
+      const { list: newTransactions } = await this.getTransactions(address, 15, 0, 5000, true);
+      // Copy the list as we're going to modify the original list
+
+      const foundTx = newTransactions?.find((tx) => txHash.includes(tx.hash));
+      if (foundTx && foundTx.indexed) {
+        // Send a message to the UI to update the transfer list
+        chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
+      } else {
+        // All of the transactions have not been picked up by the indexer yet
+        attempts++;
+        setTimeout(poll, 5000); // Poll every 5 seconds
+      }
+    };
+
+    await poll();
+  };
+
   listenTransaction = async (
     txId: string,
     sendNotification = true,
@@ -3536,7 +3564,7 @@ export class WalletController extends BaseController {
     }
     const address = (await this.getCurrentAddress()) || '0x';
     const network = await this.getNetwork();
-
+    let txHash = txId;
     try {
       chrome.storage.session.set({
         transactionPending: { txId, network, date: new Date() },
@@ -3550,7 +3578,9 @@ export class WalletController extends BaseController {
 
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
-      await fcl.tx(txId).onceExecuted();
+      const txStatus = await fcl.tx(txId).onceExecuted();
+      // Update the pending transaction with the transaction status
+      txHash = transactionService.updatePending(txId, network, txStatus);
 
       // Track the transaction result
       mixpanelTrack.track('transaction_result', {
@@ -3610,17 +3640,23 @@ export class WalletController extends BaseController {
     } finally {
       // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
-      transactionService.removePending(txId, address, network);
 
-      // Refresh the transaction list
-      this.refreshTransaction(address, 15, 0);
-
-      // Tell the UI that the transaction is done
+      // Message the UI that the transaction is done
       eventBus.emit('transactionDone');
       chrome.runtime.sendMessage({
         msg: 'transactionDone',
       });
+
+      if (txHash) {
+        // Start polling for transfer list updates
+        await this.pollTransferList(address, txHash);
+      }
     }
+  };
+
+  clearPending = async () => {
+    const network = await this.getNetwork();
+    transactionService.clearPending(network);
   };
 
   getNFTListCahce = async (): Promise<NFTData> => {

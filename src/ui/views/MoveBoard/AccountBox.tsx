@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { storage } from '@/background/webapi';
 import { ensureEvmAddressPrefix, formatString } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import emoji from 'background/utils/emoji.json';
 import accountMove from 'ui/FRWAssets/svg/accountMove.svg';
 import { FRWProfileCard, FWMoveDropdown } from 'ui/FRWComponent';

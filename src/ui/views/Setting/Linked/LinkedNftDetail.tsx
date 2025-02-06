@@ -8,7 +8,7 @@ import { saveAs } from 'file-saver';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { type PostMedia, MatchMediaType } from '@/ui/utils/url';
 import fallback from 'ui/FRWAssets/image/errorImage.png';
 import DetailMove from 'ui/FRWAssets/svg/detailMove.svg';

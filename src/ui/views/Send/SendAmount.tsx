@@ -8,7 +8,7 @@ import { type ActiveChildType } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
