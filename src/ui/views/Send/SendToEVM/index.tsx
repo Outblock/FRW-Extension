@@ -1,5 +1,5 @@
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import Web3 from 'web3';
 
@@ -9,7 +9,9 @@ import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useCoinStore } from '@/ui/stores/coinStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
 import { useProfileStore } from '@/ui/stores/profileStore';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import erc20ABI from 'background/utils/erc20.abi.json';
 import { EVM_ENDPOINT } from 'consts';
 import { LLContactCard } from 'ui/FRWComponent';
@@ -49,16 +51,21 @@ const SendEth = () => {
   const usewallet = useWallet();
   const { mainAddress, currentWallet, userInfo } = useProfileStore();
   const { coins } = useCoinStore();
+  const { currentNetwork } = useNetworkStore();
+  const { selectedToken, setSelectedToken, setFromNetwork, toAddress, currentTxState } =
+    useTransactionStore();
+  const web3Instance = useMemo(() => {
+    const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[currentNetwork]);
+    return new Web3(provider);
+  }, [currentNetwork]);
 
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
-  const [coinList, setCoinList] = useState<CoinItem[]>([]);
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>(undefined);
   const [secondAmount, setSecondAmount] = useState('0');
   const [validated, setValidated] = useState<any>(null);
   const [senderContact, setUserContact] = useState<Contact>(USER_CONTACT);
-  const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<ActiveChildType>(null);
@@ -66,28 +73,26 @@ const SendEth = () => {
 
   const setUserWallet = useCallback(async () => {
     setLoading(true);
-    const token = await usewallet.getCurrentCoin();
-    const wallet = await usewallet.getEvmWallet();
-    const network = await usewallet.getNetwork();
-    const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
-    const web3Instance = new Web3(provider);
+    setFromNetwork(currentWallet.address);
     let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
     try {
-      if (token !== 'flow') {
-        const tokenInfo = await usewallet.openapi.getEvmTokenInfo(token);
-        contractAddress = tokenInfo!.address;
+      if (selectedToken?.symbol.toLowerCase() !== 'flow') {
+        contractAddress = selectedToken!.address;
       }
 
       const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
+      console.log('initial contractInstance ', contractInstance);
       setErc20Contract(contractInstance);
     } catch (error) {
       console.error('Error creating the web3 contract instance:', error);
     }
-    setNetwork(network);
-    setCurrentCoin(token);
+    console.log('selectedToken, ', selectedToken);
     // userWallet
-    setCoinList(coins);
-    const coinInfo = coins.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
+    // TODO: change the structure of the coininfo in the background so we only need to get the coinInfo for everything.
+    const coinInfo = coins.find(
+      (coin) => coin.unit.toLowerCase() === selectedToken?.symbol.toLowerCase()
+    );
+    console.log('coinInfo, ', coinInfo);
 
     if (
       coinInfo?.balance &&
@@ -102,13 +107,12 @@ const SendEth = () => {
       coinInfo!.total = 0;
     }
     setCoinInfo(coinInfo!);
-
     const userContact = { ...USER_CONTACT };
     userContact.address = withPrefix(currentWallet.address) || '';
     userContact.avatar = userInfo?.avatar || '';
     userContact.contact_name = userInfo?.username || '';
     setUserContact(userContact);
-  }, [usewallet, coins, userInfo, currentWallet]);
+  }, [coins, userInfo, currentWallet, web3Instance, selectedToken, setFromNetwork]);
 
   const checkAddress = useCallback(async () => {
     const childType = await usewallet.getActiveWallet();
@@ -116,7 +120,7 @@ const SendEth = () => {
     setChildType(childType);
     //wallet controller api
     try {
-      const address = location.state.contact.address;
+      const address = toAddress;
       const validatedResult = isValidEthereumAddress(address);
       console.log('validatedResult address ', validatedResult);
       setValidated(validatedResult);
@@ -126,14 +130,32 @@ const SendEth = () => {
       setValidated(false);
     }
     setLoading(false);
-  }, [setLoading, setValidated, location?.state?.contact?.address, usewallet]);
+  }, [setLoading, setValidated, usewallet, toAddress]);
+
+  const updateCoontractInfo = useCallback(
+    async (currentCoin: string) => {
+      console.log('updateCoontractInfo ', currentCoin);
+      const tokenInfo = await usewallet.openapi.getEvmTokenInfo(currentCoin);
+      let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
+      if (tokenInfo?.symbol.toLowerCase() !== 'flow') {
+        contractAddress = tokenInfo!.address;
+      }
+      console.log('contractAddress ', contractAddress, tokenInfo);
+      const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
+      console.log('updated ContractInstance ', contractInstance);
+      setSelectedToken(tokenInfo!);
+      setErc20Contract(contractInstance);
+    },
+    [setErc20Contract, setSelectedToken, web3Instance, usewallet]
+  );
 
   const updateCoinInfo = useCallback(() => {
-    const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
+    const coin = coins.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
+    updateCoontractInfo(currentCoin);
     if (coin) {
       setCoinInfo(coin);
     }
-  }, [coinList, currentCoin]);
+  }, [coins, currentCoin, updateCoontractInfo]);
 
   useEffect(() => {
     setUserWallet();
@@ -180,7 +202,7 @@ const SendEth = () => {
                       <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
                       <Typography variant="body1" color="text.secondary">
                         {chrome.i18n.getMessage('Invalid_address_in')}
-                        {` ${network}`}
+                        {` ${currentNetwork}`}
                       </Typography>
                     </Box>
                   </Box>
@@ -199,7 +221,7 @@ const SendEth = () => {
             </Typography>
             {coinInfo.unit && (
               <TransferAmount
-                coinList={coinList}
+                coinList={coins}
                 amount={amount}
                 setAmount={setAmount}
                 secondAmount={secondAmount}

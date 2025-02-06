@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import { LLPrimaryButton } from '@/ui/FRWComponent';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import iconMove from 'ui/FRWAssets/svg/moveIcon.svg';
 import { useWallet } from 'ui/utils';
 import { addDotSeparators } from 'ui/utils/number';
@@ -28,6 +29,7 @@ const TokenInfoCard = ({
   const wallet = useWallet();
   const history = useHistory();
   const isMounted = useRef(true);
+  const { setSelectedToken } = useTransactionStore();
   const [balance, setBalance] = useState(0);
   const [active, setIsActive] = useState(true);
   const [data, setData] = useState<TokenInfo | undefined>(undefined);
@@ -49,7 +51,8 @@ const TokenInfoCard = ({
   }, [balance, tokenInfo.custom, wallet]);
 
   const toSend = async () => {
-    await wallet.setCurrentCoin(token);
+    console.log('tokenInfo ', tokenInfo);
+    setSelectedToken(tokenInfo);
     history.push('/dashboard/wallet/send');
   };
 
