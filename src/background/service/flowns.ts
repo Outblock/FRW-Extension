@@ -146,7 +146,7 @@ class Flowns {
     const messageHash = await signMessageHash(hashAlgo, Buffer.from(signableMessage, 'hex'));
 
     const password = keyringService.password;
-    const privateKey = await wallet.getKey(password);
+    const privateKey = await wallet.getPrivateKeyForCurrentAccount(password);
     const signature = await secp.sign(messageHash, privateKey);
     const realSignature = secp.Signature.fromHex(signature).toCompactHex();
     return realSignature;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useNetworkStore } from '@/ui/stores/useNetworkStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
 
 import { useNetworkHook } from '../useNetworkHook';
 
@@ -14,7 +14,7 @@ vi.mock('react', async () => {
 });
 
 // Mock the store
-vi.mock('@/ui/stores/useNetworkStore', () => ({
+vi.mock('@/ui/stores/networkStore', () => ({
   useNetworkStore: vi.fn().mockReturnValue({
     setNetwork: vi.fn(),
   }),

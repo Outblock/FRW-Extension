@@ -11,15 +11,29 @@ export const sendTokenCOA = async ({ page, tokenname, receiver, successtext }) =
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
-  await page.waitForURL(/.*dashboard\?activity=1/);
+
+  // Wait for the transaction to be completed
+  await page.waitForURL(/.*dashboard\?activity=1.*/);
+  const url = await page.url();
+
+  const txId = url.match(/[\?&]txId=(\w+)/i)?.[1];
+
+  expect(txId).toBeDefined();
+
   const progressBar = page.getByRole('progressbar');
   await expect(progressBar).toBeVisible();
-  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+  // Get the pending item with the cadence txId that was put in the url and status is pending
+  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
+
+  await expect(pendingItem).toBeVisible({
     timeout: 60_000,
   });
   await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
 
-  await expect(page.locator('li').first().filter({ hasText: successtext })).toBeVisible({
+  // Get the executed item with the cadence txId that was put in the url and status is success
+  const executedItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'success' });
+
+  await expect(executedItem).toBeVisible({
     timeout: 60_000,
   });
 };
@@ -33,15 +47,28 @@ export const moveTokenCOA = async ({ page, tokenname, successtext }) => {
   await page.getByPlaceholder('Amount').click();
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
   await page.getByRole('button', { name: 'Move' }).click();
-  await page.waitForURL(/.*dashboard\?activity=1/);
+  // Wait for the transaction to be completed
+  await page.waitForURL(/.*dashboard\?activity=1.*/);
+  const url = await page.url();
+
+  const txId = url.match(/[\?&]txId=(\w+)/i)?.[1];
+
+  expect(txId).toBeDefined();
+
   const progressBar = page.getByRole('progressbar');
   await expect(progressBar).toBeVisible();
-  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+  // Get the pending item with the cadence txId that was put in the url and status is pending
+  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
+
+  await expect(pendingItem).toBeVisible({
     timeout: 60_000,
   });
   await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
 
-  await expect(page.locator('li').first().filter({ hasText: successtext })).toBeVisible({
+  // Get the executed item with the cadence txId that was put in the url and status is success
+  const executedItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'success' });
+
+  await expect(executedItem).toBeVisible({
     timeout: 60_000,
   });
 };
@@ -55,15 +82,28 @@ export const moveTokenCoaHomepage = async ({ page, tokenname }) => {
   await page.getByPlaceholder('Amount').click();
   await page.getByPlaceholder('Amount').fill('0.000000012345');
   await page.getByRole('button', { name: 'Move' }).click();
-  await page.waitForURL(/.*dashboard\?activity=1/);
+  // Wait for the transaction to be completed
+  await page.waitForURL(/.*dashboard\?activity=1.*/);
+  const url = await page.url();
+
+  const txId = url.match(/[\?&]txId=(\w+)/i)?.[1];
+
+  expect(txId).toBeDefined();
+
   const progressBar = page.getByRole('progressbar');
   await expect(progressBar).toBeVisible();
-  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+  // Get the pending item with the cadence txId that was put in the url and status is pending
+  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
+
+  await expect(pendingItem).toBeVisible({
     timeout: 60_000,
   });
   await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
 
-  await expect(page.locator('li').first().filter({ hasText: 'sealed' })).toBeVisible({
+  // Get the executed item with the cadence txId that was put in the url and status is success
+  const executedItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'success' });
+
+  await expect(executedItem).toBeVisible({
     timeout: 60_000,
   });
 };
@@ -76,8 +116,6 @@ test.beforeEach(async ({ page, extensionId }) => {
 });
 //Send Fts from COA to COA
 test('send Flow COA to COA', async ({ page }) => {
-  // This can take a while
-  test.setTimeout(60_000);
   // Send FLOW token from COA to COA
   await sendTokenCOA({
     page,
@@ -88,7 +126,6 @@ test('send Flow COA to COA', async ({ page }) => {
 });
 
 test('send Staked Flow COA to COA', async ({ page }) => {
-  test.setTimeout(60_000);
   // Send stFLOW token from COA to COA
   await sendTokenCOA({
     page,
@@ -99,7 +136,6 @@ test('send Staked Flow COA to COA', async ({ page }) => {
 });
 
 test('send USDC token COA to COA', async ({ page }) => {
-  test.setTimeout(60_000);
   // Send USDC token from COA to COA
   await sendTokenCOA({
     page,
@@ -110,7 +146,6 @@ test('send USDC token COA to COA', async ({ page }) => {
 });
 
 test('send BETA token COA to COA', async ({ page }) => {
-  test.setTimeout(60_000);
   // Send BETA token from COA to COA
   await sendTokenCOA({
     page,
@@ -121,7 +156,6 @@ test('send BETA token COA to COA', async ({ page }) => {
 });
 
 test('send TRUMP token COA to COA', async ({ page }) => {
-  test.setTimeout(60_000);
   // Send TRUMP token from COA to COA
   await sendTokenCOA({
     page,

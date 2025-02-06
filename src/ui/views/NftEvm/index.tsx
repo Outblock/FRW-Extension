@@ -8,7 +8,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { storage } from '@/background/webapi';
 import { ensureEvmAddressPrefix } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet } from 'ui/utils';
 
 import GridTab from './GridTab';

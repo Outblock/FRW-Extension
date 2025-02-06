@@ -28,10 +28,10 @@ const AddTokenConfirmation = (props: AddTokenConfirmationProps) => {
     }
     setSending(true);
     try {
-      const txID = await wallet.enableTokenStorage(props.data.symbol);
-      if (txID) {
+      const txId = await wallet.enableTokenStorage(props.data.symbol);
+      if (txId) {
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Enable ${props.data.symbol}`,
           `Your ${props.data.symbol} vault has been enabled. You are now able to receive ${props.data.symbol}!\nClick to view this transaction.`,
@@ -40,8 +40,7 @@ const AddTokenConfirmation = (props: AddTokenConfirmationProps) => {
         props.handleAddBtnClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        // setTid(txID);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       }
     } catch (err) {
       setSending(false);

@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
 
 import { useCoinHook } from '../useCoinHook';
 // Mock React
@@ -16,7 +16,7 @@ vi.mock('react', async () => {
 });
 
 // Mock the stores
-vi.mock('@/ui/stores/useCoinStore', () => {
+vi.mock('@/ui/stores/coinStore', () => {
   const mockSetBalance = vi.fn();
   const mockSetCoinData = vi.fn();
   const mockSetTotalFlow = vi.fn();
@@ -44,7 +44,7 @@ vi.mock('@/ui/stores/useCoinStore', () => {
   };
 });
 
-vi.mock('@/ui/stores/useProfileStore', () => ({
+vi.mock('@/ui/stores/profileStore', () => ({
   useProfileStore: vi.fn().mockReturnValue({
     mainAddress: 'test-address',
   }),

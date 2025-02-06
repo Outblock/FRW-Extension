@@ -1,4 +1,5 @@
 import * as fcl from '@onflow/fcl';
+import type { Account as FclAccount } from '@onflow/typedefs';
 import type { Method } from 'axios';
 import dayjs from 'dayjs';
 import { initializeApp, getApp } from 'firebase/app';
@@ -18,6 +19,12 @@ import log from 'loglevel';
 
 import { storage } from '@/background/webapi';
 import { type FeatureFlagKey, type FeatureFlags } from '@/shared/types/feature-types';
+import {
+  type LoggedInAccountWithIndex,
+  type LoggedInAccount,
+  type FlowAddress,
+  type ActiveChildType,
+} from '@/shared/types/wallet-types';
 import { isValidFlowAddress, isValidEthereumAddress } from '@/shared/utils/address';
 import { getStringFromHashAlgo, getStringFromSignAlgo } from '@/shared/utils/algo';
 import { getPeriodFrequency } from '@/shared/utils/getPeriodFrequency';
@@ -40,6 +47,7 @@ import {
   type NewsConditionType,
   Period,
   PriceProvider,
+  type BlockchainResponse,
 } from '../../shared/types/network-types';
 
 import {
@@ -1231,17 +1239,6 @@ class OpenApiService {
     return address;
   };
 
-  // getTransaction = async (address: string, limit: number, offset: number) => {
-  //   const config = this.store.config.account_transaction;
-  //   const data = await this.sendRequest(config.method, config.path, {
-  //     address,
-  //     limit,
-  //     offset,
-  //   });
-
-  //   return data;
-  // };
-
   getTransfers = async (address: string, after = '', limit: number) => {
     const config = this.store.config.get_transfers;
     const data = await this.sendRequest(config.method, config.path, {
@@ -2430,8 +2427,14 @@ class OpenApiService {
     return news;
   };
 
-  freshUserInfo = async (currentWallet, keys, pubKTuple, wallet, isChild) => {
-    const loggedInAccounts = (await storage.get('loggedInAccounts')) || [];
+  freshUserInfo = async (
+    currentWallet: BlockchainResponse,
+    keys: FclAccount,
+    pubKTuple,
+    wallet,
+    isChild: ActiveChildType
+  ) => {
+    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
 
     if (!isChild) {
       await storage.set('keyIndex', '');
@@ -2454,10 +2457,15 @@ class OpenApiService {
       await storage.set('signAlgo', keyInfo.signAlgo);
       await storage.set('hashAlgo', keyInfo.hashAlgo);
       await storage.set('pubKey', keyInfo.publicKey);
+      // Make sure the address is a FlowAddress
 
-      const updatedWallet = {
+      if (!isValidFlowAddress(currentWallet.address)) {
+        throw new Error('Invalid Flow address');
+      }
+      const flowAddress: FlowAddress = currentWallet.address as FlowAddress;
+      const updatedWallet: LoggedInAccount = {
         ...wallet,
-        address: currentWallet.address,
+        address: flowAddress,
         pubKey: keyInfo.publicKey,
         hashAlgo: keyInfo.hashAlgo,
         signAlgo: keyInfo.signAlgo,
@@ -2481,7 +2489,7 @@ class OpenApiService {
     }
 
     log.log('Updated loggedInAccounts:', loggedInAccounts);
-    const otherAccounts = loggedInAccounts
+    const otherAccounts: LoggedInAccountWithIndex[] = loggedInAccounts
       .filter((account) => account.username !== wallet.username)
       .map((account) => {
         const indexInLoggedInAccounts = loggedInAccounts.findIndex(
@@ -2492,9 +2500,6 @@ class OpenApiService {
       .slice(0, 2);
 
     log.log('otherAccounts with index:', otherAccounts);
-    // await setOtherAccounts(otherAccounts);
-    // await setUserInfo(wallet);
-    // await setLoggedIn(loggedInAccounts);
     return { otherAccounts, wallet, loggedInAccounts };
   };
 

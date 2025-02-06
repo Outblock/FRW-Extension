@@ -9,7 +9,7 @@ import { isValidEthereumAddress } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import erc721 from 'background/utils/erc721.abi.json';
@@ -126,22 +126,22 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
           );
         }
 
-        let txID = '';
+        let txId = '';
         if (containsKey) {
-          txID = await wallet.sendNFTtoChild(
+          txId = await wallet.sendNFTtoChild(
             props.data.contact.address,
             '',
             parseInt(props.data.nft.id),
             props.data.contract
           );
         } else if (props.data.contract.contract_name.trim() === 'TopShot') {
-          txID = await wallet.sendNBANFT(
+          txId = await wallet.sendNBANFT(
             props.data.contact.address,
             parseInt(props.data.nft.id),
             props.data.contract
           );
         } else {
-          txID = await wallet.sendNFT(
+          txId = await wallet.sendNFT(
             props.data.contact.address,
             parseInt(props.data.nft.id),
             props.data.contract
@@ -149,14 +149,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         }
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.media?.title} Sent`,
           `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`,
           props.data.media.url
         );
         await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         props.handleAddBtnClicked();
       } catch (error) {
         console.error(error);
@@ -171,9 +171,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
   const sendChildNft = async () => {
     setSending(true);
     try {
-      let txID = '';
+      let txId = '';
 
-      txID = await wallet.sendNFTfromChild(
+      txId = await wallet.sendNFTfromChild(
         props.data.userContact.address,
         props.data.contact.address,
         '',
@@ -182,14 +182,14 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
       );
       await wallet.setRecent(props.data.contact);
       wallet.listenTransaction(
-        txID,
+        txId,
         true,
         `${props.data.media?.title} Sent`,
         `The ${props.data.contract.name} NFT transaction has been sealed.\nClick to view this transaction.`,
         props.data.media.url
       );
       await wallet.setDashIndex(0);
-      history.push('/dashboard?activity=1');
+      history.push(`/dashboard?activity=1&txId=${txId}`);
       props.handleAddBtnClicked();
     } catch (error) {
       console.error(error);
@@ -217,9 +217,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         props.data.contract.evmAddress,
         encodedData
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Move complete`,
           `You have moved 1 ${props.data.nft.collectionContractName} to your evm address. \nClick to view this transaction.`
@@ -227,7 +227,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.error('send flow to evm encounter error: ', err);

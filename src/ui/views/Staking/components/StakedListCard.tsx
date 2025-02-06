@@ -27,9 +27,9 @@ const StakedListCard = ({ desc, delegate }) => {
     const amount = new BN(delegate.tokensRewarded).toFixed(8, BN.ROUND_DOWN);
     wallet
       .withdrawReward(amount, delegate.nodeID, delegate.delegatorID)
-      .then(async (txID) => {
+      .then(async (txId) => {
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${amount}  Flow claimed`,
           `You have claimed ${amount} Flow from the staking node. \nClick to view this transaction.`,
@@ -37,7 +37,7 @@ const StakedListCard = ({ desc, delegate }) => {
         );
         await wallet.setDashIndex(0);
         setLoading(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setLoading(false);

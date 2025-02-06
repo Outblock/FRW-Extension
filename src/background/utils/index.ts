@@ -1,3 +1,4 @@
+import type { Account as FclAccount } from '@onflow/typedefs';
 import * as ethUtil from 'ethereumjs-util';
 
 import packageJson from '@/../package.json';
@@ -151,7 +152,7 @@ export const getScripts = async (folder: string, scriptName: string) => {
   }
 };
 
-export const findKeyAndInfo = (keys, publicKey) => {
+export const findKeyAndInfo = (keys: FclAccount, publicKey: string) => {
   const index = findPublicKeyIndex(keys, publicKey);
   if (index >= 0) {
     const key = keys.keys[index];
@@ -165,6 +166,6 @@ export const findKeyAndInfo = (keys, publicKey) => {
   return null;
 };
 
-export const findPublicKeyIndex = (data, publicKey) => {
+export const findPublicKeyIndex = (data: FclAccount, publicKey: string) => {
   return data.keys.findIndex((key) => key.publicKey === publicKey);
 };

@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-types */
+import debounce from 'debounce';
+
 import { storage } from 'background/webapi';
-import { debounce } from 'debounce';
 
 const persistStorage = (name: string, obj: object) => {
-  debounce(storage.set(name, obj), 1000);
+  debounce(() => storage.set(name, obj), 1000);
 };
 
 interface CreatePersistStoreParams<T> {

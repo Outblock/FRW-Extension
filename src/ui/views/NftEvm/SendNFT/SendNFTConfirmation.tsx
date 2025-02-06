@@ -126,10 +126,10 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
 
     wallet
       .sendEvmTransaction(props.data.nft.evmAddress, gas, '0x0', encodedData)
-      .then(async (txID) => {
+      .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} ${props.data.nft.collectionContractName} Sent`,
           `You have sent 1 ${props.data.nft.collectionContractName} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -138,8 +138,8 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.error('err ', err);
@@ -156,9 +156,9 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         props.data.nft.id,
         props.data.contact.address
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Move complete`,
           `You have moved 1 ${props.data.nft.contractName} to your evm address. \nClick to view this transaction.`
@@ -166,7 +166,7 @@ const SendNFTConfirmation = (props: SendNFTConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.error(err);

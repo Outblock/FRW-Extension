@@ -83,10 +83,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
 
     wallet
       .transferFlowEvm(props.data.contact.address, amount)
-      .then(async (txID) => {
+      .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
           `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -95,8 +95,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setSending(false);
@@ -128,10 +128,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
         value,
         props.data.contact.address
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
           `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -140,8 +140,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.error('transfer error: ', err);

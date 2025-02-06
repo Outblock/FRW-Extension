@@ -6,8 +6,8 @@ import type {
   WalletResponse,
 } from '@/shared/types/network-types';
 import { ensureEvmAddressPrefix, withPrefix } from '@/shared/utils/address';
-import { useNetworkStore } from '@/ui/stores/useNetworkStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet, useWalletLoaded } from '@/ui/utils/WalletContext';
 
 export const useProfileHook = () => {
@@ -98,6 +98,10 @@ export const useProfileHook = () => {
         usewallet.getActiveWallet(),
         usewallet.getMainAddress(),
       ]);
+
+      if (!currentWallet) {
+        throw new Error('Current wallet is undefined');
+      }
 
       if (isChild === 'evm') {
         const evmWalletData = await setupEvmWallet(mainAddress!);
