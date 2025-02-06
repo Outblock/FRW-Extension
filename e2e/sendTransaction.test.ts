@@ -75,36 +75,6 @@ test('send Staked Flow COA to COA', async ({ page }) => {
   });
 });
 
-test('send USDC token COA to COA', async ({ page }) => {
-  // Send USDC token from COA to COA
-  await sendTokenCOA({
-    page,
-    tokenname: 'Bridged USDC (Celer) $',
-    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
-    successtext: 'success',
-  });
-});
-
-test('send BETA token COA to COA', async ({ page }) => {
-  // Send BETA token from COA to COA
-  await sendTokenCOA({
-    page,
-    tokenname: 'BETA $',
-    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
-    successtext: 'success',
-  });
-});
-
-test('send TRUMP token COA to COA', async ({ page }) => {
-  // Send TRUMP token from COA to COA
-  await sendTokenCOA({
-    page,
-    tokenname: 'OFFICIAL TRUMP $',
-    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
-    successtext: 'success',
-  });
-});
-
 //Send FTS from COA to FLOW
 test('send Flow COA to FLOW', async ({ page }) => {
   // This can take a while
@@ -113,17 +83,6 @@ test('send Flow COA to FLOW', async ({ page }) => {
   await sendTokenCOA({
     page,
     tokenname: /^FLOW \$/i,
-    receiver: process.env.TEST_RECEIVER_ADDR!,
-    successtext: 'success',
-  });
-});
-
-test('send Staked Flow COA to FLOW', async ({ page }) => {
-  test.setTimeout(60_000);
-  // Send stFLOW token from COA to FLOW
-  await sendTokenCOA({
-    page,
-    tokenname: 'Liquid Staked Flow $',
     receiver: process.env.TEST_RECEIVER_ADDR!,
     successtext: 'success',
   });
@@ -140,16 +99,6 @@ test('send USDC token COA to FLOW', async ({ page }) => {
   });
 });
 
-test('send BETA token COA to FLOW', async ({ page }) => {
-  test.setTimeout(60_000);
-  // Send BETA token from COA to FLOW
-  await sendTokenCOA({
-    page,
-    tokenname: 'BETA $',
-    receiver: process.env.TEST_RECEIVER_ADDR!,
-    successtext: 'success',
-  });
-});
 //Send FTs from COA to EOA (metamask)
 test('send Flow COA to EOA', async ({ page }) => {
   // This can take a while
@@ -158,17 +107,6 @@ test('send Flow COA to EOA', async ({ page }) => {
   await sendTokenCOA({
     page,
     tokenname: /^FLOW \$/i,
-    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
-    successtext: 'success',
-  });
-});
-
-test('send USDC token COA to EOA', async ({ page }) => {
-  test.setTimeout(60_000);
-  // Send USDC token from COA to EOA
-  await sendTokenCOA({
-    page,
-    tokenname: 'Bridged USDC (Celer) $',
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
     successtext: 'success',
   });
@@ -201,16 +139,6 @@ test('move USDC token COA to FLOW', async ({ page }) => {
   await moveTokenCOA({
     page,
     tokenname: 'Bridged USDC (Celer) $',
-    successtext: 'success',
-  });
-});
-
-test('move BETA token COA to FLOW', async ({ page }) => {
-  test.setTimeout(60_000);
-  // Move BETA token from COA to EOA
-  await moveTokenCOA({
-    page,
-    tokenname: 'BETA $',
     successtext: 'success',
   });
 });

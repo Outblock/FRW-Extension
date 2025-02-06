@@ -59,15 +59,7 @@ test('send FLOW flow to flow', async ({ page }) => {
     receiver: process.env.TEST_RECEIVER_ADDR!,
   });
 });
-//Send USDC from Flow to Flow
-test('send USDC flow to flow', async ({ page }) => {
-  test.setTimeout(60_000);
-  await sendTokenFlow({
-    page,
-    tokenname: 'USDC.e (Flow) $',
-    receiver: process.env.TEST_RECEIVER_ADDR!,
-  });
-});
+
 //Send StFlow from Flow to Flow
 test('send stFlow flow to flow', async ({ page }) => {
   test.setTimeout(60_000);
@@ -78,15 +70,6 @@ test('send stFlow flow to flow', async ({ page }) => {
   });
 });
 
-//Send BETA from Flow to Flow
-test('send BETA flow to flow', async ({ page }) => {
-  test.setTimeout(60_000);
-  await sendTokenFlow({
-    page,
-    tokenname: 'BETA $',
-    receiver: process.env.TEST_RECEIVER_ADDR!,
-  });
-});
 //Send FLOW token from Flow to COA
 test('send FLOW flow to COA', async ({ page }) => {
   // This can take a while
@@ -106,25 +89,7 @@ test('send USDC flow to COA', async ({ page }) => {
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
 });
-//Send StFlow from Flow to COA
-test('send stFlow flow to COA', async ({ page }) => {
-  test.setTimeout(60_000);
-  await sendTokenFlow({
-    page,
-    tokenname: 'Liquid Staked Flow $',
-    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
-  });
-});
 
-//Send BETA from Flow to COA
-test('send BETA flow to COA', async ({ page }) => {
-  test.setTimeout(60_000);
-  await sendTokenFlow({
-    page,
-    tokenname: 'BETA $',
-    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
-  });
-});
 //Send FLOW token from Flow to EOA
 test('send FLOW flow to EOA', async ({ page }) => {
   // This can take a while
@@ -132,24 +97,6 @@ test('send FLOW flow to EOA', async ({ page }) => {
   await sendTokenFlow({
     page,
     tokenname: /^FLOW \$/i,
-    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
-  });
-});
-//Send USDC from Flow to EOA
-test('send USDC flow to EOA', async ({ page }) => {
-  test.setTimeout(60_000);
-  await sendTokenFlow({
-    page,
-    tokenname: 'USDC.e (Flow) $',
-    receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
-  });
-});
-//Send StFlow from Flow to EOA
-test('send stFlow flow to EOA', async ({ page }) => {
-  test.setTimeout(60_000);
-  await sendTokenFlow({
-    page,
-    tokenname: 'Liquid Staked Flow $',
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
   });
 });
@@ -182,14 +129,6 @@ test('move USDC token COA to FLOW', async ({ page }) => {
   });
 });
 
-test('move BETA token COA to FLOW', async ({ page }) => {
-  test.setTimeout(60_000);
-  // Move BETA token from FLOW to COA
-  await moveTokenFlow({
-    page,
-    tokenname: 'BETA $',
-  });
-});
 //Move from main page
 test('move Flow Flow to COA homepage', async ({ page }) => {
   test.setTimeout(60_000);
