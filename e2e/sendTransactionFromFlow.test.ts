@@ -1,4 +1,10 @@
-import { test, loginToSenderAccount, expect, getCurrentAddress } from './utils/helper';
+import {
+  test,
+  loginToSenderAccount,
+  expect,
+  getCurrentAddress,
+  waitForTransaction,
+} from './utils/helper';
 export const sendTokenFlow = async ({ page, tokenname, receiver }) => {
   // Wait for the EVM account to be loaded
   await getCurrentAddress(page);
@@ -11,23 +17,8 @@ export const sendTokenFlow = async ({ page, tokenname, receiver }) => {
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
-  await page.waitForURL(/.*dashboard\?activity=1/);
-  const progressBar = page.getByRole('progressbar');
-  await expect(progressBar).toBeVisible();
-  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
-    timeout: 60_000,
-  });
-  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
-
-  await expect(
-    page
-      .locator('li')
-      .first()
-      .filter({ hasText: 'a few seconds ago' })
-      .filter({ hasText: 'sealed' })
-  ).toBeVisible({
-    timeout: 60_000,
-  });
+  // Wait for the transaction to be completed
+  await waitForTransaction({ page, successtext: 'sealed' });
 };
 
 export const moveTokenFlow = async ({ page, tokenname }) => {
@@ -37,25 +28,8 @@ export const moveTokenFlow = async ({ page, tokenname }) => {
   await page.getByRole('button', { name: 'Move' }).click();
   await page.getByPlaceholder('Amount').click();
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
-
-  await page.getByRole('button', { name: 'Move' }).click();
-  await page.waitForURL(/.*dashboard\?activity=1/);
-  const progressBar = page.getByRole('progressbar');
-  await expect(progressBar).toBeVisible();
-  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
-    timeout: 60_000,
-  });
-  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
-
-  await expect(
-    page
-      .locator('li')
-      .first()
-      .filter({ hasText: 'a few seconds ago' })
-      .filter({ hasText: 'sealed' })
-  ).toBeVisible({
-    timeout: 60_000,
-  });
+  // Wait for the transaction to be completed
+  await waitForTransaction({ page, successtext: 'sealed' });
 };
 
 export const moveTokenFlowHomepage = async ({ page, tokenname }) => {
@@ -67,23 +41,8 @@ export const moveTokenFlowHomepage = async ({ page, tokenname }) => {
   await page.getByPlaceholder('Amount').click();
   await page.getByPlaceholder('Amount').fill('0.000000012345');
   await page.getByRole('button', { name: 'Move' }).click();
-  await page.waitForURL(/.*dashboard\?activity=1/);
-  const progressBar = page.getByRole('progressbar');
-  await expect(progressBar).toBeVisible();
-  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
-    timeout: 60_000,
-  });
-  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
-
-  await expect(
-    page
-      .locator('li')
-      .first()
-      .filter({ hasText: 'a few seconds ago' })
-      .filter({ hasText: 'sealed' })
-  ).toBeVisible({
-    timeout: 60_000,
-  });
+  // Wait for the transaction to be completed
+  await waitForTransaction({ page, successtext: 'sealed' });
 };
 
 test.beforeEach(async ({ page, extensionId }) => {

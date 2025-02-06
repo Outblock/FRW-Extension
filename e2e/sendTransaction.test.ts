@@ -1,4 +1,11 @@
-import { test, loginToSenderAccount, expect, getCurrentAddress, switchToEvm } from './utils/helper';
+import {
+  test,
+  loginToSenderAccount,
+  expect,
+  getCurrentAddress,
+  switchToEvm,
+  waitForTransaction,
+} from './utils/helper';
 export const sendTokenCOA = async ({ page, tokenname, receiver, successtext }) => {
   // Wait for the EVM account to be loaded
   await getCurrentAddress(page);
@@ -11,31 +18,8 @@ export const sendTokenCOA = async ({ page, tokenname, receiver, successtext }) =
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
-
   // Wait for the transaction to be completed
-  await page.waitForURL(/.*dashboard\?activity=1.*/);
-  const url = await page.url();
-
-  const txId = url.match(/[\?&]txId=(\w+)/i)?.[1];
-
-  expect(txId).toBeDefined();
-
-  const progressBar = page.getByRole('progressbar');
-  await expect(progressBar).toBeVisible();
-  // Get the pending item with the cadence txId that was put in the url and status is pending
-  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
-
-  await expect(pendingItem).toBeVisible({
-    timeout: 60_000,
-  });
-  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
-
-  // Get the executed item with the cadence txId that was put in the url and status is success
-  const executedItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'success' });
-
-  await expect(executedItem).toBeVisible({
-    timeout: 60_000,
-  });
+  await waitForTransaction({ page, successtext });
 };
 
 export const moveTokenCOA = async ({ page, tokenname, successtext }) => {
@@ -48,29 +32,7 @@ export const moveTokenCOA = async ({ page, tokenname, successtext }) => {
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
   await page.getByRole('button', { name: 'Move' }).click();
   // Wait for the transaction to be completed
-  await page.waitForURL(/.*dashboard\?activity=1.*/);
-  const url = await page.url();
-
-  const txId = url.match(/[\?&]txId=(\w+)/i)?.[1];
-
-  expect(txId).toBeDefined();
-
-  const progressBar = page.getByRole('progressbar');
-  await expect(progressBar).toBeVisible();
-  // Get the pending item with the cadence txId that was put in the url and status is pending
-  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
-
-  await expect(pendingItem).toBeVisible({
-    timeout: 60_000,
-  });
-  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
-
-  // Get the executed item with the cadence txId that was put in the url and status is success
-  const executedItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'success' });
-
-  await expect(executedItem).toBeVisible({
-    timeout: 60_000,
-  });
+  await waitForTransaction({ page, successtext });
 };
 
 export const moveTokenCoaHomepage = async ({ page, tokenname }) => {
@@ -83,29 +45,7 @@ export const moveTokenCoaHomepage = async ({ page, tokenname }) => {
   await page.getByPlaceholder('Amount').fill('0.000000012345');
   await page.getByRole('button', { name: 'Move' }).click();
   // Wait for the transaction to be completed
-  await page.waitForURL(/.*dashboard\?activity=1.*/);
-  const url = await page.url();
-
-  const txId = url.match(/[\?&]txId=(\w+)/i)?.[1];
-
-  expect(txId).toBeDefined();
-
-  const progressBar = page.getByRole('progressbar');
-  await expect(progressBar).toBeVisible();
-  // Get the pending item with the cadence txId that was put in the url and status is pending
-  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
-
-  await expect(pendingItem).toBeVisible({
-    timeout: 60_000,
-  });
-  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
-
-  // Get the executed item with the cadence txId that was put in the url and status is success
-  const executedItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'success' });
-
-  await expect(executedItem).toBeVisible({
-    timeout: 60_000,
-  });
+  await waitForTransaction({ page, successtext: 'success' });
 };
 
 test.beforeEach(async ({ page, extensionId }) => {
