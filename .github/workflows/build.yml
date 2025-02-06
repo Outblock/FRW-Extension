@@ -106,6 +106,9 @@ jobs:
     needs: build
     if: github.ref_type == 'tag' || github.ref_name == 'dev' || github.ref_name == 'master'
     runs-on: ubuntu-latest
+    concurrency:
+      group: tests-${{ github.workflow }}
+      cancel-in-progress: false
     environment: >-
       ${{
         github.ref_type == 'tag' && 'production' ||
