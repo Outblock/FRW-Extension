@@ -961,11 +961,23 @@
   "Error": {
     "message": "错误"
   },
+  "UNKNOWN": {
+    "message": "未知"
+  },
   "PENDING": {
     "message": "待定"
   },
+  "FINALIZED": {
+    "message": "已确认"
+  },
   "EXECUTED": {
     "message": "已执行"
+  },
+  "SEALED": {
+    "message": "已封印"
+  },
+  "EXPIRED": {
+    "message": "已过期"
   },
   "Transaction__Sealed": {
     "message": "交易完成"

@@ -1,5 +1,6 @@
 import type { TransactionStatus } from '@onflow/typedefs';
 
+import { isValidEthereumAddress } from '@/shared/utils/address';
 import createPersistStore from 'background/utils/persisitStore';
 import createSessionStore from 'background/utils/sessionStore';
 
@@ -30,6 +31,8 @@ interface TransferItem {
   indexed: boolean;
   // The cadence transaction id
   cadenceTxId?: string;
+  // The EVM transaction ids
+  evmTxIds?: string[];
 }
 
 const now = new Date();
@@ -108,8 +111,10 @@ class Transaction {
 
   setPending = (txId: string, address: string, network, icon, title) => {
     const txList = this.session.pendingItem[network];
-    const items = txList.filter((txItem) => txItem.hash === txId);
+    console.log('setPending - txList', txList, txId);
+    const items = txList.filter((txItem) => txItem.hash.includes(txId));
     if (items.length > 0) {
+      console.log('setPending - items found', items);
       return;
     }
     const now = new Date();
@@ -144,44 +149,97 @@ class Transaction {
     txItem.image = icon;
     txItem.title = title;
     txList.unshift(txItem);
-    this.session.pendingItem[network] = txList;
+    this.session.pendingItem[network] = [...txList];
+    console.log(
+      'setPending - this.session.pendingItem[network]',
+      this.session.pendingItem[network]
+    );
+    // Send a message to the UI to update the transfer list
+    chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
   };
 
   updatePending = (
     txId: string,
     network: string,
     transactionStatus: TransactionStatus
-  ): string | undefined => {
+  ): string[] => {
     const txList = this.session.pendingItem[network];
-    const txItemIndex = txList.findIndex((item) => item.hash === txId);
+    console.log('updatePending - txList', this.session.pendingItem[network], txId);
+
+    console.log('updatePending - txList', txList, txId);
+    const txItemIndex = txList.findIndex((item) => item.hash.includes(txId));
     if (txItemIndex === -1) {
+      console.log('updatePending - txItemIndex not found', txItemIndex);
       // txItem not found, return
-      return;
+      return [txId];
     }
     const txItem = txList[txItemIndex];
+    console.log('updatePending - status', transactionStatus.statusString);
+    console.log(
+      'updatePending - status - getMessage',
+      chrome.i18n.getMessage(transactionStatus.statusString)
+    );
+
     txItem.status =
       chrome.i18n.getMessage(transactionStatus.statusString) || transactionStatus.statusString;
     txItem.error = transactionStatus.statusCode === 1;
 
-    const evmEvent = transactionStatus.events.find(
-      (event) => event.type.includes('EVM') && !!event.data?.hash
+    const evmTxIds: string[] = transactionStatus.events?.reduce(
+      (transactionIds: string[], event) => {
+        if (event.type.includes('EVM') && !!event.data?.hash) {
+          const hashBytes = event.data.hash.map((byte) => parseInt(byte));
+          const hash = '0x' + Buffer.from(hashBytes).toString('hex');
+          if (transactionIds.includes(hash)) {
+            return transactionIds;
+          }
+          transactionIds.push(hash);
+        }
+        return transactionIds;
+      },
+      [] as string[]
     );
-    if (evmEvent) {
-      const hashBytes = evmEvent.data.hash.map((byte) => parseInt(byte));
-      txItem.hash = '0x' + Buffer.from(hashBytes).toString('hex');
+
+    txItem.evmTxIds = [...evmTxIds];
+    const txHashList: string[] = [];
+    if (evmTxIds.length > 0) {
+      // We're sending an EVM transaction, we need to update the hash and may need to duplicate the pending item for each address
+      const txItemList: TransferItem[] = evmTxIds.map((evmTxId) => ({
+        ...txItem,
+        hash: `${txItem.cadenceTxId || txItem.hash}_${evmTxId}`,
+        evmTxIds: [evmTxId],
+      }));
+      txHashList.push(...txItemList.map((item) => item.hash));
+      // Replace the original item with the new items
+      txList.splice(txItemIndex, txItemList.length, ...txItemList);
+    } else {
+      // We're sending a Flow transaction
+      txHashList.push(txItem.hash);
+
+      txList[txItemIndex] = txItem;
     }
-    txList[txItemIndex] = txItem;
-    this.session.pendingItem[network] = txList;
+
+    this.session.pendingItem[network] = [...txList];
+    // Send a message to the UI to update the transfer list
+    chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
+
     // Return the hash of the transaction
-    return txItem.hash;
+    return txHashList;
   };
 
   removePending = (txId: string, address: string, network: string) => {
     const txList = this.session.pendingItem[network];
+    console.log('removePending - txList', txList, txId);
     const newList = txList.filter((item) => {
-      return item.hash !== txId;
+      // Supports hashes with multiple ids
+      // e.g. cadenceTxId_evmTxId
+      return !item.hash.includes(txId);
     });
-    this.session.pendingItem[network] = newList;
+    this.session.pendingItem[network] = [...newList];
+    console.log(
+      'removePending - done - this.session.pendingItem[network]',
+      this.session.pendingItem[network],
+      txId
+    );
   };
 
   // only used when evm transaction get updated.

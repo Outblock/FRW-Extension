@@ -958,11 +958,23 @@
   "Error": {
     "message": "エラー"
   },
+  "UNKNOWN": {
+    "message": "不明"
+  },
   "PENDING": {
     "message": "保留中"
   },
+  "FINALIZED": {
+    "message": "確定済み"
+  },
   "EXECUTED": {
     "message": "実行済み"
+  },
+  "SEALED": {
+    "message": "封印済み"
+  },
+  "EXPIRED": {
+    "message": "期限切れ"
   },
   "Transaction__Sealed": {
     "message": "トランザクションが封印されました"

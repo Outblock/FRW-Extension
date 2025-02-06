@@ -19,6 +19,7 @@ export const useTransferList = () => {
 
   const fetchTransactions = useCallback(
     async (forceRefresh = false) => {
+      console.log('fetchTransactions - forceRefresh', forceRefresh);
       setLoading(true);
       const monitor = await usewallet.getMonitor();
       setMonitor(monitor);
@@ -34,6 +35,8 @@ export const useTransferList = () => {
           60000,
           forceRefresh
         );
+
+        console.log('fetchTransactions - data', data);
         setLoading(false);
         if (data['count'] > 0) {
           setCount(data['count'].toString());

@@ -3526,9 +3526,11 @@ export class WalletController extends BaseController {
     return await this.poll(fetchReport, validate, 3000);
   };
 
-  pollTransferList = async (address: string, txHash: string, maxAttempts = 5) => {
+  pollTransferList = async (address: string, txHashList: string[], maxAttempts = 5) => {
     let attempts = 0;
-
+    let foundCount = 0;
+    const totalTransactions = txHashList.length;
+    const txHashListNotIndexed = [...txHashList];
     const poll = async () => {
       if (attempts >= maxAttempts) {
         console.log('Max polling attempts reached');
@@ -3536,14 +3538,25 @@ export class WalletController extends BaseController {
       }
 
       const { list: newTransactions } = await this.getTransactions(address, 15, 0, 5000, true);
-      const foundTx = newTransactions?.find((tx) => tx.hash === txHash);
-      if (foundTx && foundTx.indexed) {
-        // Has been picked up by the indexer
+      // Copy the list as we're going to modify the original list
+      const copyOfTxHashListNotIndexed = [...txHashListNotIndexed];
+
+      const foundCountPrevious = foundCount;
+      for (const txHash of copyOfTxHashListNotIndexed) {
+        const foundTx = newTransactions?.find((tx) => txHash.includes(tx.hash));
+        if (foundTx && foundTx.indexed) {
+          foundCount++;
+          // Remove the transaction from the list of transactions to index
+          txHashListNotIndexed.splice(txHashListNotIndexed.indexOf(txHash), 1);
+        }
+      }
+      if (foundCountPrevious !== foundCount) {
         // Send a message to the UI to update the transfer list
         chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
-      } else {
-        // Has not been picked up by the indexer yet
+      }
 
+      if (foundCount !== totalTransactions) {
+        // All of the transactions have not been picked up by the indexer yet
         attempts++;
         setTimeout(poll, 5000); // Poll every 5 seconds
       }
@@ -3564,7 +3577,7 @@ export class WalletController extends BaseController {
     }
     const address = (await this.getCurrentAddress()) || '0x';
     const network = await this.getNetwork();
-    let txHash: string | undefined = txId;
+    let txHashList: string[] = [txId];
     try {
       chrome.storage.session.set({
         transactionPending: { txId, network, date: new Date() },
@@ -3580,7 +3593,7 @@ export class WalletController extends BaseController {
       // This will throw an error if there is an error with the transaction
       const txStatus = await fcl.tx(txId).onceExecuted();
       // Update the pending transaction with the transaction status
-      txHash = transactionService.updatePending(txId, network, txStatus);
+      txHashList = transactionService.updatePending(txId, network, txStatus);
 
       // Track the transaction result
       mixpanelTrack.track('transaction_result', {
@@ -3647,9 +3660,9 @@ export class WalletController extends BaseController {
         msg: 'transactionDone',
       });
 
-      if (txHash) {
+      if (txHashList) {
         // Start polling for transfer list updates
-        await this.pollTransferList(address, txHash);
+        await this.pollTransferList(address, txHashList);
       }
     }
   };

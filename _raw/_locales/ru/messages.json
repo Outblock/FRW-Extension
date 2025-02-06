@@ -958,11 +958,23 @@
   "Error": {
     "message": "Ошибка"
   },
+  "UNKNOWN": {
+    "message": "Неизвестно"
+  },
   "PENDING": {
     "message": "В ожидании"
   },
+  "FINALIZED": {
+    "message": "Завершено"
+  },
   "EXECUTED": {
-    "message": "B ыполнено"
+    "message": "Выполнено"
+  },
+  "SEALED": {
+    "message": "Закрыто"
+  },
+  "EXPIRED": {
+    "message": "Истек"
   },
   "Transaction__Sealed": {
     "message": "Транзакция закрыта"
