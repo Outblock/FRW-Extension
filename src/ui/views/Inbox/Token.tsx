@@ -37,16 +37,16 @@ const Token = ({ data }) => {
     const userDomain = await wallet.fetchUserDomain();
     wallet
       .claimFTFromInbox(userDomain, amount, symbol)
-      .then(async (resp) => {
+      .then(async (txId) => {
         setFailed(false);
         wallet.listenTransaction(
-          resp['txId'],
+          txId,
           true,
           `${amount} ${symbol} Claimed`,
           `You have claimed ${amount} ${symbol} to ${userDomain}. \nClick to view this transaction.`
         );
         await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setFailed(true);

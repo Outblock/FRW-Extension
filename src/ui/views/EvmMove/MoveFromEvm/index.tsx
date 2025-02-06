@@ -132,15 +132,15 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     setLoading(true);
     usewallet
       .withdrawFlowEvm(amount, userInfo.address)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer from EVM complete',
           `Your have moved ${amount} Flow to your address ${userWallet}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })
@@ -166,15 +166,15 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
     usewallet
       .bridgeToFlow(flowId, amount, tokenResult)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer from EVM complete',
           `Your have moved ${amount} ${flowId.split('.')[2]} to your address ${userWallet}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })

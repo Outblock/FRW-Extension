@@ -5,8 +5,8 @@ import { useParams } from 'react-router-dom';
 
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { type CoinItem } from 'background/service/coinList';
 import { useWallet } from 'ui/utils';
 

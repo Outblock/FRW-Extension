@@ -95,11 +95,11 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     const amount = parseFloat(props.data.amount).toFixed(8);
     wallet
       .transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount)
-      .then(async (txID) => {
+      .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
-        console.log('send result ', txID, props.data);
+        console.log('send result ', txId, props.data);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
           `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -108,8 +108,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setSending(false);
@@ -127,10 +127,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         amount,
         props.data.tokenSymbol
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
           `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -139,8 +139,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.log('0xe8264050e6f51923 ', err);
@@ -164,10 +164,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
     wallet
       .withdrawFlowEvm(amount, props.data.contact.address)
-      .then(async (txID) => {
+      .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
           `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -176,8 +176,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setSending(false);
@@ -196,10 +196,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         props.data.contact.address,
         tokenResult
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
           `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -208,8 +208,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setSending(false);

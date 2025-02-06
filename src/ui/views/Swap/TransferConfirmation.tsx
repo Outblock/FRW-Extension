@@ -99,9 +99,9 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           storageOut.balance.split('/').pop(),
           deadline
         )
-        .then(async (txID) => {
+        .then(async (txId) => {
           wallet.listenTransaction(
-            txID,
+            txId,
             true,
             `${resJson.tokenInAmount} ${props.data.token0.symbol} swapped`,
             `You have swapped ${resJson.tokenInAmount} ${props.data.token0.symbol} to ${amountOutMin} ${props.data.token1.symbol}. \nClick to view this transaction.`
@@ -109,8 +109,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           props.handleCloseIconClicked();
           await wallet.setDashIndex(0);
           setSending(false);
-          setTid(txID);
-          history.push('/dashboard?activity=1');
+          setTid(txId);
+          history.push(`/dashboard?activity=1&txId=${txId}`);
         })
         .catch(() => {
           setSending(false);
@@ -128,9 +128,9 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           storageOut.receiver.split('/').pop(),
           deadline
         )
-        .then(async (txID) => {
+        .then(async (txId) => {
           wallet.listenTransaction(
-            txID,
+            txId,
             true,
             `${resJson.tokenInAmount} ${props.data.token0.symbol} swapped`,
             `You have swapped ${resJson.tokenInAmount} ${props.data.token0.symbol} to ${amountOutMin} ${props.data.token1.symbol}. \nClick to view this transaction.`
@@ -138,8 +138,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           props.handleCloseIconClicked();
           await wallet.setDashIndex(0);
           setSending(false);
-          setTid(txID);
-          history.push('/dashboard?activity=1');
+          setTid(txId);
+          history.push(`/dashboard?activity=1&txId=${txId}`);
         })
         .catch(() => {
           setSending(false);

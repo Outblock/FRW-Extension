@@ -28,19 +28,19 @@ const AddNFTConfirmation = (props: AddNFTConfirmationProps) => {
     }
     setSending(true);
     try {
-      const txID = await wallet.enableNFTStorageLocal(props.data);
-      if (txID) {
+      const txId = await wallet.enableNFTStorageLocal(props.data);
+      if (txId) {
         await wallet.setDashIndex(0);
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.name}`,
           `Your ${props.data.name} vault has been enabled. You are now able to receive ${props.data.name}!\nClick to view this transaction.`,
           props.data.logo!
         );
         setSending(false);
-        setTid(txID);
-        history.push('/dashboard?activity=1');
+        setTid(txId);
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       }
       props.handleAddBtnClicked();
     } catch (err) {
