@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -150,15 +150,15 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
     const tokenResult = await usewallet.openapi.getTokenInfo(currentCoin, network);
     usewallet
       .moveFTfromChild(childUserInfo!.address, 'flowTokenProvider', amount!, tokenResult!.name)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer complete',
           `Your have moved ${amount} ${tokenResult!.name} to your address ${userWallet}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })

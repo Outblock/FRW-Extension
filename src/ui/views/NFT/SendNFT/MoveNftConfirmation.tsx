@@ -9,7 +9,7 @@ import { ensureEvmAddressPrefix, isValidEthereumAddress } from '@/shared/utils/a
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { MatchMediaType } from '@/ui/utils/url';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import { LLSpinner, FRWChildProfile, FRWDropdownProfileCard } from 'ui/FRWComponent';
@@ -102,9 +102,9 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         props.data.nft.id,
         filteredCollections[0]
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Move complete`,
           `You have moved 1 ${props.data.nft.collectionContractName} from linked account to your flow address. \nClick to view this transaction.`
@@ -112,7 +112,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.error('err ', err);
@@ -133,9 +133,9 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         [props.data.nft.id],
         filteredCollections[0]
       )
-      .then(async (txID) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          txID,
+          txId,
           true,
           `Move complete`,
           `You have moved ${props.data.nft.id} ${filteredCollections[0].contract_name} to your evm address. \nClick to view this transaction.`
@@ -143,7 +143,7 @@ const MoveNftConfirmation = (props: SendNFTConfirmationProps) => {
         props.handleCloseIconClicked();
         await usewallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.error('err ', err);

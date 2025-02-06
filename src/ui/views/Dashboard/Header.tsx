@@ -30,9 +30,9 @@ import { storage } from '@/background/webapi';
 import { type LoggedInAccountWithIndex } from '@/shared/types/wallet-types';
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
-import { useNetworkStore } from '@/ui/stores/useNetworkStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useNews } from '@/ui/utils/NewsContext';
 import { useWallet, formatAddress, useWalletLoaded } from 'ui/utils';
 
