@@ -1236,7 +1236,7 @@ export class WalletController extends BaseController {
         const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
         return {
           coin: token.name,
-          unit: token.symbol,
+          unit: token.symbol.toLowerCase(),
           icon: token['logoURI'] || '',
           balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
           price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
@@ -1309,7 +1309,7 @@ export class WalletController extends BaseController {
         const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;
         return {
           coin: token.name,
-          unit: token.symbol,
+          unit: token.symbol.toLowerCase(),
           icon: token['logoURI'] || '',
           balance: parseFloat(parseFloat(allBalanceMap[tokenId]).toFixed(8)),
           price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
@@ -1423,7 +1423,7 @@ export class WalletController extends BaseController {
     const coins: CoinItem[] = mergedList.map((token, index) => {
       return {
         coin: token.name,
-        unit: token.symbol,
+        unit: token.symbol.toLowerCase(),
         icon: token['logoURI'] || placeholder,
         balance: token.balance,
         price: allPrice[index] === null ? 0 : new BN(allPrice[index].price.last).toNumber(),
