@@ -47,9 +47,9 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
     const amount = new BN(props.data.amount).toFixed(8, BN.ROUND_DOWN);
     wallet
       .unstake(amount, props.data.nodeid, props.data.delegateid)
-      .then(async (txID) => {
+      .then(async (txId) => {
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           `${props.data.amount}  Flow unstaked`,
           `You have unstaked ${props.data.amount} Flow from the staking node. \nClick to view this transaction.`,
@@ -57,7 +57,7 @@ const UnstakeConfirm = (props: TransferConfirmationProps) => {
         );
         await wallet.setDashIndex(0);
         setSending(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.error(err);

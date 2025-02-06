@@ -17,8 +17,8 @@ import swapIcon from '@/ui/FRWAssets/svg/swapIcon.svg';
 import LLComingSoon from '@/ui/FRWComponent/LLComingSoonWarning';
 import { NumberTransition } from '@/ui/FRWComponent/NumberTransition';
 import { useInitHook } from '@/ui/hooks';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet } from '@/ui/utils';
 import { formatLargeNumber } from '@/ui/utils/number';
 
@@ -63,7 +63,6 @@ const WalletTab = ({ network }) => {
   const [childType, setChildType] = useState<ActiveChildType>(null);
   const [alertOpen, setAlertOpen] = useState<boolean>(false);
   const [, setChildAccount] = useState<any>({});
-  const [txCount, setTxCount] = useState('');
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [, setSwapConfig] = useState(false);
@@ -569,9 +568,7 @@ const WalletTab = ({ network }) => {
             </Box>
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <Box sx={{ height: '100%', overflow: 'auto' }}>
-              {value === 2 && <TransferList setCount={setTxCount} />}
-            </Box>
+            <Box sx={{ height: '100%', overflow: 'auto' }}>{value === 2 && <TransferList />}</Box>
           </TabPanel>
         </SwipeableViews>
       </Box>

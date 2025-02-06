@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet } from 'ui/utils';
 
 import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';

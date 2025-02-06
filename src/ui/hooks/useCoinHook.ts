@@ -2,8 +2,8 @@ import BN from 'bignumber.js';
 import { useCallback, useEffect } from 'react';
 
 import { withPrefix } from '@/shared/utils/address';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet, useWalletLoaded } from '@/ui/utils/WalletContext';
 
 const DEFAULT_MIN_AMOUNT = '0.001';

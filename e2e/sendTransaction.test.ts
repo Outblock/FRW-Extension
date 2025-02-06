@@ -11,15 +11,29 @@ export const sendTokenfromCOAtoCOA = async ({ page, tokenname, receiver }) => {
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
-  await page.waitForURL(/.*dashboard\?activity=1/);
+
+  // Wait for the transaction to be completed
+  await page.waitForURL(/.*dashboard\?activity=1.*/);
+  const url = await page.url();
+
+  const txId = url.match(/[\?&]txId=(\w+)/i)?.[1];
+
+  expect(txId).toBeDefined();
+
   const progressBar = page.getByRole('progressbar');
   await expect(progressBar).toBeVisible();
-  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+  // Get the pending item with the cadence txId that was put in the url and status is pending
+  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
+
+  await expect(pendingItem).toBeVisible({
     timeout: 60_000,
   });
   await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
 
-  await expect(page.locator('li').first().filter({ hasText: 'success' })).toBeVisible({
+  // Get the executed item with the cadence txId that was put in the url and status is success
+  const executedItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'success' });
+
+  await expect(executedItem).toBeVisible({
     timeout: 60_000,
   });
 };

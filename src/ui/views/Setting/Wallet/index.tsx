@@ -15,7 +15,7 @@ import { Link, useRouteMatch } from 'react-router-dom';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet } from '@/ui/utils';
 import { storage } from 'background/webapi';
 import { formatAddress } from 'ui/utils';

@@ -49,9 +49,9 @@ const RevokePage = (props: RevokePageProps) => {
     setIsLoading(true);
     wallet
       .revokeKey(props.keyIndex)
-      .then(async (txID) => {
+      .then(async (txId) => {
         wallet.listenTransaction(
-          txID,
+          txId,
           true,
           'Revoke request submit',
           'You have submitted an revoke request for key index 2. \nClick to view this transaction.'
@@ -59,7 +59,7 @@ const RevokePage = (props: RevokePageProps) => {
         props.handleCloseIconClicked();
         await wallet.setDashIndex(0);
         setIsLoading(false);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.log(err);

@@ -2,7 +2,7 @@ import { Box, Typography, Avatar, Skeleton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React, { useState, useEffect, useCallback } from 'react';
 
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet, formatAddress, isEmoji } from 'ui/utils';
 
 const tempEmoji = {

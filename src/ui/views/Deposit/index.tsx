@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { withPrefix } from '@/shared/utils/address';
 import alertMark from '@/ui/FRWAssets/svg/alertMark.svg';
 import { NetworkIndicator } from '@/ui/FRWComponent/NetworkIndicator';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { LLHeader } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 

@@ -84,17 +84,17 @@ const UnlinkAccount = (props: UnlinkAccountProps) => {
     console.log('submit');
     wallet
       .unlinkChildAccountV2(props.address!)
-      .then(async (resp) => {
+      .then(async (txId) => {
         setIsLoading(false);
         props.handleCancelBtnClicked();
         wallet.listenTransaction(
-          resp,
+          txId,
           true,
           `${props.address} unlinked`,
           `You have unlinked the child account ${props.address} from your account. \nClick to view this transaction.`
         );
         await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch(() => {
         setIsLoading(false);

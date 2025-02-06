@@ -33,17 +33,17 @@ const Nft = ({ data }) => {
     const userDomain = await wallet.fetchUserDomain();
     wallet
       .claimNFTFromInbox(userDomain, itemId, symbol)
-      .then(async (resp) => {
+      .then(async (txId) => {
         setFailed(false);
         wallet.listenTransaction(
-          resp,
+          txId,
           true,
           `${itemId} ${symbol} Claimed`,
           `You have claimed ${itemId} ${symbol} to ${userDomain}. \nClick to view this transaction.`
         );
         setIds('');
         await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
         console.log(err);
