@@ -46,6 +46,28 @@ export const moveTokenCOA = async ({ page, tokenname, successtext }) => {
   });
 };
 
+export const moveTokenCoaHomepage = async ({ page, tokenname }) => {
+  await getCurrentAddress(page);
+  await page.getByRole('button', { name: 'Move' }).click();
+  await page.getByRole('button', { name: 'Move Tokens' }).click();
+  await page.getByRole('combobox').click();
+  await page.getByRole('option', { name: tokenname, exact: true }).getByRole('img').click();
+  await page.getByPlaceholder('Amount').click();
+  await page.getByPlaceholder('Amount').fill('0.000000012345');
+  await page.getByRole('button', { name: 'Move' }).click();
+  await page.waitForURL(/.*dashboard\?activity=1/);
+  const progressBar = page.getByRole('progressbar');
+  await expect(progressBar).toBeVisible();
+  await expect(page.locator('li').first().filter({ hasText: 'Pending' })).toBeVisible({
+    timeout: 60_000,
+  });
+  await expect(progressBar).not.toBeVisible({ timeout: 60_000 });
+
+  await expect(page.locator('li').first().filter({ hasText: 'sealed' })).toBeVisible({
+    timeout: 60_000,
+  });
+};
+
 test.beforeEach(async ({ page, extensionId }) => {
   // Login to our sender account
   await loginToSenderAccount({ page, extensionId });
@@ -219,6 +241,24 @@ test('move BETA token COA to FLOW', async ({ page }) => {
   });
 });
 
+//Move from main page
+test('move Flow COA to FLOW homepage', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move FLOW token from FLOW to COA
+  await moveTokenCoaHomepage({
+    page,
+    tokenname: 'Flow',
+  });
+});
+
+test('move USDC token COA to FLOW homepage', async ({ page }) => {
+  test.setTimeout(60_000);
+  // Move USDC token from FLOW to COA
+  await moveTokenCoaHomepage({
+    page,
+    tokenname: 'Bridged USDC (Celer)',
+  });
+});
 //Send NFT from COA to COA
 //Send NFT from COA to FLOW
 //Send NFT from COA to EOA
