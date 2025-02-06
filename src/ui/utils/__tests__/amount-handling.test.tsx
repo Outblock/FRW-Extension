@@ -66,6 +66,19 @@ Object.assign(global, {
   },
 });
 
+// Mock icon components
+vi.mock('../../../components/iconfont/IconClose', () => ({
+  default: () => <div data-testid="mock-icon-close">IconClose</div>,
+}));
+
+vi.mock('../../../components/iconfont/IconFlow', () => ({
+  default: () => <div data-testid="mock-icon-flow">IconFlow</div>,
+}));
+
+vi.mock('../../../components/iconfont/IconSwitch', () => ({
+  default: () => <div data-testid="mock-icon-switch">IconSwitch</div>,
+}));
+
 // Test helper functions
 const createTestProps = (overrides = {}) => ({
   amount: '',
@@ -103,8 +116,8 @@ const renderWithRouter = (Component, props) => {
   );
 };
 
-const testAmountInput = async (Component, props) => {
-  const { setAmount, setExceed } = props;
+const testExactDecimalPlaces = async (Component, props) => {
+  const { setAmount } = props;
   const rendered = renderWithRouter(Component, props);
   const input = screen.getByPlaceholderText('Amount');
 
@@ -113,20 +126,36 @@ const testAmountInput = async (Component, props) => {
   await new Promise((resolve) => setTimeout(resolve, 0));
   expect(setAmount).toHaveBeenCalledWith('1.23456789');
 
+  return rendered;
+};
+
+const testNegativeNumbers = async (Component, props) => {
+  renderWithRouter(Component, props);
+  const input = screen.getByPlaceholderText('Amount');
+
   // Test negative numbers
   fireEvent.change(input, { target: { value: '-1' } });
   expect((input as HTMLInputElement).value).toBe(''); // Should prevent negative numbers
+};
+
+const testNonNumericInput = async (Component, props) => {
+  renderWithRouter(Component, props);
+  const input = screen.getByPlaceholderText('Amount');
 
   // Test non-numeric input
   fireEvent.change(input, { target: { value: 'abc' } });
   expect((input as HTMLInputElement).value).toBe(''); // Should prevent non-numeric input
+};
+
+const testExceedingBalance = async (Component, props) => {
+  const { setExceed } = props;
+  renderWithRouter(Component, props);
+  const input = screen.getByPlaceholderText('Amount');
 
   // Test exceeding balance
   fireEvent.change(input, { target: { value: '11' } });
   await new Promise((resolve) => setTimeout(resolve, 0));
   expect(setExceed).toHaveBeenCalledWith(true);
-
-  return rendered;
 };
 
 const testFlowMinimumBalance = async (Component, props) => {
@@ -171,6 +200,30 @@ const testUSDConversion = async (Component, props) => {
   expect(setSecondAmount).toHaveBeenCalledWith('1.852');
 };
 
+const testStringPreservation = async (Component, props) => {
+  const { setAmount } = props;
+  renderWithRouter(Component, props);
+  const input = screen.getByPlaceholderText('Amount');
+
+  // Test string preservation for whole numbers
+  fireEvent.change(input, { target: { value: '10' } });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(setAmount).toHaveBeenCalledWith('10');
+  expect(typeof setAmount.mock.calls[0][0]).toBe('string');
+
+  // Test string preservation for decimal numbers
+  fireEvent.change(input, { target: { value: '0.5' } });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(setAmount).toHaveBeenCalledWith('0.5');
+  expect(typeof setAmount.mock.calls[1][0]).toBe('string');
+
+  // Test string preservation for numbers with trailing zeros
+  fireEvent.change(input, { target: { value: '1.500' } });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(setAmount).toHaveBeenCalledWith('1.500');
+  expect(typeof setAmount.mock.calls[2][0]).toBe('string');
+};
+
 describe('Amount Handling', () => {
   describe('TransferAmount Component', () => {
     let props;
@@ -179,8 +232,20 @@ describe('Amount Handling', () => {
       props = createTestProps();
     });
 
-    it('should preserve exact string values for amounts', async () => {
-      await testAmountInput(TransferAmount, props);
+    it('should preserve exact decimal places', async () => {
+      await testExactDecimalPlaces(TransferAmount, props);
+    });
+
+    it('should prevent negative numbers', async () => {
+      await testNegativeNumbers(TransferAmount, props);
+    });
+
+    it('should prevent non-numeric input', async () => {
+      await testNonNumericInput(TransferAmount, props);
+    });
+
+    it('should detect when balance is exceeded', async () => {
+      await testExceedingBalance(TransferAmount, props);
     });
 
     it('should enforce minimum FLOW balance of 0.001', async () => {
@@ -193,6 +258,10 @@ describe('Amount Handling', () => {
 
     it('should handle USD conversion correctly while preserving amount precision', async () => {
       await testUSDConversion(TransferAmount, props);
+    });
+
+    it('should preserve values as strings', async () => {
+      await testStringPreservation(TransferAmount, props);
     });
   });
 
@@ -212,8 +281,20 @@ describe('Amount Handling', () => {
           props = createTestProps();
         });
 
-        it('should preserve exact string values for amounts', async () => {
-          await testAmountInput(Component, props);
+        it('should preserve exact decimal places', async () => {
+          await testExactDecimalPlaces(Component, props);
+        });
+
+        it('should prevent negative numbers', async () => {
+          await testNegativeNumbers(Component, props);
+        });
+
+        it('should prevent non-numeric input', async () => {
+          await testNonNumericInput(Component, props);
+        });
+
+        it('should detect when balance is exceeded', async () => {
+          await testExceedingBalance(Component, props);
         });
 
         it('should enforce minimum FLOW balance of 0.001', async () => {
@@ -226,6 +307,10 @@ describe('Amount Handling', () => {
 
         it('should handle USD conversion correctly while preserving amount precision', async () => {
           await testUSDConversion(Component, props);
+        });
+
+        it('should preserve values as strings', async () => {
+          await testStringPreservation(Component, props);
         });
       });
     });
