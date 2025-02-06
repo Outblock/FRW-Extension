@@ -1,22 +1,25 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import Web3 from 'web3';
 
 import { type Contact } from '@/shared/types/network-types';
-import { type ActiveChildType } from '@/shared/types/wallet-types';
-import { withPrefix } from '@/shared/utils/address';
+import { type ActiveChildType, type CoinItem } from '@/shared/types/wallet-types';
+import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { useCoinStore } from '@/ui/stores/coinStore';
 import { useProfileStore } from '@/ui/stores/profileStore';
-import { type CoinItem } from 'background/service/coinList';
+import erc20ABI from 'background/utils/erc20.abi.json';
+import { EVM_ENDPOINT } from 'consts';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import CancelIcon from '../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../components/iconfont/IconClose';
+import TransferAmount from '../TransferAmount';
 
-import TransferAmount from './TransferAmount';
-import TransferConfirmation from './TransferConfirmation';
+import EvmToEvmConfirmation from './EvmToEvmConfirmation';
+import FlowToEVMConfirmation from './FlowToEVMConfirmation';
 
 interface ContactState {
   contact: Contact;
@@ -41,115 +44,101 @@ const EMPTY_COIN: CoinItem = {
   total: 0,
   icon: '',
 };
-
-const SendAmount = () => {
-  const history = useHistory();
+const SendEth = () => {
   const location = useLocation<ContactState>();
   const usewallet = useWallet();
-  const { childAccounts, currentWallet } = useProfileStore();
-  const [userWallet, setWallet] = useState<any>(null);
+  const { mainAddress, currentWallet, userInfo } = useProfileStore();
+  const { coins } = useCoinStore();
+
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [coinList, setCoinList] = useState<CoinItem[]>([]);
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
-  const [amount, setAmount] = useState<string>('0');
-  const [secondAmount, setSecondAmount] = useState('0.0');
+  const [amount, setAmount] = useState<string | undefined>(undefined);
+  const [secondAmount, setSecondAmount] = useState('0');
   const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
+  const [senderContact, setUserContact] = useState<Contact>(USER_CONTACT);
   const [network, setNetwork] = useState('mainnet');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<ActiveChildType>(null);
+  const [erc20Contract, setErc20Contract] = useState<any>(null);
 
   const setUserWallet = useCallback(async () => {
-    // const walletList = await storage.get('userWallet');
     setLoading(true);
     const token = await usewallet.getCurrentCoin();
-    let wallet;
-    if (childType === 'evm') {
-      wallet = await usewallet.getEvmWallet();
-    } else {
-      wallet = currentWallet;
-    }
-    console.log('wallet ', wallet);
+    const wallet = await usewallet.getEvmWallet();
     const network = await usewallet.getNetwork();
+    const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[network]);
+    const web3Instance = new Web3(provider);
+    let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
+    try {
+      if (token !== 'flow') {
+        const tokenInfo = await usewallet.openapi.getEvmTokenInfo(token);
+        contractAddress = tokenInfo!.address;
+      }
+
+      const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
+      setErc20Contract(contractInstance);
+    } catch (error) {
+      console.error('Error creating the web3 contract instance:', error);
+    }
     setNetwork(network);
     setCurrentCoin(token);
     // userWallet
-    await setWallet(wallet);
-    const coinList = await usewallet.getCoinList();
-    setCoinList(coinList);
-    const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
-    console.log('coinInfo ', coinInfo);
+    setCoinList(coins);
+    const coinInfo = coins.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
 
-    setCoinInfo(coinInfo!);
-    const info = await usewallet.getUserInfo(false);
-    const isChild = await usewallet.getActiveWallet();
-    console.log('isChild ', info, isChild);
-    const userContact = { ...USER_CONTACT };
-
-    if (isChild) {
-      if (isChild !== 'evm') {
-        const cwallet = childAccounts[wallet.address!];
-        userContact.avatar = cwallet.thumbnail.url;
-        userContact.contact_name = cwallet.name;
-      }
-      userContact.address = withPrefix(wallet.address!) || '';
-      if (isChild === 'evm') {
-        userContact.avatar = '';
-        userContact.contact_name = 'evm';
-      }
+    if (
+      coinInfo?.balance &&
+      coinInfo?.price &&
+      !isNaN(coinInfo.balance) &&
+      !isNaN(coinInfo.price)
+    ) {
+      coinInfo.total =
+        parseFloat(coinInfo.balance.toString()) * parseFloat(coinInfo.price.toString());
     } else {
-      userContact.address = withPrefix(wallet.address) || '';
-      userContact.avatar = info.avatar;
-      userContact.contact_name = info.username;
+      console.error('Invalid balance or price in coinInfo');
+      coinInfo!.total = 0;
     }
-    setUser(userContact);
-  }, [
-    childType,
-    setWallet,
-    setCoinList,
-    setCoinInfo,
-    setUser,
-    usewallet,
-    currentWallet,
-    childAccounts,
-  ]);
+    setCoinInfo(coinInfo!);
+
+    const userContact = { ...USER_CONTACT };
+    userContact.address = withPrefix(currentWallet.address) || '';
+    userContact.avatar = userInfo?.avatar || '';
+    userContact.contact_name = userInfo?.username || '';
+    setUserContact(userContact);
+  }, [usewallet, coins, userInfo, currentWallet]);
 
   const checkAddress = useCallback(async () => {
-    const child = await usewallet.getActiveWallet();
-    setChildType(child);
-
+    const childType = await usewallet.getActiveWallet();
+    console.log(' childType ', childType);
+    setChildType(childType);
     //wallet controller api
     try {
-      const address = withPrefix(location.state.contact.address);
-      const validatedResult = await usewallet.checkAddress(address!);
+      const address = location.state.contact.address;
+      const validatedResult = isValidEthereumAddress(address);
+      console.log('validatedResult address ', validatedResult);
       setValidated(validatedResult);
       return validatedResult;
     } catch (err) {
+      console.log('validatedResult err ', err);
       setValidated(false);
     }
     setLoading(false);
   }, [setLoading, setValidated, location?.state?.contact?.address, usewallet]);
-
-  const numberWithCommas = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
 
   const updateCoinInfo = useCallback(() => {
     const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
     if (coin) {
       setCoinInfo(coin);
     }
-  }, [coinList, currentCoin, setCoinInfo]);
-
-  useEffect(() => {
-    checkAddress();
-  }, [checkAddress]);
+  }, [coinList, currentCoin]);
 
   useEffect(() => {
     setUserWallet();
-  }, [childType, setUserWallet]);
+    checkAddress();
+  }, [setUserWallet, checkAddress]);
 
   useEffect(() => {
     updateCoinInfo();
@@ -169,35 +158,34 @@ const SendAmount = () => {
                   isSend={true}
                 />
               </Box>
-              {validated !== null &&
-                (validated ? (
+              <SlideRelative direction="down" show={validated !== null}>
+                {validated ? (
                   <></>
                 ) : (
-                  <SlideRelative show={true} direction="up">
+                  <Box
+                    sx={{
+                      width: '95%',
+                      backgroundColor: 'error.light',
+                      mx: 'auto',
+                      borderRadius: '0 0 12px 12px',
+                    }}
+                  >
                     <Box
                       sx={{
-                        width: '95%',
-                        backgroundColor: 'error.light',
-                        mx: 'auto',
-                        borderRadius: '0 0 12px 12px',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
-                        <Typography variant="body1" color="text.secondary">
-                          {chrome.i18n.getMessage('Invalid_address_in')}
-                          {` ${network}`}
-                        </Typography>
-                      </Box>
+                      <CancelIcon size={24} color={'#E54040'} style={{ margin: '8px' }} />
+                      <Typography variant="body1" color="text.secondary">
+                        {chrome.i18n.getMessage('Invalid_address_in')}
+                        {` ${network}`}
+                      </Typography>
                     </Box>
-                  </SlideRelative>
-                ))}
+                  </Box>
+                )}
+              </SlideRelative>
             </Box>
 
             <Typography
@@ -260,7 +248,7 @@ const SendAmount = () => {
 
           <Box sx={{ display: 'flex', gap: '8px', mx: '18px', mb: '35px', mt: '10px' }}>
             <Button
-              onClick={history.goBack}
+              // onClick={() => {}}
               variant="contained"
               // @ts-expect-error custom color
               color="neutral"
@@ -281,7 +269,6 @@ const SendAmount = () => {
               onClick={() => {
                 setConfirmationOpen(true);
               }}
-              // disabled={true}
               variant="contained"
               color="success"
               size="large"
@@ -303,17 +290,35 @@ const SendAmount = () => {
               </Typography>
             </Button>
           </Box>
-          {validated && (
-            <TransferConfirmation
+          {childType === 'evm' ? (
+            <EvmToEvmConfirmation
               isConfirmationOpen={isConfirmationOpen}
               data={{
                 contact: location.state.contact,
                 amount: amount,
                 secondAmount: secondAmount,
-                userContact: userInfo,
+                userContact: senderContact,
                 tokenSymbol: currentCoin,
                 coinInfo: coinInfo,
-                childType,
+                erc20Contract,
+              }}
+              handleCloseIconClicked={() => setConfirmationOpen(false)}
+              handleCancelBtnClicked={() => setConfirmationOpen(false)}
+              handleAddBtnClicked={() => {
+                setConfirmationOpen(false);
+              }}
+            />
+          ) : (
+            <FlowToEVMConfirmation
+              isConfirmationOpen={isConfirmationOpen}
+              data={{
+                contact: location.state.contact,
+                amount: amount,
+                secondAmount: secondAmount,
+                userContact: senderContact,
+                tokenSymbol: currentCoin,
+                coinInfo: coinInfo,
+                erc20Contract,
               }}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
@@ -328,4 +333,4 @@ const SendAmount = () => {
   );
 };
 
-export default SendAmount;
+export default SendEth;

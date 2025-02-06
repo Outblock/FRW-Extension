@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import emptyAddress from 'ui/assets/emptyAddress.svg';
 
-import { LLContactCard } from '../../FRWComponent';
+import { LLContactCard } from '../../../FRWComponent';
 
 const SearchList = ({ searchContacts, isLoading, handleClick }) => {
   const [grouped, setGrouped] = useState<any>([]);

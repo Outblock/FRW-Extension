@@ -26,10 +26,10 @@ import { type MatchMedia } from '@/ui/utils/url';
 import { useWallet } from 'ui/utils';
 
 import IconAbout from '../../../../components/iconfont/IconAbout';
-import AccountsList from '../../Send/AccountsList';
-import AddressBookList from '../../Send/AddressBookList';
-import RecentList from '../../Send/RecentList';
-import SearchList from '../../Send/SearchList';
+import AccountsList from '../../Send/AddressLists/AccountsList';
+import AddressBookList from '../../Send/AddressLists/AddressBookList';
+import RecentList from '../../Send/AddressLists/RecentList';
+import SearchList from '../../Send/AddressLists/SearchList';
 
 import SendNFTConfirmation from './SendNFTConfirmation';
 

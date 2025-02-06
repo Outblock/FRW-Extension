@@ -104,8 +104,8 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
     if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
       address = props.data.contact.address;
       gas = '1';
-      value = (props.data.amount * 1e18).toString(16);
-      data = [];
+      value = BigInt(Math.round(props.data.amount * 1e18)).toString(16);
+      data = '0x';
     } else {
       const tokenInfo = await usewallet.openapi.getEvmTokenInfo(
         props.data.coinInfo.unit.toLowerCase()

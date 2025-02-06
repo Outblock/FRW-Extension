@@ -26,14 +26,15 @@ import SwipeableViews from 'react-swipeable-views';
 
 import { type Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { useWallet } from 'ui/utils';
 
 import IconAbout from '../../../components/iconfont/IconAbout';
 
-import AccountsList from './AccountsList';
-import AddressBookList from './AddressBookList';
-import RecentList from './RecentList';
-import SearchList from './SearchList';
+import AccountsList from './AddressLists/AccountsList';
+import AddressBookList from './AddressLists/AddressBookList';
+import RecentList from './AddressLists/RecentList';
+import SearchList from './AddressLists/SearchList';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
@@ -70,41 +71,6 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     display: 'flex',
     flexDirection: 'column',
-  },
-}));
-
-const ArrowBackIconWrapper = styled('div')(() => ({
-  paddingLeft: '10px',
-  width: '100%',
-  position: 'absolute',
-  cursor: 'pointer',
-}));
-
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-  margin: '0px 18px 24px 18px',
-  height: '56px',
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: (theme.palette as any).icon.navi,
-  width: '100%',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(2),
-    paddingLeft: theme.spacing(8),
-    width: '100%',
   },
 }));
 
@@ -152,7 +118,8 @@ const Send = () => {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
+  const transactionStore = useTransactionStore();
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -166,10 +133,10 @@ const Send = () => {
   const [hasNoFilteredContacts, setHasNoFilteredContacts] = useState<boolean>(false);
 
   const fetchAddressBook = useCallback(async () => {
-    await wallet.setDashIndex(0);
+    await usewallet.setDashIndex(0);
     try {
-      const response = await wallet.getAddressBook();
-      let recent = await wallet.getRecent();
+      const response = await usewallet.getAddressBook();
+      let recent = await usewallet.getRecent();
       console.log('recent ', recent, response);
       if (recent) {
         recent.forEach((c) => {
@@ -204,7 +171,7 @@ const Send = () => {
     } catch (err) {
       console.log('err: ', err);
     }
-  }, [wallet]);
+  }, [usewallet]);
 
   useEffect(() => {
     fetchAddressBook();
@@ -234,17 +201,17 @@ const Send = () => {
     }
     switch (searchType) {
       case 0:
-        result = await wallet.openapi.getFindAddress(keyword + '');
+        result = await usewallet.openapi.getFindAddress(keyword + '');
         group = '.find';
         keys = keyword + '.find';
         break;
       case 1:
-        result = await wallet.openapi.getFlownsAddress(keyword + '');
+        result = await usewallet.openapi.getFlownsAddress(keyword + '');
         group = '.flowns';
         keys = keyword + '.fn';
         break;
       case 2:
-        result = await wallet.openapi.getFlownsAddress(keyword + '', 'meow');
+        result = await usewallet.openapi.getFlownsAddress(keyword + '', 'meow');
         group = '.meow';
         keys = keyword + '.meow';
         break;
@@ -273,7 +240,7 @@ const Send = () => {
   };
 
   const searchUser = async () => {
-    let result = await wallet.openapi.searchUser(searchKey);
+    let result = await usewallet.openapi.searchUser(searchKey);
     result = result.data.users;
     const fArray = searchContacts;
     const reg = /^((0x))/g;
@@ -312,15 +279,7 @@ const Send = () => {
     // await resetSearch();
     setSearching(true);
     setIsLoading(true);
-    try {
-      await checkDomain(0);
-      await checkDomain(1);
-      await checkDomain(2);
-    } catch {
-      setHasNoFilteredContacts(true);
-    } finally {
-      await searchUser();
-    }
+    await searchUser();
     // await searchUser();
     setHasNoFilteredContacts(false);
     setSearched(true);
@@ -364,10 +323,7 @@ const Send = () => {
         searchResult.avatar = '';
         searchResult.type! = 4;
       }
-      history.push({
-        pathname: '/dashboard/wallet/sendeth',
-        state: { contact: searchResult },
-      });
+      handleTransactionRedirect(searchResult);
       return;
     }
 
@@ -380,38 +336,29 @@ const Send = () => {
         searchResult.avatar = '';
         searchResult.type! = 4;
       }
-      history.push({
-        pathname: '/dashboard/wallet/sendAmount',
-        state: { contact: searchResult },
-      });
+      console.log('searchResult ', searchResult, checkAddress, keyword, filtered);
+      handleTransactionRedirect(searchResult);
     }
 
     setSearchContacts(filtered);
     if (isEmpty(filtered)) {
       setHasNoFilteredContacts(true);
-      if (keyword.endsWith('.find')) {
-        await checkDomain(0, keyword);
-        setSearched(true);
-      } else if (keyword.endsWith('.fn')) {
-        await checkDomain(1, keyword);
-        setSearched(true);
-      } else if (keyword.endsWith('.meow')) {
-        await checkDomain(2, keyword);
-        setSearched(true);
-      }
     } else {
       setHasNoFilteredContacts(false);
     }
   };
 
-  const handleClick = (eachgroup) => {
-    const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+  const handleTransactionRedirect = (contact: Contact) => {
+    const isEvmAddress = isValidEthereumAddress(contact.address);
+    const pathname = isEvmAddress ? '/dashboard/wallet/sendeth' : '/dashboard/wallet/sendtocadence';
 
-    const pathname = isEvmAddress ? '/dashboard/wallet/sendEth' : '/dashboard/wallet/sendAmount';
+    // Set transaction destination network and address
+    useTransactionStore.getState().setToNetwork(isEvmAddress ? 'Evm' : 'Cadence');
+    useTransactionStore.getState().setToAddress(contact.address);
 
     history.push({
-      pathname: pathname,
-      state: { contact: eachgroup },
+      pathname,
+      state: { contact },
     });
   };
 
@@ -437,7 +384,7 @@ const Send = () => {
             </Typography>
           </Grid>
           <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-            <IconButton onClick={() => window.open('https://wallet.flow.com/contact', '_blank')}>
+            <IconButton onClick={() => window.open('https://usewallet.flow.com/contact', '_blank')}>
               <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
                 <HelpOutlineRoundedIcon sx={{ color: 'icon.navi' }} />
               </Tooltip>
@@ -519,54 +466,21 @@ const Send = () => {
                   <RecentList
                     filteredContacts={recentContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-                      //Transaction TODO: make these two routes and components structure match
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
-
-                      history.push({
-                        pathname: pathname,
-                        state: { contact: eachgroup },
-                      });
-                    }}
+                    handleClick={handleTransactionRedirect}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={1} dir={theme.direction}>
                   <AddressBookList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
-
-                      history.push({
-                        pathname: pathname,
-                        state: { contact: eachgroup },
-                      });
-                    }}
+                    handleClick={handleTransactionRedirect}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={2} dir={theme.direction}>
                   <AccountsList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
-
-                      history.push({
-                        pathname: pathname,
-                        state: { contact: eachgroup },
-                      });
-                    }}
+                    handleClick={handleTransactionRedirect}
                   />
                 </TabPanel>
               </SwipeableViews>
@@ -608,18 +522,7 @@ const Send = () => {
               <AddressBookList
                 filteredContacts={filteredContacts}
                 isLoading={isLoading}
-                handleClick={(eachgroup) => {
-                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                  const pathname = isEvmAddress
-                    ? '/dashboard/wallet/sendeth'
-                    : '/dashboard/wallet/sendAmount';
-
-                  history.push({
-                    pathname: pathname,
-                    state: { contact: eachgroup },
-                  });
-                }}
+                handleClick={handleTransactionRedirect}
               />
             )}
 
@@ -646,18 +549,7 @@ const Send = () => {
               <SearchList
                 searchContacts={searchContacts}
                 isLoading={isLoading}
-                handleClick={(eachgroup) => {
-                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                  const pathname = isEvmAddress
-                    ? '/dashboard/wallet/sendeth'
-                    : '/dashboard/wallet/sendAmount';
-
-                  history.push({
-                    pathname: pathname,
-                    state: { contact: eachgroup },
-                  });
-                }}
+                handleClick={handleTransactionRedirect}
               />
             )}
           </div>
