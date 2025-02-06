@@ -7,7 +7,7 @@ describe('formatPrice', () => {
     const result = formatPrice(0, 4);
     expect(result).toEqual({
       price: 0,
-      formattedPrice: { leadingPart: '-', zeroPart: null, endingPart: null },
+      formattedPrice: { leadingPart: '', zeroPart: null, endingPart: null },
     });
   });
 

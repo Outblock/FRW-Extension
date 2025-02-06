@@ -21,7 +21,7 @@ export function formatPrice(price: number, zeroCondenseThreshold = 4): Formatted
     return {
       price,
       formattedPrice: {
-        leadingPart: '-',
+        leadingPart: '',
         zeroPart: null,
         endingPart: null,
       },

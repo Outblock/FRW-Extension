@@ -578,7 +578,6 @@ class OpenApiService {
 
       data.forEach((token) => {
         if (token.evmAddress) {
-          // EVM price
           const { rateToUSD, evmAddress, symbol } = token;
           const key = evmAddress.toLowerCase();
           pricesMap[key] = Number(rateToUSD).toFixed(8);
@@ -586,7 +585,8 @@ class OpenApiService {
           if (symbolKey) {
             pricesMap[symbolKey] = Number(rateToUSD).toFixed(8);
           }
-        } else if (token.contractName && token.contractAddress) {
+        }
+        if (token.contractName && token.contractAddress) {
           // Flow chain price
           const { rateToUSD, contractName, contractAddress } = token;
           const key = `${contractName.toLowerCase()}${contractAddress.toLowerCase()}`;

@@ -223,9 +223,12 @@ const TokenInfoCard = ({
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>
             <Box component="span" sx={{ marginRight: '0.25rem' }}>
-              <TokenPrice price={balance * price} prefix="$" />
+              <TokenPrice
+                price={balance * price}
+                prefix="$"
+                postFix={chrome.i18n.getMessage('USD')}
+              />
             </Box>
-            {chrome.i18n.getMessage('USD')}
           </Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
             {(!childType || childType === 'evm') && (

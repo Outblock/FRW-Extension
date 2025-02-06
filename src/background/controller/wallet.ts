@@ -1174,7 +1174,10 @@ export class WalletController extends BaseController {
 
   private async evmtokenPrice(tokeninfo, data) {
     const token = tokeninfo.symbol.toLowerCase();
-    const price = await openapiService.getPricesByEvmaddress(tokeninfo.address, data);
+    const price = await openapiService.getPricesByEvmaddress(
+      tokeninfo.evmAddress || tokeninfo.address,
+      data
+    );
 
     if (token === 'flow') {
       const flowPrice = price || data['FLOW'];

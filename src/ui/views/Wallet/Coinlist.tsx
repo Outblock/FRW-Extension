@@ -54,8 +54,8 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               variant="body1"
               sx={{ fontSize: 12, fontWeight: '500', textAlign: 'end', color: 'text.secondary' }}
             >
-              {props.change === null ? '-' : '$'}
-              {props.secondary}
+              {props.change === null || props.change === 0 ? '' : '$'}
+              {props.secondary === null || props.secondary === 0 ? '' : props.secondary}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -192,7 +192,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                   secondaryAction={
                     <EndListItemText
                       primary={parseFloat(coin.balance).toFixed(3)}
-                      secondary={parseFloat(coin.total.toFixed(2))}
+                      secondary={<TokenPrice price={coin.balance * coin.price} />}
                       unit={coin.unit}
                       change={parseFloat(coin.change24h.toFixed(2))}
                     />

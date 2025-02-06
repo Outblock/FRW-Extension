@@ -7,16 +7,17 @@ interface TokenPriceProps {
   className?: string;
   showPrefix?: boolean;
   prefix?: string;
+  postFix?: string;
 }
 
 export const TokenPrice: React.FC<TokenPriceProps> = ({
   price,
   className = '',
-  showPrefix = true,
   prefix = '$',
+  postFix = '',
 }) => {
-  if (price === null || price === undefined || typeof price === 'string') {
-    return <span className={className}>{price}</span>;
+  if (price === 0 || price === null || price === undefined || typeof price === 'string') {
+    return <span className={className}>{''}</span>;
   }
 
   const { formattedPrice } = formatPrice(price);
@@ -24,8 +25,8 @@ export const TokenPrice: React.FC<TokenPriceProps> = ({
 
   return (
     <span className={className}>
-      {showPrefix && prefix}
-      <span style={leadingPart === '-' ? { padding: '0 0.25rem' } : undefined}>{leadingPart}</span>
+      {prefix}
+      <span style={leadingPart === '' ? { padding: '0 0.25rem' } : undefined}>{leadingPart}</span>
       {zeroPart !== null && (
         <sub
           style={{
@@ -37,6 +38,7 @@ export const TokenPrice: React.FC<TokenPriceProps> = ({
         </sub>
       )}
       {endingPart !== null && endingPart}
+      {postFix && <span style={{ marginLeft: '0.25rem' }}>{postFix}</span>}
     </span>
   );
 };

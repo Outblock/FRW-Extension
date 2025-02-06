@@ -133,7 +133,10 @@ const TokenDetail = () => {
       if (price) {
         setPrice(price);
       }
-      const evmPrice = await usewallet.openapi.getPricesByEvmaddress(tokenResult!.address, data);
+      const evmPrice = await usewallet.openapi.getPricesByEvmaddress(
+        tokenResult!.evmAddress!,
+        data
+      );
       if (evmPrice) {
         setPrice(evmPrice);
       }
