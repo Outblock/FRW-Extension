@@ -17,7 +17,6 @@ export const useProfileHook = () => {
   const {
     setMainAddress,
     setEvmAddress,
-    setUserWallet,
     setInitial,
     setChildAccount,
     setCurrent,
@@ -28,6 +27,7 @@ export const useProfileHook = () => {
     setOtherAccounts,
     setLoggedInAccounts,
     setWalletList,
+    setParentWallet,
     initialStart,
   } = useProfileStore();
 
@@ -93,6 +93,7 @@ export const useProfileHook = () => {
   const freshUserInfo = useCallback(async () => {
     if (!usewallet || !walletLoaded) return;
     try {
+      //TODO: should rethink the wording of the wallet functions, have it be parent evm and child or something similar. State name and should be the same frontend and background.
       const [currentWallet, isChild, mainAddress] = await Promise.all([
         usewallet.getCurrentWallet(),
         usewallet.getActiveWallet(),
@@ -102,14 +103,14 @@ export const useProfileHook = () => {
       if (!currentWallet) {
         throw new Error('Current wallet is undefined');
       }
-
+      const mainwallet = await usewallet.returnMainWallet();
+      setParentWallet(mainwallet!);
       if (isChild === 'evm') {
         const evmWalletData = await setupEvmWallet(mainAddress!);
         await setCurrent(evmWalletData);
       } else if (isChild) {
         await setCurrent(currentWallet);
       } else {
-        const mainwallet = await usewallet.returnMainWallet();
         await setCurrent(mainwallet);
       }
 
@@ -155,6 +156,7 @@ export const useProfileHook = () => {
     setCurrent,
     setupEvmWallet,
     setMainLoading,
+    setParentWallet,
   ]);
 
   // 1. First called in index.ts, get the user info(name and avatar) and the main address
@@ -177,22 +179,13 @@ export const useProfileHook = () => {
     const wallet: WalletResponse[] = await usewallet.getUserWallets();
     const fData: WalletResponse[] = wallet.filter((item) => item.blockchain !== null);
 
-    setUserWallet(fData);
     if (initialStart) {
       await usewallet.openapi.putDeviceInfo(fData);
       setInitial(false);
     }
     const formattedWallets = formatWallets(fData);
     setWalletList(formattedWallets);
-  }, [
-    usewallet,
-    initialStart,
-    setUserWallet,
-    setInitial,
-    formatWallets,
-    setWalletList,
-    walletLoaded,
-  ]);
+  }, [usewallet, initialStart, setInitial, formatWallets, setWalletList, walletLoaded]);
 
   // 3. Third called in index.ts check the child account and set the child account
   const fetchUserWallet = useCallback(async () => {

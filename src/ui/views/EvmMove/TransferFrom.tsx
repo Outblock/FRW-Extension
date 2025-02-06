@@ -11,19 +11,19 @@ const tempEmoji = {
 };
 
 const TransferFrom = ({ wallet, userInfo, isChild = false }) => {
-  const { currentWallet } = useProfileStore();
+  const { parentWallet } = useProfileStore();
   const [emoji, setEmoji] = useState(tempEmoji);
 
   const getEmoji = useCallback(async () => {
     const emojiObject = {
       ...tempEmoji,
-      emoji: currentWallet.icon,
-      name: currentWallet.name,
-      bgcolor: currentWallet.color,
+      emoji: parentWallet.icon,
+      name: parentWallet.name,
+      bgcolor: parentWallet.color,
       type: 'parent',
     };
     setEmoji(emojiObject);
-  }, [currentWallet.icon, currentWallet.name, currentWallet.color, setEmoji]);
+  }, [parentWallet, setEmoji]);
 
   useEffect(() => {
     getEmoji();

@@ -7,12 +7,12 @@ import type { ChildAccount, WalletType, UserInfoResponse } from '../../shared/ty
 interface ProfileState {
   mainAddress: string;
   evmAddress: string;
-  userWallet: any | null;
   currentWalletIndex: number;
+  parentWallet: WalletType;
   evmWallet: WalletType;
-  walletList: any[];
+  walletList: WalletType[];
   initialStart: boolean;
-  currentWallet: any;
+  currentWallet: WalletType;
   mainAddressLoading: boolean;
   childAccounts: ChildAccount;
   evmLoading: boolean;
@@ -22,8 +22,8 @@ interface ProfileState {
   loggedInAccounts: LoggedInAccount[];
   setMainAddress: (address: string) => void;
   setEvmAddress: (address: string) => void;
-  setUserWallet: (wallet: any) => void;
   setCurrentWalletIndex: (index: number) => void;
+  setParentWallet: (wallet: WalletType) => void;
   setEvmWallet: (wallet: WalletType) => void;
   setWalletList: (list: any[]) => void;
   setInitial: (initial: boolean) => void;
@@ -38,21 +38,23 @@ interface ProfileState {
   clearProfileData: () => void;
 }
 
+const INITIAL_WALLET = {
+  name: '',
+  icon: '',
+  address: '',
+  chain_id: 'flow',
+  id: 1,
+  coins: ['flow'],
+  color: '',
+};
+
 export const useProfileStore = create<ProfileState>((set) => ({
   mainAddress: '',
   evmAddress: '',
-  userWallet: null,
   currentWalletIndex: 0,
-  evmWallet: {
-    name: '',
-    icon: '',
-    address: '',
-    chain_id: 'evm',
-    id: 1,
-    coins: ['flow'],
-    color: '',
-  },
-  currentWallet: {},
+  parentWallet: { ...INITIAL_WALLET },
+  evmWallet: { ...INITIAL_WALLET, chain_id: 'evm' },
+  currentWallet: { ...INITIAL_WALLET },
   walletList: [],
   initialStart: true,
   mainAddressLoading: true,
@@ -64,8 +66,8 @@ export const useProfileStore = create<ProfileState>((set) => ({
   listLoading: true,
   setMainAddress: (address) => set({ mainAddress: address }),
   setEvmAddress: (address) => set({ evmAddress: address }),
-  setUserWallet: (wallet) => set({ userWallet: wallet }),
   setCurrentWalletIndex: (index) => set({ currentWalletIndex: index }),
+  setParentWallet: (wallet) => set({ parentWallet: wallet }),
   setEvmWallet: (wallet) => set({ evmWallet: wallet }),
   setWalletList: (list) => set({ walletList: list }),
   setInitial: (initial) => set({ initialStart: initial }),
@@ -81,20 +83,12 @@ export const useProfileStore = create<ProfileState>((set) => ({
     set({
       mainAddress: '',
       evmAddress: '',
-      userWallet: null,
       currentWalletIndex: 0,
-      evmWallet: {
-        name: '',
-        icon: '',
-        address: '',
-        chain_id: 'evm',
-        id: 1,
-        coins: ['flow'],
-        color: '',
-      },
+      parentWallet: { ...INITIAL_WALLET },
+      evmWallet: { ...INITIAL_WALLET, chain_id: 'evm' },
       walletList: [],
       initialStart: true,
-      currentWallet: {},
+      currentWallet: { ...INITIAL_WALLET },
       mainAddressLoading: true,
       childAccounts: {},
       evmLoading: true,
