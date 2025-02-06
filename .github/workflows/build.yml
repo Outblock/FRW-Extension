@@ -104,14 +104,13 @@ jobs:
 
   test:
     needs: build
-    timeout-minutes: 60
+    if: github.ref_type == 'tag' || github.ref_name == 'dev' || github.ref_name == 'master'
     runs-on: ubuntu-latest
     environment: >-
       ${{
         github.ref_type == 'tag' && 'production' ||
         github.ref_name == 'master' && 'production' ||
-        github.ref_name == 'dev' && 'staging' ||
-        'development'
+        github.ref_name == 'dev' && 'staging'
       }}
     steps:
       - uses: actions/checkout@v4
