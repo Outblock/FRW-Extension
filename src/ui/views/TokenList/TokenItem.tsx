@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   ListItemText,
   ListItem,
@@ -8,42 +7,14 @@ import {
   CircularProgress,
   ListItemButton,
 } from '@mui/material';
-// import { makeStyles } from '@mui/styles';
-// import { useHistory } from 'react-router-dom';
-// import { useWallet } from 'ui/utils';
-import IconPlus from '../../../components/iconfont/IconPlus';
+import React from 'react';
+
 import IconCheckmark from '../../../components/iconfont/IconCheckmark';
+import IconPlus from '../../../components/iconfont/IconPlus';
 
-// const useStyles = makeStyles(() => ({
-//   customInputLabel: {
-//     '& legend': {
-//       visibility: 'visible',
-//     },
-//   },
-//   inputBox: {
-//     minHeight: '46px',
-//     zIndex: '999',
-//     border: '1px solid #5E5E5E',
-//     borderRadius: '16px',
-//     boxSizing: 'border-box',
-//     margin: '2px 18px 10px 18px',
-//   },
-// }));
-
-const TokenItem = ({ token, isLoading, enabledList, onClick }) => {
-  const [isEnabled, setEnabled] = useState(false);
-
-  const checkStorageStatus = async () => {
-    const isEnabled = enabledList.map((item) => item.contractName).includes(token.contractName);
-    setEnabled(isEnabled);
-  };
-
-  useEffect(() => {
-    checkStorageStatus();
-  }, [enabledList]);
-
+const TokenItem = ({ token, isLoading, enabled, onClick }) => {
   const handleClick = () => {
-    onClick(token, isEnabled);
+    onClick(token, enabled);
   };
 
   return (
@@ -57,7 +28,7 @@ const TokenItem = ({ token, isLoading, enabledList, onClick }) => {
           <IconButton edge="end" aria-label="delete" onClick={handleClick}>
             {isLoading ? (
               <CircularProgress color="primary" size={20} />
-            ) : isEnabled ? (
+            ) : enabled ? (
               <IconCheckmark color="#41CC5D" size={24} />
             ) : (
               <IconPlus size={20} />
