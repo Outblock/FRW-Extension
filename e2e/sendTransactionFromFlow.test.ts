@@ -155,6 +155,7 @@ test('move USDC token Flow to COA homepage', async ({ page }) => {
   await moveTokenFlowHomepage({
     page,
     tokenname: 'USDC.e (Flow)',
+    amount: '0.0000123',
     ingoreFlowCharge: true,
   });
 });
