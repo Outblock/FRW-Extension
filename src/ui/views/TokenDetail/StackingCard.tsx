@@ -1,17 +1,10 @@
 import { Typography, Box, ButtonBase } from '@mui/material';
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 
 import flowGrey from 'ui/FRWAssets/svg/flow-grey.svg';
-import { useWallet } from 'ui/utils';
 
-const StackingCard = ({ network }) => {
-  const wallet = useWallet();
-  const history = useHistory();
-
+const StackingCard = () => {
   const openFlowPort = async () => {
-    // await wallet.setDashIndex(2);
-    // history.push('/dashboard');
     await chrome.tabs.create({
       url: 'https://port.flow.com',
     });

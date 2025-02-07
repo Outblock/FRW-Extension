@@ -3,10 +3,9 @@ import {
   loginToSenderAccount,
   expect,
   getCurrentAddress,
-  switchToEvm,
   waitForTransaction,
 } from './utils/helper';
-export const sendTokenCOA = async ({ page, tokenname, receiver, successtext }) => {
+export const sendTokenFlow = async ({ page, tokenname, receiver }) => {
   // Wait for the EVM account to be loaded
   await getCurrentAddress(page);
   await page.getByRole('tab', { name: 'coins' }).click();
@@ -19,23 +18,21 @@ export const sendTokenCOA = async ({ page, tokenname, receiver, successtext }) =
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
   // Wait for the transaction to be completed
-  await waitForTransaction({ page, successtext });
+  await waitForTransaction({ page, successtext: 'sealed' });
 };
 
-export const moveTokenCOA = async ({ page, tokenname, successtext }) => {
-  // Wait for the EVM account to be loaded
+export const moveTokenFlow = async ({ page, tokenname }) => {
   await getCurrentAddress(page);
   await page.getByRole('tab', { name: 'coins' }).click();
   await page.getByRole('button', { name: tokenname }).click();
   await page.getByRole('button', { name: 'Move' }).click();
   await page.getByPlaceholder('Amount').click();
   await page.getByPlaceholder('Amount').fill('0.000112134354657');
-  await page.getByRole('button', { name: 'Move' }).click();
   // Wait for the transaction to be completed
-  await waitForTransaction({ page, successtext });
+  await waitForTransaction({ page, successtext: 'sealed' });
 };
 
-export const moveTokenCoaHomepage = async ({ page, tokenname }) => {
+export const moveTokenFlowHomepage = async ({ page, tokenname }) => {
   await getCurrentAddress(page);
   await page.getByRole('button', { name: 'Move' }).click();
   await page.getByRole('button', { name: 'Move Tokens' }).click();
@@ -45,109 +42,98 @@ export const moveTokenCoaHomepage = async ({ page, tokenname }) => {
   await page.getByPlaceholder('Amount').fill('0.000000012345');
   await page.getByRole('button', { name: 'Move' }).click();
   // Wait for the transaction to be completed
-  await waitForTransaction({ page, successtext: 'success' });
+  await waitForTransaction({ page, successtext: 'sealed' });
 };
 
 test.beforeEach(async ({ page, extensionId }) => {
   // Login to our sender account
   await loginToSenderAccount({ page, extensionId });
-  // switch to EVM account
-  await switchToEvm({ page, extensionId });
 });
-//Send Fts from COA to COA
-test('send Flow COA to COA', async ({ page }) => {
-  // Send FLOW token from COA to COA
-  await sendTokenCOA({
+//Send FLOW token from Flow to Flow
+test('send FLOW flow to flow', async ({ page }) => {
+  // This can take a while
+  test.setTimeout(60_000);
+  await sendTokenFlow({
     page,
     tokenname: /^FLOW \$/i,
-    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
-    successtext: 'success',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
   });
 });
 
-test('send Staked Flow COA to COA', async ({ page }) => {
-  // Send stFLOW token from COA to COA
-  await sendTokenCOA({
+//Send StFlow from Flow to Flow
+test('send stFlow flow to flow', async ({ page }) => {
+  test.setTimeout(60_000);
+  await sendTokenFlow({
     page,
     tokenname: 'Liquid Staked Flow $',
-    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
-    successtext: 'success',
+    receiver: process.env.TEST_RECEIVER_ADDR!,
   });
 });
 
-//Send FTS from COA to FLOW
-test('send Flow COA to FLOW', async ({ page }) => {
+//Send FLOW token from Flow to COA
+test('send FLOW flow to COA', async ({ page }) => {
   // This can take a while
   test.setTimeout(60_000);
-  // Send FLOW token from COA to FLOW
-  await sendTokenCOA({
+  await sendTokenFlow({
     page,
     tokenname: /^FLOW \$/i,
-    receiver: process.env.TEST_RECEIVER_ADDR!,
-    successtext: 'success',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
 });
-
-test('send USDC token COA to FLOW', async ({ page }) => {
+//Send USDC from Flow to Flow
+test('send USDC flow to COA', async ({ page }) => {
   test.setTimeout(60_000);
-  // Send USDC token from COA to FLOW
-  await sendTokenCOA({
+  await sendTokenFlow({
     page,
-    tokenname: 'Bridged USDC (Celer) $',
-    receiver: process.env.TEST_RECEIVER_ADDR!,
-    successtext: 'success',
+    tokenname: 'USDC.e (Flow) $',
+    receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
   });
 });
 
-//Send FTs from COA to EOA (metamask)
-test('send Flow COA to EOA', async ({ page }) => {
+//Send FLOW token from Flow to EOA
+test('send FLOW flow to EOA', async ({ page }) => {
   // This can take a while
   test.setTimeout(60_000);
-  // Send FLOW token from COA to EOA
-  await sendTokenCOA({
+  await sendTokenFlow({
     page,
     tokenname: /^FLOW \$/i,
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
-    successtext: 'success',
   });
 });
 
-test('send BETA token COA to EOA', async ({ page }) => {
+//Send BETA from Flow to EOA
+test('send BETA flow to EOA', async ({ page }) => {
   test.setTimeout(60_000);
-  // Send BETA token from COA to EOA
-  await sendTokenCOA({
+  await sendTokenFlow({
     page,
     tokenname: 'BETA $',
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
-    successtext: 'success',
   });
 });
-//Move FTs from COA to FLOW
-test('move Flow COA to FLOW', async ({ page }) => {
+//Move FTs from  Flow to COA
+test('move Flow Flow to COA', async ({ page }) => {
   test.setTimeout(60_000);
-  // Move FLOW token from COA to FLOW
-  await moveTokenCOA({
+  // Move FLOW token from FLOW to COA
+  await moveTokenFlow({
     page,
     tokenname: /^FLOW \$/i,
-    successtext: 'success',
   });
 });
 
 test('move USDC token COA to FLOW', async ({ page }) => {
   test.setTimeout(60_000);
-  // Move USDC token from COA to EOA
-  await moveTokenCOA({
+  // Move USDC token from FLOW to COA
+  await moveTokenFlow({
     page,
     tokenname: 'Bridged USDC (Celer) $',
-    successtext: 'success',
   });
 });
 
 //Move from main page
-test('move Flow COA to FLOW homepage', async ({ page }) => {
+test('move Flow Flow to COA homepage', async ({ page }) => {
   test.setTimeout(60_000);
   // Move FLOW token from FLOW to COA
-  await moveTokenCoaHomepage({
+  await moveTokenFlowHomepage({
     page,
     tokenname: 'Flow',
   });
@@ -156,12 +142,8 @@ test('move Flow COA to FLOW homepage', async ({ page }) => {
 test('move USDC token COA to FLOW homepage', async ({ page }) => {
   test.setTimeout(60_000);
   // Move USDC token from FLOW to COA
-  await moveTokenCoaHomepage({
+  await moveTokenFlowHomepage({
     page,
-    tokenname: 'Bridged USDC (Celer)',
+    tokenname: 'USDC.e (Flow)',
   });
 });
-//Send NFT from COA to COA
-//Send NFT from COA to FLOW
-//Send NFT from COA to EOA
-//Move NFT from COA to FLOW

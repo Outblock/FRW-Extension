@@ -65,7 +65,6 @@ const WalletTab = ({ network }) => {
   const [, setChildAccount] = useState<any>({});
   const [isOnRamp, setOnRamp] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [, setSwapConfig] = useState(false);
   const [showMoveBoard, setMoveBoard] = useState(false);
   const [buyHover, setBuyHover] = useState(false);
   const [sendHover, setSendHover] = useState(false);
@@ -138,11 +137,6 @@ const WalletTab = ({ network }) => {
     // Handle all non-evm and non-active cases here
   }, [address, isActive, usewallet]);
 
-  const loadCache = useCallback(async () => {
-    const storageSwap = await usewallet.getSwapConfig();
-    setSwapConfig(storageSwap);
-  }, [usewallet]);
-
   const fetchChildState = useCallback(async () => {
     setChildStateLoading(true);
     const isChild = await usewallet.getActiveWallet();
@@ -203,11 +197,10 @@ const WalletTab = ({ network }) => {
     setCoinLoading(address === '');
     if (address) {
       setCoinLoading(true);
-      loadCache();
       setCoinLoading(false);
       fetchWallet();
     }
-  }, [address, fetchWallet, loadCache]);
+  }, [address, fetchWallet]);
 
   useEffect(() => {
     setUserAddress();

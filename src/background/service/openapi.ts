@@ -1178,16 +1178,6 @@ class OpenApiService {
     return result;
   };
 
-  getFlownsInbox = async (domain: string, root = 'meow') => {
-    const script = await getScripts('domain', 'getFlownsInbox');
-
-    const detail = await fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(domain, t.String), arg(root, t.String)],
-    });
-    return detail;
-  };
-
   getFlownsAddress = async (domain: string, root = 'fn') => {
     const script = await getScripts('basic', 'getFlownsAddress');
 
@@ -1360,12 +1350,6 @@ class OpenApiService {
     return coins.find((item) => item.contract_name.toLowerCase() === contractName.toLowerCase());
   };
 
-  getAllToken = async () => {
-    // FIX ME: Get defaultTokenList from firebase remote config
-    const coins = await remoteFetch.flowCoins();
-    return coins;
-  };
-
   getNFTCollectionInfo = async (contract_name: string): Promise<NFTModel | undefined> => {
     // FIX ME: Get defaultTokenList from firebase remote config
     const tokenList = await remoteFetch.nftCollection();
@@ -1387,10 +1371,6 @@ class OpenApiService {
   getFeatureFlag = async (featureFlag: FeatureFlagKey): Promise<boolean> => {
     const flags = await this.getFeatureFlags();
     return !!flags[featureFlag];
-  };
-
-  getSwapInfo = async (): Promise<boolean> => {
-    return (await this.getFeatureFlags()).swap;
   };
 
   // @ts-ignore
@@ -2052,33 +2032,6 @@ class OpenApiService {
     );
 
     return data;
-  };
-
-  swapEstimate = async (network: string, inToken: string, outToken: string, amount) => {
-    const response = await fetch(
-      `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&inAmount=${amount}`
-    );
-    return response.json();
-  };
-
-  swapOutEstimate = async (network: string, inToken: string, outToken: string, amount) => {
-    const response = await fetch(
-      `https://lilico.app/api/swap/v1/${network}/estimate?inToken=${inToken}&outToken=${outToken}&outAmount=${amount}`
-    );
-    return response.json();
-  };
-
-  fetchTokenList = async (network: string) => {
-    const response =
-      await fetch(`https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/src/tokens/flow-${network}.tokenlist.json
-    `);
-    return response.json();
-  };
-
-  swapPairs = async (network: string) => {
-    const response = await fetch(`https://lilico.app/api/swap/v1/${network}/pairs`);
-    console.log(response);
-    return response.json();
   };
 
   nftCatalog = async () => {
