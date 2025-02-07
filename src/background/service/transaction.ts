@@ -1,4 +1,5 @@
 import type { TransactionStatus } from '@onflow/typedefs';
+import { ConcatenationScope } from 'webpack';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import createPersistStore from 'background/utils/persisitStore';
@@ -168,6 +169,7 @@ class Transaction {
 
     const evmTxIds: string[] = transactionStatus.events?.reduce(
       (transactionIds: string[], event) => {
+        console.log('event', event);
         if (event.type.includes('EVM') && !!event.data?.hash) {
           const hashBytes = event.data.hash.map((byte) => parseInt(byte));
           const hash = '0x' + Buffer.from(hashBytes).toString('hex');
@@ -180,7 +182,7 @@ class Transaction {
       },
       [] as string[]
     );
-
+    console.log('evmTxIds', evmTxIds);
     txItem.evmTxIds = [...evmTxIds];
 
     if (evmTxIds.length > 0) {
@@ -191,7 +193,7 @@ class Transaction {
       }
       txItem.hash = `${txItem.cadenceTxId || txItem.hash}_${evmTxIds.join('_')}`;
     }
-
+    console.log('txItem', txItem);
     txList[txItemIndex] = txItem;
 
     this.session.pendingItem[network] = [...txList];
@@ -261,18 +263,30 @@ class Transaction {
         transactionHolder.type = tx.type;
         transactionHolder.transferType = tx.transfer_type;
         // see if there's a pending item for this transaction
-        const pendingItem = this.session.pendingItem[network].find((item) => item.hash === tx.txid);
+        const pendingItem = this.session.pendingItem[network].find(
+          (item) =>
+            item.hash.includes(tx.txid) ||
+            item.cadenceTxId?.includes(tx.txid) ||
+            item.evmTxIds?.includes(tx.txid)
+        );
         if (pendingItem) {
           // Store the cadence transaction id
           transactionHolder.cadenceTxId = pendingItem.cadenceTxId;
+          transactionHolder.evmTxIds = pendingItem.evmTxIds;
+          transactionHolder.hash = pendingItem.hash;
         } else {
           // see if there's an existing transaction with cadenceId in the store
           const existingTx = this.store.transactionItem[network]?.find(
-            (item) => item.hash === tx.txid
+            (item) =>
+              item.hash.includes(tx.txid) ||
+              item.cadenceTxId?.includes(tx.txid) ||
+              item.evmTxIds?.includes(tx.txid)
           );
           if (existingTx && existingTx.cadenceTxId) {
             // Found existing cadence transaction id
             transactionHolder.cadenceTxId = existingTx.cadenceTxId;
+            transactionHolder.evmTxIds = existingTx.evmTxIds;
+            transactionHolder.hash = existingTx.hash;
           }
         }
 
