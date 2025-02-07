@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   List,
   Box,
@@ -9,18 +9,19 @@ import {
   CardMedia,
   Skeleton,
   CardContent,
-  CircularProgress,
   Button,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-// import { useHistory } from 'react-router-dom';
-import { useWallet } from 'ui/utils';
 import { StyledEngineProvider } from '@mui/material/styles';
-import TokenItem from './TokenItem';
-import AddTokenConfirmation from './AddTokenConfirmation';
+import { makeStyles } from '@mui/styles';
+import { type TokenInfo } from 'flow-native-token-registry';
+import React, { useState, useEffect, useCallback } from 'react';
+
+// import { useHistory } from 'react-router-dom';
 import { LLHeader } from '@/ui/FRWComponent';
-import SearchIcon from '@mui/icons-material/Search';
-import { TokenInfo } from 'flow-native-token-registry';
+import { useWallet } from 'ui/utils';
+
+import AddTokenConfirmation from './AddTokenConfirmation';
+import TokenItem from './TokenItem';
 
 const useStyles = makeStyles(() => ({
   customInputLabel: {
@@ -62,9 +63,9 @@ const TokenList = () => {
   const classes = useStyles();
   const wallet = useWallet();
   const [keyword, setKeyword] = useState('');
-  const [data, setData] = useState<TokenInfo[]>([]);
-  const [fitered, setFitered] = useState<TokenInfo[]>([]);
-  const [enabledList, setEnabledList] = useState<TokenInfo[]>([]);
+  const [tokenInfoList, setTokenInfoList] = useState<TokenInfo[]>([]);
+  const [filteredTokenList, setFilteredTokenList] = useState<TokenInfo[]>([]);
+  const [enabledTokenList, setEnabledTokenList] = useState<TokenInfo[]>([]);
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null);
   const [filters, setFilter] = useState('all');
@@ -72,23 +73,35 @@ const TokenList = () => {
 
   const [isLoading, setLoading] = useState(true);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await wallet.openapi.getAllTokenInfo();
-      const uniqueTokens = result.filter(
-        (token, index, self) =>
-          index === self.findIndex((t) => t.symbol.toLowerCase() === token.symbol.toLowerCase())
+      const rawTokenInfoList = await wallet.openapi.getAllTokenInfo();
+
+      // Remove duplicate tokens based on symbol
+      const uniqueTokens = Array.from(
+        rawTokenInfoList
+          .reduce((map, token) => {
+            const key = token.symbol.toLowerCase();
+            // Keep the first occurrence of each symbol
+            if (!map.has(key)) {
+              map.set(key, token);
+            }
+            return map;
+          }, new Map())
+          .values()
       );
-      setData(uniqueTokens);
-      setFitered(uniqueTokens);
+
+      // Set the data and filtered tokens
+      setTokenInfoList(uniqueTokens);
+      setFilteredTokenList(uniqueTokens);
 
       const enabledList = await wallet.openapi.getEnabledTokenList();
-      setEnabledList(enabledList);
+      setEnabledTokenList(enabledList);
     } finally {
       setLoading(false);
     }
-  };
+  }, [wallet]);
 
   const handleTokenClick = (token, isEnabled) => {
     if (!isEnabled) {
@@ -99,51 +112,56 @@ const TokenList = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
-  const filter = (e1) => {
+  const filter = (e1: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const word = e1.target.value;
 
     if (word !== '') {
-      const results = data.filter((token) => {
+      const results = tokenInfoList.filter((token) => {
         return (
           token.name.toLowerCase().includes(keyword.toLowerCase()) ||
           token.symbol.toLowerCase().includes(keyword)
         );
       });
-      setFitered(results);
+      setFilteredTokenList(results);
     } else {
-      setFitered(data);
+      setFilteredTokenList(tokenInfoList);
     }
 
     setKeyword(word);
   };
-  const checkStorageStatus = async (token) => {
-    const isEnabled = enabledList.map((item) => item.contractName).includes(token.contractName);
-    return isEnabled;
-  };
+  const checkStorageStatus = useCallback(
+    async (token: TokenInfo) => {
+      const isEnabled = enabledTokenList
+        .map((item) => item.contractName)
+        .includes(token.contractName);
+      return isEnabled;
+    },
+    [enabledTokenList]
+  );
 
-  const getFilteredCollections = async (fil) => {
-    const results = await Promise.all(
-      fitered.map(async (ele) => {
-        const isEnabled = await checkStorageStatus(ele);
-        return { ele, isEnabled };
-      })
-    );
+  const getFilteredCollections = useCallback(
+    async (fil: string) => {
+      const results = await Promise.all(
+        filteredTokenList.map(async (ele) => {
+          const isEnabled = await checkStorageStatus(ele);
+          return { ele, isEnabled };
+        })
+      );
 
-    const res = results
-      .filter(({ isEnabled }) => {
-        if (fil === 'all') return true;
-        if (fil === 'enabled') return isEnabled;
-        if (fil === 'notEnabled') return !isEnabled;
-        return true;
-      })
-      .map(({ ele }) => ele);
-
-    console.log('getfiltered ', res);
-
-    return res;
-  };
+      const res = results
+        .filter(({ isEnabled }) => {
+          if (fil === 'all') return true;
+          if (fil === 'enabled') return isEnabled;
+          if (fil === 'notEnabled') return !isEnabled;
+          return true;
+        })
+        .map(({ ele }) => ele);
+      return res;
+    },
+    [filteredTokenList, checkStorageStatus]
+  );
 
   useEffect(() => {
     const fetchFilteredCollections = async () => {
@@ -154,7 +172,7 @@ const TokenList = () => {
     };
 
     fetchFilteredCollections();
-  }, [filters, enabledList, fitered]);
+  }, [filters, enabledTokenList, filteredTokenList, getFilteredCollections]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -172,7 +190,7 @@ const TokenList = () => {
           <Input
             type="search"
             value={keyword}
-            onChange={filter}
+            onChange={(e) => filter(e)}
             className={classes.inputBox}
             placeholder={chrome.i18n.getMessage('Search_Token')}
             autoFocus
@@ -301,7 +319,9 @@ const TokenList = () => {
                 <TokenItem
                   token={token}
                   isLoading={isLoading}
-                  enabledList={enabledList}
+                  enabled={enabledTokenList
+                    .map((item) => item.contractName)
+                    .includes(token.contractName)}
                   key={index}
                   onClick={handleTokenClick}
                 />

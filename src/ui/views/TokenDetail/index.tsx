@@ -237,7 +237,7 @@ const TokenDetail = () => {
               setAlertOpen={setAlertOpen}
             />
           )}
-          {token === 'flow' && <StackingCard network={network} />}
+          {token === 'flow' && <StackingCard />}
           {network === 'testnet' && token === 'flow' && <ClaimTokenCard token={token} />}
           {providers?.length > 0 && (
             <PriceCard token={token} price={price} setPrice={setPrice} providers={providers} />

@@ -60,21 +60,6 @@ const EMPTY_COIN: CoinItem = {
 };
 
 const MoveFromParent = (props: TransferConfirmationProps) => {
-  enum ENV {
-    Mainnet = 'mainnet',
-    Testnet = 'testnet',
-  }
-  enum Error {
-    Exceed = 'Insufficient balance',
-    Fail = 'Cannot find swap pair',
-  }
-
-  // declare enum Strategy {
-  //   GitHub = 'GitHub',
-  //   Static = 'Static',
-  //   CDN = 'CDN'
-  // }
-
   const usewallet = useWallet();
   const history = useHistory();
   const { childAccounts } = useProfileStore();
