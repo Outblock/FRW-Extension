@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { formatPrice } from '@/shared/utils/formatPrice';
+import { formatPrice } from '@/shared/utils/formatTokenValue';
 
 interface TokenPriceProps {
-  price: number | string;
+  value: number | string;
   className?: string;
   showPrefix?: boolean;
   prefix?: string;
@@ -11,16 +11,19 @@ interface TokenPriceProps {
 }
 
 export const TokenPrice: React.FC<TokenPriceProps> = ({
-  price,
+  value,
   className = '',
   prefix = '$',
   postFix = '',
 }) => {
-  if (price === 0 || price === null || price === undefined || typeof price === 'string') {
+  if (value === 0 || value === null || value === undefined) {
     return <span className={className}>{''}</span>;
   }
 
-  const { formattedPrice } = formatPrice(price);
+  // convert value to number if it's a string
+  const valueNumber = typeof value === 'string' ? parseFloat(value) : value;
+
+  const { formattedPrice } = formatPrice(valueNumber);
   const { leadingPart, zeroPart, endingPart } = formattedPrice;
 
   return (

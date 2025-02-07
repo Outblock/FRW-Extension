@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { formatPrice } from './formatPrice';
+import { formatPrice } from './formatTokenValue';
 
 describe('formatPrice', () => {
   it('should handle zero', () => {

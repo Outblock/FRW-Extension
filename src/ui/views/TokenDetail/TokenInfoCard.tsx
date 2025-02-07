@@ -11,7 +11,7 @@ import { addDotSeparators } from 'ui/utils/number';
 
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
 
-import { TokenPrice } from './TokenPrice';
+import { TokenPrice } from './TokenValue';
 
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
@@ -224,7 +224,7 @@ const TokenInfoCard = ({
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>
             <Box component="span" sx={{ marginRight: '0.25rem' }}>
               <TokenPrice
-                price={balance * price}
+                value={balance * price}
                 prefix="$"
                 postFix={chrome.i18n.getMessage('USD')}
               />
