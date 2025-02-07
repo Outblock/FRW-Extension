@@ -261,18 +261,30 @@ class Transaction {
         transactionHolder.type = tx.type;
         transactionHolder.transferType = tx.transfer_type;
         // see if there's a pending item for this transaction
-        const pendingItem = this.session.pendingItem[network].find((item) => item.hash === tx.txid);
+        const pendingItem = this.session.pendingItem[network].find(
+          (item) =>
+            item.hash.includes(tx.txid) ||
+            item.cadenceTxId?.includes(tx.txid) ||
+            item.evmTxIds?.includes(tx.txid)
+        );
         if (pendingItem) {
           // Store the cadence transaction id
           transactionHolder.cadenceTxId = pendingItem.cadenceTxId;
+          transactionHolder.evmTxIds = pendingItem.evmTxIds;
+          transactionHolder.hash = pendingItem.hash;
         } else {
           // see if there's an existing transaction with cadenceId in the store
           const existingTx = this.store.transactionItem[network]?.find(
-            (item) => item.hash === tx.txid
+            (item) =>
+              item.hash.includes(tx.txid) ||
+              item.cadenceTxId?.includes(tx.txid) ||
+              item.evmTxIds?.includes(tx.txid)
           );
           if (existingTx && existingTx.cadenceTxId) {
             // Found existing cadence transaction id
             transactionHolder.cadenceTxId = existingTx.cadenceTxId;
+            transactionHolder.evmTxIds = existingTx.evmTxIds;
+            transactionHolder.hash = existingTx.hash;
           }
         }
 

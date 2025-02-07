@@ -182,7 +182,7 @@ const TransferList = () => {
               {(transactions || []).map((tx) => {
                 return (
                   <ListItem
-                    key={`${tx.cadenceTxId || tx.hash}_${tx.interaction}`}
+                    key={`${tx.hash}_${tx.interaction}`}
                     data-testid={`${tx.cadenceTxId || tx.hash}_${tx.interaction}`}
                     secondaryAction={
                       <EndListItemText
