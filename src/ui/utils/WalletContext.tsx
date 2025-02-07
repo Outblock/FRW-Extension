@@ -86,17 +86,6 @@ const WalletProvider = ({
   );
 };
 
-/**
- * @deprecated The method should not be used
- */
-const useWalletOld = () => {
-  const { wallet } = useContext(WalletContext) as {
-    wallet: WalletController;
-  };
-
-  return wallet;
-};
-
 const useWallet = () => {
   const { wallet } = useContext(WalletContext) as unknown as {
     wallet: WalletControllerType;
@@ -113,4 +102,4 @@ const useWalletLoaded = () => {
   return loaded;
 };
 
-export { WalletProvider, useWalletOld, useWallet, useWalletLoaded };
+export { WalletProvider, useWallet, useWalletLoaded };

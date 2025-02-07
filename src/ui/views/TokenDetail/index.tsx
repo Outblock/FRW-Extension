@@ -80,7 +80,7 @@ const TokenDetail = () => {
 
     await storage.set(`${network}evmCustomToken`, evmCustomToken);
     await usewallet.clearCoinList();
-    await usewallet.openapi.refreshCustomEvmGitToken(network);
+    await usewallet.openapi.refreshCustomEvmToken(network);
     history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
     history.goBack();
   };

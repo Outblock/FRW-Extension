@@ -664,7 +664,7 @@
   {
     "name": "getTokenInfo",
     "isAsync": true,
-    "fullBody": "async (name, network = '') => {\n        // FIX ME: Get defaultTokenList from firebase remote config\n        if (!network) {\n            network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        }\n        const tokens = await this.getTokenListFromGithub(network);\n        // const coins = await remoteFetch.flowCoins();\n        return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());\n    }",
+    "fullBody": "async (name, network = '') => {\n        // FIX ME: Get defaultTokenList from firebase remote config\n        if (!network) {\n            network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        }\n        const tokens = await this.getTokenList(network);\n        // const coins = await remoteFetch.flowCoins();\n        return tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());\n    }",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (name, network = '') =>",
@@ -673,7 +673,7 @@
   {
     "name": "getEvmTokenInfo",
     "isAsync": true,
-    "fullBody": "async (name, network = '') => {\n        if (!network) {\n            network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        }\n        const tokens = await this.getEvmListFromGithub(network);\n        const tokenInfo = tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());\n        if (tokenInfo && (0,_shared_utils_address__WEBPACK_IMPORTED_MODULE_7__.isValidEthereumAddress)(tokenInfo.address)) {\n            return tokenInfo;\n        }\n        const freshTokens = await this.refreshEvmGitToken(network);\n        return freshTokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());\n    }",
+    "fullBody": "async (name, network = '') => {\n        if (!network) {\n            network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        }\n        const tokens = await this.getEvmList(network);\n        const tokenInfo = tokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());\n        if (tokenInfo && (0,_shared_utils_address__WEBPACK_IMPORTED_MODULE_7__.isValidEthereumAddress)(tokenInfo.address)) {\n            return tokenInfo;\n        }\n        const freshTokens = await this.refreshEvmToken(network);\n        return freshTokens.find((item) => item.symbol.toLowerCase() === name.toLowerCase());\n    }",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (name, network = '') =>",
@@ -736,7 +736,7 @@
   {
     "name": "getAllTokenInfo",
     "isAsync": true,
-    "fullBody": "async (fiterNetwork = true) => {\n        const network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        const list = await this.getTokenListFromGithub(network);\n        return fiterNetwork ? list.filter((item) => item.address) : list;\n    }",
+    "fullBody": "async (fiterNetwork = true) => {\n        const network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        const list = await this.getTokenList(network);\n        return fiterNetwork ? list.filter((item) => item.address) : list;\n    }",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (fiterNetwork = true) =>",
@@ -806,13 +806,13 @@
     "params": ["address", "token"]
   },
   {
-    "name": "fetchGitTokenList",
+    "name": "fetchFTList",
     "isAsync": true,
-    "fullBody": "async (network, chainType, childType) => {\n        const isProduction = \"development\" === 'production';\n        let url;\n        if (isProduction) {\n            url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;\n        }\n        else if (!isProduction &&\n            childType !== 'evm' &&\n            (network === 'testnet' || network === 'mainnet')) {\n            url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/dev.json`;\n        }\n        else {\n            url = `https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/${chainType}/default.json`;\n        }\n        const response = await fetch(url);\n        const { tokens = [] } = await response.json();\n        const hasFlowToken = tokens.some((token) => token.symbol.toLowerCase() === 'flow');\n        if (!hasFlowToken) {\n            tokens.push({\n                name: 'Flow',\n                address: '0x4445e7ad11568276',\n                contractName: 'FlowToken',\n                path: {\n                    balance: '/public/flowTokenBalance',\n                    receiver: '/public/flowTokenReceiver',\n                    vault: '/storage/flowTokenVault',\n                },\n                logoURI: 'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',\n                decimals: 8,\n                symbol: 'flow',\n            });\n        }\n        return tokens;\n    }",
+    "fullBody": "async (network, chainType) => {\n    const config = this.store.config.get_ft_list;\n    const data = await this.sendRequest(config.method, config.path, {\n        network,\n        chain_type: chainType,\n    }, {}, consts__WEBPACK_IMPORTED_MODULE_13__.WEB_NEXT_URL);\n    return data.tokens;\n}",
     "usesSendRequest": false,
     "usesFetchDirectly": true,
-    "basicSignature": "async (network, chainType, childType) =>",
-    "params": ["network", "chainType", "childType"]
+    "basicSignature": "async (network, chainType) =>",
+    "params": ["network", "chainType"]
   },
   {
     "name": "addFlowTokenIfMissing",
@@ -833,54 +833,45 @@
     "params": ["tokens", "customTokens"]
   },
   {
-    "name": "getTokenListFromGithub",
+    "name": "getTokenList",
     "isAsync": true,
-    "fullBody": "async (network) => {\n        const childType = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getActiveWallet();\n        const chainType = childType === 'evm' ? 'evm' : 'flow';\n        const gitToken = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`GitTokenList${network}${chainType}`);\n        if (gitToken)\n            return gitToken;\n        const tokens = await this.fetchGitTokenList(network, chainType, childType);\n        if (chainType === 'evm') {\n            const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n            this.mergeCustomTokens(tokens, evmCustomToken);\n        }\n        _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);\n        return tokens;\n    }",
+    "fullBody": "async (network) => {\n    const childType = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getActiveWallet();\n    const chainType = childType === 'evm' ? 'evm' : 'flow';\n    const ftList = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`TokenList${network}${chainType}`);\n    if (ftList)\n        return ftList;\n    const tokens = await this.fetchFTList(network, chainType);\n    if (chainType === 'evm') {\n        const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n        this.mergeCustomTokens(tokens, evmCustomToken);\n    }\n    _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`TokenList${network}${chainType}`, tokens, 600000);\n    return tokens;\n}",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (network) =>",
     "params": ["network"]
   },
   {
-    "name": "getEvmListFromGithub",
+    "name": "getEvmList",
     "isAsync": true,
-    "fullBody": "async (network) => {\n        const chainType = 'evm';\n        const gitToken = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`GitTokenList${network}${chainType}`);\n        if (gitToken)\n            return gitToken;\n        const tokens = await this.fetchGitTokenList(network, chainType, chainType);\n        if (chainType === 'evm') {\n            const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n            this.mergeCustomTokens(tokens, evmCustomToken);\n        }\n        _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`GitTokenList${network}${chainType}`, tokens, 600000);\n        return tokens;\n    }",
+    "fullBody": "async (network) => {\n    const chainType = 'evm';\n    const ftList = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`TokenList${network}${chainType}`);\n    if (ftList)\n        return ftList;\n    const tokens = await this.fetchFTList(network, chainType);\n    if (chainType === 'evm') {\n        const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n        this.mergeCustomTokens(tokens, evmCustomToken);\n    }\n    _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`TokenList${network}${chainType}`, tokens, 600000);\n    return tokens;\n}",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (network) =>",
     "params": ["network"]
   },
   {
-    "name": "refreshEvmGitToken",
+    "name": "refreshEvmToken",
     "isAsync": true,
-    "fullBody": "async (network) => {\n        const chainType = 'evm';\n        let gitToken = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`GitTokenList${network}${chainType}`);\n        if (!gitToken)\n            gitToken = await this.fetchGitTokenList(network, chainType, 'evm');\n        const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n        this.mergeCustomTokens(gitToken, evmCustomToken);\n        _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);\n        return gitToken;\n    }",
+    "fullBody": "async (network) => {\n    const chainType = 'evm';\n    let ftList = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`TokenList${network}${chainType}`);\n    if (!ftList)\n        ftList = await this.fetchFTList(network, chainType);\n    const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n    this.mergeCustomTokens(ftList, evmCustomToken);\n    _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`TokenList${network}${chainType}`, ftList, 600000);\n    return ftList;\n}",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (network) =>",
     "params": ["network"]
   },
   {
-    "name": "refreshCustomEvmGitToken",
+    "name": "refreshCustomEvmToken",
     "isAsync": true,
-    "fullBody": "async (network) => {\n        const chainType = 'evm';\n        const gitToken = await this.fetchGitTokenList(network, chainType, 'evm');\n        const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n        this.mergeCustomTokens(gitToken, evmCustomToken);\n        _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`GitTokenList${network}${chainType}`, gitToken, 600000);\n    }",
+    "fullBody": "async (network) => {\n    const chainType = 'evm';\n    const ftList = await this.fetchFTList(network, chainType);\n    const evmCustomToken = (await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.get(`${network}evmCustomToken`)) || [];\n    this.mergeCustomTokens(ftList, evmCustomToken);\n    _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`TokenList${network}${chainType}`, ftList, 600000);\n}",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
-    "basicSignature": "async (network) =>",
-    "params": ["network"]
-  },
-  {
-    "name": "getNFTListFromGithub",
-    "isAsync": true,
-    "fullBody": "async (network) => {\n        const childType = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getActiveWallet();\n        let chainType = 'flow';\n        if (childType === 'evm') {\n            chainType = 'evm';\n        }\n        const gitToken = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`GitNFTList${network}${chainType}`);\n        if (gitToken && gitToken.length > 0) {\n            return gitToken;\n        }\n        else {\n            const response = await fetch(`https://raw.githubusercontent.com/Outblock/token-list-jsons/outblock/jsons/${network}/flow/nfts.json`);\n            const res = await response.json();\n            const { data = {} } = res;\n            _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`GitNFTList${network}${chainType}`, data, 600000);\n            return data;\n        }\n    }",
-    "usesSendRequest": false,
-    "usesFetchDirectly": true,
     "basicSignature": "async (network) =>",
     "params": ["network"]
   },
   {
     "name": "getEnabledTokenList",
     "isAsync": true,
-    "fullBody": "async (network = '') => {\n        // const tokenList = await remoteFetch.flowCoins();\n        if (!network) {\n            network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        }\n        const address = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getCurrentAddress();\n        const tokenList = await this.getTokenListFromGithub(network);\n        let values;\n        const isChild = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getActiveWallet();\n        try {\n            if (isChild && isChild !== 'evm') {\n                values = await this.isLinkedAccountTokenListEnabled(address);\n            }\n            else if (!isChild) {\n                values = await this.isTokenListEnabled(address);\n            }\n        }\n        catch (error) {\n            console.error('Error isTokenListEnabled token:');\n            values = {};\n        }\n        const tokenItems = [];\n        const tokenMap = {};\n        if (isChild !== 'evm') {\n            tokenList.forEach((token) => {\n                const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;\n                // console.log(tokenMap,'tokenMap',values)\n                if (!!values[tokenId]) {\n                    tokenMap[token.name] = token;\n                }\n            });\n        }\n        // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))\n        // return values\n        //   .map((value, index) => {\n        //     if (value) {\n        //       return tokens[index];\n        //     }\n        //   })\n        //   .filter((item) => item);\n        Object.keys(tokenMap).map((key, idx) => {\n            const item = tokenMap[key];\n            tokenItems.push(item);\n        });\n        return tokenItems;\n    }",
+    "fullBody": "async (network = '') => {\n        // const tokenList = await remoteFetch.flowCoins();\n        if (!network) {\n            network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        }\n        const address = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getCurrentAddress();\n        const tokenList = await this.getTokenList(network);\n        let values;\n        const isChild = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getActiveWallet();\n        try {\n            if (isChild && isChild !== 'evm') {\n                values = await this.isLinkedAccountTokenListEnabled(address);\n            }\n            else if (!isChild) {\n                values = await this.isTokenListEnabled(address);\n            }\n        }\n        catch (error) {\n            console.error('Error isTokenListEnabled token:');\n            values = {};\n        }\n        const tokenItems = [];\n        const tokenMap = {};\n        if (isChild !== 'evm') {\n            tokenList.forEach((token) => {\n                const tokenId = `A.${token.address.slice(2)}.${token.contractName}`;\n                // console.log(tokenMap,'tokenMap',values)\n                if (!!values[tokenId]) {\n                    tokenMap[token.name] = token;\n                }\n            });\n        }\n        // const data = values.map((value, index) => ({isEnabled: value, token: tokenList[index]}))\n        // return values\n        //   .map((value, index) => {\n        //     if (value) {\n        //       return tokens[index];\n        //     }\n        //   })\n        //   .filter((item) => item);\n        Object.keys(tokenMap).map((key, idx) => {\n            const item = tokenMap[key];\n            tokenItems.push(item);\n        });\n        return tokenItems;\n    }",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (network = '') =>",

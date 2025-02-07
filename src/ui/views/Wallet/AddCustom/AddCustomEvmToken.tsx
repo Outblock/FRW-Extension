@@ -144,7 +144,7 @@ const AddCustomEvmToken = () => {
     }
 
     await storage.set(`${network}evmCustomToken`, evmCustomToken);
-    await usewallet.openapi.refreshEvmGitToken(network);
+    await usewallet.openapi.refreshEvmToken(network);
     setLoading(false);
     history.replace({ pathname: history.location.pathname, state: { refreshed: true } });
     history.goBack();

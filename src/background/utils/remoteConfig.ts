@@ -61,7 +61,7 @@ class fetchRemoteConfig {
     }
     if (expire < now.getTime()) {
       try {
-        const result = await openapi.getNFTListFromGithub(network);
+        const result = await openapi.getNFTList(network);
         // fetch(`${baseURL}/fetchNFTList`);
         // const result = await coins.json();
         this.nftState[network].result = result;

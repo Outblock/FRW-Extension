@@ -135,10 +135,10 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
     ],
     fetch: [
       {
-        name: 'fetchGitTokenList',
-        params: { network: commonParams.network, chainType: 'flow', childType: '' },
+        name: 'fetchFTList',
+        params: { network: commonParams.network, chainType: 'flow' },
       },
-      { name: 'getNFTListFromGithub', params: { network: commonParams.network } },
+      { name: 'getNFTList', params: { network: commonParams.network } },
     ],
     approval: [
       {
