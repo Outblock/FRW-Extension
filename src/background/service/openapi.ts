@@ -564,7 +564,7 @@ class OpenApiService {
     }
   };
 
-  getTokenPrices = async (storageKey: string, isEvm: boolean = false) => {
+  getTokenPrices = async (storageKey: string) => {
     const cachedPrices = await storage.getExpiry(storageKey);
     if (cachedPrices) {
       return cachedPrices;
@@ -577,20 +577,19 @@ class OpenApiService {
       const data = response?.data || [];
 
       data.forEach((token) => {
-        if (isEvm && token.evmAddress) {
-          // EVM price
-          const { rateToUSD, evmAddress } = token;
+        if (token.evmAddress) {
+          const { rateToUSD, evmAddress, symbol } = token;
           const key = evmAddress.toLowerCase();
           pricesMap[key] = Number(rateToUSD).toFixed(8);
-        } else if (!isEvm && token.contractName && token.contractAddress) {
+          const symbolKey = symbol.toUpperCase();
+          if (symbolKey) {
+            pricesMap[symbolKey] = Number(rateToUSD).toFixed(8);
+          }
+        }
+        if (token.contractName && token.contractAddress) {
           // Flow chain price
           const { rateToUSD, contractName, contractAddress } = token;
           const key = `${contractName.toLowerCase()}${contractAddress.toLowerCase()}`;
-          pricesMap[key] = Number(rateToUSD).toFixed(8);
-        } else if (isEvm && token.symbol) {
-          // Handle fallback for EVM tokens
-          const { rateToUSD, symbol } = token;
-          const key = symbol.toUpperCase();
           pricesMap[key] = Number(rateToUSD).toFixed(8);
         }
       });
@@ -2155,6 +2154,7 @@ class OpenApiService {
     return data;
   };
 
+  // TODO: remove this function, need to verify, doesn't look to be used anywhere
   getEvmFTPrice = async () => {
     const gitPrice = await storage.getExpiry('EVMPrice');
 

@@ -22,6 +22,9 @@ import { useTransferList } from '@/ui/hooks/useTransferListHook';
 import { useProfileStore } from '@/ui/stores/profileStore';
 import { useTransferListStore } from '@/ui/stores/transferListStore';
 import activity from 'ui/FRWAssets/svg/activity.svg';
+import { useWallet } from 'ui/utils';
+
+import { TokenPrice } from '../TokenDetail/TokenValue';
 
 dayjs.extend(relativeTime);
 
@@ -56,6 +59,7 @@ const TransferList = () => {
   const EndListItemText = (props) => {
     const isReceive = props.txType === 2;
     const isFT = props.type === 1;
+    const isContractCall = props.type === 1 && props.token === '';
 
     const calculateMaxWidth = () => {
       const textLength =
@@ -83,9 +87,14 @@ const TransferList = () => {
                 textOverflow: 'ellipsis',
               }}
             >
-              {props.type === 1
-                ? (isReceive ? '+' : '-') + `${props.amount}`.replace(/^-/, '')
-                : `${props.token}`}
+              {props.type === 1 ? (
+                <TokenPrice
+                  value={`${props.amount}`.replace(/^-/, '')}
+                  prefix={!isContractCall ? (isReceive ? '+' : '-') : ''}
+                />
+              ) : (
+                `${props.token}`
+              )}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />

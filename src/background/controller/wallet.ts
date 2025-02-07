@@ -1167,7 +1167,10 @@ export class WalletController extends BaseController {
 
   private async evmtokenPrice(tokeninfo, data) {
     const token = tokeninfo.symbol.toLowerCase();
-    const price = await openapiService.getPricesByEvmaddress(tokeninfo.address, data);
+    const price = await openapiService.getPricesByEvmaddress(
+      tokeninfo.evmAddress || tokeninfo.address,
+      data
+    );
 
     if (token === 'flow') {
       const flowPrice = price || data['FLOW'];
@@ -1433,7 +1436,7 @@ export class WalletController extends BaseController {
 
     const mergedList = await mergeBalances(tokenList, allBalanceMap, flowBalance);
 
-    const data = await openapiService.getTokenPrices('evmPrice', true);
+    const data = await openapiService.getTokenPrices('pricesMap');
     const prices = tokenList.map((token) => this.evmtokenPrice(token, data));
     const allPrice = await Promise.all(prices);
     const coins: CoinItem[] = mergedList.map((token, index) => {

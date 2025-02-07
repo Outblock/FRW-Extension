@@ -16,6 +16,7 @@ import { useHistory } from 'react-router-dom';
 import { formatLargeNumber } from 'ui/utils/number';
 
 import IconCreate from '../../../components/iconfont/IconCreate';
+import { TokenPrice } from '../TokenDetail/TokenValue';
 
 const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
   // const wallet = useWallet();
@@ -53,8 +54,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
               variant="body1"
               sx={{ fontSize: 12, fontWeight: '500', textAlign: 'end', color: 'text.secondary' }}
             >
-              {props.change === null ? '-' : '$'}
-              {props.secondary}
+              {props.secondary === null || props.secondary === 0 ? '' : props.secondary}
             </Typography>
           ) : (
             <Skeleton variant="text" width={35} height={15} />
@@ -109,8 +109,8 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                       marginRight: '6px',
                     }}
                   >
-                    {props.change === null ? '-' : '$'}
-                    {props.price}
+                    {props.change === null ? '-' : ''}
+                    <TokenPrice value={props.price} prefix="$" />
                   </Typography>
                   {props.change !== 0 && (
                     <Typography
@@ -191,7 +191,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                   secondaryAction={
                     <EndListItemText
                       primary={parseFloat(coin.balance).toFixed(3)}
-                      secondary={parseFloat(coin.total.toFixed(2))}
+                      secondary={<TokenPrice value={coin.balance * coin.price} prefix="$" />}
                       unit={coin.unit}
                       change={parseFloat(coin.change24h.toFixed(2))}
                     />
@@ -217,11 +217,7 @@ const CoinList = ({ data, ableFt, isActive, childType, coinLoading }) => {
                     </ListItemIcon>
                     <StartListItemText
                       primary={coin.coin}
-                      price={
-                        typeof coin.price === 'number' && !isNaN(coin.price)
-                          ? coin.price.toFixed(3)
-                          : 'N/A'
-                      }
+                      price={coin.price}
                       change={parseFloat(coin.change24h.toFixed(2))}
                     />
                   </ListItemButton>

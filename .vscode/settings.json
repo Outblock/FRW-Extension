@@ -22,5 +22,8 @@
   "eslint.useFlatConfig": true,
   "githubPullRequests.overrideDefaultBranch": "dev",
   "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}",
-  "cSpell.words": ["Cbor", "secp"]
+  "cSpell.words": ["Cbor", "secp"],
+  "[dotenv]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  }
 }

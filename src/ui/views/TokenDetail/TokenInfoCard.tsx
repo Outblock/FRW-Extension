@@ -11,6 +11,8 @@ import { addDotSeparators } from 'ui/utils/number';
 
 import IconChevronRight from '../../../components/iconfont/IconChevronRight';
 
+import { TokenPrice } from './TokenValue';
+
 // import tips from 'ui/FRWAssets/svg/tips.svg';
 
 const TokenInfoCard = ({
@@ -78,7 +80,7 @@ const TokenInfoCard = ({
             }
           })
           .catch((err) => {
-            console.log('err ', err);
+            console.error('err ', err);
           });
       }
     }, 400);
@@ -220,7 +222,13 @@ const TokenInfoCard = ({
             </Typography>
           </Box>
           <Typography variant="body1" color="text.secondary" sx={{ fontSize: '16px' }}>
-            ${addDotSeparators(balance * price)} {chrome.i18n.getMessage('USD')}
+            <Box component="span" sx={{ marginRight: '0.25rem' }}>
+              <TokenPrice
+                value={balance * price}
+                prefix="$"
+                postFix={chrome.i18n.getMessage('USD')}
+              />
+            </Box>
           </Typography>
           <Box sx={{ display: 'flex', gap: '12px', height: '36px', mt: '24px', width: '100%' }}>
             {(!childType || childType === 'evm') && (
