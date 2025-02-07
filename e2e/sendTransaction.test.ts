@@ -162,6 +162,7 @@ test('move USDC token COA to FLOW homepage', async ({ page }) => {
   await moveTokenCoaHomepage({
     page,
     tokenname: 'Bridged USDC (Celer)',
+    amount: '0.000123',
   });
 });
 //Send NFT from COA to COA
