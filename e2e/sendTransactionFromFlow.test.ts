@@ -33,6 +33,8 @@ export const moveTokenFlow = async ({ page, tokenname, amount = '0.0001121343546
   await page.getByRole('button', { name: 'Move' }).click();
   await page.getByPlaceholder('Amount').click();
   await page.getByPlaceholder('Amount').fill(amount);
+  await page.getByRole('button', { name: 'Move' }).click();
+
   // Wait for the transaction to be completed
   await waitForTransaction({ page, successtext: 'sealed', amount });
 };
