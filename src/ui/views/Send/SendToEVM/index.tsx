@@ -8,6 +8,7 @@ import { type ActiveChildType, type CoinItem } from '@/shared/types/wallet-types
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { useTransactionHook } from '@/ui/hooks/useTransactionHook';
 import { useCoinStore } from '@/ui/stores/coinStore';
 import { useNetworkStore } from '@/ui/stores/networkStore';
 import { useProfileStore } from '@/ui/stores/profileStore';
@@ -52,14 +53,13 @@ const SendEth = () => {
   const { mainAddress, currentWallet, userInfo } = useProfileStore();
   const { coins } = useCoinStore();
   const { currentNetwork } = useNetworkStore();
-  const { selectedToken, setSelectedToken, setFromNetwork, toAddress, currentTxState } =
-    useTransactionStore();
+  const { selectedToken, setFromNetwork, toAddress, setTokenType } = useTransactionStore();
+  const { fetchAndSetToken } = useTransactionHook();
   const web3Instance = useMemo(() => {
     const provider = new Web3.providers.HttpProvider(EVM_ENDPOINT[currentNetwork]);
     return new Web3(provider);
   }, [currentNetwork]);
 
-  const [currentCoin, setCurrentCoin] = useState<string>('flow');
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>(undefined);
@@ -78,6 +78,9 @@ const SendEth = () => {
     try {
       if (selectedToken?.symbol.toLowerCase() !== 'flow') {
         contractAddress = selectedToken!.address;
+        setTokenType('FT');
+      } else {
+        setTokenType('Flow');
       }
 
       const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
@@ -92,7 +95,6 @@ const SendEth = () => {
     const coinInfo = coins.find(
       (coin) => coin.unit.toLowerCase() === selectedToken?.symbol.toLowerCase()
     );
-    console.log('coinInfo, ', coinInfo);
 
     if (
       coinInfo?.balance &&
@@ -112,7 +114,7 @@ const SendEth = () => {
     userContact.avatar = userInfo?.avatar || '';
     userContact.contact_name = userInfo?.username || '';
     setUserContact(userContact);
-  }, [coins, userInfo, currentWallet, web3Instance, selectedToken, setFromNetwork]);
+  }, [coins, userInfo, currentWallet, web3Instance, selectedToken, setTokenType, setFromNetwork]);
 
   const checkAddress = useCallback(async () => {
     const childType = await usewallet.getActiveWallet();
@@ -132,30 +134,31 @@ const SendEth = () => {
     setLoading(false);
   }, [setLoading, setValidated, usewallet, toAddress]);
 
-  const updateCoontractInfo = useCallback(
-    async (currentCoin: string) => {
-      console.log('updateCoontractInfo ', currentCoin);
-      const tokenInfo = await usewallet.openapi.getEvmTokenInfo(currentCoin);
-      let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
-      if (tokenInfo?.symbol.toLowerCase() !== 'flow') {
-        contractAddress = tokenInfo!.address;
-      }
-      console.log('contractAddress ', contractAddress, tokenInfo);
-      const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
-      console.log('updated ContractInstance ', contractInstance);
-      setSelectedToken(tokenInfo!);
-      setErc20Contract(contractInstance);
-    },
-    [setErc20Contract, setSelectedToken, web3Instance, usewallet]
-  );
+  const updateCoontractInfo = useCallback(async () => {
+    console.log('updateCoontractInfo ', selectedToken!.symbol);
+    console.log('transactionStore, ', useTransactionStore.getState());
+    let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
+    if (selectedToken?.symbol.toLowerCase() !== 'flow') {
+      contractAddress = selectedToken!.address;
+      setTokenType('FT');
+    } else {
+      setTokenType('Flow');
+    }
+    console.log('contractAddress ', contractAddress, selectedToken);
+    const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
+    console.log('updated ContractInstance ', contractInstance);
+    setErc20Contract(contractInstance);
+  }, [setErc20Contract, setTokenType, selectedToken, web3Instance]);
 
   const updateCoinInfo = useCallback(() => {
-    const coin = coins.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
-    updateCoontractInfo(currentCoin);
+    const coin = coins.find(
+      (coin) => coin.unit.toLowerCase() === selectedToken!.symbol.toLowerCase()
+    );
+    updateCoontractInfo();
     if (coin) {
       setCoinInfo(coin);
     }
-  }, [coins, currentCoin, updateCoontractInfo]);
+  }, [coins, selectedToken, updateCoontractInfo]);
 
   useEffect(() => {
     setUserWallet();
@@ -164,7 +167,7 @@ const SendEth = () => {
 
   useEffect(() => {
     updateCoinInfo();
-  }, [currentCoin, updateCoinInfo]);
+  }, [selectedToken, updateCoinInfo]);
 
   return (
     <div className="page">
@@ -229,7 +232,7 @@ const SendEth = () => {
                 exceed={exceed}
                 setExceed={setExceed}
                 coinInfo={coinInfo}
-                setCurrentCoin={setCurrentCoin}
+                setCurrentCoin={fetchAndSetToken}
               />
             )}
 
@@ -320,7 +323,7 @@ const SendEth = () => {
                 amount: amount,
                 secondAmount: secondAmount,
                 userContact: senderContact,
-                tokenSymbol: currentCoin,
+                tokenSymbol: selectedToken?.symbol,
                 coinInfo: coinInfo,
                 erc20Contract,
               }}
@@ -338,7 +341,7 @@ const SendEth = () => {
                 amount: amount,
                 secondAmount: secondAmount,
                 userContact: senderContact,
-                tokenSymbol: currentCoin,
+                tokenSymbol: selectedToken?.symbol,
                 coinInfo: coinInfo,
                 erc20Contract,
               }}

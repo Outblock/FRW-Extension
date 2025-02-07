@@ -1,13 +1,18 @@
 import type { TokenInfo } from 'flow-native-token-registry';
+import { debounce } from 'lodash';
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
-import type { NetworkType, TokenType, TransactionState } from '@/shared/types/transaction-types';
+import type {
+  NetworkType,
+  TokenType,
+  TransactionStateString,
+} from '@/shared/types/transaction-types';
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import { useProfileStore } from '@/ui/stores/profileStore';
 
-interface transactionStore {
-  currentTxState: TransactionState | null;
+interface TransactionStore {
+  currentTxState: TransactionStateString | null;
   tokenType: TokenType | null;
   fromNetwork: NetworkType | null;
   toNetwork: NetworkType | null;
@@ -17,11 +22,11 @@ interface transactionStore {
   setFromNetwork: (address: string) => void;
   setToNetwork: (address: string) => void;
   setToAddress: (address: string) => void;
-  setSelectedToken: (token: TokenInfo) => void;
-  createTransaction: () => TransactionState | null;
+  setSelectedToken: (input: TokenInfo) => Promise<void>;
+  createTransactionState: () => void;
 }
 
-export const useTransactionStore = create<transactionStore>()(
+export const useTransactionStore = create<TransactionStore>()(
   subscribeWithSelector((set, get) => ({
     currentTxState: null,
     tokenType: null,
@@ -29,7 +34,10 @@ export const useTransactionStore = create<transactionStore>()(
     toNetwork: null,
     toAddress: '',
     selectedToken: null,
-    setSelectedToken: (token: TokenInfo) => set({ selectedToken: token }),
+    setSelectedToken: async (input: TokenInfo) => {
+      console.log('Selected Token:', input);
+      set({ selectedToken: input });
+    },
     setTokenType: (type) => set({ tokenType: type }),
     setFromNetwork: (address) => {
       const mainAddress = useProfileStore.getState().mainAddress;
@@ -60,31 +68,44 @@ export const useTransactionStore = create<transactionStore>()(
       set({ toAddress: address });
       get().setToNetwork(address);
     },
-    createTransaction: () => {
-      const { tokenType, fromNetwork, toNetwork, toAddress } = get();
-      if (!tokenType || !fromNetwork || !toNetwork) return null;
+    createTransactionState: () => {
+      const { tokenType, fromNetwork, toNetwork, currentTxState } = get();
+      if (!tokenType || !fromNetwork || !toNetwork) return;
 
-      const transaction: TransactionState = {
-        type: tokenType,
-        direction: { from: fromNetwork, to: toNetwork },
-        status: 'pending',
-        amount: '',
-        fromAddress: '',
-        toAddress,
-      };
-
-      set({ currentTxState: transaction });
-      return transaction;
+      const newTxState: TransactionStateString = `${tokenType}from${fromNetwork}to${toNetwork}`;
+      if (currentTxState !== newTxState) {
+        console.log('Creating new transaction state:', newTxState);
+        set({ currentTxState: newTxState });
+      }
     },
   }))
 );
 
-// Subscribe to state changes
+// Subscription with equality check
 useTransactionStore.subscribe(
-  (state) => [state.tokenType, state.fromNetwork, state.toNetwork, state.toAddress],
-  ([tokenType, fromNetwork, toNetwork, toAddress]) => {
-    if (tokenType && fromNetwork && toNetwork && toAddress) {
-      useTransactionStore.getState().createTransaction();
+  (state) => ({
+    tokenType: state.tokenType,
+    fromNetwork: state.fromNetwork,
+    toNetwork: state.toNetwork,
+  }),
+  (newState, prevState) => {
+    // Skip if nothing changed
+    if (!hasStateChanged(newState, prevState)) {
+      console.log('No state changes, skipping update');
+      return;
     }
+
+    if (newState.tokenType && newState.fromNetwork && newState.toNetwork) {
+      console.log('State changed, creating new transaction state');
+      useTransactionStore.getState().createTransactionState();
+    }
+  },
+  {
+    equalityFn: (a, b) => JSON.stringify(a) === JSON.stringify(b), // Deep equality check
   }
 );
+
+// Helper function
+const hasStateChanged = (newState: any, prevState: any) => {
+  return Object.keys(newState).some((key) => newState[key] !== prevState[key]);
+};
