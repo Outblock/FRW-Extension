@@ -141,7 +141,6 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
       avatar: cwallet.thumbnail.url,
       contact_name: cwallet.name,
     });
-    // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
     return;
   }, [usewallet, childAccounts]);
