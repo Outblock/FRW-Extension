@@ -78,7 +78,7 @@ export function formatPrice(price: number, zeroCondenseThreshold = 4): Formatted
     price,
     formattedPrice: {
       leadingPart: '0.0',
-      zeroPart: totalZeros - 1,
+      zeroPart: totalZeros,
       endingPart: significantDigits,
     },
   };
