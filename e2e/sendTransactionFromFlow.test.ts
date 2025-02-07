@@ -120,11 +120,11 @@ test('move Flow Flow to COA', async ({ page }) => {
   });
 });
 
-test('move USDC token COA to FLOW', async ({ page }) => {
+test('move USDC token FLOW to COA', async ({ page }) => {
   // Move USDC token from FLOW to COA
   await moveTokenFlow({
     page,
-    tokenname: 'Bridged USDC (Celer) $',
+    tokenname: 'USDC.e (Flow)',
   });
 });
 
@@ -137,7 +137,7 @@ test('move Flow Flow to COA homepage', async ({ page }) => {
   });
 });
 
-test('move USDC token COA to FLOW homepage', async ({ page }) => {
+test('move USDC token Flow to COA homepage', async ({ page }) => {
   // Move USDC token from FLOW to COA
   await moveTokenFlowHomepage({
     page,
