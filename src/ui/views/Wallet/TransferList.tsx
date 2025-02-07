@@ -183,7 +183,7 @@ const TransferList = () => {
                 return (
                   <ListItem
                     key={`${tx.hash}_${tx.interaction}`}
-                    data-testid={`${tx.cadenceTxId || tx.hash}_${tx.interaction}`}
+                    data-testid={`${tx.hash}_${tx.interaction}`}
                     secondaryAction={
                       <EndListItemText
                         status={tx.status}

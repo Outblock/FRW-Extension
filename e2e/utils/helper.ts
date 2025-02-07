@@ -435,7 +435,12 @@ export const switchToFlow = async ({ page, extensionId }) => {
   await getCurrentAddress(page);
 };
 
-export const waitForTransaction = async ({ page, successtext = 'success', amount = '' }) => {
+export const waitForTransaction = async ({
+  page,
+  successtext = 'success',
+  amount = '',
+  ingoreFlowCharge = false,
+}) => {
   // Wait for the transaction to be completed
   await page.waitForURL(/.*dashboard\?activity=1.*/);
   const url = await page.url();
@@ -447,7 +452,9 @@ export const waitForTransaction = async ({ page, successtext = 'success', amount
   const progressBar = page.getByRole('progressbar');
   await expect(progressBar).toBeVisible();
   // Get the pending item with the cadence txId that was put in the url and status is pending
-  const pendingItem = page.getByTestId(new RegExp(`^.*${txId}.*$`)).filter({ hasText: 'Pending' });
+  const pendingItem = page
+    .getByTestId(new RegExp(`^.*${txId}.*${ingoreFlowCharge ? '(?<!FlowToken)' : ''}$`))
+    .filter({ hasText: 'Pending' });
 
   await expect(pendingItem).toBeVisible({
     timeout: 60_000,
@@ -456,7 +463,7 @@ export const waitForTransaction = async ({ page, successtext = 'success', amount
 
   // Get the executed item with the cadence txId that was put in the url and status is success
   const executedItem = page
-    .getByTestId(new RegExp(`^.*${txId}.*$`))
+    .getByTestId(new RegExp(`^.*${txId}.*${ingoreFlowCharge ? '(?<!FlowToken)' : ''}$`))
     .filter({ hasText: successtext });
 
   await expect(executedItem).toBeVisible({

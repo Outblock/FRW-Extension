@@ -10,6 +10,7 @@ export const sendTokenFlow = async ({
   tokenname,
   receiver,
   amount = '0.000112134354657',
+  ingoreFlowCharge = false,
 }) => {
   // Wait for the EVM account to be loaded
   await getCurrentAddress(page);
@@ -23,10 +24,15 @@ export const sendTokenFlow = async ({
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Send' }).click();
   // Wait for the transaction to be completed
-  await waitForTransaction({ page, successtext: 'sealed', amount });
+  await waitForTransaction({ page, successtext: 'sealed', amount, ingoreFlowCharge });
 };
 
-export const moveTokenFlow = async ({ page, tokenname, amount = '0.000112134354657' }) => {
+export const moveTokenFlow = async ({
+  page,
+  tokenname,
+  amount = '0.000112134354657',
+  ingoreFlowCharge = false,
+}) => {
   await getCurrentAddress(page);
   await page.getByRole('tab', { name: 'coins' }).click();
   await page.getByRole('button', { name: tokenname }).click();
@@ -36,10 +42,15 @@ export const moveTokenFlow = async ({ page, tokenname, amount = '0.0001121343546
   await page.getByRole('button', { name: 'Move' }).click();
 
   // Wait for the transaction to be completed
-  await waitForTransaction({ page, successtext: 'sealed', amount });
+  await waitForTransaction({ page, successtext: 'sealed', amount, ingoreFlowCharge });
 };
 
-export const moveTokenFlowHomepage = async ({ page, tokenname, amount = '0.000000012345' }) => {
+export const moveTokenFlowHomepage = async ({
+  page,
+  tokenname,
+  amount = '0.000000012345',
+  ingoreFlowCharge = false,
+}) => {
   await getCurrentAddress(page);
   await page.getByRole('button', { name: 'Move' }).click();
   await page.getByRole('button', { name: 'Move Tokens' }).click();
@@ -49,7 +60,7 @@ export const moveTokenFlowHomepage = async ({ page, tokenname, amount = '0.00000
   await page.getByPlaceholder('Amount').fill(amount);
   await page.getByRole('button', { name: 'Move' }).click();
   // Wait for the transaction to be completed
-  await waitForTransaction({ page, successtext: 'sealed', amount });
+  await waitForTransaction({ page, successtext: 'sealed', amount, ingoreFlowCharge });
 };
 
 test.beforeEach(async ({ page, extensionId }) => {
@@ -90,6 +101,7 @@ test('send USDC flow to COA', async ({ page }) => {
     page,
     tokenname: 'USDC.e (Flow) $',
     receiver: process.env.TEST_RECEIVER_EVM_ADDR!,
+    ingoreFlowCharge: true,
   });
 });
 
@@ -109,6 +121,7 @@ test('send BETA flow to EOA', async ({ page }) => {
     page,
     tokenname: 'BETA $',
     receiver: process.env.TEST_RECEIVER_METAMASK_EVM_ADDR!,
+    ingoreFlowCharge: true,
   });
 });
 //Move FTs from  Flow to COA
@@ -142,5 +155,6 @@ test('move USDC token Flow to COA homepage', async ({ page }) => {
   await moveTokenFlowHomepage({
     page,
     tokenname: 'USDC.e (Flow)',
+    ingoreFlowCharge: true,
   });
 });

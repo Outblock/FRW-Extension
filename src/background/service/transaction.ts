@@ -1,4 +1,5 @@
 import type { TransactionStatus } from '@onflow/typedefs';
+import { ConcatenationScope } from 'webpack';
 
 import { isValidEthereumAddress } from '@/shared/utils/address';
 import createPersistStore from 'background/utils/persisitStore';
@@ -168,6 +169,7 @@ class Transaction {
 
     const evmTxIds: string[] = transactionStatus.events?.reduce(
       (transactionIds: string[], event) => {
+        console.log('event', event);
         if (event.type.includes('EVM') && !!event.data?.hash) {
           const hashBytes = event.data.hash.map((byte) => parseInt(byte));
           const hash = '0x' + Buffer.from(hashBytes).toString('hex');
@@ -180,7 +182,7 @@ class Transaction {
       },
       [] as string[]
     );
-
+    console.log('evmTxIds', evmTxIds);
     txItem.evmTxIds = [...evmTxIds];
 
     if (evmTxIds.length > 0) {
@@ -191,7 +193,7 @@ class Transaction {
       }
       txItem.hash = `${txItem.cadenceTxId || txItem.hash}_${evmTxIds.join('_')}`;
     }
-
+    console.log('txItem', txItem);
     txList[txItemIndex] = txItem;
 
     this.session.pendingItem[network] = [...txList];
