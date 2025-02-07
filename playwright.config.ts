@@ -26,6 +26,8 @@ export default defineConfig({
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? 'github' : 'html',
+  /* Stop after the first test failure */
+  maxFailures: process.env.CI ? 1 : 0,
 
   // set the timeout for each test to 120 seconds. We're sending transactions and waiting for them to be confirmed.
   timeout: 120_000,

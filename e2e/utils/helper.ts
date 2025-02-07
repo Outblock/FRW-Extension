@@ -435,7 +435,7 @@ export const switchToFlow = async ({ page, extensionId }) => {
   await getCurrentAddress(page);
 };
 
-export const waitForTransaction = async ({ page, successtext = 'success' }) => {
+export const waitForTransaction = async ({ page, successtext = 'success', amount = '' }) => {
   // Wait for the transaction to be completed
   await page.waitForURL(/.*dashboard\?activity=1.*/);
   const url = await page.url();
@@ -462,6 +462,10 @@ export const waitForTransaction = async ({ page, successtext = 'success' }) => {
   await expect(executedItem).toBeVisible({
     timeout: 60_000,
   });
+
+  if (amount) {
+    await expect(executedItem).toContainText(amount);
+  }
 };
 
 export const expect = test.expect;
