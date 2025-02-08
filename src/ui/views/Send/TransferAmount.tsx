@@ -16,10 +16,13 @@ import {
 import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import BN from 'bignumber.js';
+import { debounce } from 'lodash';
 import React, { useState, useEffect, useCallback } from 'react';
 
+import { DecimalMappingValues, TransactionStateString } from '@/shared/types/transaction-types';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useCoinStore } from '@/ui/stores/coinStore';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
@@ -119,30 +122,118 @@ const TransferAmount = ({
 }) => {
   const classes = useStyles();
   const { availableFlow } = useCoinStore();
+  const { currentTxState } = useTransactionStore();
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
-  const handleMaxClick = () => {
+
+  const getMaxDecimals = useCallback(() => {
+    if (!currentTxState) return 8;
+    return DecimalMappingValues[currentTxState];
+  }, [currentTxState]);
+
+  const checkDecimals = useCallback(
+    (value: string) => {
+      if (!coinType) {
+        const decimals = value.includes('.') ? value.split('.')[1]?.length || 0 : 0;
+        console.log('check decimals', value, decimals, getMaxDecimals());
+        return decimals < getMaxDecimals();
+      }
+      return true;
+    },
+    [coinType, getMaxDecimals]
+  );
+
+  const handleMaxClick = useCallback(() => {
     if (coinInfo) {
       if (coinInfo.unit.toLowerCase() === 'flow') {
         setAmount(availableFlow);
       } else {
-        // Retain this as a string to avoid floating point precision issues
         const newAmount = coinInfo.balance;
         setAmount(newAmount);
       }
     }
-  };
+  }, [coinInfo, availableFlow, setAmount]);
 
-  const renderValue = (option) => {
-    setCurrentCoin(option);
-    setCoin(option);
-    const selectCoin = coinList.find((coin) => coin.unit === option);
-    return selectCoin && <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />;
-  };
+  const handleAmountChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      if (!checkDecimals(value)) return;
 
-  const swap = () => {
+      const balance = new BN(coinInfo?.balance || '0');
+      const price = new BN(coinInfo?.price || '0');
+
+      if (coinType) {
+        const secondInput = new BN(value || '0');
+        const calculatedAmount = price.isZero() ? new BN(0) : secondInput.dividedBy(price);
+
+        if (value.length < (secondAmount?.toString().length || 0)) {
+          if (balance.minus(calculatedAmount).isLessThan(0)) {
+            setExceed(true);
+          } else {
+            setExceed(false);
+          }
+
+          if (calculatedAmount.isNaN()) {
+            setAmount('0');
+            setSecondAmount(value);
+          } else {
+            setAmount(calculatedAmount.toFixed(getMaxDecimals(), BN.ROUND_DOWN));
+            setSecondAmount(value);
+          }
+        }
+      } else {
+        const amountBN = new BN(value || '0');
+        const remainingBalance = balance.minus(amountBN);
+
+        if (remainingBalance.isLessThan(0)) {
+          setExceed(true);
+        } else if (coin === 'flow' && remainingBalance.isLessThan(0.001)) {
+          setExceed(true);
+        } else {
+          setExceed(false);
+        }
+
+        const calculatedSecondAmount = amountBN.times(price);
+        setAmount(value);
+        setSecondAmount(calculatedSecondAmount.toFixed(3, BN.ROUND_DOWN));
+      }
+    },
+    [
+      coinInfo,
+      coinType,
+      secondAmount,
+      coin,
+      checkDecimals,
+      getMaxDecimals,
+      setAmount,
+      setSecondAmount,
+      setExceed,
+    ]
+  );
+
+  const renderValue = useCallback(
+    (option) => {
+      const selectCoin = coinList.find((coin) => coin.unit === option);
+      if (selectCoin) {
+        // Debounce only the state updates, not the render
+        const updateStates = debounce(() => {
+          if (option !== coin) {
+            setCurrentCoin(option);
+            setCoin(option);
+          }
+        }, 300);
+
+        updateStates();
+        return <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />;
+      }
+      return null;
+    },
+    [coinList, setCurrentCoin, setCoin, coin]
+  );
+
+  const swap = useCallback(() => {
     setCoinType(!coinType);
-  };
+  }, [coinType, setCoinType]);
 
   const currentCoinType = useCallback(() => {
     setCoin(coinInfo.unit);
@@ -151,42 +242,6 @@ const TransferAmount = ({
   useEffect(() => {
     currentCoinType();
   }, [currentCoinType]);
-
-  useEffect(() => {
-    if (coinType) {
-      const secondInt = parseInt(secondAmount);
-      const value = new BN(secondInt).dividedBy(new BN(coinInfo.price)).toNumber();
-      if (coinInfo.balance - value < 0) {
-        setExceed(true);
-      } else {
-        setExceed(false);
-      }
-      if (isNaN(value)) {
-        setAmount(0);
-      } else {
-        setAmount(parseFloat(value.toFixed(3)));
-      }
-    }
-  }, [coinInfo.balance, coinInfo.price, coinType, secondAmount, setAmount, setExceed]);
-
-  useEffect(() => {
-    if (!coinType) {
-      if (coinInfo && amount) {
-        const result = parseFloat((coinInfo.amountbalance - amount).toPrecision());
-        if (coinInfo.balance - amount < 0) {
-          setExceed(true);
-        } else {
-          if (coin === 'flow' && result < 0.001) {
-            setExceed(true);
-          } else {
-            setExceed(false);
-          }
-        }
-        const value = new BN(amount).times(new BN(coinInfo.price)).toFixed(3);
-        setSecondAmount(value);
-      }
-    }
-  }, [amount, coin, coinInfo, coinType, setExceed, setSecondAmount]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -230,12 +285,7 @@ const TransferAmount = ({
                   autoComplete="off"
                   value={secondAmount}
                   type="number"
-                  onChange={(event) => {
-                    // let value = event.target.value;
-                    // value = (Math.round(value * 100) / 100).toFixed(2)
-                    setExceed(false);
-                    setSecondAmount(event.target.value);
-                  }}
+                  onChange={handleAmountChange}
                   inputProps={{ sx: { fontSize: '24px' } }}
                   endAdornment={
                     <Tooltip
@@ -263,6 +313,7 @@ const TransferAmount = ({
             <Box sx={{ width: '100%', display: 'flex' }}>
               <Select
                 renderValue={renderValue}
+                onChange={(e) => renderValue(e.target.value)}
                 className={classes.selectRoot}
                 defaultValue={coinInfo.unit}
                 MenuProps={{
@@ -295,12 +346,7 @@ const TransferAmount = ({
                   autoComplete="off"
                   value={amount}
                   type="number"
-                  onChange={(event) => {
-                    // let value = event.target.value;
-                    // value = (Math.round(value * 100) / 100).toFixed(2)
-                    setExceed(false);
-                    setAmount(event.target.value);
-                  }}
+                  onChange={handleAmountChange}
                   inputProps={{ sx: { fontSize: '24px' } }}
                   endAdornment={
                     <InputAdornment position="end">

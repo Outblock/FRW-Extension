@@ -4,10 +4,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { LLContactCard, LLContactEth, FWContactCard } from '@/ui/FRWComponent';
 import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet } from 'ui/utils';
-
-import { LLContactCard, LLContactEth, FWContactCard } from '../../FRWComponent';
 
 type ChildAccount = {
   [key: string]: {
@@ -136,7 +135,7 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
               <ButtonBase
                 key={`card-${index}`}
                 sx={{ display: 'contents' }}
-                onClick={() => (isSend ? goEth(eachgroup) : handleClick(eachgroup))}
+                onClick={() => handleClick(eachgroup)}
               >
                 <LLContactEth contact={eachgroup} hideCloseButton={true} key={index} />
               </ButtonBase>

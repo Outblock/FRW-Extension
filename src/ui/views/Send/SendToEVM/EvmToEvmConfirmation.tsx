@@ -1,18 +1,20 @@
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { ensureEvmAddressPrefix } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
-import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
+import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-interface ToEthConfirmationProps {
+interface EvmConfirmationProps {
   isConfirmationOpen: boolean;
   data: any;
   handleCloseIconClicked: () => void;
@@ -20,19 +22,22 @@ interface ToEthConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
-const ToEthConfirmation = (props: ToEthConfirmationProps) => {
-  const wallet = useWallet();
+const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
+  const usewallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<number | null>(null);
 
-  const [occupied, setOccupied] = useState(false);
+  const [occupied, setOccupied] = useState(true);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
+
+  const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
+
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
-    transferAmount: 0,
+    transferAmount,
     coin: props.data?.coinInfo?.coin,
     // the transfer is within the EVM network, the flag should be false
     movingBetweenEVMAndFlow: false,
@@ -68,97 +73,71 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   }, [props?.data?.contact?.address]);
 
   const getPending = useCallback(async () => {
-    const pending = await wallet.getPendingTx();
+    const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  }, [wallet]);
+  }, [usewallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
   }, []);
 
-  const transferFlow = useCallback(async () => {
-    const amount = parseFloat(props.data.amount).toFixed(8);
-
-    wallet
-      .transferFlowEvm(props.data.contact.address, amount)
-      .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch(() => {
-        setSending(false);
-        setFailed(true);
-      });
-    // Depending on history is probably not great
-  }, [history, props, wallet]);
-
-  const transferFt = useCallback(async () => {
-    const amount = props.data.amount * 1e18;
-    setSending(true);
-    // TB: I don't know why this is needed
-    const encodedData = props.data.erc20Contract.methods
-      .transfer(props.data.contact.address, amount)
-      .encodeABI();
-    const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
-    // Note that gas is not used in this function
-    const gas = '1312d00';
-    const value = parseFloat(props.data.amount).toFixed(8);
-    const data = encodedData;
-
-    const address = tokenResult!.address.startsWith('0x')
-      ? tokenResult!.address.slice(2)
-      : tokenResult!.address;
-
-    wallet
-      .transferFTToEvmV2(
-        `A.${address}.${tokenResult!.contractName}.Vault`,
-        value,
-        props.data.contact.address
-      )
-      .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch((err) => {
-        console.error('transfer error: ', err);
-        setSending(false);
-        setFailed(true);
-      });
-    // Depending on history is probably not great
-  }, [history, props, wallet]);
-
   const transferToken = useCallback(async () => {
+    const network = await usewallet.getNetwork();
+    //Transaction TODO: tokeninfo getting directly from api using tokenSymbol, need to add filter on contractName and address
+    const tokenResult = await usewallet.openapi.getTokenInfo(props.data.tokenSymbol, network);
+
+    const amountStr = props.data.amount.toString();
+    const amountBN = new BN(amountStr.replace('.', ''));
+    const decimalsCount = amountStr.split('.')[1]?.length || 0;
+    const scaleFactor = new BN(10).pow(tokenResult!.decimals - decimalsCount);
+    const integerAmount = amountBN.multipliedBy(scaleFactor);
+    const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
     setSending(true);
-    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
-      transferFlow();
+
+    let address, gas, value, data;
+    const encodedData = props.data.erc20Contract.methods
+      .transfer(ensureEvmAddressPrefix(props.data.contact.address), integerAmountStr)
+      .encodeABI();
+
+    if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
+      address = props.data.contact.address;
+      gas = '1';
+      value = BigInt(Math.round(props.data.amount * 1e18)).toString(16);
+      data = '0x';
     } else {
-      transferFt();
+      const tokenInfo = await usewallet.openapi.getEvmTokenInfo(
+        props.data.coinInfo.unit.toLowerCase()
+      );
+      gas = '1312d00';
+      address = ensureEvmAddressPrefix(tokenInfo!.address);
+      value = '0x0'; // Zero value as hex
+      data = encodedData.startsWith('0x') ? encodedData : `0x${encodedData}`;
     }
-  }, [props?.data?.tokenSymbol, transferFlow, transferFt]);
+
+    try {
+      const txId = await usewallet.sendEvmTransaction(address, gas, value, data);
+      await usewallet.setRecent(props.data.contact);
+      usewallet.listenTransaction(
+        txId,
+        true,
+        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
+        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
+        props.data.coinInfo.icon
+      );
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      setTid(txId);
+      history.push(`/dashboard?activity=1&txId=${txId}`);
+    } catch (err) {
+      console.error('sendEvmTransaction transfer error: ', err);
+      setSending(false);
+      setFailed(true);
+      setErrorMessage(err.message);
+    }
+  }, [history, props, usewallet]);
 
   const transactionDoneHandler = useCallback(
     (request) => {
@@ -185,6 +164,12 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       chrome.runtime.onMessage.removeListener(transactionDoneHandler);
     };
   }, [getPending, startCount, transactionDoneHandler]);
+
+  useEffect(() => {
+    if (props.data.coinInfo.unit) {
+      setOccupied(false);
+    }
+  }, [props.data]);
 
   const renderContent = () => (
     <Box
@@ -236,11 +221,12 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       <Box
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
-        {props.data.childType && props.data.childType !== 'evm' ? (
-          <LLProfile contact={props.data.userContact} />
-        ) : (
-          <FRWTargetProfile contact={props.data.userContact} fromEvm={'sendEth'} />
-        )}
+        <FRWProfile
+          contact={props.data.userContact}
+          isLoading={false}
+          isEvm={true}
+          fromEvm={'evmConfirm'}
+        />
         <Box
           sx={{
             marginLeft: '-15px',
@@ -389,4 +375,4 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
   );
 };
 
-export default ToEthConfirmation;
+export default EvmToEvmConfirmation;
