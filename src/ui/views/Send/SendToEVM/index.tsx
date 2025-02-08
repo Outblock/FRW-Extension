@@ -124,7 +124,6 @@ const SendEth = () => {
     try {
       const address = toAddress;
       const validatedResult = isValidEthereumAddress(address);
-      console.log('validatedResult address ', validatedResult);
       setValidated(validatedResult);
       return validatedResult;
     } catch (err) {
@@ -135,8 +134,6 @@ const SendEth = () => {
   }, [setLoading, setValidated, usewallet, toAddress]);
 
   const updateCoontractInfo = useCallback(async () => {
-    console.log('updateCoontractInfo ', selectedToken!.symbol);
-    console.log('transactionStore, ', useTransactionStore.getState());
     let contractAddress = '0x7cd84a6b988859202cbb3e92830fff28813b9341';
     if (selectedToken?.symbol.toLowerCase() !== 'flow') {
       contractAddress = selectedToken!.address;
@@ -144,7 +141,6 @@ const SendEth = () => {
     } else {
       setTokenType('Flow');
     }
-    console.log('contractAddress ', contractAddress, selectedToken);
     const contractInstance = new web3Instance.eth.Contract(erc20ABI, contractAddress);
     console.log('updated ContractInstance ', contractInstance);
     setErc20Contract(contractInstance);

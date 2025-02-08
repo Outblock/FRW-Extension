@@ -31,20 +31,20 @@ export const DecimalMappingValues: DecimalMapping = {
   // To Evm
   FTfromEvmtoEvm: 16,
   FTfromCadencetoEvm: 8,
-  FTfromChildtoEvm: 18,
+  FTfromChildtoEvm: 8,
   FlowfromEvmtoEvm: 16,
   FlowfromCadencetoEvm: 8,
-  FlowfromChildtoEvm: 18,
+  FlowfromChildtoEvm: 8,
 
   // To Cadence
   FTfromEvmtoCadence: 18,
-  FTfromCadencetoCadence: 18,
-  FTfromChildtoCadence: 18,
-  FlowfromEvmtoCadence: 18,
-  FlowfromCadencetoCadence: 18,
-  FlowfromChildtoCadence: 18,
+  FTfromCadencetoCadence: 8,
+  FTfromChildtoCadence: 8,
+  FlowfromEvmtoCadence: 8,
+  FlowfromCadencetoCadence: 8,
+  FlowfromChildtoCadence: 8,
 
-  // To Child
+  // To Child unused for now
   FTfromEvmtoChild: 18,
   FTfromCadencetoChild: 18,
   FTfromChildtoChild: 18,

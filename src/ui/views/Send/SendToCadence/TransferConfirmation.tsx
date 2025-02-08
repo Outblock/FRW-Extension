@@ -2,12 +2,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import BN from 'bignumber.js';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
@@ -22,12 +23,14 @@ interface TransferConfirmationProps {
 }
 
 const TransferConfirmation = (props: TransferConfirmationProps) => {
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const history = useHistory();
+  const { selectedToken, setFromNetwork, toAddress, setTokenType } = useTransactionStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<number | null>(null);
+  const sendingRef = useRef(false);
 
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
@@ -74,19 +77,24 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   }, [props.data.contact.address, setCount]);
 
   const getPending = useCallback(async () => {
-    const pending = await wallet.getPendingTx();
+    const pending = await usewallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  }, [wallet]);
+  }, [usewallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
   }, []);
 
+  useEffect(() => {
+    sendingRef.current = sending;
+  }, [sending]);
+
   const runTransaction = async () => {
-    setSending(true);
     try {
+      setSending(true);
+
       if (props.data.childType === 'evm') {
         await handleEvmTransfer();
       } else if (props.data.childType) {
@@ -94,10 +102,13 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       } else {
         await transferTokenOnCadence();
       }
-    } catch {
+    } catch (error) {
+      console.error('Transaction failed:', error);
       setFailed(true);
     } finally {
-      setSending(false);
+      if (sendingRef.current) {
+        setSending(false);
+      }
     }
   };
 
@@ -110,15 +121,14 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   };
 
   const transferTokenOnCadence = async () => {
-    setSending(true);
     const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
-    wallet
+    usewallet
       .transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount)
       .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
+        await usewallet.setRecent(props.data.contact);
         console.log('send result ', txId, props.data);
-        wallet.listenTransaction(
+        usewallet.listenTransaction(
           txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
@@ -126,7 +136,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           props.data.coinInfo.icon
         );
         props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
+        await usewallet.setDashIndex(0);
         setSending(false);
         setTid(txId);
         history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -140,7 +150,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const tokenFromChild = async () => {
     const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
-    wallet
+    usewallet
       .sendFTfromChild(
         props.data.userContact.address,
         props.data.contact.address,
@@ -149,8 +159,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         props.data.tokenSymbol
       )
       .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(
+        await usewallet.setRecent(props.data.contact);
+        usewallet.listenTransaction(
           txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
@@ -158,7 +168,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           props.data.coinInfo.icon
         );
         props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
+        await usewallet.setDashIndex(0);
         setSending(false);
         setTid(txId);
         history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -171,11 +181,12 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   };
 
   const flowFromEvm = async () => {
-    wallet
+    console.log('sending status ', sending);
+    usewallet
       .withdrawFlowEvm(props.data.amount, props.data.contact.address)
       .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(
+        await usewallet.setRecent(props.data.contact);
+        usewallet.listenTransaction(
           txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
@@ -183,7 +194,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           props.data.coinInfo.icon
         );
         props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
+        await usewallet.setDashIndex(0);
         setSending(false);
         setTid(txId);
         history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -195,10 +206,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   };
 
   const otherFTFromEvm = async () => {
-    const tokenResult = await wallet.openapi.getEvmTokenInfo(props.data.tokenSymbol);
+    const tokenResult = selectedToken;
     console.log('tokenResult ', tokenResult, props.data.amount);
 
-    wallet
+    usewallet
       .transferFTFromEvm(
         tokenResult!['flowIdentifier'],
         props.data.amount,
@@ -206,8 +217,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         tokenResult!
       )
       .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(
+        await usewallet.setRecent(props.data.contact);
+        usewallet.listenTransaction(
           txId,
           true,
           `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
@@ -215,7 +226,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           props.data.coinInfo.icon
         );
         props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
+        await usewallet.setDashIndex(0);
         setSending(false);
         setTid(txId);
         history.push(`/dashboard?activity=1&txId=${txId}`);

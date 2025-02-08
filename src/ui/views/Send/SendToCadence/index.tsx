@@ -4,12 +4,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { type Contact } from '@/shared/types/network-types';
-import { type ActiveChildType } from '@/shared/types/wallet-types';
+import { type ActiveChildType, type CoinItem } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { useTransactionHook } from '@/ui/hooks/useTransactionHook';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
 import { useProfileStore } from '@/ui/stores/profileStore';
-import { type CoinItem } from 'background/service/coinList';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
@@ -46,17 +49,17 @@ const SendToCadence = () => {
   const history = useHistory();
   const location = useLocation<ContactState>();
   const usewallet = useWallet();
-  const { childAccounts, currentWallet } = useProfileStore();
-  const [userWallet, setWallet] = useState<any>(null);
-  const [currentCoin, setCurrentCoin] = useState<string>('flow');
-  const [coinList, setCoinList] = useState<CoinItem[]>([]);
+  const { childAccounts, currentWallet, userInfo } = useProfileStore();
+  const { coins: coinList } = useCoinStore();
+  const { currentNetwork: network } = useNetworkStore();
+  const { selectedToken, setFromNetwork, toAddress, setTokenType } = useTransactionStore();
+  const { fetchAndSetToken } = useTransactionHook();
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string>('0');
   const [secondAmount, setSecondAmount] = useState('0.0');
   const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
-  const [network, setNetwork] = useState('mainnet');
+  const [senderContact, setUserContact] = useState<Contact>(USER_CONTACT);
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<ActiveChildType>(null);
@@ -64,56 +67,34 @@ const SendToCadence = () => {
   const setUserWallet = useCallback(async () => {
     // const walletList = await storage.get('userWallet');
     setLoading(true);
-    const token = await usewallet.getCurrentCoin();
-    let wallet;
-    if (childType === 'evm') {
-      wallet = await usewallet.getEvmWallet();
+    setFromNetwork(currentWallet.address);
+    const token = selectedToken!.symbol;
+    if (token !== 'flow') {
+      setTokenType('FT');
     } else {
-      wallet = currentWallet;
+      setTokenType('Flow');
     }
-    console.log('wallet ', wallet);
-    const network = await usewallet.getNetwork();
-    setNetwork(network);
-    setCurrentCoin(token);
+
     // userWallet
-    await setWallet(wallet);
-    const coinList = await usewallet.getCoinList();
-    setCoinList(coinList);
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
     console.log('coinInfo ', coinInfo);
 
     setCoinInfo(coinInfo!);
-    const info = await usewallet.getUserInfo(false);
-    const isChild = await usewallet.getActiveWallet();
-    console.log('isChild ', info, isChild);
-    const userContact = { ...USER_CONTACT };
 
-    if (isChild) {
-      if (isChild !== 'evm') {
-        const cwallet = childAccounts[wallet.address!];
-        userContact.avatar = cwallet.thumbnail.url;
-        userContact.contact_name = cwallet.name;
-      }
-      userContact.address = withPrefix(wallet.address!) || '';
-      if (isChild === 'evm') {
-        userContact.avatar = '';
-        userContact.contact_name = 'evm';
-      }
-    } else {
-      userContact.address = withPrefix(wallet.address) || '';
-      userContact.avatar = info.avatar;
-      userContact.contact_name = info.username;
-    }
-    setUser(userContact);
+    const userContact = { ...USER_CONTACT };
+    userContact.address = withPrefix(currentWallet.address) || '';
+    userContact.avatar = userInfo?.avatar || '';
+    userContact.contact_name = userInfo?.username || '';
+    setUserContact(userContact);
   }, [
-    childType,
-    setWallet,
-    setCoinList,
+    coinList,
+    selectedToken,
     setCoinInfo,
-    setUser,
-    usewallet,
+    setFromNetwork,
+    setUserContact,
+    setTokenType,
     currentWallet,
-    childAccounts,
+    userInfo,
   ]);
 
   const checkAddress = useCallback(async () => {
@@ -122,7 +103,7 @@ const SendToCadence = () => {
 
     //wallet controller api
     try {
-      const address = withPrefix(location.state.contact.address);
+      const address = withPrefix(toAddress);
       const validatedResult = await usewallet.checkAddress(address!);
       setValidated(validatedResult);
       return validatedResult;
@@ -130,18 +111,22 @@ const SendToCadence = () => {
       setValidated(false);
     }
     setLoading(false);
-  }, [setLoading, setValidated, location?.state?.contact?.address, usewallet]);
-
-  const numberWithCommas = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
+  }, [setLoading, setValidated, toAddress, usewallet]);
 
   const updateCoinInfo = useCallback(() => {
-    const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
+    const coin = coinList.find(
+      (coin) => coin.unit.toLowerCase() === selectedToken?.symbol.toLowerCase()
+    );
+    if (selectedToken?.symbol.toLowerCase() !== 'flow') {
+      setTokenType('FT');
+    } else {
+      setTokenType('Flow');
+    }
+
     if (coin) {
       setCoinInfo(coin);
     }
-  }, [coinList, currentCoin, setCoinInfo]);
+  }, [coinList, selectedToken, setTokenType, setCoinInfo]);
 
   useEffect(() => {
     checkAddress();
@@ -153,7 +138,7 @@ const SendToCadence = () => {
 
   useEffect(() => {
     updateCoinInfo();
-  }, [currentCoin, updateCoinInfo]);
+  }, [selectedToken, updateCoinInfo]);
 
   return (
     <div className="page">
@@ -219,7 +204,7 @@ const SendToCadence = () => {
                 exceed={exceed}
                 setExceed={setExceed}
                 coinInfo={coinInfo}
-                setCurrentCoin={setCurrentCoin}
+                setCurrentCoin={fetchAndSetToken}
               />
             )}
 
@@ -310,8 +295,8 @@ const SendToCadence = () => {
                 contact: location.state.contact,
                 amount: amount,
                 secondAmount: secondAmount,
-                userContact: userInfo,
-                tokenSymbol: currentCoin,
+                userContact: senderContact,
+                tokenSymbol: selectedToken?.symbol,
                 coinInfo: coinInfo,
                 childType,
               }}
