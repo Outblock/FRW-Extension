@@ -205,7 +205,11 @@ class Transaction {
     const newList = txList.filter((item) => {
       // Supports hashes with multiple ids
       // e.g. cadenceTxId_evmTxId
-      return !item.hash.includes(txId);
+      return (
+        !item.hash.includes(txId) &&
+        !item.cadenceTxId?.includes(txId) &&
+        !item.evmTxIds?.includes(txId)
+      );
     });
     this.session.pendingItem[network] = [...newList];
   };
