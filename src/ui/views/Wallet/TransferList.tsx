@@ -35,7 +35,6 @@ const TransferList = () => {
     fetchTransactions();
     const handler = (req) => {
       if (req.msg === 'transferListUpdated') {
-        console.log('Transfer list updated');
         fetchTransactions();
       }
       return true;
@@ -180,10 +179,11 @@ const TransferList = () => {
             <>
               {' '}
               {(transactions || []).map((tx) => {
+                const txCombinedKey = `${tx.cadenceTxId || tx.hash}${tx.evmTxIds ? `_${tx.evmTxIds.join('_')}` : ''}_${tx.interaction}`;
                 return (
                   <ListItem
-                    key={`${tx.hash}_${tx.interaction}`}
-                    data-testid={`${tx.hash}_${tx.interaction}`}
+                    key={txCombinedKey}
+                    data-testid={txCombinedKey}
                     secondaryAction={
                       <EndListItemText
                         status={tx.status}
