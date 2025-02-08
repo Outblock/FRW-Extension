@@ -17,7 +17,7 @@ interface TransactionStore {
   fromNetwork: NetworkType | null;
   toNetwork: NetworkType | null;
   toAddress: string;
-  selectedToken: TokenInfo | null;
+  selectedToken: TokenInfo;
   setTokenType: (type: TokenType) => void;
   setFromNetwork: (address: string) => void;
   setToNetwork: (address: string) => void;
@@ -33,7 +33,20 @@ export const useTransactionStore = create<TransactionStore>()(
     fromNetwork: null,
     toNetwork: null,
     toAddress: '',
-    selectedToken: null,
+    selectedToken: {
+      name: 'Flow',
+      address: '0x4445e7ad11568276',
+      contractName: 'FlowToken',
+      path: {
+        balance: '/public/flowTokenBalance',
+        receiver: '/public/flowTokenReceiver',
+        vault: '/storage/flowTokenVault',
+      },
+      logoURI:
+        'https://cdn.jsdelivr.net/gh/FlowFans/flow-token-list@main/token-registry/A.1654653399040a61.FlowToken/logo.svg',
+      decimals: 8,
+      symbol: 'flow',
+    },
     setSelectedToken: async (input: TokenInfo) => {
       console.log('Selected Token:', input);
       set({ selectedToken: input });
