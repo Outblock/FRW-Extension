@@ -52,6 +52,12 @@ export function normalizeAddress(input: number | string): string {
     return '';
   }
 
+  // quick fix see phrase wallet management
+
+  if (input.toString().length > 20) {
+    return '';
+  }
+
   if (typeof input === 'number') {
     const buffer = ethUtil.toBuffer(input);
     input = ethUtil.bufferToHex(buffer);
