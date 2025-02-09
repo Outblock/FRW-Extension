@@ -50,10 +50,20 @@ const TokenInfoCard = ({
     checkPermission();
   }, [balance, tokenInfo.custom, wallet]);
 
-  const toSend = async () => {
+  const toSend = () => {
     console.log('tokenInfo ', tokenInfo);
     setSelectedToken(tokenInfo);
     history.push('/dashboard/wallet/send');
+  };
+
+  const moveToken = () => {
+    if (childType && childType !== 'evm') {
+      setAlertOpen(true);
+    } else if (data) {
+      console.log('data setCurrentCoin ', data);
+      setSelectedToken(data);
+      setMoveOpen(true);
+    }
   };
 
   const getActive = useCallback(async () => {
@@ -91,15 +101,6 @@ const TokenInfoCard = ({
       clearTimeout(timerId); // Clear the timer
     };
   }, [setAccessible, token, tokenInfo, wallet]);
-
-  const moveToken = () => {
-    if (childType && childType !== 'evm') {
-      setAlertOpen(true);
-    } else if (data) {
-      wallet.setCurrentCoin(data?.symbol);
-      setMoveOpen(true);
-    }
-  };
 
   const getUrl = (data) => {
     if (data.extensions?.website?.trim()) {

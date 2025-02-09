@@ -6,8 +6,10 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useTransactionHook } from '@/ui/hooks/useTransactionHook';
 import { useCoinStore } from '@/ui/stores/coinStore';
 import { useProfileStore } from '@/ui/stores/profileStore';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -15,10 +17,9 @@ import { useWallet } from 'ui/utils';
 
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
 import theme from '../../../style/LLTheme';
-import TransferFrom from '../TransferFrom';
-import TransferTo from '../TransferTo';
-
-import MoveToken from './MoveToken';
+import MoveToken from '../Components/MoveToken';
+import TransferFrom from '../Components/TransferFrom';
+import TransferTo from '../Components/TransferTo';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -62,26 +63,23 @@ const EMPTY_COIN: CoinItem = {
 const MoveFromFlow = (props: TransferConfirmationProps) => {
   const usewallet = useWallet();
   const history = useHistory();
+
   const { evmWallet, mainAddress, currentWallet, userInfo } = useProfileStore();
   const { coins: coinList } = useCoinStore();
+  const { selectedToken, setFromNetwork, setToNetwork, setTokenType } = useTransactionStore();
+  const { fetchAndSetToken } = useTransactionHook();
 
-  const [currentCoin, setCurrentCoin] = useState<string>('flow');
-  // const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>('');
-  // const [validated, setValidated] = useState<any>(null);
   const [flowUserInfo, setSender] = useState<Contact>(USER_CONTACT);
   const [evmUserInfo, setEvmUser] = useState<Contact>(EVM_CONTACT);
-  const [network, setNetwork] = useState('mainnet');
-  const [evmAddress, setEvmAddress] = useState('');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
-  const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
 
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount: Number(amount) || 0,
-    coin: currentCoin,
+    coin: selectedToken.symbol,
     // We are moving from a Flow account to an EVM account
     movingBetweenEVMAndFlow: true,
   });
@@ -90,12 +88,14 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const setUserWallet = useCallback(async () => {
-    const token = await usewallet.getCurrentCoin();
-    console.log('getCurrentCoin ', token);
-    const network = await usewallet.getNetwork();
-    setNetwork(network);
-    setCurrentCoin(token);
-    setEvmAddress(evmWallet.address);
+    const token = selectedToken.symbol;
+    if (selectedToken?.symbol.toLowerCase() !== 'flow') {
+      setTokenType('FT');
+    } else {
+      setTokenType('Flow');
+    }
+    setFromNetwork(currentWallet.address);
+    setToNetwork(evmWallet.address);
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
     setCoinInfo(coinInfo!);
 
@@ -117,7 +117,17 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
     setLoading(false);
 
     return;
-  }, [usewallet, evmWallet, userInfo, coinList, mainAddress]);
+  }, [
+    evmWallet,
+    userInfo,
+    coinList,
+    mainAddress,
+    currentWallet,
+    selectedToken,
+    setFromNetwork,
+    setToNetwork,
+    setTokenType,
+  ]);
 
   const moveToken = async () => {
     setLoading(true);
@@ -128,7 +138,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
           txId,
           true,
           'Transfer to EVM complete',
-          `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`
+          `Your have moved ${amount} Flow to your EVM address ${evmWallet.address}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
         history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -143,16 +153,14 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
 
   const bridgeToken = async () => {
     setLoading(true);
-    const tokenResult = await usewallet.openapi.getTokenInfo(currentCoin, network);
-    console.log('tokenResult ', tokenResult);
-    const address = tokenResult!.address.startsWith('0x')
-      ? tokenResult!.address.slice(2)
-      : tokenResult!.address;
+    const address = selectedToken!.address.startsWith('0x')
+      ? selectedToken!.address.slice(2)
+      : selectedToken!.address;
 
-    let flowId = `A.${address}.${tokenResult!.contractName}.Vault`;
+    let flowId = `A.${address}.${selectedToken!.contractName}.Vault`;
 
     if (isValidEthereumAddress(address)) {
-      flowId = tokenResult!['flowIdentifier'];
+      flowId = selectedToken!['flowIdentifier'];
     }
     usewallet
       .bridgeToEvm(flowId, amount)
@@ -161,7 +169,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
           txId,
           true,
           'Transfer to EVM complete',
-          `Your have moved ${amount} ${tokenResult!.contractName} to your EVM address ${evmAddress}. \nClick to view this transaction.`
+          `Your have moved ${amount} ${selectedToken!.contractName} to your EVM address ${evmWallet.address}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
         history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -175,8 +183,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   };
 
   const handleMove = async () => {
-    console.log('currentCoin ', currentCoin);
-    if (currentCoin.toLowerCase() === 'flow') {
+    if (selectedToken.symbol.toLowerCase() === 'flow') {
       moveToken();
     } else {
       bridgeToken();
@@ -186,11 +193,11 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   const handleCoinInfo = useCallback(async () => {
     if (coinList.length > 0) {
       const coinInfo = coinList.find(
-        (coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase()
+        (coin) => coin.unit.toLowerCase() === selectedToken.symbol.toLowerCase()
       );
       setCoinInfo(coinInfo!);
     }
-  }, [coinList, currentCoin]);
+  }, [coinList, selectedToken]);
 
   useEffect(() => {
     setLoading(true);
@@ -201,7 +208,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
 
   useEffect(() => {
     handleCoinInfo();
-  }, [currentCoin, handleCoinInfo]);
+  }, [selectedToken, handleCoinInfo]);
 
   return (
     <Drawer
@@ -272,7 +279,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
             </Box>
           )}
         </Box>
-        {evmAddress && <TransferTo wallet={evmAddress} userInfo={evmUserInfo} />}
+        {evmWallet.address && <TransferTo wallet={evmWallet.address} userInfo={evmUserInfo} />}
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
@@ -291,12 +298,10 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
             coinList={coinList}
             amount={amount}
             setAmount={setAmount}
-            secondAmount={secondAmount}
-            setSecondAmount={setSecondAmount}
             exceed={exceed}
             setExceed={setExceed}
             coinInfo={coinInfo}
-            setCurrentCoin={setCurrentCoin}
+            setCurrentCoin={fetchAndSetToken}
           />
         )}
       </Box>

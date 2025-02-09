@@ -1,5 +1,7 @@
 import BigNumber from 'bignumber.js';
 
+import { DecimalMappingValues } from '@/shared/types/transaction-types';
+
 export const splitNumberByStep = (
   num: number | string,
   step = 3,
@@ -57,4 +59,14 @@ export const addDotSeparators = (num) => {
   const formattedDecimal = trimmedDecimal.length > 0 ? trimmedDecimal : decimalPart.slice(-3);
 
   return `${newIntegerPart}.${formattedDecimal}`;
+};
+
+export const checkDecimals = (value: string, maxDecimals: number) => {
+  const decimals = value.includes('.') ? value.split('.')[1]?.length || 0 : 0;
+  return decimals <= maxDecimals;
+};
+
+export const getMaxDecimals = (currentTxState: string | undefined) => {
+  if (!currentTxState) return 8;
+  return DecimalMappingValues[currentTxState as keyof typeof DecimalMappingValues];
 };

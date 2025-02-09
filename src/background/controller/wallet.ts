@@ -1976,7 +1976,6 @@ export class WalletController extends BaseController {
   };
 
   withdrawFlowEvm = async (amount = '0.0', address: string): Promise<string> => {
-    await this.getNetwork();
     const formattedAmount = new BN(amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
     const script = await getScripts('evm', 'withdrawCoa');
 
@@ -1989,9 +1988,7 @@ export class WalletController extends BaseController {
   };
 
   fundFlowEvm = async (amount = '1.0'): Promise<string> => {
-    await this.getNetwork();
-    const formattedAmount = parseFloat(amount).toFixed(8);
-
+    const formattedAmount = new BN(amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
     const script = await getScripts('evm', 'fundCoa');
 
     return await userWalletService.sendTransaction(script, [fcl.arg(formattedAmount, t.UFix64)]);
@@ -2029,8 +2026,7 @@ export class WalletController extends BaseController {
   };
 
   bridgeToEvm = async (flowIdentifier, amount = '1.0'): Promise<string> => {
-    await this.getNetwork();
-    const formattedAmount = parseFloat(amount).toFixed(8);
+    const formattedAmount = new BN(amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
     const script = await getScripts('bridge', 'bridgeTokensToEvmV2');
 

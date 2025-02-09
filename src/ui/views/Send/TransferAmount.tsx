@@ -19,10 +19,10 @@ import BN from 'bignumber.js';
 import { debounce } from 'lodash';
 import React, { useState, useEffect, useCallback } from 'react';
 
-import { DecimalMappingValues, TransactionStateString } from '@/shared/types/transaction-types';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useCoinStore } from '@/ui/stores/coinStore';
 import { useTransactionStore } from '@/ui/stores/transactionStore';
+import { getMaxDecimals } from '@/ui/utils/number';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
@@ -126,21 +126,16 @@ const TransferAmount = ({
   const [coin, setCoin] = useState<string>('flow');
   const [coinType, setCoinType] = useState<any>(0);
 
-  const getMaxDecimals = useCallback(() => {
-    if (!currentTxState) return 8;
-    return DecimalMappingValues[currentTxState];
-  }, [currentTxState]);
-
   const checkDecimals = useCallback(
     (value: string) => {
-      if (!coinType) {
+      if (!coinType && currentTxState) {
         const decimals = value.includes('.') ? value.split('.')[1]?.length || 0 : 0;
-        console.log('check decimals', value, decimals, getMaxDecimals());
-        return decimals < getMaxDecimals();
+        console.log('check decimals', value, decimals, getMaxDecimals(currentTxState));
+        return decimals < getMaxDecimals(currentTxState);
       }
       return true;
     },
-    [coinType, getMaxDecimals]
+    [coinType, currentTxState]
   );
 
   const handleMaxClick = useCallback(() => {
@@ -157,7 +152,7 @@ const TransferAmount = ({
   const handleAmountChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
-      if (!checkDecimals(value)) return;
+      if (!checkDecimals(value) || !currentTxState) return;
 
       const balance = new BN(coinInfo?.balance || '0');
       const price = new BN(coinInfo?.price || '0');
@@ -177,7 +172,7 @@ const TransferAmount = ({
             setAmount('0');
             setSecondAmount(value);
           } else {
-            setAmount(calculatedAmount.toFixed(getMaxDecimals(), BN.ROUND_DOWN));
+            setAmount(calculatedAmount.toFixed(getMaxDecimals(currentTxState!), BN.ROUND_DOWN));
             setSecondAmount(value);
           }
         }
@@ -204,10 +199,10 @@ const TransferAmount = ({
       secondAmount,
       coin,
       checkDecimals,
-      getMaxDecimals,
       setAmount,
       setSecondAmount,
       setExceed,
+      currentTxState,
     ]
   );
 
