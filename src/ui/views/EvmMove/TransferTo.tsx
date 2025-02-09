@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { Box, Typography, CardMedia } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
+import React, { useState, useEffect, useCallback } from 'react';
+
+import { useProfileStore } from '@/ui/stores/useProfileStore';
 import { formatAddress } from 'ui/utils';
-import { useWallet } from 'ui/utils';
 
 const tempEmoji = {
   emoji: '🥥',
@@ -11,29 +12,24 @@ const tempEmoji = {
 };
 
 const TransferTo = ({ wallet, userInfo }) => {
-  const usewallet = useWallet();
+  const { evmWallet } = useProfileStore();
   const [emoji, setEmoji] = useState(tempEmoji);
 
-  const getEmoji = async () => {
-    console.log('isEvm ', emoji);
+  const getEmoji = useCallback(async () => {
     if (!emoji['type']) {
-      const currentWallet = await usewallet.getEvmWallet();
-      console.log('getEvmWallet ', currentWallet);
+      console.log('getEvmWallet ', evmWallet);
       const emojiObject = tempEmoji;
-      emojiObject.emoji = currentWallet.icon;
-      emojiObject.name = currentWallet.name;
-      emojiObject.bgcolor = currentWallet.color;
+      emojiObject.emoji = evmWallet.icon;
+      emojiObject.name = evmWallet.name;
+      emojiObject.bgcolor = evmWallet.color;
       emojiObject['type'] = 'evm';
       setEmoji(emojiObject);
     }
-
-    console.log('emoji ', emoji);
-  };
+  }, [emoji, evmWallet]);
 
   useEffect(() => {
-    console.log('transfer to ', wallet, userInfo);
     getEmoji();
-  }, [userInfo]);
+  }, [getEmoji]);
 
   return (
     <StyledEngineProvider injectFirst>
