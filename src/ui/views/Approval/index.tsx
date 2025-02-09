@@ -13,13 +13,13 @@ import * as ApprovalComponent from './components';
 const Approval = () => {
   const history = useHistory();
   // const [account, setAccount] = useState('');
-  const wallet = useWallet();
+  const usewallet = useWallet();
   const { initializeStore } = useInitHook();
   const [getApproval, resolveApproval, rejectApproval] = useApproval();
   const [approval, setApproval] = useState<any>(null);
 
   const init = useCallback(async () => {
-    await initializeStore();
+    initializeStore();
     const approval = await getApproval();
     if (!approval) {
       history.replace('/');
@@ -32,7 +32,7 @@ const Approval = () => {
       history.replace('/unlock');
       return;
     }
-    const account = await wallet.getCurrentAccount();
+    const account = await usewallet.getCurrentAccount();
     if (!account) {
       rejectApproval();
       return;
@@ -40,7 +40,7 @@ const Approval = () => {
       rejectApproval();
       return;
     }
-  }, [history, initializeStore, getApproval, setApproval, wallet, rejectApproval]);
+  }, [history, initializeStore, getApproval, setApproval, usewallet, rejectApproval]);
 
   useEffect(() => {
     init();
