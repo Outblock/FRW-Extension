@@ -38,11 +38,20 @@ export class HDKeyring {
     throw new Error('Operation not supported');
   }
 
-  async getAccounts() {
+  async getMnemonic() {
     if (!this.mnemonic) {
       throw new Error('Mnemonic is required');
     }
     return [this.mnemonic];
+  }
+
+  async getAccounts() {
+    if (!this.hdWallet) {
+      throw new Error('HD Wallet is required');
+    }
+    // convert mnemonic to hdWallet address
+    const hdWallet = HDNodeWallet.fromPhrase(this.mnemonic!);
+    return [hdWallet.getAddress()];
   }
 
   async removeAccount(address: string) {
