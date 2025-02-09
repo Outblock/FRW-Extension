@@ -224,13 +224,14 @@ class PreferenceService {
           address: '', //  clear address
         }
       : undefined;
-    if (account) {
-      sessionService.broadcastEvent('accountsChanged', [account.address]);
-      eventBus.emit(EVENTS.broadcastToUI, {
-        method: 'accountsChanged',
-        params: account,
-      });
-    }
+    // remove this because account address is not the correct value
+    // if (account) {
+    //   sessionService.broadcastEvent('accountsChanged', [account.address]);
+    //   eventBus.emit(EVENTS.broadcastToUI, {
+    //     method: 'accountsChanged',
+    //     params: account,
+    //   });
+    // }
   };
 
   setPopupOpen = (isOpen) => {
