@@ -6,6 +6,8 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -60,13 +62,14 @@ const EMPTY_COIN: CoinItem = {
 const MoveFromFlow = (props: TransferConfirmationProps) => {
   const usewallet = useWallet();
   const history = useHistory();
-  const [userWallet, setWallet] = useState<any>(null);
+  const { evmWallet, mainAddress, currentWallet, userInfo } = useProfileStore();
+  const { coins: coinList } = useCoinStore();
+
   const [currentCoin, setCurrentCoin] = useState<string>('flow');
-  const [coinList, setCoinList] = useState<CoinItem[]>([]);
   // const [exceed, setExceed] = useState(false);
   const [amount, setAmount] = useState<string | undefined>('');
   // const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
+  const [flowUserInfo, setSender] = useState<Contact>(USER_CONTACT);
   const [evmUserInfo, setEvmUser] = useState<Contact>(EVM_CONTACT);
   const [network, setNetwork] = useState('mainnet');
   const [evmAddress, setEvmAddress] = useState('');
@@ -87,32 +90,22 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
 
   const setUserWallet = useCallback(async () => {
-    // const walletList = await storage.get('userWallet');
-    setLoading(true);
     const token = await usewallet.getCurrentCoin();
     console.log('getCurrentCoin ', token);
-    const wallet = await usewallet.getMainWallet();
     const network = await usewallet.getNetwork();
     setNetwork(network);
     setCurrentCoin(token);
-    // userWallet
-    await setWallet(wallet);
-    const coinList = await usewallet.getCoinList();
-    setCoinList(coinList);
-    const evmWallet = await usewallet.getEvmWallet();
-    console.log('evmWallet ', evmWallet);
     setEvmAddress(evmWallet.address);
     const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
     setCoinInfo(coinInfo!);
 
-    const info = await usewallet.getUserInfo(false);
     const userContact = {
       ...USER_CONTACT,
-      address: withPrefix(wallet) || '',
-      avatar: info.avatar,
-      contact_name: info.username,
+      address: withPrefix(mainAddress) || '',
+      avatar: userInfo!.avatar,
+      contact_name: userInfo!.username,
     };
-    setUser(userContact);
+    setSender(userContact);
 
     const evmContact = {
       ...EVM_CONTACT,
@@ -124,7 +117,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
     setLoading(false);
 
     return;
-  }, [usewallet]);
+  }, [usewallet, evmWallet, userInfo, coinList, mainAddress]);
 
   const moveToken = async () => {
     setLoading(true);
@@ -200,8 +193,11 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
   }, [coinList, currentCoin]);
 
   useEffect(() => {
-    setUserWallet();
-  }, [setUserWallet]);
+    setLoading(true);
+    if (userInfo && coinList.length > 0) {
+      setUserWallet();
+    }
+  }, [userInfo, coinList, setUserWallet]);
 
   useEffect(() => {
     handleCoinInfo();
@@ -244,7 +240,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
             </IconButton>
           </Box>
         </Box>
-        {userWallet && <TransferFrom wallet={userWallet} userInfo={userInfo} />}
+        {currentWallet && <TransferFrom wallet={currentWallet.address} userInfo={flowUserInfo} />}
         <Box
           sx={{
             display: 'flex',
@@ -276,7 +272,7 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
             </Box>
           )}
         </Box>
-        {evmAddress && <TransferTo wallet={evmAddress} userInfo={userInfo} />}
+        {evmAddress && <TransferTo wallet={evmAddress} userInfo={evmUserInfo} />}
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
