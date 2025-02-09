@@ -6,8 +6,8 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { isValidEthereumAddress, withPrefix } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -117,7 +117,6 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     };
     setEvmUser(evmContact);
 
-    // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
     return;
   }, [usewallet, evmWallet, userInfo, coinList, parentWallet]);
@@ -126,15 +125,15 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
     setLoading(true);
     usewallet
       .withdrawFlowEvm(amount, flowUserInfo.address)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer from EVM complete',
           `Your have moved ${amount} Flow to your address ${parentWallet.address}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })
@@ -160,15 +159,15 @@ const MoveFromEvm = (props: TransferConfirmationProps) => {
 
     usewallet
       .bridgeToFlow(flowId, amount, tokenResult)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer from EVM complete',
           `Your have moved ${amount} ${flowId.split('.')[2]} to your address ${parentWallet.address}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })

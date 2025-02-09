@@ -117,10 +117,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
     }
 
     try {
-      const txID = await usewallet.sendEvmTransaction(address, gas, value, data);
+      const txId = await usewallet.sendEvmTransaction(address, gas, value, data);
       await usewallet.setRecent(props.data.contact);
       usewallet.listenTransaction(
-        txID,
+        txId,
         true,
         `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
         `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
@@ -129,8 +129,8 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
       props.handleCloseIconClicked();
       await usewallet.setDashIndex(0);
       setSending(false);
-      setTid(txID);
-      history.push('/dashboard?activity=1');
+      setTid(txId);
+      history.push(`/dashboard?activity=1&txId=${txId}`);
     } catch (err) {
       console.error('sendEvmTransaction transfer error: ', err);
       setSending(false);

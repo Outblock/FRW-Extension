@@ -40,9 +40,6 @@
   "Edit": {
     "message": "Edit"
   },
-  "Pending": {
-    "message": "Pending"
-  },
   "From": {
     "message": "From"
   },
@@ -941,7 +938,10 @@
     "message": "Error"
   },
   "PENDING": {
-    "message": "PENDING"
+    "message": "Pending"
+  },
+  "EXECUTED": {
+    "message": "Executed"
   },
   "Transaction__Sealed": {
     "message": "Transaction Sealed"

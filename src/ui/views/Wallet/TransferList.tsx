@@ -15,66 +15,35 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import { formatString } from '@/shared/utils/address';
+import { useTransferList } from '@/ui/hooks/useTransferListHook';
+import { useProfileStore } from '@/ui/stores/profileStore';
+import { useTransferListStore } from '@/ui/stores/transferListStore';
 import activity from 'ui/FRWAssets/svg/activity.svg';
-import { useWallet } from 'ui/utils';
-// import IconExec from '../../../components/iconfont/IconExec';
-// import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
+
 dayjs.extend(relativeTime);
 
-const TransferList = ({ setCount }) => {
-  const wallet = useWallet();
-  const [isLoading, setLoading] = useState(true);
-  const [transaction, setTx] = useState([]);
-  const [monitor, setMonitor] = useState('flowscan');
-  const [flowscanURL, setFlowscanURL] = useState('https://www.flowscan.io');
-  const [viewSource, setViewSourceUrl] = useState('https://f.dnz.dev');
-  const [address, setAddress] = useState<string | null>('0x');
-  const [showButton, setShowButton] = useState(false);
-
-  const fetchTransaction = useCallback(async () => {
-    setLoading(true);
-    const monitor = await wallet.getMonitor();
-    setMonitor(monitor);
-    try {
-      const url = await wallet.getFlowscanUrl();
-      const viewSourceUrl = await wallet.getViewSourceUrl();
-      setFlowscanURL(url);
-      setViewSourceUrl(viewSourceUrl);
-      const address = await wallet.getCurrentAddress();
-      setAddress(address);
-      const data = await wallet.getTransaction(address!, 15, 0, 60000);
-      setLoading(false);
-      if (data['count'] > 0) {
-        setCount(data['count'].toString());
-        setShowButton(data['count'] > 15);
-      }
-      setTx(data['list']);
-    } catch {
-      setLoading(false);
-    }
-  }, [wallet, setCount]);
-
-  const extMessageHandler = useCallback(
-    (req) => {
-      if (req.msg === 'transferListReceived') {
-        fetchTransaction();
-      }
-      return true;
-    },
-    [fetchTransaction]
-  );
+const TransferList = () => {
+  const { fetchTransactions } = useTransferList();
+  const { transactions, monitor, flowscanURL, viewSourceURL, loading, showButton } =
+    useTransferListStore();
+  const { currentWallet } = useProfileStore();
 
   useEffect(() => {
-    fetchTransaction();
-    chrome.runtime.onMessage.addListener(extMessageHandler);
-
-    return () => {
-      chrome.runtime.onMessage.removeListener(extMessageHandler);
+    fetchTransactions();
+    const handler = (req) => {
+      if (req.msg === 'transferListUpdated') {
+        console.log('Transfer list updated');
+        fetchTransactions();
+      }
+      return true;
     };
-  }, [extMessageHandler, fetchTransaction]);
+
+    chrome.runtime.onMessage.addListener(handler);
+    return () => chrome.runtime.onMessage.removeListener(handler);
+  }, [fetchTransactions]);
 
   const timeConverter = (timeStamp: number) => {
     let time = dayjs.unix(timeStamp);
@@ -95,11 +64,12 @@ const TransferList = ({ setCount }) => {
       const additionalWidth = textLength * 8;
       return `${Math.min(baseWidth + additionalWidth, 70)}px`;
     };
+
     return (
       <ListItemText
         disableTypography={true}
         primary={
-          !isLoading ? (
+          !loading ? (
             <Typography
               variant="body1"
               sx={{
@@ -122,7 +92,7 @@ const TransferList = ({ setCount }) => {
           )
         }
         secondary={
-          !isLoading ? (
+          !loading ? (
             <Typography
               variant="body1"
               sx={{
@@ -147,7 +117,7 @@ const TransferList = ({ setCount }) => {
       <ListItemText
         disableTypography={true}
         primary={
-          !isLoading ? (
+          !loading ? (
             <Box sx={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
               {props.txType === 1 ? (
                 <CallMadeRoundedIcon sx={{ color: 'info.main', width: '18px' }} />
@@ -172,7 +142,7 @@ const TransferList = ({ setCount }) => {
           )
         }
         secondary={
-          !isLoading ? (
+          !loading ? (
             <Box sx={{ display: 'flex', gap: '3px' }}>
               <Typography
                 variant="body1"
@@ -204,15 +174,16 @@ const TransferList = ({ setCount }) => {
 
   return (
     <>
-      {!isLoading ? (
+      {!loading ? (
         <Box>
-          {transaction && transaction.length ? (
+          {transactions && transactions.length ? (
             <>
               {' '}
-              {(transaction || []).map((tx: any, index) => {
+              {(transactions || []).map((tx) => {
                 return (
                   <ListItem
-                    key={index}
+                    key={`${tx.hash}_${tx.interaction}`}
+                    data-testid={`${tx.hash}_${tx.interaction}`}
                     secondaryAction={
                       <EndListItemText
                         status={tx.status}
@@ -233,7 +204,7 @@ const TransferList = ({ setCount }) => {
                           const url =
                             monitor === 'flowscan'
                               ? `${flowscanURL}/tx/${tx.hash}`
-                              : `${viewSource}/${tx.hash}`;
+                              : `${viewSourceURL}/${tx.hash}`;
                           window.open(url);
                         }
                       }}
@@ -270,7 +241,7 @@ const TransferList = ({ setCount }) => {
                     variant="text"
                     endIcon={<ChevronRightRoundedIcon />}
                     onClick={() => {
-                      window.open(`${flowscanURL}/account/${address}`, '_blank');
+                      window.open(`${flowscanURL}/account/${currentWallet.address}`, '_blank');
                     }}
                   >
                     <Typography variant="overline" color="text.secondary">

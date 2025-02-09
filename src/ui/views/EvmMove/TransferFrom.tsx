@@ -2,7 +2,7 @@ import { Box, Typography, CardMedia } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
 import React, { useEffect, useState, useCallback } from 'react';
 
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 
 const tempEmoji = {
   emoji: '🥥',

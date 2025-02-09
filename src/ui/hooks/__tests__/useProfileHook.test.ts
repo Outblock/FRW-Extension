@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useWallet } from '@/ui/utils/WalletContext';
 
 import { useProfileHook } from '../useProfileHook';
@@ -15,7 +15,7 @@ vi.mock('react', async () => {
   };
 });
 
-vi.mock('@/ui/stores/useNetworkStore', () => ({
+vi.mock('@/ui/stores/networkStore', () => ({
   useNetworkStore: vi.fn().mockReturnValue({
     currentNetwork: 'mainnet',
   }),
@@ -27,7 +27,7 @@ const mocks = {
   setEvmWallet: vi.fn(),
 };
 
-vi.mock('@/ui/stores/useProfileStore', () => ({
+vi.mock('@/ui/stores/profileStore', () => ({
   useProfileStore: vi.fn().mockReturnValue({
     setMainAddress: vi.fn(),
     setEvmAddress: vi.fn(),

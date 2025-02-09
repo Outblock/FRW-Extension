@@ -43,9 +43,6 @@
   "Edit": {
     "message": "Edit"
   },
-  "Pending": {
-    "message": "Pending"
-  },
   "From": {
     "message": "From"
   },
@@ -958,8 +955,23 @@
   "Error": {
     "message": "Error"
   },
+  "UNKNOWN": {
+    "message": "Unknown"
+  },
   "PENDING": {
-    "message": "PENDING"
+    "message": "Pending"
+  },
+  "FINALIZED": {
+    "message": "Finalized"
+  },
+  "EXECUTED": {
+    "message": "Executed"
+  },
+  "SEALED": {
+    "message": "Sealed"
+  },
+  "EXPIRED": {
+    "message": "Expired"
   },
   "Transaction__Sealed": {
     "message": "Transaction Sealed"

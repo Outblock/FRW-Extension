@@ -16,7 +16,7 @@ import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
 
 import CancelIcon from '../../../../components/iconfont/IconClose';
 
@@ -133,10 +133,6 @@ const MoveToken = ({
     setCoin(option);
     const selectCoin = coinList.find((coin) => coin.unit === option);
     return selectCoin && <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />;
-  };
-
-  const swap = () => {
-    setCoinType(!coinType);
   };
 
   const currentCoinType = useCallback(() => {

@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Typography, IconButton, Box, Link, CardMedia } from '@mui/material';
-import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// import '../../Unlock/style.css';
+import { Typography, IconButton, Box, Link, CardMedia } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import enableBg from 'ui/FRWAssets/image/enableBg.png';
-// import enableBg from 'ui/FRWAssets/svg/enableBg.svg';
+import { LLPrimaryButton, LLSpinner } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 const Enable = () => {
@@ -21,15 +20,15 @@ const Enable = () => {
     setClaiming(true);
     wallet
       .createCoaEmpty()
-      .then(async (createRes) => {
+      .then(async (txId) => {
         wallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Create EVM complete',
           `Your EVM on Flow address has been created. \nClick to view this transaction.`
         );
         await wallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
 
         setClaiming(false);
       })
@@ -39,17 +38,17 @@ const Enable = () => {
       });
   };
 
-  const getUsername = async () => {
+  const getUsername = useCallback(async () => {
     const storageData = await wallet.getCoinList(expiry_time);
     const flowToken = storageData.find((token) => token.unit === 'flow');
     if (flowToken!.balance >= 0.002) {
       setEnough(true);
     }
-  };
+  }, [wallet]);
 
   useEffect(() => {
     getUsername();
-  }, []);
+  }, [getUsername]);
 
   return (
     <Box

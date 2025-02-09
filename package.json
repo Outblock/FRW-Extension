@@ -86,7 +86,7 @@
     "cross-fetch": "^4.0.0",
     "crypto-browserify": "^3.12.1",
     "dayjs": "^1.11.13",
-    "debounce": "^1.2.1",
+    "debounce": "^2.2.0",
     "dedent": "^0.7.0",
     "eth-hd-keyring": "^3.6.0",
     "eth-rpc-errors": "^4.0.3",

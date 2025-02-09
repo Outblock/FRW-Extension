@@ -47,7 +47,6 @@ import {
   googleDriveService,
   passwordService,
   flownsService,
-  stakingService,
   proxyService,
   newsService,
   mixpanelTrack,
@@ -1049,12 +1048,6 @@ export class WalletController extends BaseController {
 
     return wallet;
   };
-  fetchFlownsInbox = async () => {
-    const info = await userInfoService.getUserInfo();
-    const res = await openapiService.getFlownsInbox(info.username);
-
-    return res;
-  };
 
   setPopStat = async (stat: boolean) => {
     const network = await this.getNetwork();
@@ -1272,25 +1265,6 @@ export class WalletController extends BaseController {
     }
   };
 
-  fetchTokenList = async (_expiry = 5000) => {
-    const network = await this.getNetwork();
-    try {
-      const now = new Date();
-      const exp = _expiry + now.getTime();
-      coinListService.setExpiry(exp);
-
-      const tokenList = await openapiService.getEnabledTokenList(network);
-      return tokenList;
-    } catch (err) {
-      if (err.message === 'Operation aborted') {
-        console.log('fetchTokenList operation aborted.');
-      } else {
-        console.error('fetchTokenList encountered an error:', err);
-      }
-      throw err;
-    }
-  };
-
   fetchBalance = async ({ signal } = { signal: new AbortController().signal }) => {
     const network = await this.getNetwork();
     const tokenList = await openapiService.getEnabledTokenList(network);
@@ -1368,7 +1342,6 @@ export class WalletController extends BaseController {
   fetchCoinList = async (_expiry = 5000, { signal } = { signal: new AbortController().signal }) => {
     const network = await this.getNetwork();
     try {
-      await this.fetchTokenList(_expiry);
       await this.fetchBalance({ signal });
 
       // const allTokens = await openapiService.getAllTokenInfo();
@@ -2520,37 +2493,6 @@ export class WalletController extends BaseController {
     );
   };
 
-  claimNFTFromInbox = async (
-    domain: string,
-    itemId: string,
-    symbol: string,
-    root = 'meow'
-  ): Promise<string> => {
-    const domainName = domain.split('.')[0];
-    const token = await openapiService.getNFTCollectionInfo(symbol);
-    if (!token) {
-      throw new Error(`Invaild token name - ${symbol}`);
-    }
-    const address = fcl.sansPrefix(token.address);
-    const key = `A.${address}.${symbol}.Collection`;
-    const script = await getScripts('domain', 'claimNFTFromInbox');
-
-    return await userWalletService.sendTransaction(
-      script
-        .replaceAll('<NFT>', token.contract_name)
-        .replaceAll('<NFTAddress>', token.address)
-        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
-        .replaceAll('<CollectionPublicType>', token.path.public_type)
-        .replaceAll('<CollectionPublicPath>', token.path.public_path),
-      [
-        fcl.arg(domainName, t.String),
-        fcl.arg(root, t.String),
-        fcl.arg(key, t.String),
-        fcl.arg(itemId, t.UInt64),
-      ]
-    );
-  };
-
   enableTokenStorage = async (symbol: string) => {
     const token = await openapiService.getTokenInfo(symbol);
     if (!token) {
@@ -3161,137 +3103,31 @@ export class WalletController extends BaseController {
     return txID;
   };
 
-  sendInboxNFT = async (recipient: string, id: any, token: any): Promise<string> => {
-    const script = await getScripts('domain', 'sendInboxNFT');
-
-    const txID = await userWalletService.sendTransaction(
-      script
-        .replaceAll('<NFT>', token.contract_name)
-        .replaceAll('<NFTAddress>', token.address)
-        .replaceAll('<CollectionStoragePath>', token.path.storage_path)
-        .replaceAll('<CollectionPublicPath>', token.path.public_path),
-      [fcl.arg(recipient, t.Address), fcl.arg(parseInt(id), t.UInt64)]
-    );
-    mixpanelTrack.track('nft_transfer', {
-      tx_id: txID,
-      from_address: (await this.getCurrentAddress()) || '',
-      to_address: recipient,
-      nft_identifier: token.contract_name,
-      from_type: 'flow',
-      to_type: 'flow',
-      isMove: false,
-    });
-    return txID;
-  };
-
-  // SwapTokensForExactTokens
-  swapSend = async (
-    swapPaths,
-    tokenInMax,
-    tokenInVaultPath,
-    tokenOutSplit,
-    tokenOutVaultPath,
-    tokenOutReceiverPath,
-    tokenOutBalancePath,
-    deadline
-  ): Promise<string> => {
-    await this.getNetwork();
-    // let SwapConfig = testnetCodes;
-
-    // if (network == 'mainnet') {
-    //   SwapConfig = mainnetCodes;
-    // }
-
-    // const CODE = SwapConfig.Codes.Transactions.SwapTokensForExactTokens;
-    const CODE = await getScripts('swap', 'SwapTokensForExactTokens');
-
-    const tokenOutKey = swapPaths[swapPaths.length - 1];
-    const arr = tokenOutKey.split('.');
-    if (arr.length !== 3) {
-      throw Error(`Invalid TokenKey String, expect [A.address.name] got ${tokenOutKey}`);
-    }
-    const tokenName = arr[2];
-    const tokenAddress = `0x${arr[1]}`;
-    return await userWalletService.sendTransaction(
-      CODE.replaceAll('Token1Name', tokenName).replaceAll('Token1Addr', tokenAddress),
-      [
-        fcl.arg(swapPaths, t.Array(t.String)),
-        fcl.arg(tokenOutSplit, t.Array(t.UFix64)),
-        fcl.arg(tokenInMax.toFixed(8), t.UFix64),
-        fcl.arg(deadline.toFixed(8), t.UFix64),
-        fcl.arg({ domain: 'storage', identifier: tokenInVaultPath }, t.Path),
-        fcl.arg({ domain: 'storage', identifier: tokenOutVaultPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutReceiverPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutBalancePath }, t.Path),
-      ]
-    );
-  };
-
-  // SwapExactTokensForTokens
-  sendSwap = async (
-    swapPaths,
-    tokenInSplit,
-    tokenInVaultPath,
-    tokenOutMin,
-    tokenOutVaultPath,
-    tokenOutReceiverPath,
-    tokenOutBalancePath,
-    deadline
-  ): Promise<string> => {
-    await this.getNetwork();
-    // let SwapConfig = testnetCodes;
-    // if (network == 'mainnet') {
-    //   SwapConfig = mainnetCodes;
-    // }
-    // const CODE = SwapConfig.Codes.Transactions.SwapExactTokensForTokens;
-    const CODE = await getScripts('swap', 'SwapExactTokensForTokens');
-
-    const tokenOutKey = swapPaths[swapPaths.length - 1];
-    const arr = tokenOutKey.split('.');
-    if (arr.length !== 3) {
-      throw Error(`Invalid TokenKey String, expect [A.adress.name] got ${tokenOutKey}`);
-    }
-    const tokenName = arr[2];
-    const tokenAddress = `0x${arr[1]}`;
-    return await userWalletService.sendTransaction(
-      CODE.replaceAll('Token1Name', tokenName).replaceAll('Token1Addr', tokenAddress),
-      [
-        fcl.arg(swapPaths, t.Array(t.String)),
-        fcl.arg(tokenInSplit, t.Array(t.UFix64)),
-        fcl.arg(tokenOutMin.toFixed(8), t.UFix64),
-        fcl.arg(deadline.toFixed(8), t.UFix64),
-        fcl.arg({ domain: 'storage', identifier: tokenInVaultPath }, t.Path),
-        fcl.arg({ domain: 'storage', identifier: tokenOutVaultPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutReceiverPath }, t.Path),
-        fcl.arg({ domain: 'public', identifier: tokenOutBalancePath }, t.Path),
-      ]
-    );
-  };
-
   //transaction
 
-  getTransaction = async (address: string, limit: number, offset: number, _expiry = 60000) => {
+  getTransactions = async (
+    address: string,
+    limit: number,
+    offset: number,
+    _expiry = 60000,
+    forceRefresh = false
+  ) => {
     const network = await this.getNetwork();
     const now = new Date();
     const expiry = transactionService.getExpiry();
-    // compare the expiry time of the item with the current time
 
-    const txList = {};
+    // Refresh if forced or expired
+    if (forceRefresh || now.getTime() > expiry) {
+      await this.refreshTransactions(address, limit, offset, _expiry);
+    }
 
-    // txList['list'] = await transactionService.listTransactions();
-    txList['count'] = await transactionService.getCount();
     const sealed = await transactionService.listTransactions(network);
-    if (now.getTime() > expiry) {
-      this.refreshTransaction(address, limit, offset, _expiry);
-    }
     const pending = await transactionService.listPending(network);
-    let totalList = sealed;
-    if (pending && pending.length > 0) {
-      totalList = pending.concat(sealed);
-    }
-    txList['list'] = totalList;
 
-    return txList;
+    return {
+      count: await transactionService.getCount(),
+      list: pending?.length ? [...pending, ...sealed] : sealed,
+    };
   };
 
   getPendingTx = async () => {
@@ -3300,17 +3136,22 @@ export class WalletController extends BaseController {
     return pending;
   };
 
-  refreshTransaction = async (address: string, limit: number, offset: number, _expiry = 5000) => {
+  refreshTransactions = async (address: string, limit: number, offset: number, _expiry = 5000) => {
     const network = await this.getNetwork();
     const now = new Date();
     const exp = _expiry + now.getTime();
     transactionService.setExpiry(exp);
     const isChild = await this.getActiveWallet();
     let dataResult = {};
+    let evmAddress;
     if (isChild === 'evm') {
-      let evmAddress = await this.queryEvmAddress(address);
-      if (!evmAddress!.startsWith('0x')) {
-        evmAddress = '0x' + evmAddress;
+      if (!isValidEthereumAddress(address)) {
+        evmAddress = await this.queryEvmAddress(address);
+        if (!evmAddress!.startsWith('0x')) {
+          evmAddress = '0x' + evmAddress;
+        }
+      } else {
+        evmAddress = address;
       }
       const evmResult = await openapiService.getEVMTransfers(evmAddress!, '', limit);
       if (evmResult) {
@@ -3327,9 +3168,6 @@ export class WalletController extends BaseController {
     }
 
     transactionService.setTransaction(dataResult, network);
-    chrome.runtime.sendMessage({
-      msg: 'transferListReceived',
-    });
   };
 
   signInWithMnemonic = async (mnemonic: string, replaceUser = true) => {
@@ -3406,7 +3244,7 @@ export class WalletController extends BaseController {
     await this.getCadenceScripts();
     const address = await this.getCurrentAddress();
     if (address) {
-      this.refreshTransaction(address, 15, 0);
+      this.refreshTransactions(address, 15, 0);
     }
 
     this.abort();
@@ -3523,6 +3361,31 @@ export class WalletController extends BaseController {
     return await this.poll(fetchReport, validate, 3000);
   };
 
+  pollTransferList = async (address: string, txHash: string, maxAttempts = 5) => {
+    let attempts = 0;
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        console.log('Max polling attempts reached');
+        return;
+      }
+
+      const { list: newTransactions } = await this.getTransactions(address, 15, 0, 5000, true);
+      // Copy the list as we're going to modify the original list
+
+      const foundTx = newTransactions?.find((tx) => txHash.includes(tx.hash));
+      if (foundTx && foundTx.indexed) {
+        // Send a message to the UI to update the transfer list
+        chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
+      } else {
+        // All of the transactions have not been picked up by the indexer yet
+        attempts++;
+        setTimeout(poll, 5000); // Poll every 5 seconds
+      }
+    };
+
+    await poll();
+  };
+
   listenTransaction = async (
     txId: string,
     sendNotification = true,
@@ -3535,7 +3398,7 @@ export class WalletController extends BaseController {
     }
     const address = (await this.getCurrentAddress()) || '0x';
     const network = await this.getNetwork();
-
+    let txHash = txId;
     try {
       chrome.storage.session.set({
         transactionPending: { txId, network, date: new Date() },
@@ -3549,7 +3412,9 @@ export class WalletController extends BaseController {
 
       // Listen to the transaction until it's sealed.
       // This will throw an error if there is an error with the transaction
-      await fcl.tx(txId).onceExecuted();
+      const txStatus = await fcl.tx(txId).onceExecuted();
+      // Update the pending transaction with the transaction status
+      txHash = transactionService.updatePending(txId, network, txStatus);
 
       // Track the transaction result
       mixpanelTrack.track('transaction_result', {
@@ -3609,17 +3474,23 @@ export class WalletController extends BaseController {
     } finally {
       // Remove the pending transaction from the UI
       await chrome.storage.session.remove('transactionPending');
-      transactionService.removePending(txId, address, network);
 
-      // Refresh the transaction list
-      this.refreshTransaction(address, 15, 0);
-
-      // Tell the UI that the transaction is done
+      // Message the UI that the transaction is done
       eventBus.emit('transactionDone');
       chrome.runtime.sendMessage({
         msg: 'transactionDone',
       });
+
+      if (txHash) {
+        // Start polling for transfer list updates
+        await this.pollTransferList(address, txHash);
+      }
     }
+  };
+
+  clearPending = async () => {
+    const network = await this.getNetwork();
+    transactionService.clearPending(network);
   };
 
   getNFTListCahce = async (): Promise<NFTData> => {
@@ -3838,25 +3709,6 @@ export class WalletController extends BaseController {
     }
   };
 
-  getSwapConfig = async () => {
-    const swapStorage = await storage.get('swapConfig');
-
-    const now = new Date();
-    const exp = 1000 * 60 * 60 * 1 + now.getTime();
-    if (swapStorage && swapStorage['expiry'] && now.getTime() <= swapStorage['expiry']) {
-      return swapStorage['data'];
-    }
-
-    const data = (await openapiService.getSwapInfo()) ?? false;
-    console.log('data expired ');
-    const swapConfig = {
-      data: data,
-      expiry: exp,
-    };
-    storage.set('swapConfig', swapConfig);
-    return data;
-  };
-
   reset = async () => {
     await keyringService.loadStore(undefined);
     keyringService.store.subscribe((value) => storage.set('keyringState', value));
@@ -4000,86 +3852,6 @@ export class WalletController extends BaseController {
     const network = await userWalletService.getNetwork();
     const resp = await flownsService.getHistory(network);
     return resp;
-  };
-
-  nodeInfo = async (address) => {
-    const result = await stakingService.nodeInfo(address);
-    return result;
-  };
-
-  stakeInfo = async (address) => {
-    const result = await stakingService.stakeInfo(address);
-    return result;
-  };
-
-  delegateInfo = async (address) => {
-    const result = await stakingService.delegateInfo(address);
-    return result;
-  };
-
-  delegateStore = async () => {
-    const result = await stakingService.delegateStore();
-    return result;
-  };
-
-  createDelegator = async (amount, node) => {
-    const result = await stakingService.createDelegator(amount, node);
-    // Track delegation creation
-    mixpanelTrack.track('delegation_created', {
-      address: (await this.getCurrentAddress()) || '',
-      node_id: node,
-      amount: amount,
-    });
-    return result;
-  };
-
-  createStake = async (amount, node, delegate) => {
-    const result = await stakingService.createStake(amount, node, delegate);
-    return result;
-  };
-
-  withdrawReward = async (amount, node, delegate) => {
-    const result = await stakingService.withdrawReward(amount, node, delegate);
-    return result;
-  };
-
-  restakeReward = async (amount, node, delegate) => {
-    const result = await stakingService.restakeReward(amount, node, delegate);
-    return result;
-  };
-
-  restakeUnstaked = async (amount, node, delegate) => {
-    const result = await stakingService.restakeUnstaked(amount, node, delegate);
-    return result;
-  };
-
-  withdrawUnstaked = async (amount, node, delegate) => {
-    const result = await stakingService.withdrawUnstaked(amount, node, delegate);
-    return result;
-  };
-
-  unstake = async (amount, node, delegate) => {
-    const result = await stakingService.unstake(amount, node, delegate);
-    return result;
-  };
-
-  getApr = async () => {
-    const result = await stakingService.getApr();
-    return result;
-  };
-
-  checkStakingSetup = async (address) => {
-    return await stakingService.checkSetup(address);
-  };
-
-  setupDelegator = async (address) => {
-    const result = await stakingService.setup(address);
-    return result;
-  };
-
-  checkCrescendo = async () => {
-    const result = await userWalletService.checkCrescendo();
-    return result;
   };
 
   getAccount = async (): Promise<FclAccount> => {

@@ -6,8 +6,8 @@ import { useHistory } from 'react-router-dom';
 import type { Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
-import { useCoinStore } from '@/ui/stores/useCoinStore';
-import { useProfileStore } from '@/ui/stores/useProfileStore';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useProfileStore } from '@/ui/stores/profileStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import type { CoinItem } from 'background/service/coinList';
 import { LLSpinner } from 'ui/FRWComponent';
@@ -60,21 +60,6 @@ const EMPTY_COIN: CoinItem = {
 };
 
 const MoveFromFlow = (props: TransferConfirmationProps) => {
-  enum ENV {
-    Mainnet = 'mainnet',
-    Testnet = 'testnet',
-  }
-  enum Error {
-    Exceed = 'Insufficient balance',
-    Fail = 'Cannot find swap pair',
-  }
-
-  // declare enum Strategy {
-  //   GitHub = 'GitHub',
-  //   Static = 'Static',
-  //   CDN = 'CDN'
-  // }
-
   const usewallet = useWallet();
   const history = useHistory();
   const { evmWallet, mainAddress, currentWallet, userInfo } = useProfileStore();
@@ -129,7 +114,6 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
       contact_name: evmWallet.name,
     };
     setEvmUser(evmContact);
-    // const result = await usewallet.openapi.fetchTokenList(network);
     setLoading(false);
 
     return;
@@ -139,15 +123,15 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
     setLoading(true);
     usewallet
       .fundFlowEvm(amount)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer to EVM complete',
           `Your have moved ${amount} Flow to your EVM address ${evmAddress}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })
@@ -172,15 +156,15 @@ const MoveFromFlow = (props: TransferConfirmationProps) => {
     }
     usewallet
       .bridgeToEvm(flowId, amount)
-      .then(async (createRes) => {
+      .then(async (txId) => {
         usewallet.listenTransaction(
-          createRes,
+          txId,
           true,
           'Transfer to EVM complete',
           `Your have moved ${amount} ${tokenResult!.contractName} to your EVM address ${evmAddress}. \nClick to view this transaction.`
         );
         await usewallet.setDashIndex(0);
-        history.push('/dashboard?activity=1');
+        history.push(`/dashboard?activity=1&txId=${txId}`);
         setLoading(false);
         props.handleCloseIconClicked();
       })
