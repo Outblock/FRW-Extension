@@ -1,25 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useWallet, useApproval } from 'ui/utils';
-import * as ApprovalComponent from './components';
 import { Box } from '@mui/system';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
+
+// import { useInitHook } from '@/ui/hooks';
+import { useWallet, useApproval, useWalletLoaded } from 'ui/utils';
+
+// import Header from '../Dashboard/Header';
+
+import * as ApprovalComponent from './components';
 // import ApprovalHeader from './ApprovalHeader';
-import Header from '../Dashboard/Header';
 
 const Approval = () => {
   const history = useHistory();
   // const [account, setAccount] = useState('');
-  const wallet = useWallet();
+  const usewallet = useWallet();
+  // const { initializeStore } = useInitHook();
   const [getApproval, resolveApproval, rejectApproval] = useApproval();
   const [approval, setApproval] = useState<any>(null);
 
-  const init = async () => {
+  const init = useCallback(async () => {
+    // initializeStore();
     const approval = await getApproval();
     if (!approval) {
       history.replace('/');
       return null;
     }
-    console.log('approval ', approval);
     setApproval(approval);
     if (approval.origin || approval.params.origin) {
       document.title = approval.origin || approval.params.origin;
@@ -27,7 +32,7 @@ const Approval = () => {
       history.replace('/unlock');
       return;
     }
-    const account = await wallet.getCurrentAccount();
+    const account = await usewallet.getCurrentAccount();
     if (!account) {
       rejectApproval();
       return;
@@ -35,19 +40,11 @@ const Approval = () => {
       rejectApproval();
       return;
     }
-  };
-
-  const handleCancel = () => {
-    rejectApproval();
-  };
-
-  const handleAllow = async () => {
-    resolveApproval();
-  };
+  }, [history, getApproval, setApproval, usewallet, rejectApproval]);
 
   useEffect(() => {
     init();
-  }, []);
+  }, [init]);
 
   if (!approval) return <></>;
   const { approvalComponent, params, origin, requestDefer } = approval;
@@ -62,7 +59,7 @@ const Approval = () => {
         flexDirection: 'column',
       }}
     >
-      <Header loading={false} />
+      {/* <Header loading={false} /> */}
       {approval && (
         <CurrentApprovalComponent params={params} origin={origin} requestDefer={requestDefer} />
       )}
