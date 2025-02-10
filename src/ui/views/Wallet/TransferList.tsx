@@ -201,10 +201,14 @@ const TransferList = () => {
                       dense={true}
                       onClick={() => {
                         {
+                          // Link to the first evm tx if there are multiple. Once the indexer updates, it'll show all the evm transactions
+                          // This is a temporary solution until the indexer updates
+                          const txHash =
+                            (tx.evmTxIds && tx.evmTxIds.length) === 1 ? tx.evmTxIds[0] : tx.hash;
                           const url =
                             monitor === 'flowscan'
-                              ? `${flowscanURL}/tx/${tx.hash}`
-                              : `${viewSourceURL}/${tx.hash}`;
+                              ? `${flowscanURL}/tx/${txHash}`
+                              : `${viewSourceURL}/${txHash}`;
                           window.open(url);
                         }
                       }}
