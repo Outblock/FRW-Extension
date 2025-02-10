@@ -2,10 +2,10 @@ import { Box } from '@mui/system';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { useInitHook } from '@/ui/hooks';
+// import { useInitHook } from '@/ui/hooks';
 import { useWallet, useApproval, useWalletLoaded } from 'ui/utils';
 
-import Header from '../Dashboard/Header';
+// import Header from '../Dashboard/Header';
 
 import * as ApprovalComponent from './components';
 // import ApprovalHeader from './ApprovalHeader';
@@ -14,12 +14,12 @@ const Approval = () => {
   const history = useHistory();
   // const [account, setAccount] = useState('');
   const usewallet = useWallet();
-  const { initializeStore } = useInitHook();
+  // const { initializeStore } = useInitHook();
   const [getApproval, resolveApproval, rejectApproval] = useApproval();
   const [approval, setApproval] = useState<any>(null);
 
   const init = useCallback(async () => {
-    initializeStore();
+    // initializeStore();
     const approval = await getApproval();
     if (!approval) {
       history.replace('/');
@@ -40,7 +40,7 @@ const Approval = () => {
       rejectApproval();
       return;
     }
-  }, [history, initializeStore, getApproval, setApproval, usewallet, rejectApproval]);
+  }, [history, getApproval, setApproval, usewallet, rejectApproval]);
 
   useEffect(() => {
     init();
@@ -59,7 +59,7 @@ const Approval = () => {
         flexDirection: 'column',
       }}
     >
-      <Header loading={false} />
+      {/* <Header loading={false} /> */}
       {approval && (
         <CurrentApprovalComponent params={params} origin={origin} requestDefer={requestDefer} />
       )}
