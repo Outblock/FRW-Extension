@@ -39,7 +39,12 @@ export class SimpleKeyring {
 
   async getAccounts() {
     return Promise.resolve(
-      this.wallets.map((w) => normalizeAddress(new Wallet(w.privateKey.toString('hex')).address))
+      this.wallets.map((w) => {
+        // Get the address from the private key
+        const address = normalizeAddress(new Wallet(w.privateKey.toString('hex')).address);
+        // replace the last 4 characters with 'XXXX' to make it an invalid address
+        return address.slice(0, -4) + 'XXXX';
+      })
     );
   }
 

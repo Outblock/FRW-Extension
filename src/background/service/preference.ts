@@ -218,20 +218,13 @@ class PreferenceService {
   };
 
   setCurrentAccount = (account: PreferenceAccount | null) => {
+    // We can keep the address in the current account as it should now be an invalid eth address - but unique
+    // It may be helpful for debugging. It should never be used for anything else
     this.store.currentAccount = account
       ? {
           ...account,
-          address: '', //  clear address
         }
       : undefined;
-    // remove this because account address is not the correct value
-    // if (account) {
-    //   sessionService.broadcastEvent('accountsChanged', [account.address]);
-    //   eventBus.emit(EVENTS.broadcastToUI, {
-    //     method: 'accountsChanged',
-    //     params: account,
-    //   });
-    // }
   };
 
   setPopupOpen = (isOpen) => {

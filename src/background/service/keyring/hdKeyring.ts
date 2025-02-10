@@ -38,11 +38,22 @@ export class HDKeyring {
     throw new Error('Operation not supported');
   }
 
-  async getAccounts() {
+  async getMnemonic() {
     if (!this.mnemonic) {
       throw new Error('Mnemonic is required');
     }
     return [this.mnemonic];
+  }
+
+  async getAccounts() {
+    if (!this.hdWallet) {
+      throw new Error('HD Wallet is required');
+    }
+    // Get the dummy eth address. This isn't a real account that the user has, but it is a unique identifier for the wallet
+    const hdWalletEthAddress = await this.hdWallet.getAddress();
+    // replace the last 4 characters with 'XXXX' to make it an invalid address
+    const uniqueButInvalidAddress = hdWalletEthAddress.slice(0, -4) + 'XXXX';
+    return [uniqueButInvalidAddress];
   }
 
   async removeAccount(address: string) {
