@@ -1,5 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -280,7 +281,7 @@ const SendToCadence = () => {
                 validated === null ||
                 exceed === true ||
                 amount === null ||
-                parseFloat(amount || '-1') < 0
+                new BN(amount || '-1').isLessThanOrEqualTo(0)
               }
             >
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">

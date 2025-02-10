@@ -11,7 +11,7 @@ export const useTransactionHook = () => {
   const fetchAndSetToken = useCallback(
     async (address: string) => {
       try {
-        const tokenInfo = await usewallet.openapi.getEvmTokenInfo(address);
+        const tokenInfo = await usewallet.openapi.getTokenInfo(address);
         if (tokenInfo) {
           setSelectedToken(tokenInfo);
         }

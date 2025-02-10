@@ -2,7 +2,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
 import BN from 'bignumber.js';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
@@ -25,12 +25,11 @@ interface TransferConfirmationProps {
 const TransferConfirmation = (props: TransferConfirmationProps) => {
   const usewallet = useWallet();
   const history = useHistory();
-  const { selectedToken, setFromNetwork, toAddress, setTokenType } = useTransactionStore();
+  const { selectedToken, currentTxState } = useTransactionStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<number | null>(null);
-  const sendingRef = useRef(false);
 
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
@@ -87,155 +86,148 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     setOccupied(false);
   }, []);
 
-  useEffect(() => {
-    sendingRef.current = sending;
-  }, [sending]);
-
-  const runTransaction = async () => {
+  const transferTokenOnCadence = useCallback(async () => {
+    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
     try {
-      setSending(true);
-
-      if (props.data.childType === 'evm') {
-        await handleEvmTransfer();
-      } else if (props.data.childType) {
-        await tokenFromChild();
-      } else {
-        await transferTokenOnCadence();
-      }
-    } catch (error) {
-      console.error('Transaction failed:', error);
+      const txId = await usewallet.transferInboxTokens(
+        props.data.tokenSymbol,
+        props.data.contact.address,
+        amount
+      );
+      await usewallet.setRecent(props.data.contact);
+      usewallet.listenTransaction(
+        txId,
+        true,
+        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
+        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
+        props.data.coinInfo.icon
+      );
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      setTid(txId);
+      history.push(`/dashboard?activity=1&txId=${txId}`);
+    } catch {
+      setSending(false);
       setFailed(true);
-    } finally {
-      if (sendingRef.current) {
-        setSending(false);
-      }
     }
-  };
+  }, [props, usewallet, history, setSending, setFailed, setTid]);
 
-  const handleEvmTransfer = async () => {
-    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
-      await flowFromEvm();
-    } else {
-      await otherFTFromEvm();
-    }
-  };
-
-  const transferTokenOnCadence = async () => {
+  const tokenFromChild = useCallback(async () => {
     const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
-
-    usewallet
-      .transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount)
-      .then(async (txId) => {
-        await usewallet.setRecent(props.data.contact);
-        console.log('send result ', txId, props.data);
-        usewallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await usewallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch(() => {
-        setSending(false);
-        setFailed(true);
-      });
-  };
-
-  const tokenFromChild = async () => {
-    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
-
-    usewallet
-      .sendFTfromChild(
+    try {
+      const txId = await usewallet.sendFTfromChild(
         props.data.userContact.address,
         props.data.contact.address,
         'flowTokenProvider',
         amount,
         props.data.tokenSymbol
-      )
-      .then(async (txId) => {
-        await usewallet.setRecent(props.data.contact);
-        usewallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await usewallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch((err) => {
-        console.log('0xe8264050e6f51923 ', err);
-        setSending(false);
-        setFailed(true);
-      });
-  };
+      );
+      await usewallet.setRecent(props.data.contact);
+      usewallet.listenTransaction(
+        txId,
+        true,
+        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
+        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
+        props.data.coinInfo.icon
+      );
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      setTid(txId);
+      history.push(`/dashboard?activity=1&txId=${txId}`);
+    } catch (err) {
+      console.log('0xe8264050e6f51923 ', err);
+      setSending(false);
+      setFailed(true);
+    }
+  }, [props, usewallet, history, setSending, setFailed, setTid]);
 
-  const flowFromEvm = async () => {
-    console.log('sending status ', sending);
-    usewallet
-      .withdrawFlowEvm(props.data.amount, props.data.contact.address)
-      .then(async (txId) => {
-        await usewallet.setRecent(props.data.contact);
-        usewallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await usewallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch(() => {
-        setSending(false);
-        setFailed(true);
-      });
-  };
+  const flowFromEvm = useCallback(async () => {
+    try {
+      const txId = await usewallet.withdrawFlowEvm(props.data.amount, props.data.contact.address);
+      await usewallet.setRecent(props.data.contact);
+      usewallet.listenTransaction(
+        txId,
+        true,
+        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
+        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
+        props.data.coinInfo.icon
+      );
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      setTid(txId);
+      history.push(`/dashboard?activity=1&txId=${txId}`);
+    } catch {
+      setSending(false);
+      setFailed(true);
+    }
+  }, [props, usewallet, history, setSending, setFailed, setTid]);
 
-  const otherFTFromEvm = async () => {
-    const tokenResult = selectedToken;
-    console.log('tokenResult ', tokenResult, props.data.amount);
-
-    usewallet
-      .transferFTFromEvm(
-        tokenResult!['flowIdentifier'],
+  const otherFTFromEvm = useCallback(async () => {
+    try {
+      const txId = await usewallet.transferFTFromEvm(
+        selectedToken!['flowIdentifier'],
         props.data.amount,
         props.data.contact.address,
-        tokenResult!
-      )
-      .then(async (txId) => {
-        await usewallet.setRecent(props.data.contact);
-        usewallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await usewallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch(() => {
-        setSending(false);
-        setFailed(true);
-      });
-  };
+        selectedToken!
+      );
+      await usewallet.setRecent(props.data.contact);
+      usewallet.listenTransaction(
+        txId,
+        true,
+        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
+        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
+        props.data.coinInfo.icon
+      );
+      props.handleCloseIconClicked();
+      await usewallet.setDashIndex(0);
+      setSending(false);
+      setTid(txId);
+      history.push(`/dashboard?activity=1&txId=${txId}`);
+    } catch {
+      setSending(false);
+      setFailed(true);
+    }
+  }, [props, selectedToken, usewallet, history, setSending, setFailed, setTid]);
+
+  const runTransaction = useCallback(async () => {
+    try {
+      setSending(true);
+      console.log('currentTxState ', currentTxState);
+
+      switch (currentTxState) {
+        case 'FTfromEvmtoCadence':
+          await otherFTFromEvm();
+          break;
+        case 'FlowfromEvmtoCadence':
+          await flowFromEvm();
+          break;
+        case 'FTfromChildtoCadence':
+        case 'FlowfromChildtoCadence':
+          await tokenFromChild();
+          break;
+        case 'FTfromCadencetoCadence':
+        case 'FlowfromCadencetoCadence':
+          await transferTokenOnCadence();
+          break;
+        default:
+          throw new Error(`Unsupported transaction state: ${currentTxState}`);
+      }
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      setFailed(true);
+    }
+  }, [
+    currentTxState,
+    otherFTFromEvm,
+    flowFromEvm,
+    tokenFromChild,
+    transferTokenOnCadence,
+    setSending,
+    setFailed,
+  ]);
 
   const transactionDoneHandler = useCallback(
     (request) => {

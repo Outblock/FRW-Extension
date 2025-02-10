@@ -8,6 +8,7 @@ import { useHistory } from 'react-router-dom';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
@@ -24,6 +25,7 @@ interface ToEthConfirmationProps {
 const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
+  const { currentTxState, selectedToken } = useTransactionStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
@@ -109,16 +111,15 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
   const transferFt = useCallback(async () => {
     setSending(true);
 
-    const tokenResult = await wallet.openapi.getTokenInfo(props.data.tokenSymbol);
     const value = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
-    const address = tokenResult!.address.startsWith('0x')
-      ? tokenResult!.address.slice(2)
-      : tokenResult!.address;
+    const address = selectedToken!.address.startsWith('0x')
+      ? selectedToken!.address.slice(2)
+      : selectedToken!.address;
 
     wallet
       .transferFTToEvmV2(
-        `A.${address}.${tokenResult!.contractName}.Vault`,
+        `A.${address}.${selectedToken!.contractName}.Vault`,
         value,
         props.data.contact.address
       )
@@ -143,16 +144,26 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
         setFailed(true);
       });
     // Depending on history is probably not great
-  }, [history, props, wallet]);
+  }, [history, props, wallet, selectedToken]);
 
   const transferToken = useCallback(async () => {
-    setSending(true);
-    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
-      transferFlow();
-    } else {
-      transferFt();
+    try {
+      setSending(true);
+      switch (currentTxState) {
+        case 'FlowfromCadencetoEvm':
+          await transferFlow();
+          break;
+        case 'FTfromCadencetoEvm':
+          await transferFt();
+          break;
+        default:
+          throw new Error(`Unsupported transaction state: ${currentTxState}`);
+      }
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      setFailed(true);
     }
-  }, [props?.data?.tokenSymbol, transferFlow, transferFt]);
+  }, [transferFlow, transferFt, currentTxState]);
 
   const transactionDoneHandler = useCallback(
     (request) => {
