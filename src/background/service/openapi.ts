@@ -161,16 +161,6 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'get',
     params: [],
   },
-  user_wallet: {
-    path: '/v1/user/wallet',
-    method: 'get',
-    params: [],
-  },
-  user_wallet_v2: {
-    path: '/v2/user/wallet',
-    method: 'get',
-    params: [],
-  },
   user_info: {
     path: '/v1/user/info',
     method: 'get',
@@ -810,19 +800,6 @@ class OpenApiService {
   userInfo = async (): Promise<UserInfoResponse> => {
     const config = this.store.config.user_info;
     return await this.sendRequest(config.method, config.path);
-  };
-
-  userWallet = async () => {
-    const config = this.store.config.user_wallet;
-    const data = await this.sendRequest(config.method, config.path);
-    return data;
-  };
-
-  //todo check data
-  userWalletV2 = async () => {
-    const config = this.store.config.user_wallet_v2;
-    const data = await this.sendRequest(config.method, config.path);
-    return data;
   };
 
   createFlowAddress = async () => {

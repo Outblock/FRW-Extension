@@ -275,24 +275,6 @@
     "params": []
   },
   {
-    "name": "userWallet",
-    "isAsync": true,
-    "fullBody": "async () => {\n        const config = this.store.config.user_wallet;\n        const data = await this.sendRequest(config.method, config.path);\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async () =>",
-    "params": []
-  },
-  {
-    "name": "userWalletV2",
-    "isAsync": true,
-    "fullBody": "async () => {\n        const config = this.store.config.user_wallet_v2;\n        const data = await this.sendRequest(config.method, config.path);\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async () =>",
-    "params": []
-  },
-  {
     "name": "createFlowAddress",
     "isAsync": true,
     "fullBody": "async () => {\n        const config = this.store.config.create_flow_address;\n        const data = await this.sendRequest(config.method, config.path);\n        return data;\n    }",
