@@ -302,15 +302,6 @@
     "params": []
   },
   {
-    "name": "createFlowSandboxAddress",
-    "isAsync": true,
-    "fullBody": "async () => {\n        const config = this.store.config.create_flow_sandbox_address;\n        const data = await this.sendRequest(config.method, config.path);\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async () =>",
-    "params": []
-  },
-  {
     "name": "getMoonpayURL",
     "isAsync": true,
     "fullBody": "async (url) => {\n        const baseURL = (0,background_utils_firebaseConfig__WEBPACK_IMPORTED_MODULE_11__.getFirbaseFunctionUrl)();\n        const response = await this.sendRequest('POST', '/moonPaySignature', {}, { url: url }, baseURL);\n        return response;\n    }",
@@ -624,15 +615,6 @@
     "usesFetchDirectly": false,
     "basicSignature": "async () =>",
     "params": []
-  },
-  {
-    "name": "getNFTCollectionInfo",
-    "isAsync": true,
-    "fullBody": "async (contract_name) => {\n        // FIX ME: Get defaultTokenList from firebase remote config\n        const tokenList = await remoteFetch.nftCollection();\n        // const network = await userWalletService.getNetwork();\n        return tokenList.find((item) => item.id === contract_name);\n    }",
-    "usesSendRequest": false,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (contract_name) =>",
-    "params": ["contract_name"]
   },
   {
     "name": "getFeatureFlags",
@@ -953,15 +935,6 @@
     "name": "nftCatalogCollectionList",
     "isAsync": true,
     "fullBody": "async (address, contractName, limit, offset, network) => {\n        const { data } = await this.sendRequest('GET', `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}&network=${network}`, {}, {}, consts__WEBPACK_IMPORTED_MODULE_13__.WEB_NEXT_URL);\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (address, contractName, limit, offset, network) =>",
-    "params": ["address", "contractName", "limit", "offset", "network"]
-  },
-  {
-    "name": "nftCollectionApiPaging",
-    "isAsync": true,
-    "fullBody": "async (address, contractName, limit, offset, network) => {\n        const { data } = await this.sendRequest('GET', `/api/storage/${network}/nft?address=${address}&limit=${limit}&offset=${offset}&path=${contractName}`, {}, {}, 'https://lilico.app');\n        return data;\n    }",
     "usesSendRequest": true,
     "usesFetchDirectly": false,
     "basicSignature": "async (address, contractName, limit, offset, network) =>",
