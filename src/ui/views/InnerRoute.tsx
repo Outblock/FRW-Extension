@@ -20,8 +20,9 @@ import SendToAddress from './NFT/SendNFT/SendToAddress';
 import EvmCollectionDetail from './NftEvm/CollectionDetail';
 import NftEvmDetail from './NftEvm/Detail';
 import SendNftEvm from './NftEvm/SendNFT/SendToAddress';
+import SendTo from './Send/[toAddress]';
 import SendToCadence from './Send/SendToCadence';
-import SendEth from './Send/SendToEVM';
+import SendToEVM from './Send/SendToEVM';
 import SettingTab from './Setting';
 import About from './Setting/About/About';
 import Account from './Setting/Account';
@@ -160,17 +161,17 @@ const InnerRoute = (props: RouteComponentProps) => {
             <PrivateRoute path={`${props.match.url}/nftevm/send`}>
               <SendNftEvm />
             </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/wallet/send`}>
+            <PrivateRoute path={`${props.match.url}/wallet/send/:toAddress`}>
+              <SendTo />
+            </PrivateRoute>
+            <PrivateRoute path={`${props.match.url}/wallet/send`} exact>
               <Send />
             </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/wallet/deposit`}>
               <Deposit />
             </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/wallet/sendtocadence`}>
-              <SendToCadence />
-            </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/wallet/sendeth`}>
-              <SendEth />
+              <SendToEVM />
             </PrivateRoute>
             <PrivateRoute path={`${props.match.url}/token/:id`}>
               <TokenDetail />

@@ -5,6 +5,8 @@ import {
   formatTokenAmount,
   formatLargeNumber,
   addDotSeparators,
+  stripEnteredAmount,
+  stripFinalAmount,
 } from '../number';
 
 describe('splitNumberByStep', () => {
@@ -65,5 +67,60 @@ describe('addDotSeparators', () => {
 
   it('should preserve at least some decimal places', () => {
     expect(addDotSeparators('1234.00000000')).toBe('1,234.000');
+  });
+});
+
+describe('stripEnteredAmount', () => {
+  it('should handle real-time input correctly', () => {
+    // Basic cases
+    expect(stripEnteredAmount('123', 2)).toBe('123');
+    expect(stripEnteredAmount('123.', 2)).toBe('123.');
+    expect(stripEnteredAmount('123.4', 2)).toBe('123.4');
+
+    // Multiple decimal points
+    expect(stripEnteredAmount('12..34.56', 2)).toBe('12.');
+    expect(stripEnteredAmount('12.34.56', 2)).toBe('12.34');
+
+    // Leading zeros
+    expect(stripEnteredAmount('000123', 2)).toBe('123');
+    expect(stripEnteredAmount('0', 2)).toBe('0');
+    expect(stripEnteredAmount('00.123', 2)).toBe('0.12');
+
+    // Decimal cases
+    expect(stripEnteredAmount('.123', 2)).toBe('0.12');
+    expect(stripEnteredAmount('.', 2)).toBe('0.');
+    expect(stripEnteredAmount('', 2)).toBe('');
+  });
+});
+
+describe('stripFinalAmount', () => {
+  it('should handle empty and invalid inputs', () => {
+    expect(stripFinalAmount('', 2)).toBe('0');
+    expect(stripFinalAmount('   ', 2)).toBe('0');
+    expect(stripFinalAmount('.', 2)).toBe('0');
+    expect(stripFinalAmount('..', 2)).toBe('0');
+  });
+
+  it('should format final amounts correctly', () => {
+    // Basic cases
+    expect(stripFinalAmount('123', 2)).toBe('123');
+    expect(stripFinalAmount('123.', 2)).toBe('123');
+    expect(stripFinalAmount('123.4', 2)).toBe('123.4');
+    expect(stripFinalAmount('123.40', 2)).toBe('123.4');
+
+    // Multiple decimal points
+    expect(stripFinalAmount('12..34.56', 2)).toBe('12');
+    expect(stripFinalAmount('12.34.56', 2)).toBe('12.34');
+
+    // Leading zeros
+    expect(stripFinalAmount('000123', 2)).toBe('123');
+    expect(stripFinalAmount('0', 2)).toBe('0');
+    expect(stripFinalAmount('00.123', 2)).toBe('0.123');
+
+    // Decimal cases
+    expect(stripFinalAmount('.123', 2)).toBe('0.12');
+    expect(stripFinalAmount('.', 2)).toBe('0');
+    expect(stripFinalAmount('', 2)).toBe('');
+    expect(stripFinalAmount('123.000', 2)).toBe('123');
   });
 });
