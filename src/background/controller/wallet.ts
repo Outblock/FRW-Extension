@@ -3410,7 +3410,7 @@ export class WalletController extends BaseController {
     transactionService.clearPending(network);
   };
 
-  getNFTListCahce = async (): Promise<NFTData> => {
+  getNFTListCache = async (): Promise<NFTData> => {
     const network = await this.getNetwork();
     // const list =
     // if (!list.length){
