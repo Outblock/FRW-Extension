@@ -22,7 +22,6 @@ import { useTransferList } from '@/ui/hooks/useTransferListHook';
 import { useProfileStore } from '@/ui/stores/profileStore';
 import { useTransferListStore } from '@/ui/stores/transferListStore';
 import activity from 'ui/FRWAssets/svg/activity.svg';
-import { useWallet } from 'ui/utils';
 
 import { TokenPrice } from '../TokenDetail/TokenValue';
 

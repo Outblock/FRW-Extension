@@ -1895,21 +1895,6 @@ class OpenApiService {
     return data;
   };
 
-  flowScanQuery = async (query: string, operationName: string) => {
-    const config = this.store.config.account_query;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        query,
-        operation_name: operationName,
-      }
-    );
-
-    return data;
-  };
-
   pingNetwork = async (network: string): Promise<boolean> => {
     try {
       const response = await fetch(`https://rest-${network}.onflow.org/v1/blocks?height=sealed`);
@@ -1999,17 +1984,6 @@ class OpenApiService {
       {},
       {},
       'https://lilico.app/'
-    );
-    return data;
-  };
-
-  cadenceScripts = async (network: string) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/scripts?network=${network}`,
-      {},
-      {},
-      WEB_NEXT_URL
     );
     return data;
   };

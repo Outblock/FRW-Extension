@@ -407,28 +407,13 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       { unused: true, name: 'flownsAuthTransaction', params: { transaction: {}, envelope: '' } },
       { unused: true, name: 'flownsTransaction', params: { transaction: {}, envelope: '' } },
     ],
-    swap: [
-      {
-        unused: true,
-        name: 'swapEstimate',
-        params: { network: commonParams.network, inToken: 'flow', outToken: 'usdc', amount: '1' },
-      },
-      {
-        unused: true,
-        name: 'swapOutEstimate',
-        params: { network: commonParams.network, inToken: 'flow', outToken: 'usdc', amount: '1' },
-      },
-      { unused: true, name: 'swapPairs', params: { network: commonParams.network } },
-    ],
     scripts: [
-      { unused: true, name: 'cadenceScripts', params: { network: commonParams.network } },
       { name: 'cadenceScriptsV2', params: {} },
     ],
     misc: [
       { name: 'getNews', params: {} },
       { name: 'getLatestVersion', params: {} },
       { name: 'validateRecaptcha', params: { token: commonParams.token } },
-      { unused: true, name: 'flowScanQuery', params: { query: '', operationName: '' } },
       { name: 'pingNetwork', params: { network: commonParams.network } },
       {
         name: 'getMoonpayURL',
