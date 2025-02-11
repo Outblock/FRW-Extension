@@ -1,7 +1,5 @@
 import type { TransactionStatus } from '@onflow/typedefs';
-import { ConcatenationScope } from 'webpack';
 
-import { isValidEthereumAddress } from '@/shared/utils/address';
 import createPersistStore from 'background/utils/persisitStore';
 import createSessionStore from 'background/utils/sessionStore';
 
@@ -157,9 +155,10 @@ class Transaction {
   updatePending = (txId: string, network: string, transactionStatus: TransactionStatus): string => {
     const txList = this.session.pendingItem[network];
     const txItemIndex = txList.findIndex((item) => item.hash.includes(txId));
+    let combinedTxHash = txId;
     if (txItemIndex === -1) {
       // txItem not found, return
-      return txId;
+      return combinedTxHash;
     }
     const txItem = txList[txItemIndex];
 
@@ -169,7 +168,6 @@ class Transaction {
 
     const evmTxIds: string[] = transactionStatus.events?.reduce(
       (transactionIds: string[], event) => {
-        console.log('event', event);
         if (event.type.includes('EVM') && !!event.data?.hash) {
           const hashBytes = event.data.hash.map((byte) => parseInt(byte));
           const hash = '0x' + Buffer.from(hashBytes).toString('hex');
@@ -182,7 +180,6 @@ class Transaction {
       },
       [] as string[]
     );
-    console.log('evmTxIds', evmTxIds);
     txItem.evmTxIds = [...evmTxIds];
 
     if (evmTxIds.length > 0) {
@@ -191,9 +188,8 @@ class Transaction {
         // TODO: Check there aren't 100s of evmTxIds
         console.warn('updatePending - evmTxIds.length > 10', evmTxIds);
       }
-      txItem.hash = `${txItem.cadenceTxId || txItem.hash}_${evmTxIds.join('_')}`;
+      combinedTxHash = `${txItem.cadenceTxId || txItem.hash}_${evmTxIds.join('_')}`;
     }
-    console.log('txItem', txItem);
     txList[txItemIndex] = txItem;
 
     this.session.pendingItem[network] = [...txList];
@@ -201,7 +197,7 @@ class Transaction {
     chrome.runtime.sendMessage({ msg: 'transferListUpdated' });
 
     // Return the hash of the transaction
-    return txItem.hash;
+    return combinedTxHash;
   };
 
   removePending = (txId: string, address: string, network: string) => {
@@ -209,7 +205,11 @@ class Transaction {
     const newList = txList.filter((item) => {
       // Supports hashes with multiple ids
       // e.g. cadenceTxId_evmTxId
-      return !item.hash.includes(txId);
+      return (
+        !item.hash.includes(txId) &&
+        !item.cadenceTxId?.includes(txId) &&
+        !item.evmTxIds?.includes(txId)
+      );
     });
     this.session.pendingItem[network] = [...newList];
   };
