@@ -10,8 +10,8 @@ import {
 // for user register and login
 setup('setup new wallet or login if already registered', async ({ page, extensionId }) => {
   // let playwright know this is going to be slow
-  // Wait up to 2 minutes to setup an account
-  setup.setTimeout(500_000);
+  // Wait up to 10 minutes to setup an account
+  setup.setTimeout(600_000);
   // Create a new page and navigate to extension
   // Navigate and wait for network to be idle
 
