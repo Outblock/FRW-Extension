@@ -88,7 +88,7 @@ const Root = styled('span')(
     `
 );
 
-const Flowns = () => {
+const AccountSettings = () => {
   const history = useHistory();
   const wallet = useWallet();
   const [username, setUsername] = useState('');
@@ -331,17 +331,6 @@ const Flowns = () => {
                   </Typography>{' '}{chrome.i18n.getMessage('Lilico__domain')}
                 </Typography>
               </Box>
-              <LLPrimaryButton
-                label={chrome.i18n.getMessage('Claim')}
-                onClick={()=>{history.push('/dashboard/flowns')}}
-                sx={{
-                  borderRadius:'14.5px',
-                  height:'29px',
-                  width:'62px',
-                  fontSize:'12px',
-                  textTransform: 'none !important',
-                }}
-              />
             </Box>
           } */}
           <EditAccount
@@ -362,4 +351,4 @@ const Flowns = () => {
   );
 };
 
-export default Flowns;
+export default AccountSettings;

@@ -138,11 +138,6 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'post',
     params: [],
   },
-  create_flow_sandbox_address: {
-    path: '/v1/user/address/crescendo',
-    method: 'post',
-    params: [],
-  },
   create_flow_network_address: {
     path: '/v1/user/address/network',
     method: 'post',
@@ -889,12 +884,6 @@ class OpenApiService {
 
   createFlowAddress = async () => {
     const config = this.store.config.create_flow_address;
-    const data = await this.sendRequest(config.method, config.path);
-    return data;
-  };
-
-  createFlowSandboxAddress = async () => {
-    const config = this.store.config.create_flow_sandbox_address;
     const data = await this.sendRequest(config.method, config.path);
     return data;
   };

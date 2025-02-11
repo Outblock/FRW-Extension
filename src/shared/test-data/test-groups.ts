@@ -108,7 +108,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
     ],
     wallet: [
       { name: 'createFlowAddress', params: {} },
-      { unused: true, name: 'createFlowSandboxAddress', params: {} },
       {
         unused: true,
         name: 'createFlowNetworkAddress',
