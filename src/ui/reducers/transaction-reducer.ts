@@ -1,9 +1,5 @@
 import BN from 'bignumber.js';
-import { ActionCodeOperation } from 'firebase/auth/web-extension';
 import type { TokenInfo } from 'flow-native-token-registry';
-import { debounce } from 'lodash';
-import { create } from 'zustand';
-import { subscribeWithSelector } from 'zustand/middleware';
 
 import { type Contact } from '@/shared/types/network-types';
 import type {
@@ -14,7 +10,6 @@ import type {
 } from '@/shared/types/transaction-types';
 import { type CoinItem, type WalletAddress } from '@/shared/types/wallet-types';
 import { isValidEthereumAddress } from '@/shared/utils/address';
-import { useProfileStore } from '@/ui/stores/profileStore';
 
 import { getMaxDecimals, stripEnteredAmount, stripFinalAmount } from '../utils/number';
 
@@ -124,7 +119,7 @@ export const transactionReducer = (
   action: TransactionAction
 ): TransactionState => {
   switch (action.type) {
-    case 'initTransactionState':
+    case 'initTransactionState': {
       const { rootAddress, fromAddress, fromContact } = action.payload;
       // Set from network based on the from address
       const fromNetwork = isValidEthereumAddress(fromAddress)
@@ -133,7 +128,8 @@ export const transactionReducer = (
           ? 'Cadence'
           : 'Child';
       return { ...deepCopyTxState(state), rootAddress, fromAddress, fromNetwork, fromContact };
-    case 'setSelectedToken':
+    }
+    case 'setSelectedToken': {
       // Set the token type based on the token symbol
       const tokenType = action.payload.tokenInfo.symbol.toLowerCase() !== 'flow' ? 'FT' : 'Flow';
       return {
@@ -142,7 +138,8 @@ export const transactionReducer = (
         tokenType,
         coinInfo: action.payload.coinInfo,
       };
-    case 'setToAddress':
+    }
+    case 'setToAddress': {
       const { address, contact } = action.payload;
       const toNetwork = isValidEthereumAddress(address)
         ? 'Evm'
@@ -150,14 +147,17 @@ export const transactionReducer = (
           ? 'Cadence'
           : 'Child';
       return { ...deepCopyTxState(state), toAddress: address, toNetwork, toContact: contact };
-    case 'setFiatOrCoin':
+    }
+    case 'setFiatOrCoin': {
       return { ...deepCopyTxState(state), fiatOrCoin: action.payload };
-    case 'switchFiatOrCoin':
+    }
+    case 'switchFiatOrCoin': {
       return {
         ...deepCopyTxState(state),
         fiatOrCoin: state.fiatOrCoin === 'fiat' ? 'coin' : 'fiat',
       };
-    case 'setAmountToMax':
+    }
+    case 'setAmountToMax': {
       // Check if entering in coin or fiat
 
       if (state.fiatOrCoin === 'coin') {
@@ -180,8 +180,8 @@ export const transactionReducer = (
         }
       );
       return { ...stateInCoinWithMaxAmount, fiatOrCoin: 'fiat' };
-
-    case 'setAmount':
+    }
+    case 'setAmount': {
       // Validate the amount
       let amountInCoin = '0.0';
       let amountInFiat = '0.0';
@@ -234,6 +234,10 @@ export const transactionReducer = (
       } else {
         balanceExceeded = false;
       }
+      if (amountInCoin === state.amount && amountInFiat === state.fiatAmount) {
+        // No changes to the state
+        return state;
+      }
       // Return the new state with the amount (in coin), the fiat amount, and whether the balance was exceeded
       return {
         ...deepCopyTxState(state),
@@ -241,6 +245,7 @@ export const transactionReducer = (
         fiatAmount: amountInFiat,
         balanceExceeded,
       };
+    }
   }
   return state;
 };
