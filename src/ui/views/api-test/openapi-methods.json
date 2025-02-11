@@ -302,15 +302,6 @@
     "params": []
   },
   {
-    "name": "getNFTList",
-    "isAsync": true,
-    "fullBody": "async (address, offset, limit) => {\n        const config = this.store.config.nft_list;\n        const data = await this.sendRequest(config.method, config.path, {\n            address,\n            offset,\n            limit,\n        });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (address, offset, limit) =>",
-    "params": ["address", "offset", "limit"]
-  },
-  {
     "name": "getAddressBook",
     "isAsync": true,
     "fullBody": "async () => {\n        const config = this.store.config.fetch_address_book;\n        const data = await this.sendRequest(config.method, config.path);\n        return data;\n    }",

@@ -311,11 +311,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
         name: 'getNFTV2CollectionList',
         params: { address: commonParams.address, network: commonParams.network },
       },
-      {
-        unused: true,
-        name: 'getNFTList',
-        params: { address: commonParams.address, offset: 0, limit: 10 },
-      },
     ],
     profile: [
       { name: 'updateProfilePreference', params: { privacy: 2 } },
