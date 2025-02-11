@@ -303,21 +303,6 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'post',
     params: ['nickname', 'avatar'],
   },
-  flowns_prepare: {
-    path: '/v1/flowns/prepare',
-    method: 'get',
-    params: [],
-  },
-  flowns_signature: {
-    path: '/v1/flowns/signature',
-    method: 'post',
-    params: ['transaction', 'message'],
-  },
-  payer_signature: {
-    path: '/v1/flowns/payer/signature',
-    method: 'post',
-    params: ['transaction', 'message'],
-  },
   get_transfers: {
     path: '/v1/account/transfers',
     method: 'get',
@@ -1213,16 +1198,6 @@ class OpenApiService {
     }
   };
 
-  getFlownsDomainsByAddress = async (address: string) => {
-    const script = await getScripts('basic', 'getFlownsDomainsByAddress');
-
-    const domains = await fcl.query({
-      cadence: script,
-      args: (arg, t) => [arg(address, t.Address)],
-    });
-    return domains;
-  };
-
   getFindAddress = async (domain: string) => {
     const script = await getScripts('basic', 'getFindAddress');
 
@@ -1928,49 +1903,6 @@ class OpenApiService {
       {
         nickname: nickname,
         avatar: avatar,
-      }
-    );
-
-    return data;
-  };
-
-  flownsPrepare = async () => {
-    const config = this.store.config.flowns_prepare;
-    const data = await this.sendRequest(config.method, config.path, {}, {});
-    return data;
-  };
-
-  flownsAuthTransaction = async (transaction, envelope: string) => {
-    const message = {
-      envelope_message: envelope,
-    };
-    // console.log({transaction,message})
-    const config = this.store.config.flowns_signature;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        transaction,
-        message,
-      }
-    );
-
-    return data;
-  };
-
-  flownsTransaction = async (transaction, envelope: string) => {
-    const message = {
-      envelope_message: envelope,
-    };
-    const config = this.store.config.flowns_signature;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        transaction,
-        message,
       }
     );
 

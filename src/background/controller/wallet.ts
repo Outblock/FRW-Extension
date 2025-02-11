@@ -46,7 +46,6 @@ import {
   nftService,
   googleDriveService,
   passwordService,
-  flownsService,
   proxyService,
   newsService,
   mixpanelTrack,
@@ -975,15 +974,6 @@ export class WalletController extends BaseController {
     }
   };
 
-  checkUserDomain = async (username: string) => {
-    const res = await openapiService.getFlownsAddress(username, 'meow');
-    const network = await this.getNetwork();
-
-    if (res) {
-      await userInfoService.setMeow(username + '.meow', network);
-    }
-  };
-
   checkUserChildAccount = async () => {
     const network = await this.getNetwork();
     const address = await userWalletService.getMainWallet(network);
@@ -1060,17 +1050,6 @@ export class WalletController extends BaseController {
     const wallet = await userWalletService.returnMainWallet(network);
 
     return wallet;
-  };
-
-  setPopStat = async (stat: boolean) => {
-    const network = await this.getNetwork();
-    flownsService.setPop(network, stat);
-  };
-
-  fetchPopStat = async () => {
-    const network = await this.getNetwork();
-    const popStat = await flownsService.getPop(network);
-    return popStat;
   };
 
   fetchUserDomain = async () => {
@@ -3793,31 +3772,6 @@ export class WalletController extends BaseController {
 
   updateProfilePreference = async (privacy: number) => {
     await openapiService.updateProfilePreference(privacy);
-  };
-
-  flownsPrepare = async () => {
-    const resp = await openapiService.flownsPrepare();
-    return resp;
-  };
-
-  // flownsResponse = async (script, domain, flownsAddress, lilicoAddress) => {
-  //   const resp = await flownsService.sendTransaction(script, domain, flownsAddress, lilicoAddress);
-  //   return resp;
-  // };
-
-  setHistory = async (token, nft) => {
-    const network = await userWalletService.getNetwork();
-    const data = {
-      token,
-      nft,
-    };
-    await flownsService.setHistory(network, data);
-  };
-
-  getHistory = async () => {
-    const network = await userWalletService.getNetwork();
-    const resp = await flownsService.getHistory(network);
-    return resp;
   };
 
   getAccount = async (): Promise<FclAccount> => {

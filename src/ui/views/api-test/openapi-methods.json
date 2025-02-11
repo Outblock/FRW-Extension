@@ -509,15 +509,6 @@
     "params": ["address"]
   },
   {
-    "name": "getFlownsInbox",
-    "isAsync": true,
-    "fullBody": "async (domain, root = 'meow') => {\n        const script = await (0,background_utils__WEBPACK_IMPORTED_MODULE_10__.getScripts)('domain', 'getFlownsInbox');\n        const detail = await _onflow_fcl__WEBPACK_IMPORTED_MODULE_0__.query({\n            cadence: script,\n            args: (arg, t) => [arg(domain, t.String), arg(root, t.String)],\n        });\n        return detail;\n    }",
-    "usesSendRequest": false,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (domain, root = 'meow') =>",
-    "params": ["domain", "root = 'meow'"]
-  },
-  {
     "name": "getFlownsAddress",
     "isAsync": true,
     "fullBody": "async (domain, root = 'fn') => {\n        const script = await (0,background_utils__WEBPACK_IMPORTED_MODULE_10__.getScripts)('basic', 'getFlownsAddress');\n        const address = await _onflow_fcl__WEBPACK_IMPORTED_MODULE_0__.query({\n            cadence: script,\n            args: (arg, t) => [arg(domain, t.String), arg(root, t.String)],\n        });\n        return address;\n    }",
@@ -530,15 +521,6 @@
     "name": "getAccountMinFlow",
     "isAsync": true,
     "fullBody": "async (address) => {\n        const script = await (0,background_utils__WEBPACK_IMPORTED_MODULE_10__.getScripts)('basic', 'getAccountMinFlow');\n        if ((0,_shared_utils_address__WEBPACK_IMPORTED_MODULE_7__.isValidFlowAddress)(address)) {\n            const minFlow = await _onflow_fcl__WEBPACK_IMPORTED_MODULE_0__.query({\n                cadence: script,\n                args: (arg, t) => [arg(address, t.Address)],\n            });\n            return minFlow;\n        }\n    }",
-    "usesSendRequest": false,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (address) =>",
-    "params": ["address"]
-  },
-  {
-    "name": "getFlownsDomainsByAddress",
-    "isAsync": true,
-    "fullBody": "async (address) => {\n        const script = await (0,background_utils__WEBPACK_IMPORTED_MODULE_10__.getScripts)('basic', 'getFlownsDomainsByAddress');\n        const domains = await _onflow_fcl__WEBPACK_IMPORTED_MODULE_0__.query({\n            cadence: script,\n            args: (arg, t) => [arg(address, t.Address)],\n        });\n        return domains;\n    }",
     "usesSendRequest": false,
     "usesFetchDirectly": false,
     "basicSignature": "async (address) =>",
@@ -984,33 +966,6 @@
     "usesFetchDirectly": false,
     "basicSignature": "async (nickname, avatar) =>",
     "params": ["nickname", "avatar"]
-  },
-  {
-    "name": "flownsPrepare",
-    "isAsync": true,
-    "fullBody": "async () => {\n        const config = this.store.config.flowns_prepare;\n        const data = await this.sendRequest(config.method, config.path, {}, {});\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async () =>",
-    "params": []
-  },
-  {
-    "name": "flownsAuthTransaction",
-    "isAsync": true,
-    "fullBody": "async (transaction, envelope) => {\n        const message = {\n            envelope_message: envelope,\n        };\n        // console.log({transaction,message})\n        const config = this.store.config.flowns_signature;\n        const data = await this.sendRequest(config.method, config.path, {}, {\n            transaction,\n            message,\n        });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (transaction, envelope) =>",
-    "params": ["transaction", "envelope"]
-  },
-  {
-    "name": "flownsTransaction",
-    "isAsync": true,
-    "fullBody": "async (transaction, envelope) => {\n        const message = {\n            envelope_message: envelope,\n        };\n        const config = this.store.config.flowns_signature;\n        const data = await this.sendRequest(config.method, config.path, {}, {\n            transaction,\n            message,\n        });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (transaction, envelope) =>",
-    "params": ["transaction", "envelope"]
   },
   {
     "name": "nftCatalog",

@@ -402,14 +402,7 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
         },
       },
     ],
-    flowns: [
-      { unused: true, name: 'flownsPrepare', params: {} },
-      { unused: true, name: 'flownsAuthTransaction', params: { transaction: {}, envelope: '' } },
-      { unused: true, name: 'flownsTransaction', params: { transaction: {}, envelope: '' } },
-    ],
-    scripts: [
-      { name: 'cadenceScriptsV2', params: {} },
-    ],
+    scripts: [{ name: 'cadenceScriptsV2', params: {} }],
     misc: [
       { name: 'getNews', params: {} },
       { name: 'getLatestVersion', params: {} },
