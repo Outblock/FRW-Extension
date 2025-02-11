@@ -196,24 +196,6 @@
     "params": ["account_key", "username"]
   },
   {
-    "name": "login",
-    "isAsync": true,
-    "fullBody": "async (public_key, signature, replaceUser = true) => {\n        const config = this.store.config.login;\n        // const result = await this.request[config.method](config.path, {\n        //   public_key,\n        //   signature,\n        // });\n        const result = await this.sendRequest(config.method, config.path, {}, { public_key, signature });\n        if (!result.data) {\n            throw new Error('NoUserFound');\n        }\n        if (replaceUser) {\n            await this._signWithCustom(result.data.custom_token);\n            await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.set('currentId', result.data.id);\n        }\n        return result;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (public_key, signature, replaceUser = true) =>",
-    "params": ["public_key", "signature", "replaceUser = true"]
-  },
-  {
-    "name": "loginV2",
-    "isAsync": true,
-    "fullBody": "async (public_key, signature, replaceUser = true) => {\n        const config = this.store.config.loginv2;\n        const result = await this.sendRequest(config.method, config.path, {}, { public_key, signature });\n        if (!result.data) {\n            throw new Error('NoUserFound');\n        }\n        if (replaceUser) {\n            await this._signWithCustom(result.data.custom_token);\n            await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.set('currentId', result.data.id);\n        }\n        return result;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (public_key, signature, replaceUser = true) =>",
-    "params": ["public_key", "signature", "replaceUser = true"]
-  },
-  {
     "name": "loginV3",
     "isAsync": true,
     "fullBody": "async (account_key, device_info, signature, replaceUser = true) => {\n        const config = this.store.config.loginv3;\n        const result = await this.sendRequest(config.method, config.path, {}, { account_key, device_info, signature });\n        if (!result.data) {\n            throw new Error('NoUserFound');\n        }\n        if (replaceUser) {\n            await this._signWithCustom(result.data.custom_token);\n            await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.set('currentId', result.data.id);\n        }\n        return result;\n    }",
@@ -1022,15 +1004,6 @@
     "params": ["address", "network = 'mainnet'", "offset = 0", "limit = 5"]
   },
   {
-    "name": "getNFTCadenceCollection",
-    "isAsync": true,
-    "fullBody": "async (address, network = 'mainnet', identifier, offset = 0, limit = 24) => {\n        const { data } = await this.sendRequest('GET', `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`, {}, {}, consts__WEBPACK_IMPORTED_MODULE_13__.WEB_NEXT_URL);\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (address, network = 'mainnet', identifier, offset = 0, limit = 24) =>",
-    "params": ["address", "network = 'mainnet'", "identifier", "offset = 0", "limit = 24"]
-  },
-  {
     "name": "getNFTV2CollectionList",
     "isAsync": true,
     "fullBody": "async (address, network = 'mainnet') => {\n        const { data } = await this.sendRequest('GET', `/api/v2/nft/collections?network=${network}&address=${address}`, {}, {}, consts__WEBPACK_IMPORTED_MODULE_13__.WEB_NEXT_URL);\n        return data;\n    }",
@@ -1038,15 +1011,6 @@
     "usesFetchDirectly": false,
     "basicSignature": "async (address, network = 'mainnet') =>",
     "params": ["address", "network = 'mainnet'"]
-  },
-  {
-    "name": "genTx",
-    "isAsync": true,
-    "fullBody": "async (contract_name) => {\n        const network = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getNetwork();\n        const app = (0,firebase_app__WEBPACK_IMPORTED_MODULE_2__.getApp)(\"development\");\n        const user = await (0,firebase_auth_web_extension__WEBPACK_IMPORTED_MODULE_3__.getAuth)(app).currentUser;\n        // Wait for firebase auth to complete\n        await waitForAuthInit();\n        const init = {\n            headers: {\n                Network: network,\n            },\n        };\n        if (user !== null) {\n            const idToken = await user.getIdToken();\n            init.headers['Authorization'] = idToken;\n        }\n        else {\n            // If no user, then sign in as anonymous first\n            await (0,firebase_auth_web_extension__WEBPACK_IMPORTED_MODULE_3__.signInAnonymously)(auth);\n            const anonymousUser = await (0,firebase_auth_web_extension__WEBPACK_IMPORTED_MODULE_3__.getAuth)(app).currentUser;\n            const idToken = await anonymousUser?.getIdToken();\n            init.headers['Authorization'] = idToken;\n        }\n        const response = await fetch(`${consts__WEBPACK_IMPORTED_MODULE_13__.WEB_NEXT_URL}/api/nft/gentx?collectionIdentifier=${contract_name}`, init);\n        return response.json();\n    }",
-    "usesSendRequest": false,
-    "usesFetchDirectly": true,
-    "basicSignature": "async (contract_name) =>",
-    "params": ["contract_name"]
   },
   {
     "name": "putDeviceInfo",

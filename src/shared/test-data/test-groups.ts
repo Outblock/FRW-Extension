@@ -53,16 +53,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
         params: { account_key: generatedAccountKey, username: commonParams.username },
       },
       {
-        unused: true,
-        name: 'login',
-        params: { public_key: commonParams.publicKey, signature: '', replaceUser: true },
-      },
-      {
-        unused: true,
-        name: 'loginV2',
-        params: { public_key: commonParams.publicKey, signature: '', replaceUser: true },
-      },
-      {
         name: 'loginV3',
         params: {
           account_key: accountKey,
@@ -318,17 +308,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
         },
       },
       {
-        unused: true,
-        name: 'getNFTCadenceCollection',
-        params: {
-          address: commonParams.address,
-          network: commonParams.network,
-          identifier: '',
-          offset: 0,
-          limit: 24,
-        },
-      },
-      {
         name: 'getNFTV2CollectionList',
         params: { address: commonParams.address, network: commonParams.network },
       },
@@ -336,11 +315,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
         unused: true,
         name: 'getNFTList',
         params: { address: commonParams.address, offset: 0, limit: 10 },
-      },
-      {
-        unused: true,
-        name: 'genTx',
-        params: { contract_name: 'cadenceExampleNFTCollection' },
       },
     ],
     profile: [

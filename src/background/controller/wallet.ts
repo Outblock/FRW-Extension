@@ -1469,17 +1469,6 @@ export class WalletController extends BaseController {
     return NFTList;
   };
 
-  requestCollectionInfo = async (identifier) => {
-    const network = await this.getNetwork();
-    const address = await this.getCurrentAddress();
-    const NFTCollection = await openapiService.getNFTCadenceCollection(
-      address!,
-      network,
-      identifier
-    );
-    return NFTCollection;
-  };
-
   private currencyBalance = (balance: string, price) => {
     const bnBalance = new BN(balance);
     const currencyBalance = bnBalance.times(new BN(price));
@@ -2448,15 +2437,6 @@ export class WalletController extends BaseController {
         .replaceAll('<TokenAddress>', token.address),
       []
     );
-  };
-
-  enableNFTStorage = async (contract_name: string) => {
-    const result = await openapiService.genTx(contract_name);
-    if (!result) {
-      return;
-    }
-    const cadence = result.data;
-    return await userWalletService.sendTransaction(cadence, []);
   };
 
   enableNFTStorageLocal = async (token: NFTModel) => {
@@ -3521,27 +3501,6 @@ export class WalletController extends BaseController {
       24,
       offset,
       network
-    );
-
-    data.nfts.map((nft) => {
-      nft.unique_id = nft.collectionName + '_' + nft.id;
-    });
-    function getUniqueListBy(arr, key) {
-      return [...new Map(arr.map((item) => [item[key], item])).values()];
-    }
-    const unique_nfts = getUniqueListBy(data.nfts, 'unique_id');
-    data.nfts = unique_nfts;
-    return data;
-  };
-
-  getSingleCollectionv2 = async (address: string, contract: string, offset = 0) => {
-    const network = await this.getNetwork();
-    const data = await openapiService.getNFTCadenceCollection(
-      address!,
-      network,
-      contract,
-      offset,
-      24
     );
 
     data.nfts.map((nft) => {

@@ -136,16 +136,6 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'post',
     params: [],
   },
-  login: {
-    path: '/v1/login',
-    method: 'post',
-    params: ['public_key', 'signature'],
-  },
-  loginv2: {
-    path: '/v2/login',
-    method: 'post',
-    params: ['public_key', 'signature'],
-  },
   loginv3: {
     path: '/v3/login',
     method: 'post',
@@ -671,54 +661,6 @@ class OpenApiService {
       hash_algo: getStringFromHashAlgo(account_key.hash_algo),
     });
     return data;
-  };
-
-  login = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = this.store.config.login;
-    // const result = await this.request[config.method](config.path, {
-    //   public_key,
-    //   signature,
-    // });
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
-  };
-
-  loginV2 = async (
-    public_key: string,
-    signature: string,
-    replaceUser = true
-  ): Promise<SignInResponse> => {
-    const config = this.store.config.loginv2;
-    const result = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      { public_key, signature }
-    );
-    if (!result.data) {
-      throw new Error('NoUserFound');
-    }
-    if (replaceUser) {
-      await this._signWithCustom(result.data.custom_token);
-      await storage.set('currentId', result.data.id);
-    }
-    return result;
   };
 
   loginV3 = async (
@@ -1909,23 +1851,6 @@ class OpenApiService {
     return data;
   };
 
-  getNFTCadenceCollection = async (
-    address: string,
-    network = 'mainnet',
-    identifier,
-    offset = 0,
-    limit = 24
-  ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collectionList?network=${network}&address=${address}&offset=${offset}&limit=${limit}&collectionIdentifier=${identifier}`,
-      {},
-      {},
-      WEB_NEXT_URL
-    );
-    return data;
-  };
-
   getNFTV2CollectionList = async (address: string, network = 'mainnet') => {
     const { data } = await this.sendRequest(
       'GET',
@@ -1935,38 +1860,6 @@ class OpenApiService {
       WEB_NEXT_URL
     );
     return data;
-  };
-
-  genTx = async (contract_name: string) => {
-    const network = await userWalletService.getNetwork();
-    const app = getApp(process.env.NODE_ENV!);
-    const user = await getAuth(app).currentUser;
-
-    // Wait for firebase auth to complete
-    await waitForAuthInit();
-
-    const init = {
-      headers: {
-        Network: network,
-      },
-    };
-
-    if (user !== null) {
-      const idToken = await user.getIdToken();
-      init.headers['Authorization'] = idToken;
-    } else {
-      // If no user, then sign in as anonymous first
-      await signInAnonymously(auth);
-      const anonymousUser = await getAuth(app).currentUser;
-      const idToken = await anonymousUser?.getIdToken();
-      init.headers['Authorization'] = idToken;
-    }
-    const response = await fetch(
-      `${WEB_NEXT_URL}/api/nft/gentx?collectionIdentifier=${contract_name}`,
-      init
-    );
-
-    return response.json();
   };
 
   putDeviceInfo = async (walletData) => {
