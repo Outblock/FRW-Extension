@@ -32,7 +32,6 @@ import {
   nftService,
   googleSafeHostService,
   passwordService,
-  flownsService,
   mixpanelTrack,
 } from './service';
 import { getFirbaseConfig } from './utils/firebaseConfig';
@@ -124,7 +123,6 @@ async function restoreAppState() {
   await nftService.init();
   await googleSafeHostService.init();
   await passwordService.init();
-  await flownsService.init();
   await mixpanelTrack.init();
   // rpcCache.start();
 

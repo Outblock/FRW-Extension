@@ -221,7 +221,7 @@ const GridTab = forwardRef((props: GridTabProps, ref) => {
   const fetchNFTCache = async (address: string, reload = true) => {
     // setNFTLoading(true);
     try {
-      const { nfts, nftCount } = await usewallet.getNFTListCahce();
+      const { nfts, nftCount } = await usewallet.getNFTListCache();
       props.setCount(nftCount);
       setTotal(nftCount);
       setNFTs(nfts);
