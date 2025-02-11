@@ -10,10 +10,10 @@ interface TokenPriceProps {
   postFix?: string;
 }
 
-export const TokenPrice: React.FC<TokenPriceProps> = ({
+export const TokenValue: React.FC<TokenPriceProps> = ({
   value,
   className = '',
-  prefix = '$',
+  prefix = '',
   postFix = '',
 }) => {
   if (value === 0 || value === null || value === undefined) {

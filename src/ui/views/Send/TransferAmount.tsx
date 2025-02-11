@@ -19,7 +19,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useCoinStore } from '@/ui/stores/coinStore';
-import { TokenPrice } from '@/ui/views/TokenDetail/TokenValue';
+import { TokenValue } from '@/ui/views/TokenDetail/TokenValue';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
@@ -329,10 +329,10 @@ const TransferAmount = ({
             <Typography>≈</Typography>
             {coinType ? (
               <>
-                <IconFlow size={16} /> <TokenPrice value={amount} />
+                <IconFlow size={16} /> <TokenValue value={amount} />
               </>
             ) : (
-              <TokenPrice value={secondAmount} prefix={'$'} />
+              <TokenValue value={secondAmount} prefix={'$'} />
             )}
             <IconButton onClick={swap}>
               <IconSwitch size={14} />

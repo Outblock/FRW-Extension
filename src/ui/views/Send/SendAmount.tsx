@@ -9,7 +9,7 @@ import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useProfileStore } from '@/ui/stores/profileStore';
-import { TokenPrice } from '@/ui/views/TokenDetail/TokenValue';
+import { TokenValue } from '@/ui/views/TokenDetail/TokenValue';
 import { type CoinItem } from 'background/service/coinList';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -241,9 +241,9 @@ const SendAmount = () => {
                       fontSize: '15px',
                     }}
                   >
-                    <TokenPrice value={coinInfo.balance} postFix={coinInfo.unit.toUpperCase()} />
+                    <TokenValue value={coinInfo.balance} postFix={coinInfo.unit.toUpperCase()} />
                     {' ≈ '}
-                    <TokenPrice value={coinInfo.total} prefix={'$'} />
+                    <TokenValue value={coinInfo.total} prefix={'$'} />
                   </Typography>
                 </Box>
               </>
