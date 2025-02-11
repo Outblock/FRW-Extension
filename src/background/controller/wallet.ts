@@ -307,16 +307,29 @@ export class WalletController extends BaseController {
 
   // lockadd here
   resetPwd = async () => {
-    const switchingTo = 'mainnet';
+    // WARNING: This resets absolutely everything
+    // This is used when the user forgets their password
+    // It should only be called from the landing page when the user is logged out
+    // And the user should be redirected to the landing page
+    // After calling this function
+
+    // TODO: I believe the user should be logged out here
+    // e.g. call signOutCurrentUser
+
+    // This clears local storage but a lot is still kept in memory
     await storage.clear();
 
+    // Note that this does not clear the 'booted' state
+    // We should fix this, but it would involve making changes to keyringService
     await keyringService.resetKeyRing();
     await keyringService.setLocked();
+
     await passwordService.clear();
+
     sessionService.broadcastEvent('accountsChanged', []);
     sessionService.broadcastEvent('lock');
-    openIndexPage('/forgot/reset');
-    await this.switchNetwork(switchingTo);
+    // Redirect to welcome so that users can import their account again
+    openIndexPage('/welcome');
   };
 
   // lockadd here
