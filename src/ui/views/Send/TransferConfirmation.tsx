@@ -8,6 +8,7 @@ import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
+import { TokenPrice } from '@/ui/views/TokenDetail/TokenValue';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
@@ -364,7 +365,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
             color="info"
             sx={{ fontSize: '14px', fontWeight: 'semi-bold', textAlign: 'end' }}
           >
-            $ {props.data.secondAmount}
+            <TokenPrice value={props.data.secondAmount} prefix={'$'} />
           </Typography>
         </Stack>
       </Box>
