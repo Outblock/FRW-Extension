@@ -302,6 +302,15 @@
     "params": []
   },
   {
+    "name": "getNFTList",
+    "isAsync": true,
+    "fullBody": "async (network) => {\n    const childType = await _index__WEBPACK_IMPORTED_MODULE_15__.userWalletService.getActiveWallet();\n    let chainType = 'flow';\n    if (childType === 'evm') {\n        chainType = 'evm';\n    }\n    const nftList = await _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.getExpiry(`NFTList${network}${chainType}`);\n    if (nftList && nftList.length > 0) {\n        return nftList;\n    }\n    const config = this.store.config.get_nft_list;\n    const data = await this.sendRequest(config.method, config.path, {\n        network,\n        chain_type: chainType,\n    });\n    _background_webapi__WEBPACK_IMPORTED_MODULE_6__.storage.setExpiry(`NFTList${network}${chainType}`, data, 600000);\n    return data;\n};",
+    "usesSendRequest": true,
+    "usesFetchDirectly": false,
+    "basicSignature": "async (address, offset, limit) =>",
+    "params": ["address", "offset", "limit"]
+  },
+  {
     "name": "getAddressBook",
     "isAsync": true,
     "fullBody": "async () => {\n        const config = this.store.config.fetch_address_book;\n        const data = await this.sendRequest(config.method, config.path);\n        return data;\n    }",
