@@ -359,11 +359,6 @@ export class WalletController extends BaseController {
   clearPageStateCache = () => pageStateCacheService.clear();
   setPageStateCache = (cache: CacheState) => pageStateCacheService.set(cache);
 
-  getAddressBalance = async (address: string) => {
-    const data = await openapiService.getCoinList(address);
-    preferenceService.updateAddressBalance(address, data);
-    return data;
-  };
   getAddressCacheBalance = (address: string | undefined) => {
     if (!address) return null;
     return preferenceService.getAddressBalance(address);
@@ -906,9 +901,6 @@ export class WalletController extends BaseController {
   };
   updateIsFirstOpen = () => {
     return preferenceService.updateIsFirstOpen();
-  };
-  listChainAssets = async (address: string) => {
-    return await openapiService.getCoinList(address);
   };
   // getAddedToken = (address: string) => {
   //   return preferenceService.getAddedToken(address);
@@ -3561,22 +3553,6 @@ export class WalletController extends BaseController {
     const unique_nfts = getUniqueListBy(data.nfts, 'unique_id');
     data.nfts = unique_nfts;
     return data;
-  };
-
-  getCollectionApi = async (address: string, contract: string, offset = 0) => {
-    const network = await this.getNetwork();
-    const result = await openapiService.nftCollectionApiPaging(
-      address!,
-      contract,
-      24,
-      offset,
-      network
-    );
-    result['info'] = result.collection;
-    // result['info']['collectionDisplay']['name'] = result.collection.display.name
-    // result['nftCount'] = result.collection.nftCount
-    console.log('result  ---- ', result);
-    return result;
   };
 
   refreshCollection = async (address: string) => {

@@ -144,10 +144,6 @@ export interface UserInfoResponse {
   username: string;
 }
 
-export interface SendTransactionResponse {
-  transaction_id: string;
-}
-
 export interface UserWalletResponse {
   id: string;
   primary_wallet: number;
@@ -213,18 +209,6 @@ export interface TransactionSignature {
   address: string;
   key_index: number;
   signature: string;
-}
-
-export interface FlowTransaction {
-  script: string;
-  arguments: Array<FlowArgument>;
-  reference_block_id?: string;
-  gas_limit: number | 999;
-  proposal_key: FlowTransactionProposalKey;
-  payer_address: string;
-  authorizers: Array<string>;
-  payload_signatures?: Array<TransactionSignature>;
-  envelope_signatures?: Array<TransactionSignature>;
 }
 
 export interface ServerChain {

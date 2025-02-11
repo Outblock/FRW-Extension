@@ -106,18 +106,7 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       { name: 'searchUser', params: { keyword: 'webdev18_862' } },
       { name: 'checkImport', params: { key: 'test' } },
     ],
-    wallet: [
-      { name: 'createFlowAddress', params: {} },
-      {
-        unused: true,
-        name: 'createFlowNetworkAddress',
-        params: { account_key: accountKey, network: commonParams.network },
-      },
-    ],
-    coins: [
-      { unused: true, name: 'getCoinList', params: { address: commonParams.address } },
-      { unused: true, name: 'getCoinRate', params: { coinId: 'flow' } },
-    ],
+    wallet: [{ name: 'createFlowAddress', params: {} }],
     device: [
       { name: 'getManualAddress', params: {} },
       {
@@ -242,8 +231,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       },
     ],
     transactions: [
-      { unused: true, name: 'prepareTransaction', params: { transaction: {} } },
-      { unused: true, name: 'sendTransaction', params: { transaction: {} } },
       { name: 'getTransfers', params: { address: commonParams.address, after: '', limit: 10 } },
       { name: 'getEVMTransfers', params: { address: commonParams.address, after: '', limit: 10 } },
     ],
@@ -276,16 +263,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       },
     ],
     nft: [
-      {
-        unused: true,
-        name: 'getNFTMetadata',
-        params: {
-          address: commonParams.address,
-          contractName: 'ExampleNFT',
-          contractAddress: '0x390b4705da6305c3',
-          tokenId: 0,
-        },
-      },
       { name: 'nftCatalog', params: {} },
       {
         name: 'nftCatalogList',
@@ -302,28 +279,6 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
       },
       {
         name: 'nftCatalogCollectionList',
-        params: {
-          address: commonParams.address,
-          contractName: 'cadenceExampleNFTCollection',
-          limit: 10,
-          offset: 0,
-          network: commonParams.network,
-        },
-      },
-      {
-        unused: true,
-        name: 'nftCollectionApiPaging',
-        params: {
-          address: commonParams.address,
-          contractName: 'cadenceExampleNFTCollection',
-          limit: 10,
-          offset: 0,
-          network: commonParams.network,
-        },
-      },
-      {
-        unused: true,
-        name: 'nftCollectionInfo',
         params: {
           address: commonParams.address,
           contractName: 'cadenceExampleNFTCollection',

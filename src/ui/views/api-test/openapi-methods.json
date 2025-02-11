@@ -311,15 +311,6 @@
     "params": []
   },
   {
-    "name": "createFlowNetworkAddress",
-    "isAsync": true,
-    "fullBody": "async (account_key, network) => {\n        const config = this.store.config.create_flow_network_address;\n        const data = await this.sendRequest(config.method, config.path, {}, {\n            account_key,\n            network,\n        });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (account_key, network) =>",
-    "params": ["account_key", "network"]
-  },
-  {
     "name": "getMoonpayURL",
     "isAsync": true,
     "fullBody": "async (url) => {\n        const baseURL = (0,background_utils_firebaseConfig__WEBPACK_IMPORTED_MODULE_11__.getFirbaseFunctionUrl)();\n        const response = await this.sendRequest('POST', '/moonPaySignature', {}, { url: url }, baseURL);\n        return response;\n    }",
@@ -327,15 +318,6 @@
     "usesFetchDirectly": false,
     "basicSignature": "async (url) =>",
     "params": ["url"]
-  },
-  {
-    "name": "prepareTransaction",
-    "isAsync": true,
-    "fullBody": "async (transaction) => {\n        const config = this.store.config.prepare_transaction;\n        const data = await this.sendRequest(config.method, config.path, {}, { transaction });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (transaction) =>",
-    "params": ["transaction"]
   },
   {
     "name": "signPayer",
@@ -365,33 +347,6 @@
     "params": []
   },
   {
-    "name": "sendTransaction",
-    "isAsync": true,
-    "fullBody": "async (transaction) => {\n        const config = this.store.config.send_transaction;\n        const data = await this.sendRequest(config.method, config.path, {}, {\n            transaction,\n        });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (transaction) =>",
-    "params": ["transaction"]
-  },
-  {
-    "name": "getCoinList",
-    "isAsync": true,
-    "fullBody": "async (address) => {\n        const config = this.store.config.coin_list;\n        const data = await this.sendRequest(config.method, config.path, {\n            address,\n        });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (address) =>",
-    "params": ["address"]
-  },
-  {
-    "name": "getCoinRate",
-    "isAsync": true,
-    "fullBody": "async (coinId) => {\n        const config = this.store.config.coin_rate;\n        const data = await this.sendRequest(config.method, config.path, { coinId });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (coinId) =>",
-    "params": ["coinId"]
-  },
-  {
     "name": "getNFTList",
     "isAsync": true,
     "fullBody": "async (address, offset, limit) => {\n        const config = this.store.config.nft_list;\n        const data = await this.sendRequest(config.method, config.path, {\n            address,\n            offset,\n            limit,\n        });\n        return data;\n    }",
@@ -399,15 +354,6 @@
     "usesFetchDirectly": false,
     "basicSignature": "async (address, offset, limit) =>",
     "params": ["address", "offset", "limit"]
-  },
-  {
-    "name": "getNFTMetadata",
-    "isAsync": true,
-    "fullBody": "async (address, contractName, contractAddress, tokenId) => {\n        const config = this.store.config.nft_meta;\n        const data = await this.sendRequest(config.method, config.path, {\n            address,\n            contractName,\n            contractAddress,\n            tokenId,\n        });\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (address, contractName, contractAddress, tokenId) =>",
-    "params": ["address", "contractName", "contractAddress", "tokenId"]
   },
   {
     "name": "getAddressBook",
@@ -1016,15 +962,6 @@
     "name": "nftCollectionApiPaging",
     "isAsync": true,
     "fullBody": "async (address, contractName, limit, offset, network) => {\n        const { data } = await this.sendRequest('GET', `/api/storage/${network}/nft?address=${address}&limit=${limit}&offset=${offset}&path=${contractName}`, {}, {}, 'https://lilico.app');\n        return data;\n    }",
-    "usesSendRequest": true,
-    "usesFetchDirectly": false,
-    "basicSignature": "async (address, contractName, limit, offset, network) =>",
-    "params": ["address", "contractName", "limit", "offset", "network"]
-  },
-  {
-    "name": "nftCollectionInfo",
-    "isAsync": true,
-    "fullBody": "async (address, contractName, limit, offset, network) => {\n        const { data } = await this.sendRequest('GET', `/api/storage/${network}/nft/collection?address=${address}&path=${contractName}`, {}, {}, 'https://lilico.app');\n        return data;\n    }",
     "usesSendRequest": true,
     "usesFetchDirectly": false,
     "basicSignature": "async (address, contractName, limit, offset, network) =>",

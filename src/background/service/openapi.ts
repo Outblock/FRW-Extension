@@ -38,8 +38,6 @@ import {
   type CheckResponse,
   type SignInResponse,
   type UserInfoResponse,
-  type FlowTransaction,
-  type SendTransactionResponse,
   type TokenModel,
   type NFTModel,
   type StorageInfo,
@@ -138,11 +136,6 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     method: 'post',
     params: [],
   },
-  create_flow_network_address: {
-    path: '/v1/user/address/network',
-    method: 'post',
-    params: ['account_key', 'network'],
-  },
   login: {
     path: '/v1/login',
     method: 'post',
@@ -182,56 +175,6 @@ const dataConfig: Record<string, OpenApiConfigValue> = {
     path: '/v1/user/info',
     method: 'get',
     params: [],
-  },
-  prepare_transaction: {
-    path: '/v1/account/presign',
-    method: 'post',
-    params: ['transaction'],
-  },
-  sign_payer: {
-    path: '/v1/account/signpayer',
-    method: 'post',
-    params: ['transaction', 'message'],
-  },
-  send_transaction: {
-    path: '/v1/account/transaction',
-    method: 'post',
-    params: ['transaction'],
-  },
-  coin_list: {
-    path: '/v1/account/info',
-    method: 'get',
-    params: ['address'],
-  },
-  coin_rate: {
-    path: '/v1/coin/rate',
-    method: 'get',
-    params: ['coinId'],
-  },
-  nft_list_v2: {
-    path: '/v2/nft/list',
-    method: 'get',
-    params: ['address', 'offset', 'limit'],
-  },
-  nft_list_lilico_v2: {
-    path: '/v2/nft/detail/list',
-    method: 'get',
-    params: ['address', 'offset', 'limit'],
-  },
-  nft_collections_lilico_v2: {
-    path: '/v2/nft/collections',
-    method: 'get',
-    params: ['address'],
-  },
-  nft_collections_single_v2: {
-    path: '/v2/nft/single',
-    method: 'get',
-    params: ['address', 'contractName', 'limit', 'offset'],
-  },
-  nft_meta: {
-    path: '/v2/nft/meta',
-    method: 'get',
-    params: ['address', 'contractName', 'contractAddress', 'tokenId'],
   },
   fetch_address_book: {
     path: '/v1/addressbook/contact',
@@ -888,37 +831,16 @@ class OpenApiService {
     return data;
   };
 
-  createFlowNetworkAddress = async (account_key: AccountKey, network: string) => {
-    const config = this.store.config.create_flow_network_address;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        account_key,
-        network,
-      }
-    );
-    return data;
-  };
-
   getMoonpayURL = async (url) => {
     const baseURL = getFirbaseFunctionUrl();
     const response = await this.sendRequest('POST', '/moonPaySignature', {}, { url: url }, baseURL);
     return response;
   };
 
-  prepareTransaction = async (transaction: FlowTransaction) => {
-    const config = this.store.config.prepare_transaction;
-    const data = await this.sendRequest(config.method, config.path, {}, { transaction });
-    return data;
-  };
-
   signPayer = async (transaction, message: string) => {
     const messages = {
       envelope_message: message,
     };
-    const config = this.store.config.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest(
@@ -936,7 +858,6 @@ class OpenApiService {
     const messages = {
       envelope_message: message,
     };
-    const config = this.store.config.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest(
@@ -951,38 +872,10 @@ class OpenApiService {
   };
 
   getProposer = async () => {
-    const config = this.store.config.sign_payer;
     const baseURL = getFirbaseFunctionUrl();
     // 'http://localhost:5001/lilico-dev/us-central1'
     const data = await this.sendRequest('GET', '/getProposer', {}, {}, baseURL);
     // (config.method, config.path, {}, { transaction, message: messages });
-    return data;
-  };
-
-  sendTransaction = async (transaction): Promise<SendTransactionResponse> => {
-    const config = this.store.config.send_transaction;
-    const data = await this.sendRequest(
-      config.method,
-      config.path,
-      {},
-      {
-        transaction,
-      }
-    );
-    return data;
-  };
-
-  getCoinList = async (address) => {
-    const config = this.store.config.coin_list;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-    });
-    return data;
-  };
-
-  getCoinRate = async (coinId) => {
-    const config = this.store.config.coin_rate;
-    const data = await this.sendRequest(config.method, config.path, { coinId });
     return data;
   };
 
@@ -1004,23 +897,6 @@ class OpenApiService {
     });
 
     storage.setExpiry(`NFTList${network}${chainType}`, data, 600000);
-
-    return data;
-  };
-
-  getNFTMetadata = async (
-    address: string,
-    contractName: string,
-    contractAddress: string,
-    tokenId: number
-  ) => {
-    const config = this.store.config.nft_meta;
-    const data = await this.sendRequest(config.method, config.path, {
-      address,
-      contractName,
-      contractAddress,
-      tokenId,
-    });
 
     return data;
   };
@@ -1326,14 +1202,6 @@ class OpenApiService {
     // FIX ME: Get defaultTokenList from firebase remote config
     const coins = await remoteFetch.flowCoins();
     return coins.find((item) => item.contract_name.toLowerCase() === contractName.toLowerCase());
-  };
-
-  getNFTCollectionInfo = async (contract_name: string): Promise<NFTModel | undefined> => {
-    // FIX ME: Get defaultTokenList from firebase remote config
-    const tokenList = await remoteFetch.nftCollection();
-
-    // const network = await userWalletService.getNetwork();
-    return tokenList.find((item) => item.id === contract_name);
   };
 
   getFeatureFlags = async (): Promise<FeatureFlags> => {
@@ -1949,40 +1817,6 @@ class OpenApiService {
       {},
       {},
       WEB_NEXT_URL
-    );
-    return data;
-  };
-
-  nftCollectionApiPaging = async (
-    address: string,
-    contractName: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/storage/${network}/nft?address=${address}&limit=${limit}&offset=${offset}&path=${contractName}`,
-      {},
-      {},
-      'https://lilico.app'
-    );
-    return data;
-  };
-
-  nftCollectionInfo = async (
-    address: string,
-    contractName: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/storage/${network}/nft/collection?address=${address}&path=${contractName}`,
-      {},
-      {},
-      'https://lilico.app'
     );
     return data;
   };
