@@ -85,7 +85,7 @@ export const useTransactionStore = create<TransactionStore>()(
       const { tokenType, fromNetwork, toNetwork, currentTxState } = get();
       if (!tokenType || !fromNetwork || !toNetwork) return;
 
-      const newTxState: TransactionStateString = `${tokenType}from${fromNetwork}to${toNetwork}`;
+      const newTxState: TransactionStateString = `${tokenType}From${fromNetwork}To${toNetwork}`;
       if (currentTxState !== newTxState) {
         console.log('Creating new transaction state:', newTxState);
         set({ currentTxState: newTxState });

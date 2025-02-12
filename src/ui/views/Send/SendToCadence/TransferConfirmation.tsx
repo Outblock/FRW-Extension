@@ -5,6 +5,7 @@ import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { type TransactionState } from '@/shared/types/transaction-types';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
@@ -13,19 +14,23 @@ import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
 import { useWallet, isEmoji } from 'ui/utils';
-
 interface TransferConfirmationProps {
+  transactionState: TransactionState;
   isConfirmationOpen: boolean;
-  data: any;
   handleCloseIconClicked: () => void;
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
 }
 
-const TransferConfirmation = (props: TransferConfirmationProps) => {
-  const usewallet = useWallet();
+const TransferConfirmation = ({
+  transactionState,
+  isConfirmationOpen,
+  handleCloseIconClicked,
+  handleCancelBtnClicked,
+  handleAddBtnClicked,
+}: TransferConfirmationProps) => {
+  const wallet = useWallet();
   const history = useHistory();
-  const { selectedToken, currentTxState } = useTransactionStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
@@ -35,7 +40,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
 
-  const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
+  const transferAmount = transactionState.amount ? parseFloat(transactionState.amount) : undefined;
 
   // This component is only used for sending Flow on the Flow network
   const movingBetweenEVMAndFlow = false;
@@ -43,7 +48,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
     useStorageCheck({
       transferAmount,
-      coin: props.data?.coinInfo?.coin,
+      coin: transactionState.coinInfo?.coin,
       movingBetweenEVMAndFlow,
     });
 
@@ -62,7 +67,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
-    if (props.data.contact.address) {
+    if (transactionState.toAddress) {
       intervalId = setInterval(function () {
         count++;
         if (count === 7) {
@@ -70,40 +75,40 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         }
         setCount(count);
       }, 500);
-    } else if (!props.data.contact.address) {
+    } else if (!transactionState.toAddress) {
       clearInterval(intervalId);
     }
-  }, [props.data.contact.address, setCount]);
+  }, [transactionState.toAddress, setCount]);
 
   const getPending = useCallback(async () => {
-    const pending = await usewallet.getPendingTx();
+    const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  }, [usewallet]);
+  }, [wallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
   }, []);
 
-  const transferTokenOnCadence = useCallback(async () => {
-    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
+  const transferTokensOnCadence = useCallback(async () => {
+    const amount = new BN(transactionState.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
     try {
-      const txId = await usewallet.transferInboxTokens(
-        props.data.tokenSymbol,
-        props.data.contact.address,
+      const txId = await wallet.transferInboxTokens(
+        transactionState.selectedToken.symbol,
+        transactionState.toAddress,
         amount
       );
-      await usewallet.setRecent(props.data.contact);
-      usewallet.listenTransaction(
+      await wallet.setRecent(transactionState.toContact);
+      wallet.listenTransaction(
         txId,
         true,
-        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-        props.data.coinInfo.icon
+        `${transactionState.amount} ${transactionState.coinInfo.coin} Sent`,
+        `You have sent ${transactionState.amount} ${transactionState.selectedToken.symbol} to ${transactionState.toContact?.contact_name}. \nClick to view this transaction.`,
+        transactionState.coinInfo.icon
       );
-      props.handleCloseIconClicked();
-      await usewallet.setDashIndex(0);
+      handleCloseIconClicked();
+      await wallet.setDashIndex(0);
       setSending(false);
       setTid(txId);
       history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -111,28 +116,38 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       setSending(false);
       setFailed(true);
     }
-  }, [props, usewallet, history, setSending, setFailed, setTid]);
+  }, [
+    transactionState.amount,
+    transactionState.selectedToken.symbol,
+    transactionState.toAddress,
+    transactionState.toContact,
+    transactionState.coinInfo.coin,
+    transactionState.coinInfo.icon,
+    wallet,
+    handleCloseIconClicked,
+    history,
+  ]);
 
-  const tokenFromChild = useCallback(async () => {
-    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
+  const transferTokensFromChildToCadence = useCallback(async () => {
+    const amount = new BN(transactionState.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
     try {
-      const txId = await usewallet.sendFTfromChild(
-        props.data.userContact.address,
-        props.data.contact.address,
+      const txId = await wallet.sendFTfromChild(
+        transactionState.fromAddress,
+        transactionState.toAddress,
         'flowTokenProvider',
         amount,
-        props.data.tokenSymbol
+        transactionState.selectedToken.symbol
       );
-      await usewallet.setRecent(props.data.contact);
-      usewallet.listenTransaction(
+      await wallet.setRecent(transactionState.toContact);
+      wallet.listenTransaction(
         txId,
         true,
-        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-        props.data.coinInfo.icon
+        `${transactionState.amount} ${transactionState.coinInfo.coin} Sent`,
+        `You have sent ${transactionState.amount} ${transactionState.selectedToken.symbol} to ${transactionState.toContact?.contact_name}. \nClick to view this transaction.`,
+        transactionState.coinInfo.icon
       );
-      props.handleCloseIconClicked();
-      await usewallet.setDashIndex(0);
+      handleCloseIconClicked();
+      await wallet.setDashIndex(0);
       setSending(false);
       setTid(txId);
       history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -141,21 +156,35 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       setSending(false);
       setFailed(true);
     }
-  }, [props, usewallet, history, setSending, setFailed, setTid]);
+  }, [
+    transactionState.amount,
+    transactionState.fromAddress,
+    transactionState.toAddress,
+    transactionState.toContact,
+    transactionState.coinInfo.coin,
+    transactionState.coinInfo.icon,
+    transactionState.selectedToken.symbol,
+    wallet,
+    handleCloseIconClicked,
+    history,
+  ]);
 
-  const flowFromEvm = useCallback(async () => {
+  const transferFlowFromEvmToCadence = useCallback(async () => {
     try {
-      const txId = await usewallet.withdrawFlowEvm(props.data.amount, props.data.contact.address);
-      await usewallet.setRecent(props.data.contact);
-      usewallet.listenTransaction(
+      const txId = await wallet.withdrawFlowEvm(
+        transactionState.amount,
+        transactionState.toAddress
+      );
+      await wallet.setRecent(transactionState.toContact);
+      wallet.listenTransaction(
         txId,
         true,
-        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-        props.data.coinInfo.icon
+        `${transactionState.amount} ${transactionState.coinInfo.coin} Sent`,
+        `You have sent ${transactionState.amount} ${transactionState.selectedToken.symbol} to ${transactionState.toContact?.contact_name}. \nClick to view this transaction.`,
+        transactionState.coinInfo.icon
       );
-      props.handleCloseIconClicked();
-      await usewallet.setDashIndex(0);
+      handleCloseIconClicked();
+      await wallet.setDashIndex(0);
       setSending(false);
       setTid(txId);
       history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -163,26 +192,36 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       setSending(false);
       setFailed(true);
     }
-  }, [props, usewallet, history, setSending, setFailed, setTid]);
+  }, [
+    wallet,
+    transactionState.amount,
+    transactionState.toAddress,
+    transactionState.toContact,
+    transactionState.coinInfo.coin,
+    transactionState.coinInfo.icon,
+    transactionState.selectedToken.symbol,
+    handleCloseIconClicked,
+    history,
+  ]);
 
-  const otherFTFromEvm = useCallback(async () => {
+  const transferFTFromEvmToCadence = useCallback(async () => {
     try {
-      const txId = await usewallet.transferFTFromEvm(
-        selectedToken!['flowIdentifier'],
-        props.data.amount,
-        props.data.contact.address,
-        selectedToken!
+      const txId = await wallet.transferFTFromEvm(
+        transactionState.selectedToken['flowIdentifier'],
+        transactionState.amount,
+        transactionState.toAddress,
+        transactionState.selectedToken
       );
-      await usewallet.setRecent(props.data.contact);
-      usewallet.listenTransaction(
+      await wallet.setRecent(transactionState.toContact);
+      wallet.listenTransaction(
         txId,
         true,
-        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-        props.data.coinInfo.icon
+        `${transactionState.amount} ${transactionState.coinInfo.coin} Sent`,
+        `You have sent ${transactionState.amount} ${transactionState.selectedToken.symbol} to ${transactionState.toContact?.contact_name}. \nClick to view this transaction.`,
+        transactionState.coinInfo.icon
       );
-      props.handleCloseIconClicked();
-      await usewallet.setDashIndex(0);
+      handleCloseIconClicked();
+      await wallet.setDashIndex(0);
       setSending(false);
       setTid(txId);
       history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -190,41 +229,51 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       setSending(false);
       setFailed(true);
     }
-  }, [props, selectedToken, usewallet, history, setSending, setFailed, setTid]);
+  }, [
+    wallet,
+    transactionState.selectedToken,
+    transactionState.amount,
+    transactionState.toAddress,
+    transactionState.toContact,
+    transactionState.coinInfo.coin,
+    transactionState.coinInfo.icon,
+    handleCloseIconClicked,
+    history,
+  ]);
 
-  const runTransaction = useCallback(async () => {
+  const transferTokens = useCallback(async () => {
     try {
       setSending(true);
-      console.log('currentTxState ', currentTxState);
+      console.log('currentTxState ', transactionState.currentTxState);
 
-      switch (currentTxState) {
-        case 'FTfromEvmtoCadence':
-          await otherFTFromEvm();
+      switch (transactionState.currentTxState) {
+        case 'FTFromEvmToCadence':
+          await transferFTFromEvmToCadence();
           break;
-        case 'FlowfromEvmtoCadence':
-          await flowFromEvm();
+        case 'FlowFromEvmToCadence':
+          await transferFlowFromEvmToCadence();
           break;
-        case 'FTfromChildtoCadence':
-        case 'FlowfromChildtoCadence':
-          await tokenFromChild();
+        case 'FTFromChildToCadence':
+        case 'FlowFromChildToCadence':
+          await transferTokensFromChildToCadence();
           break;
-        case 'FTfromCadencetoCadence':
-        case 'FlowfromCadencetoCadence':
-          await transferTokenOnCadence();
+        case 'FTFromCadenceToCadence':
+        case 'FlowFromCadenceToCadence':
+          await transferTokensOnCadence();
           break;
         default:
-          throw new Error(`Unsupported transaction state: ${currentTxState}`);
+          throw new Error(`Unsupported transaction state: ${transactionState.currentTxState}`);
       }
     } catch (error) {
       console.error('Transaction failed:', error);
       setFailed(true);
     }
   }, [
-    currentTxState,
-    otherFTFromEvm,
-    flowFromEvm,
-    tokenFromChild,
-    transferTokenOnCadence,
+    transactionState.currentTxState,
+    transferFTFromEvmToCadence,
+    transferFlowFromEvmToCadence,
+    transferTokensFromChildToCadence,
+    transferTokensOnCadence,
     setSending,
     setFailed,
   ]);
@@ -296,7 +345,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
           )}
         </Grid>
         <Grid item xs={1}>
-          <IconButton onClick={props.handleCloseIconClicked}>
+          <IconButton onClick={handleCloseIconClicked}>
             <CloseIcon fontSize="medium" sx={{ color: 'icon.navi', cursor: 'pointer' }} />
           </IconButton>
         </Grid>
@@ -304,17 +353,17 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       <Box
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
-        {props.data.childType === 'evm' ? (
+        {transactionState.fromNetwork === 'Evm' ? (
           <FRWProfile
-            contact={props.data.userContact}
+            contact={transactionState.fromContact}
             isLoading={false}
             isEvm={true}
             fromEvm={'yes'}
           />
-        ) : props.data.childType ? (
-          <LLProfile contact={props.data.userContact} />
+        ) : transactionState.fromNetwork === 'Child' ? (
+          <LLProfile contact={transactionState.fromContact} />
         ) : (
-          <FRWProfile contact={props.data.userContact} fromEvm={'no'} />
+          <FRWProfile contact={transactionState.fromContact} fromEvm={'no'} />
         )}
         <Box
           sx={{
@@ -339,10 +388,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
             </Box>
           ))}
         </Box>
-        {isEmoji(props.data.contact.avatar) ? (
-          <FRWTargetProfile contact={props.data.contact} fromEvm={'to'} />
+        {isEmoji(transactionState.toContact?.avatar) ? (
+          <FRWTargetProfile contact={transactionState.toContact} fromEvm={'to'} />
         ) : (
-          <LLProfile contact={props.data.contact} />
+          <LLProfile contact={transactionState.toContact} />
         )}
       </Box>
 
@@ -358,16 +407,19 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         }}
       >
         <Stack direction="row" sx={{ alignItems: 'center' }} spacing={1}>
-          <CardMedia sx={{ width: '24px', height: '24px' }} image={props.data.coinInfo.icon} />
+          <CardMedia
+            sx={{ width: '24px', height: '24px' }}
+            image={transactionState.coinInfo.icon}
+          />
           <Typography variant="body1" sx={{ fontSize: '18px', fontWeight: 'semi-bold' }}>
-            {props.data.coinInfo.coin}
+            {transactionState.coinInfo.coin}
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Typography
             variant="body1"
             sx={{ fontSize: '18px', fontWeight: '400', textAlign: 'end' }}
           >
-            {props.data.amount} {props.data.coinInfo.unit}
+            {transactionState.amount} {transactionState.coinInfo.unit}
           </Typography>
         </Stack>
         <Stack direction="column" spacing={1}>
@@ -376,7 +428,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
             color="info"
             sx={{ fontSize: '14px', fontWeight: 'semi-bold', textAlign: 'end' }}
           >
-            $ {props.data.secondAmount}
+            $ {transactionState.fiatAmount}
           </Typography>
         </Stack>
       </Box>
@@ -408,7 +460,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       />
 
       <Button
-        onClick={runTransaction}
+        onClick={transferTokens}
         disabled={sending || occupied}
         variant="contained"
         color="success"
@@ -451,7 +503,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     <>
       <Drawer
         anchor="bottom"
-        open={props.isConfirmationOpen}
+        open={isConfirmationOpen}
         transitionDuration={300}
         PaperProps={{
           sx: {

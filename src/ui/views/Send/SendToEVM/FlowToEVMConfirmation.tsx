@@ -81,7 +81,7 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
     setOccupied(false);
   }, []);
 
-  const transferFlow = useCallback(async () => {
+  const transferFlowFromCadenceToEvm = useCallback(async () => {
     const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
     wallet
@@ -108,7 +108,7 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
     // Depending on history is probably not great
   }, [history, props, wallet]);
 
-  const transferFt = useCallback(async () => {
+  const transferFTFromCadenceToEvm = useCallback(async () => {
     setSending(true);
 
     const value = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
@@ -146,15 +146,15 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
     // Depending on history is probably not great
   }, [history, props, wallet, selectedToken]);
 
-  const transferToken = useCallback(async () => {
+  const transferTokens = useCallback(async () => {
     try {
       setSending(true);
       switch (currentTxState) {
-        case 'FlowfromCadencetoEvm':
-          await transferFlow();
+        case 'FlowFromCadenceToEvm':
+          await transferFlowFromCadenceToEvm();
           break;
-        case 'FTfromCadencetoEvm':
-          await transferFt();
+        case 'FTFromCadenceToEvm':
+          await transferFTFromCadenceToEvm();
           break;
         default:
           throw new Error(`Unsupported transaction state: ${currentTxState}`);
@@ -163,7 +163,7 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
       console.error('Transaction failed:', error);
       setFailed(true);
     }
-  }, [transferFlow, transferFt, currentTxState]);
+  }, [transferFlowFromCadenceToEvm, transferFTFromCadenceToEvm, currentTxState]);
 
   const transactionDoneHandler = useCallback(
     (request) => {
@@ -333,7 +333,7 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
         isLowStorageAfterAction={isLowStorageAfterAction}
       />
       <Button
-        onClick={transferToken}
+        onClick={transferTokens}
         disabled={sending || occupied}
         variant="contained"
         color="success"

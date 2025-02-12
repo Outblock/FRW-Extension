@@ -10,7 +10,7 @@ export type TokenType = 'FT' | 'Flow';
 export type NetworkType = 'Evm' | 'Cadence' | 'Child';
 
 // Define the transaction direction
-export type TransactionStateString = `${TokenType}from${NetworkType}to${NetworkType}`;
+export type TransactionStateString = `${TokenType}From${NetworkType}To${NetworkType}`;
 
 export type TransactionState = {
   // A unique key for the transaction state
@@ -65,26 +65,26 @@ export type DecimalMapping = {
 
 export const DecimalMappingValues: DecimalMapping = {
   // To Evm
-  FTfromEvmtoEvm: 16,
-  FTfromCadencetoEvm: 8,
-  FTfromChildtoEvm: 8,
-  FlowfromEvmtoEvm: 16,
-  FlowfromCadencetoEvm: 8,
-  FlowfromChildtoEvm: 8,
+  FTFromEvmToEvm: 16,
+  FTFromCadenceToEvm: 8,
+  FTFromChildToEvm: 8,
+  FlowFromEvmToEvm: 16,
+  FlowFromCadenceToEvm: 8,
+  FlowFromChildToEvm: 8,
 
   // To Cadence
-  FTfromEvmtoCadence: 18,
-  FTfromCadencetoCadence: 8,
-  FTfromChildtoCadence: 8,
-  FlowfromEvmtoCadence: 8,
-  FlowfromCadencetoCadence: 8,
-  FlowfromChildtoCadence: 8,
+  FTFromEvmToCadence: 18,
+  FTFromCadenceToCadence: 8,
+  FTFromChildToCadence: 8,
+  FlowFromEvmToCadence: 8,
+  FlowFromCadenceToCadence: 8,
+  FlowFromChildToCadence: 8,
 
   // To Child unused for now
-  FTfromEvmtoChild: 18,
-  FTfromCadencetoChild: 18,
-  FTfromChildtoChild: 18,
-  FlowfromEvmtoChild: 18,
-  FlowfromCadencetoChild: 18,
-  FlowfromChildtoChild: 18,
+  FTFromEvmToChild: 18,
+  FTFromCadenceToChild: 18,
+  FTFromChildToChild: 18,
+  FlowFromEvmToChild: 18,
+  FlowFromCadenceToChild: 18,
+  FlowFromChildToChild: 18,
 } as const;

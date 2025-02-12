@@ -103,15 +103,7 @@ type TransactionAction =
 
 export const getTransactionStateString = (state: TransactionState): TransactionStateString | '' => {
   if (!state.tokenType || !state.fromNetwork || !state.toNetwork) return '';
-  return `${state.tokenType}from${state.fromNetwork}to${state.toNetwork}`;
-};
-
-const deepCopyTxState = (state: TransactionState): TransactionState => {
-  return {
-    ...state,
-    selectedToken: { ...state.selectedToken },
-    coinInfo: { ...state.coinInfo },
-  };
+  return `${state.tokenType}From${state.fromNetwork}To${state.toNetwork}`;
 };
 
 export const transactionReducer = (
@@ -127,13 +119,13 @@ export const transactionReducer = (
         : fromAddress === rootAddress
           ? 'Cadence'
           : 'Child';
-      return { ...deepCopyTxState(state), rootAddress, fromAddress, fromNetwork, fromContact };
+      return { ...state, rootAddress, fromAddress, fromNetwork, fromContact };
     }
     case 'setSelectedToken': {
       // Set the token type based on the token symbol
       const tokenType = action.payload.tokenInfo.symbol.toLowerCase() !== 'flow' ? 'FT' : 'Flow';
       return {
-        ...deepCopyTxState(state),
+        ...state,
         selectedToken: action.payload.tokenInfo,
         tokenType,
         coinInfo: action.payload.coinInfo,
@@ -146,14 +138,14 @@ export const transactionReducer = (
         : address === state.rootAddress
           ? 'Cadence'
           : 'Child';
-      return { ...deepCopyTxState(state), toAddress: address, toNetwork, toContact: contact };
+      return { ...state, toAddress: address, toNetwork, toContact: contact };
     }
     case 'setFiatOrCoin': {
-      return { ...deepCopyTxState(state), fiatOrCoin: action.payload };
+      return { ...state, fiatOrCoin: action.payload };
     }
     case 'switchFiatOrCoin': {
       return {
-        ...deepCopyTxState(state),
+        ...state,
         fiatOrCoin: state.fiatOrCoin === 'fiat' ? 'coin' : 'fiat',
       };
     }
@@ -171,7 +163,7 @@ export const transactionReducer = (
       // This will calculate the max fiat amount that can be entered
       const stateInCoinWithMaxAmount = transactionReducer(
         {
-          ...deepCopyTxState(state),
+          ...state,
           fiatOrCoin: 'coin',
         },
         {
@@ -240,7 +232,7 @@ export const transactionReducer = (
       }
       // Return the new state with the amount (in coin), the fiat amount, and whether the balance was exceeded
       return {
-        ...deepCopyTxState(state),
+        ...state,
         amount: amountInCoin,
         fiatAmount: amountInFiat,
         balanceExceeded,
