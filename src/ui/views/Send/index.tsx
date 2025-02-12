@@ -26,6 +26,8 @@ import SwipeableViews from 'react-swipeable-views';
 
 import { type Contact } from '@/shared/types/network-types';
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { useContactHook } from '@/ui/hooks/useContactHook';
+import { useContactStore } from '@/ui/stores/contactStore';
 import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { useWallet } from 'ui/utils';
 
@@ -81,7 +83,7 @@ interface TabPanelProps {
   value: number;
 }
 
-let searchResult = {
+const searchResult = {
   address: '',
   contact_name: '',
   avatar: '',
@@ -120,123 +122,29 @@ const Send = () => {
   const history = useHistory();
   const usewallet = useWallet();
   const transactionStore = useTransactionStore();
+  const {
+    filteredContacts,
+    searchContacts,
+    recentContacts,
+    sortedContacts,
+    hasNoFilteredContacts,
+    setFilteredContacts,
+    setSearchContacts,
+    setHasNoFilteredContacts,
+  } = useContactStore();
+  const { findContact, fetchAddressBook } = useContactHook();
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [searchKey, setSearchKey] = useState<string>('');
-  const [sortedContacts, setSortedContacts] = useState<Contact[]>([]);
-  const [recentContacts, setRecentContacts] = useState<Contact[]>([]);
-  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
-  const [searchContacts, setSearchContacts] = useState<any[]>([]);
   const [searched, setSearched] = useState<boolean>(false);
-  const [hasNoFilteredContacts, setHasNoFilteredContacts] = useState<boolean>(false);
-
-  const fetchAddressBook = useCallback(async () => {
-    await usewallet.setDashIndex(0);
-    try {
-      const response = await usewallet.getAddressBook();
-      let recent = await usewallet.getRecent();
-      console.log('recent ', recent, response);
-      if (recent) {
-        recent.forEach((c) => {
-          if (response) {
-            response.forEach((s) => {
-              if (c.address === s.address && c.contact_name === s.contact_name) {
-                c.type = 1;
-              }
-            });
-          }
-        });
-      } else {
-        recent = [];
-      }
-
-      if (recent.length < 1) {
-        setTabValue(1);
-      }
-      let sortedContacts = [];
-      if (response) {
-        sortedContacts = response.sort((a, b) =>
-          a.contact_name.toLowerCase().localeCompare(b.contact_name.toLowerCase())
-        );
-      }
-
-      console.log('sortedContacts ', sortedContacts);
-
-      setRecentContacts(recent);
-      setSortedContacts(sortedContacts);
-      setFilteredContacts(sortedContacts);
-      setIsLoading(false);
-    } catch (err) {
-      console.log('err: ', err);
-    }
-  }, [usewallet]);
-
-  useEffect(() => {
-    fetchAddressBook();
-  }, [fetchAddressBook]);
 
   const checkContain = (searchResult: Contact) => {
     if (sortedContacts.some((e) => e.contact_name === searchResult.username)) {
       return true;
     }
     return false;
-  };
-
-  const checkContainDomain = (searchResult: string) => {
-    if (sortedContacts.some((e) => e.domain?.value === searchResult)) {
-      return true;
-    }
-    return false;
-  };
-
-  const checkDomain = async (searchType: number, keys = searchKey) => {
-    const fArray = searchContacts;
-    let result = '';
-    let group = '';
-    let keyword = keys;
-    if (keyword.includes('.')) {
-      keyword = keys.substring(0, keys.lastIndexOf('.'));
-    }
-    switch (searchType) {
-      case 0:
-        result = await usewallet.openapi.getFindAddress(keyword + '');
-        group = '.find';
-        keys = keyword + '.find';
-        break;
-      case 1:
-        result = await usewallet.openapi.getFlownsAddress(keyword + '');
-        group = '.flowns';
-        keys = keyword + '.fn';
-        break;
-      case 2:
-        result = await usewallet.openapi.getFlownsAddress(keyword + '', 'meow');
-        group = '.meow';
-        keys = keyword + '.meow';
-        break;
-    }
-    const domainRresult = {
-      address: '',
-      contact_name: '',
-      avatar: '',
-      domain: {
-        domain_type: 0,
-        value: '',
-      },
-    } as Contact;
-    if (result) {
-      domainRresult['group'] = group;
-      domainRresult.address = result;
-      domainRresult.contact_name = keys;
-      domainRresult.domain!.domain_type = searchType;
-      domainRresult.domain!.value = keys;
-      domainRresult.type! = checkContainDomain(keys) ? 2 : 4;
-      fArray.push(domainRresult);
-      setSearchContacts(fArray);
-      setHasNoFilteredContacts(false);
-    }
-    return;
   };
 
   const searchUser = async () => {
@@ -271,10 +179,6 @@ const Send = () => {
     }
     return;
   };
-  // const resetSearch = async () => {
-  //   const emptya = []
-  //   setSearchContacts(emptya);
-  // }
   const searchAll = async () => {
     // await resetSearch();
     setSearching(true);
@@ -314,38 +218,15 @@ const Send = () => {
     });
 
     const checkAddress = keyword.trim();
-    if (isValidEthereumAddress(checkAddress)) {
-      if (filtered[0]) {
-        searchResult = filtered[0];
-      } else {
-        searchResult.address = withPrefix(keyword) || keyword;
-        searchResult.contact_name = withPrefix(checkAddress) || keyword;
-        searchResult.avatar = '';
-        searchResult.type! = 4;
+    if (checkAddress) {
+      const contact = findContact(checkAddress);
+      if (contact) {
+        handleTransactionRedirect(contact);
       }
-      handleTransactionRedirect(searchResult);
-      return;
     }
-
-    if (/^(0x)?[a-fA-F0-9]{16}$/.test(checkAddress)) {
-      if (filtered[0]) {
-        searchResult = filtered[0];
-      } else {
-        searchResult.address = withPrefix(keyword) || keyword;
-        searchResult.contact_name = withPrefix(checkAddress) || keyword;
-        searchResult.avatar = '';
-        searchResult.type! = 4;
-      }
-      console.log('searchResult ', searchResult, checkAddress, keyword, filtered);
-      handleTransactionRedirect(searchResult);
-    }
-
-    setSearchContacts(filtered);
-    if (isEmpty(filtered)) {
-      setHasNoFilteredContacts(true);
-    } else {
-      setHasNoFilteredContacts(false);
-    }
+    setFilteredContacts(filtered);
+    setHasNoFilteredContacts(isEmpty(filtered));
+    console.log('recentContacts', filtered);
   };
 
   const handleTransactionRedirect = (contact: Contact) => {
@@ -363,6 +244,10 @@ const Send = () => {
       state: { contact },
     });
   };
+
+  useEffect(() => {
+    fetchAddressBook();
+  }, [fetchAddressBook]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -531,7 +416,6 @@ const Send = () => {
             {searched && !searchContacts.length && (
               <ListItem sx={{ backgroundColor: '#000000' }}>
                 <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
-                  {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
                   <IconAbout size={20} color="#E54040" />
                 </ListItemAvatar>
                 <ListItemText>
