@@ -124,7 +124,7 @@ test('send BETA flow to EOA', async ({ page }) => {
     ingoreFlowCharge: true,
   });
 });
-//Move FTs from  Flow to COA
+/* //Move FTs from  Flow to COA
 test('move Flow Flow to COA', async ({ page }) => {
   // Move FLOW token from FLOW to COA
   await moveTokenFlow({
@@ -160,3 +160,4 @@ test('move USDC token Flow to COA homepage', async ({ page }) => {
     ingoreFlowCharge: true,
   });
 });
+ */

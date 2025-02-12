@@ -264,16 +264,7 @@ const SendEth = ({
           {transactionState.fromNetwork === 'Evm' ? (
             <EvmToEvmConfirmation
               isConfirmationOpen={isConfirmationOpen}
-              data={{
-                contact: transactionState.toContact,
-                amount: transactionState.amount,
-                secondAmount: transactionState.fiatAmount,
-                userContact: transactionState.fromContact,
-                tokenSymbol: transactionState.selectedToken.symbol,
-                coinInfo: transactionState.coinInfo,
-                currentTxState: transactionState.currentTxState,
-                erc20Contract,
-              }}
+              transactionState={transactionState}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
               handleAddBtnClicked={() => {

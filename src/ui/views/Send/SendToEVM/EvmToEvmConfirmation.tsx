@@ -5,25 +5,34 @@ import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { type TransactionState } from '@/shared/types/transaction-types';
 import { ensureEvmAddressPrefix } from '@/shared/utils/address';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useWeb3 } from '@/ui/hooks/useWeb3';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
+import erc20ABI from 'background/utils/erc20.abi.json';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 interface EvmConfirmationProps {
+  transactionState: TransactionState;
   isConfirmationOpen: boolean;
-  data: any;
   handleCloseIconClicked: () => void;
   handleCancelBtnClicked: () => void;
   handleAddBtnClicked: () => void;
 }
 
-const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
-  const usewallet = useWallet();
+const EvmToEvmConfirmation = ({
+  transactionState,
+  isConfirmationOpen,
+  handleCloseIconClicked,
+  handleCancelBtnClicked,
+  handleAddBtnClicked,
+}: EvmConfirmationProps) => {
+  const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -34,11 +43,25 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
 
-  const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
+  const [erc20Contract, setErc20Contract] = useState<any>(null);
+
+  const web3Instance = useWeb3();
+
+  useEffect(() => {
+    if (isConfirmationOpen && web3Instance) {
+      const contractInstance = new web3Instance.eth.Contract(
+        erc20ABI,
+        transactionState.selectedToken.address
+      );
+      setErc20Contract(contractInstance);
+    }
+  }, [web3Instance, transactionState.selectedToken.address, isConfirmationOpen]);
+
+  const transferAmount = transactionState.amount ? parseFloat(transactionState.amount) : undefined;
 
   const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
     transferAmount,
-    coin: props.data?.coinInfo?.coin,
+    coin: transactionState.coinInfo?.coin,
     // the transfer is within the EVM network, the flag should be false
     movingBetweenEVMAndFlow: false,
   });
@@ -59,7 +82,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
   const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
-    if (props.data.contact.address) {
+    if (transactionState.toAddress) {
       intervalId = setInterval(function () {
         count++;
         if (count === 7) {
@@ -67,67 +90,71 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
         }
         setCount(count);
       }, 500);
-    } else if (!props.data.contact.address) {
+    } else if (!transactionState.toAddress) {
       clearInterval(intervalId);
     }
-  }, [props?.data?.contact?.address]);
+  }, [transactionState.toAddress]);
 
   const getPending = useCallback(async () => {
-    const pending = await usewallet.getPendingTx();
+    const pending = await wallet.getPendingTx();
     if (pending.length > 0) {
       setOccupied(true);
     }
-  }, [usewallet]);
+  }, [wallet]);
 
   const updateOccupied = useCallback(() => {
     setOccupied(false);
   }, []);
 
   const transferTokensOnEvm = useCallback(async () => {
-    const network = await usewallet.getNetwork();
-    //Transaction TODO: tokeninfo getting directly from api using tokenSymbol, need to add filter on contractName and address
-    const tokenResult = await usewallet.openapi.getTokenInfo(props.data.tokenSymbol, network);
-
-    const amountStr = props.data.amount.toString();
+    // the amount is always stored as a string in the transaction state
+    const amountStr: string = transactionState.amount;
+    // TODO: check if the amount is a valid number
+    // Create an integer string based on the required token decimals
     const amountBN = new BN(amountStr.replace('.', ''));
+
     const decimalsCount = amountStr.split('.')[1]?.length || 0;
-    const scaleFactor = new BN(10).pow(tokenResult!.decimals - decimalsCount);
+    const decimalDifference = transactionState.selectedToken.decimals - decimalsCount;
+    if (decimalDifference < 0) {
+      throw new Error('Too many decimal places have been provided');
+    }
+    const scaleFactor = new BN(10).pow(decimalDifference);
     const integerAmount = amountBN.multipliedBy(scaleFactor);
     const integerAmountStr = integerAmount.integerValue(BN.ROUND_DOWN).toFixed();
+
     setSending(true);
 
     let address, gas, value, data;
-    const encodedData = props.data.erc20Contract.methods
-      .transfer(ensureEvmAddressPrefix(props.data.contact.address), integerAmountStr)
-      .encodeABI();
 
-    if (props.data.coinInfo.unit.toLowerCase() === 'flow') {
-      address = props.data.contact.address;
+    if (transactionState.coinInfo.unit.toLowerCase() === 'flow') {
+      address = transactionState.toAddress;
       gas = '1';
-      value = BigInt(Math.round(props.data.amount * 1e18)).toString(16);
+      // const amountBN = new BN(transactionState.amount).multipliedBy(new BN(10).pow(18));
+      // the amount is always stored as a string in the transaction state
+      value = integerAmount.toString(16);
       data = '0x';
     } else {
-      const tokenInfo = await usewallet.openapi.getEvmTokenInfo(
-        props.data.coinInfo.unit.toLowerCase()
-      );
+      const encodedData = erc20Contract.methods
+        .transfer(ensureEvmAddressPrefix(transactionState.toAddress), integerAmountStr)
+        .encodeABI();
       gas = '1312d00';
-      address = ensureEvmAddressPrefix(tokenInfo!.address);
+      address = ensureEvmAddressPrefix(transactionState.selectedToken.address);
       value = '0x0'; // Zero value as hex
       data = encodedData.startsWith('0x') ? encodedData : `0x${encodedData}`;
     }
 
     try {
-      const txId = await usewallet.sendEvmTransaction(address, gas, value, data);
-      await usewallet.setRecent(props.data.contact);
-      usewallet.listenTransaction(
+      const txId = await wallet.sendEvmTransaction(address, gas, value, data);
+      await wallet.setRecent(transactionState.toContact);
+      wallet.listenTransaction(
         txId,
         true,
-        `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-        `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-        props.data.coinInfo.icon
+        `${transactionState.amount} ${transactionState.coinInfo.coin} Sent`,
+        `You have sent ${transactionState.amount} ${transactionState.selectedToken.symbol} to ${transactionState.toContact?.contact_name}. \nClick to view this transaction.`,
+        transactionState.coinInfo.icon
       );
-      props.handleCloseIconClicked();
-      await usewallet.setDashIndex(0);
+      handleCloseIconClicked();
+      await wallet.setDashIndex(0);
       setSending(false);
       setTid(txId);
       history.push(`/dashboard?activity=1&txId=${txId}`);
@@ -137,24 +164,38 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
       setFailed(true);
       setErrorMessage(err.message);
     }
-  }, [history, props, usewallet]);
+  }, [
+    transactionState.amount,
+    transactionState.selectedToken.decimals,
+    transactionState.selectedToken.address,
+    transactionState.selectedToken.symbol,
+    transactionState.coinInfo.unit,
+    transactionState.coinInfo.coin,
+    transactionState.coinInfo.icon,
+    transactionState.toAddress,
+    transactionState.toContact,
+    erc20Contract?.methods,
+    wallet,
+    handleCloseIconClicked,
+    history,
+  ]);
 
   const transferTokens = useCallback(async () => {
     try {
       setSending(true);
-      switch (props.data.currentTxState) {
+      switch (transactionState.currentTxState) {
         case 'FlowFromEvmToEvm':
         case 'FTFromEvmToEvm':
           await transferTokensOnEvm();
           break;
         default:
-          throw new Error(`Unsupported transaction state: ${props.data.currentTxState}`);
+          throw new Error(`Unsupported transaction state: ${transactionState.currentTxState}`);
       }
     } catch (error) {
       console.error('Transaction failed:', error);
       setFailed(true);
     }
-  }, [transferTokensOnEvm, props.data.currentTxState]);
+  }, [transferTokensOnEvm, transactionState.currentTxState]);
 
   const transactionDoneHandler = useCallback(
     (request) => {
@@ -183,10 +224,10 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
   }, [getPending, startCount, transactionDoneHandler]);
 
   useEffect(() => {
-    if (props.data.coinInfo.unit) {
+    if (transactionState.coinInfo.unit) {
       setOccupied(false);
     }
-  }, [props.data]);
+  }, [transactionState]);
 
   const renderContent = () => (
     <Box
@@ -230,7 +271,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
           )}
         </Grid>
         <Grid item xs={1}>
-          <IconButton onClick={props.handleCloseIconClicked}>
+          <IconButton onClick={handleCloseIconClicked}>
             <CloseIcon fontSize="medium" sx={{ color: 'icon.navi', cursor: 'pointer' }} />
           </IconButton>
         </Grid>
@@ -239,7 +280,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
         <FRWProfile
-          contact={props.data.userContact}
+          contact={transactionState.fromContact}
           isLoading={false}
           isEvm={true}
           fromEvm={'evmConfirm'}
@@ -267,7 +308,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
             </Box>
           ))}
         </Box>
-        <LLProfile contact={props.data.contact} />
+        <LLProfile contact={transactionState.toContact} />
       </Box>
 
       <Box
@@ -282,16 +323,19 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
         }}
       >
         <Stack direction="row" sx={{ alignItems: 'center' }} spacing={1}>
-          <CardMedia sx={{ width: '24px', height: '24px' }} image={props.data.coinInfo.icon} />
+          <CardMedia
+            sx={{ width: '24px', height: '24px' }}
+            image={transactionState.coinInfo.icon}
+          />
           <Typography variant="body1" sx={{ fontSize: '18px', fontWeight: 'semi-bold' }}>
-            {props.data.coinInfo.coin}
+            {transactionState.coinInfo.coin}
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Typography
             variant="body1"
             sx={{ fontSize: '18px', fontWeight: '400', textAlign: 'end' }}
           >
-            {props.data.amount} {props.data.coinInfo.unit}
+            {transactionState.amount} {transactionState.coinInfo.unit}
           </Typography>
         </Stack>
         <Stack direction="column" spacing={1}>
@@ -300,7 +344,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
             color="info"
             sx={{ fontSize: '14px', fontWeight: 'semi-bold', textAlign: 'end' }}
           >
-            $ {props.data.secondAmount}
+            $ {transactionState.fiatAmount}
           </Typography>
         </Stack>
       </Box>
@@ -332,7 +376,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
       />
       <Button
         onClick={transferTokens}
-        disabled={sending || occupied}
+        disabled={sending || occupied || !erc20Contract}
         variant="contained"
         color="success"
         size="large"
@@ -371,24 +415,26 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
   );
 
   return (
-    <>
-      <Drawer
-        anchor="bottom"
-        open={props.isConfirmationOpen}
-        transitionDuration={300}
-        PaperProps={{
-          sx: {
-            width: '100%',
-            height: '65%',
-            bgcolor: 'background.paper',
-            borderRadius: '18px 18px 0px 0px',
-          },
-        }}
-      >
-        {renderContent()}
-      </Drawer>
-      <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
-    </>
+    isConfirmationOpen && (
+      <>
+        <Drawer
+          anchor="bottom"
+          open={isConfirmationOpen}
+          transitionDuration={300}
+          PaperProps={{
+            sx: {
+              width: '100%',
+              height: '65%',
+              bgcolor: 'background.paper',
+              borderRadius: '18px 18px 0px 0px',
+            },
+          }}
+        >
+          {renderContent()}
+        </Drawer>
+        <StorageExceededAlert open={errorCode === 1103} onClose={() => setErrorCode(null)} />
+      </>
+    )
   );
 };
 
