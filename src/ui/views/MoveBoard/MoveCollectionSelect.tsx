@@ -38,9 +38,10 @@ const MoveCollectionSelect = ({
     setFilter(event.target.value);
   };
 
-  const filteredCollectionList = collectionList.filter((obj) =>
-    obj.CollectionName.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredCollectionList =
+    collectionList?.filter((obj) =>
+      obj.CollectionName.toLowerCase().includes(filter.toLowerCase())
+    ) || [];
 
   return (
     <Drawer
@@ -90,7 +91,7 @@ const MoveCollectionSelect = ({
             </IconButton>
           </Box>
         </Box>
-        {collectionList.length > 0 && (
+        {collectionList?.length > 0 ? (
           <Box
             sx={{
               display: 'flex',
@@ -203,6 +204,22 @@ const MoveCollectionSelect = ({
                 </ListItemButton>
               </ListItem>
             ))}
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100px',
+              mb: '16px',
+              mt: '16px',
+              padding: '0',
+            }}
+          >
+            <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#FFFFFFCC' }}>
+              No NFT Collections Found
+            </Typography>
           </Box>
         )}
       </Box>
