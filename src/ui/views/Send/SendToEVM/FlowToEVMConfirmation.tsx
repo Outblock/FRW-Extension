@@ -1,18 +1,20 @@
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, Typography, Drawer, Stack, Grid, CardMedia, IconButton, Button } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import StorageExceededAlert from '@/ui/FRWComponent/StorageExceededAlert';
 import { WarningStorageLowSnackbar } from '@/ui/FRWComponent/WarningStorageLowSnackbar';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { useStorageCheck } from '@/ui/utils/useStorageCheck';
 import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile, FRWTargetProfile } from 'ui/FRWComponent';
-import { useWallet, isEmoji } from 'ui/utils';
+import { useWallet } from 'ui/utils';
 
-interface TransferConfirmationProps {
+interface ToEthConfirmationProps {
   isConfirmationOpen: boolean;
   data: any;
   handleCloseIconClicked: () => void;
@@ -20,7 +22,7 @@ interface TransferConfirmationProps {
   handleAddBtnClicked: () => void;
 }
 
-const TransferConfirmation = (props: TransferConfirmationProps) => {
+const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
   const [sending, setSending] = useState(false);
@@ -31,21 +33,16 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   const [occupied, setOccupied] = useState(false);
   const [tid, setTid] = useState<string>('');
   const [count, setCount] = useState(0);
-
-  const transferAmount = props?.data?.amount ? parseFloat(props.data.amount) : undefined;
-
-  // This component is only used for sending Flow on the Flow network
-  const movingBetweenEVMAndFlow = false;
-
-  const { sufficient: isSufficient, sufficientAfterAction: isSufficientAfterAction } =
-    useStorageCheck({
-      transferAmount,
-      coin: props.data?.coinInfo?.coin,
-      movingBetweenEVMAndFlow,
-    });
+  const { sufficient: isSufficient, sufficientAfterAction } = useStorageCheck({
+    transferAmount: 0,
+    coin: props.data?.coinInfo?.coin,
+    // the transfer is within the EVM network, the flag should be false
+    movingBetweenEVMAndFlow: false,
+  });
 
   const isLowStorage = isSufficient !== undefined && !isSufficient; // isSufficient is undefined when the storage check is not yet completed
-  const isLowStorageAfterAction = isSufficientAfterAction !== undefined && !isSufficientAfterAction; // isSufficientAfterAction is undefined when the storage check is not yet completed
+  const isLowStorageAfterAction = sufficientAfterAction !== undefined && !sufficientAfterAction;
+
   const colorArray = [
     '#32E35529',
     '#32E35540',
@@ -55,6 +52,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     '#41CC5D',
     '#41CC5D',
   ];
+
   const startCount = useCallback(() => {
     let count = 0;
     let intervalId;
@@ -69,7 +67,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     } else if (!props.data.contact.address) {
       clearInterval(intervalId);
     }
-  }, [props.data.contact.address, setCount]);
+  }, [props?.data?.contact?.address]);
 
   const getPending = useCallback(async () => {
     const pending = await wallet.getPendingTx();
@@ -82,22 +80,13 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
     setOccupied(false);
   }, []);
 
-  const transferToken = async () => {
-    // TODO: Replace it with real data
-    if (props.data.childType === 'evm') {
-      withDrawEvm();
-      return;
-    } else if (props.data.childType) {
-      sendFromChild();
-      return;
-    }
-    setSending(true);
-    const amount = parseFloat(props.data.amount).toFixed(8);
+  const transferFlowFromCadenceToEvm = useCallback(async () => {
+    const amount = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
+
     wallet
-      .transferInboxTokens(props.data.tokenSymbol, props.data.contact.address, amount)
+      .transferFlowEvm(props.data.contact.address, amount)
       .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
-        console.log('send result ', txId, props.data);
         wallet.listenTransaction(
           txId,
           true,
@@ -115,17 +104,23 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         setSending(false);
         setFailed(true);
       });
-  };
+    // Depending on history is probably not great
+  }, [history, props, wallet]);
 
-  const sendFromChild = async () => {
-    const amount = parseFloat(props.data.amount).toFixed(8);
+  const transferFTFromCadenceToEvm = useCallback(async () => {
+    setSending(true);
+
+    const value = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
+
+    const address = props.data.selectedToken!.address.startsWith('0x')
+      ? props.data.selectedToken!.address.slice(2)
+      : props.data.selectedToken!.address;
+
     wallet
-      .sendFTfromChild(
-        props.data.userContact.address,
-        props.data.contact.address,
-        'flowTokenProvider',
-        amount,
-        props.data.tokenSymbol
+      .transferFTToEvmV2(
+        `A.${address}.${props.data.selectedToken!.contractName}.Vault`,
+        value,
+        props.data.contact.address
       )
       .then(async (txId) => {
         await wallet.setRecent(props.data.contact);
@@ -143,85 +138,38 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         history.push(`/dashboard?activity=1&txId=${txId}`);
       })
       .catch((err) => {
-        console.log('0xe8264050e6f51923 ', err);
+        console.error('transfer error: ', err);
         setSending(false);
         setFailed(true);
       });
-  };
+    // Depending on history is probably not great
+  }, [history, props, wallet]);
 
-  const withDrawEvm = async () => {
-    console.log('transferToken ->', props.data);
-    setSending(true);
-    if (props.data.tokenSymbol.toLowerCase() === 'flow') {
-      transferFlow();
-    } else {
-      transferFt();
+  const transferTokens = useCallback(async () => {
+    try {
+      setSending(true);
+      switch (props.data.currentTxState) {
+        case 'FlowFromCadenceToEvm':
+          await transferFlowFromCadenceToEvm();
+          break;
+        case 'FTFromCadenceToEvm':
+          await transferFTFromCadenceToEvm();
+          break;
+        default:
+          throw new Error(`Unsupported transaction state: ${props.data.currentTxState}`);
+      }
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      setFailed(true);
     }
-  };
-
-  const transferFlow = async () => {
-    const amount = parseFloat(props.data.amount).toFixed(8);
-    // const txID = await wallet.transferTokens(props.data.tokenSymbol, props.data.contact.address, amount);
-    wallet
-      .withdrawFlowEvm(amount, props.data.contact.address)
-      .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch(() => {
-        setSending(false);
-        setFailed(true);
-      });
-  };
-
-  const transferFt = async () => {
-    const tokenResult = await wallet.openapi.getEvmTokenInfo(props.data.tokenSymbol);
-    console.log('tokenResult ', tokenResult, props.data.amount);
-
-    wallet
-      .transferFTFromEvm(
-        tokenResult!['flowIdentifier'],
-        props.data.amount,
-        props.data.contact.address,
-        tokenResult
-      )
-      .then(async (txId) => {
-        await wallet.setRecent(props.data.contact);
-        wallet.listenTransaction(
-          txId,
-          true,
-          `${props.data.amount} ${props.data.coinInfo.coin} Sent`,
-          `You have sent ${props.data.amount} ${props.data.tokenSymbol} to ${props.data.contact.contact_name}. \nClick to view this transaction.`,
-          props.data.coinInfo.icon
-        );
-        props.handleCloseIconClicked();
-        await wallet.setDashIndex(0);
-        setSending(false);
-        setTid(txId);
-        history.push(`/dashboard?activity=1&txId=${txId}`);
-      })
-      .catch(() => {
-        setSending(false);
-        setFailed(true);
-      });
-  };
+  }, [transferFlowFromCadenceToEvm, transferFTFromCadenceToEvm, props.data.currentTxState]);
 
   const transactionDoneHandler = useCallback(
     (request) => {
       if (request.msg === 'transactionDone') {
         updateOccupied();
       }
+      // Handle error
       if (request.msg === 'transactionError') {
         setFailed(true);
         setErrorMessage(request.errorMessage);
@@ -292,17 +240,10 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
       <Box
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '16px' }}
       >
-        {props.data.childType === 'evm' ? (
-          <FRWProfile
-            contact={props.data.userContact}
-            isLoading={false}
-            isEvm={true}
-            fromEvm={'yes'}
-          />
-        ) : props.data.childType ? (
+        {props.data.childType && props.data.childType !== 'evm' ? (
           <LLProfile contact={props.data.userContact} />
         ) : (
-          <FRWProfile contact={props.data.userContact} fromEvm={'no'} />
+          <FRWTargetProfile contact={props.data.userContact} fromEvm={'sendEth'} />
         )}
         <Box
           sx={{
@@ -327,11 +268,7 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
             </Box>
           ))}
         </Box>
-        {isEmoji(props.data.contact.avatar) ? (
-          <FRWTargetProfile contact={props.data.contact} fromEvm={'to'} />
-        ) : (
-          <LLProfile contact={props.data.contact} />
-        )}
+        <LLProfile contact={props.data.contact} />
       </Box>
 
       <Box
@@ -394,9 +331,8 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
         isLowStorage={isLowStorage}
         isLowStorageAfterAction={isLowStorageAfterAction}
       />
-
       <Button
-        onClick={transferToken}
+        onClick={transferTokens}
         disabled={sending || occupied}
         variant="contained"
         color="success"
@@ -457,4 +393,4 @@ const TransferConfirmation = (props: TransferConfirmationProps) => {
   );
 };
 
-export default TransferConfirmation;
+export default FlowToEVMConfirmation;

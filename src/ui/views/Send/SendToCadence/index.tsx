@@ -1,21 +1,26 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Typography, IconButton, CardMedia } from '@mui/material';
+import BN from 'bignumber.js';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { type Contact } from '@/shared/types/network-types';
-import { type ActiveChildType } from '@/shared/types/wallet-types';
+import { type TransactionState } from '@/shared/types/transaction-types';
+import { type ActiveChildType, type CoinItem } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
+import { useTransactionHook } from '@/ui/hooks/useTransactionHook';
+import { useCoinStore } from '@/ui/stores/coinStore';
+import { useNetworkStore } from '@/ui/stores/networkStore';
 import { useProfileStore } from '@/ui/stores/profileStore';
-import { type CoinItem } from 'background/service/coinList';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
-import CancelIcon from '../../../components/iconfont/IconClose';
+import CancelIcon from '../../../../components/iconfont/IconClose';
+import TransferAmount from '../TransferAmount';
 
-import TransferAmount from './TransferAmount';
 import TransferConfirmation from './TransferConfirmation';
 
 interface ContactState {
@@ -42,118 +47,46 @@ const EMPTY_COIN: CoinItem = {
   icon: '',
 };
 
-const SendAmount = () => {
+const SendToCadence = ({
+  transactionState,
+  handleAmountChange,
+  handleTokenChange,
+  handleSwitchFiatOrCoin,
+  handleMaxClick,
+}: {
+  transactionState: TransactionState;
+  handleAmountChange: (amountString: string) => void;
+  handleTokenChange: (tokenAddress: string) => void;
+  handleSwitchFiatOrCoin: () => void;
+  handleMaxClick: () => void;
+}) => {
+  console.log('SendToCadence ');
   const history = useHistory();
-  const location = useLocation<ContactState>();
-  const usewallet = useWallet();
-  const { childAccounts, currentWallet } = useProfileStore();
-  const [userWallet, setWallet] = useState<any>(null);
-  const [currentCoin, setCurrentCoin] = useState<string>('flow');
-  const [coinList, setCoinList] = useState<CoinItem[]>([]);
+  const wallet = useWallet();
+  const { currentNetwork: network } = useNetworkStore();
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-  const [exceed, setExceed] = useState(false);
-  const [amount, setAmount] = useState<string | undefined>(undefined);
-  const [secondAmount, setSecondAmount] = useState('0.0');
   const [validated, setValidated] = useState<any>(null);
-  const [userInfo, setUser] = useState<Contact>(USER_CONTACT);
-  const [network, setNetwork] = useState('mainnet');
-  const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [childType, setChildType] = useState<ActiveChildType>(null);
 
-  const setUserWallet = useCallback(async () => {
-    // const walletList = await storage.get('userWallet');
-    setLoading(true);
-    const token = await usewallet.getCurrentCoin();
-    let wallet;
-    if (childType === 'evm') {
-      wallet = await usewallet.getEvmWallet();
-    } else {
-      wallet = currentWallet;
-    }
-    console.log('wallet ', wallet);
-    const network = await usewallet.getNetwork();
-    setNetwork(network);
-    setCurrentCoin(token);
-    // userWallet
-    await setWallet(wallet);
-    const coinList = await usewallet.getCoinList();
-    setCoinList(coinList);
-    const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
-    console.log('coinInfo ', coinInfo);
-
-    setCoinInfo(coinInfo!);
-    const info = await usewallet.getUserInfo(false);
-    const isChild = await usewallet.getActiveWallet();
-    console.log('isChild ', info, isChild);
-    const userContact = { ...USER_CONTACT };
-
-    if (isChild) {
-      if (isChild !== 'evm') {
-        const cwallet = childAccounts[wallet.address!];
-        userContact.avatar = cwallet.thumbnail.url;
-        userContact.contact_name = cwallet.name;
+  const checkAddress = useCallback(
+    async (toAddress: string) => {
+      //wallet controller api
+      try {
+        const address = withPrefix(toAddress);
+        const validatedResult = await wallet.checkAddress(address!);
+        setValidated(validatedResult);
+        return validatedResult;
+      } catch (err) {
+        console.error('checkAddress error', err);
+        setValidated(false);
       }
-      userContact.address = withPrefix(wallet.address!) || '';
-      if (isChild === 'evm') {
-        userContact.avatar = '';
-        userContact.contact_name = 'evm';
-      }
-    } else {
-      userContact.address = withPrefix(wallet.address) || '';
-      userContact.avatar = info.avatar;
-      userContact.contact_name = info.username;
-    }
-    setUser(userContact);
-  }, [
-    childType,
-    setWallet,
-    setCoinList,
-    setCoinInfo,
-    setUser,
-    usewallet,
-    currentWallet,
-    childAccounts,
-  ]);
-
-  const checkAddress = useCallback(async () => {
-    const child = await usewallet.getActiveWallet();
-    setChildType(child);
-
-    //wallet controller api
-    try {
-      const address = withPrefix(location.state.contact.address);
-      const validatedResult = await usewallet.checkAddress(address!);
-      setValidated(validatedResult);
-      return validatedResult;
-    } catch (err) {
-      setValidated(false);
-    }
-    setLoading(false);
-  }, [setLoading, setValidated, location?.state?.contact?.address, usewallet]);
-
-  const numberWithCommas = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
-
-  const updateCoinInfo = useCallback(() => {
-    const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
-    if (coin) {
-      setCoinInfo(coin);
-    }
-  }, [coinList, currentCoin, setCoinInfo]);
+    },
+    [wallet]
+  );
 
   useEffect(() => {
-    checkAddress();
-  }, [checkAddress]);
-
-  useEffect(() => {
-    setUserWallet();
-  }, [childType, setUserWallet]);
-
-  useEffect(() => {
-    updateCoinInfo();
-  }, [currentCoin, updateCoinInfo]);
+    // validate the address when the to address changes
+    checkAddress(transactionState.toAddress);
+  }, [transactionState.toAddress, checkAddress]);
 
   return (
     <div className="page">
@@ -163,11 +96,11 @@ const SendAmount = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '16px' }}>
             <Box>
               <Box sx={{ zIndex: 999, backgroundColor: '#121212' }}>
-                <LLContactCard
-                  contact={location.state.contact}
+                {/* <LLContactCard
+                  contact={transactionState.toContact}
                   hideCloseButton={false}
                   isSend={true}
-                />
+                /> */}
               </Box>
               {validated !== null &&
                 (validated ? (
@@ -209,21 +142,17 @@ const SendAmount = () => {
             >
               {chrome.i18n.getMessage('Transfer__Amount')}
             </Typography>
-            {coinInfo.unit && (
+            {transactionState.coinInfo.unit && (
               <TransferAmount
-                coinList={coinList}
-                amount={amount}
-                setAmount={setAmount}
-                secondAmount={secondAmount}
-                setSecondAmount={setSecondAmount}
-                exceed={exceed}
-                setExceed={setExceed}
-                coinInfo={coinInfo}
-                setCurrentCoin={setCurrentCoin}
+                transactionState={transactionState}
+                handleAmountChange={handleAmountChange}
+                handleTokenChange={handleTokenChange}
+                handleSwitchFiatOrCoin={handleSwitchFiatOrCoin}
+                handleMaxClick={handleMaxClick}
               />
             )}
 
-            {coinInfo.unit && (
+            {transactionState.coinInfo.unit && (
               <>
                 <Typography
                   variant="body1"
@@ -236,7 +165,10 @@ const SendAmount = () => {
                 </Typography>
 
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <CardMedia sx={{ width: '18px', height: '18px' }} image={coinInfo.icon} />
+                  <CardMedia
+                    sx={{ width: '18px', height: '18px' }}
+                    image={transactionState.coinInfo.icon}
+                  />
                   <Typography
                     variant="body1"
                     sx={{
@@ -244,12 +176,12 @@ const SendAmount = () => {
                       fontSize: '15px',
                     }}
                   >
-                    {(Math.round(coinInfo.balance * 100) / 100).toFixed(2) +
+                    {(Math.round(transactionState.coinInfo.balance * 100) / 100).toFixed(2) +
                       ' ' +
-                      coinInfo.unit.toUpperCase() +
+                      transactionState.coinInfo.unit.toUpperCase() +
                       ' ≈ ' +
                       '$ ' +
-                      coinInfo.total}
+                      transactionState.coinInfo.total}
                   </Typography>
                 </Box>
               </>
@@ -293,9 +225,9 @@ const SendAmount = () => {
               }}
               disabled={
                 validated === null ||
-                exceed === true ||
-                amount === null ||
-                parseFloat(amount || '-1') < 0
+                transactionState.balanceExceeded === true ||
+                transactionState.amount === null ||
+                new BN(transactionState.amount || '-1').isLessThanOrEqualTo(0)
               }
             >
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
@@ -306,15 +238,7 @@ const SendAmount = () => {
           {validated && (
             <TransferConfirmation
               isConfirmationOpen={isConfirmationOpen}
-              data={{
-                contact: location.state.contact,
-                amount: amount,
-                secondAmount: secondAmount,
-                userContact: userInfo,
-                tokenSymbol: currentCoin,
-                coinInfo: coinInfo,
-                childType,
-              }}
+              transactionState={transactionState}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
               handleCancelBtnClicked={() => setConfirmationOpen(false)}
               handleAddBtnClicked={() => {
@@ -328,4 +252,4 @@ const SendAmount = () => {
   );
 };
 
-export default SendAmount;
+export default SendToCadence;

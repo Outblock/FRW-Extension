@@ -14,10 +14,9 @@ import { useWallet } from 'ui/utils';
 
 import IconSwitch from '../../../../components/iconfont/IconSwitch';
 import theme from '../../../style/LLTheme';
-import TransferFrom from '../TransferFrom';
-import TransferTo from '../TransferTo';
-
-import MoveToken from './MoveToken';
+import MoveToken from '../Components/MoveToken';
+import TransferFrom from '../Components/TransferFrom';
+import TransferTo from '../Components/TransferTo';
 
 interface TransferConfirmationProps {
   isConfirmationOpen: boolean;
@@ -88,7 +87,6 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
   const [network, setNetwork] = useState('mainnet');
   const [childAddress, setChildAddress] = useState('');
   const [coinInfo, setCoinInfo] = useState<CoinItem>(empty);
-  const [secondAmount, setSecondAmount] = useState('0.0');
   const [isLoading, setLoading] = useState<boolean>(false);
   const [errorType, setErrorType] = useState<any>(null);
   const [exceed, setExceed] = useState(false);
@@ -279,8 +277,6 @@ const MoveFromChild = (props: TransferConfirmationProps) => {
             coinList={coinList}
             amount={amount}
             setAmount={setAmount}
-            secondAmount={secondAmount}
-            setSecondAmount={setSecondAmount}
             exceed={exceed}
             setExceed={setExceed}
             coinInfo={coinInfo}

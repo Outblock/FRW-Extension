@@ -3,9 +3,8 @@ import { groupBy, isEmpty } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { LLContactCard } from '@/ui/FRWComponent';
 import emptyAddress from 'ui/assets/emptyAddress.svg';
-
-import { LLContactCard } from '../../FRWComponent';
 
 const AddressBookList = ({ filteredContacts, isLoading, handleClick }) => {
   const [grouped, setGrouped] = useState<any>([]);

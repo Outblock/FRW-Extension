@@ -13,10 +13,12 @@ import {
 import { StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import BN from 'bignumber.js';
+import { debounce } from 'lodash';
 import React, { useState, useEffect, useCallback } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useCoinStore } from '@/ui/stores/coinStore';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 
 import CancelIcon from '../../../../components/iconfont/IconClose';
 
@@ -104,8 +106,6 @@ const useStyles = makeStyles(() => ({
 const MoveToken = ({
   amount,
   setAmount,
-  secondAmount,
-  setSecondAmount,
   exceed,
   setExceed,
   coinInfo,
@@ -114,8 +114,20 @@ const MoveToken = ({
 }) => {
   const classes = useStyles();
   const { availableFlow } = useCoinStore();
+  const { currentTxState, setTokenType } = useTransactionStore();
   const [coin, setCoin] = useState<string>('flow');
-  const [coinType, setCoinType] = useState<any>(0);
+
+  const checkDecimals = useCallback(
+    (value: string) => {
+      if (currentTxState) {
+        const decimals = value.includes('.') ? value.split('.')[1]?.length || 0 : 0;
+        console.log('check decimals', currentTxState, value, decimals);
+        return decimals < 8;
+      }
+      return true;
+    },
+    [currentTxState]
+  );
 
   const handleMaxClick = () => {
     if (coinInfo) {
@@ -128,12 +140,30 @@ const MoveToken = ({
     }
   };
 
-  const renderValue = (option) => {
-    setCurrentCoin(option);
-    setCoin(option);
-    const selectCoin = coinList.find((coin) => coin.unit === option);
-    return selectCoin && <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />;
-  };
+  const renderValue = useCallback(
+    (option) => {
+      const selectCoin = coinList.find((coin) => coin.unit === option);
+      if (selectCoin) {
+        // Debounce only the state updates, not the render
+        const updateStates = debounce(() => {
+          if (option !== coin) {
+            setCurrentCoin(option);
+            if (option !== 'flow') {
+              setTokenType('FT');
+            } else {
+              setTokenType('Flow');
+            }
+            setCoin(option);
+          }
+        }, 300);
+
+        updateStates();
+        return <img src={selectCoin.icon} style={{ height: '24px', width: '24px' }} />;
+      }
+      return null;
+    },
+    [coinList, setCurrentCoin, setCoin, setTokenType, coin]
+  );
 
   const currentCoinType = useCallback(() => {
     setCoin(coinInfo.unit);
@@ -143,39 +173,31 @@ const MoveToken = ({
     currentCoinType();
   }, [coinInfo.unit, currentCoinType]);
 
-  useEffect(() => {
-    if (coinType) {
-      const secondInt = parseInt(secondAmount);
-      const value = new BN(secondInt).dividedBy(new BN(coinInfo.price)).toNumber();
-      if (coinInfo.balance - value < 0) {
-        setExceed(true);
-      } else {
-        setExceed(false);
-      }
-      if (isNaN(value)) {
-        setAmount(0);
-      } else {
-        setAmount(parseFloat(value.toFixed(3)));
-      }
-    }
-  }, [coinInfo.balance, coinInfo.price, coinType, secondAmount, setAmount, setExceed]);
+  const handleAmountChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      if (!checkDecimals(value) || !currentTxState) return;
+      console.log('handleAmountChange', checkDecimals(value), currentTxState);
+      if (coinInfo && value) {
+        const amountBN = new BN(value);
+        const balanceBN = new BN(
+          coinInfo.unit.toLowerCase() === 'flow' ? availableFlow : coinInfo.balance
+        );
+        const remainingBalance = balanceBN.minus(amountBN);
 
-  useEffect(() => {
-    if (!coinType) {
-      if (coinInfo && amount) {
-        const result = parseFloat((coinInfo.amountbalance - amount).toPrecision());
-        if (coinInfo.balance - amount < 0) {
-          setExceed(true);
-        } else if (coin === 'flow' && result < 0.001) {
+        if (remainingBalance.isLessThan(0)) {
           setExceed(true);
         } else {
           setExceed(false);
         }
-        const value = new BN(amount).times(new BN(coinInfo.price)).toFixed(3);
-        setSecondAmount(value);
+      } else {
+        setExceed(false);
       }
-    }
-  }, [amount, coin, coinInfo, coinType, setExceed, setSecondAmount]);
+
+      setAmount(value);
+    },
+    [coinInfo, availableFlow, currentTxState, setExceed, setAmount, checkDecimals]
+  );
 
   return (
     <StyledEngineProvider injectFirst>
@@ -223,12 +245,7 @@ const MoveToken = ({
                 autoComplete="off"
                 value={amount}
                 type="number"
-                onChange={(event) => {
-                  // let value = event.target.value;
-                  // value = (Math.round(value * 100) / 100).toFixed(2)
-                  setExceed(false);
-                  setAmount(event.target.value);
-                }}
+                onChange={handleAmountChange}
                 inputProps={{ sx: { fontSize: '24px' } }}
                 endAdornment={
                   <InputAdornment position="end">
@@ -277,7 +294,7 @@ const MoveToken = ({
               sx={{ fontSize: coin === 'flow' ? '0.7rem' : '1rem' }}
             >
               {chrome.i18n.getMessage('Insufficient_balance') +
-                (coin === 'flow'
+                (coinInfo.unit.toLowerCase() === 'flow'
                   ? chrome.i18n.getMessage('on_Flow_the_balance_cant_less_than_0001_FLOW')
                   : '')}
             </Typography>

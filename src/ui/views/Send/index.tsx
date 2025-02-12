@@ -1,3 +1,4 @@
+import { ChangeHistory } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import SearchIcon from '@mui/icons-material/Search';
@@ -20,20 +21,29 @@ import {
 import { useTheme, styled, StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import { isEmpty } from 'lodash';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
 import { type Contact } from '@/shared/types/network-types';
-import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { type WalletAddress } from '@/shared/types/wallet-types';
+import {
+  withPrefix,
+  isValidEthereumAddress,
+  isValidAddress,
+  isValidFlowAddress,
+} from '@/shared/utils/address';
+import { useContactHook } from '@/ui/hooks/useContactHook';
+import { useContactStore } from '@/ui/stores/contactStore';
+import { useTransactionStore } from '@/ui/stores/transactionStore';
 import { useWallet } from 'ui/utils';
 
 import IconAbout from '../../../components/iconfont/IconAbout';
 
-import AccountsList from './AccountsList';
-import AddressBookList from './AddressBookList';
-import RecentList from './RecentList';
-import SearchList from './SearchList';
+import AccountsList from './AddressLists/AccountsList';
+import AddressBookList from './AddressLists/AddressBookList';
+import RecentList from './AddressLists/RecentList';
+import SearchList from './AddressLists/SearchList';
 
 export enum SendPageTabOptions {
   Recent = 'Recent',
@@ -73,41 +83,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ArrowBackIconWrapper = styled('div')(() => ({
-  paddingLeft: '10px',
-  width: '100%',
-  position: 'absolute',
-  cursor: 'pointer',
-}));
-
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-  margin: '0px 18px 24px 18px',
-  height: '56px',
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: (theme.palette as any).icon.navi,
-  width: '100%',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(2),
-    paddingLeft: theme.spacing(8),
-    width: '100%',
-  },
-}));
-
 interface TabPanelProps {
   children?: React.ReactNode;
   dir?: string;
@@ -115,7 +90,7 @@ interface TabPanelProps {
   value: number;
 }
 
-let searchResult = {
+const searchResult = {
   address: '',
   contact_name: '',
   avatar: '',
@@ -152,63 +127,27 @@ const Send = () => {
   const classes = useStyles();
   const theme = useTheme();
   const history = useHistory();
-  const wallet = useWallet();
+  const usewallet = useWallet();
+  const transactionStore = useTransactionStore();
+  const {
+    filteredContacts,
+    searchContacts,
+    recentContacts,
+    sortedContacts,
+    hasNoFilteredContacts,
+    setFilteredContacts,
+    setSearchContacts,
+    setHasNoFilteredContacts,
+  } = useContactStore();
+  const { fetchAddressBook } = useContactHook();
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [searchKey, setSearchKey] = useState<string>('');
-  const [sortedContacts, setSortedContacts] = useState<Contact[]>([]);
-  const [recentContacts, setRecentContacts] = useState<Contact[]>([]);
-  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
-  const [searchContacts, setSearchContacts] = useState<any[]>([]);
   const [searched, setSearched] = useState<boolean>(false);
-  const [hasNoFilteredContacts, setHasNoFilteredContacts] = useState<boolean>(false);
 
-  const fetchAddressBook = useCallback(async () => {
-    await wallet.setDashIndex(0);
-    try {
-      const response = await wallet.getAddressBook();
-      let recent = await wallet.getRecent();
-      console.log('recent ', recent, response);
-      if (recent) {
-        recent.forEach((c) => {
-          if (response) {
-            response.forEach((s) => {
-              if (c.address === s.address && c.contact_name === s.contact_name) {
-                c.type = 1;
-              }
-            });
-          }
-        });
-      } else {
-        recent = [];
-      }
-
-      if (recent.length < 1) {
-        setTabValue(1);
-      }
-      let sortedContacts = [];
-      if (response) {
-        sortedContacts = response.sort((a, b) =>
-          a.contact_name.toLowerCase().localeCompare(b.contact_name.toLowerCase())
-        );
-      }
-
-      console.log('sortedContacts ', sortedContacts);
-
-      setRecentContacts(recent);
-      setSortedContacts(sortedContacts);
-      setFilteredContacts(sortedContacts);
-      setIsLoading(false);
-    } catch (err) {
-      console.log('err: ', err);
-    }
-  }, [wallet]);
-
-  useEffect(() => {
-    fetchAddressBook();
-  }, [fetchAddressBook]);
+  const mounted = useRef(false);
 
   const checkContain = (searchResult: Contact) => {
     if (sortedContacts.some((e) => e.contact_name === searchResult.username)) {
@@ -217,63 +156,8 @@ const Send = () => {
     return false;
   };
 
-  const checkContainDomain = (searchResult: string) => {
-    if (sortedContacts.some((e) => e.domain?.value === searchResult)) {
-      return true;
-    }
-    return false;
-  };
-
-  const checkDomain = async (searchType: number, keys = searchKey) => {
-    const fArray = searchContacts;
-    let result = '';
-    let group = '';
-    let keyword = keys;
-    if (keyword.includes('.')) {
-      keyword = keys.substring(0, keys.lastIndexOf('.'));
-    }
-    switch (searchType) {
-      case 0:
-        result = await wallet.openapi.getFindAddress(keyword + '');
-        group = '.find';
-        keys = keyword + '.find';
-        break;
-      case 1:
-        result = await wallet.openapi.getFlownsAddress(keyword + '');
-        group = '.flowns';
-        keys = keyword + '.fn';
-        break;
-      case 2:
-        result = await wallet.openapi.getFlownsAddress(keyword + '', 'meow');
-        group = '.meow';
-        keys = keyword + '.meow';
-        break;
-    }
-    const domainRresult = {
-      address: '',
-      contact_name: '',
-      avatar: '',
-      domain: {
-        domain_type: 0,
-        value: '',
-      },
-    } as Contact;
-    if (result) {
-      domainRresult['group'] = group;
-      domainRresult.address = result;
-      domainRresult.contact_name = keys;
-      domainRresult.domain!.domain_type = searchType;
-      domainRresult.domain!.value = keys;
-      domainRresult.type! = checkContainDomain(keys) ? 2 : 4;
-      fArray.push(domainRresult);
-      setSearchContacts(fArray);
-      setHasNoFilteredContacts(false);
-    }
-    return;
-  };
-
   const searchUser = async () => {
-    let result = await wallet.openapi.searchUser(searchKey);
+    let result = await usewallet.openapi.searchUser(searchKey);
     result = result.data.users;
     const fArray = searchContacts;
     const reg = /^((0x))/g;
@@ -304,23 +188,11 @@ const Send = () => {
     }
     return;
   };
-  // const resetSearch = async () => {
-  //   const emptya = []
-  //   setSearchContacts(emptya);
-  // }
   const searchAll = async () => {
     // await resetSearch();
     setSearching(true);
     setIsLoading(true);
-    try {
-      await checkDomain(0);
-      await checkDomain(1);
-      await checkDomain(2);
-    } catch {
-      setHasNoFilteredContacts(true);
-    } finally {
-      await searchUser();
-    }
+    await searchUser();
     // await searchUser();
     setHasNoFilteredContacts(false);
     setSearched(true);
@@ -354,66 +226,46 @@ const Send = () => {
       return false;
     });
 
-    const checkAddress = keyword.trim();
-    if (isValidEthereumAddress(checkAddress)) {
-      if (filtered[0]) {
-        searchResult = filtered[0];
-      } else {
-        searchResult.address = withPrefix(keyword) || keyword;
-        searchResult.contact_name = withPrefix(checkAddress) || keyword;
-        searchResult.avatar = '';
-        searchResult.type! = 4;
-      }
-      history.push({
-        pathname: '/dashboard/wallet/sendeth',
-        state: { contact: searchResult },
-      });
-      return;
+    const trimmedSearchTerm = keyword.trim();
+    // Check if they've entered a valid address
+    if (isValidAddress(trimmedSearchTerm)) {
+      // Yep, they've entered a valid address
+      const address = trimmedSearchTerm as WalletAddress;
+      handleTransactionRedirect(address);
     }
-
-    if (/^(0x)?[a-fA-F0-9]{16}$/.test(checkAddress)) {
-      if (filtered[0]) {
-        searchResult = filtered[0];
-      } else {
-        searchResult.address = withPrefix(keyword) || keyword;
-        searchResult.contact_name = withPrefix(checkAddress) || keyword;
-        searchResult.avatar = '';
-        searchResult.type! = 4;
-      }
-      history.push({
-        pathname: '/dashboard/wallet/sendAmount',
-        state: { contact: searchResult },
-      });
-    }
-
-    setSearchContacts(filtered);
-    if (isEmpty(filtered)) {
-      setHasNoFilteredContacts(true);
-      if (keyword.endsWith('.find')) {
-        await checkDomain(0, keyword);
-        setSearched(true);
-      } else if (keyword.endsWith('.fn')) {
-        await checkDomain(1, keyword);
-        setSearched(true);
-      } else if (keyword.endsWith('.meow')) {
-        await checkDomain(2, keyword);
-        setSearched(true);
-      }
-    } else {
-      setHasNoFilteredContacts(false);
-    }
+    setFilteredContacts(filtered);
+    setHasNoFilteredContacts(isEmpty(filtered));
+    console.log('recentContacts', filtered);
   };
 
-  const handleClick = (eachgroup) => {
-    const isEvmAddress = isValidEthereumAddress(eachgroup.address);
+  const handleTransactionRedirect = useCallback(
+    (address: string) => {
+      if (isValidAddress(address)) {
+        const pathname = `/dashboard/wallet/send/${address}`;
 
-    const pathname = isEvmAddress ? '/dashboard/wallet/sendEth' : '/dashboard/wallet/sendAmount';
+        history.push({
+          pathname,
+        });
+      } else {
+        console.error('Invalid address', address);
+      }
+    },
+    [history]
+  );
+  // Handle the click of a contact
+  const handleContactClick = useCallback(
+    (contact: Contact) => {
+      handleTransactionRedirect(contact.address);
+    },
+    [handleTransactionRedirect]
+  );
 
-    history.push({
-      pathname: pathname,
-      state: { contact: eachgroup },
-    });
-  };
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      fetchAddressBook();
+    }
+  }, [fetchAddressBook]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -437,7 +289,7 @@ const Send = () => {
             </Typography>
           </Grid>
           <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
-            <IconButton onClick={() => window.open('https://wallet.flow.com/contact', '_blank')}>
+            <IconButton onClick={() => window.open('https://usewallet.flow.com/contact', '_blank')}>
               <Tooltip title={chrome.i18n.getMessage('Need__Help')} arrow>
                 <HelpOutlineRoundedIcon sx={{ color: 'icon.navi' }} />
               </Tooltip>
@@ -519,54 +371,21 @@ const Send = () => {
                   <RecentList
                     filteredContacts={recentContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
-
-                      history.push({
-                        pathname: pathname,
-                        state: { contact: eachgroup },
-                      });
-                    }}
+                    handleClick={handleContactClick}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={1} dir={theme.direction}>
                   <AddressBookList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
-
-                      history.push({
-                        pathname: pathname,
-                        state: { contact: eachgroup },
-                      });
-                    }}
+                    handleClick={handleContactClick}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={2} dir={theme.direction}>
                   <AccountsList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={(eachgroup) => {
-                      const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                      const pathname = isEvmAddress
-                        ? '/dashboard/wallet/sendeth'
-                        : '/dashboard/wallet/sendAmount';
-
-                      history.push({
-                        pathname: pathname,
-                        state: { contact: eachgroup },
-                      });
-                    }}
+                    handleClick={handleContactClick}
                   />
                 </TabPanel>
               </SwipeableViews>
@@ -608,25 +427,13 @@ const Send = () => {
               <AddressBookList
                 filteredContacts={filteredContacts}
                 isLoading={isLoading}
-                handleClick={(eachgroup) => {
-                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                  const pathname = isEvmAddress
-                    ? '/dashboard/wallet/sendeth'
-                    : '/dashboard/wallet/sendAmount';
-
-                  history.push({
-                    pathname: pathname,
-                    state: { contact: eachgroup },
-                  });
-                }}
+                handleClick={handleContactClick}
               />
             )}
 
             {searched && !searchContacts.length && (
               <ListItem sx={{ backgroundColor: '#000000' }}>
                 <ListItemAvatar sx={{ marginRight: '8px', minWidth: '20px' }}>
-                  {/* <CardMedia sx={{ width:'18px', height:'18px'}} image={empty} />   */}
                   <IconAbout size={20} color="#E54040" />
                 </ListItemAvatar>
                 <ListItemText>
@@ -646,18 +453,7 @@ const Send = () => {
               <SearchList
                 searchContacts={searchContacts}
                 isLoading={isLoading}
-                handleClick={(eachgroup) => {
-                  const isEvmAddress = isValidEthereumAddress(eachgroup.address);
-
-                  const pathname = isEvmAddress
-                    ? '/dashboard/wallet/sendeth'
-                    : '/dashboard/wallet/sendAmount';
-
-                  history.push({
-                    pathname: pathname,
-                    state: { contact: eachgroup },
-                  });
-                }}
+                handleClick={handleContactClick}
               />
             )}
           </div>

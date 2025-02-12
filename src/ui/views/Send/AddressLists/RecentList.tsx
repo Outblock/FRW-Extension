@@ -5,7 +5,7 @@ import React from 'react';
 import emptyAddress from 'ui/assets/emptyAddress.svg';
 import { isEmoji } from 'ui/utils';
 
-import { LLContactCard, FWContactCard } from '../../FRWComponent';
+import { LLContactCard, FWContactCard } from '../../../FRWComponent';
 
 const RecentList = ({ filteredContacts, isLoading, handleClick }) => {
   return (
