@@ -9,7 +9,7 @@ import { CopyButton } from 'ui/FRWComponent';
 import { formatAddress, HexToDecimalConverter } from 'ui/utils';
 
 import IconFlow from '../../../../../../components/iconfont/IconFlow';
-
+import IconWithPlaceholder from '../EthApprovalComponents/IconWithPlaceholder';
 const convertToFlow = (value) => {
   return Number(HexToDecimalConverter(value)) / 1_000_000_000_000_000_000;
 };
@@ -18,15 +18,7 @@ export const TransactionBlock = ({ title, data, logo, lilicoEnabled, decodedCall
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <Box sx={{ display: 'flex', gap: '18px', marginBottom: '0px' }}>
-        <img
-          style={{
-            height: '60px',
-            width: '60px',
-            borderRadius: '12px',
-            backgroundColor: 'text.secondary',
-          }}
-          src={logo ? logo : placeholder}
-        />
+        <IconWithPlaceholder imageUrl={logo} />
         <Stack direction="column" spacing={1} sx={{ justifyContent: 'space-between' }}>
           <Typography color="text.secondary" sx={{ fontSize: '12px' }}>
             Sign Transaction from

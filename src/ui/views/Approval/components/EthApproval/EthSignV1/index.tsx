@@ -10,6 +10,8 @@ import { LLConnectLoading, LLLinkingLoading } from '@/ui/FRWComponent';
 import { LLPrimaryButton, LLSecondaryButton } from 'ui/FRWComponent';
 import { useApproval, useWallet } from 'ui/utils';
 
+import IconWithPlaceholder from '../EthApprovalComponents/IconWithPlaceholder';
+
 interface ConnectProps {
   params: any;
 }
@@ -177,11 +179,8 @@ const EthSignV1 = ({ params }: ConnectProps) => {
           >
             {params.session && (
               <Box sx={{ marginBottom: '2px', display: 'flex' }}>
-                <CardMedia
-                  image={params.session.icon}
-                  sx={{ width: '64px', height: '64px', marginRight: '16px' }}
-                />
-                <Box>
+                <IconWithPlaceholder imageUrl={params.session.icon} />
+                <Box sx={{ marginLeft: '16px' }}>
                   <Typography sx={{ fontSize: '12px', color: '#737373' }}>
                     Sign Type Message from
                   </Typography>
