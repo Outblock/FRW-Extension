@@ -60,18 +60,15 @@ const SendToCadence = ({
   handleSwitchFiatOrCoin: () => void;
   handleMaxClick: () => void;
 }) => {
+  console.log('SendToCadence ');
   const history = useHistory();
   const wallet = useWallet();
   const { currentNetwork: network } = useNetworkStore();
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [validated, setValidated] = useState<any>(null);
-  const [childType, setChildType] = useState<ActiveChildType>(null);
 
   const checkAddress = useCallback(
     async (toAddress: string) => {
-      const child = await wallet.getActiveWallet();
-      setChildType(child);
-
       //wallet controller api
       try {
         const address = withPrefix(toAddress);

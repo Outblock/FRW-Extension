@@ -231,9 +231,7 @@ const Send = () => {
 
   const handleTransactionRedirect = (contact: Contact) => {
     const isEvmAddress = isValidEthereumAddress(contact.address);
-    const pathname = isEvmAddress
-      ? '/dashboard/wallet/sendeth'
-      : `/dashboard/wallet/send/${contact.address}`;
+    const pathname = `/dashboard/wallet/send/${contact.address}`;
 
     // Set transaction destination network and address
     useTransactionStore.getState().setToNetwork(isEvmAddress ? 'Evm' : 'Cadence');

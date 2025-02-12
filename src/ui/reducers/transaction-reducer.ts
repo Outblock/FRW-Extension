@@ -106,6 +106,13 @@ export const getTransactionStateString = (state: TransactionState): TransactionS
   return `${state.tokenType}From${state.fromNetwork}To${state.toNetwork}`;
 };
 
+const updateTxState = (state: TransactionState): TransactionState => {
+  return {
+    ...state,
+    currentTxState: getTransactionStateString(state),
+  };
+};
+
 export const transactionReducer = (
   state: TransactionState,
   action: TransactionAction
@@ -119,26 +126,27 @@ export const transactionReducer = (
         : fromAddress === rootAddress
           ? 'Cadence'
           : 'Child';
-      return { ...state, rootAddress, fromAddress, fromNetwork, fromContact };
+      return updateTxState({ ...state, rootAddress, fromAddress, fromNetwork, fromContact });
     }
     case 'setSelectedToken': {
       // Set the token type based on the token symbol
       const tokenType = action.payload.tokenInfo.symbol.toLowerCase() !== 'flow' ? 'FT' : 'Flow';
-      return {
+      return updateTxState({
         ...state,
         selectedToken: action.payload.tokenInfo,
         tokenType,
         coinInfo: action.payload.coinInfo,
-      };
+      });
     }
     case 'setToAddress': {
       const { address, contact } = action.payload;
-      const toNetwork = isValidEthereumAddress(address)
-        ? 'Evm'
-        : address === state.rootAddress
-          ? 'Cadence'
-          : 'Child';
-      return { ...state, toAddress: address, toNetwork, toContact: contact };
+      const toNetwork = isValidEthereumAddress(address) ? 'Evm' : 'Cadence';
+      return updateTxState({
+        ...state,
+        toAddress: address,
+        toNetwork,
+        toContact: contact,
+      });
     }
     case 'setFiatOrCoin': {
       return { ...state, fiatOrCoin: action.payload };
@@ -171,7 +179,10 @@ export const transactionReducer = (
           payload: state.coinInfo.balance.toString(),
         }
       );
-      return { ...stateInCoinWithMaxAmount, fiatOrCoin: 'fiat' };
+      return {
+        ...stateInCoinWithMaxAmount,
+        fiatOrCoin: 'fiat',
+      };
     }
     case 'setAmount': {
       // Validate the amount

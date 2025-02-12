@@ -170,9 +170,7 @@ const InnerRoute = (props: RouteComponentProps) => {
             <PrivateRoute path={`${props.match.url}/wallet/deposit`}>
               <Deposit />
             </PrivateRoute>
-            <PrivateRoute path={`${props.match.url}/wallet/sendeth`}>
-              <SendToEVM />
-            </PrivateRoute>
+
             <PrivateRoute path={`${props.match.url}/token/:id`}>
               <TokenDetail />
             </PrivateRoute>

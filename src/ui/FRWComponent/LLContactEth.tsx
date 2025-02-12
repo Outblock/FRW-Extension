@@ -135,7 +135,7 @@ export const LLContactEth = ({ contact, hideCloseButton, isSend = false, isLoadi
           <IconButton
             onClick={(e) => {
               e.stopPropagation();
-              history.push('/dashboard/wallet/sendeth');
+              history.push(`/dashboard/wallet/send/${contact.address}`);
             }}
           >
             <CardMedia sx={{ width: '11px', height: '11px' }} image={closex} />

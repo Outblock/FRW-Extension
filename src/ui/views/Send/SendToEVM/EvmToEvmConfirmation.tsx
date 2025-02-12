@@ -83,7 +83,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
     setOccupied(false);
   }, []);
 
-  const transferToken = useCallback(async () => {
+  const transferTokensOnEvm = useCallback(async () => {
     const network = await usewallet.getNetwork();
     //Transaction TODO: tokeninfo getting directly from api using tokenSymbol, need to add filter on contractName and address
     const tokenResult = await usewallet.openapi.getTokenInfo(props.data.tokenSymbol, network);
@@ -138,6 +138,23 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
       setErrorMessage(err.message);
     }
   }, [history, props, usewallet]);
+
+  const transferTokens = useCallback(async () => {
+    try {
+      setSending(true);
+      switch (props.data.currentTxState) {
+        case 'FlowFromEvmToEvm':
+        case 'FTFromEvmToEvm':
+          await transferTokensOnEvm();
+          break;
+        default:
+          throw new Error(`Unsupported transaction state: ${props.data.currentTxState}`);
+      }
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      setFailed(true);
+    }
+  }, [transferTokensOnEvm, props.data.currentTxState]);
 
   const transactionDoneHandler = useCallback(
     (request) => {
@@ -314,7 +331,7 @@ const EvmToEvmConfirmation = (props: EvmConfirmationProps) => {
         isLowStorageAfterAction={isLowStorageAfterAction}
       />
       <Button
-        onClick={transferToken}
+        onClick={transferTokens}
         disabled={sending || occupied}
         variant="contained"
         color="success"

@@ -14,7 +14,7 @@ import SendToEvm from '../SendToEVM';
 
 export const SendTo = () => {
   // Remove or use only in development
-  // console.log('SendTo');
+  console.log('SendTo');
 
   const wallet = useWallet();
   const { mainAddress, currentWallet, userInfo } = useProfileStore();
@@ -34,6 +34,7 @@ export const SendTo = () => {
       username: '',
       avatar: '',
     },
+    toNetwork: isValidEthereumAddress(toAddress) ? 'Evm' : 'Cadence',
   });
 
   const handleTokenChange = useCallback(
@@ -74,6 +75,20 @@ export const SendTo = () => {
           },
         },
       });
+      // Setup the to address
+      dispatch({
+        type: 'setToAddress',
+        payload: {
+          address: toAddress as WalletAddress,
+          contact: {
+            id: 0,
+            address: toAddress as WalletAddress,
+            contact_name: '',
+            username: '',
+            avatar: '',
+          },
+        },
+      });
       // Set the token to the default token
       handleTokenChange(INITIAL_TRANSACTION_STATE.selectedToken.symbol);
     }
@@ -84,29 +99,42 @@ export const SendTo = () => {
     userInfo?.username,
     userInfo?.avatar,
     handleTokenChange,
+    toAddress,
   ]);
 
-  const handleAmountChange = (amount: string) => {
-    dispatch({
-      type: 'setAmount',
-      payload: amount,
-    });
-  };
+  const handleAmountChange = useCallback(
+    (amount: string) => {
+      dispatch({
+        type: 'setAmount',
+        payload: amount,
+      });
+    },
+    [dispatch]
+  );
 
-  const handleSwitchFiatOrCoin = () => {
+  const handleSwitchFiatOrCoin = useCallback(() => {
     dispatch({
       type: 'switchFiatOrCoin',
     });
-  };
+  }, [dispatch]);
 
-  const handleMaxClick = () => {
+  const handleMaxClick = useCallback(() => {
     dispatch({
       type: 'setAmountToMax',
     });
-  };
-  if (isValidEthereumAddress(transactionState.toAddress)) {
-    //return <SendToEvm transactionState={transactionState} />;
-  } else if (isValidFlowAddress(transactionState.toAddress)) {
+  }, [dispatch]);
+
+  if (isValidEthereumAddress(toAddress)) {
+    return (
+      <SendToEvm
+        transactionState={transactionState}
+        handleAmountChange={handleAmountChange}
+        handleTokenChange={handleTokenChange}
+        handleSwitchFiatOrCoin={handleSwitchFiatOrCoin}
+        handleMaxClick={handleMaxClick}
+      />
+    );
+  } else if (isValidFlowAddress(toAddress)) {
     return (
       <SendToCadence
         transactionState={transactionState}

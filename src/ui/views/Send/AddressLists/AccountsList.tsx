@@ -31,8 +31,6 @@ const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true 
     setupAccounts();
   }, [filteredContacts, setupAccounts]);
 
-  const history = useHistory();
-
   return (
     <Box sx={{ height: '100%' }}>
       {!isEmpty(accountList) &&

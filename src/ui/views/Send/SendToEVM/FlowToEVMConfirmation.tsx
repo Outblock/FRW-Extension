@@ -25,7 +25,6 @@ interface ToEthConfirmationProps {
 const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
   const wallet = useWallet();
   const history = useHistory();
-  const { currentTxState, selectedToken } = useTransactionStore();
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [, setErrorMessage] = useState<string | null>(null);
@@ -113,13 +112,13 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
 
     const value = new BN(props.data.amount).decimalPlaces(8, BN.ROUND_DOWN).toString();
 
-    const address = selectedToken!.address.startsWith('0x')
-      ? selectedToken!.address.slice(2)
-      : selectedToken!.address;
+    const address = props.data.selectedToken!.address.startsWith('0x')
+      ? props.data.selectedToken!.address.slice(2)
+      : props.data.selectedToken!.address;
 
     wallet
       .transferFTToEvmV2(
-        `A.${address}.${selectedToken!.contractName}.Vault`,
+        `A.${address}.${props.data.selectedToken!.contractName}.Vault`,
         value,
         props.data.contact.address
       )
@@ -144,12 +143,12 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
         setFailed(true);
       });
     // Depending on history is probably not great
-  }, [history, props, wallet, selectedToken]);
+  }, [history, props, wallet]);
 
   const transferTokens = useCallback(async () => {
     try {
       setSending(true);
-      switch (currentTxState) {
+      switch (props.data.currentTxState) {
         case 'FlowFromCadenceToEvm':
           await transferFlowFromCadenceToEvm();
           break;
@@ -157,13 +156,13 @@ const FlowToEVMConfirmation = (props: ToEthConfirmationProps) => {
           await transferFTFromCadenceToEvm();
           break;
         default:
-          throw new Error(`Unsupported transaction state: ${currentTxState}`);
+          throw new Error(`Unsupported transaction state: ${props.data.currentTxState}`);
       }
     } catch (error) {
       console.error('Transaction failed:', error);
       setFailed(true);
     }
-  }, [transferFlowFromCadenceToEvm, transferFTFromCadenceToEvm, currentTxState]);
+  }, [transferFlowFromCadenceToEvm, transferFTFromCadenceToEvm, props.data.currentTxState]);
 
   const transactionDoneHandler = useCallback(
     (request) => {
