@@ -34,9 +34,9 @@ import SearchList from '../../Send/SearchList';
 import SendNFTConfirmation from './SendNFTConfirmation';
 
 export enum SendPageTabOptions {
+  Accounts = 'Accounts',
   Recent = 'Recent',
   AddressBook = 'AddressBook',
-  Accounts = 'Accounts',
 }
 
 const useStyles = makeStyles((_theme) => ({
@@ -509,6 +509,17 @@ const SendToAddress = () => {
                 style={{ height: '100%', width: '100%' }}
               >
                 <TabPanel value={tabValue} index={0} dir={theme.direction}>
+                  <AccountsList
+                    filteredContacts={filteredContacts}
+                    isLoading={isLoading}
+                    handleClick={(eachgroup) => {
+                      searchResult = eachgroup;
+                      setConfirmationOpen(true);
+                    }}
+                    isSend={false}
+                  />
+                </TabPanel>
+                <TabPanel value={tabValue} index={1} dir={theme.direction}>
                   <RecentList
                     filteredContacts={recentContacts}
                     isLoading={isLoading}
@@ -518,7 +529,7 @@ const SendToAddress = () => {
                     }}
                   />
                 </TabPanel>
-                <TabPanel value={tabValue} index={1} dir={theme.direction}>
+                <TabPanel value={tabValue} index={2} dir={theme.direction}>
                   <AddressBookList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
@@ -526,17 +537,6 @@ const SendToAddress = () => {
                       searchResult = eachgroup;
                       setConfirmationOpen(true);
                     }}
-                  />
-                </TabPanel>
-                <TabPanel value={tabValue} index={2} dir={theme.direction}>
-                  <AccountsList
-                    filteredContacts={filteredContacts}
-                    isLoading={isLoading}
-                    handleClick={(eachgroup) => {
-                      searchResult = eachgroup;
-                      setConfirmationOpen(true);
-                    }}
-                    isSend={false}
                   />
                 </TabPanel>
               </SwipeableViews>

@@ -9,6 +9,7 @@ import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useProfileStore } from '@/ui/stores/profileStore';
+import { TokenValue } from '@/ui/views/TokenDetail/TokenValue';
 import { type CoinItem } from 'background/service/coinList';
 import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
@@ -132,10 +133,6 @@ const SendAmount = () => {
     setLoading(false);
   }, [setLoading, setValidated, location?.state?.contact?.address, usewallet]);
 
-  const numberWithCommas = (x) => {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
-
   const updateCoinInfo = useCallback(() => {
     const coin = coinList.find((coin) => coin.unit.toLowerCase() === currentCoin.toLowerCase());
     if (coin) {
@@ -244,12 +241,9 @@ const SendAmount = () => {
                       fontSize: '15px',
                     }}
                   >
-                    {(Math.round(coinInfo.balance * 100) / 100).toFixed(2) +
-                      ' ' +
-                      coinInfo.unit.toUpperCase() +
-                      ' ≈ ' +
-                      '$ ' +
-                      coinInfo.total}
+                    <TokenValue value={coinInfo.balance} postFix={coinInfo.unit.toUpperCase()} />
+                    {' ≈ '}
+                    <TokenValue value={coinInfo.total} prefix={'$'} />
                   </Typography>
                 </Box>
               </>

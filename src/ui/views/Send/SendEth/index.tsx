@@ -15,6 +15,7 @@ import { LLContactCard } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
 import CancelIcon from '../../../../components/iconfont/IconClose';
+import { TokenValue } from '../../TokenDetail/TokenValue';
 import TransferAmount from '../TransferAmount';
 
 import EvmConfirmation from './EvmConfirmation';
@@ -245,12 +246,9 @@ const SendEth = () => {
                       fontSize: '15px',
                     }}
                   >
-                    {(Math.round(coinInfo.balance * 100) / 100).toFixed(2) +
-                      ' ' +
-                      coinInfo.unit.toUpperCase() +
-                      ' ≈ ' +
-                      '$ ' +
-                      coinInfo.total}
+                    <TokenValue value={coinInfo.balance} postFix={coinInfo.unit.toUpperCase()} />
+                    {' ≈ '}
+                    <TokenValue value={coinInfo.total} prefix={'$'} />
                   </Typography>
                 </Box>
               </>

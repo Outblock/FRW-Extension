@@ -14,6 +14,8 @@ import IconNext from 'ui/FRWAssets/svg/next.svg';
 import { LLSpinner, LLProfile, FRWProfile } from 'ui/FRWComponent';
 import { useWallet } from 'ui/utils';
 
+import { TokenValue } from '../../TokenDetail/TokenValue';
+
 interface ToEthConfirmationProps {
   isConfirmationOpen: boolean;
   data: any;
@@ -274,7 +276,10 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
             variant="body1"
             sx={{ fontSize: '18px', fontWeight: '400', textAlign: 'end' }}
           >
-            {props.data.amount} {props.data.coinInfo.unit}
+            <TokenValue
+              value={props.data.amount}
+              postFix={props.data.coinInfo.unit.toUpperCase()}
+            />
           </Typography>
         </Stack>
         <Stack direction="column" spacing={1}>
@@ -283,7 +288,7 @@ const ToEthConfirmation = (props: ToEthConfirmationProps) => {
             color="info"
             sx={{ fontSize: '14px', fontWeight: 'semi-bold', textAlign: 'end' }}
           >
-            $ {props.data.secondAmount}
+            <TokenValue value={props.data.secondAmount} prefix={'$'} />
           </Typography>
         </Stack>
       </Box>

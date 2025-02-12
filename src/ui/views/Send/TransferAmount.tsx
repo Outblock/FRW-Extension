@@ -1,4 +1,3 @@
-import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 import {
   Box,
   Typography,
@@ -20,6 +19,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import SlideRelative from '@/ui/FRWComponent/SlideRelative';
 import { useCoinStore } from '@/ui/stores/coinStore';
+import { TokenValue } from '@/ui/views/TokenDetail/TokenValue';
 
 import CancelIcon from '../../../components/iconfont/IconClose';
 import IconFlow from '../../../components/iconfont/IconFlow';
@@ -182,7 +182,7 @@ const TransferAmount = ({
             setExceed(false);
           }
         }
-        const value = new BN(amount).times(new BN(coinInfo.price)).toFixed(3);
+        const value = new BN(amount).times(new BN(coinInfo.price)).toFixed(18);
         setSecondAmount(value);
       }
     }
@@ -328,11 +328,12 @@ const TransferAmount = ({
           >
             <Typography>≈</Typography>
             {coinType ? (
-              <IconFlow size={16} />
+              <>
+                <IconFlow size={16} /> <TokenValue value={amount} />
+              </>
             ) : (
-              <AttachMoneyRoundedIcon style={{ fontSize: '16px' }} color="secondary" />
+              <TokenValue value={secondAmount} prefix={'$'} />
             )}
-            {coinType ? <Typography>{amount}</Typography> : <Typography>{secondAmount}</Typography>}
             <IconButton onClick={swap}>
               <IconSwitch size={14} />
             </IconButton>
