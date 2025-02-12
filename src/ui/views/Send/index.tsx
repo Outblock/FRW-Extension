@@ -25,7 +25,13 @@ import { useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
 import { type Contact } from '@/shared/types/network-types';
-import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { type WalletAddress } from '@/shared/types/wallet-types';
+import {
+  withPrefix,
+  isValidEthereumAddress,
+  isValidAddress,
+  isValidFlowAddress,
+} from '@/shared/utils/address';
 import { useContactHook } from '@/ui/hooks/useContactHook';
 import { useContactStore } from '@/ui/stores/contactStore';
 import { useTransactionStore } from '@/ui/stores/transactionStore';
@@ -217,31 +223,39 @@ const Send = () => {
       return false;
     });
 
-    const checkAddress = keyword.trim();
-    if (checkAddress) {
-      const contact = findContact(checkAddress);
-      if (contact) {
-        handleTransactionRedirect(contact);
-      }
+    const trimmedSearchTerm = keyword.trim();
+    // Check if they've entered a valid address
+    if (isValidAddress(trimmedSearchTerm)) {
+      // Yep, they've entered a valid address
+      const address = trimmedSearchTerm as WalletAddress;
+      handleTransactionRedirect(address);
     }
     setFilteredContacts(filtered);
     setHasNoFilteredContacts(isEmpty(filtered));
     console.log('recentContacts', filtered);
   };
 
-  const handleTransactionRedirect = (contact: Contact) => {
-    const isEvmAddress = isValidEthereumAddress(contact.address);
-    const pathname = `/dashboard/wallet/send/${contact.address}`;
+  const handleTransactionRedirect = useCallback(
+    (address: string) => {
+      if (isValidAddress(address)) {
+        const pathname = `/dashboard/wallet/send/${address}`;
 
-    // Set transaction destination network and address
-    useTransactionStore.getState().setToNetwork(isEvmAddress ? 'Evm' : 'Cadence');
-    useTransactionStore.getState().setToAddress(contact.address);
-
-    history.push({
-      pathname,
-      state: { contact },
-    });
-  };
+        history.push({
+          pathname,
+        });
+      } else {
+        console.error('Invalid address', address);
+      }
+    },
+    [history]
+  );
+  // Handle the click of a contact
+  const handleContactClick = useCallback(
+    (contact: Contact) => {
+      handleTransactionRedirect(contact.address);
+    },
+    [handleTransactionRedirect]
+  );
 
   useEffect(() => {
     fetchAddressBook();
@@ -351,21 +365,21 @@ const Send = () => {
                   <RecentList
                     filteredContacts={recentContacts}
                     isLoading={isLoading}
-                    handleClick={handleTransactionRedirect}
+                    handleClick={handleContactClick}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={1} dir={theme.direction}>
                   <AddressBookList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={handleTransactionRedirect}
+                    handleClick={handleContactClick}
                   />
                 </TabPanel>
                 <TabPanel value={tabValue} index={2} dir={theme.direction}>
                   <AccountsList
                     filteredContacts={filteredContacts}
                     isLoading={isLoading}
-                    handleClick={handleTransactionRedirect}
+                    handleClick={handleContactClick}
                   />
                 </TabPanel>
               </SwipeableViews>
@@ -407,7 +421,7 @@ const Send = () => {
               <AddressBookList
                 filteredContacts={filteredContacts}
                 isLoading={isLoading}
-                handleClick={handleTransactionRedirect}
+                handleClick={handleContactClick}
               />
             )}
 
@@ -433,7 +447,7 @@ const Send = () => {
               <SearchList
                 searchContacts={searchContacts}
                 isLoading={isLoading}
-                handleClick={handleTransactionRedirect}
+                handleClick={handleContactClick}
               />
             )}
           </div>
