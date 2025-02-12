@@ -7,11 +7,12 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  CardMedia,
 } from '@mui/material';
 import React from 'react';
 import Highlight from 'react-highlight';
 
-import placeholder from 'ui/FRWAssets/image/placeholder.png';
+import IconWithPlaceholder from '../EthApprovalComponents/IconWithPlaceholder';
 
 export const DefaultBlock = ({ title, host, data, logo }) => {
   const hexToString = (hex) => {
@@ -38,15 +39,7 @@ export const DefaultBlock = ({ title, host, data, logo }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <Box sx={{ display: 'flex', gap: '18px', marginBottom: '0px' }}>
-        <img
-          style={{
-            height: '60px',
-            width: '60px',
-            borderRadius: '12px',
-            backgroundColor: 'text.secondary',
-          }}
-          src={logo ? logo : placeholder}
-        />
+        <IconWithPlaceholder imageUrl={logo} />
         <Stack direction="column" spacing={1} sx={{ justifyContent: 'space-between' }}>
           <Typography>{title}</Typography>
           <Typography color="secondary.main" variant="overline">

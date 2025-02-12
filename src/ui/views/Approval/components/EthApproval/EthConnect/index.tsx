@@ -11,6 +11,7 @@ import { LLPrimaryButton, LLSecondaryButton, LLSpinner, LLConnectLoading } from 
 import { useApproval, useWallet, formatAddress } from 'ui/utils';
 
 import CheckCircleIcon from '../../../../../../components/iconfont/IconCheckmark';
+import IconWithPlaceholder from '../EthApprovalComponents/IconWithPlaceholder';
 
 // import EthMove from '../EthMove';
 
@@ -153,16 +154,7 @@ const EthConnect = ({ params: { icon, name, origin } }: ConnectProps) => {
           {isEvm && (
             <Box sx={{ display: 'flex', flexDirection: 'column', margin: '18px', gap: '18px' }}>
               <Box sx={{ display: 'flex', gap: '18px', marginBottom: '0px' }}>
-                <CardMedia
-                  component="img"
-                  sx={{
-                    height: '60px',
-                    width: '60px',
-                    borderRadius: '12px',
-                    backgroundColor: 'text.secondary',
-                  }}
-                  image={icon}
-                />
+                <IconWithPlaceholder imageUrl={icon} />
                 <Stack direction="column" sx={{ justifyContent: 'space-between' }}>
                   <Typography
                     sx={{
