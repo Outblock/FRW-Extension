@@ -136,16 +136,14 @@ export function useContactHook() {
     }
   }, [walletList, childAccounts, mainAddress, evmAddress, evmWallet, contactStore]);
 
-  const findContact = useCallback(
+  const useContact = useCallback(
     (address: string): Contact | null => {
-      const { recentContacts, accountList, evmAccounts, childAccounts, filteredContacts } =
-        contactStore;
       return (
-        recentContacts.find((c) => c.address === address) ||
-        accountList.find((c) => c.address === address) ||
-        evmAccounts.find((c) => c.address === address) ||
-        childAccounts.find((c) => c.address === address) ||
-        filteredContacts.find((c) => c.address === address) ||
+        contactStore.recentContacts.find((c) => c.address === address) ||
+        contactStore.accountList.find((c) => c.address === address) ||
+        contactStore.evmAccounts.find((c) => c.address === address) ||
+        contactStore.childAccounts.find((c) => c.address === address) ||
+        contactStore.filteredContacts.find((c) => c.address === address) ||
         null
       );
     },
@@ -159,6 +157,6 @@ export function useContactHook() {
     updateFromContact,
     fetchAddressBook,
     setupAccounts,
-    findContact,
+    useContact,
   };
 }

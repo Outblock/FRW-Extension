@@ -1,35 +1,24 @@
 import { List, ListSubheader, ButtonBase, Box } from '@mui/material';
 import { groupBy, isEmpty } from 'lodash';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
 import { LLContactCard, LLContactEth, FWContactCard } from '@/ui/FRWComponent';
 import { useContactHook } from '@/ui/hooks/useContactHook';
 import { useContactStore } from '@/ui/stores/contactStore';
-import { useProfileStore } from '@/ui/stores/profileStore';
-import { useWallet } from 'ui/utils';
-
-type ChildAccount = {
-  [key: string]: {
-    name: string;
-    description: string;
-    thumbnail: {
-      url: string;
-    };
-  };
-};
 
 const AccountsList = ({ filteredContacts, isLoading, handleClick, isSend = true }) => {
   const { accountList, evmAccounts, childAccounts } = useContactStore();
   const { setupAccounts } = useContactHook();
-  const [, setGrouped] = useState<any>([]);
+  const mounted = useRef(false);
 
   useEffect(() => {
-    const group = groupBy(filteredContacts, (contact) => contact.contact_name[0]);
-    setGrouped(group);
-    setupAccounts();
-  }, [filteredContacts, setupAccounts]);
+    if (!mounted.current) {
+      mounted.current = true;
+      setupAccounts();
+    }
+  }, [setupAccounts]);
 
   return (
     <Box sx={{ height: '100%' }}>

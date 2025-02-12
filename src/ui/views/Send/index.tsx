@@ -1,3 +1,4 @@
+import { ChangeHistory } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import SearchIcon from '@mui/icons-material/Search';
@@ -20,12 +21,12 @@ import {
 import { useTheme, styled, StyledEngineProvider } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import { isEmpty } from 'lodash';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
 
 import { type Contact } from '@/shared/types/network-types';
-import { withPrefix, isValidEthereumAddress } from '@/shared/utils/address';
+import { withPrefix, isValidEthereumAddress, isValidFlowAddress } from '@/shared/utils/address';
 import { useContactHook } from '@/ui/hooks/useContactHook';
 import { useContactStore } from '@/ui/stores/contactStore';
 import { useTransactionStore } from '@/ui/stores/transactionStore';
@@ -132,13 +133,15 @@ const Send = () => {
     setSearchContacts,
     setHasNoFilteredContacts,
   } = useContactStore();
-  const { findContact, fetchAddressBook } = useContactHook();
+  const { fetchAddressBook } = useContactHook();
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [searchKey, setSearchKey] = useState<string>('');
   const [searched, setSearched] = useState<boolean>(false);
+
+  const mounted = useRef(false);
 
   const checkContain = (searchResult: Contact) => {
     if (sortedContacts.some((e) => e.contact_name === searchResult.username)) {
@@ -218,11 +221,11 @@ const Send = () => {
     });
 
     const checkAddress = keyword.trim();
-    if (checkAddress) {
-      const contact = findContact(checkAddress);
-      if (contact) {
-        handleTransactionRedirect(contact);
-      }
+    if (isValidFlowAddress(checkAddress) || isValidEthereumAddress(checkAddress)) {
+      const checkedAdressContact = searchResult;
+      checkedAdressContact.address = checkAddress;
+
+      handleTransactionRedirect(checkedAdressContact);
     }
     setFilteredContacts(filtered);
     setHasNoFilteredContacts(isEmpty(filtered));
@@ -244,7 +247,10 @@ const Send = () => {
   };
 
   useEffect(() => {
-    fetchAddressBook();
+    if (!mounted.current) {
+      mounted.current = true;
+      fetchAddressBook();
+    }
   }, [fetchAddressBook]);
 
   return (
