@@ -30,7 +30,7 @@ const IconWithPlaceholder: React.FC<IconWithPlaceholderProps> = ({
       image={imageUrl}
       onError={(e) => {
         e.currentTarget.onerror = null;
-        e.currentTarget.src = flowgrey;
+        e.currentTarget.src = `https://www.google.com/s2/favicons?sz=256&domain_url=${imageUrl}`;
       }}
     />
   );
