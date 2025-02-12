@@ -70,3 +70,49 @@ export const getMaxDecimals = (currentTxState: string | undefined) => {
   if (!currentTxState) return 8;
   return DecimalMappingValues[currentTxState as keyof typeof DecimalMappingValues];
 };
+
+export const stripEnteredAmount = (value: string, maxDecimals: number) => {
+  // Remove minus signs and non-digit/non-decimal characters
+  const cleanValue = value.replace(/[^\d.]/g, '');
+
+  // Find the first decimal point and ignore everything after a second one
+  const firstDecimalIndex = cleanValue.indexOf('.');
+  if (firstDecimalIndex !== -1) {
+    const beforeDecimal = cleanValue.slice(0, firstDecimalIndex).replace(/^0+/, '');
+    const afterDecimalParts = cleanValue.slice(firstDecimalIndex + 1).split('.');
+    const afterDecimal = afterDecimalParts.length > 0 ? afterDecimalParts[0] : '';
+
+    // Handle integer part
+    const integerPart = beforeDecimal === '' ? '0' : beforeDecimal;
+
+    // Handle decimal part
+    const trimmedDecimal = afterDecimal.slice(0, maxDecimals);
+
+    return trimmedDecimal ? `${integerPart}.${trimmedDecimal}` : `${integerPart}.`;
+  }
+
+  // No decimal point case
+  return cleanValue === '' ? '' : cleanValue === '0' ? '0' : cleanValue.replace(/^0+/, '');
+};
+
+export const stripFinalAmount = (value: string, maxDecimals: number) => {
+  const strippedValue = stripEnteredAmount(value, maxDecimals);
+
+  // Return '0' for empty string
+  if (strippedValue === '') {
+    return '0';
+  }
+
+  // Remove trailing decimal point and zeros after decimal
+  if (strippedValue.includes('.')) {
+    const [integerPart, decimalPart] = strippedValue.split('.');
+    if (!decimalPart) {
+      return integerPart;
+    }
+
+    const trimmedDecimal = decimalPart.replace(/0+$/, '');
+    return trimmedDecimal ? `${integerPart}.${trimmedDecimal}` : integerPart;
+  }
+
+  return strippedValue;
+};

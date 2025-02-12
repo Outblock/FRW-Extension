@@ -218,7 +218,7 @@ const SendEth = () => {
             >
               {chrome.i18n.getMessage('Transfer__Amount')}
             </Typography>
-            {coinInfo.unit && (
+            {/*     {coinInfo.unit && (
               <TransferAmount
                 coinList={coins}
                 amount={amount}
@@ -230,7 +230,7 @@ const SendEth = () => {
                 coinInfo={coinInfo}
                 setCurrentCoin={fetchAndSetToken}
               />
-            )}
+            )} */}
 
             {coinInfo.unit && (
               <>

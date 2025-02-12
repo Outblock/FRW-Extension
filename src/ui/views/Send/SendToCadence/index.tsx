@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { type Contact } from '@/shared/types/network-types';
+import { type TransactionState } from '@/shared/types/transaction-types';
 import { type ActiveChildType, type CoinItem } from '@/shared/types/wallet-types';
 import { withPrefix } from '@/shared/utils/address';
 import { LLHeader } from '@/ui/FRWComponent';
@@ -46,100 +47,49 @@ const EMPTY_COIN: CoinItem = {
   icon: '',
 };
 
-const SendToCadence = () => {
+const SendToCadence = ({
+  transactionState,
+  handleAmountChange,
+  handleTokenChange,
+  handleSwitchFiatOrCoin,
+  handleMaxClick,
+}: {
+  transactionState: TransactionState;
+  handleAmountChange: (amountString: string) => void;
+  handleTokenChange: (tokenAddress: string) => void;
+  handleSwitchFiatOrCoin: () => void;
+  handleMaxClick: () => void;
+}) => {
   const history = useHistory();
-  const location = useLocation<ContactState>();
-  const usewallet = useWallet();
-  const { childAccounts, currentWallet, userInfo } = useProfileStore();
-  const { coins: coinList } = useCoinStore();
+  const wallet = useWallet();
   const { currentNetwork: network } = useNetworkStore();
-  const { selectedToken, setFromNetwork, toAddress, setTokenType } = useTransactionStore();
-  const { fetchAndSetToken } = useTransactionHook();
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
-  const [exceed, setExceed] = useState(false);
-  const [amount, setAmount] = useState<string>('0');
-  const [secondAmount, setSecondAmount] = useState('0.0');
   const [validated, setValidated] = useState<any>(null);
-  const [senderContact, setUserContact] = useState<Contact>(USER_CONTACT);
-  const [coinInfo, setCoinInfo] = useState<CoinItem>(EMPTY_COIN);
-  const [isLoading, setLoading] = useState<boolean>(false);
   const [childType, setChildType] = useState<ActiveChildType>(null);
 
-  const setUserWallet = useCallback(async () => {
-    // const walletList = await storage.get('userWallet');
-    setLoading(true);
-    setFromNetwork(currentWallet.address);
-    const token = selectedToken!.symbol;
-    if (token !== 'flow') {
-      setTokenType('FT');
-    } else {
-      setTokenType('Flow');
-    }
+  const checkAddress = useCallback(
+    async (toAddress: string) => {
+      const child = await wallet.getActiveWallet();
+      setChildType(child);
 
-    // userWallet
-    const coinInfo = coinList.find((coin) => coin.unit.toLowerCase() === token.toLowerCase());
-    console.log('coinInfo ', coinInfo);
-
-    setCoinInfo(coinInfo!);
-
-    const userContact = { ...USER_CONTACT };
-    userContact.address = withPrefix(currentWallet.address) || '';
-    userContact.avatar = userInfo?.avatar || '';
-    userContact.contact_name = userInfo?.username || '';
-    setUserContact(userContact);
-  }, [
-    coinList,
-    selectedToken,
-    setCoinInfo,
-    setFromNetwork,
-    setUserContact,
-    setTokenType,
-    currentWallet,
-    userInfo,
-  ]);
-
-  const checkAddress = useCallback(async () => {
-    const child = await usewallet.getActiveWallet();
-    setChildType(child);
-
-    //wallet controller api
-    try {
-      const address = withPrefix(toAddress);
-      const validatedResult = await usewallet.checkAddress(address!);
-      setValidated(validatedResult);
-      return validatedResult;
-    } catch (err) {
-      setValidated(false);
-    }
-    setLoading(false);
-  }, [setLoading, setValidated, toAddress, usewallet]);
-
-  const updateCoinInfo = useCallback(() => {
-    const coin = coinList.find(
-      (coin) => coin.unit.toLowerCase() === selectedToken?.symbol.toLowerCase()
-    );
-    if (selectedToken?.symbol.toLowerCase() !== 'flow') {
-      setTokenType('FT');
-    } else {
-      setTokenType('Flow');
-    }
-
-    if (coin) {
-      setCoinInfo(coin);
-    }
-  }, [coinList, selectedToken, setTokenType, setCoinInfo]);
+      //wallet controller api
+      try {
+        const address = withPrefix(toAddress);
+        const validatedResult = await wallet.checkAddress(address!);
+        setValidated(validatedResult);
+        return validatedResult;
+      } catch (err) {
+        console.error('checkAddress error', err);
+        setValidated(false);
+      }
+    },
+    [wallet]
+  );
 
   useEffect(() => {
-    checkAddress();
-  }, [checkAddress]);
-
-  useEffect(() => {
-    setUserWallet();
-  }, [childType, setUserWallet]);
-
-  useEffect(() => {
-    updateCoinInfo();
-  }, [selectedToken, updateCoinInfo]);
+    // validate the address when the to address changes
+    checkAddress(transactionState.toAddress);
+  }, [transactionState.toAddress, checkAddress]);
 
   return (
     <div className="page">
@@ -149,11 +99,11 @@ const SendToCadence = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', px: '16px' }}>
             <Box>
               <Box sx={{ zIndex: 999, backgroundColor: '#121212' }}>
-                <LLContactCard
-                  contact={location.state.contact}
+                {/* <LLContactCard
+                  contact={transactionState.toContact}
                   hideCloseButton={false}
                   isSend={true}
-                />
+                /> */}
               </Box>
               {validated !== null &&
                 (validated ? (
@@ -195,21 +145,17 @@ const SendToCadence = () => {
             >
               {chrome.i18n.getMessage('Transfer__Amount')}
             </Typography>
-            {coinInfo.unit && (
+            {transactionState.coinInfo.unit && (
               <TransferAmount
-                coinList={coinList}
-                amount={amount}
-                setAmount={setAmount}
-                secondAmount={secondAmount}
-                setSecondAmount={setSecondAmount}
-                exceed={exceed}
-                setExceed={setExceed}
-                coinInfo={coinInfo}
-                setCurrentCoin={fetchAndSetToken}
+                transactionState={transactionState}
+                handleAmountChange={handleAmountChange}
+                handleTokenChange={handleTokenChange}
+                handleSwitchFiatOrCoin={handleSwitchFiatOrCoin}
+                handleMaxClick={handleMaxClick}
               />
             )}
 
-            {coinInfo.unit && (
+            {transactionState.coinInfo.unit && (
               <>
                 <Typography
                   variant="body1"
@@ -222,7 +168,10 @@ const SendToCadence = () => {
                 </Typography>
 
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <CardMedia sx={{ width: '18px', height: '18px' }} image={coinInfo.icon} />
+                  <CardMedia
+                    sx={{ width: '18px', height: '18px' }}
+                    image={transactionState.coinInfo.icon}
+                  />
                   <Typography
                     variant="body1"
                     sx={{
@@ -230,12 +179,12 @@ const SendToCadence = () => {
                       fontSize: '15px',
                     }}
                   >
-                    {(Math.round(coinInfo.balance * 100) / 100).toFixed(2) +
+                    {(Math.round(transactionState.coinInfo.balance * 100) / 100).toFixed(2) +
                       ' ' +
-                      coinInfo.unit.toUpperCase() +
+                      transactionState.coinInfo.unit.toUpperCase() +
                       ' ≈ ' +
                       '$ ' +
-                      coinInfo.total}
+                      transactionState.coinInfo.total}
                   </Typography>
                 </Box>
               </>
@@ -279,9 +228,9 @@ const SendToCadence = () => {
               }}
               disabled={
                 validated === null ||
-                exceed === true ||
-                amount === null ||
-                new BN(amount || '-1').isLessThanOrEqualTo(0)
+                transactionState.balanceExceeded === true ||
+                transactionState.amount === null ||
+                new BN(transactionState.amount || '-1').isLessThanOrEqualTo(0)
               }
             >
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.primary">
@@ -293,12 +242,12 @@ const SendToCadence = () => {
             <TransferConfirmation
               isConfirmationOpen={isConfirmationOpen}
               data={{
-                contact: location.state.contact,
-                amount: amount,
-                secondAmount: secondAmount,
-                userContact: senderContact,
-                tokenSymbol: selectedToken?.symbol,
-                coinInfo: coinInfo,
+                contact: transactionState.toContact,
+                amount: transactionState.amount,
+                secondAmount: transactionState.fiatAmount,
+                userContact: transactionState.fromContact,
+                tokenSymbol: transactionState.selectedToken?.symbol,
+                coinInfo: transactionState.coinInfo,
                 childType,
               }}
               handleCloseIconClicked={() => setConfirmationOpen(false)}
