@@ -78,12 +78,12 @@ export const stripEnteredAmount = (value: string, maxDecimals: number) => {
   // Find the first decimal point and ignore everything after a second one
   const firstDecimalIndex = cleanValue.indexOf('.');
   if (firstDecimalIndex !== -1) {
-    const beforeDecimal = cleanValue.slice(0, firstDecimalIndex);
-    const afterDecimal = cleanValue.slice(firstDecimalIndex + 1).replace(/\./g, '');
+    const beforeDecimal = cleanValue.slice(0, firstDecimalIndex).replace(/^0+/, '');
+    const afterDecimalParts = cleanValue.slice(firstDecimalIndex + 1).split('.');
+    const afterDecimal = afterDecimalParts.length > 0 ? afterDecimalParts[0] : '';
 
     // Handle integer part
-    const integerPart =
-      beforeDecimal === '' ? '0' : beforeDecimal === '0' ? '0' : beforeDecimal.replace(/^0+/, '');
+    const integerPart = beforeDecimal === '' ? '0' : beforeDecimal;
 
     // Handle decimal part
     const trimmedDecimal = afterDecimal.slice(0, maxDecimals);
